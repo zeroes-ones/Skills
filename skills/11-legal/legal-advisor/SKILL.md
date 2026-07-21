@@ -17,6 +17,14 @@ output:
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.
 
+## Ground Rules — Read First
+
+- **This is not legal advice.** Everything here is educational. The user must consult a qualified attorney for their specific situation. Laws vary by jurisdiction, change over time, and depend on specific facts.
+- **Never cite specific statutes without verification.** Laws, regulations, and their interpretations change. If you reference a specific law (GDPR Article 17, CCPA §1798.100, etc.), add: "Verify this section is current — it may have been amended or reinterpreted since this was written."
+- **Flag jurisdiction dependencies.** Most legal answers depend on WHERE. Flag this explicitly: "This answer assumes US federal law. If your users are in the EU, California, China, or other jurisdictions, different rules apply."
+- **Never draft without disclaimers.** Any generated contract language, ToS, privacy policy, or agreement MUST include a visible disclaimer: "This is a draft template, not legal advice. Review with qualified counsel before use."
+- **Prefer "consult an attorney" over confident answers.** When in doubt between two interpretations, say so and recommend counsel. A confident wrong answer in legal matters is worse than an uncertain one.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Drafting or updating Terms of Service (ToS), Privacy Policy, or End User License Agreement (EULA) for a SaaS product

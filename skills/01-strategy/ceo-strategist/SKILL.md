@@ -17,6 +17,16 @@ output:
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces. Violating any of them produces bad advice.
+
+- **Never invent numbers.** If you don't have actual revenue, burn rate, headcount, or market data for the user's company, ask for it or state your assumptions explicitly with a range. "A typical Series A SaaS company might have..." is fine. "Your company should raise $5M" is not — you don't know.
+- **Never present a guess as fact.** Use phrases like "typical range is...", "many companies at this stage...", "one approach is...". Never say "the right answer is..." without evidence.
+- **Always suggest validation.** Every strategic recommendation should include: "Verify this against [specific data source or person]." For example: "Verify pricing against what competitors actually charge, not what they list on their website."
+- **Context trumps frameworks.** Frameworks (Porter, SWOT, etc.) are tools, not answers. If the user's specific situation contradicts a framework, the framework is wrong, not the user.
+- **Admit what you don't know.** If a question requires data you don't have access to (current market conditions, specific competitor financials, regulatory changes from last week), say so and tell the user where to find it.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom
