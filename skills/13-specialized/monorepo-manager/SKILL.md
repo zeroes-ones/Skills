@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - monorepo-manager
-token_budget: 3501
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -28,6 +28,14 @@ Veteran's playbook for designing, configuring, and optimizing monorepo architect
 - You are migrating from polyrepo to monorepo and need a strategy for history preservation and gradual adoption
 - Your monorepo has grown to 50+ packages and you need to refactor the structure, tooling, or dependency graph
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When the agent identifies a specific monorepo need, drill into the relevant sub-skill rather than reading the full SKILL.md. Each sub-skill has dedicated references, tooling, and checklists.
@@ -42,7 +50,8 @@ When the agent identifies a specific monorepo need, drill into the relevant sub-
 | **Versioning & Release** | Changesets workflow, independent vs fixed versioning, `semantic-release` monorepo setup, changelog generation | `npx changeset version` |
 | **Monorepo Migration** | Polyrepo → monorepo strategy, `git filter-repo` for history preservation, `git subtree`, gradual adoption risk mitigation | `git filter-repo --path packages/my-lib --to-subdirectory-filter packages/my-lib` |
 
-> **Token-saving rule:** Load sub-skill references on demand. If debugging cache misses → only read the build orchestration section. If setting up CI → only read the CI/CD section.
+> **Token-saving rule:** Load sub-skill references on demand. If <!-- DEEP: 10+min -->
+debugging cache misses → only read the build orchestration section. If setting up CI → only read the CI/CD section.
 
 ## Tool Selection & Decision Matrix
 
@@ -491,6 +500,9 @@ module.exports = {
 };
 ```
 
+
+**What good looks like:** `npm run build -- --filter=[changed]` completes in under 3 minutes. Remote cache hit rate > 70%. CI pipeline runs only affected projects. Developer onboarding to add a new package is documented and takes < 30 minutes.
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Monorepo management touches every development team. A monorepo tooling change affects everyone's daily workflow — coordination isn't optional.
@@ -533,11 +545,14 @@ Monorepo management touches every development team. A monorepo tooling change af
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Chaos experiment took down production | Blast radius not contained | Always run with abort conditions: max failure duration, user segment limit, automatic rollback. Start in staging. |
+| Monorepo build takes 30+ minutes | No build caching or affected-project detection | Turborepo/Nx with remote caching. Only build projects affected by a change. CI should cache `node_modules`. |
+| Migration causes data loss | No rollback plan tested before cutover | Every migration must have: tested rollback script, full backup before cutover, incremental validation during migration. |
+| Performance fix didn't help | Wrong bottleneck identified | Profile before optimizing. Use flame graphs, not guesses. Measure p50/p95/p99 before and after every change. |
+| Documentation already obsolete by publish | Docs separate from code | Move docs into the codebase. Auto-generate API reference from OpenAPI/TypeScript types. Review docs in the same PR as code changes. |
+| Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. |
 
 
 ## Production Checklist

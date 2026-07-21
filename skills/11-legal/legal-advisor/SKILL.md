@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - legal-advisor
-token_budget: 3279
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -326,6 +326,14 @@ Legal department (2-5+). Full IP management: patent prosecution, trademark enfor
 | Small → Medium | Series A, 50+ employees, IP litigation threat, or international expansion | Hire in-house counsel; build IP portfolio (patents + Madrid marks); implement CLM |
 | Medium → Enterprise | IPO prep, M&A, multi-country regulatory overlay, or legal team >3 | Build legal department; establish OSPO; add compliance team; formalize litigation management |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -342,11 +350,15 @@ Legal department (2-5+). Full IP management: patent prosecution, trademark enfor
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Contract signed with unfavorable terms | Missing redline on key clauses | Never sign first draft. Redline: liability cap, indemnification, termination for convenience, IP ownership, data processing. |
+| No BAA with HIPAA-covered vendor | Assumed vendor had one | Verify BAA before sharing any PHI. Retroactive BAA does not cover data already shared. |
+| GDPR fine exposure | No data inventory or lawful basis documented | Document every data field, its purpose, lawful basis, retention period, and third-party sharing. |
+| Open source license violation | Dependency used in proprietary product | Check license compatibility: GPL/AGPL is not compatible with proprietary distribution. Use only MIT/Apache 2.0/BSD in proprietary products. |
+| Employee classification lawsuit | Contractor treated as employee | IRS 20-factor test. If contractor works exclusively, uses company equipment, and has set hours → they're an employee. |
+| Privacy policy doesn't match app behavior | Policy written before features built | Policy must reflect actual data collection. Conduct pre-release audit: every permission request maps to a policy disclosure. |
+| Jurisdiction conflict for international users | Terms only reference one country | Specify governing law AND dispute resolution. EU users need GDPR compliance regardless of where you're based. |
 
 
 ## Production Checklist
@@ -418,6 +430,9 @@ Are you fundraising or being acquired within 12 months?
 ├── YES → IP audit NOW: trademark filings, open-source license clean, all contractor IP assigned.
 └── NO → Maintain good practices. Audit annually.
 ```
+
+
+**What good looks like:** All customer-facing legal documents (ToS, Privacy Policy, EULA) published and versioned. Contract template library covers MSA, DPA, and SOW with standard redlines. Clickwrap consent recorded with timestamps. GDPR data map documents every data field and its lawful basis.
 
 ## When NOT to Use This Skill (Overkill)
 

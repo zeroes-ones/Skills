@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - backend-developer
-token_budget: 1227
+token_budget: 2835
 output:
   type: "code"
   path_hint: "./"
@@ -140,6 +140,14 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 - Solo → Small: You're the bottleneck. Hire backend dev #2.
 - Small → Medium: P95 latency > 200ms sustained. DB CPU > 60%. Team can't ship independently.
 - Medium → Enterprise: 3+ teams need to coordinate per deploy. Compliance mandates separation of concerns.
+
+
+### Cross-skills Integration
+```bash
+# Design API → Build → Test → Deploy → Monitor
+/api-designer && /backend-developer && /qa-engineer && /ci-cd-builder && /observability-engineer
+# Each stage validates the previous: contract tests verify the API, canary verifies the deploy.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

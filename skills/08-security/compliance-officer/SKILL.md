@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - compliance-officer
-token_budget: 1220
+token_budget: 2625
 output:
   type: "code"
   path_hint: "./"
@@ -116,6 +116,14 @@ Time to audit?
 3. For findings: acknowledge, categorize by severity, define a corrective action plan (CAP) with deadlines, and implement.
 4. After certification: maintain the compliance posture continuously, not just before audits.
 5. Schedule quarterly internal reviews, annual external surveillance audits (ISO), and continuous monitoring.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - migration-architect
-token_budget: 3134
+token_budget: 2010
 output:
   type: "code"
   path_hint: "./"
@@ -29,6 +29,14 @@ This is not a theory document. Every section contains specific code, commands, s
 - You are running a parallel verification — comparing old system output against new system output — before cutting over
 - You need to backfill or transform 100K+ rows of data with checkpointing, batching, and consistency verification
 - You are migrating a large codebase and need a phased plan with stakeholder communication, risk assessment, and testing gates
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
@@ -303,7 +311,7 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Migration cost/time exceeds original estimate by >100% | **CTO Advisor** + Project Manager + Stakeholders | Re-baseline; build vs buy vs maintain re-evaluation |
 | Compliance/regulatory issue discovered in migrated data | **Legal Advisor** + Security Reviewer + Regulatory Specialist | Regulatory exposure; may require data remediation or disclosure |
 
-## 10. Production Checklist
+## Production Checklist
 
 - [ ] **Inventory complete:** all databases, services, cron jobs, consumers, and dependencies documented with row counts, throughput estimates, and coupling scores
 - [ ] **Migration pattern selected** with documented rationale and scored using the decision matrix (expand-contract, strangler, parallel run, blue-green, rehost, refactor)
@@ -407,11 +415,26 @@ python3 scripts/monitor_replication.py --threshold-ms 2000 --output json
 # Exit code 0 = lag below threshold, 1 = threshold exceeded (pause migration)
 ```
 
+
+**What good looks like:** Migration plan with phases, rollback steps at each phase, and success criteria. Data integrity verified with pre/post migration checks. Cutover window < 2 hours. Rollback tested and timed. Stakeholder communication plan distributed.
+
 **Principle:** `migration_check.py` analyzes database metadata, outputs JSON. Agent applies decision tree to select pattern. Validation uses exit codes (dry-run, drift check). Monitoring script checks replication lag programmatically during execution.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 1. **Expand-Contract for every schema change:** Add → dual-write → backfill → switch reads → remove old. Never drop a column in the same deploy that adds its replacement.
+
+### Error Decoder
+
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Migration script fails mid-batch | No checkpointing or rollback | Batch with checkpointing (save progress every 1K rows). Process/restart at checkpoint. Each migration must have up and down scripts tested in CI. |
+| Data loss after cutover | Dual-write not verified before cut | Run reconciliation before cutover: row counts match, checksums match, business-level queries pass. All three must pass before removing old system. |
+| Schema migration takes down production | Direct ALTER TABLE on large table causing long lock | Use online schema change tools: `gh-ost` for MySQL, `pgroll` for PostgreSQL, `pt-online-schema-change` for Percona. Run `CREATE INDEX CONCURRENTLY` instead of blocking `CREATE INDEX`. |
+| Replication lag spikes during backfill | Unthrottled write load to source database | Throttle backfill: 1K-10K rows per batch with configurable sleep. Monitor lag: if lag > 2s, pause migration. Set `MAX_REPLICATION_LAG=2` as abort trigger. |
+| Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. Add 50% buffer to initial estimate. |
+| Rollback does not restore data fully | Reverse sync never tested | Test rollback in staging: full up-and-down cycle. For dual-write phase, maintain reverse sync (new → old). Before cutover, verify reverse sync processes all writes. |
+| Feature flag for migration doesn't toggle in production | Flag not deployed alongside migration code | Deploy feature flag config as code change, separate from migration script. Validate flag toggle in production-read replica before migration window. Kill switch must work in <30 seconds. |
 2. **Test rollbacks before you need them:** Every migration must pass CI: apply up → run tests → roll back → run tests. If rollback can't be tested, it doesn't exist.
 3. **Start with low-risk components first:** Migrate your least critical, least coupled service first. Learn from it. Don't start with the payment system.
 4. **Batch data migration with checkpointing:** Process 1K-10K rows per batch with a sleep interval. Save checkpoint after each batch. A failed 100M-row migration must resume, not restart.
@@ -419,7 +442,8 @@ python3 scripts/monitor_replication.py --threshold-ms 2000 --output json
 6. **Bake period scales with blast radius:** DB-only change → 24h bake. API migration → 48h. Full-stack → 72h minimum. Never decommission old system before bake completes.
 7. **Monitor replication lag during migration:** Lag >2s → throttle or pause migration. The old system is your rollback — don't let it fall behind.
 8. **Consistency verification is non-negotiable:** Row counts match. Checksums match. Business-level reconciliation queries pass. All three must pass before cutover.
-9. **Never migrate and refactor simultaneously:** Either lift-and-shift (same logic, new platform) OR refactor-and-migrate (new logic). Doing both at once makes debugging impossible.
+9. **Never migrate and refactor simultaneously:** Either lift-and-shift (same logic, new platform) OR refactor-and-migrate (new logic). Doing both at once makes <!-- DEEP: 10+min -->
+debugging impossible.
 10. **Conduct a pre-mortem before every migration:** "The migration failed. What went wrong?" Write down the top 3 causes. Those are your rollback triggers and monitoring priorities.
 
 ## References

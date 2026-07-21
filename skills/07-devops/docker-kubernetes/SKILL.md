@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - docker-kubernetes
-token_budget: 1977
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -186,6 +186,14 @@ service mesh integration, security hardening, and traffic management.
 4. Use request timeouts, circuit breakers, and retries at the sidecar level to implement resilience patterns.
 5. Ingress: use cert-manager with Let's Encrypt for automatic TLS; external-dns for automatic Route53/Cloud DNS record creation.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -234,6 +242,9 @@ Security policy violation (privileged pod)? → Security Engineer → Compliance
 Image registry unavailable? → Cloud Architect → DevOps Engineer
 Persistent node failures? → Cloud Architect (cloud provider escalation)
 ```
+
+
+**What good looks like:** Docker image builds in under 5 minutes and is under 200MB. Kubernetes manifests pass `kubeval` validation. Pod startup time < 10 seconds. Liveness and readiness probes configured on every deployment. Resource requests and limits set on every container.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

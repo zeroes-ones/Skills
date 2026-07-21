@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - observability-engineer
-token_budget: 3081
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -186,6 +186,9 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
    Budget < 5%: Full freeze, notify VP Engineering
    ```
 
+
+**What good looks like:** Every service emits structured logs, metrics, and traces. Grafana dashboard shows RED metrics (Rate/Errors/Duration) per service. Alert fires within 60 seconds of SLO violation. p99 latency tracked and trended weekly.
+
 5. **Stack Selection Decision**:
    ```
    Self-managed?
@@ -357,7 +360,8 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
    → Search logs for order_id → find trace_id → Tempo: full waterfall
    → Identify: CheckoutService → PaymentService timeout (3000ms exceeded)
    → Drill into PaymentService logs by trace_id → DB connection pool exhausted
-   → Root cause: connection pool leak in PaymentService v2.3.0
+   → <!-- DEEP: 10+min -->
+Root cause: connection pool leak in PaymentService v2.3.0
    ```
 
 5. **Baggage Propagation** — Pass business context across service boundaries:
@@ -472,6 +476,14 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
 
 3. **Dashboard Review Process** — Quarterly: which dashboards have zero views in 90 days? Archive or consolidate. Which dashboards have high view counts but low utility? Redesign.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -528,7 +540,8 @@ Cardinality explosion degrading Prometheus? → DevOps Engineer → Cloud Archit
 - **Recording rules for expensive PromQL** — Pre-compute percentiles, aggregations, and joins. Reduce dashboard load time from 30s to < 1s.
 - **Trace all async boundaries** — Span links for Kafka messages, background jobs, cron tasks. Without this, traces break at async boundaries.
 - **Dashboard as code** — Terraform Grafana provider, Grafonnet, or JSON in Git. No click-ops dashboard creation.
-- **Log with context, not just messages** — Every log line should enable debugging without additional queries. Include `trace_id`, `user_id` (hashed), `order_id`, `error.stack`.
+- **Log with context, not just messages** — Every log line should enable <!-- DEEP: 10+min -->
+debugging without additional queries. Include `trace_id`, `user_id` (hashed), `order_id`, `error.stack`.
 - **Alert on burn rate, not SLO compliance** — SLO is a 28-day window; by the time it drops, budget is exhausted. Burn rate gives early warning.
 - **Monthly fire-drills** — Test the full alerting chain: synthetic failure → Prometheus alert → Alertmanager → PagerDuty → on-call acknowledges → runbook followed.
 

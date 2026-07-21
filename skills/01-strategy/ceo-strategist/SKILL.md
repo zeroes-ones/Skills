@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - ceo-strategist
-token_budget: 1522
+token_budget: 3285
 output:
   type: "code"
   path_hint: "./"
@@ -36,6 +36,14 @@ These rules apply to *every* response this skill produces. Violating any of them
 - Business model validation and pivoting decisions
 - M&A evaluation: buy-side and sell-side strategy
 - Company-building through MVP → Growth → Scale phases
+
+
+### Cross-skills Integration
+```bash
+# CEO vision → Product strategy → Spec → Build
+/ceo-strategist && /product-strategist && /product-manager && /system-architect
+# CEO vision defines the "why" — everything downstream executes against it.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
@@ -65,6 +73,9 @@ Are you solving a venture-scale problem? (TAM > $1B?)
         ├── NO → Wait. Raise when you have momentum.
         └── YES → Raise. But only what you need for 18-24 months.
 ```
+
+
+**What good looks like:** A written strategy document that a first-time reader can summarize in 2 sentences. Cap table projection shows 18-month runway with 3 funding scenarios. Team structure chart has names, roles, and reporting lines for the next 2 hires.
 
 ### When NOT to Raise VC
 - [ ] TAM < $1B (VCs need massive outcomes to return their fund)
@@ -252,11 +263,15 @@ Functional level (tactical: org change, process issue, vendor decision)
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Market timing wrong | Product launched too early (no demand) or too late (crowded) | Run demand validation with 10+ paid pre-orders before building; use Wardley Map to time your entry |
+| Team can't execute | Key hires missing, wrong incentives, no clear owner | Hire for the next 6 months' problems, not the last 6 months'; DRI model with written OKRs |
+| Runway < 12 months | Burn rate exceeds plan, revenue slower than projected | Cut burn to 18-month runway immediately; model best/worst/realistic case scenarios |
+| Investor pass | Pitch doesn't articulate defensible moat | Lead with TAM → problem → traction → team → ask. Your demo is not your pitch. |
+| Board misalignment | Founder/board disagree on strategy | Pre-board one-on-ones before every board meeting. Surface disagreement in the room, not after. |
+| Scaling prematurely | Growing team/features before PMF | Sean Ellis test: < 40% "very disappointed" if product disappeared → do not scale |
+| Co-founder conflict | Roles, equity, or vision disagreement | Written founder agreement with vesting, roles, decision rights, and exit terms |
 
 
 ## Production Checklist

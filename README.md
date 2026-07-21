@@ -181,7 +181,8 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — which skills to invoke at each of 10 phases |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 150+ sub-skills across all domains with industry variations |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error decoders, war stories, and 8 quality tests |
-| [`scripts/upgrade_to_10.py`](scripts/upgrade_to_10.py) | Batch upgrade tool — applies progressive disclosure, token budgets, error decoders, and checklist numbering to all 56 skills |
+| [`scripts/upgrade_to_10.py`](scripts/upgrade_to_10.py) | First-pass upgrade — applies progressive disclosure, token budgets, error decoders, and checklist numbering |
+| [`scripts/upgrade_to_10_v2.py`](scripts/upgrade_to_10_v2.py) | Second-pass upgrade — domain-specific error decoders, what-good-looks-like, cross-skill integration, token budget tuning |
 
 ## Contributing
 
@@ -200,7 +201,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`, `type`, `version`, `updated`, `token_budget`
 7. No fluff — if a sentence doesn't help someone DO something, cut it
 8. Test with at least one AI agent before submitting
-9. After manual edits, run `python3 scripts/upgrade_to_10.py` to re-sync progressive disclosure markers and validation
+9. After manual edits, run `python3 scripts/upgrade_to_10.py && python3 scripts/upgrade_to_10_v2.py` to re-sync all quality markers
 
 ## License
 

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - ux-researcher
-token_budget: 1488
+token_budget: 2400
 output:
   type: "code"
   path_hint: "./"
@@ -61,6 +61,9 @@ Sample size decision?
 ├── Quantitative (surveys, unmoderated tests) → 30+ participants per segment
 └── Mixed methods → 5-8 qual + 30-50 quant. Triangulate findings.
 ```
+
+
+**What good looks like:** Research plan with falsifiable hypotheses. 5+ user interviews completed with transcripts and recordings. Findings synthesized into 3-5 key insights with direct quotes. Recommendations linked to specific design decisions.
 
 ### When NOT to Do Formal Research
 
@@ -164,6 +167,14 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 - **Small → Medium**: PMs and designers need dedicated research support. >10K users across segments.
 - **Medium → Enterprise**: Global user base requires multi-language research. Regulatory requirements for user data handling. >100K users.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
@@ -179,11 +190,15 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Stakeholder rejects spec | Spec solves wrong problem or misses context | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing before solution. |
+| Dev estimates don't match spec | Spec has hidden complexity, missing edge cases | Every screen needs loading/empty/error/edge states defined. Ambiguity → estimate buffer. |
+| Users don't use the feature | Built what was asked, not what was needed | Outcome-based specs: "increase X by Y%" not "build Z". User research before writing. |
+| Scope creep during build | Spec didn't define explicit non-goals | "Out of scope" section is non-negotiable. Refer back when scope tries to expand. |
+| No adoption after launch | Success metric not validated before building | Define success metric before writing first user story. Validate with prototype before building. |
+| Cross-team dependency blocks delivery | Spec assumed dependencies would be available | Map all dependencies with owners and dates in the spec. Flag red dependencies to PM weekly. |
+| PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. |
 
 
 ## Production Checklist

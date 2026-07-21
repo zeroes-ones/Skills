@@ -17,6 +17,14 @@ output:
 
 End-to-end performance engineering framework covering profiling, load testing, bottleneck diagnosis, and optimization across the full stack — frontend, backend, database, and infrastructure.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When the agent identifies a specific performance bottleneck, drill into the relevant sub-skill. Each sub-skill has dedicated tools, profiling guides, and optimization playbooks in `references/`.
@@ -498,6 +506,9 @@ export default function () {
 }
 ```
 
+
+**What good looks like:** Performance profile identifies the top 3 bottlenecks ranked by impact. Each optimization includes measured before/after with p50/p95/p99 latency. Load test at 2x peak QPS shows p95 < 500ms. Flame graph available for CPU profiling.
+
 **Soak (Endurance)** — detect memory leaks, connection leaks:
 ```javascript
 export const options = {
@@ -733,11 +744,14 @@ Performance is not a solo activity — it requires instrumentation from develope
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Chaos experiment took down production | Blast radius not contained | Always run with abort conditions: max failure duration, user segment limit, automatic rollback. Start in staging. |
+| Monorepo build takes 30+ minutes | No build caching or affected-project detection | Turborepo/Nx with remote caching. Only build projects affected by a change. CI should cache `node_modules`. |
+| Migration causes data loss | No rollback plan tested before cutover | Every migration must have: tested rollback script, full backup before cutover, incremental validation during migration. |
+| Performance fix didn't help | Wrong bottleneck identified | Profile before optimizing. Use flame graphs, not guesses. Measure p50/p95/p99 before and after every change. |
+| Documentation already obsolete by publish | Docs separate from code | Move docs into the codebase. Auto-generate API reference from OpenAPI/TypeScript types. Review docs in the same PR as code changes. |
+| Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. |
 
 
 ## Production Checklist

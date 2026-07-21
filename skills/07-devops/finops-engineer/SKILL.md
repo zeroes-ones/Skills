@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - finops-engineer
-token_budget: 2314
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -247,6 +247,14 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 - **Coordination**: Weekly FinOps team sync. Monthly FinOps council (FinOps, finance, engineering leads, CTO). Quarterly business review with cloud providers. Budget governance integrated with procurement.
 - **Cost**: $400K-1.2M/year (1-3 FinOps engineers + tools). Multi-cloud cost platform $30-100K/year. Expected savings 20-40% of cloud spend (ROI positive at > $1M/year cloud spend).
 - **Transition trigger**: Monthly bill > $100K; multi-cloud environment; > 100 engineers; public company financial controls; customer-facing SaaS with per-tenant cost sensitivity.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

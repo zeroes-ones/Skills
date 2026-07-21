@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - qa-engineer
-token_budget: 2179
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -26,7 +26,8 @@ Design and implement comprehensive test strategies following the test pyramid mo
 - Performing load/stress testing with k6 or Artillery
 - Establishing code coverage thresholds and quality gates in CI
 - Building test data factories and fixtures for reproducible tests
-- Debugging flaky tests and improving test stability
+- <!-- DEEP: 10+min -->
+Debugging flaky tests and improving test stability
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -248,6 +249,9 @@ Flaky CI pipeline? → CI/CD Builder → DevOps Engineer
 Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 ```
 
+
+**What good looks like:** Test strategy document covers unit (60%), integration (30%), and E2E (10%). All critical user flows have automated E2E tests that pass on every PR. CI blocks on test failure. Coverage > 80% on business logic. Load test handles 2x peak QPS with p95 < 500ms.
+
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
 ### Solo (1 person, 0-100 users)
@@ -274,6 +278,14 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 - **Solo → Small**: First production bug that testing could have caught. Second developer joining.
 - **Small → Medium**: Manual QA cannot keep up with release cadence. First major regression in production. >10K users.
 - **Medium → Enterprise**: Multiple products with independent release cycles. Compliance requires test evidence. >100K users.
+
+
+### Cross-skills Integration
+```bash
+# Spec (defines expected behavior) → Code Review (prevents bugs) → QA (finds remaining bugs) → Deploy
+/idea-to-spec && /code-reviewer && /qa-engineer && /ci-cd-builder
+# Every QA test maps to a spec acceptance criterion. Every regression is a new test.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

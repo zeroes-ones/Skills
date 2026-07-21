@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - security-reviewer
-token_budget: 3750
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -358,6 +358,9 @@ govulncheck ./...                 # Go
 cargo audit                       # Rust
 ```
 
+
+**What good looks like:** OWASP Top 10 checklist completed with zero unmitigated critical/high findings. SAST/SCA scan passes with no exploitable vulnerabilities. Dependency audit shows zero known CVEs in production dependencies. Threat model covers authentication, authorization, data flow, and deployment.
+
 #### Triage: Exploitability x Reachability x Impact
 For each CVE, assess:
 1. **Exploitability**: Public PoC? Actively exploited (CISA KEV)? Attack vector?
@@ -595,6 +598,14 @@ Low / Info?
 - **Solo → Small**: First security incident or enterprise customer asking about security practices.
 - **Small → Medium**: SOC 2 or compliance audit required. First penetration test finding critical issues. >10K users.
 - **Medium → Enterprise**: Regulatory compliance (PCI DSS, HIPAA, FedRAMP). Public breach in similar company. >100K users.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

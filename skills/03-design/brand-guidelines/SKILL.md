@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - brand-guidelines
-token_budget: 3832
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -180,6 +180,9 @@ Decision framework:
 │
 └─ Related products, shared trust? ───────► Endorsed Brand Architecture
 ```
+
+
+**What good looks like:** Brand guidelines document covering logo usage, color palette (with accessibility contrast ratios), typography scale, tone of voice, and example applications. Design token file (JSON/TS) matches the guidelines exactly. Component library follows every rule in the guidelines.
 
 #### 1.2 Brand Strategy Foundation
 
@@ -775,6 +778,14 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 - **Small → Medium**: Multiple products or sub-brands. Design system needs consistent tokens. >10 people creating branded content.
 - **Medium → Enterprise**: International expansion with localization. M&A activity. >50 people creating branded content across markets.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -791,11 +802,15 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Design doesn't match brand | Missing design token reference | Define all colors, spacing, typography as tokens before starting any screen. Style guide → component library. |
+| Accessibility gap found in audit | Not tested during design phase | Test with axe-core during design, not after. Color contrast and heading hierarchy are non-negotiable from the start. |
+| Dev implementation differs from design | No handoff spec beyond mockups | Annotate every element: breakpoints, hover/focus/active states, animation timing, empty states. Zeplin/Figma Dev Mode. |
+| Dark mode breaks screens | Only tested in light mode | Design dark mode in parallel. Every screen must support both from day one. |
+| Component doesn't scale to content | Designed with one data example | Test components with minimum, maximum, and empty content. Real user data, not Lorem Ipsum. |
+| Platform inconsistency (iOS vs Android) | No platform-specific adaptation | iOS uses tab bar (bottom); Android uses navigation bar (top). Design per platform, not pixel-perfect identical. |
+| Motion causes dizziness | Uncontrolled animation | Respect `prefers-reduced-motion`. Use `motion-safe`/`motion-reduce` for all animations. |
 
 
 ## Production Checklist

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - api-designer
-token_budget: 2064
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -167,6 +167,14 @@ Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skil
 3. **Deprecation** — Use `Sunset` and `Deprecation` HTTP headers; emit `Deprecation` notice in API changelog at least 6 months before removal.
 4. **Sunset policy**: vN supported for 12 months after vN+1 release.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
@@ -223,6 +231,9 @@ Breaking API change needed for >50% of consumers
 Minor API addition or non-breaking change
   └── API Designer reviews, team implements. No escalation needed. Changelog and docs updated.
 ```
+
+
+**What good looks like:** OpenAPI 3.1 spec renders cleanly in Swagger UI. Every endpoint has request/response examples and error schemas. Pagination, sorting, and filtering are consistent across all resources. Breaking changes are versioned with a migration guide.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

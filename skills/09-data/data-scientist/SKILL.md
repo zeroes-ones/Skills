@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - data-scientist
-token_budget: 2092
+token_budget: 3975
 output:
   type: "code"
   path_hint: "./"
@@ -266,6 +266,14 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 - **Solo → Small**: Second analyst joins. >100 users making predictive models valuable. First revenue-impacting experiment.
 - **Small → Medium**: 5+ parallel experiments. First production model serving customers. Compliance requirements appear.
 - **Medium → Enterprise**: 20+ data scientists. Model risk management required by regulation. Cross-team experiment interference observed.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

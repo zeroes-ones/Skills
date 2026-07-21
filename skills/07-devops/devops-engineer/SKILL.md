@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - devops-engineer
-token_budget: 3136
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -229,6 +229,9 @@ Do not read the entire skill. Follow the route above and read only the sections 
          kind: deny
    ```
 
+
+**What good looks like:** `terraform plan` produces no unexpected changes. CI/CD pipeline deploys to staging in under 10 minutes and production in under 15. Rollback completes in under 5 minutes. All secrets are managed through a vault — zero plaintext credentials in repo.
+
 4. **Deployment Strategy Decision Tree**:
    ```
    Need zero-downtime deploy?
@@ -421,6 +424,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
 3. **Failover Automation** — Terraform parameterized by `dr_active` boolean. Pipeline: verify replication health → promote replicas → scale compute → flip DNS → validate synthetic transactions.
 
 4. **DR Testing Cadence** — Tabletop monthly, component failover quarterly, full regional failover annually. Measure actual RTO/RPO vs targets; every exercise generates postmortem action items.
+
+
+### Cross-skills Integration
+```bash
+# Architect → Build → Containerize → Deploy → Monitor
+/system-architect && /backend-developer && /docker-kubernetes && /devops-engineer && /observability-engineer
+# Infrastructure is declared as code, reviewed like application code, deployed with the same pipeline.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

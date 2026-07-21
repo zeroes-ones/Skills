@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - technical-writer
-token_budget: 2493
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -202,7 +202,8 @@ Technical documentation system covering the full documentation lifecycle — fro
 1. **Documentation Inventory** — Catalog all existing docs: repository READMEs, wiki pages, `/docs` directories, API specs (OpenAPI, GraphQL), ADRs, runbooks, onboarding materials, blog posts with technical content, internal Google Docs/Notion pages. For each: audience, freshness (last updated), accuracy (% still correct), discoverability (how do people find it?).
 2. **Audience & Needs Mapping** — Identify documentation personas:
    - **New Developer**: setup guide, architecture overview, first contribution walkthrough, coding standards.
-   - **Experienced Developer**: API reference, advanced configuration, debugging guide, performance tuning.
+   - **Experienced Developer**: API reference, advanced configuration, <!-- DEEP: 10+min -->
+debugging guide, performance tuning.
    - **Operator/SRE**: deployment guide, runbooks, monitoring setup, disaster recovery, scaling.
    - **Product/Support**: feature documentation, changelog, known issues, FAQ.
    - **External User** (for public APIs/products): getting started, SDK guides, API reference, tutorials.
@@ -334,6 +335,14 @@ Docs team (3-10+). Enterprise docs platform with SSO, analytics, versioning. Mul
 | Small → Medium | >50 docs pages, multiple products, or >100 support tickets/month traceable to docs gaps | Hire dedicated writer; implement Diátaxis; add content testing |
 | Medium → Enterprise | 3+ languages needed, >100K monthly docs users, or docs-driven revenue (PLG) | Build docs team; implement localization; add docs product management; enterprise platform |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 
 | Sub-Skill | When to Use | Context |
@@ -350,11 +359,15 @@ Docs team (3-10+). Enterprise docs platform with SSO, analytics, versioning. Mul
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Project misses deadline consistently | No buffer for unknowns | Add 20% schedule buffer for every phase. Track actual vs estimated to calibrate future planning. |
+| Stakeholder disengaged | Updates don't answer their questions | Executive updates: progress toward milestones, blocking issues, decisions needed. Not activity reports. |
+| Team demotivated | Retrospectives without action | Every retro must produce at least one action item with an owner. Track follow-through. |
+| Scope keeps growing | No change control process | Formal change request: cost/impact assessment, approval gate, backlog vs current sprint decision. |
+| Documentation nobody reads | Written for completeness, not task completion | Diátaxis framework: Tutorials (learning), How-to guides (tasks), Reference (facts), Explanation (understanding). |
+| Customer churn repeats same issue | Symptoms addressed, root cause ignored | Five Whys on every recurring ticket. Escalate systemic issues, don't just reply to each report. |
+| Cross-team meeting with no outcome | No written agenda or decision log | Every meeting must have: agenda shared 24h before, decision log during, summary sent within 1h of end. |
 
 
 ## Production Checklist
@@ -427,6 +440,9 @@ Do you have >3 writers/contributors and no style guide?
 ├── YES → Write a 1-page style guide. Enforce with Vale in CI. Expand as needed.
 └── NO → 1-2 writers don't need a formal style guide. Consistent voice comes naturally.
 ```
+
+
+**What good looks like:** Documentation site with search, TOC, dark mode, and responsive design. Every page has a clear purpose (tutorial, how-to, reference, or explanation). API reference auto-generated from spec. User feedback collected and incorporated quarterly.
 
 ## When NOT to Use This Skill (Overkill)
 

@@ -311,6 +311,14 @@ In-house DPO + privacy team (2-5). OneTrust Enterprise / BigID. Automated data m
 | Small → Medium | >20 DSARs/month, >50 vendors, or launched in 3+ EU markets | Purchase privacy management platform; hire privacy lead; integrate privacy into SDLC |
 | Medium → Enterprise | 1M+ data subjects, regulatory investigation, or M&A activity | Hire in-house DPO team; pursue ISO 27701; implement BCRs; add AI governance |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -387,6 +395,9 @@ Are you transferring data from EU → non-adequate countries (e.g., US)?
 └── NO → No transfer mechanism needed. Document adequacy decision relied upon.
 ```
 
+
+**What good looks like:** Data inventory complete and reviewed within 6 months. Lawful basis documented for every processing activity. Consent records include timestamps, version of consent presented, and audit trail. DPO appointed (if required). Data subject request process tested and documented.
+
 ## When NOT to Use This Skill (Overkill)
 
 - **No EU users and no plans to launch in EU**: CCPA alone is simpler. GDPR is disproportionately complex for US-only businesses. Don't over-engineer.
@@ -431,11 +442,15 @@ python3 scripts/test_dsar_workflow.py                                  # Exit 0 
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Contract signed with unfavorable terms | Missing redline on key clauses | Never sign first draft. Redline: liability cap, indemnification, termination for convenience, IP ownership, data processing. |
+| No BAA with HIPAA-covered vendor | Assumed vendor had one | Verify BAA before sharing any PHI. Retroactive BAA does not cover data already shared. |
+| GDPR fine exposure | No data inventory or lawful basis documented | Document every data field, its purpose, lawful basis, retention period, and third-party sharing. |
+| Open source license violation | Dependency used in proprietary product | Check license compatibility: GPL/AGPL is not compatible with proprietary distribution. Use only MIT/Apache 2.0/BSD in proprietary products. |
+| Employee classification lawsuit | Contractor treated as employee | IRS 20-factor test. If contractor works exclusively, uses company equipment, and has set hours → they're an employee. |
+| Privacy policy doesn't match app behavior | Policy written before features built | Policy must reflect actual data collection. Conduct pre-release audit: every permission request maps to a policy disclosure. |
+| Jurisdiction conflict for international users | Terms only reference one country | Specify governing law AND dispute resolution. EU users need GDPR compliance regardless of where you're based. |
 
 
 ## Production Checklist
