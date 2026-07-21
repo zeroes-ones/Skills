@@ -1,6 +1,6 @@
 ---
 name: system-architect
-description: System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Trigger: system design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning.
+description: "System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Triggered by system design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning."
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable

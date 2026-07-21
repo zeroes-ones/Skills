@@ -1,6 +1,6 @@
 ---
 name: idea-to-spec
-description: Transform raw product ideas into structured PRDs, data models, API contracts, screen definitions, and work items. Use when converting napkin sketches, feature requests, or brainstorming notes into actionable engineering specs. Triggers: "spec this out", "write a PRD from this idea", "formalize this feature", "idea to spec".
+description: "Transform raw product ideas into structured PRDs, data models, API contracts, screen definitions, and work items. Use when converting napkin sketches, feature requests, or brainstorming notes into actionable engineering specs. Triggered by spec this out, write a PRD from this idea, formalize this feature, idea to spec."
 author: Sandeep Kumar Penchala
 type: product
 status: stable
