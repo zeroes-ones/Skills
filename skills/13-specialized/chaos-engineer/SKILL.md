@@ -2,14 +2,23 @@
 name: chaos-engineer
 description: Chaos experiment design, fault injection (network latency, pod kills, resource exhaustion, AZ failure), blast radius control, steady state hypothesis, GameDays, resilience patterns (circuit breaker, retry, bulkhead), observability for chaos.
 author: Sandeep Kumar Penchala
+type: specialized
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - chaos-engineer
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Chaos Engineer
 
 Systematic resilience verification framework based on Chaos Engineering principles. Covers experiment design, fault injection, blast radius management, GameDay facilitation, resilience pattern validation, and building organizational confidence in system behavior under failure.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When the agent identifies a specific chaos engineering need, drill into the relevant sub-skill. Each sub-skill has dedicated references — the experiment catalog (42 ready-to-use experiments) and the GameDay playbook (complete facilitation guide).
 
 | Sub-Skill | What It Covers | Reference |
@@ -24,7 +33,7 @@ When the agent identifies a specific chaos engineering need, drill into the rele
 > **Token-saving rule:** Planning a GameDay? Load the GameDay playbook (731 lines) and only the experiment catalog entries for the experiments you're running. Don't load tooling deep dives for tools you aren't using. The experiment catalog alone would consume massive tokens if loaded entirely — pick specific experiments.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing a Chaos Engineering practice from scratch — tooling, methodology, cultural buy-in.
 - Designing and executing chaos experiments to verify system resilience hypotheses.
 - Running a GameDay — a planned event where the team responds to injected failures under controlled conditions.
@@ -33,6 +42,142 @@ When the agent identifies a specific chaos engineering need, drill into the rele
 - Validating observability: during a chaos experiment, can you detect, diagnose, and resolve the issue before it affects users?
 - Building resilience scoring for services to prioritize hardening efforts.
 - Preparing for AWS/Azure/GCP regional failures — testing multi-region failover.
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### 1. What to Chaos First
+```
+                     ┌─────────────────────┐
+                     │ START: Pick a service│
+                     └──────────┬──────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │ Ran 3+ incidents in   │
+                    │ last 6 months?        │
+                    └────┬──────────────┬───┘
+                         │ YES          │ NO
+                    ┌────▼────────┐ ┌──▼──────────────────┐
+                    │ Test failure│ │ Does the service have │
+                    │ modes from  │ │ health checks, retries│
+                    │ real post-  │ │ and circuit breakers? │
+                    │ mortems     │ └──┬──────────────┬────┘
+                    └─────────────┘    │ YES          │ NO
+                              ┌────────▼─────┐  ┌─────▼────────┐
+                              │ Start with a │  │ Implement     │
+                              │ staging pod- │  │ resilience    │
+                              │ kill test    │  │ patterns FIRST│
+                              └──────────────┘  └──────────────┘
+```
+**Pick services with incident history** — test the failures you've already experienced before hypothetical ones.  
+**If no resilience patterns exist** — chaos engineering without circuit breakers just proves you're fragile. Build resilience first.
+
+### 2. Experiment Type Selection
+```
+                ┌──────────────────────────────┐
+                │ START: What are you testing?  │
+                └──────────────┬───────────────┘
+                               │
+            ┌──────────────────┼──────────────────┐
+            │                  │                  │
+    ┌───────▼──────┐  ┌───────▼──────┐  ┌───────▼────────┐
+    │ Infrastructure│  │  Dependency  │  │  System-Wide   │
+    │  resilience?  │  │   behavior?  │  │   confidence?  │
+    └───────┬──────┘  └───────┬──────┘  └───────┬────────┘
+            │                 │                  │
+    ┌───────▼──────┐  ┌───────▼──────┐  ┌───────▼────────┐
+    │ Pod kill →   │  │ Network      │  │ AZ failure →   │
+    │ Node drain → │  │ latency →    │  │ Region failover│
+    │ CPU stress   │  │ Packet loss  │  │ → GameDay event│
+    └──────────────┘  └──────────────┘  └────────────────┘
+```
+**Infrastructure tests** verify auto-scaling and self-healing. Start here — they're the safest.  
+**Dependency tests** verify circuit breakers, retries, and timeouts. Run after infra tests pass.  
+**System-wide tests** verify multi-AZ/region failover. Run as GameDays with full team participation.
+
+### 3. Observability Gate
+```
+                  ┌────────────────────────────┐
+                  │ START: Before any experiment│
+                  └─────────────┬──────────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │ Inject fault in staging│
+                    │ for 30 seconds         │
+                    └────────────┬──────────┘
+                                 │
+               ┌─────────────────┼─────────────────┐
+               │ YES             │                  │ NO
+     ┌─────────▼────────┐       │        ┌─────────▼──────────┐
+     │ Can you see it   │       │        │ Fix observability  │
+     │ on the dashboard │       │        │ gap. Document it.  │
+     │ within 2 minutes?│       │        │ Re-test before     │
+     └────────┬─────────┘       │        │ running experiment.│
+              │                 │        └────────────────────┘
+     ┌────────▼────────┐       │
+     │ Does alert fire │       │
+     │ within expected │       │
+     │ time window?    │       │
+     └────┬───────┬────┘       │
+          │YES    │NO          │
+     ┌────▼──┐ ┌──▼──────────┐│
+     │Proceed│ │Tune alert   ││
+     │to prod│ │thresholds   ││
+     └───────┘ └─────────────┘│
+```
+**No observability = no experiment.** If you can't detect the fault, you can't learn from it.  
+**Fix dashboards and alerts before anything else** — running chaos without observability is just breaking things.
+
+### 4. Production Readiness Gate
+```
+                     ┌──────────────────────┐
+                     │ START: Ready for prod?│
+                     └──────────┬───────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │ Staging GameDay       │
+                    │ completed with clear  │
+                    │ learnings?            │
+                    └────┬──────────────┬───┘
+                         │ YES          │ NO
+                    ┌────▼────────┐ ┌──▼──────────────┐
+                    │ Multi-AZ or │ │ Stay in staging. │
+                    │ multi-region│ │ Never run first  │
+                    │ deployment? │ │ experiment in    │
+                    └──┬───────┬──┘ │ production.      │
+                       │YES    │NO  └──────────────────┘
+               ┌───────▼──┐ ┌──▼──────────┐
+               │ Test AZ  │ │ Single-AZ is │
+               │ failover │ │ your bottle- │
+               │ first    │ │ neck. Fix it.│
+               └──────────┘ └──────────────┘
+```
+**Staging GameDay first** — never your first experiment in production.  
+**Multi-AZ/region failover is the highest-value production experiment** — test what protects you from real outages.
+
+### 5. Tool Selection
+```
+                     ┌─────────────────┐
+                     │ START: Pick tool│
+                     └────────┬────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │ Infrastructure is   │
+                    │ 100% Kubernetes?    │
+                    └────┬────────────┬───┘
+                         │ YES        │ NO
+                    ┌────▼──────┐ ┌──▼──────────────┐
+                    │ Budget >$0?│ │ Multi-cloud or  │
+                    └──┬─────┬───┘ │ VMs+bare metal? │
+                       │YES  │NO   └──┬──────────┬───┘
+               ┌───────▼──┐ ┌─▼────┐  │YES       │NO
+               │ Gremlin  │ │Chaos │ ┌▼────────┐┌▼──────┐
+               │ (managed)│ │Mesh  │ │ Gremlin ││AWS FIS│
+               └──────────┘ │(free)│ │(paid)   ││(AWS)  │
+                            └──────┘ └─────────┘└───────┘
+```
+**K8s-only + free → Chaos Mesh or LitmusChaos.**  
+**Multi-platform → Gremlin.**  
+**AWS-only → AWS FIS** (IAM integration, pay-per-action).
 
 ## Principles (Netflix's Original + Modern Evolution)
 
@@ -305,7 +450,7 @@ Before running ANY experiment, verify: you can detect the failure you're about t
 - Without observability, you cannot prove the value of chaos engineering to leadership.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Chaos engineering is inherently cross-team — you break things that other teams built and own. Without coordination, chaos experiments are indistinguishable from attacks or accidents.
 
 | Coordinate With | When | What to Share/Ask |
@@ -343,38 +488,72 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Blast radius control mechanism itself fails (experiment cannot be aborted) | **CTO Advisor** + DevOps Lead | Safety mechanism failure; halt all experiments until fixed |
 | Production chaos experiment proposed for first time | **CTO Advisor** + VP Engineering | Organizational risk decision; executive approval required |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Chaos Engineering principles communicated to engineering leadership; executive buy-in obtained.
+- [ ] **[S2]**  Steady state hypothesis defined for each service: measurable indicators of healthy behavior with specific metric thresholds.
+- [ ] **[S3]**  Fault injection catalog built covering: pod kills, network latency/loss, resource exhaustion, dependency failures, AZ failure, security faults.
+- [ ] **[S4]**  Experiment design template standardized: hypothesis, fault, blast radius, duration, abort conditions, rollback.
+- [ ] **[S5]**  Blast radius controls implemented: traffic %, user segment, infrastructure scope, time-bounded, auto-termination.
+- [ ] **[S6]**  Chaos tooling selected and deployed (Chaos Mesh, Litmus, Gremlin, AWS FIS, or Steadybit) with proper RBAC/scope controls.
+- [ ] **[S7]**  GameDay playbook documented: pre-GameDay prep, execution timeline, roles, post-GameDay follow-up process.
+- [ ] **[S8]**  At least one successful GameDay conducted in staging; findings documented and remediated.
+- [ ] **[S9]**  At least one successful GameDay conducted in production with limited blast radius (canary, 1 pod, 1 AZ).
+- [ ] **[S10]**  Circuit breakers, retries, and bulkheads implemented and verified via targeted chaos experiments.
+- [ ] **[S11]**  Observability verified: injected faults are detectable within 2 minutes on dashboards, logs, and alerts.
+- [ ] **[S12]**  Pre-experiment observability check documented and executed for each new experiment type.
+- [ ] **[S13]**  Resilience scoring system established per service; low-scoring services prioritized for hardening.
+- [ ] **[S14]**  Automated chaos scheduled in staging on every merge to main (functional + resilience CI).
+- [ ] **[S15]**  Scheduled production chaos experiments running weekly during low-traffic windows; results tracked per experiment.
+- [ ] **[S16]**  Abort mechanism tested: kill switch stops all active experiments within 30 seconds.
+- [ ] **[S17]**  SLO-based experiment gating implemented: chaos stops if error budget burn rate exceeds threshold.
+- [ ] **[S18]**  Experiment catalog maintained with status (designed → tested-staging → tested-prod → automated).
+- [ ] **[S19]**  Blast radius progressive expansion documented: each experiment's current level in the progressive model.
+- [ ] **[S20]**  Organization maturity level assessed and target level defined for the next quarter.
 
-- [ ] Chaos Engineering principles communicated to engineering leadership; executive buy-in obtained.
-- [ ] Steady state hypothesis defined for each service: measurable indicators of healthy behavior with specific metric thresholds.
-- [ ] Fault injection catalog built covering: pod kills, network latency/loss, resource exhaustion, dependency failures, AZ failure, security faults.
-- [ ] Experiment design template standardized: hypothesis, fault, blast radius, duration, abort conditions, rollback.
-- [ ] Blast radius controls implemented: traffic %, user segment, infrastructure scope, time-bounded, auto-termination.
-- [ ] Chaos tooling selected and deployed (Chaos Mesh, Litmus, Gremlin, AWS FIS, or Steadybit) with proper RBAC/scope controls.
-- [ ] GameDay playbook documented: pre-GameDay prep, execution timeline, roles, post-GameDay follow-up process.
-- [ ] At least one successful GameDay conducted in staging; findings documented and remediated.
-- [ ] At least one successful GameDay conducted in production with limited blast radius (canary, 1 pod, 1 AZ).
-- [ ] Circuit breakers, retries, and bulkheads implemented and verified via targeted chaos experiments.
-- [ ] Observability verified: injected faults are detectable within 2 minutes on dashboards, logs, and alerts.
-- [ ] Pre-experiment observability check documented and executed for each new experiment type.
-- [ ] Resilience scoring system established per service; low-scoring services prioritized for hardening.
-- [ ] Automated chaos scheduled in staging on every merge to main (functional + resilience CI).
-- [ ] Scheduled production chaos experiments running weekly during low-traffic windows; results tracked per experiment.
-- [ ] Abort mechanism tested: kill switch stops all active experiments within 30 seconds.
-- [ ] SLO-based experiment gating implemented: chaos stops if error budget burn rate exceeds threshold.
-- [ ] Experiment catalog maintained with status (designed → tested-staging → tested-prod → automated).
-- [ ] Blast radius progressive expansion documented: each experiment's current level in the progressive model.
-- [ ] Organization maturity level assessed and target level defined for the next quarter.
-
-## MVP vs Growth vs Scale
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person) → Small (2-10) → Medium (10-50) → Enterprise (50+)
 
 | Phase | Team Size | Priority | Chaos Engineering Approach |
 |-------|-----------|----------|---------------------------|
-| **MVP (0→1)** | 1-3 devs | Ship. Don't break what ships. | No chaos engineering. Manual: kill a pod in staging, see what happens. Fix the obvious failures (no health checks, no retries). This is "resilience awareness," not chaos engineering. |
-| **Growth (1→10)** | 3-15 devs, 1 infra/SRE person | Don't lose customers to preventable failures | First GameDay in staging (half-day). Test: kill a service, simulate DB failure, exhaust disk. Implement circuit breakers, retries, health checks. Run quarterly GameDays. |
-| **Scale (10→N)** | 15+ devs, dedicated SRE/chaos team | Resilience as measurable KPI | Automated chaos experiments in CI. Production GameDays. Resilience scoring per service. Full fault injection catalog. Multi-region failover testing. Continuous verification. |
+| **Solo/MVP** | 1-3 devs | Ship. Don't break what ships. | No chaos engineering. Manual: kill a pod in staging, see what happens. Fix obvious failures (no health checks, no retries). "Resilience awareness," not chaos engineering. |
+| **Small/Growth** | 3-15 devs, 1 infra/SRE | Don't lose customers to preventable failures | First GameDay in staging (half-day). Test: pod kill, DB failure, disk exhaustion. Implement circuit breakers, retries, health checks. Quarterly GameDays. |
+| **Medium** | 15-50 devs, dedicated SRE | Resilience as measurable KPI | Automated chaos in staging CI (every merge). Monthly production GameDays. Resilience scoring per service. Full fault injection catalog. Blast radius auto-controls. |
+| **Enterprise** | 50+ devs, chaos/SRE team | Continuous confidence | Continuous production chaos (low-intensity). SLO-gated experiments. Multi-region failover testing. Self-healing verification. Resilience score as release gate. Chaos budget integrated into error budgets. |
 
-**MVP rule:** Chaos engineering for a startup with 10 users on a single EC2 instance is theater. Before you inject faults, make sure you have: (a) health checks, (b) process monitoring (systemd/supervisor restarts crashed processes), (c) backups that are tested. That's 90% of resilience for 10% of the effort.
+### Transition Triggers
+
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | First paying customer or first production incident | Add health checks + retries. Run one staging GameDay. Document 3 known failure modes. |
+| Small → Medium | >3 production incidents in 6 months OR >10 services | Automate chaos in CI. Add resilience scoring. Run monthly production GameDays. Hire/assign dedicated SRE. |
+| Medium → Enterprise | Multi-region deployment OR compliance requires DR testing | Continuous production chaos. SLO-gated experiments. Multi-region failover drills. Full-time chaos engineering team. |
+
+**Solo rule:** Chaos engineering for a startup with 10 users on a single EC2 instance is theater. Before injecting faults, ensure: (a) health checks, (b) process monitoring, (c) tested backups. That's 90% of resilience for 10% of the effort.
+
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Never run your first chaos experiment in production:** Always staging first. Production readiness requires staging GameDay with clear learnings and proven abort mechanisms.
+2. **Verify observability before every experiment:** Inject the fault in staging for 30 seconds. If you can't see it on dashboards within 2 minutes, fix observability before proceeding — running chaos without observability is just breaking things.
+3. **Start with the smallest possible blast radius:** Single pod, 1% traffic, 5-minute window. Expand only after N successful runs (N=3 for infra faults, N=5 for stateful faults).
+4. **Define abort conditions with specific numeric thresholds:** "Error rate > 5% for 30 seconds" not "if things look bad." Auto-termination must be tool-enforced, not human-dependent.
+5. **Test failures you've actually experienced first:** Prioritize experiments based on real postmortems, not hypothetical scenarios. The best failure mode to test is the one that already caused an incident.
+6. **Run experiments during low-traffic windows with on-call aware:** Schedule experiments 1-4 AM or weekends. Notify on-call 24+ hours in advance with expected symptoms and abort command.
+7. **Every experiment needs a documented rollback:** One command, one feature flag flip, one script — tested in staging before production. If rollback fails, you have a production incident.
+8. **Track MTTR per failure mode:** Recovery time is as important as resilience. If the system recovers in 30 seconds vs 5 minutes, that difference matters to users.
+9. **Integrate chaos into CI/CD:** Run automated experiments on every merge to main in staging. Catch resilience regressions like functional bugs — before they reach production.
+10. **GameDay debrief must produce tracked action items:** Every finding gets an owner, severity, ticket number, and due date. Learning without action is wasted effort.
 
 ## Cost-Effective Decision Table
 
@@ -388,31 +567,32 @@ Chaos engineering is inherently cross-team — you break things that other teams
 
 **Annual chaos tool budget by phase:** MVP: $0 (don't do it). Growth: $0-3K (OSS + GameDay facilitation). Scale: $5K-50K (managed chaos platforms + SRE time).
 
-## Scalability Decision Tree
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Baseline
+**Input:** Service name, environment (staging/prod), observability dashboards.  
+**Steps:** 1) Collect P50/P95/P99 latency, error rate, throughput for 5+ minutes under normal load. 2) Verify all dashboards, alerts, and logs show the service clearly. 3) Record baseline metrics as JSON artifact.  
+**Output:** Baseline metrics file + observability verification checklist passed.
 
-```
-Have you survived 3+ production incidents in the last 6 months?
-├── YES → Chaos engineering would help. Start with a staging GameDay.
-│   Focus on the failure modes that actually occurred, not hypothetical ones.
-└── NO → Your system is resilient or you haven't been tested. Start with basic resilience:
-    health checks, retries, timeouts, circuit breakers. Chaos can wait.
+### Phase 2 (~30 min): Hypothesis & Experiment Design
+**Input:** Baseline metrics, failure mode catalog (42 experiments in references).  
+**Steps:** 1) Select one failure mode (e.g., pod kill, network latency). 2) Write falsifiable hypothesis: "When X happens, Y metric stays below Z for T minutes." 3) Define blast radius (traffic %, pods, AZ, time window). 4) Set abort conditions with specific numeric thresholds.  
+**Output:** Experiment document with hypothesis, blast radius, abort triggers, rollback steps.
 
-Do you have basic resilience patterns in place? (health checks, retries, timeouts, circuit breakers)
-├── NO → Implement these FIRST. Chaos engineering without resilience patterns just proves you're fragile.
-└── YES → Good. Now verify they work with controlled experiments.
+### Phase 3 (~20 min): Staging Validation
+**Input:** Experiment document, staging environment, chaos tooling access.  
+**Steps:** 1) Run experiment in staging at full blast radius. 2) Verify steady state hypothesis holds. 3) Confirm observability detects the fault within 2 minutes. 4) Test abort mechanism — stop experiment, verify recovery. 5) If hypothesis refuted, fix the gap and re-run.  
+**Output:** Staging validation report — passed/failed, MTTR measured, gaps documented.
 
-Can you detect and diagnose an injected fault within 2 minutes?
-├── NO → Invest in observability before chaos. If you can't see it, you can't learn from it.
-└── YES → Observability is adequate for chaos experiments.
+### Phase 4 (~15 min): Progressive Production Rollout
+**Input:** Staging validation passed, production access, on-call notified.  
+**Steps:** 1) Canary: single pod/internal traffic, 15 minutes. 2) 1% traffic, 30 minutes. 3) 10% traffic, 30 minutes. 4) Full scope (if applicable). At each step: monitor abort triggers, compare metrics to baseline.  
+**Output:** Production experiment results — hypothesis verdict, blast radius respected, MTTR measured.
 
-Do you run production traffic across multiple availability zones or regions?
-├── YES → Test AZ/region failover. This is the highest-value chaos experiment.
-└── NO → Single-AZ is your resilience bottleneck. Fix architecture before chaos testing the single point.
-
-Have you had a successful staging GameDay with clear learnings?
-├── YES → Ready for limited production experiments (1% traffic, 60 seconds, auto-abort).
-└── NO → Start in staging. Never run your first chaos experiment in production.
-```
+### Phase 5 (~25 min): Analysis & Remediation
+**Input:** Experiment results, Scribe notes, Observer analysis.  
+**Steps:** 1) Document: what worked, what broke, what surprised us. 2) Create action items with owner + severity + due date. 3) Update experiment catalog status (designed → tested-staging → tested-prod → automated). 4) Share findings with service owners and leadership.  
+**Output:** After-action report, tracked action items, updated experiment catalog.
 
 ## When NOT to Use This Skill (Overkill)
 
@@ -448,7 +628,7 @@ python3 scripts/verify_steady_state.py \
 **Principle:** `resilience_check.py` inspects K8s/consul config, outputs JSON with binary readiness. Agent follows decision tree to exactly one gap. Experiment runs via `kubectl apply`. Steady state verification is exit-code-based.
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Principles of Chaos Engineering](https://principlesofchaos.org/)
 - [Netflix — Chaos Engineering (Original Paper)](https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116)
 - [Chaos Mesh — Kubernetes Chaos Engineering](https://chaos-mesh.org/)

@@ -2,8 +2,17 @@
 name: docker-kubernetes
 description: Dockerfile optimization, docker-compose, Kubernetes manifests, Helm charts, service mesh, pod security, and ingress design. Triggered by docker, kubernetes, k8s, helm, container, service mesh, ingress, pod, deployment.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - docker-kubernetes
+token_budget: 1977
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Docker & Kubernetes Engineer
 
 Design, build, and operate containerized workloads on Kubernetes. Covers production-grade Dockerfiles,
@@ -11,7 +20,7 @@ multi-service development with compose, Kubernetes resource manifests, Helm char
 service mesh integration, security hardening, and traffic management.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing or optimizing Dockerfiles for production with multi-stage builds and non-root users
 - Composing local development environments with docker-compose for multi-service apps
 - Authoring Kubernetes manifests: Deployments, StatefulSets, Services, Ingresses, ConfigMaps, Secrets
@@ -20,9 +29,128 @@ service mesh integration, security hardening, and traffic management.
 - Hardening pod security: securityContext, PodSecurityStandards, network policies, RBAC
 - Designing ingress architectures with cert-manager, external-dns, and multiple ingress controllers
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Docker Compose vs Kubernetes
+```
+                     ┌──────────────────────────┐
+                     │ START: Container           │
+                     │ orchestration choice       │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >5 services OR need         │
+                    │ auto-scaling/self-healing?  │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Team >5 AND │   │ docker-compose  │
+                    │ budget >$1K │   │ on single VM    │
+                    │ /month?     │   │ ($40-200/mo,    │
+                    └────┬────────┘   │ <1K DAU)        │
+                         │ YES    NO  └────────────────┘
+                    ┌────▼────┐ ┌▼───────────┐
+                    │ K8s     │ │ ECS Fargate │
+                    │ (EKS/   │ │ or Cloud Run│
+                    │ GKE/AKS)│ │ (middle      │
+                    │         │ │ ground)      │
+                    └─────────┘ └─────────────┘
+```
+**When to choose docker-compose:** <5 services, <5 engineers, <1K DAU, budget <$500/month, no auto-scaling needed. **When to choose ECS/Cloud Run:** 2-20 services, no K8s expertise, managed containers, $200-500/month. **When to choose K8s:** >5 services, >5 engineers, auto-scaling/self-healing required, budget >$1K/month, GitOps desired.
 
-### Phase 1: Docker Image Engineering
+### Managed K8s vs Self-Managed
+```
+                     ┌──────────────────────────┐
+                     │ START: K8s deployment      │
+                     │ model                     │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Team has dedicated 2+       │
+                    │ K8s experts AND >50 nodes?  │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Self-managed│   │ EKS/GKE/AKS     │
+                    │ (Kops/      │   │ (managed control │
+                    │ Kubespray)  │   │ plane, $73/mo    │
+                    │ — 20-40     │   │ control plane)   │
+                    │ hrs/week ops│   │ — 2-8 hrs/week   │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Managed (EKS/GKE/AKS):** <50 nodes, <2 dedicated K8s experts, want control plane managed, budget for $73-150/month per cluster. **When to choose Self-Managed:** >50 nodes, in-house K8s expertise (2+ FTEs), cost savings on control plane justify 20-40 hrs/week ops overhead.
+
+### Ingress Controller Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Ingress controller  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need advanced rate limiting │
+                    │ WAF, or Lua scripting?      │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ NGINX       │   │ K8s-native     │
+                    │ Ingress     │   │ features enough │
+                    │ Controller  │   │ → AWS LB        │
+                    │ (most       │   │ Controller or   │
+                    │  flexible)  │   │ GCE Ingress     │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose NGINX Ingress:** Cross-cloud, need custom Lua/OpenResty, advanced rate limiting, canary by header, >10 routing rules. **When to choose Cloud-Native LB:** Single cloud, simple host/path routing, want cloud WAF integration (AWS WAF), managed TLS termination.
+
+### Service Mesh Decision
+```
+                     ┌──────────────────────────┐
+                     │ START: Service mesh        │
+                     │ evaluation                │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Compliance requires mTLS    │
+                    │ AND >10 services?           │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Istio /     │   │ No service mesh │
+                    │ Linkerd /   │   │ — sidecar-free  │
+                    │ Cilium      │   │ K8s networking  │
+                    │ (adds 0.5-  │   │ + NetworkPolicy │
+                    │  2ms latency│   │ is sufficient   │
+                    │  per hop)   │   └────────────────┘
+                    └─────────────┘
+```
+**When to deploy Service Mesh:** mTLS required, >10 services, need traffic splitting (canary), need L7 observability per service, team can absorb 0.5-2ms added latency. **When to skip:** <10 services, no mTLS requirement, NetworkPolicy sufficient, latency budget <5ms — mesh adds unnecessary complexity.
+
+### Container Image Security Posture
+```
+                     ┌──────────────────────────┐
+                     │ START: Image security      │
+                     │ hardening                 │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Production deployment with  │
+                    │ PII or regulated data?      │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Distroless  │   │ Alpine/slim     │
+                    │ base + non- │   │ base + non-root │
+                    │ root + read-│   │ user (standard) │
+                    │ only rootfs │   └────────────────┘
+                    │ + image     │
+                    │ signing     │
+                    │ (Cosign)    │
+                    └─────────────┘
+```
+**When to use Distroless+Signing:** PII/PCI/HIPAA workloads, production, CVE surface must be minimized, SLSA L2+ required. **When Alpine/Slim is enough:** Internal tools, no regulated data, simpler Dockerfile maintenance, acceptable CVE risk profile.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Docker Image Engineering
 1. Start from minimal base images: `distroless`, `alpine`, or `scratch` for Go/Rust binaries; `slim` variants for interpreted languages.
 2. Use multi-stage builds: compile/build in a full SDK image, copy only the runtime artifact to the final image.
 3. Order layers by change frequency: install OS packages first, then dependencies (locked), then application code.
@@ -32,7 +160,7 @@ service mesh integration, security hardening, and traffic management.
 7. Add HEALTHCHECK instructions for container orchestrators to detect hung processes.
 8. Leverage BuildKit features: `--mount=type=cache` for package manager caches, `--mount=type=secret` for credentials during build.
 
-### Phase 2: Kubernetes Manifests
+### Phase 2 (~30 min): Kubernetes Manifests
 1. Use Deployments for stateless workloads, StatefulSets for databases/queues with persistent identity, DaemonSets for node-level agents.
 2. Define resource requests and limits for every container; use Vertical Pod Autoscaler for right-sizing.
 3. Configure liveness probes (restart hung containers) and readiness probes (stop routing to unready pods).
@@ -42,7 +170,7 @@ service mesh integration, security hardening, and traffic management.
 7. Set PodSecurityStandard to `restricted` by default; relax only with explicit exceptions and justifications.
 8. Apply NetworkPolicy to deny all traffic by default; explicitly allow only required ingress/egress flows.
 
-### Phase 3: Helm Charts
+### Phase 3 (~20 min): Helm Charts
 1. Structure charts with `templates/`, `values.yaml`, `Chart.yaml`, and optional `values-{env}.yaml` environment overrides.
 2. Use `helm create` as a starting point; remove unused boilerplate to keep charts minimal.
 3. Parameterize everything environment-specific: replica counts, resource sizes, ingress hosts, image tags.
@@ -51,7 +179,7 @@ service mesh integration, security hardening, and traffic management.
 6. Test charts with `helm lint`, `helm template --debug`, and `helm unittest` plugin.
 7. Sign charts with `helm package --sign` using GPG or Cosign keys.
 
-### Phase 4: Service Mesh and Traffic Management
+### Phase 4 (~15 min): Service Mesh and Traffic Management
 1. Deploy a service mesh (Istio/Ambient, Linkerd, Cilium) when you need mTLS, traffic splitting, or fine-grained observability.
 2. Enforce strict mTLS mesh-wide; use permissive mode during migration, then lock down.
 3. Configure traffic splitting for canary deployments: 90% → stable, 10% → canary; shift progressively based on metrics.
@@ -59,7 +187,7 @@ service mesh integration, security hardening, and traffic management.
 5. Ingress: use cert-manager with Let's Encrypt for automatic TLS; external-dns for automatic Route53/Cloud DNS record creation.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -73,7 +201,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `ingress-traffic-management` | Configuring cert-manager, external-dns, multiple ingress controllers, and load balancing |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Docker/Kubernetes specialists build the container platform that every service runs on. They coordinate with developers for application packaging, DevOps for cluster operations, security for pod hardening, and observability for runtime visibility.
 
 ### Coordinate With
@@ -108,7 +236,7 @@ Persistent node failures? → Cloud Architect (cloud provider escalation)
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **One process per container**: use sidecar containers for log shippers, proxies, or metrics exporters.
 - **Images are immutable**: tag with git SHA, never use `:latest` in production manifests.
 - **Secrets at rest**: enable encryption at rest in etcd; use External Secrets Operator or Sealed Secrets for git-safe storage.
@@ -205,22 +333,32 @@ Don't adopt K8s until you can answer YES to:
 - **Small → Medium**: 5+ services. Need auto-scaling. Need self-healing. docker-compose can't keep up.
 - **Medium → Enterprise**: 10+ clusters or multi-region. 50+ services. Dedicated platform team justified.
 
-## Production Checklist
 
-- [ ] All images pinned by SHA256 digest, not mutable tags
-- [ ] Multi-stage builds produce minimal images; no build tools in the final layer
-- [ ] Non-root user configured in every container; `allowPrivilegeEscalation: false`
-- [ ] Resource requests and limits set for every container in every namespace
-- [ ] Liveness and readiness probes configured with appropriate initial delays
-- [ ] PodDisruptionBudget defined for all deployments with replicas > 1
-- [ ] NetworkPolicy denies all by default; explicit allow rules for required flows
-- [ ] PodSecurityStandard enforced at `restricted` level cluster-wide
-- [ ] Image vulnerability scanning in CI pipeline; HIGH/CRITICAL CVEs block deployment
-- [ ] Helm charts versioned, linted, and tested before release
-- [ ] cert-manager and external-dns configured for automated TLS and DNS
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  All images pinned by SHA256 digest, not mutable tags
+- [ ] **[S2]**  Multi-stage builds produce minimal images; no build tools in the final layer
+- [ ] **[S3]**  Non-root user configured in every container; `allowPrivilegeEscalation: false`
+- [ ] **[S4]**  Resource requests and limits set for every container in every namespace
+- [ ] **[S5]**  Liveness and readiness probes configured with appropriate initial delays
+- [ ] **[S6]**  PodDisruptionBudget defined for all deployments with replicas > 1
+- [ ] **[S7]**  NetworkPolicy denies all by default; explicit allow rules for required flows
+- [ ] **[S8]**  PodSecurityStandard enforced at `restricted` level cluster-wide
+- [ ] **[S9]**  Image vulnerability scanning in CI pipeline; HIGH/CRITICAL CVEs block deployment
+- [ ] **[S10]**  Helm charts versioned, linted, and tested before release
+- [ ] **[S11]**  cert-manager and external-dns configured for automated TLS and DNS
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - Dockerfile Best Practices: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
 - Kubernetes Pod Security Standards: https://kubernetes.io/docs/concepts/security/pod-security-standards/
 - Helm Best Practices: https://helm.sh/docs/chart_best_practices/

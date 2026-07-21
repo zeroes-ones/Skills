@@ -2,13 +2,23 @@
 name: ui-ux-designer
 description: Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: "design system", "component spec", "design tokens", "developer handoff", "responsive design", "interaction pattern", "prototype this".
 author: Sandeep Kumar Penchala
+type: design
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - ui-ux-designer
+token_budget: 1533
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # UI/UX Designer
 
 Define, govern, and deliver a cohesive design language that scales across products. Bridge the gap between visual design and production code through rigorous component specifications, design tokens, and structured developer handoff.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product needs a design system built or extended with new components
 - Developers need precise, unambiguous component specs (states, variants, spacing)
 - Design tokens (colors, typography, spacing, elevation) need definition or migration
@@ -18,7 +28,7 @@ Define, govern, and deliver a cohesive design language that scales across produc
 - A prototype is needed for stakeholder review or usability testing
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Design System Depth Decision
 
 ```
@@ -44,27 +54,30 @@ Target audience?
 ├── Mobile-first product (80%+ mobile users) → Design mobile first, expand to tablet/desktop
 ├── Desktop-first B2B SaaS → Design desktop first, ensure mobile works for critical flows
 └── Equal split → Design at the most constrained breakpoint first, then expand
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Design System Audit & Tokens
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Design System Audit & Tokens
 Audit the existing UI for inconsistencies: colors (run a color extraction across all screen captures), typography (font families, sizes, weights, line-heights), spacing (margin/padding patterns), border radii, and shadow/elevation values. Consolidate into design tokens — name tokens semantically (e.g., `color-surface-primary`, not `color-blue-500`) so they can be re-themed. Define a tiered token architecture: global tokens (raw values), alias tokens (semantic mapping), and component tokens (component-specific). Output a token JSON file compatible with Style Dictionary or similar transformation tooling.
 
-### Phase 2: Component Specification
+### Phase 2 (~30 min): Component Specification
 For each component, document: purpose and usage guidelines, visual states (default, hover, focus, active, disabled, loading, error), variants with prop-to-variant mappings, content slots and children composition rules, responsive behavior per breakpoint, keyboard interaction model, ARIA role/state/properties, animation specs (duration, easing curve, trigger), and design tokens consumed. Use a consistent template — do not rely solely on Figma inspect; text descriptions prevent ambiguity. Include do/don't examples with rationale.
 
-### Phase 3: Responsive & Layout System
+### Phase 3 (~20 min): Responsive & Layout System
 Define the grid system: column count, gutter width, margin, max-width per breakpoint. Specify breakpoints: mobile (320–767px), tablet (768–1023px), desktop (1024–1439px), wide (1440px+). For each layout region, define the responsive behavior: stack, reflow, collapse, hide, or transform. Document container queries usage for component-level responsiveness. Specify font-size and spacing fluid scales using `clamp()` or equivalent. Produce a layout reference page showing every region at every breakpoint.
 
-### Phase 4: Interaction Patterns
+### Phase 4 (~15 min): Interaction Patterns
 Catalog all recurring interaction patterns: navigation transitions, form validation feedback, loading states (skeleton vs. spinner vs. progress bar), empty states, error recovery flows, confirmation dialogs, drag-and-drop, infinite scroll vs. pagination. For each pattern: define the trigger, the animation/transition (duration, easing, properties animated), the system feedback, and the accessibility considerations (prefers-reduced-motion, focus management). Provide a Lottie or CSS animation reference for motion specs.
 
-### Phase 5: Developer Handoff
+### Phase 5 (~25 min): Developer Handoff
 Package the handoff with: Figma file with dev-mode annotations, token JSON export, component API documentation (props table, slots, events), icon set in SVG sprite or icon font with names, illustration/asset library with sizing guidelines, and a changelog since the last handoff. Include a "gotchas" section: common implementation pitfalls for each component. Schedule a walkthrough with the engineering team; record it for async reference. Define the feedback loop: how developers request design changes or flag spec gaps.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 UI/UX design is the bridge between strategy, product, and engineering. Designs that live only in Figma deliver zero value — coordination ensures designs ship to production intact.
 
 ### Coordinate With
@@ -107,6 +120,7 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Name design tokens semantically from day one — renaming is exponentially expensive later.
 - Every component variant should be expressed as prop combinations, not separate Figma frames.
 - Design for the 99th percentile of content length, not the ideal — stress-test with long strings and edge content.
@@ -143,7 +157,7 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 - **Medium → Enterprise**: Multi-platform requirements. Brand refresh or merger requires systematic update. >5 product teams.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `design-tokens` | Color/type/spacing/elevation definition | Phase 1 — semantic naming, token tiering, JSON export |
@@ -154,19 +168,31 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 | `design-system-governance` | Contribution model, versioning, migration | `brand-guidelines` — release tagging, changelog |
 | `accessibility-design` | WCAG in components, color contrast, focus | `accessibility-auditor` — A/AA/AAA, keyboard, screen reader |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] Design tokens defined across colors, typography, spacing, elevation, border-radius, and motion
-- [ ] Token JSON exported and validated against a schema
-- [ ] Component specs cover all states: default, hover, focus, active, disabled, loading, error
-- [ ] Each component documented with ARIA roles, states, and keyboard interaction model
-- [ ] Responsive behavior specified for every layout region at every breakpoint
-- [ ] Interaction patterns documented with duration, easing, and reduced-motion fallback
-- [ ] Developer handoff package includes token JSON, component API docs, icons, and changelog
-- [ ] Handoff walkthrough conducted and recorded
-- [ ] Feedback loop established — developers know how to flag spec gaps
-- [ ] Design system changelog published and migration guide updated for any breaking changes
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Design tokens defined across colors, typography, spacing, elevation, border-radius, and motion
+- [ ] **[S2]**  Token JSON exported and validated against a schema
+- [ ] **[S3]**  Component specs cover all states: default, hover, focus, active, disabled, loading, error
+- [ ] **[S4]**  Each component documented with ARIA roles, states, and keyboard interaction model
+- [ ] **[S5]**  Responsive behavior specified for every layout region at every breakpoint
+- [ ] **[S6]**  Interaction patterns documented with duration, easing, and reduced-motion fallback
+- [ ] **[S7]**  Developer handoff package includes token JSON, component API docs, icons, and changelog
+- [ ] **[S8]**  Handoff walkthrough conducted and recorded
+- [ ] **[S9]**  Feedback loop established — developers know how to flag spec gaps
+- [ ] **[S10]**  Design system changelog published and migration guide updated for any breaking changes
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - **accessibility-auditor** — for WCAG compliance review of component specs
 - **brand-guidelines** — for brand identity alignment of design tokens and visual language
 - **product-manager** — for feature scoping before component design begins

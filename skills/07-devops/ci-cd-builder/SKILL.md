@@ -2,8 +2,17 @@
 name: ci-cd-builder
 description: GitHub Actions, pipeline design patterns, build optimization, artifact management, quality gates, deployment strategies, SLSA supply chain security, DORA metrics, and release management. Triggered by CI/CD, pipeline, GitHub Actions, GitLab CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - ci-cd-builder
+token_budget: 2973
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # CI/CD Pipeline Builder
 
 Design, build, optimize, and secure continuous integration and continuous delivery pipelines. This
@@ -14,7 +23,7 @@ deployment strategies (rolling, blue-green, canary, feature-flagged), SLSA suppl
 release management (semantic release, changelog, approval workflows), and DORA metrics tracking.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Architecting a CI/CD pipeline from scratch for monorepos, microservices, or polyglot codebases
 - Migrating pipelines between CI systems: Jenkins → GitHub Actions, CircleCI → GitLab CI
 - Optimizing slow builds: dependency caching, parallel job execution, test sharding, incremental builds
@@ -25,9 +34,138 @@ release management (semantic release, changelog, approval workflows), and DORA m
 - Implementing semantic release with conventional commits enforcement and changelog automation
 - Measuring and improving DORA metrics: deployment frequency, lead time, MTTR, change failure rate
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### CI Platform Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Choose CI platform  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Code hosted on GitHub AND  │
+                    │ team <50 engineers?        │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ GitHub      │   │ Self-hosted or  │
+                    │ Actions     │   │ GitLab already? │
+                    │ (default)   │   └────┬────────┬───┘
+                    └─────────────┘        │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ GitLab  │ │ Jenkins    │
+                                      │ CI      │ │ only if     │
+                                      │         │ │ migrating   │
+                                      └─────────┘ │ legacy      │
+                                                  └────────────┘
+```
+**When to choose GitHub Actions:** Code on GitHub, <50 engineers, <100 concurrent jobs, need OIDC to cloud, DORA-focused. **When to choose GitLab CI:** Self-hosted requirement, GitLab ecosystem, >100 concurrent jobs, need integrated container registry. **When to choose Jenkins:** Legacy migration path only — avoid for greenfield.
 
-### Phase 1: Pipeline Architecture Design
+### Deployment Strategy Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Production deploy   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Zero-downtime required AND │
+                    │ >1000 concurrent users?    │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Need gradual │   │ Rolling deploy  │
+                    │ traffic shift│   │ (standard)      │
+                    │ with metrics?│   └────────────────┘
+                    └────┬────────┘
+                         │ YES
+                    ┌────▼────────┐
+                    │ Canary (10%  │
+                    │ → 50% → 100%│
+                    │ with auto-   │
+                    │ rollback on  │
+                    │ error spike) │
+                    └──────────────┘
+```
+**When to choose Canary:** >1000 concurrent users, need metrics-based rollback, error budget >0.1%, can afford 10 min observation windows. **When to choose Blue-Green:** Instant rollback needed, DB schema compatible with both versions, can afford 2× infrastructure during deploy. **When to choose Rolling:** Standard case — sequential pod replacement, simplest, works for 90% of services.
+
+### Build Optimization Tactic
+```
+                     ┌──────────────────────────┐
+                     │ START: CI build >10 min    │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Dependencies unchanged     │
+                    │ across >80% of commits?    │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Cache deps  │   │ Tests take >60% │
+                    │ layer first │   │ of build time?  │
+                    │ (50-80%      │   └────┬────────┬──┘
+                    │ speedup)     │        │ YES    │ NO
+                    └──────────────┘   ┌────▼────┐ ┌▼──────────┐
+                                       │ Parallel │ │ Split into │
+                                       │ test     │ │ smaller    │
+                                       │ sharding │ │ jobs       │
+                                       │ (2-4×)   │ │            │
+                                       └──────────┘ └────────────┘
+```
+**When to cache deps:** Dependencies stable, build time >5 min, cache hit rate >80% expected. **When to shard tests:** >200 test cases, tests CPU-bound, CI runner has 4+ cores. **When to split jobs:** Monorepo with independent modules, build >15 min, multiple teams.
+
+### Supply Chain Security Depth
+```
+                     ┌──────────────────────────┐
+                     │ START: Secure the pipeline │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Deploying to production    │
+                    │ with paying customers?     │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ SLSA Level 2│   │ SLSA Level 1    │
+                    │ + SBOM +    │   │ (provenance     │
+                    │ signed      │   │ only)           │
+                    │ artifacts   │   └────────────────┘
+                    └────┬────────┘
+                         │
+                    ┌────▼────────┐
+                    │ Regulated    │
+                    │ industry?    │
+                    └────┬────────┘
+                    │ YES → SLSA Level 3
+                    │ (hermetic builds,
+                    │  isolated, policy-
+                    │  controlled)
+                    └──────────────┘
+```
+**When to target SLSA L1:** Internal tools, pre-production, non-critical services. **When to target SLSA L2:** All production services — signed provenance + hosted build platform + SBOM generation. **When to target SLSA L3:** Fintech, healthcare, gov — hermetic builds, isolated environments, policy-controlled deployments.
+
+### Release Workflow Design
+```
+                     ┌──────────────────────────┐
+                     │ START: Release strategy    │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Multiple teams deploying    │
+                    │ independently to production?│
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Trunk-based │   │ GitFlow with    │
+                    │ + feature   │   │ release branches│
+                    │ flags       │   │ (simpler for     │
+                    │ (DORA elite)│   │ single team)    │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Trunk-based:** >5 engineers, deploy >daily, DORA elite target, feature flag infrastructure in place. **When to choose GitFlow:** <5 engineers, deploy <weekly, no feature flag system, need explicit release stabilization window.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Pipeline Architecture Design
 
 1. **Standard Pipeline Stages**:
    ```
@@ -78,7 +216,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
    ```
 
-### Phase 2: GitHub Actions Deep-Dive
+### Phase 2 (~30 min): GitHub Actions Deep-Dive
 
 1. **Composite Actions** — Bundle reusable steps:
    ```yaml
@@ -190,7 +328,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
      # - Secrets scoped to this environment
    ```
 
-### Phase 3: Build Optimization
+### Phase 3 (~20 min): Build Optimization
 
 1. **Dependency Caching — Intelligent Keys**:
    ```yaml
@@ -256,7 +394,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
    - **Bazel** remote caching: `bazel build //... --remote_cache=...`
    - **Gradle build cache**: `org.gradle.caching=true`
 
-### Phase 4: Quality Gates
+### Phase 4 (~15 min): Quality Gates
 
 1. **Quality Gate Matrix**:
 
@@ -303,7 +441,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
        └─ Ticket created. Deploy allowed.
    ```
 
-### Phase 5: Deployment Strategies
+### Phase 5 (~25 min): Deployment Strategies
 
 1. **Strategy Selection Matrix**:
 
@@ -356,7 +494,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
        flagsmith set-flag new_checkout --environment=production --enabled --percentage=100
    ```
 
-### Phase 6: Pipeline Security
+### Phase 6 (~25 min): Pipeline Security
 
 1. **SLSA Levels**:
    | Level | Requirements | Implementation |
@@ -408,7 +546,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
      deployments: write
    ```
 
-### Phase 7: Release Management
+### Phase 7 (~25 min): Release Management
 
 1. **Semantic Release Automation**:
    ```yaml
@@ -451,7 +589,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
              --notes-file CHANGELOG.md
    ```
 
-### Phase 8: Pipeline Monitoring & DORA Metrics
+### Phase 8 (~30 min): Pipeline Monitoring & DORA Metrics
 
 1. **DORA Metrics Dashboard**:
 
@@ -487,7 +625,7 @@ release management (semantic release, changelog, approval workflows), and DORA m
    ```
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -500,7 +638,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `release-management` | Versioning, semantic release, conventional commits, and automated changelog generation |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 CI/CD builders automate the path from commit to production. They coordinate with every development team consuming the pipeline, security for scanning integration, DevOps for infrastructure deployment, and QA for quality gates.
 
 ### Coordinate With
@@ -537,7 +675,7 @@ CI cost 2x above budget? → Cloud Architect (FinOps) → CTO Advisor
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Pin actions by SHA digest, never by tag** — `uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2`. Tags can be force-pushed.
 - **Separate build and deploy workflows** — Build (read-only) runs on PR. Deploy (write) runs on merge to main. Different IAM roles, different risk profiles.
 - **Artifact promotion: build once, deploy many** — Never rebuild binaries/images between environments. Immutable artifacts with SHA-tagged images.
@@ -573,57 +711,67 @@ CI cost 2x above budget? → Cloud Architect (FinOps) → CTO Advisor
 - **Small → Medium**: 3+ teams. Deploy coordination overhead. First security incident from deployed code.
 - **Medium → Enterprise**: 10+ teams. Compliance requirements. >50 deploys/day.
 
-## Production Checklist
 
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Pipeline Architecture
-- [ ] Pipeline stages defined: lint → test → build → scan → deploy → verify
-- [ ] Fan-in/fan-out used for parallel execution where beneficial
-- [ ] Path filters skip irrelevant workflows in monorepo
-- [ ] Concurrency groups cancel redundant PR runs
+- [ ] **[S1]**  Pipeline stages defined: lint → test → build → scan → deploy → verify
+- [ ] **[S2]**  Fan-in/fan-out used for parallel execution where beneficial
+- [ ] **[S3]**  Path filters skip irrelevant workflows in monorepo
+- [ ] **[S4]**  Concurrency groups cancel redundant PR runs
 
 ### Security & Secrets
-- [ ] All third-party actions pinned to full-length commit SHA
-- [ ] OIDC federation for cloud authentication — no static credentials
-- [ ] Environment protection rules on production: required reviewers + restricted branches
-- [ ] Secrets scoped per environment; never shared across environments
-- [ ] SLSA provenance generated for all releases (Level 3 target)
-- [ ] SBOM (SPDX/CycloneDX) generated and attached to releases
-- [ ] Signed commits enforced via branch protection rules
+- [ ] **[S5]**  All third-party actions pinned to full-length commit SHA
+- [ ] **[S6]**  OIDC federation for cloud authentication — no static credentials
+- [ ] **[S7]**  Environment protection rules on production: required reviewers + restricted branches
+- [ ] **[S8]**  Secrets scoped per environment; never shared across environments
+- [ ] **[S9]**  SLSA provenance generated for all releases (Level 3 target)
+- [ ] **[S10]**  SBOM (SPDX/CycloneDX) generated and attached to releases
+- [ ] **[S11]**  Signed commits enforced via branch protection rules
 
 ### Build Optimization
-- [ ] Dependency caching with lockfile-hash keys; `restore-keys` fallback configured
-- [ ] Docker BuildKit with GitHub Actions cache backend (`type=gha`)
-- [ ] Test sharding for suites > 5 minutes
-- [ ] Self-hosted runners or larger runners for resource-heavy builds
-- [ ] Cache warming scheduled to keep caches fresh
+- [ ] **[S12]**  Dependency caching with lockfile-hash keys; `restore-keys` fallback configured
+- [ ] **[S13]**  Docker BuildKit with GitHub Actions cache backend (`type=gha`)
+- [ ] **[S14]**  Test sharding for suites > 5 minutes
+- [ ] **[S15]**  Self-hosted runners or larger runners for resource-heavy builds
+- [ ] **[S16]**  Cache warming scheduled to keep caches fresh
 
 ### Quality Gates
-- [ ] SonarQube quality gate: no new bugs/vulnerabilities/smells
-- [ ] Code coverage ≥ 80% (enforced, not advisory)
-- [ ] Container CVE scan: 0 critical, < 5 high (block deploy on critical)
-- [ ] Lighthouse scores/Bundle size budget enforced for frontend
+- [ ] **[S17]**  SonarQube quality gate: no new bugs/vulnerabilities/smells
+- [ ] **[S18]**  Code coverage ≥ 80% (enforced, not advisory)
+- [ ] **[S19]**  Container CVE scan: 0 critical, < 5 high (block deploy on critical)
+- [ ] **[S20]**  Lighthouse scores/Bundle size budget enforced for frontend
 
 ### Deployment
-- [ ] Artifacts built once, promoted across environments (never rebuilt)
-- [ ] Immutable image tags (SHA digest, not `:latest`)
-- [ ] OCI annotations: commit SHA, build timestamp, pipeline URL
-- [ ] Automated rollback tested: health check failure → revert to previous version
-- [ ] Deployment status visible in PR via Checks API
+- [ ] **[S21]**  Artifacts built once, promoted across environments (never rebuilt)
+- [ ] **[S22]**  Immutable image tags (SHA digest, not `:latest`)
+- [ ] **[S23]**  OCI annotations: commit SHA, build timestamp, pipeline URL
+- [ ] **[S24]**  Automated rollback tested: health check failure → revert to previous version
+- [ ] **[S25]**  Deployment status visible in PR via Checks API
 
 ### Release Management
-- [ ] Semantic release configured with conventional commits enforcement
-- [ ] Automated changelog generation from conventional commit messages
-- [ ] Production release requires manual approval in deployment environment
-- [ ] Image retention policy: delete stale feature-branch images after N days
+- [ ] **[S26]**  Semantic release configured with conventional commits enforcement
+- [ ] **[S27]**  Automated changelog generation from conventional commit messages
+- [ ] **[S28]**  Production release requires manual approval in deployment environment
+- [ ] **[S29]**  Image retention policy: delete stale feature-branch images after N days
 
 ### Monitoring
-- [ ] DORA metrics tracked: deploy frequency, lead time, MTTR, change failure rate
-- [ ] Pipeline duration trending dashboard with alert on degradation
-- [ ] Flaky test detection and reporting (separate flaky from actual failures)
-- [ ] CI minutes/quota monitoring with alert before exhaustion
+- [ ] **[S30]**  DORA metrics tracked: deploy frequency, lead time, MTTR, change failure rate
+- [ ] **[S31]**  Pipeline duration trending dashboard with alert on degradation
+- [ ] **[S32]**  Flaky test detection and reporting (separate flaky from actual failures)
+- [ ] **[S33]**  CI minutes/quota monitoring with alert before exhaustion
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - GitHub Actions Security Hardening: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
 - GitHub Actions Reusable Workflows: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 - SLSA Framework: https://slsa.dev/spec/v1.0/levels

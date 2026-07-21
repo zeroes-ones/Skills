@@ -2,8 +2,17 @@
 name: site-reliability-engineer
 description: SRE, site reliability, error budget, toil reduction, SLI, SLO, SLA, incident management, capacity planning, chaos engineering, reliability engineering. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - site-reliability-engineer
+token_budget: 2037
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Site Reliability Engineer (SRE)
 
 Apply software engineering to operations problems. Define and measure reliability through SLIs and
@@ -11,8 +20,19 @@ SLOs, manage error budgets as decision-making frameworks, eliminate toil through
 blameless incident analysis, and architect for resilience. Covers the full SRE practice: measurement,
 budgeting, automation, incident response, capacity planning, and organizational models.
 
-## Decision Trees
+## When to Use
 
+- You need to define SLIs (latency, error rate, throughput) and set SLO targets for a production service
+- Your error budget is exhausted and you need to decide whether to freeze features or accept risk
+- You are setting up an on-call rotation, incident response process, and blameless postmortem culture
+- You need to identify and automate repetitive operational toil — manual deploys, restarts, or config changes
+- You are running a chaos engineering experiment (GameDay) to test system resilience under failure
+- You need to build a capacity planning model to forecast when your service will hit its scaling limit
+- You are redesigning a service for higher reliability — multi-region, active-active, graceful degradation
+- You need to choose an SRE organizational model (embedded, consulting, or hybrid) for your team structure
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What Should Be an SLI?
 ```
 Is this user-visible behavior?
@@ -85,11 +105,14 @@ Is the incident user-visible?
 │   ├─ YES → SEV3: minor, handled during business hours, no page
 │   └─ NO → Noise: suppress alert, improve threshold
 └─ Data integrity or security involved? → Auto-escalate one level
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Reliability Measurement
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Reliability Measurement
 1. **Define SLIs for each critical user journey**: identify 2-4 SLIs per service (latency, error rate, throughput, freshness).
    - Input: User journey map, architecture diagram, existing monitoring.
    - Output: SLI specification document with measurement method, data source, and aggregation window.
@@ -100,7 +123,7 @@ Is the incident user-visible?
 4. **Configure error budget burn rate alerts**: multi-window, multi-burn-rate alerting (see Decision Tree #3).
    - Output: Alerting rules in Prometheus/Alertmanager with clear runbook links.
 
-### Phase 2: Error Budget Governance
+### Phase 2 (~30 min): Error Budget Governance
 1. **Establish error budget policy**: defines what happens at each burn rate threshold.
    - Output: Policy document linked from SLO dashboard, referenced in incident runbooks.
 2. **Integrate error budget into release decisions**: deploy freeze when budget is critically depleted.
@@ -110,7 +133,7 @@ Is the incident user-visible?
 4. **Quarterly SLO calibration**: tighten SLOs that were too loose, loosen SLOs that caused excessive toil without user benefit.
    - Output: Updated SLO targets with changelog and stakeholder sign-off.
 
-### Phase 3: Toil Elimination
+### Phase 3 (~20 min): Toil Elimination
 1. **Measure toil**: every SRE logs time against toil/non-toil categories for 2 weeks.
    - Output: Toil baseline as percentage of total SRE effort.
 2. **Identify top toil sources**: sort by time-consumed × frequency.
@@ -120,7 +143,7 @@ Is the incident user-visible?
 4. **Prevent toil regression**: require automation design review for any new manual process exceeding 15 min/week.
    - Output: Toil dashboard tracking automation coverage and trends.
 
-### Phase 4: Incident Management Lifecycle
+### Phase 4 (~15 min): Incident Management Lifecycle
 1. **Detection**: monitoring alerts fire → on-call acknowledges within 5 minutes.
 2. **Declaration**: incident commander declares severity (SEV1/2/3) within 10 minutes.
 3. **Mitigation**: restore service first, root cause later. Rollback, scale, failover, or circuit-breaker activation.
@@ -130,7 +153,7 @@ Is the incident user-visible?
    - Output: Postmortem doc with timeline, contributing factors, action items with owners and deadlines.
 7. **Follow-through**: track action items to completion; share learnings org-wide.
 
-### Phase 5: Capacity Planning
+### Phase 5 (~25 min): Capacity Planning
 1. **Model demand**: forecast growth from business metrics (user growth, transaction volume, data ingestion rate).
    - Output: 12-month demand forecast with confidence intervals.
 2. **Map capacity to demand**: translate forecast to compute, storage, network, and license requirements.
@@ -142,7 +165,7 @@ Is the incident user-visible?
    - Output: Capacity planning review dashboard.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When | What to Share/Ask |
 |---|---|---|
 | **DevOps Engineer** | Alerting setup, runbook automation, deploy pipeline integration | SLO definitions, error budget check integration, incident response automation |
@@ -166,7 +189,7 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: No formal SRE. You are the SRE. Monitor with UptimeRobot or healthchecks.io. Get paged via PagerDuty free tier. Manual incident response. No SLOs — just "is it up?"
 - **Overkill**: SLO/SLI framework, error budgets, formal incident roles, capacity planning, chaos engineering, postmortem docs.
@@ -196,7 +219,7 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 - **Transition trigger**: > 200 engineers, multi-product portfolio, 99.99%+ contractual obligations, public company reliability reporting.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `sli-slo-definition` | Defining reliability indicators and objectives for a new or existing service | Measurement methodology, data sources, aggregation windows, stakeholder negotiation |
@@ -209,7 +232,7 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 | `progressive-delivery` | Canary, blue-green, and ring deployments with automated analysis | Deployment strategies, metrics-based promotion, automated rollback, risk scoring |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Hope is not a strategy**: every critical user journey needs an SLI. If you can't measure it, you can't manage it.
 - **SLOs are a decision-making tool, not a report card**: use error budgets to decide when to ship features vs. invest in reliability — not to punish teams.
 - **100% is the wrong target**: 100% reliability costs exponentially more and prevents innovation. Users don't notice the difference between 99.99% and 99.999% on a mobile connection.
@@ -221,25 +244,35 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 - **Capacity is a reliability concern**: running out of capacity is a self-inflicted outage. Plan for 2x peak and have elastic scaling as backup.
 - **SRE is cultural, not a job title**: reliability is everyone's responsibility. SRE provides the framework, tooling, and expertise — but service owners own their SLOs.
 
-## Production Checklist
 
-- [ ] SLIs defined for all critical user journeys (minimum: latency, error rate, throughput per service)
-- [ ] SLOs documented with stakeholder sign-off for each production service
-- [ ] Multi-window, multi-burn-rate alerting configured for all SLOs
-- [ ] Error budget policy documented and integrated with deploy pipeline (freeze when critically depleted)
-- [ ] On-call rotation established with clear escalation path and runbooks for every alert
-- [ ] Incident management process defined: commander role, severity levels, communication cadence, postmortem timeline
-- [ ] Blameless postmortem completed for all SEV1 and SEV2 incidents within 48 hours
-- [ ] Postmortem action items tracked to completion; > 90% closed within 30 days
-- [ ] Toil tracked and < 50% of SRE team time; top-3 toil sources have automation in progress
-- [ ] Capacity plan updated quarterly with 12-month forecast; no capacity-related incidents in past 6 months
-- [ ] Chaos engineering gameday conducted at least quarterly; findings tracked to remediation
-- [ ] Production readiness review completed for all new services before production traffic
-- [ ] SLO review conducted monthly; targets calibrated quarterly based on user feedback and error budget consumption
-- [ ] Reliability dashboard visible to all engineers with SLI status, error budget remaining, and incident history
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  SLIs defined for all critical user journeys (minimum: latency, error rate, throughput per service)
+- [ ] **[S2]**  SLOs documented with stakeholder sign-off for each production service
+- [ ] **[S3]**  Multi-window, multi-burn-rate alerting configured for all SLOs
+- [ ] **[S4]**  Error budget policy documented and integrated with deploy pipeline (freeze when critically depleted)
+- [ ] **[S5]**  On-call rotation established with clear escalation path and runbooks for every alert
+- [ ] **[S6]**  Incident management process defined: commander role, severity levels, communication cadence, postmortem timeline
+- [ ] **[S7]**  Blameless postmortem completed for all SEV1 and SEV2 incidents within 48 hours
+- [ ] **[S8]**  Postmortem action items tracked to completion; > 90% closed within 30 days
+- [ ] **[S9]**  Toil tracked and < 50% of SRE team time; top-3 toil sources have automation in progress
+- [ ] **[S10]**  Capacity plan updated quarterly with 12-month forecast; no capacity-related incidents in past 6 months
+- [ ] **[S11]**  Chaos engineering gameday conducted at least quarterly; findings tracked to remediation
+- [ ] **[S12]**  Production readiness review completed for all new services before production traffic
+- [ ] **[S13]**  SLO review conducted monthly; targets calibrated quarterly based on user feedback and error budget consumption
+- [ ] **[S14]**  Reliability dashboard visible to all engineers with SLI status, error budget remaining, and incident history
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Google SRE Book](https://sre.google/books/) — Foundational SRE principles, SLI/SLO framework, toil elimination
 - [SRE Workbook](https://sre.google/workbook/) — Practical implementation: SLOs, error budgets, incident response
 - [Implementing Service Level Objectives](https://www.oreilly.com/library/view/implementing-service-level/9781492076803/) — Alex Hidalgo's practical guide to SLO implementation

@@ -2,14 +2,23 @@
 name: legal-advisor
 description: Contract review framework, corporate structure decision matrix, IP protection strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source license compliance, fundraising term sheets (SAFE/convertible note/Series Seed), employment law (contractor vs employee, equity), data processing agreements, and ToS/Privacy Policy generation.
 author: Sandeep Kumar Penchala
+type: legal
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - legal-advisor
+token_budget: 3279
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Legal Advisor
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Drafting or updating Terms of Service (ToS), Privacy Policy, or End User License Agreement (EULA) for a SaaS product
 - Evaluating open-source license compatibility when incorporating third-party libraries into proprietary software
 - Setting up a DMCA compliance process (notice-and-takedown, counter-notice, repeat infringer policy)
@@ -19,16 +28,175 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
 - Crafting a trademark registration and enforcement strategy
 - Building a contributor license agreement (CLA) or developer certificate of origin (DCO) process
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Open Source License Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Which open-source   │
+                     │ license?                   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Want to require derivative  │
+                    │ works to also be open       │
+                    │ source (copyleft)?          │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Strong    │    │ Want to prevent   │
+                    │ copyleft  │    │ others from       │
+                    │ or weak?  │    │ using your name   │
+                    └──┬───┬────┘    │ in promotion?     │
+                       │   │        └──┬──────────┬────┘
+                  ┌────▼┐ ┌▼────────┐  │YES       │NO
+                  │GPL  │ │Weak:    │ ┌▼──────┐ ┌──▼──────────┐
+                  │v3.0 │ │MPL 2.0  │ │MIT +  │ │Completely   │
+                  │(most│ │(file-   │ │Apache │ │unrestricted:│
+                  │restrictive)│ │level)  │ │2.0    │ │CC0 / Public │
+                  └─────┘ │LGPL     │ │(patent│ │Domain        │
+                           │(library)│ │grant) │ └──────────────┘
+                           └─────────┘ └───────┘
+```
+**When to choose GPL v3:** Want maximum copyleft — anyone distributing modified versions must also release source under GPL. Strongest community enforcement.
+**When to choose MPL 2.0/LGPL:** Weak copyleft — file-level (MPL) or library-level (LGPL). Allows linking from proprietary code while keeping your library open.
+**When to choose MIT/Apache 2.0:** Permissive — MIT is simplest (no patent grant), Apache 2.0 adds explicit patent grant and contributor protection. Both allow proprietary use.
+**When to choose CC0:** Abandon copyright entirely — public domain dedication. Use for documentation, reference implementations, or when you truly don't care.
 
-### Phase 1: Document Inventory & Gap Analysis
+### SaaS Agreement Risk Triage
+```
+                     ┌──────────────────────────────┐
+                     │ START: Reviewing contract —    │
+                     │ what risk level?               │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Annual contract value < $5K?   │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Low risk:     │    │ ACV > $50K OR    │
+                    │ Accept        │    │ involves DPA,    │
+                    │ standard terms│    │ HIPAA BAA, or    │
+                    │ unless glaring│    │ custom IP terms? │
+                    │ red flag      │    └──┬──────────┬────┘
+                    └───────────────┘       │YES       │NO
+                                       ┌────▼────┐ ┌──▼──────────┐
+                                       │High Risk│ │Medium Risk: │
+                                       │Engage   │ │Negotiate    │
+                                       │External │ │key terms:   │
+                                       │Counsel  │ │liability cap│
+                                       │for every│ │IP ownership,│
+                                       │redline  │ │indemnity    │
+                                       └─────────┘ └─────────────┘
+```
+**When to accept standard terms:** Low ACV ($0-5K), no data processing obligations, no custom IP — accept vendor paper with minimal redlines (cap at fees paid, no indemnity).
+**When to negotiate key terms:** Medium ACV ($5-50K) — negotiate liability cap (2× fees), clarify IP ownership of deliverables, mutual confidentiality, and termination for convenience.
+**When to engage external counsel:** High ACV (>$50K), DPAs (GDPR), BAAs (HIPAA), custom software development, IP transfer — specialized counsel, full redline, board visibility.
+
+### Trademark Protection Strategy
+```
+                     ┌──────────────────────────────┐
+                     │ START: Trademark strategy?     │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Operating in US only vs         │
+                    │ multiple countries?             │
+                    └────┬──────────────────────┬───┘
+                         │ US only             │ Multi-country
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ USPTO §1(a)   │    │ Revenue >$100K  │
+                    │ (use-based)   │    │ in target       │
+                    │ if product in │    │ country?        │
+                    │ commerce.     │    └──┬──────────┬────┘
+                    │ §1(b) (intent-│       │YES      │NO
+                    │ to-use) if    │  ┌────▼────┐ ┌─▼──────────┐
+                    │ pre-launch.   │  │Madrid   │ │File in key │
+                    └───────────────┘  │Protocol:│ │markets only│
+                                       │WIPO base│ │(US + top 3)│
+                                       │+designate│ │nationally  │
+                                       │countries │ └────────────┘
+                                       └──────────┘
+```
+**When to file use-based US:** Product already in commerce — §1(a) filing with specimen of use, faster to registration, lower cost ($250-350/class).
+**When to file intent-to-use US:** Pre-launch, want priority date now — §1(b) filing, reserves priority, but must prove use later (Statement of Use).
+**When to use Madrid Protocol:** 3+ countries needed — file WIPO application based on home registration, designate member countries, single renewal, cheaper than individual national filings.
+**When to file nationally:** Only 1-2 key markets — direct national filing may be faster and cheaper than Madrid route with fewer designated countries.
+
+### IP Assignment vs License Decision
+```
+                     ┌──────────────────────────────┐
+                     │ START: Contractor/employee     │
+                     │ creates IP — how to secure?    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Work done by employee within    │
+                    │ scope of employment?            │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO (contractor)
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Work-for-hire│    │ Contractor using  │
+                    │ doctrine     │    │ their own tools,  │
+                    │ applies (US) │    │ no supervision?   │
+                    │ — IP auto-   │    └──┬──────────┬────┘
+                    │ owned by     │       │YES       │NO
+                    │ employer.    │  ┌────▼────┐ ┌──▼──────────┐
+                    │ Still get    │  │IP       │ │May qualify  │
+                    │ signed       │  │Assign-  │ │as work-for- │
+                    │ agreement    │  │ment +   │ │hire — but   │
+                    │ confirming.  │  │Moral    │ │get assignment│
+                    └──────────────┘  │Rights   │ │for certainty │
+                                      │Waiver   │ └──────────────┘
+                                      └─────────┘
+```
+**When work-for-hire applies:** US employee creating within scope — automatic IP ownership to employer. Still get written confirmation for audit trail and investors.
+**When IP assignment needed:** Contractor or non-US contributor — signed agreement with "present assignment of future rights" language + moral rights waiver where applicable.
+**When to use license instead:** Third-party contribution to your open source project — CLA with license grant (not assignment) may be sufficient for project stewardship.
+
+### DMCA Safe Harbor Eligibility
+```
+                     ┌──────────────────────────────┐
+                     │ START: Need DMCA safe harbor?  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Do you host user-generated      │
+                    │ content (comments, uploads,     │
+                    │ repos, listings)?               │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Must register │    │DMCA safe harbor  │
+                    │ DMCA agent    │    │not applicable.   │
+                    │ with USCO     │    │Still need:       │
+                    │ ($6 fee).     │    │respond to notices│
+                    │ Implement:    │    │as matter of risk │
+                    │ - Notice-and- │    │management.       │
+                    │   takedown    │    └─────────────────┘
+                    │ - Counter-notice│
+                    │ - Repeat      │
+                    │   infringer   │
+                    │   policy      │
+                    │ - No knowledge│
+                    │   of infring. │
+                    └───────────────┘
+```
+**When DMCA safe harbor needed:** Any platform hosting user-submitted content (comments, repos, uploads) — registration is $6, but failure to implement = full liability for user infringement.
+**When not needed:** No UGC, only your own content — still respond to takedown notices as a matter of risk management but safe harbor unavailable.
+**Key requirements:** Designated agent registered at copyright.gov, expeditious takedown, counter-notice process, repeat infringer termination policy, no actual knowledge of infringement.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Document Inventory & Gap Analysis
 
 1. **Legal Document Audit** — Inventory all existing legal documents: ToS, Privacy Policy, EULA, DPA (Data Processing Agreement), Cookie Policy, Acceptable Use Policy, Refund Policy, Service Level Agreement, MSAs with enterprise customers.
 2. **Regulatory Gap Analysis** — Map applicable regulations to existing compliance: GDPR (EU users), CCPA/CPRA (California residents), PIPEDA (Canada), LGPD (Brazil), DMA/DSA (EU platforms), COPPA (children under 13), CalOPPA (California online privacy). Flag each as compliant, partially compliant, or non-compliant.
 3. **Jurisdiction Mapping** — Identify where the company operates, where data is stored/processed, and which jurisdictions' laws apply. This drives governing law selection and dispute resolution clauses.
 4. **Deliverable: Legal Audit Report** — Prioritized matrix of missing or outdated documents, compliance gaps, and recommended remediation timeline.
 
-### Phase 2: Document Drafting & Review
+### Phase 2 (~30 min): Document Drafting & Review
 
 1. **Terms of Service** — Key clauses to include:
    - **Acceptance of terms**: explicit consent mechanism (clickwrap, not browsewrap).
@@ -68,7 +236,7 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
    - **Insurance**: require minimum coverage (CGL, E&O, cyber) and certificate of insurance.
    - **Assignment**: change of control clause, no assignment without consent.
 
-### Phase 3: IP & Open-Source Strategy
+### Phase 3 (~20 min): IP & Open-Source Strategy
 
 1. **Patent Strategy** — Decide: defensive (build portfolio to deter lawsuits), offensive (assert against competitors), or none (rely on trade secrets and speed). File provisionals to establish priority date. Conduct freedom-to-operate searches before major product launches.
 2. **Trademark Strategy** — File for name, logo, and tagline in key classes (9 for software, 42 for SaaS). Conduct clearance search before adopting any brand element. Monitor for infringement (watch service). Enforce consistently — failure to police can weaken mark. Use ® for registered, ™ for unregistered.
@@ -81,7 +249,7 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
 5. **Trade Secret Protection** — Identify trade secrets: algorithms, training data, pricing models, customer lists. Implement reasonable measures: access controls, NDAs with employees and contractors, document labeling, exit interview procedures, non-compete/non-solicit where enforceable.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Never copy-paste legal documents from competitors — this creates copyright issues and may not fit your business model.
 - Ensure clickwrap (user must click "I agree") rather than browsewrap (passive notice) — courts consistently uphold clickwrap.
 - Version all legal documents with effective dates. Archive old versions. Notify users of material changes with at least 30 days notice.
@@ -91,7 +259,7 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
 - Trademark clearance should happen before finalizing any product name — rebranding is expensive and disrupts SEO.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Legal advice touches every function. Missed coordination creates liability; over-lawyering blocks velocity. Balance is structural.
 
 | Coordinate With | When | What to Share/Ask |
@@ -129,20 +297,64 @@ Legal advice touches every function. Missed coordination creates liability; over
 | Cross-border M&A or IPO preparation | **External Transactional Counsel** + CEO Strategist + CFO | Complex multi-jurisdiction; specialized expertise required |
 | Criminal allegation involving employee or company | **External Criminal Defense Counsel** + Board | Personal and corporate liability; privilege critical |
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Founder reviewing contracts themselves or with free templates. ToS/Privacy Policy from Termly/Iubenda ($0-50). Open source: MIT license default. Trademark: no registration, common law rights only. No DMCA registration. Contracts: clickwrap via checkbox. IP: employee agreements as work-for-hire. No external counsel unless existential risk. Cost: $0-200/month. Overkill: external counsel retainer, patent filings, formal CLAs, multi-jurisdiction trademark.
 
-- [ ] Terms of Service, Privacy Policy, and EULA are published, versioned, and accessible from every page footer
-- [ ] Clickwrap acceptance is implemented with timestamped records of user consent
-- [ ] Privacy Policy accurately reflects all data collection, processing, and sharing — updated at least annually
-- [ ] Open-source license audit is complete and results are documented with remediation plan for any copyleft conflicts
-- [ ] Open-source attribution page exists in-product listing all third-party components and licenses
-- [ ] DMCA policy is published with designated agent registered at U.S. Copyright Office
-- [ ] Trademark applications filed for core brand elements in classes 9 and 42; monitoring/watch service active
-- [ ] Data Processing Agreement (DPA) template with SCCs is available for enterprise customers
-- [ ] Contract review checklist is standardized and used for all vendor and partnership agreements
-- [ ] Contributor license process (CLA or DCO) is configured for all public open-source repositories
-- [ ] Trade secret inventory is documented and reasonable protection measures are implemented
-- [ ] Insurance requirements are met: CGL, E&O, cyber insurance with adequate coverage for business size
+### Small (2-10 people, 100-10K users)
+Fractional general counsel or law firm retainer (5-10 hours/month). Custom-drafted ToS/Privacy Policy ($3-8K). Trademark: USPTO registration for name + logo ($250-350/class). DMCA: registered agent + takedown process. Open source: license audit before funding round. Contractor IP assignments standardized. Cost: $1K-5K/month. Overkill: in-house counsel, patent portfolio, Madrid Protocol trademarks.
+
+### Medium (10-50 people, 10K-1M users)
+In-house counsel or dedicated law firm relationship. Full contract management system (Ironclad, LinkSquares). IP portfolio: patents (provisional + PCT), trademarks (USPTO + Madrid), trade secrets program. Open source: automated license compliance (FOSSA, Snyk). DMCA: automated notice processing. Data processing: DPAs for all vendors. Cost: $8K-30K/month. Overkill: patent litigation budget, multi-country regulatory filings (unless regulated industry).
+
+### Enterprise (50+ people, 1M+ users)
+Legal department (2-5+). Full IP management: patent prosecution, trademark enforcement globally, defensive publication program. Enterprise CLM: Salesforce/ironclad with AI review. Open source program office (OSPO). M&A due diligence capability. Regulatory compliance team. Litigation management. Board governance. Employment law counsel. Cost: $50K-500K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | First enterprise contract, funding round, or user complaint | Hire fractional counsel; file USPTO trademark; do open-source audit |
+| Small → Medium | Series A, 50+ employees, IP litigation threat, or international expansion | Hire in-house counsel; build IP portfolio (patents + Madrid marks); implement CLM |
+| Medium → Enterprise | IPO prep, M&A, multi-country regulatory overlay, or legal team >3 | Build legal department; establish OSPO; add compliance team; formalize litigation management |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **Contract Review & Drafting** | Any B2B agreement, vendor contract, partnership, or employment agreement | Ironclad, LinkSquares, DocuSign CLM — redlining, clause libraries, negotiation playbooks |
+| **Open Source License Compliance** | Using or distributing open source software in products | FOSSA, Snyk, SPDX — license compatibility matrix, copyleft analysis, SBOM generation |
+| **IP Portfolio Management** | Building moat through patents, trademarks, and trade secrets | USPTO, WIPO, Madrid Protocol — patent filing strategy (provisional → PCT → national), trademark classes |
+| **SaaS Legal Foundations** | Launching or updating ToS, Privacy Policy, EULA for web/mobile app | Clickwrap/ browsewrap, GDPR/CCPA integration, limitation of liability, arbitration clause, auto-renewal |
+| **DMCA & Content Liability** | Platform hosting user-generated content | DMCA safe harbor registration, notice-and-takedown, counter-notice, repeat infringer policy, Section 230 |
+| **Funding & M&A Legal Prep** | Preparing for fundraising, acquisition, or IPO | IP assignment audit, cap table clean-up, open-source license audit, data room preparation, reps & warranties |
+| **Contributor Agreements (CLA/DCO)** | Managing external contributions to company open-source projects | CLA (individual + corporate), DCO (Developer Certificate of Origin), license grant vs IP assignment |
+| **Data Processing Agreements (DPAs)** | Vendors processing user personal data | GDPR Art. 28 clauses, SCCs, sub-processor disclosure, security measures, audit rights, breach notification |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Terms of Service, Privacy Policy, and EULA are published, versioned, and accessible from every page footer
+- [ ] **[S2]**  Clickwrap acceptance is implemented with timestamped records of user consent
+- [ ] **[S3]**  Privacy Policy accurately reflects all data collection, processing, and sharing — updated at least annually
+- [ ] **[S4]**  Open-source license audit is complete and results are documented with remediation plan for any copyleft conflicts
+- [ ] **[S5]**  Open-source attribution page exists in-product listing all third-party components and licenses
+- [ ] **[S6]**  DMCA policy is published with designated agent registered at U.S. Copyright Office
+- [ ] **[S7]**  Trademark applications filed for core brand elements in classes 9 and 42; monitoring/watch service active
+- [ ] **[S8]**  Data Processing Agreement (DPA) template with SCCs is available for enterprise customers
+- [ ] **[S9]**  Contract review checklist is standardized and used for all vendor and partnership agreements
+- [ ] **[S10]**  Contributor license process (CLA or DCO) is configured for all public open-source repositories
+- [ ] **[S11]**  Trade secret inventory is documented and reasonable protection measures are implemented
+- [ ] **[S12]**  Insurance requirements are met: CGL, E&O, cyber insurance with adequate coverage for business size
 
 ## MVP vs Growth vs Scale
 
@@ -238,7 +450,7 @@ python3 scripts/legal_audit.py --site example.com --verify --output json
 **Principle:** `legal_audit.py` outputs structured JSON with issue severity. Agent maps severity → action via decision tree. Never reads legal document text into context (token waste). Exit codes verify fixes.
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [IAPP — Privacy Policy Template Guidance](https://iapp.org/)
 - [FOSSA — Open Source License Compliance](https://fossa.com/)
 - [Choose a License](https://choosealicense.com/)

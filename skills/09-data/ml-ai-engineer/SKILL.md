@@ -2,8 +2,17 @@
 name: ml-ai-engineer
 description: ML lifecycle, model selection, training, MLOps, RAG, LLM patterns, model serving, evaluation, monitoring, and responsible AI. Triggered by ML, machine learning, deep learning, LLM, RAG, embeddings, fine-tuning, MLOps, model, AI safety.
 author: Sandeep Kumar Penchala
+type: data
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - ml-ai-engineer
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # ML & AI Engineer
 
 End-to-end machine learning and AI engineering — from problem framing through production monitoring.
@@ -12,7 +21,7 @@ LLM integration patterns, RAG architectures, model serving at scale, evaluation 
 drift monitoring, and responsible AI guardrails.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Framing a business problem as an ML task and selecting the right approach
 - Building end-to-end ML pipelines: data ingestion → feature engineering → training → serving
 - Training classical ML models (XGBoost, LightGBM, scikit-learn) or deep learning (PyTorch, JAX)
@@ -24,9 +33,162 @@ drift monitoring, and responsible AI guardrails.
 - Monitoring production models: data drift, concept drift, performance degradation
 - Implementing AI safety: guardrails, red-teaming, hallucination detection, content filtering
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### ML vs Heuristic vs LLM
+```
+                     ┌───────────────────────────────┐
+                     │ START: Should this be ML?       │
+                     └────────────┬──────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Can a deterministic heuristic  │
+                    │ solve it with acceptable       │
+                    │ accuracy?                      │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼────────┐  ┌──────────▼───────────┐
+                    │ Heuristic   │  │ Need reasoning over   │
+                    │ Ship in 1d  │  │ unstructured text?    │
+                    └─────────────┘  └──┬───────────────┬────┘
+                                       │YES            │NO
+                                  ┌────▼────────┐ ┌───▼──────────┐
+                                  │ Have >1K    │ │ Structured/   │
+                                  │ labeled     │ │ tabular data? │
+                                  │ examples?   │ └──┬────────┬───┘
+                                  └──┬──────┬───┘    │YES     │NO
+                                     │YES   │NO   ┌──▼──┐ ┌──▼──────┐
+                                ┌────▼──┐ ┌─▼─────┐│XGBoost││Re-evaluate│
+                                │Fine-tune│ │RAG +  ││LightGBM││problem   │
+                                │LoRA/QLoRA│ │Few-shot││CatBoost││framing   │
+                                └────────┘ └──────┘└───────┘└─────────┘
+```
+**When to choose Heuristic:** Simple rules cover 90%+ of cases, error tolerance is high, shipping speed beats marginal accuracy improvement.  
+**When to choose Classical ML:** Structured tabular data, 1K-10K labeled examples, interpretability matters (SHAP values).  
+**When to choose RAG:** No labeled data, knowledge is in documents, answer must be grounded in specific context with citations.  
+**When to choose Fine-tuned LLM:** Need specific style/tone/task adaptation, have 100-1K high-quality examples, latency budget allows inference.
 
-### Phase 1: Problem Framing and Feasibility
+### Real-time vs Batch vs Streaming Inference
+```
+                     ┌──────────────────────────┐
+                     │ START: Serving pattern    │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ P99 latency requirement?   │
+                    └────┬──────────────────┬───┘
+                         │ <100ms           │ >1 minute
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ User-facing│    │ Scheduled/nightly│
+                    │ prediction?│    │ scoring?         │
+                    └──┬────┬────┘    └──┬──────────┬────┘
+                       │YES │NO        │YES       │NO
+                  ┌────▼──┐ ┌▼───────┐ ┌▼────┐ ┌───▼──────┐
+                  │Real-time│ │Embedded│ │Batch│ │Streaming │
+                  │REST/gRPC│ │in DB  │ │Spark│ │Kafka +   │
+                  │10-200ms │ │<1ms   │ │daily│ │<100ms    │
+                  └─────────┘ └───────┘ └─────┘ └──────────┘
+```
+**When to choose Real-time API:** User-facing features (search, recommendations, chat), P99 < 200ms, use FastAPI/Triton with auto-scaling.  
+**When to choose Batch:** Nightly reports, risk scoring, ETL enrichment — run Spark jobs, cost-efficient, millions/day.  
+**When to choose Streaming:** Fraud detection, real-time personalization — Kafka + Flink, <100ms processing, sub-second freshness.  
+**When to choose Embedded:** Scoring within SQL queries — ONNX Runtime in PostgreSQL, <1ms, no network overhead.
+
+### RAG vs Fine-tuning vs Prompt Engineering
+```
+                     ┌──────────────────────────┐
+                     │ START: LLM approach       │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need model to learn new    │
+                    │ style/tone/format/task?    │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Have 100+  │    │ Need domain      │
+                    │ high-quality│    │ knowledge from   │
+                    │ examples?  │    │ documents?       │
+                    └──┬────┬────┘    └──┬──────────┬────┘
+                       │YES │NO        │YES       │NO
+                  ┌────▼──┐ ┌▼────────┐┌─▼───┐ ┌───▼──────┐
+                  │Fine-tune│ │Few-shot ││RAG  │ │Zero-shot │
+                  │LoRA on │ │prompting││+ Vec│ │prompt    │
+                  │1K+ exs │ │5-50 exs ││ DB  │ │only      │
+                  └────────┘ └─────────┘└─────┘ └──────────┘
+```
+**When to choose RAG:** Knowledge changes faster than retraining, need citations/attribution, zero labeled data — Pinecone/Weaviate + embedding model.  
+**When to choose Fine-tuning:** Teach a specific task/format persistently, have 100-1K high-quality examples, want cost reduction vs long prompts.  
+**When to choose Few-shot:** 5-50 examples in prompt, model already capable but needs guidance, no training infrastructure.  
+**When to choose Zero-shot:** Simple tasks with capable models (GPT-4, Claude), no examples needed, fastest path.
+
+### Overfitting Diagnosis
+```
+                     ┌──────────────────────────┐
+                     │ START: Model not          │
+                     │ generalizing?             │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Train acc >> Val acc?      │
+                    │ (gap > 5%?)               │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │Overfitting│    │ Train ~= Val?    │
+                    └──┬────────┘    └──┬──────────┬────┘
+                       │               │YES       │NO (both low)
+                  ┌────▼───────┐  ┌────▼────┐ ┌───▼──────────┐
+                  │Regularize: │  │Metric   │ │Underfitting: │
+                  │L1/L2,drop, │  │mismatch?│ │More capacity, │
+                  │early stop, │  └──┬───┬───┘ │better features│
+                  │more data   │     │YES│NO    │Reduce regul. │
+                  └────────────┘  ┌──▼┐┌─▼────┐└──────────────┘
+                                  │Fix││Check │
+                                  │eval││data  │
+                                  │met││quality│
+                                  └───┘└──────┘
+```
+**When to increase regularization:** Train acc >> Val acc, high variance across CV folds — add L1/L2, dropout, early stopping, data augmentation.  
+**When to increase capacity:** Both train and val are low — model too simple, underfitting. Add layers, reduce regularization, engineer better features.  
+**When to audit data:** Perfect train, random val — likely data leakage or bad split. Audit time-based/group-based splits.
+
+### Model Monitoring Thresholds
+```
+                     ┌──────────────────────────────┐
+                     │ START: Production model       │
+                     │ monitoring alert fired?       │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ PSI > 0.25 on critical feature?│
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼────────────┐  ┌──────▼──────────┐
+                    │Data drift:      │  │ P99 latency >    │
+                    │Trigger retrain, │  │ 2× SLA?         │
+                    │investigate      │  └──┬──────────┬────┘
+                    │upstream change  │     │YES       │NO
+                    └─────────────────┘  ┌──▼────┐ ┌──▼──────────┐
+                                         │Scale  │ │Pred error   │
+                                         │up infra│ │rate > 5×    │
+                                         │or model│ │baseline?    │
+                                         │optimize│ └──┬──────┬───┘
+                                         └────────┘    │YES   │NO
+                                                   ┌───▼──┐ ┌─▼─────┐
+                                                   │Concept│ │No     │
+                                                   │drift: │ │action │
+                                                   │Rollback│ │needed │
+                                                   │+ retrain│ └──────┘
+                                                   └───────┘
+```
+**When to trigger retrain:** PSI > 0.25 on any critical feature — data distribution shifted significantly. Investigate upstream pipeline first.  
+**When to rollback:** Prediction error rate > 5× baseline for 15+ min — model performance collapsed. Immediate rollback to last known good.  
+**When to scale infra:** P99 latency > 2× SLA — model isn't broken, infrastructure is. Add replicas, optimize model with quantization.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Problem Framing and Feasibility
 
 1. **Frame the ML problem** — not every problem needs ML. Ask:
    - Is there a clear input → output mapping with historical examples?
@@ -86,7 +248,7 @@ drift monitoring, and responsible AI guardrails.
    | Few-shot LLM prompt          | 5–50                | In-context examples in the prompt        |
    | Zero-shot LLM prompt         | 0                   | Relies entirely on model's pre-training  |
 
-### Phase 2: Data Preparation
+### Phase 2 (~30 min): Data Preparation
 
 1. **Data collection and labeling:**
    - Audit data sources: transactional DBs, event streams, logs, third-party APIs, human labelers
@@ -124,7 +286,7 @@ drift monitoring, and responsible AI guardrails.
    - **Standard split ratio**: 70/15/15 or 80/10/10 for datasets >10K; 60/20/20 for small datasets
    - **Never tune hyperparameters on the test set** — test set is touched exactly once at the very end
 
-### Phase 3: Model Development and Training
+### Phase 3 (~20 min): Model Development and Training
 
 1. **Start with a strong baseline before complex models:**
    - Simple heuristic: "always predict the majority class", "predict yesterday's value"
@@ -171,7 +333,7 @@ drift monitoring, and responsible AI guardrails.
    - **Early stopping**: stop training when validation metric stops improving
    - **Data augmentation**: best regularizer — more (real) data always wins
 
-### Phase 4: Evaluation
+### Phase 4 (~15 min): Evaluation
 
 1. **Classification metrics — choose the right one:**
    | Use Case                            | Primary Metric    | Secondary Metric  |
@@ -214,7 +376,7 @@ drift monitoring, and responsible AI guardrails.
    - **LLM-as-judge pattern**: use a stronger LLM (GPT-4, Claude Opus) to evaluate outputs of a weaker model
    - Always validate LLM-as-judge against human ratings (correlation >0.7)
 
-### Phase 5: MLOps Infrastructure
+### Phase 5 (~25 min): MLOps Infrastructure
 
 1. **Experiment tracking — log everything:**
    - Tooling: MLflow, Weights & Biases, Neptune, Comet ML
@@ -248,7 +410,7 @@ drift monitoring, and responsible AI guardrails.
    7. Full promotion (if shadow metrics OK)                      → registry stage: production
    ```
 
-### Phase 6: Model Serving
+### Phase 6 (~25 min): Model Serving
 
 1. **Deployment patterns — choose based on latency and throughput:**
    | Pattern              | Latency    | Throughput   | Best For                             |
@@ -281,7 +443,7 @@ drift monitoring, and responsible AI guardrails.
    - **Ragged batching**: for variable-length sequences — pad to max in batch, mask attention — as opposed to padding all to model max
    - **Continuous batching** (aka iteration-level scheduling): for LLMs — don't wait for all sequences in a batch to finish before adding new ones; vLLM, TensorRT-LLM
 
-### Phase 7: LLM Patterns
+### Phase 7 (~25 min): LLM Patterns
 
 1. **Prompt engineering — fundamental patterns:**
    - **Zero-shot**: just ask; works for simple tasks with capable models
@@ -339,7 +501,7 @@ drift monitoring, and responsible AI guardrails.
    - **Multi-agent**: separate LLM instances with different roles (researcher, coder, critic) collaborating
    - **Guardrails**: validate tool inputs, timeouts on tool execution, max iterations, human approval for destructive actions
 
-### Phase 8: Monitoring and Observability
+### Phase 8 (~30 min): Monitoring and Observability
 
 1. **Drift detection — the silent killer:**
    | Drift Type         | What Changes             | Detection Method                           |
@@ -365,7 +527,7 @@ drift monitoring, and responsible AI guardrails.
    - Serving latency P99 > 2× SLA for >5 minutes → page on-call
    - % null inputs > 10% (and previously near 0%) → page on-call (likely upstream data pipeline failure)
 
-### Phase 9: Responsible AI
+### Phase 9 (~20 min): Responsible AI
 
 1. **Fairness metrics — measure before launch:**
    | Metric                    | Definition                                                      |
@@ -400,7 +562,7 @@ drift monitoring, and responsible AI guardrails.
    | Vector DB      | Dimension reduction (PCA), scalar quantization, disk-based index for cold data | 30–60% |
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -417,7 +579,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `responsible-ai` | Bias detection, fairness metrics, explainability (SHAP/LIME), model cards, and safety guardrails |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 ML/AI engineers build models that depend on data pipelines, deploy to production infrastructure, and serve predictions that drive product features. They coordinate with data engineers, backend developers, DevOps, and product to deliver ML systems end-to-end.
 
 ### Coordinate With
@@ -454,8 +616,29 @@ Model performance below launch bar (3+ iterations)? → Product Strategist → C
 Cost overrun (GPU training 3x budget)? → Cloud Architect → CTO Advisor
 ```
 
-## Best Practices
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+One data scientist/ML engineer handling end-to-end. Use notebook for exploration, scikit-learn/XGBoost for training, pickle for serialization, Flask endpoint for serving. No feature store, no experiment tracking beyond CSV, no CI/CD for models. Batch predictions only. Stick to tabular models; avoid deep learning unless you have a pretrained model. Cost: $0-300/month (Colab Pro, small GPU VM). Overkill: Kubernetes, model registry, drift monitoring, feature stores, distributed training.
 
+### Small (2-10 people, 100-10K users)
+Dedicated ML engineer. MLflow for experiment tracking (self-hosted Docker). Model registry with staging/production gates. Start using feature store (Feast) when >10 models share features. Deep learning with single GPU (RTX 4090 or T4). W&B or TensorBoard. CI/CD: GitHub Actions with minimal test suite. A/B testing framework for deployment validation. Basic drift monitoring (prediction distribution). Cost: $1K-5K/month. Overkill: Kubeflow, Airflow for ML pipelines, multi-GPU training, real-time feature serving.
+
+### Medium (10-50 people, 10K-1M users)
+ML platform team (2-3). Kubeflow/MLflow Pipelines for orchestration. Feature store with online serving (Redis/DynamoDB). Real-time inference with auto-scaling (Kubernetes + HPA). Comprehensive monitoring: PSI, concept drift via NannyML/Evidently. Model cards for all production models. CI/CD pipeline: data validation → training → eval → registry → canary → full promotion. Multi-GPU training for CV/NLP. A/B + multi-armed bandits. Cost: $10K-50K/month. Overkill: full MLOps platform team (save that for enterprise), distributed training across >8 GPUs.
+
+### Enterprise (50+ people, 1M+ users)
+ML platform team (5-10). Multi-tenant feature store. Distributed training (FSDP, DeepSpeed, Ray). GPU cluster with job scheduler (SLURM, Kubernetes + GPU operator). LLM fine-tuning pipeline with LoRA/QLoRA. Comprehensive MLOps: automated retraining triggers, shadow deployments, chaos testing for ML. Federated governance: model risk scoring, bias audits, regulatory compliance (EU AI Act). FinOps: GPU utilization tracking, spot instance orchestration, chargeback. Cost: $100K-1M+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | 3+ models in production or >2 team members collaborating | Add MLflow for experiment tracking; implement A/B testing |
+| Small → Medium | 10+ models, real-time inference needed, or >5 ML engineers | Add feature store (Feast); implement drift monitoring (NannyML); build ML platform |
+| Medium → Enterprise | Per-model cost >$50K/month, distributed training needed, regulatory audits required | Build ML platform team; implement federated governance; add compliance infrastructure |
+
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Start with the simplest thing that could possibly work**: heuristic → linear model → XGBoost → deep learning → LLM. Each step must justify the added complexity with measured improvement.
 - **Your eval is your spec**: invest heavily in evaluation; a bad eval lets bad models through and blocks good ones. Multi-metric, multi-slice, multi-segment.
 - **Training-serving skew is the #1 production ML bug**: identical preprocessing, identical feature logic, identical data distribution expectations. Test for it explicitly in CI.
@@ -464,23 +647,33 @@ Cost overrun (GPU training 3x budget)? → Cloud Architect → CTO Advisor
 - **Monitor from day one**: if you can't measure degradation, you can't fix it. At minimum: prediction distribution drift, serving latency, error rate.
 - **Labels are your most valuable asset**: invest in labeling quality, consistency, and coverage before investing in model architecture.
 
-## Production Checklist
 
-- [ ] Problem framed as ML task with clear business metric, model metric, and launch bar
-- [ ] Baseline established (heuristic or simple model); complex model justified by improvement
-- [ ] Data split prevents leakage: time-based for temporal data, group-based for grouped data, stratified for imbalanced
-- [ ] Feature engineering pipeline identical in training and serving — no training-serving skew
-- [ ] Experiment tracking configured; every run reproducible with pinned seeds and dependencies
-- [ ] Comprehensive evaluation: primary metric, per-slice metrics, fairness metrics, calibration checks
-- [ ] Model registry with versioning, stage gates, and rollback capability
-- [ ] CI/CD pipeline: data validation → training → evaluation → registration → canary → promotion
-- [ ] Serving infrastructure with auto-scaling, dynamic batching, and latency SLAs defined
-- [ ] Drift monitoring: data drift (PSI/KS), concept drift (performance decay), prediction drift — with alerts
-- [ ] AI safety guardrails: input/output filtering, hallucination detection, red-teaming completed
-- [ ] Model card published with intended use, limitations, fairness assessment, and performance characteristics
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Problem framed as ML task with clear business metric, model metric, and launch bar
+- [ ] **[S2]**  Baseline established (heuristic or simple model); complex model justified by improvement
+- [ ] **[S3]**  Data split prevents leakage: time-based for temporal data, group-based for grouped data, stratified for imbalanced
+- [ ] **[S4]**  Feature engineering pipeline identical in training and serving — no training-serving skew
+- [ ] **[S5]**  Experiment tracking configured; every run reproducible with pinned seeds and dependencies
+- [ ] **[S6]**  Comprehensive evaluation: primary metric, per-slice metrics, fairness metrics, calibration checks
+- [ ] **[S7]**  Model registry with versioning, stage gates, and rollback capability
+- [ ] **[S8]**  CI/CD pipeline: data validation → training → evaluation → registration → canary → promotion
+- [ ] **[S9]**  Serving infrastructure with auto-scaling, dynamic batching, and latency SLAs defined
+- [ ] **[S10]**  Drift monitoring: data drift (PSI/KS), concept drift (performance decay), prediction drift — with alerts
+- [ ] **[S11]**  AI safety guardrails: input/output filtering, hallucination detection, red-teaming completed
+- [ ] **[S12]**  Model card published with intended use, limitations, fairness assessment, and performance characteristics
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - MLflow: https://mlflow.org/docs/latest/
 - Feast Feature Store: https://docs.feast.dev/
 - Weights & Biases: https://docs.wandb.ai/

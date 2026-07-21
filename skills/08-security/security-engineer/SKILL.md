@@ -2,8 +2,17 @@
 name: security-engineer
 description: Application security, penetration testing, IAM design, secrets management, API security, network security, zero trust, and security monitoring. Triggered by security, pentest, IAM, secrets, zero trust, vulnerability, threat model, API security.
 author: Sandeep Kumar Penchala
+type: security
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - security-engineer
+token_budget: 1315
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Security Engineer
 
 Design, implement, and validate security controls across the application, infrastructure, and network
@@ -11,7 +20,7 @@ layers. This skill covers threat modeling, penetration testing methodology, IAM 
 secrets management, API hardening, zero trust adoption, and continuous security monitoring.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Conducting threat modeling sessions using STRIDE, PASTA, or attack trees
 - Performing penetration tests against web applications, APIs, cloud infrastructure, or mobile apps
 - Designing IAM strategies: role-based access control, attribute-based access control, just-in-time access
@@ -22,7 +31,7 @@ secrets management, API hardening, zero trust adoption, and continuous security 
 - Building a security monitoring and detection pipeline (SIEM, SOAR, threat intelligence feeds)
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Threat Modeling Depth
 
 ```
@@ -49,18 +58,21 @@ Team size?
 │     Cost: $500-5K/month. Dedicated security engineer. Quarterly pentests.
 └── Enterprise (50+) → Full AppSec program. DAST + SAST + IAST + RASP. Bug bounty.
       Cost: $50K+/month. Security team (3+). Continuous red team. SOC 2 Type II.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Threat Modeling and Risk Assessment
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Threat Modeling and Risk Assessment
 1. Diagram the system: data flow diagrams (DFDs) showing trust boundaries, external entities, data stores, and processes.
 2. Apply STRIDE per element: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.
 3. Identify threats and rank by likelihood × impact using a risk matrix (CVSS or custom scoring).
 4. Define mitigations: eliminate the threat, reduce likelihood, reduce impact, transfer risk, or accept with justification.
 5. Document in a threat model register; review quarterly or on major architectural changes.
 
-### Phase 2: Application and API Security
+### Phase 2 (~30 min): Application and API Security
 1. Integrate SAST (Semgrep, SonarQube, CodeQL) into the CI pipeline at PR time; block on critical/high findings.
 2. Run SCA (Dependabot, Snyk, OWASP Dependency-Check) to detect vulnerable open-source libraries.
 3. Perform DAST (OWASP ZAP, Burp Suite) against staging environments on a schedule and on major releases.
@@ -68,7 +80,7 @@ Team size?
 5. Enforce authentication and authorization at the API gateway; use OAuth2/OIDC with short-lived tokens and refresh token rotation.
 6. Protect against OWASP Top 10: parameterized queries for SQL injection, HTML entity encoding for XSS, strict deserialization.
 
-### Phase 3: Identity and Access Management (IAM)
+### Phase 3 (~20 min): Identity and Access Management (IAM)
 1. Design role-based access control (RBAC) with well-defined role hierarchies and least-privilege defaults.
 2. Implement just-in-time (JIT) access for privileged operations: request, approve, grant temporary elevation, auto-revoke.
 3. Use OIDC for service-to-service and CI/CD-to-cloud authentication — no long-lived static credentials.
@@ -76,7 +88,7 @@ Team size?
 5. Implement permission boundaries and service control policies to limit the blast radius of compromised credentials.
 6. Audit IAM quarterly: review unused roles, overly permissive policies, and inactive users; use IAM Access Analyzer or Policy Simulator.
 
-### Phase 4: Secrets Management
+### Phase 4 (~15 min): Secrets Management
 1. Centralize secrets in a dedicated vault (HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager, Azure Key Vault).
 2. Implement dynamic secrets for databases: generate ephemeral credentials on demand, auto-expire within hours.
 3. Use envelope encryption: encrypt data with a data key, encrypt the data key with a master key (KMS).
@@ -84,7 +96,7 @@ Team size?
 5. Rotate secrets automatically: database passwords, API keys, TLS certificates — all on a defined rotation schedule.
 6. For Kubernetes: use External Secrets Operator or Sealed Secrets; never store raw secrets in etcd without encryption at rest.
 
-### Phase 5: Network Security and Zero Trust
+### Phase 5 (~25 min): Network Security and Zero Trust
 1. Implement micro-segmentation: default-deny network policies, explicit allow rules between specific services.
 2. Deploy a Web Application Firewall (AWS WAF, Cloudflare, ModSecurity) with OWASP Core Rule Set; tune to reduce false positives.
 3. Protect against DDoS: CloudFront/Cloudflare at the edge, AWS Shield Advanced or equivalent for layer 3/4 protection.
@@ -92,7 +104,7 @@ Team size?
 5. Use mutual TLS (mTLS) for service-to-service communication; manage certificates with cert-manager or a service mesh.
 6. Implement outbound traffic inspection with a forward proxy to detect data exfiltration and command-and-control traffic.
 
-### Phase 6: Security Monitoring and Incident Detection
+### Phase 6 (~25 min): Security Monitoring and Incident Detection
 1. Aggregate logs centrally: CloudTrail, VPC Flow Logs, application logs, WAF logs → SIEM (Splunk, Elastic Security, Sentinel).
 2. Define detection rules for common attack patterns: credential brute-force, privilege escalation, data exfiltration, crypto mining.
 3. Set up SOAR playbooks for automated triage: enrich alerts with threat intelligence, quarantine compromised hosts, revoke credentials.
@@ -100,7 +112,7 @@ Team size?
 5. Tune alerting to balance signal-to-noise: measure mean time to detect (MTTD) and mean time to acknowledge (MTTA).
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -114,8 +126,26 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `dependency-security` | Managing software supply chain risk: SBOM, vulnerability triage, and automated patching |
 | `security-champions` | Embedding security culture through training, gamification, and champion programs |
 
-## Cross-Skill Coordination
+## Scale Depth
+<!-- QUICK: 30s -- scaling differences at a glance -->
+| Aspect | Solo | Small (2-20) | Medium (20-200) | Enterprise (200+) |
+|--------|------|-------------|-----------------|-------------------|
+| **Threat Modeling** | STRIDE on critical paths only | STRIDE per feature, quarterly review | Continuous threat modeling, PASTA framework | Threat modeling center of excellence, red team exercises |
+| **AppSec Tools** | OWASP ZAP + Dependabot (free) | Snyk/Trivy + Semgrep OSS (CI-integrated) | Burp Suite Pro + Snyk Team + custom rules | Full AppSec program: SAST+DAST+IAST+RASP, bug bounty |
+| **IAM** | AWS IAM roles, no long-lived keys | RBAC + MFA for all humans | JIT access + OIDC + quarterly access reviews | ABAC + permission boundaries + automated deprovisioning |
+| **Secrets Mgmt** | .env in gitignored vault, manual rotation | HashiCorp Vault OSS or cloud secret manager | Vault Enterprise, dynamic secrets, auto-rotation | Multi-region Vault clusters, HSM-backed, envelope encryption |
+| **Monitoring** | Cloud-native (CloudTrail + GuardDuty) | Wazuh/Elastic SIEM (OSS) | Splunk/Elastic + SOAR playbooks | Full SOC: SIEM+SOAR+UEBA+threat intel, 24/7 |
+| **Team** | Part-time security (dev wears security hat) | 1 dedicated security engineer | Security team (2-3) + security champions | CISO + AppSec + InfraSec + SOC + GRC (8+) |
 
+### Transition Triggers
+| From → To | Trigger |
+|-----------|---------|
+| Solo → Small | First security incident; first enterprise customer security review |
+| Small → Medium | SOC 2/ISO 27001 certification; dedicated security hire justified |
+| Medium → Enterprise | IPO prep, operating critical infrastructure, or regulatory mandate (FedRAMP, PCI-DSS Level 1) |
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s -- table of who to talk to when -->
 Security engineers protect the entire organization — they must coordinate with every development team, DevOps for infrastructure hardening, compliance for regulatory alignment, and incident responders for threat containment.
 
 ### Coordinate With
@@ -150,28 +180,38 @@ Security tool outage (WAF down, IDS offline)? → DevOps → Cloud Architect
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Shift left**: security testing in the IDE and at PR time; don't wait for staging or production scans.
 - **Defense in depth**: no single control should be the only line of defense; layer preventive, detective, and corrective controls.
 - **Assume breach**: design systems to limit blast radius, detect intrusions quickly, and recover gracefully.
 - **Secrets never travel in plaintext**: encrypt in transit (TLS) and at rest (KMS); use ephemeral credentials whenever possible.
 - **Patch aggressively**: automate OS and dependency patching; SLA: critical patches within 24 hours, high within 7 days.
 
-## Production Checklist
 
-- [ ] Threat model documented for all tier-1 services; reviewed within the last 6 months
-- [ ] SAST, SCA, and container scanning integrated into CI pipeline; critical/high findings block merge
-- [ ] DAST scanning runs weekly against staging; results triaged and remediated
-- [ ] API gateway enforces authentication, authorization, rate limiting, and input validation
-- [ ] IAM: no long-lived credentials, MFA for all humans, least-privilege roles, quarterly access reviews
-- [ ] Secrets management: centralized vault, auto-rotation enabled, pre-commit hooks detect plaintext secrets
-- [ ] Network: default-deny policies, WAF deployed, DDoS protection active, mTLS for east-west traffic
-- [ ] SIEM aggregating all security logs; detection rules aligned to MITRE ATT&CK framework
-- [ ] Incident response playbooks documented and tabletop-exercised annually
-- [ ] Vulnerability disclosure program and bug bounty policy published
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Threat model documented for all tier-1 services; reviewed within the last 6 months
+- [ ] **[S2]**  SAST, SCA, and container scanning integrated into CI pipeline; critical/high findings block merge
+- [ ] **[S3]**  DAST scanning runs weekly against staging; results triaged and remediated
+- [ ] **[S4]**  API gateway enforces authentication, authorization, rate limiting, and input validation
+- [ ] **[S5]**  IAM: no long-lived credentials, MFA for all humans, least-privilege roles, quarterly access reviews
+- [ ] **[S6]**  Secrets management: centralized vault, auto-rotation enabled, pre-commit hooks detect plaintext secrets
+- [ ] **[S7]**  Network: default-deny policies, WAF deployed, DDoS protection active, mTLS for east-west traffic
+- [ ] **[S8]**  SIEM aggregating all security logs; detection rules aligned to MITRE ATT&CK framework
+- [ ] **[S9]**  Incident response playbooks documented and tabletop-exercised annually
+- [ ] **[S10]**  Vulnerability disclosure program and bug bounty policy published
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - OWASP Top 10: https://owasp.org/www-project-top-ten/
 - MITRE ATT&CK Framework: https://attack.mitre.org/
 - NIST Zero Trust Architecture (SP 800-207): https://www.nist.gov/publications/zero-trust-architecture

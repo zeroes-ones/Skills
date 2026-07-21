@@ -2,8 +2,17 @@
 name: devops-engineer
 description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns, secret management, service mesh, progressive delivery, cost optimization, and disaster recovery. Triggered by terraform, pulumi, ansible, infrastructure, platform, deployment, blue-green, canary, secrets, service mesh, DR, FinOps.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - devops-engineer
+token_budget: 3136
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # DevOps Engineer
 
 Design, automate, and operate resilient multi-cloud infrastructure and delivery pipelines. This skill
@@ -13,7 +22,7 @@ optimization (FinOps), disaster recovery (RPO/RTO design, 3-2-1 backup, failover
 mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flags).
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures
 - Designing and implementing GitOps workflows with Argo CD/Flux for Kubernetes fleet management
 - Architecting multi-region, active-active, or pilot-light disaster recovery topologies
@@ -24,15 +33,127 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
 - Enforcing policy as code: OPA/Checkov in CI pipelines, Sentinel in TFC/E, drift detection
 - Migrating from click-ops → IaC, or push-based CD → GitOps pull-based reconciliation
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### IaC Tool: Terraform vs Pulumi vs CDK
+```
+                     ┌──────────────────────────┐
+                     │ START: Choose IaC tool     │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Team primarily writes in    │
+                    │ TypeScript/Python/Go?       │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Multi-cloud │   │ Terraform HCL   │
+                    │ needed?     │   │ (industry        │
+                    └────┬────────┘   │ standard, largest│
+                         │ YES    NO  │ community)      │
+                    ┌────▼────┐ ┌▼───┴──────────────┐
+                    │ Pulumi  │ │ AWS-only? → CDK    │
+                    │ (real    │ │ GCP-only? → Pulumi │
+                    │  code,   │ │ Otherwise → TF     │
+                    │  multi-  │ └────────────────────┘
+                    │  cloud)  │
+                    └──────────┘
+```
+**When to choose Terraform:** Largest community, HCL acceptable, multi-cloud or AWS-dominant, >3 team members. **When to choose Pulumi:** Multi-cloud + real programming languages needed, team already writes TypeScript/Python, need unit-testable infra code. **When to choose CDK:** AWS-only, TypeScript/Python shop, want high-level constructs, CloudFormation under the hood acceptable.
 
-### Phase 1: Discovery & Infrastructure Audit
+### GitOps vs Push-Based CD
+```
+                     ┌──────────────────────────┐
+                     │ START: Deployment strategy │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Kubernetes-based workloads  │
+                    │ AND >3 services?            │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ GitOps      │   │ Push-based CD   │
+                    │ (Argo CD /  │   │ (GitHub Actions │
+                    │ Flux)       │   │ deploy step or  │
+                    │             │   │ AWS CodeDeploy) │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose GitOps:** K8s-native, >3 services, need drift detection and auto-remediation, >5 engineers deploying independently. **When to choose Push-Based:** Non-K8s workloads (Lambda, ECS), <3 services, simpler pipeline, don't need drift detection.
+
+### Secrets Management Approach
+```
+                     ┌──────────────────────────┐
+                     │ START: Secrets strategy    │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >50 secrets across >5       │
+                    │ services with rotation need?│
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ HashiCorp   │   │ Cloud-native:   │
+                    │ Vault +     │   │ AWS Secrets     │
+                    │ External    │   │ Manager / GCP   │
+                    │ Secrets Op  │   │ Secret Manager  │
+                    │ (dynamic    │   │ + CI/CD env vars│
+                    │  secrets)   │   └────────────────┘
+                    └─────────────┘
+```
+**When to choose Vault:** >50 secrets, dynamic database credentials needed, multi-cloud, auto-rotation with TTL, audit logging required. **When to choose Cloud-Native:** <50 secrets, single cloud, no dynamic secrets needed, simpler operational model, rotation via Lambda/Cloud Functions.
+
+### Progressive Delivery Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: Safe production     │
+                     │ rollout                   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need metrics-based          │
+                    │ automated rollback?         │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Canary +    │   │ Blue-Green:     │
+                    │ Argo        │   │ instant cutover │
+                    │ Rollouts /  │   │ with manual     │
+                    │ Flagger     │   │ verification    │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Canary:** Error budget >0.1%, need gradual traffic shift (5%→50%→100%), metrics-based rollback, >10 deploys/week. **When to choose Blue-Green:** Instant rollback required (<1 min), simpler to reason about, can afford 2× infrastructure, <5 deploys/week.
+
+### Disaster Recovery Topology
+```
+                     ┌──────────────────────────┐
+                     │ START: DR architecture     │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ RPO <1 min AND monthly      │
+                    │ revenue >$1M at risk?       │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Active-     │   │ Backup & Restore│
+                    │ Active with │   │ (RPO 1-24hr,    │
+                    │ multi-region│   │ RTO 1-4hr,      │
+                    │ DB (3-5×     │   │ 1.1× cost)      │
+                    │ cost)       │   └────────────────┘
+                    └─────────────┘
+```
+**When to choose Active-Active:** RPO <1 min, >$1M/month revenue at risk, 99.99% SLA, budget for 3-5× cost. **When to choose Backup & Restore:** RPO 1-24hr acceptable, <$100K/month revenue at risk, cost-sensitive, 99.5% SLA adequate.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Discovery & Infrastructure Audit
 1. **Inventory & Classification** — Catalog every resource across accounts/projects. Identify snowflake servers, untagged resources, and resources not managed by IaC. Use `aws resourcegroupstaggingapi`, `gcloud asset search-all-resources`, or cloud asset inventory tools.
 2. **Architecture Mapping** — Diagram network topology (VPC peering, transit gateway, PrivateLink), data flows, and service dependencies. Document environment topology: dev → staging → UAT → production → DR.
 3. **Maturity Assessment** — Evaluate IaC coverage (%), CI/CD adoption, observability posture, incident response process. Score 1-5 on each DORA capability.
 4. **Security & Compliance Constraints** — Map regulatory requirements (SOC2, HIPAA, PCI-DSS, GDPR) to infrastructure controls: network segmentation, encryption requirements, data residency, audit logging.
 
-### Phase 2: Infrastructure as Code Design
+### Phase 2 (~30 min): Infrastructure as Code Design
 1. **Tool Selection Matrix**
 
    | Factor | Terraform | Pulumi | CDK (AWS/Bicep) |
@@ -73,7 +194,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
    ```
    High/critical violations block apply. Drift detection: `terraform plan` on cron every 6 hours → alert on non-empty diff.
 
-### Phase 3: GitOps & Deployment Architecture
+### Phase 3 (~20 min): GitOps & Deployment Architecture
 1. **GitOps Agent Selection** — Argo CD for enterprise (UI, SSO, multi-tenancy, ApplicationSets); Flux for lightweight, OCI-native, Kustomize-first teams.
 
 2. **Application Patterns**:
@@ -126,7 +247,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
    - SLO error budget > 50% remaining (automated: block if budget exhausted)
    - Manual approval for production (environment protection rules)
 
-### Phase 4: Secret Management Lifecycle
+### Phase 4 (~15 min): Secret Management Lifecycle
 1. **Hierarchy** — Vault as root of trust → cloud-native secret managers (AWS Secrets Manager, GCP Secret Manager) → Kubernetes Secrets via external-secrets operator or Vault Secrets Operator.
 
 2. **Dynamic Secrets** — No static database credentials. Vault generates ephemeral credentials per application instance with lease TTL:
@@ -166,7 +287,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
            property: password
    ```
 
-### Phase 5: Service Mesh Architecture
+### Phase 5 (~25 min): Service Mesh Architecture
 1. **Istio vs Linkerd Decision**:
 
    | Factor | Istio | Linkerd |
@@ -247,7 +368,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
            httpStatus: 500
    ```
 
-### Phase 6: Cost Optimization (FinOps)
+### Phase 6 (~25 min): Cost Optimization (FinOps)
 1. **Tagging Governance** — Every resource tagged with `cost_center`, `environment`, `service`, `managed_by`. Enforced via SCP or OPA policy (block resource creation without tags).
 
 2. **Commitment Discounts**:
@@ -271,7 +392,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
 
 5. **Anomaly Detection** — Monitor daily spend per cost center; alert on +20% deviation from 7-day rolling average.
 
-### Phase 7: Disaster Recovery Implementation
+### Phase 7 (~25 min): Disaster Recovery Implementation
 1. **RPO/RTO Definition** — Business Impact Analysis → tiered classification:
    | Tier | RPO | RTO | Pattern | Example |
    |---|---|---|---|---|
@@ -287,7 +408,7 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
 4. **DR Testing Cadence** — Tabletop monthly, component failover quarterly, full regional failover annually. Measure actual RTO/RPO vs targets; every exercise generates postmortem action items.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -300,7 +421,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `progressive-delivery` | Safe deployment patterns: canary, blue-green, feature flags, and automated rollback |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 DevOps engineers sit at the intersection of development, operations, and security. They provision the infrastructure, automate the pipelines, and manage the secrets that every other role depends on. Proactive coordination prevents deployment failures and security incidents.
 
 ### Coordinate With
@@ -337,7 +458,7 @@ CI/CD pipeline broken? → CI/CD Builder
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Immutable infrastructure** — Replace, never patch. New AMI/container image for every change. Baking config into golden AMIs defeats the purpose — inject at deploy time.
 - **Drift detection on schedule** — `terraform plan` every 6 hours. Alert on non-empty plan. Classify drift: benign (tag mismatch), suspicious (security group opened), critical (unauthorized IAM change → page on-call).
 - **Least-privilege pipelines** — OIDC federation, no static credentials. Separate IAM roles for plan (read-only) vs apply (write). Short-lived tokens with audience restriction.
@@ -427,62 +548,72 @@ Self-hosting only wins when:
 - **Small → Medium**: 3+ services. Manual deploys causing issues. First production incident at 3 AM.
 - **Medium → Enterprise**: 10+ services with cross-team ownership. Multi-region or compliance required. >50 engineers.
 
-## Production Checklist
 
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### IaC & State
-- [ ] Remote state with encryption at rest + locking (S3+DynamoDB, GCS, Azure Blob)
-- [ ] State per environment per component (blast radius isolation)
-- [ ] All modules pinned by immutable git tag or commit SHA
-- [ ] Provider versions pinned (`~>` pessimistic constraint)
-- [ ] `terraform fmt -check` + `terraform validate` enforced in CI
-- [ ] Speculative plan posted as PR comment; apply requires human approval
+- [ ] **[S1]**  Remote state with encryption at rest + locking (S3+DynamoDB, GCS, Azure Blob)
+- [ ] **[S2]**  State per environment per component (blast radius isolation)
+- [ ] **[S3]**  All modules pinned by immutable git tag or commit SHA
+- [ ] **[S4]**  Provider versions pinned (`~>` pessimistic constraint)
+- [ ] **[S5]**  `terraform fmt -check` + `terraform validate` enforced in CI
+- [ ] **[S6]**  Speculative plan posted as PR comment; apply requires human approval
 
 ### GitOps & Deployment
-- [ ] Argo CD/Flux deployed and managing all Kubernetes resources
-- [ ] `selfHeal: true` and `prune: true` for production applications
-- [ ] Sync windows defined for maintenance blackout periods
-- [ ] SSO (OIDC) enabled; RBAC configured per team
-- [ ] Progressive delivery configured (Argo Rollouts or Flagger) with automated analysis
-- [ ] Automated rollback on SLO breach or analysis failure
+- [ ] **[S7]**  Argo CD/Flux deployed and managing all Kubernetes resources
+- [ ] **[S8]**  `selfHeal: true` and `prune: true` for production applications
+- [ ] **[S9]**  Sync windows defined for maintenance blackout periods
+- [ ] **[S10]**  SSO (OIDC) enabled; RBAC configured per team
+- [ ] **[S11]**  Progressive delivery configured (Argo Rollouts or Flagger) with automated analysis
+- [ ] **[S12]**  Automated rollback on SLO breach or analysis failure
 
 ### Secrets & Security
-- [ ] No plaintext secrets in Git, `.tfvars`, or Kubernetes manifests
-- [ ] External Secrets Operator syncing from cloud secret manager
-- [ ] Vault dynamic secrets with lease TTL for databases
-- [ ] Secret rotation automated for all credential types
-- [ ] Kubernetes etcd encryption at rest configured
-- [ ] mTLS enforced mesh-wide (STRICT mode)
+- [ ] **[S13]**  No plaintext secrets in Git, `.tfvars`, or Kubernetes manifests
+- [ ] **[S14]**  External Secrets Operator syncing from cloud secret manager
+- [ ] **[S15]**  Vault dynamic secrets with lease TTL for databases
+- [ ] **[S16]**  Secret rotation automated for all credential types
+- [ ] **[S17]**  Kubernetes etcd encryption at rest configured
+- [ ] **[S18]**  mTLS enforced mesh-wide (STRICT mode)
 
 ### Observability & Alerting
-- [ ] SLOs defined for all critical user journeys with error budgets
-- [ ] Multi-window burn-rate alerts configured and routed to PagerDuty
-- [ ] Golden signals dashboards (RED + USE) for every production service
-- [ ] Distributed tracing with trace_id in structured logs for correlation
+- [ ] **[S19]**  SLOs defined for all critical user journeys with error budgets
+- [ ] **[S20]**  Multi-window burn-rate alerts configured and routed to PagerDuty
+- [ ] **[S21]**  Golden signals dashboards (RED + USE) for every production service
+- [ ] **[S22]**  Distributed tracing with trace_id in structured logs for correlation
 
 ### DR & Reliability
-- [ ] RPO/RTO defined per service tier, signed off by business stakeholders
-- [ ] 3-2-1 backup rule applied to all Tier 0-2 data stores
-- [ ] Cross-region replication for databases and object storage
-- [ ] Failover automation scripted, tested, committed to Git
-- [ ] DR test conducted within last quarter; postmortem action items tracked
-- [ ] DNS TTL ≤ 60s for critical endpoints
+- [ ] **[S23]**  RPO/RTO defined per service tier, signed off by business stakeholders
+- [ ] **[S24]**  3-2-1 backup rule applied to all Tier 0-2 data stores
+- [ ] **[S25]**  Cross-region replication for databases and object storage
+- [ ] **[S26]**  Failover automation scripted, tested, committed to Git
+- [ ] **[S27]**  DR test conducted within last quarter; postmortem action items tracked
+- [ ] **[S28]**  DNS TTL ≤ 60s for critical endpoints
 
 ### Cost & Operations
-- [ ] Tagging governance enforced at account/project level
-- [ ] Budget alerts configured at 50%/80%/100% thresholds
-- [ ] Idle resource detection running weekly
-- [ ] Spot/preemptible instances used for stateless workloads (20-40%)
-- [ ] Runbooks exist for all P1/P2 alerts with escalation paths
-- [ ] Blameless postmortem process established; action items tracked to completion
+- [ ] **[S29]**  Tagging governance enforced at account/project level
+- [ ] **[S30]**  Budget alerts configured at 50%/80%/100% thresholds
+- [ ] **[S31]**  Idle resource detection running weekly
+- [ ] **[S32]**  Spot/preemptible instances used for stateless workloads (20-40%)
+- [ ] **[S33]**  Runbooks exist for all P1/P2 alerts with escalation paths
+- [ ] **[S34]**  Blameless postmortem process established; action items tracked to completion
 
 ### Platform Engineering
-- [ ] Internal developer portal (Backstage, Port) for service catalog
-- [ ] Self-service infrastructure provisioning (TFC workspace per team, Backstage scaffolder)
-- [ ] Golden path templates for new services (CI pipeline + IaC + observability + on-call)
-- [ ] Service mesh in place for mTLS, observability, traffic management
+- [ ] **[S35]**  Internal developer portal (Backstage, Port) for service catalog
+- [ ] **[S36]**  Self-service infrastructure provisioning (TFC workspace per team, Backstage scaffolder)
+- [ ] **[S37]**  Golden path templates for new services (CI pipeline + IaC + observability + on-call)
+- [ ] **[S38]**  Service mesh in place for mTLS, observability, traffic management
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Terraform Patterns — Production Field Manual](references/terraform-patterns.md) — Module design, state management, drift detection, plan review, provider pinning
 - [GitOps with Argo CD — Production Field Manual](references/gitops-argocd-guide.md) — Application patterns, sync policies, health checks, progressive delivery, multi-cluster
 - [Disaster Recovery Playbook](references/disaster-recovery-playbook.md) — RPO/RTO methodology, 3-2-1 backup, failover automation, DR testing, communication templates

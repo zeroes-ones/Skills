@@ -2,13 +2,23 @@
 name: documentation-engineer
 description: Docs-as-code (Docusaurus vs Nextra vs Mintlify vs GitBook), API documentation (OpenAPI, GraphQL, gRPC), information architecture, content quality automation (Vale, broken links), versioning, i18n, analytics, onboarding docs, ADRs, runbooks.
 author: Sandeep Kumar Penchala
+type: specialized
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - documentation-engineer
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
 # Documentation Engineer
 
 A veteran documentation engineer's playbook — docs-as-code infrastructure, static site generator selection, automated API documentation pipelines, information architecture at scale, content quality automation, versioning strategies, internationalization, search optimization, analytics, and production-grade templates for the full documentation lifecycle.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When the agent identifies a specific docs engineering need, drill into the relevant sub-skill. Each sub-skill has dedicated references, templates, and CI configurations.
 
 | Sub-Skill | What It Covers | Key Reference |
@@ -24,7 +34,7 @@ When the agent identifies a specific docs engineering need, drill into the relev
 > **Token-saving rule:** Setting up a docs site? Load "Docs-as-Code Infrastructure" + the SSG decision matrix. Writing an API reference page? Load the API template from `assets/api-reference-template.md` (364 lines) — it's self-contained. Don't load i18n when you're just fixing a broken link.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Selecting a static site generator for docs (Docusaurus vs Nextra vs Mintlify vs GitBook vs VitePress vs Hugo vs ReadTheDocs)
 - Building a docs-as-code pipeline: branching strategy, CI/CD, preview environments, CODEOWNERS
 - Automating API reference generation from OpenAPI, GraphQL schemas (SDL), or Protobuf definitions
@@ -35,6 +45,149 @@ When the agent identifies a specific docs engineering need, drill into the relev
 - Configuring search (Algolia DocSearch, Pagefind) with relevance tuning and analytics
 - Creating onboarding docs, ADRs, runbooks, and incident response documentation programs
 - Establishing documentation metrics: coverage, freshness, quality, usage, contribution
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### 1. SSG Selection
+```
+                     ┌────────────────────┐
+                     │ START: Pick a docs │
+                     │ site generator     │
+                     └─────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ Team on Next.js     │
+                    │ already?            │
+                    └────┬───────────┬────┘
+                         │ YES       │ NO
+                    ┌────▼────┐ ┌───▼──────────────┐
+                    │ Nextra  │ │ Need full MDX +   │
+                    │ (MDX-   │ │ rich plugin eco?  │
+                    │  first) │ └──┬───────────┬────┘
+                    └─────────┘    │YES        │NO
+                          ┌────────▼────┐ ┌───▼─────────┐
+                          │ Docusaurus  │ │ Python shop? │
+                          │ (React+MDX) │ └──┬──────┬────┘
+                          └─────────────┘    │YES   │NO
+                                    ┌────────▼──┐ ┌─▼──────────┐
+                                    │ReadTheDocs │ │Need zero   │
+                                    │(Sphinx/RST)│ │maintenance?│
+                                    └────────────┘ └──┬─────┬───┘
+                                                      │YES  │NO
+                                                ┌─────▼──┐ ┌▼──────┐
+                                                │Mintlify│ │Vite-  │
+                                                │(SaaS)  │ │Press  │
+                                                └────────┘ └───────┘
+```
+**Docusaurus** for most teams — best balance of features, plugins, versioning, and community.  
+**Nextra** for Next.js-first teams wanting MDX and custom React components.  
+**Mintlify** for teams wanting zero-infrastructure SaaS with beautiful defaults at $600+/mo.  
+**ReadTheDocs** for Python-only projects using Sphinx. **VitePress** for minimal Vue-based docs.
+
+### 2. When to Version Docs
+```
+                   ┌────────────────────────┐
+                   │ START: Do you have      │
+                   │ >1 major API version    │
+                   │ in production?          │
+                   └───────────┬────────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ YES → Set up multi- │
+                    │ version: current +   │
+                    │ N-1. Deprecation     │
+                    │ banners on older.    │
+                    └─────────────────────┘
+                    ┌──────────▼──────────┐
+                    │ NO → Single version │
+                    │ is sufficient. Add  │
+                    │ versioning when you │
+                    │ ship v2.            │
+                    └─────────────────────┘
+```
+
+### 3. Search Strategy
+```
+                   ┌───────────────────────┐
+                   │ START: How many docs  │
+                   │ pages do you have?    │
+                   └───────────┬───────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ <50 pages?          │
+                    └────┬───────────┬────┘
+                         │YES        │NO
+                    ┌────▼────┐ ┌───▼──────────┐
+                    │ Pagefind│ │ Open source   │
+                    │ (free,  │ │ project?      │
+                    │ zero    │ └──┬───────┬────┘
+                    │ infra)  │    │YES    │NO
+                    └─────────┘ ┌──▼────┐┌▼──────────┐
+                                │Algolia││Algolia paid│
+                                │Doc-   ││($500+/mo)  │
+                                │Search ││or Pagefind │
+                                │(free) ││for <1000   │
+                                └───────┘│pages       │
+                                         └────────────┘
+```
+**Pagefind for <1000 pages** — zero infrastructure, build-time index, works offline.  
+**Algolia DocSearch for OSS** — free, relevance-tuned, faceted search.  
+**Algolia paid for enterprise** — >1000 pages, need search analytics, faceted by version.
+
+### 4. Content Quality Priority
+```
+                  ┌────────────────────────┐
+                  │ START: What's your     │
+                  │ biggest docs quality   │
+                  │ problem?               │
+                  └───────────┬────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+  ┌─────▼──────┐    ┌────────▼───────┐    ┌────────▼──────┐
+  │ Users say  │    │ Users say docs │    │ Docs site     │
+  │ docs are   │    │ are wrong or  │    │ hard to       │
+  │ hard to    │    │ outdated     │    │ navigate      │
+  │ read       │    │              │    │               │
+  └─────┬──────┘    └────────┬──────┘    └────────┬──────┘
+        │                    │                    │
+  ┌─────▼──────┐    ┌────────▼──────┐    ┌────────▼──────┐
+  │ Add Vale   │    │ Auto-generate │    │ Redesign IA   │
+  │ prose lint │    │ API refs from │    │ with Diataxis │
+  │ + cspell   │    │ OpenAPI spec  │    │ + improve     │
+  │ + readabil-│    │ + add fresh-  │    │ search UX     │
+  │ ity scores │    │ ness checks   │    │               │
+  └────────────┘    └───────────────┘    └───────────────┘
+```
+**Hard to read → Vale + cspell + readability scoring.**  
+**Wrong/outdated → auto-generate from specs + freshness automation.**  
+**Hard to navigate → Diátaxis IA restructure + search relevance tuning.**
+
+### 5. When to Internationalize
+```
+                  ┌─────────────────────────┐
+                  │ START: What % of users  │
+                  │ are non-English?        │
+                  └───────────┬─────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+    ┌─────▼──────┐    ┌───────▼───────┐    ┌──────▼──────┐
+    │ <10%      │    │ 10-30%       │    │ >30%        │
+    └─────┬──────┘    └───────┬───────┘    └──────┬──────┘
+          │                   │                   │
+    ┌─────▼──────┐    ┌───────▼───────┐    ┌──────▼──────┐
+    │ Don't i18n │    │ Translate top │    │ Full i18n   │
+    │ yet. ROI   │    │ 20 pages +   │    │ with Crowdin │
+    │ too low.   │    │ API ref.     │    │ or GitLoc-   │
+    │            │    │ English      │    │ alize. RTL   │
+    │            │    │ fallback for │    │ support.     │
+    │            │    │ rest.        │    │              │
+    └────────────┘    └──────────────┘    └──────────────┘
+```
+**<10% non-English → don't invest in i18n.**  
+**10-30% → translate most-visited pages only, English fallback.**  
+**>30% → full i18n pipeline with Crowdin/GitLocalize and RTL support.**
 
 ## Docs-as-Code
 
@@ -586,7 +739,7 @@ Full templates are available in the `assets/` directory:
 - **Concept Page Template**: Summary, in-depth explanation with diagrams, related concepts. No steps -- understanding, not doing.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Documentation engineering bridges engineering, product, support, and DevRel. The docs platform serves everyone — coordination prevents it from serving no one well.
 
 | Coordinate With | When | What to Share/Ask |
@@ -627,38 +780,88 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Docs CI/CD pipeline broken for >24 hours preventing any docs updates | **CTO Advisor** + DevOps Lead | Production incident; emergency fix or manual deploy required |
 | Decision to deprecate docs-as-code in favor of SaaS platform (or vice versa) | **CTO Advisor** + All Writers + DevRel | Strategic tooling decision; workflow and culture impact |
 
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Docs Health Audit
+**Input:** Repository with `docs/` directory  
+**Steps:** 1) Run health scan (broken links, stale pages, unowned docs, readability) 2) Generate JSON metrics 3) Identify top 3 issues by impact  
+**Output:** Prioritized backlog of docs fixes
+
+### Phase 2 (~30 min): SSG Selection & Setup
+**Input:** Team skillset, content volume (pages), budget, versioning needs  
+**Steps:** 1) Apply SSG decision tree 2) Scaffold site with chosen SSG 3) Configure build pipeline in CI 4) Verify deploy previews work  
+**Output:** Docs site building from `main` with preview deploys on PRs
+
+### Phase 3 (~20 min): Information Architecture Design
+**Input:** Content inventory (all existing docs, API specs, guides)  
+**Steps:** 1) Categorize using Diátaxis framework (tutorials, how-tos, reference, explanation) 2) Design navigation tree with max 4 levels 3) Configure search indexing 4) Set up landing page with quickstart path  
+**Output:** Navigable, searchable docs site with clear content hierarchy
+
+### Phase 4 (~15 min): Quality Gates
+**Input:** Docs CI/CD pipeline  
+**Steps:** 1) Add Vale prose linting with style guide 2) Add cspell with custom dictionary 3) Add link checking (internal + external) 4) Add frontmatter validation 5) Add code snippet validation if applicable  
+**Output:** Every PR validated against quality standards before merge
+
+### Phase 5 (~25 min): Maintenance Automation
+**Input:** Live docs site with analytics  
+**Steps:** 1) Set up freshness checks (flag pages >6 months stale) 2) Configure feedback widget on every page 3) Set up docs metrics dashboard (coverage, freshness, quality, usage) 4) Assign CODEOWNERS for docs paths  
+**Output:** Self-maintaining docs system with automated quality monitoring
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  SSG selected, configured, and building from `main` with CI/CD pipeline operational
+- [ ] **[S2]**  Search configured: Algolia DocSearch or Pagefind with relevance-tuned results
+- [ ] **[S3]**  Version dropdown visible in navbar; `latest` alias redirects to current version
+- [ ] **[S4]**  Deprecation banners shown on outdated versions; older versions frozen
+- [ ] **[S5]**  Broken link checking: internal (build-time error) + external (scheduled weekly)
+- [ ] **[S6]**  Vale prose linting enforced in CI with custom terminology and tone rules
+- [ ] **[S7]**  cspell spell checking with project-specific custom dictionary
+- [ ] **[S8]**  Frontmatter validation: all pages have title, description, sidebar_position, tags
+- [ ] **[S9]**  Readability scoring: pages flagged if Flesch-Kincaid > 12
+- [ ] **[S10]**  Code snippet validation: extracted blocks compile/type-check in CI
+- [ ] **[S11]**  Copy-paste button on every code block
+- [ ] **[S12]**  Dark mode: automatic + manual toggle, all assets have dark variants
+- [ ] **[S13]**  Mobile responsive: readable on 375px screens
+- [ ] **[S14]**  i18n configured: language switcher, fallback to English, RTL support
+- [ ] **[S15]**  Analytics: page views, search analytics, feedback widget on every page
+- [ ] **[S16]**  Feedback funnel: "Was this helpful?" with automated alerts for low-rated pages
+- [ ] **[S17]**  Docs ownership model: CODEOWNERS for docs paths, review rotation, freshness SLA
+- [ ] **[S18]**  Freshness automation: stale doc flagging at 6 months, escalation at 12 months
+- [ ] **[S19]**  Quickstart verified: time-to-first-success < 5 minutes
+- [ ] **[S20]**  Docs metrics dashboard: coverage, freshness, quality, usage, contribution
 
-- [ ] SSG selected, configured, and building from `main` with CI/CD pipeline operational
-- [ ] Search configured: Algolia DocSearch or Pagefind with relevance-tuned results
-- [ ] Version dropdown visible in navbar; `latest` alias redirects to current version
-- [ ] Deprecation banners shown on outdated versions; older versions frozen
-- [ ] Broken link checking: internal (build-time error) + external (scheduled weekly)
-- [ ] Vale prose linting enforced in CI with custom terminology and tone rules
-- [ ] cspell spell checking with project-specific custom dictionary
-- [ ] Frontmatter validation: all pages have title, description, sidebar_position, tags
-- [ ] Readability scoring: pages flagged if Flesch-Kincaid > 12
-- [ ] Code snippet validation: extracted blocks compile/type-check in CI
-- [ ] Copy-paste button on every code block
-- [ ] Dark mode: automatic + manual toggle, all assets have dark variants
-- [ ] Mobile responsive: readable on 375px screens
-- [ ] i18n configured: language switcher, fallback to English, RTL support
-- [ ] Analytics: page views, search analytics, feedback widget on every page
-- [ ] Feedback funnel: "Was this helpful?" with automated alerts for low-rated pages
-- [ ] Docs ownership model: CODEOWNERS for docs paths, review rotation, freshness SLA
-- [ ] Freshness automation: stale doc flagging at 6 months, escalation at 12 months
-- [ ] Quickstart verified: time-to-first-success < 5 minutes
-- [ ] Docs metrics dashboard: coverage, freshness, quality, usage, contribution
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person) → Small (2-10) → Medium (10-50) → Enterprise (50+)
 
-## MVP vs Growth vs Scale
+| Dimension | Solo | Small | Medium | Enterprise |
+|-----------|------|-------|--------|------------|
+| **Docs Infrastructure** | README.md in repo | Docusaurus on Vercel (free) | Docs-as-code CI/CD with previews | Multi-site, multi-repo, SSO-gated docs |
+| **API Reference** | curl examples in README | Auto-generated from OpenAPI | Interactive API explorer (Scalar/Stoplight) | SDK docs + multi-language samples |
+| **Search** | Ctrl+F | Pagefind (free) | Algolia DocSearch | Algolia paid with search analytics |
+| **Quality** | Manual review | Vale + markdownlint in CI | Full quality gates + readability scores | Automated freshness, ownership, contribution tracking |
+| **Versioning** | None needed | Git tags for releases | Multi-version with deprecation banners | Version maintenance policy + SLA |
+| **i18n** | English only | English only | Top pages translated | Full i18n pipeline with Crowdin |
+| **Metrics** | None | Page views | Feedback widget + analytics | Docs-as-product dashboard |
+| **Team** | Developer writes docs | Rotating docs duty | 1 dedicated writer | Docs team (2-4) with specialization |
 
-| Phase | Team Size | Priority | Documentation Approach |
-|-------|-----------|----------|------------------------|
-| **MVP (0→1)** | 1-3 devs | Build product. Document minimum. | README with quick start + setup script. API examples as `curl` commands in README. No docs site, no ADRs, no style guide. All docs in the repo as `.md` files. If a new dev can't get running in 30 minutes, fix the setup, not the docs. |
-| **Growth (1→10)** | 3-15 devs, 1 tech-writer or rotating docs duty | Onboard devs, reduce tribal knowledge | Docs site (Docusaurus/VitePress). Auto-generated API reference from OpenAPI. ADRs in `docs/adr/`. Runbooks for top 5 incidents. Onboarding guide. Style guide started. Vale linting in CI. |
-| **Scale (10→N)** | 15+ devs, dedicated docs team (2-4) | Docs as product — discoverable, accurate, self-serve | Full docs-as-code CI/CD. Automated quality gates. Ownership model with CODEOWNERS. Freshness automation (stale flagging). Broken link checking. Search analytics. SDK docs. Multi-version docs. |
+### Transition Triggers
 
-**MVP docs rule:** 1 README + 1 setup script. That's it. A docs site with search, versioning, and CI/CD for a codebase that changes daily and has 2 developers is tooling overhead. Your docs need is "how do I run this?" — a README answers it perfectly.
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | >3 regular contributors | Set up Docusaurus/VitePress, add search, start style guide |
+| Small → Medium | >50 docs pages, users asking for versioned docs | Add CI/CD quality gates, multi-version setup, auto-generated API refs |
+| Medium → Enterprise | >500 docs pages, non-English user base >10% | Dedicated docs team, i18n pipeline, docs-as-product KPIs, ownership model |
 
 ## Cost-Effective Decision Table
 
@@ -674,36 +877,6 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | OpenAPI editor | VS Code + Redocly/Stoplight plugin (free) | Stoplight Studio ($99/mo) | Design-first workflow with non-dev collaborators |
 
 **Annual docs tool budget by phase:** MVP: $0. Growth: $0-3K. Scale: $5K-50K.
-
-## Scalability Decision Tree
-
-```
-Does setting up the dev environment take >30 minutes for a new developer?
-├── YES → This is the #1 docs problem. Automate setup. One script: `./scripts/setup.sh`.
-│   Beautiful API docs don't matter if your dev can't run the code.
-└── NO → Setup is smooth. Proceed.
-
-Do you have >50 docs pages and no search?
-├── YES → Add Pagefind (free, zero infra, 1 line of config).
-└── NO → Navigation + TOC sufficient for <50 pages.
-
-Are you answering the same question in Slack >3 times?
-├── YES → It belongs in docs. Write the page. Link it next time someone asks.
-│   Use Slack search to find your top 10 answered questions. Those are your docs backlog.
-└── NO → Docs are answering questions. Good.
-
-Is the API reference out of date (doesn't match actual behavior)?
-├── YES → You're hand-writing API docs. Stop. Generate from OpenAPI spec. Spec is source of truth.
-└── NO → Auto-generation is working.
-
-Are docs for a >6-month-old version getting significant traffic?
-├── YES → Add banner: "You're reading v1.2. Latest is v2.1." Link to latest.
-└── NO → Archive old version docs. Keep current + N-1.
-
-Do you have >3 regular contributors and no style guide?
-├── YES → Write a 1-page style guide. Enforce with Vale in CI. Expand as needed.
-└── NO → Style consistency is natural with 1-2 writers.
-```
 
 ## When NOT to Use This Skill (Overkill)
 
@@ -740,8 +913,21 @@ python3 scripts/docs_health.py --docs-dir docs --compare last-week --output json
 
 **Principle:** `docs_health.py` scans the docs directory, outputs JSON with metrics. Agent applies decision tree to exactly one action. Build, lint, and link checking all use exit codes. Never reads doc content into agent context (massive token waste).
 
-## References
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Automate setup, not docs:** If dev setup takes >30 min, fix the setup script — beautiful docs don't help if code won't run. One `./scripts/setup.sh` beats 50 pages of onboarding docs.
+2. **Slack questions are your docs backlog:** Every repeated Slack answer belongs in docs. Search Slack for your top 10 answered questions — write those pages first.
+3. **Generate API refs, never hand-write:** OpenAPI/SDL spec is the source of truth. Hand-written API docs go stale on the next deploy. Use Redoc or Scalar for rendering.
+4. **Search before structure:** Users search, they don't browse. Tune Pagefind/Algolia relevance before reorganizing information architecture. Measure "search exit rate" (searches with no click-through).
+5. **Vale in CI from day 1:** Style guide consistency is free if enforced automatically. One `.vale.ini` + custom terminology rules prevent bikeshedding over tone.
+6. **Version only when you must:** Multi-version docs add maintenance burden. Until you have a v2 in production with users, don't version. When you do, keep current + N-1 only.
+7. **Freshness automation is a feature:** A stale doc is worse than no doc. Flag pages >6 months without update. Escalate at 12 months. Set CODEOWNERS so every page has a human responsible.
+8. **Quickstart is the most important page:** If a new user can't succeed in <5 minutes, they leave. Time-to-first-success is your #1 docs KPI. Test it on a fresh machine monthly.
+9. **"Was this helpful?" on every page:** Binary feedback with optional text. Alert on pages with >50% "no" rate in last 30 days. This is your real-time quality signal.
+10. **Eat your own dogfood:** Docs engineers must follow the same workflow they prescribe. If your team won't use the docs-as-code pipeline, no one else will.
 
+## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Write the Docs -- Documentation Guide](https://www.writethedocs.org/guide/)
 - [Docusaurus -- Documentation Site Generator](https://docusaurus.io/)
 - [VitePress -- Static Site Generator](https://vitepress.dev/)

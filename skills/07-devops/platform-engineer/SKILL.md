@@ -2,8 +2,17 @@
 name: platform-engineer
 description: Internal Developer Platform (IDP) design, golden paths, Backstage, self-service infrastructure, developer portals, scaffolding, developer experience (DX), platform as product. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - platform-engineer
+token_budget: 1938
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Platform Engineer / Developer Experience (DX)
 
 Design and operate an Internal Developer Platform that transforms infrastructure into a product.
@@ -11,8 +20,19 @@ Covers IDP architecture, golden path templates, self-service IaC modules, develo
 implementation (Backstage, Port, Cortex), scaffolding toolchains, ephemeral environments, platform
 APIs, service catalogs, scorecards, and the platform-as-product operating model.
 
-## Decision Trees
+## When to Use
 
+- Your organization has 3+ teams and developers are spending >30% of their time on infrastructure setup
+- You are designing a developer portal (Backstage, Port, Cortex) with a service catalog and scorecards
+- You need to create golden path templates that provision infrastructure, CI/CD, and monitoring from a single scaffold
+- You are building self-service IaC modules so teams can provision databases, queues, and environments without a ticket
+- You need to implement ephemeral preview environments that spin up per pull request and tear down on merge
+- You are defining platform APIs that abstract cloud complexity behind a simple developer-facing interface
+- You are evaluating build vs. buy vs. assemble for platform components (CI, CD, monitoring, secrets management)
+- You need to measure developer experience (DX) with metrics like time-to-first-deploy, DORA metrics, and developer NPS
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Should This Be a Golden Path or Let Teams Choose?
 ```
 Is this capability required for ALL services?
@@ -81,11 +101,14 @@ Level 4 (Productized): Platform has PM, roadmap, SLAs, NPS measurement
   → Pain: balancing innovation with stability, avoiding "platform as bottleneck"
 Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team ownership
   → Trigger: >500 engineers, multiple business units with divergent needs
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Platform Discovery and Strategy
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Platform Discovery and Strategy
 1. **Map the developer journey**: from laptop setup → first commit → deploy → monitor → incident response.
    - Output: Developer journey map with pain points, time-to-X metrics per phase.
 2. **Identify top 3 friction points**: survey developers, measure DORA metrics, time-to-10th-pr.
@@ -96,7 +119,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 4. **Select platform team model**: embedded, consulting, enabling, or product — based on org size (see Decision Tree #4).
    - Output: Team charter with mission, operating model, and stakeholder map.
 
-### Phase 2: Golden Path Design
+### Phase 2 (~30 min): Golden Path Design
 1. **Define the minimum service template**: language runtime, container, health checks, CI pipeline, observability, secrets.
    - Output: Reference implementation that deploys to production in < 1 hour from scaffold.
 2. **Create scaffolding tool**: Cookiecutter/Yeoman template or CLI (`platform create service`) that generates the golden path.
@@ -109,7 +132,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 5. **Write "day 2" operations runbooks**: common tasks (scale up, rotate secrets, restore backup) as self-service workflows.
    - Output: 10-15 runbook entries in the developer portal.
 
-### Phase 3: Developer Portal
+### Phase 3 (~20 min): Developer Portal
 1. **Select and deploy portal**: Backstage (oss), Port (SaaS), Cortex (SaaS), or custom.
    - Decision matrix: Backstage for customization + budget; Port/Cortex for time-to-value (< 2 weeks).
 2. **Implement service catalog**: auto-register services from git repos, Kubernetes, or cloud providers.
@@ -121,7 +144,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 5. **Add scorecards**: define 8-12 tech health checks (CI passing, dependency freshness, coverage %, SLO compliance).
    - Output: Scorecard dashboard showing red/amber/green per service.
 
-### Phase 4: Environment-as-a-Service
+### Phase 4 (~15 min): Environment-as-a-Service
 1. **Design ephemeral environment lifecycle**: per-PR namespace, provision on PR open, tear down on merge/close.
    - Output: Architecture for namespace isolation, DNS routing, data seeding.
 2. **Implement provisioning automation**: Terraform/Tilt/Garden Garden that spins up a full stack per PR.
@@ -130,7 +153,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 3. **Add cost controls**: TTL-based auto-cleanup (default 48h), per-team budget caps, idle detection.
    - Output: Dashboard showing ephemeral environment spend per team per month.
 
-### Phase 5: Platform as Product Operations
+### Phase 5 (~25 min): Platform as Product Operations
 1. **Establish platform SLAs**: availability (99.9%), template freshness (< 30 days behind), support response (< 4h during business hours).
    - Output: Published SLA page visible to all developers.
 2. **Run quarterly developer NPS survey**: measure satisfaction, collect feature requests, identify deprecation candidates.
@@ -141,7 +164,7 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Deprecation tracker with migration status per team.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When | What to Share/Ask |
 |---|---|---|
 | **DevOps Engineer** | Infrastructure module design, CI/CD template creation | Golden path requirements, module API contracts, pipeline template needs |
@@ -165,7 +188,7 @@ Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: No IDP needed. Document patterns in a README. Single Terraform repo. Manual onboarding.
 - **Overkill**: Backstage, scaffolding tools, ephemeral environments, platform APIs, scorecards.
@@ -195,7 +218,7 @@ Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
 - **Transition trigger**: Platform team becomes bottleneck for >20% of requests; >3 business units with divergent platform needs; developer NPS declining.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `golden-path-design` | Designing the standard path from code to production for new services | What to include, what to leave configurable, policy guard placement |
@@ -208,7 +231,7 @@ Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
 | `brownfield-onboarding` | Migrating existing services onto golden paths without disrupting delivery | Migration playbooks, co-investment model, compatibility layers, incremental migration |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Platform as product, not project**: maintain a public roadmap, collect NPS, prioritize based on developer-hours-saved. The platform competes for adoption — make it the path of least resistance.
 - **Golden paths cover 80%, not 100%**: build paved roads for common patterns; teams can leave the path for specialized needs but own the consequences.
 - **Thinnest viable platform**: ship the smallest thing that removes developer toil. A 10-line reusable workflow deployed today beats a full portal launched in 6 months.
@@ -220,25 +243,35 @@ Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
 - **Platform is a product — staff it like one**: a platform team without a PM is an infrastructure team that takes tickets. Add PM, UX, and DevRel as you scale.
 - **Avoid the "platform team as bottleneck" trap**: if every deploy requires platform team approval, you've built a gate, not a platform. Self-service means no human in the loop.
 
-## Production Checklist
 
-- [ ] Golden path template produces a deployable service in < 1 hour from scaffold
-- [ ] Service catalog auto-discovers 100% of production services with owner and on-call metadata
-- [ ] Self-service infrastructure modules covered: compute, database, cache, queue, object storage, secrets
-- [ ] CI/CD pipeline template enforces lint → test → build → security scan → deploy with quality gates
-- [ ] Platform availability SLA published and monitored (target: 99.9% during business hours)
-- [ ] Ephemeral environments auto-provision on PR open and auto-destroy within 48 hours of merge/close
-- [ ] Cost tags applied automatically by all golden path templates (`Environment`, `Service`, `Team`, `CostCenter`)
-- [ ] Platform changelog updated with every release; breaking changes communicated 30+ days in advance
-- [ ] Quarterly developer NPS survey completed with action items tracked to resolution
-- [ ] Scorecard health metrics defined and visible: CI status, dependency freshness, coverage, SLO compliance, security scans
-- [ ] Platform on-call rotation established with runbooks for common incidents (portal down, template failure, module error)
-- [ ] Onboarding guide reduces time-to-first-deploy to < 1 day for new engineers
-- [ ] Deprecation tracker shows migration status for all deprecated features
-- [ ] Brownfield migration playbook exists for services not yet on golden paths
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Golden path template produces a deployable service in < 1 hour from scaffold
+- [ ] **[S2]**  Service catalog auto-discovers 100% of production services with owner and on-call metadata
+- [ ] **[S3]**  Self-service infrastructure modules covered: compute, database, cache, queue, object storage, secrets
+- [ ] **[S4]**  CI/CD pipeline template enforces lint → test → build → security scan → deploy with quality gates
+- [ ] **[S5]**  Platform availability SLA published and monitored (target: 99.9% during business hours)
+- [ ] **[S6]**  Ephemeral environments auto-provision on PR open and auto-destroy within 48 hours of merge/close
+- [ ] **[S7]**  Cost tags applied automatically by all golden path templates (`Environment`, `Service`, `Team`, `CostCenter`)
+- [ ] **[S8]**  Platform changelog updated with every release; breaking changes communicated 30+ days in advance
+- [ ] **[S9]**  Quarterly developer NPS survey completed with action items tracked to resolution
+- [ ] **[S10]**  Scorecard health metrics defined and visible: CI status, dependency freshness, coverage, SLO compliance, security scans
+- [ ] **[S11]**  Platform on-call rotation established with runbooks for common incidents (portal down, template failure, module error)
+- [ ] **[S12]**  Onboarding guide reduces time-to-first-deploy to < 1 day for new engineers
+- [ ] **[S13]**  Deprecation tracker shows migration status for all deprecated features
+- [ ] **[S14]**  Brownfield migration playbook exists for services not yet on golden paths
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Team Topologies](https://teamtopologies.com/) — Conway's Law, stream-aligned teams, enabling teams, platform as product
 - [Backstage](https://backstage.io/) — Spotify's open-source developer portal
 - [Port](https://www.getport.io/) — Developer portal SaaS with self-service actions

@@ -2,14 +2,34 @@
 name: backend-developer
 description: Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development.
 author: Sandeep Kumar Penchala
+type: development
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - backend-developer
+token_budget: 1227
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Backend Developer
 
 Build production-grade backend services with polyglot expertise across Python (FastAPI), Node.js (Express/Fastify), and Go. This is the internal playbook for FAANG-level backend engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: language selection with tradeoff matrices, API design with framework-specific patterns, authentication and authorization (JWT, OAuth 2.0, RBAC), database integration with ORMs and raw SQL, multi-level caching architecture, asynchronous task processing with idempotency guarantees, structured logging with OpenTelemetry tracing, resilience patterns (circuit breakers, retries, graceful degradation), and comprehensive testing.
 
-## Decision Trees
+## When to Use
 
+- You are building a new REST API or GraphQL service and need to choose the right language and framework
+- You need to implement authentication (JWT, OAuth 2.0) and role-based access control (RBAC)
+- You are designing a database schema, writing migrations, or optimizing queries for a relational database
+- You need to add caching (in-memory, Redis, CDN) to improve API response times
+- You are setting up async task processing with background jobs, message queues, and idempotency guarantees
+- You need to implement structured logging, distributed tracing (OpenTelemetry), and health check endpoints
+- You are preparing a service for production with rate limiting, graceful shutdown, and deployment checklists
+- You need to add resilience patterns — circuit breakers, retries with backoff, graceful degradation
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Language & Framework Selection
 
 ```
@@ -38,31 +58,34 @@ Data freshness requirement?
 
 Read:write ratio > 100:1? → Aggressive caching, denormalized reads
 Read:write ratio < 10:1? → Minimal caching, focus on write performance
+
+**What good looks like:** `curl http://localhost:8000/health` returns `{"status":"ok"}` within 200ms. OpenAPI spec renders at `/docs`. All endpoints respond within p95 < 200ms.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: API Design
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): API Design
 1. **Contract-first**: Design OpenAPI 3.1 spec before writing code. Share with frontend/mobile teams.
 2. **Endpoints**: Resources (nouns), not actions (verbs). `GET /orders/{id}` not `GET /getOrder`.
 3. **Pagination**: Cursor-based for large datasets. `?cursor=xxx&limit=50`. Avoid offset pagination beyond page 10.
 4. **Error responses**: Consistent format: `{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [...] } }`. Include request ID for tracing.
 5. **Versioning**: URL prefix (`/v1/`) or header-based. Avoid query param versioning. Have a deprecation policy.
 
-### Phase 2: Implementation
+### Phase 2 (~30 min): Implementation
 1. **Project structure**: Feature-based, not layer-based. `src/orders/` contains routes, service, repository, models together.
 2. **Validation**: Validate at boundary (API layer). Use Pydantic (Python), Zod (Node.js), or `go-playground/validator` (Go). Reject invalid data early.
 3. **Error handling**: Never expose stack traces. Use error codes. Log full error with context server-side. Return sanitized error to client.
 4. **Database access**: Repository pattern. Never expose ORM models directly to API layer. Use Data Transfer Objects (DTOs).
 5. **Async tasks**: Offload non-critical work to background jobs. Ensure idempotency (idempotency keys, deduplication).
 
-### Phase 3: Testing
+### Phase 3 (~20 min): Testing
 1. **Unit tests**: Business logic, validation, transformations. Mock external dependencies.
 2. **Integration tests**: Database, cache, message queue. Use test containers or in-memory alternatives.
 3. **Contract tests**: Verify API responses match OpenAPI spec. Catch breaking changes before deploy.
 4. **Load tests**: k6 or Locust. Test at 2× expected peak QPS. Find bottlenecks before users do.
 
-### Phase 4: Deployment Readiness
+### Phase 4 (~15 min): Deployment Readiness
 1. **Health checks**: `/health` (liveness — is process alive), `/health/ready` (readiness — can serve traffic). Kubernetes uses both.
 2. **Graceful shutdown**: Handle SIGTERM. Stop accepting new requests, drain in-flight requests, close DB connections.
 3. **Migrations**: Run before deploy. Backward-compatible changes only. Rollback plan for every migration.
@@ -104,7 +127,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 - Medium → Enterprise: 3+ teams need to coordinate per deploy. Compliance mandates separation of concerns.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `api-design` | New service, new endpoint | Phase 1 |
@@ -117,7 +140,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 | `containerization` | Docker, deployment | Phase 4 |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **API contract first**: Design the API before writing code. Share with consumers. Use OpenAPI.
 - **Fail fast, fail loud**: Validate at boundaries. Invalid data should never reach business logic.
 - **Idempotency for mutations**: Every POST/PUT/PATCH that affects state should be idempotent via idempotency keys.
@@ -126,21 +149,37 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 - **Connection pooling**: Always pool database connections. Set statement timeout and idle-in-transaction timeout.
 - **Migrate forward, rollback tested**: Every migration has a tested reversal. Expand-contract for zero-downtime schema changes.
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Module not found: Can't resolve '...'` | Missing dependency or incorrect import path | `npm install <package>` or fix import path |
+| `TypeError: Cannot read properties of undefined` | Accessing property on null/undefined value | Add optional chaining (`?.`) or null check before access |
+| `Connection refused` | Target service not running or wrong host/port | Check service status: `docker ps`; verify environment variables |
+| `ECONNREFUSED` | Database server not running | `docker compose up -d db`; check connection string |
+| `413 Payload Too Large` | Request body exceeds server limit | Increase `body-parser` limit or paginate the request |
+| `port 3000 already in use` | Previous process still bound to port | `lsof -ti:3000 \| xargs kill` or use `PORT=3001` |
+| `ETIMEDOUT` | Network connectivity issue or firewall | Check network: `ping <host>`; verify firewall rules |
+
+
 ## Production Checklist
-- [ ] API documented with OpenAPI 3.1 spec — shared with consumers, validated in CI
-- [ ] Authentication and authorization implemented — JWT validated, RBAC enforced, secrets managed
-- [ ] Input validation on all endpoints — server-side, not client-side only
-- [ ] Error responses consistent format with request IDs for tracing
-- [ ] Database migrations versioned and backward-compatible with rollback plan
-- [ ] Health checks: liveness (`/health`) and readiness (`/health/ready`) endpoints
-- [ ] Structured logging with correlation IDs propagated across services
-- [ ] Graceful shutdown handling SIGTERM with connection draining
-- [ ] Rate limiting and throttling on public endpoints
-- [ ] Integration tests on database, cache, and external service interactions
-- [ ] Load tested at 2× expected peak QPS before production launch
-- [ ] Monitoring: error rate, P95 latency, throughput, DB connection pool, queue depth
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  API documented with OpenAPI 3.1 spec — shared with consumers, validated in CI
+- [ ] **[S2]**  Authentication and authorization implemented — JWT validated, RBAC enforced, secrets managed
+- [ ] **[S3]**  Input validation on all endpoints — server-side, not client-side only
+- [ ] **[S4]**  Error responses consistent format with request IDs for tracing
+- [ ] **[S5]**  Database migrations versioned and backward-compatible with rollback plan
+- [ ] **[S6]**  Health checks: liveness (`/health`) and readiness (`/health/ready`) endpoints
+- [ ] **[S7]**  Structured logging with correlation IDs propagated across services
+- [ ] **[S8]**  Graceful shutdown handling SIGTERM with connection draining
+- [ ] **[S9]**  Rate limiting and throttling on public endpoints
+- [ ] **[S10]**  Integration tests on database, cache, and external service interactions
+- [ ] **[S11]**  Load tested at 2× expected peak QPS before production launch
+- [ ] **[S12]**  Monitoring: error rate, P95 latency, throughput, DB connection pool, queue depth
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices)
 - [12 Factor App](https://12factor.net/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/current/)
@@ -149,7 +188,7 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 - [Designing Data-Intensive Applications](https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/) — Martin Kleppmann
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Backend services are integration hubs — they connect databases, external APIs, frontends, and infrastructure. Proactive coordination prevents integration surprises.
 
 ### Coordinate With

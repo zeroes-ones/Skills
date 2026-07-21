@@ -2,8 +2,17 @@
 name: database-reliability-engineer
 description: Database reliability architecture (HA, DR, RPO/RTO), replication and sharding strategies, query optimization, index strategy, connection pooling, backup/recovery, migration with zero downtime, multi-tenant design, and database fleet management. Triggered by DBRE, database reliability, database operations, database scaling, query optimization, sharding, replication, database HA, database DR, database backup.
 author: Sandeep Kumar Penchala
+type: data
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - database-reliability-engineer
+token_budget: 2804
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Database Reliability Engineer (DBRE)
 
 Ensure databases are reliable, performant, scalable, and recoverable. This skill applies SRE principles
@@ -15,8 +24,19 @@ operations, backup and PITR, monitoring and alerting, capacity planning, zero-do
 strategies, multi-tenant design, data archival and lifecycle management, database security, fleet
 management at scale, and cost optimization.
 
-## Decision Trees
+## When to Use
 
+- You need to design a high-availability database architecture with clear RPO and RTO targets
+- You are choosing a replication strategy (synchronous, async, semi-sync, logical) for multi-region DR
+- A production query is slow and you need to analyze execution plans, add indexes, or rewrite the query
+- You need to set up connection pooling (PgBouncer, ProxySQL, RDS Proxy) to handle high connection counts
+- You are planning a sharding or partitioning strategy to scale writes beyond a single database instance
+- You need to implement backup and point-in-time recovery (PITR) with tested restore procedures
+- You are running a zero-downtime schema migration and need an expand-contract or online schema change tool
+- You are managing a fleet of 10+ databases and need standardized monitoring, maintenance, and lifecycle automation
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Replication Strategy Decision
 
 ```
@@ -104,11 +124,14 @@ Recovery requirements?
 └── DR / cross-region
     └── Physical backup replicated to secondary region (WAL-G with S3 cross-region replication)
         └── Warm standby in DR region if RTO < 15min. Cold standby if RTO < 4hrs.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Reliability Architecture Design
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Reliability Architecture Design
 
 1. **Define SLOs — not just "highly available"**
    - Input: Business requirements from product owner
@@ -134,7 +157,7 @@ Recovery requirements?
    - Connections: PgBouncer pool size = (CPU cores × 2-4). Application pool size = 10-20 per process.
    - Anti-pattern: provisioning for "worst case" day 1 — scale up based on data, not guesses.
 
-### Phase 2: Query Performance & Index Strategy
+### Phase 2 (~30 min): Query Performance & Index Strategy
 
 5. **Identify slow queries — systematic, not anecdotal**
    - PostgreSQL: `pg_stat_statements` — top queries by total_time, mean_time, calls, shared_blks_read
@@ -161,7 +184,7 @@ Recovery requirements?
    - `WHERE EXISTS` over `IN` for large subquery results. `LATERAL` joins for top-N-per-group.
    - Avoid function calls on indexed columns: `WHERE date_trunc('day', created_at) = '2024-01-01'` → `WHERE created_at >= '2024-01-01' AND created_at < '2024-01-02'`.
 
-### Phase 3: Maintenance & Operations
+### Phase 3 (~20 min): Maintenance & Operations
 
 9. **Vacuum strategy (PostgreSQL) — the non-negotiable**
    - Autovacuum must be ON. Tune: `autovacuum_vacuum_scale_factor = 0.01` (not default 0.2) for large tables
@@ -180,7 +203,7 @@ Recovery requirements?
     - Quarterly: validate backups — actually restore the latest backup to a staging instance
     - Quarterly: DR failover drill — measure actual RPO/RTO vs targets
 
-### Phase 4: Backup, Recovery & Migration
+### Phase 4 (~15 min): Backup, Recovery & Migration
 
 12. **Backup verification — the backup that isn't tested doesn't exist**
     - Weekly: automated restore test of latest backup to ephemeral instance
@@ -206,7 +229,7 @@ Recovery requirements?
     - Renaming column: unsafe. Use expand-contract: add new column → dual-write → migrate reads → drop old.
     - Dropping column/table: only after weeks of monitoring showing zero references.
 
-### Phase 5: Monitoring, Capacity & Fleet Management
+### Phase 5 (~25 min): Monitoring, Capacity & Fleet Management
 
 16. **Essential monitoring metrics**
     - **Latency**: p50, p95, p99 query duration. Alert: p95 > 2x baseline.
@@ -228,7 +251,7 @@ Recovery requirements?
     - Anti-pattern: SSH into production to run ad-hoc queries. Use read replicas or staging.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 DBREs sit at the intersection of infrastructure, application, and data. Schema changes break applications,
 replication lag breaks dashboards, and connection exhaustion causes outages. Coordination prevents these.
 
@@ -270,7 +293,7 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: DBRE = you're also the backend developer and DevOps. Single database instance, nightly pg_dump backup to S3. Monitoring: database alerts go to your phone. HA: accept downtime for patching. Connection pool: app-level only.
 - **What to skip**: Replication. Automated failover. PITR. Connection pooling middleware. Multi-AZ. DR site. Fleet management. Sharding. Read replicas.
@@ -301,7 +324,7 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 - **Medium → Enterprise**: >1M users. Compliance requirements (SOC 2, HIPAA). Multiple teams with shared database dependencies. Single instance cannot scale vertically.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
 | `ha-architecture` | Designing high availability: auto-failover, quorum, split-brain prevention | Patroni, etcd, multi-AZ, failover testing, quorum design, witness nodes |
@@ -314,7 +337,7 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 | `fleet-management` | Managing many databases at scale, standardization, self-service | Terraform, Ansible, configuration management, provisioning automation, lifecycle management |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Backup that isn't tested doesn't exist** — Automate weekly restore tests. The first time you test a restore should NOT be during an incident.
 - **Connection pooling is mandatory, not optional** — Every PostgreSQL/MySQL instance serving >5 application instances needs PgBouncer or ProxySQL in front. Default max_connections is a trap.
 - **Autovacuum must be aggressive on large tables** — Default `scale_factor = 0.2` is designed for 2005-era storage. Set to 0.01-0.05 for tables > 100GB. Monitor dead tuple ratio.
@@ -326,26 +349,36 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 - **Fleet management scales through standardization** — Every database in your fleet should be provisioned identically (same extensions, same autovacuum settings, same backup schedule). Differences are bugs.
 - **DR testing is quarterly, not optional** — If you haven't failed over to DR this quarter, you don't have DR. Record actual RPO/RTO and track improvement over time.
 
-## Production Checklist
 
-- [ ] SLOs documented: RPO (data loss tolerance), RTO (recovery time target), availability target (99.9%+), with explicit downtime budget
-- [ ] HA topology designed and tested: auto-failover (Patroni, InnoDB Cluster, or managed HA), quorum prevents split-brain
-- [ ] Replication configured: streaming with appropriate sync level for RPO, WAL/binary log archiving continuous
-- [ ] Connection pooling deployed: PgBouncer/ProxySQL/RDS Proxy sized for peak connections + 50% headroom
-- [ ] Backup verified: weekly automated restore tests pass; PITR drill completed within last quarter
-- [ ] DR site tested: quarterly failover drill measures actual RPO/RTO against targets; runbook updated
-- [ ] Monitoring dashboard: query latency (p50/p95/p99), throughput, connections, replication lag, storage, bloat, errors
-- [ ] Alerts configured: replication lag > 5s, storage > 75%, connections > 80% pool, backup failure, deadlock spike, vacuum wraparound approaching
-- [ ] Query optimization: top 20 slow queries identified and indexed; unused indexes reviewed and dropped
-- [ ] Autovacuum tuned: scale_factor reduced for large tables; dead tuple ratio monitored; anti-wraparound alerting in place
-- [ ] Schema migrations safe: expand-contract for all changes; no locking DDL without explicit review; rollback plan for every migration
-- [ ] Capacity plan: 90-day growth trends tracked; upgrade timeline forecast 30 days before hitting 70% of any resource limit
-- [ ] Fleet standardized: all instances provisioned with identical configuration; database schemas in source control (migrations)
-- [ ] Runbooks exist for: primary failure, replication breakage, storage full, connection exhaustion, data corruption, backup restoration
-- [ ] Security: encryption at rest and in transit enabled; audit logging for sensitive data access; IAM-based access control; no shared superuser credentials
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  SLOs documented: RPO (data loss tolerance), RTO (recovery time target), availability target (99.9%+), with explicit downtime budget
+- [ ] **[S2]**  HA topology designed and tested: auto-failover (Patroni, InnoDB Cluster, or managed HA), quorum prevents split-brain
+- [ ] **[S3]**  Replication configured: streaming with appropriate sync level for RPO, WAL/binary log archiving continuous
+- [ ] **[S4]**  Connection pooling deployed: PgBouncer/ProxySQL/RDS Proxy sized for peak connections + 50% headroom
+- [ ] **[S5]**  Backup verified: weekly automated restore tests pass; PITR drill completed within last quarter
+- [ ] **[S6]**  DR site tested: quarterly failover drill measures actual RPO/RTO against targets; runbook updated
+- [ ] **[S7]**  Monitoring dashboard: query latency (p50/p95/p99), throughput, connections, replication lag, storage, bloat, errors
+- [ ] **[S8]**  Alerts configured: replication lag > 5s, storage > 75%, connections > 80% pool, backup failure, deadlock spike, vacuum wraparound approaching
+- [ ] **[S9]**  Query optimization: top 20 slow queries identified and indexed; unused indexes reviewed and dropped
+- [ ] **[S10]**  Autovacuum tuned: scale_factor reduced for large tables; dead tuple ratio monitored; anti-wraparound alerting in place
+- [ ] **[S11]**  Schema migrations safe: expand-contract for all changes; no locking DDL without explicit review; rollback plan for every migration
+- [ ] **[S12]**  Capacity plan: 90-day growth trends tracked; upgrade timeline forecast 30 days before hitting 70% of any resource limit
+- [ ] **[S13]**  Fleet standardized: all instances provisioned with identical configuration; database schemas in source control (migrations)
+- [ ] **[S14]**  Runbooks exist for: primary failure, replication breakage, storage full, connection exhaustion, data corruption, backup restoration
+- [ ] **[S15]**  Security: encryption at rest and in transit enabled; audit logging for sensitive data access; IAM-based access control; no shared superuser credentials
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [HA & DR Architecture Patterns](references/ha-dr-architecture.md) — Patroni, RPO/RTO design, failover topologies, split-brain prevention, DR site design
 - [Query Optimization & Index Strategy](references/query-optimization.md) — EXPLAIN ANALYZE deep dive, index types, covering/partial indexes, query rewriting patterns
 - [Backup & Recovery Runbook](references/backup-recovery.md) — WAL-G/PgBackRest, PITR procedures, backup validation, restore drills, corruption recovery

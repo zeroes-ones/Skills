@@ -2,13 +2,23 @@
 name: code-reviewer
 description: Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review, review code, CR, pull request review, review this.
 author: Sandeep Kumar Penchala
+type: quality
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - code-reviewer
+token_budget: 1681
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Code Reviewer
 
 Perform rigorous, structured code reviews across six dimensions: security, performance, code quality, error handling, testing, and documentation. Each finding is graded by severity (Critical, High, Medium, Low, Info) with specific, actionable recommendations. This skill goes beyond linting — it identifies logic errors, architectural concerns, security vulnerabilities, performance bottlenecks, and test gaps that automated tools miss.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Reviewing pull requests before merge
 - Performing pre-commit self-review on your own code
 - Auditing a codebase for quality, security, or performance issues
@@ -16,7 +26,7 @@ Perform rigorous, structured code reviews across six dimensions: security, perfo
 - Mentoring developers through constructive code review feedback
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth Decision
 
 ```
@@ -99,6 +109,7 @@ Change type?
 6. **Write review**: Group feedback by file/section. Use the severity grading table. Be specific: reference exact line numbers, suggest concrete fixes, explain the "why". Balance constructive criticism with positive feedback on good patterns.
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Be specific and actionable**: "This query could cause an N+1 problem" → "Use `.include('author')` on the Prisma query at line 47 to eager-load authors in one query."
 - **Explain the "why"**: Don't just say "use `useMemo`" — explain that the derived value recomputes on every render, causing downstream re-renders.
 - **Suggest, don't demand**: Use "Consider...", "What do you think about...", "Could we..." for non-critical items.
@@ -107,7 +118,7 @@ Change type?
 - **Automate what can be automated**: Linting, formatting, type checking, security scanning — leave human review for logic, design, and architecture.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Code reviewers are the last line of defense before changes reach production. They must coordinate with authors, security specialists, QA engineers, and platform teams to ensure comprehensive review coverage.
 
 ### Coordinate With
@@ -170,7 +181,7 @@ CI infrastructure issues? → DevOps Engineer
 - **Medium → Enterprise**: Compliance requirements. Multiple teams with shared code ownership. >50 developers.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `security-review` | Auth, crypto, PII, payment code | Dimension 1 — injection, auth, data exposure, dependency CVEs |
@@ -181,19 +192,33 @@ CI infrastructure issues? → DevOps Engineer
 | `documentation-review` | API docs, READMEs, architecture docs, comments | Dimension 6 — JSDoc, API specs, architecture decisions, TODOs |
 | `language-specific` (Python/TS/Go/Rust) | Per-language anti-patterns | `references/language-specific-review-guides.md` |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Test timed out` | Async test not resolving | Add `await` to async assertions; increase `testTimeout` |
+| `Element not found` | Selector doesn't match rendered DOM | Use `page.waitForSelector()` before interaction; check render timing |
+| `flaky test` | Race condition between test and app state | Add `waitFor`/`toBeVisible` instead of fixed timeouts |
+| `Snapshot mismatch` | Component output changed | Run `--updateSnapshot` after intentional UI changes |
+| `Network Error` | Mock not set up for endpoint | Add `page.route()` or `server.use()` for all API calls |
+
+
 ## Production Checklist
-- [ ] Every PR reviewed against all six dimensions before merge
-- [ ] Critical and High severity items resolved before merge
-- [ ] Medium severity items tracked as follow-up tickets
-- [ ] Review comments are specific, actionable, and explain the "why"
-- [ ] Automated checks pass (lint, type-check, tests, security scan) before human review
-- [ ] Reviewer pulled branch and manually tested UI/UX changes
-- [ ] Test coverage for changed code verified (added/modified tests present and meaningful)
-- [ ] Positive feedback given alongside constructive criticism
-- [ ] Review turnaround time tracked and < 24 hours
-- [ ] Security-sensitive changes (auth, payments, PII) reviewed by security specialist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Every PR reviewed against all six dimensions before merge
+- [ ] **[S2]**  Critical and High severity items resolved before merge
+- [ ] **[S3]**  Medium severity items tracked as follow-up tickets
+- [ ] **[S4]**  Review comments are specific, actionable, and explain the "why"
+- [ ] **[S5]**  Automated checks pass (lint, type-check, tests, security scan) before human review
+- [ ] **[S6]**  Reviewer pulled branch and manually tested UI/UX changes
+- [ ] **[S7]**  Test coverage for changed code verified (added/modified tests present and meaningful)
+- [ ] **[S8]**  Positive feedback given alongside constructive criticism
+- [ ] **[S9]**  Review turnaround time tracked and < 24 hours
+- [ ] **[S10]**  Security-sensitive changes (auth, payments, PII) reviewed by security specialist
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Google Engineering Practices — Code Review](https://google.github.io/eng-practices/review/)
 - [Conventional Comments](https://conventionalcomments.org/)
 - [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/)

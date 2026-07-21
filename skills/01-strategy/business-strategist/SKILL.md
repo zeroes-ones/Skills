@@ -2,14 +2,23 @@
 name: business-strategist
 description: Business model design, go-to-market strategy, financial modeling, pricing strategy, and growth planning. Use when designing business models, creating go-to-market plans, modeling financials, evaluating pricing, or planning market expansion.
 author: Sandeep Kumar Penchala
+type: strategy
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - business-strategist
+token_budget: 1977
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Business Strategist
 
 Design and validate business models, craft go-to-market strategies, build financial models, and plan sustainable growth. Think like a COO/CFO/Head of Strategy combined.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Business model canvas design and validation
 - Go-to-market strategy and launch planning
 - Financial modeling: revenue forecasting, unit economics, runway
@@ -19,8 +28,97 @@ Design and validate business models, craft go-to-market strategies, build financ
 - Cost optimization and operational efficiency
 - Fundraising preparation and investor materials
 
-## Sub-Skills
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Pricing Model Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: New pricing model? │
+                     └────────────┬─────────────┘
+                                  │
+               ┌──────────────────▼──────────────────┐
+               │ Is your product self-serve or       │
+               │ sales-assisted?                     │
+               └────┬─────────────────────┬──────────┘
+                    │ Self-serve         │ Sales-assisted
+          ┌─────────▼─────────┐  ┌───────▼──────────┐
+          │ Does value scale   │  │ ACV > $10K?      │
+          │ with usage?        │  └──┬──────────┬────┘
+          └──┬──────────┬──────┘     │ YES       │ NO
+             │ YES      │ NO         ▼           ▼
+             ▼          ▼        ┌────────┐ ┌──────────┐
+        ┌─────────┐ ┌────────┐  │Per-seat │ │Tiered     │
+        │Usage-   │ │Tiered/ │  │+        │ │flat with  │
+        │based    │ │Freemium│  │platform │ │add-ons    │
+        └─────────┘ └────────┘  │fee      │ └──────────┘
+                                └────────┘
+```
+**When to choose Usage-based:** Product value directly correlates with API calls, data processed, or compute consumed. CAC payback < 12 months at median usage.  
+**When to choose Tiered/Flat:** Predictable value delivery per customer. Buyers need budget predictability. Implementation cost is similar regardless of usage volume.
 
+### GTM Channel Strategy
+```
+                     ┌────────────────────────┐
+                     │ START: Which GTM motion?│
+                     └───────────┬────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ What is your ACV?                   │
+              └────┬──────────┬──────────┬──────────┘
+                   │ <$500    │ $500-10K │ >$10K
+                   ▼          ▼          ▼
+            ┌──────────┐ ┌──────────┐ ┌──────────────┐
+            │ PLG +    │ │ Sales-   │ │ Enterprise    │
+            │ Content  │ │ Assisted │ │ Sales +       │
+            │ Marketing│ │ + Content│ │ Outbound SDR  │
+            └──────────┘ └──────────┘ └──────────────┘
+```
+**When to choose PLG/Content:** Self-serve onboarding exists. Product demonstrates value in < 15 minutes. CAC target < $200.  
+**When to choose Enterprise Sales:** Requires procurement, security review, or executive approval. Implementation takes > 2 weeks. ACV justifies > $1K CAC.
+
+### Market Entry Decision
+```
+                     ┌──────────────────────────┐
+                     │ START: Enter new market?  │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Is existing market saturated        │
+              │ (growth < 15% YoY)?                 │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌────────────────────┐
+        │ Adjacent market  │  │ Deepen penetration │
+        │ expansion        │  │ in current market   │
+        └──────────────────┘  └────────────────────┘
+```
+**When to expand:** Current market share > 30% OR TAM in adjacent market > 2x current. Can repurpose > 60% of existing tech/sales motion.  
+**When to deepen:** Current market share < 15%. CAC is trending down. Unit economics improving with scale.
+
+### Fundraising Readiness
+```
+                     ┌──────────────────────────┐
+                     │ START: Time to fundraise? │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Revenue growing > 15% MoM           │
+              │ for 3+ consecutive months?          │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ Fundraise now.   │  │ Extend runway. Fix   │
+        │ LTV/CAC > 3x?    │  │ growth engine first. │
+        │ Gross margin>70%?│  │ Revisit in 6 months. │
+        └──────────────────┘  └──────────────────────┘
+```
+**When to fundraise:** > 6 months runway remaining. Clear use of funds tied to milestones. Strong founder-market fit narrative.  
+**When to wait:** < 4 months runway (emergency mode — bridge round). Growth is flat. Missing key hires needed to deploy capital effectively.
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -33,22 +131,22 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `partnership-strategy` | Channel sales, integrations, platform plays | `references/` (create as needed) |
 
 ## Core Workflow
-
-### Phase 1: Business Model Design
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Business Model Design
 1. Complete Business Model Canvas: value prop, customer segments, channels, revenue streams, key resources, key activities, key partners, cost structure
 2. Identify riskiest assumptions and design experiments to validate
 3. Model unit economics: CAC, LTV, gross margin, payback period
 4. Size the market: TAM, SAM, SOM with bottom-up validation
 5. Map competitive positioning on key dimensions
 
-### Phase 2: Go-to-Market Strategy
+### Phase 2 (~30 min): Go-to-Market Strategy
 1. Define target customer profile and ideal customer profile (ICP)
 2. Design customer acquisition funnel with conversion targets
 3. Select distribution channels with rationale
 4. Create pricing and packaging strategy
 5. Build sales motion: self-serve, sales-assisted, PLG, enterprise
 
-### Phase 3: Financial Planning
+### Phase 3 (~20 min): Financial Planning
 1. Build 3-year financial model: revenue, costs, headcount, cash
 2. Model scenarios: base, optimistic, pessimistic
 3. Define key metrics and milestones for each phase
@@ -119,7 +217,7 @@ Healthy: SOM > $100M with clear path to $1B TAM.
 - Document all assumptions explicitly
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Business strategy lives or dies on cross-functional alignment. A brilliant GTM strategy fails if product can't ship, sales can't sell, and finance can't fund.
 
 ### Coordinate With
@@ -162,7 +260,7 @@ Tactical business decision (segment targeting, campaign optimization, channel mi
 ```
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -201,20 +299,43 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Small → Medium**: Single-channel GTM saturates. Need second channel. Revenue >$2M ARR.
 - **Medium → Enterprise**: Multi-product or multi-geography expansion. IPO preparation. Revenue >$20M ARR.
 
-## Production Checklist
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Model bottom-up, not top-down:** Build financial projections from unit assumptions (conversion rates, ASP, churn) — not by taking 1% of a billion-dollar market. Top-down models die in due diligence.
+2. **TAM is a story, SOM is your target:** Investors care about TAM for narrative. Your GTM plan lives and dies on SOM — a realistic, bottom-up calculation of what you can capture in Year 1–3.
+3. **LTV/CAC > 3 is table stakes, payback < 12 months is gold:** A business with 5x LTV/CAC but 24-month payback runs out of cash. Optimize for payback period, not just ratio.
+4. **Pricing is a process, not a decision:** Launch with a hypothesis, test with 10 customers, iterate quarterly. The right price today is wrong in 12 months. Build pricing review into your operating cadence.
+5. **One GTM channel at a time:** Founders try content + paid + outbound + partnerships simultaneously. Pick the channel with highest LTV/CAC at your stage. Saturate it before adding a second.
+6. **Competitive moat = switching cost + network effects + data advantages:** "Better UX" is not a moat. Document why customers can't leave, why each new user makes the product more valuable, and what data you have that competitors don't.
+7. **Revenue concentration > 30% from one customer = existential risk:** Diversify before fundraising. No single customer should represent more than 15% of revenue. Investors discount concentrated revenue by 30–50%.
+8. **Fundraise when you have momentum, not when you need money:** The best time to raise is when you have 3+ months of 15%+ MoM growth, not when you have 3 months of runway. Desperation is visible and expensive.
+9. **Document assumptions, review them monthly:** Every model has assumptions. Write them down explicitly. Review monthly — which assumptions held, which didn't, and what changed. This is how you build forecasting accuracy.
+10. **Strategy without execution tracking is fiction:** Every strategic initiative needs an owner, a deadline, and a dashboard metric. Review weekly. A beautiful strategy document that nobody executes is worse than no strategy at all.
 
-- [ ] Business model validated with customer discovery
-- [ ] Unit economics positive at scale (LTV/CAC > 3)
-- [ ] Go-to-market plan with channel strategy and budget
-- [ ] Financial model with 3 scenarios and documented assumptions
-- [ ] Pricing tested with target customers
-- [ ] Competitive landscape mapped and monitored
-- [ ] Key metrics dashboard defined
-- [ ] Fundraising materials ready (pitch deck, data room, model)
-- [ ] Risk register with mitigation strategies
-- [ ] 90-day execution plan with owners and deadlines
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Business model validated with customer discovery
+- [ ] **[S2]**  Unit economics positive at scale (LTV/CAC > 3)
+- [ ] **[S3]**  Go-to-market plan with channel strategy and budget
+- [ ] **[S4]**  Financial model with 3 scenarios and documented assumptions
+- [ ] **[S5]**  Pricing tested with target customers
+- [ ] **[S6]**  Competitive landscape mapped and monitored
+- [ ] **[S7]**  Key metrics dashboard defined
+- [ ] **[S8]**  Fundraising materials ready (pitch deck, data room, model)
+- [ ] **[S9]**  Risk register with mitigation strategies
+- [ ] **[S10]**  90-day execution plan with owners and deadlines
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - Related: `ceo-strategist`, `product-manager`, `growth-engineer`
 - Books: Business Model Generation (Osterwalder), Lean Startup (Ries), Obviously Awesome (Jantsch)

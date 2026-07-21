@@ -180,7 +180,7 @@ LTV (Customer Lifetime Value) = ARPU × Gross Margin % × Avg Customer Lifetime 
                                          Monthly Churn Rate
 
 LTV:CAC Ratio = LTV / CAC
-  → Target: >3:1 for SaaS (world-class: >5:1)
+  → Target: >3:1 for SaaS (exceptional: >5:1)
   → <1:1 = you're losing money on every customer
 
 CAC Payback Period = CAC / (ARPU × Gross Margin %)

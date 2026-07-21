@@ -2,13 +2,23 @@
 name: database-designer
 description: Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization.
 author: Sandeep Kumar Penchala
+type: architecture
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - database-designer
+token_budget: 2277
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Database Designer
 
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
 - Choosing between SQL (PostgreSQL, MySQL) and NoSQL (MongoDB, DynamoDB, Cassandra, Redis)
 - Normalizing or denormalizing existing schemas for performance or consistency
@@ -18,9 +28,136 @@ Design efficient, scalable, and maintainable database schemas across relational 
 - Auditing and optimizing slow queries (EXPLAIN ANALYZE, query plan analysis)
 - Designing sharding, partitioning, or replication topologies
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### SQL vs NoSQL Database Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: New data store     │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Schema known upfront,      │
+                    │ needs ACID transactions?   │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ PostgreSQL  │   │ Schema evolves   │
+                    │ (default)   │   │ rapidly or nested│
+                    └─────────────┘   │ documents?      │
+                                      └────┬────────┬───┘
+                                           │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ MongoDB │ │ Key-Value  │
+                                      │         │ │ (Redis/    │
+                                      │         │ │ DynamoDB)  │
+                                      └─────────┘ └────────────┘
+```
+**When to choose PostgreSQL:** Structured data, complex JOINs/aggregations, >90% of use cases — start here unless a specific NoSQL advantage is clear. **When to choose MongoDB:** Rapidly evolving schema, deeply nested JSON documents, no cross-document JOINs needed. **When to choose Key-Value:** Simple GET/SET access patterns, p99 latency <5ms required, caching/session store.
 
-### Phase 1: Requirements Analysis & Technology Selection
+### When to Add an Index
+```
+                     ┌──────────────────────────┐
+                     │ START: Query runs >50ms   │
+                     │ p95 on production         │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ EXPLAIN shows Seq Scan     │
+                    │ on table >10K rows?        │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Add index   │   │ Query is fine — │
+                    │ on filtered │   │ check for N+1   │
+                    │ columns     │   │ or app-side     │
+                    └────┬────────┘   │ issues          │
+                         │            └────────────────┘
+                    ┌────▼────────┐
+                    │ Verify with  │
+                    │ EXPLAIN after│
+                    │ (target: <5ms│
+                    │  Index Scan) │
+                    └──────────────┘
+```
+**When to add index:** Seq Scan on >10K rows, query runs >100× per minute, filtered column cardinality >100 distinct values. **When NOT to add index:** Table <1K rows, write-heavy table (>100 writes/sec) where read:write ratio <10:1, column with <10 distinct values.
+
+### Normalize to 3NF vs Denormalize
+```
+                     ┌──────────────────────────┐
+                     │ START: Data modeling      │
+                     │ decision point            │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Read:Write ratio > 100:1   │
+                    │ AND read latency >20ms?    │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Denormalize │   │ Normalize to    │
+                    │ specific    │   │ 3NF — data      │
+                    │ column(s)   │   │ integrity first │
+                    └─────────────┘   └────────────────┘
+```
+**When to denormalize:** Read:write >100:1, read p95 >20ms, denormalized column is small (<100 bytes), <1% of writes trigger the denormalized update. **When to keep 3NF:** Read:write <10:1, write correctness critical (financial data), data changes must propagate instantly.
+
+### Online vs Maintenance-Window Migration
+```
+                     ┌──────────────────────────┐
+                     │ START: Schema change on   │
+                     │ production table >1M rows │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Adding nullable column     │
+                    │ or new index?              │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Online —     │   │ Adding NOT NULL │
+                    │ safe, <1s    │   │ with DEFAULT?   │
+                    │ lock         │   └────┬────────┬───┘
+                    └──────────────┘        │ YES    │ NO
+                                       ┌────▼────┐ ┌▼──────────┐
+                                       │ Expand- │ │ Maintenance│
+                                       │ Contract│ │ window (off│
+                                       │ (multi-  │ │ -peak, <1h)│
+                                       │ step)    │ └────────────┘
+                                       └──────────┘
+```
+**When to use Expand-Contract:** NOT NULL + DEFAULT on >1M rows, column rename/drop, type change. Steps: add nullable → backfill → set NOT NULL → add DEFAULT → drop old. **When maintenance window is acceptable:** Off-peak traffic <10% of peak, RTO <1hr acceptable, table <1M rows.
+
+### Sharding Decision
+```
+                     ┌──────────────────────────┐
+                     │ START: DB approaching     │
+                     │ capacity limits           │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Read replicas and vertical │
+                    │ scaling already exhausted? │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ >10TB data  │   │ Add replicas or │
+                    │ OR >10K     │   │ scale up first  │
+                    │ writes/sec? │   └────────────────┘
+                    └────┬────────┘
+                         │ YES
+                    ┌────▼────────┐
+                    │ Shard —      │
+                    │ budget $500K │
+                    │ + 6mo + 2    │
+                    │ DBREs        │
+                    └──────────────┘
+```
+**When to shard:** Data >10TB, writes >10K/sec sustained, read replicas maxed out (5+), vertical scaling ceiling hit (r6i.8xlarge). **When NOT to shard:** <1TB data, <5K writes/sec, can add read replicas, team <5 engineers — sharding costs $500K+/year.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Requirements Analysis & Technology Selection
 1. **Identify access patterns**: Read-heavy vs write-heavy, query shapes (point lookups, range scans, aggregations, joins, full-text search), expected QPS and data volume.
 2. **Define consistency requirements**: Strong consistency (ACID) vs eventual consistency (BASE), conflict resolution strategy (LWW, CRDTs, application-level merging).
 3. **Choose database type**:
@@ -32,14 +169,14 @@ Design efficient, scalable, and maintainable database schemas across relational 
    - **Search (Elasticsearch/OpenSearch)**: Full-text search, faceted navigation, log analytics.
    - **Time-Series (TimescaleDB/InfluxDB)**: Metrics, IoT sensor data, monitoring, financial tick data.
 
-### Phase 2: Logical & Physical Data Modeling
+### Phase 2 (~30 min): Logical & Physical Data Modeling
 1. **Entity-Relationship Modeling**: Identify entities, attributes, relationships (1:1, 1:N, M:N), and cardinality constraints.
 2. **Normalization**: Apply 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies). Stop at 3NF for OLTP; BCNF/4NF only for complex cases.
 3. **Denormalization**: Intentionally duplicate data for read performance. Common in CQRS read models, reporting tables, and NoSQL design. Document each denormalization decision.
 4. **Data types**: Use the most specific type (`UUID` not `VARCHAR(36)`, `TIMESTAMPTZ` not `TIMESTAMP`, `NUMERIC(19,4)` for money, `INET` for IP addresses). Leverage domain-specific types: `JSONB` in PostgreSQL for semi-structured data, `ltree` for hierarchical paths, `PostGIS` for geospatial.
 5. **Constraints**: `NOT NULL` by default, `CHECK` constraints for business rules, `UNIQUE` on natural keys, `FOREIGN KEY` where referential integrity matters.
 
-### Phase 3: Indexing Strategy
+### Phase 3 (~20 min): Indexing Strategy
 1. **Analyze query patterns**: Extract all queries from application code; order by frequency and latency sensitivity.
 2. **Covering indexes**: Index includes all columns needed by a query, avoiding heap lookups. PostgreSQL: `CREATE INDEX idx_orders_user_status ON orders(user_id, status) INCLUDE (amount, created_at)`.
 3. **Partial indexes**: Index only relevant rows: `CREATE INDEX idx_active_subscriptions ON subscriptions(user_id) WHERE status = 'active'`.
@@ -47,7 +184,7 @@ Design efficient, scalable, and maintainable database schemas across relational 
 5. **Avoid over-indexing**: Each index costs storage and write performance. Monitor unused indexes (`pg_stat_user_indexes.idx_scan = 0`) and drop them.
 6. **Full-text search indexes**: `GIN` indexes for `tsvector` in PostgreSQL; Elasticsearch for advanced search features.
 
-### Phase 4: Migration Management
+### Phase 4 (~15 min): Migration Management
 1. **Expand-Contract pattern** for zero-downtime schema changes:
    - **Expand**: Add new column/table (non-breaking).
    - **Migrate**: Backfill data, dual-write during transition.
@@ -60,7 +197,7 @@ Design efficient, scalable, and maintainable database schemas across relational 
    - Dropping column/table: only after verifying zero references.
 4. **Rollback planning**: Every migration must have a tested rollback path.
 
-### Phase 5: Query Optimization
+### Phase 5 (~25 min): Query Optimization
 1. Use `EXPLAIN ANALYZE` to profile slow queries.
 2. Identify table scans (`Seq Scan` on large tables), N+1 queries, missing indexes, stale statistics.
 3. **Rewrite queries**: Replace correlated subqueries with JOINs or `LATERAL`, use `WHERE EXISTS` instead of `IN` for large sets, avoid `SELECT *`, add `LIMIT` where appropriate.
@@ -68,7 +205,7 @@ Design efficient, scalable, and maintainable database schemas across relational 
 5. **Read replicas**: Route read queries to replicas; accept replication lag for non-critical reads.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -81,7 +218,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `database-selection` | New project, scaling event | This file — When Postgres is All You Need |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Database design touches every layer of the stack. A schema mistake cascades into application bugs, performance incidents, and migration pain — coordination prevents this.
 
 ### Coordinate With
@@ -124,6 +261,7 @@ Routine schema change (new column, index addition, non-breaking type change)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Model for access patterns, not for "purity"**: Denormalize when read performance matters more than write simplicity.
 - **UUIDs over auto-increment IDs** for distributed systems: UUIDv7 (time-ordered) for primary keys to avoid hot spots.
 - **Soft deletes with caution**: `deleted_at` simplifies recovery but complicates every query (add `WHERE deleted_at IS NULL`). Consider archiving to separate tables instead.
@@ -204,19 +342,32 @@ Do NOT denormalize when: read:write ratio < 10:1 (maintenance will kill you).
 - **Small → Medium**: Read load exceeds single instance capacity (>1000 QPS). First zero-downtime migration needed.
 - **Medium → Enterprise**: >1TB data or >10K writes/sec. Multi-region or compliance (SOC 2, HIPAA, GDPR). >50 developers.
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `relation "..." does not exist` | Migration not run or wrong database | `npx prisma migrate dev` or check `DATABASE_URL` |
+| `deadlock detected` | Concurrent transactions in wrong order | Enforce consistent lock ordering; use `NOWAIT` where appropriate |
+| `connection pool exhausted` | Too many concurrent connections | Increase pool size; add connection timeout; check for leaked connections |
+| `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
+
+
 ## Production Checklist
-- [ ] Database technology selected with documented rationale for the choice
-- [ ] Entity-relationship diagrams (ERDs) created and peer-reviewed
-- [ ] Schema normalized to 3NF with deliberate, documented denormalizations
-- [ ] Indexing strategy aligned with all critical query patterns (EXPLAIN output reviewed)
-- [ ] Migration framework in place with expand-contract for production changes
-- [ ] Connection pooling configured with appropriate limits and timeouts
-- [ ] Backup strategy defined (WAL archiving, PITR, daily snapshots) with tested restore
-- [ ] Encryption at rest (TDE/KMS) and in transit (TLS 1.3) configured
-- [ ] Monitoring dashboards for slow queries, connection counts, replication lag, disk usage
-- [ ] Data retention and archival policy documented and automated
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Database technology selected with documented rationale for the choice
+- [ ] **[S2]**  Entity-relationship diagrams (ERDs) created and peer-reviewed
+- [ ] **[S3]**  Schema normalized to 3NF with deliberate, documented denormalizations
+- [ ] **[S4]**  Indexing strategy aligned with all critical query patterns (EXPLAIN output reviewed)
+- [ ] **[S5]**  Migration framework in place with expand-contract for production changes
+- [ ] **[S6]**  Connection pooling configured with appropriate limits and timeouts
+- [ ] **[S7]**  Backup strategy defined (WAL archiving, PITR, daily snapshots) with tested restore
+- [ ] **[S8]**  Encryption at rest (TDE/KMS) and in transit (TLS 1.3) configured
+- [ ] **[S9]**  Monitoring dashboards for slow queries, connection counts, replication lag, disk usage
+- [ ] **[S10]**  Data retention and archival policy documented and automated
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/current/) — Performance Tips, Index Types
 - [Use the Index, Luke!](https://use-the-index-luke.com/) — Markus Winand
 - [Database Migrations Done Right](https://www.brunton-spall.co.uk/post/2014/05/06/database-migrations-done-right/) — Michael Brunton-Spall
