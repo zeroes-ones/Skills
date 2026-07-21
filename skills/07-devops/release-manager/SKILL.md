@@ -21,6 +21,35 @@ automate release notes, coordinate feature flag dark launches, and run post-rele
 Covers the full release lifecycle from branch strategy through production verification and
 retrospective.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Plan a release (schedule, scope, dependencies) → Jump to "Core Workflow > Phase 1" (Release Planning)
+│   ├── Establish release cadence → Go to "Decision Trees > Release Cadence"
+│   └── Coordinate across teams → Go to "Best Practices > Cross-Team Coordination"
+├── Coordinate a deployment → Jump to "Core Workflow > Phase 2" (Deployment Coordination)
+│   ├── Canary deployment → Go to "Decision Trees > Deployment Strategy Selection"
+│   └── Feature flag management → Jump to "Core Workflow > Phase 2" (Feature Flag Dark Launch)
+├── Run a go/no-go decision → Jump to "Core Workflow > Phase 3" (Go/No-Go Decision)
+├── Plan a rollback → Go to "Core Workflow > Phase 4" (Rollback Planning) and "Best Practices > Rollback"
+├── Set up a canary deployment → Jump to "Decision Trees > Deployment Strategy Selection" and "Core Workflow > Phase 2"
+├── Manage feature flags for release → Go to "Sub-Skills > feature-flag-management"
+└── Not sure where to start? → "Decision Trees > Release Strategy" — match your release frequency to team maturity
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never deploy without a verified rollback plan.** Every deployment must have a documented, tested rollback procedure that takes less time than the deployment itself. If you can't roll back in <5 minutes, don't deploy.
+- **Go/no-go decisions need objective criteria, not gut feel.** Use a checklist: test pass rate, coverage, performance benchmarks, security scan results, change failure rate. "Feels ready" is not a criterion.
+- **Every release needs a communication plan.** Stakeholders, support teams, and on-call engineers must know: what's deploying, when, what changes, what to watch, and who to contact if something breaks.
+- **Feature flags need owners and expiry dates.** Every flag must have a named owner and a removal date (within 1-2 sprints). Flags without expiry dates are technical debt that will cause incidents.
+- **Always verify in production after deploy.** Smoke tests, canary metrics, and real-user monitoring before declaring the release complete. The deploy isn't done when the binary is live — it's done when you've confirmed it works.
+- **Admit what you don't know.** If you don't have visibility into a dependent team's readiness or a downstream system's state, flag it as a risk — don't assume.
+
 ## When to Use
 
 - Your team is shipping too infrequently (or too chaotically) and you need to establish a release cadence
@@ -258,11 +287,16 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | ci-cd-builder | Build artifacts and deployment pipeline |
+| **This** | release-manager | Release plan, go/no-go decision, deployment coordination |
+| **After** | site-reliability-engineer | Production reliability monitoring and incident response |
+
+Common chains:
+- **Chain**: ci-cd-builder → release-manager → site-reliability-engineer — Pipeline produces deployable artifacts; release manager orchestrates rollout; SRE monitors production health
+- **Chain**: qa-engineer → release-manager → incident-responder — QA reports test results; release manager decides go/no-go; incident responder handles any production issues
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

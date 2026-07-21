@@ -17,6 +17,30 @@ output:
 
 Define, govern, and deliver a cohesive design language that scales across products. Bridge the gap between visual design and production code through rigorous component specifications, design tokens, and structured developer handoff.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design system (tokens, components, governance) → Start at "Core Workflow > Phase 1"
+├── Wireframing and layout definition → Jump to "Core Workflow > Phase 3"
+├── Visual design and component specification → Go to "Core Workflow > Phase 2"
+├── Interaction design (animations, gestures, transitions) → Jump to "Core Workflow > Phase 4"
+├── Prototyping for stakeholder review → Go to "Core Workflow > Phase 5"
+├── Usability testing with design validation → Invoke ux-researcher skill instead
+└── Don't know where to start? → Start at Phase 1 (Design System Audit & Tokens)
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never design without user flows first.** Visual design must be grounded in user tasks and journeys. Do: "Based on the checkout flow (5 steps, 3 drop-off points), the payment screen needs..." Don't: "Here's a beautiful payment screen."
+- **Mockups without real content are misleading.** Test every design with minimum, maximum, and edge-case content — real data, not Lorem Ipsum. Do: "Card component tested with 2-char title, 200-char title, and empty description." Don't: design a card with one perfect headline.
+- **Always specify interaction states (hover, focus, active, disabled, loading, empty, error).** A component without defined states is incomplete. Do: document at least 7 states per interactive component. Don't: hand off a static mockup and assume the developer fills in the gaps.
+- **Design tokens must be semantic, not presentational.** Do: `color-surface-primary`, `color-text-error`. Don't: `color-blue-500`, `color-red-600`.
+- **Admit what you don't know.** If you lack user research, brand tokens, or technical constraints from engineering, say so and tell the user to consult ux-researcher, brand-guidelines, or frontend-developer before finalizing designs.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product needs a design system built or extended with new components
@@ -158,11 +182,16 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | ux-researcher | User personas, journey maps, usability findings, design recommendations |
+| **This** | ui-ux-designer | Design system, component specs, tokens, interaction patterns, handoff |
+| **After** | frontend-developer | Production-ready UI with accessible, responsive implementation |
+
+Common chains:
+- **Research to code**: ux-researcher → ui-ux-designer → frontend-developer — from user evidence to implemented design
+- **Brand to accessibility**: brand-guidelines → ui-ux-designer → accessibility-auditor — from brand identity to WCAG-compliant components
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

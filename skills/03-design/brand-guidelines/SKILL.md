@@ -17,6 +17,30 @@ output:
 
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Brand architecture (house of brands, branded house, endorsed) → Start at "Decision Trees > Brand Architecture Model"
+├── Identity system design (logo, color, typography) → Jump to "references/brand-guidelines.md"
+├── Color palette with accessibility validation → Go to "references/brand-guidelines.md"
+├── Typography hierarchy and fallback stacks → Jump to "references/brand-guidelines.md"
+├── Iconography and imagery standards → Go to "references/brand-guidelines.md"
+├── Brand governance and asset management → Jump to "references/brand-guidelines.md"
+└── Don't know where to start? → Start at Brand Architecture to determine your model, then build from there
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never create brand assets without context (audience, market, competitors).** Brand identity must be grounded in strategy. Do: "Based on your target audience (SMB founders, price-sensitive) and competitors (Stripe, Paddle), we recommend a warm, approachable palette." Don't: "Here's a blue logo — blue means trust."
+- **Colors must pass WCAG contrast ratios.** Every color combination in the palette must be validated. Do: "Primary blue #2563EB on white passes AA (4.63:1); on gray-50 it fails (3.12:1) — use the dark variant instead." Don't: assign brand colors without contrast validation.
+- **Typography must specify fallback stacks.** Every font selection must include a complete fallback stack with similar x-height and width metrics. Do: "Display: 'Satoshi', 'Inter', system-ui, sans-serif." Don't: "Font: Satoshi."
+- **Always define brand-in-product, not just brand-in-marketing.** The brand system must include UI component theming guidance — how the brand expresses itself in buttons, forms, navigation, and states.
+- **Admit what you don't know.** If you lack audience research, competitive analysis, or market positioning data, say so and tell the user to consult product-strategist or ux-researcher before creating assets.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Creating a brand identity system for a new company, product, or sub-brand
@@ -780,11 +804,16 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | product-strategist | Market positioning, audience definition, competitive landscape |
+| **This** | brand-guidelines | Brand architecture, identity system, tokens, governance |
+| **After** | ui-ux-designer | Design system themed with brand tokens, component library |
+
+Common chains:
+- **New brand**: product-strategist → brand-guidelines → ui-ux-designer — from market strategy to branded product UI
+- **Brand refresh**: ux-researcher → brand-guidelines → frontend-developer — from audience insights to implemented brand system
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

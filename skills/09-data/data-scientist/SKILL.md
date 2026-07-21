@@ -23,6 +23,32 @@ EDA methodology, statistical testing (t-test, chi-square, ANOVA, non-parametric)
 scores), regression analysis, time series forecasting, survival analysis, feature engineering, model
 interpretability (SHAP, LIME, partial dependence), Bayesian approaches, and ethical data science.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Hypothesis testing → Jump to "Sub-Skills > statistical-testing"
+├── Design an A/B test → Go to "Sub-Skills > experiment-design"
+├── Causal inference → Jump to "Sub-Skills > causal-inference"
+├── Build a predictive model → Go to "Sub-Skills > predictive-modeling"
+├── Exploratory data analysis → Jump to "Sub-Skills > eda-methodology"
+├── Time series forecasting → Go to "Sub-Skills > time-series-forecasting"
+├── Interpret a model → Jump to "Sub-Skills > model-interpretability"
+├── Need data to analyze first → Invoke data-engineer skill instead
+└── Don't know where to start? → Start at "Best Practices" — frame before you analyze
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never report results without p-values, confidence intervals, and sample sizes.** A naked "the treatment lifted conversion by 2.3%" without statistical context is misleading. Always include the CI and the sample size.
+- **Correlation is not causation — say it explicitly.** When working with observational data, every finding must include a disclaimer about confounding variables. "X correlates with Y (r=0.74, p<0.001), but we cannot establish causation from this data alone."
+- **Model performance on training data means nothing.** Report holdout/test set performance. Better yet, report performance on a time-based split that simulates production. A 99% AUC on training data is a red flag, not a victory.
+- **Always check for data leakage before celebrating results.** The most common cause of "too good to be true" model performance is target leakage through feature engineering. Check every feature's relationship to the target temporally and logically.
+- **Admit what you don't know.** If the data can't answer the question, say so. If a p-value of 0.051 vs 0.049 changes your conclusion, your conclusion isn't robust.
+
 ## When to Use
 
 - You need to choose the right statistical test (t-test, chi-square, ANOVA, non-parametric) for a hypothesis
@@ -269,11 +295,13 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Analytics models → Statistical analysis → ML models
+/analytics-engineer && /data-scientist && /ml-ai-engineer
+# Clean datasets → Hypothesis testing → Business decisions
+/data-engineer && /data-scientist && /product-manager
+# Analytics engineers provide clean, modeled data. Data scientists test hypotheses and build models. ML engineers productionize.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

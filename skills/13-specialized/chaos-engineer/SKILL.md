@@ -19,11 +19,16 @@ Systematic resilience verification framework based on Chaos Engineering principl
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | site-reliability-engineer | SLO definitions, error budgets, monitoring dashboards, alert configurations |
+| **This** | chaos-engineer | Chaos experiment designs, fault injection runbooks, GameDay reports, resilience validation |
+| **After** | observability-engineer | Enhanced dashboards, alert tuning, anomaly detection patterns validated by chaos |
+
+Common chains:
+- **Chain**: site-reliability-engineer → chaos-engineer → observability-engineer — SRE defines what "reliable" means; chaos engineer proves (or disproves) it; observability engineer tunes detection.
+- **Chain**: devops-engineer → chaos-engineer → incident-responder — DevOps provisions the testing environment; chaos engineer injects faults; incident responder validates detection and response playbooks.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
@@ -39,6 +44,31 @@ When the agent identifies a specific chaos engineering need, drill into the rele
 | **Chaos in CI/CD** | Automated experiments in staging CI, SLO-based gating, error budget integration, scheduled production experiments | Section below: "CI/CD Integration for Chaos" |
 
 > **Token-saving rule:** Planning a GameDay? Load the GameDay playbook (731 lines) and only the experiment catalog entries for the experiments you're running. Don't load tooling deep dives for tools you aren't using. The experiment catalog alone would consume massive tokens if loaded entirely — pick specific experiments.
+
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Design a chaos experiment → Start at "Steady State Hypothesis Design" under Sub-Skills
+├── Run fault injection (network, pod kills, resource exhaustion, AZ failure) → Go to "Fault Injection" under Sub-Skills
+├── Control blast radius → Jump to "Blast Radius Engineering" under Sub-Skills
+├── Verify steady state hypothesis → Go to "Steady State Hypothesis Design" under Sub-Skills
+├── Plan and run a GameDay → Jump to "GameDay Facilitation" then "references/game-day-playbook.md"
+├── Validate resilience patterns → Go to "Resilience Pattern Validation" under Sub-Skills
+└── Don't know where to start? → Start at "Steady State Hypothesis Design"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never experiment in production without a verified kill switch.** If you can't stop it instantly, you can't start it.
+- **Blast radius must be measured before, during, and after.** Assumed blast radius is the leading cause of chaos incidents.
+- **Steady state hypothesis must be falsifiable.** "The system is resilient" is not a hypothesis. "P99 latency stays under 500ms with 30% packet loss" is.
+- **GameDay findings without remediation tickets are wasted effort.** Every finding must become a tracked action item with an owner.
+- **Always start small and expand.** Staging → canary → 1% → 10% → production. Never jump steps.
+- **Admit what you don't know.** If a failure mode is poorly understood, design an experiment to learn — don't guess.
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->

@@ -17,6 +17,30 @@ output:
 
 Systematically decompose a raw product idea into a complete, implementation-ready specification package — PRD, domain model, API surface, screen inventory, and prioritized work items — so that an engineering team can estimate and build without ambiguity.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── New product ideation (greenfield, napkin sketch) → Start at "Core Workflow > Phase 1"
+├── Feature specification or PRD writing → Jump to "Core Workflow > Phase 2"
+├── API design and contract generation → Go to "Core Workflow > Phase 3"
+├── Screen inventory and interaction definitions → Jump to "Core Workflow > Phase 4"
+├── User story mapping and work breakdown → Go to "Core Workflow > Phase 5"
+├── Stakeholder asks for a formal spec before sprint planning → Jump to "Decision Trees > Spec Depth Decision"
+└── Don't know where to start? → Start at Phase 1 (Discovery & Scoping)
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never invent requirements without user research.** Every requirement must cite a validation source (user interview, analytics, support ticket, stakeholder confirmation). Do: "Based on 12 support tickets and 3 user interviews, the search filter needs date-range support." Don't: "Users probably want date-range filtering."
+- **Every spec needs a validation source.** Scope brief items must trace back to a problem statement, success metric, or user need. No orphan features.
+- **Don't estimate without engineering input.** T-shirt sizes are directional only — never commit a timeline without an engineer reviewing the spec. Do: share the spec async with engineering for a 48-hour review window before committing. Don't: "This is a 3-day feature."
+- **Always define non-goals before happy paths.** The "Out of Scope" section prevents scope creep more than any other artifact.
+- **Admit what you don't know.** If user research is missing, analytics data unavailable, or technical constraints unknown, say so and tell the user to consult ux-researcher or the engineering team before proceeding.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A stakeholder has a one-paragraph idea and needs a formal spec before sprint planning
@@ -153,11 +177,16 @@ debugging.
 
 
 ### Cross-skills Integration
-```bash
-# Idea → Spec → Build → Test
-/idea-to-spec && /product-manager && /backend-developer && /qa-engineer
-# Spec is the contract: what's in scope, what's out, what success looks like.
-```
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | product-strategist | Market opportunity, business case, strategic context |
+| **This** | idea-to-spec | Structured PRD, API contracts, screen inventory, work items |
+| **After** | product-manager | Prioritized backlog, roadmap placement, stakeholder alignment |
+
+Common chains:
+- **New product**: product-strategist → idea-to-spec → product-manager — from business case to prioritized roadmap
+- **Feature work**: ux-researcher → idea-to-spec → backend-developer — from user evidence to implementable API contracts
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

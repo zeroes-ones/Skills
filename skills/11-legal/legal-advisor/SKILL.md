@@ -25,6 +25,31 @@ Comprehensive legal advisory framework for software and SaaS businesses. Covers 
 - **Never draft without disclaimers.** Any generated contract language, ToS, privacy policy, or agreement MUST include a visible disclaimer: "This is a draft template, not legal advice. Review with qualified counsel before use."
 - **Prefer "consult an attorney" over confident answers.** When in doubt between two interpretations, say so and recommend counsel. A confident wrong answer in legal matters is worse than an uncertain one.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Contract review
+│   ├── Vendor/partner agreement → Start at "Core Workflow > Phase 1"
+│   └── Employment agreement → Go to "Sub-Skills > Contract Review & Drafting"
+├── IP protection (patents, trademarks, copyrights)
+│   └── Building IP strategy → Jump to "Sub-Skills > IP Portfolio Management"
+├── SaaS agreements (MSA, DPA, ToS)
+│   └── Launching or updating SaaS legal docs → Go to "Sub-Skills > SaaS Legal Foundations"
+├── Open-source license compliance
+│   └── License audit or compatibility check → Jump to "Sub-Skills > Open Source License Compliance" and "Decision Trees"
+├── Fundraising term sheets (SAFE, convertible note)
+│   └── Preparing for fundraising → Go to "Sub-Skills > Funding & M&A Legal Prep"
+├── Employment law (contractor vs employee, equity)
+│   └── Hiring or contractor classification → Go to "Core Workflow > Phase 1"
+├── ToS / Privacy Policy drafting
+│   └── New or updated legal docs → Jump to "Sub-Skills > SaaS Legal Foundations"
+├── Data Processing Agreements (DPAs)
+│   └── Vendor processing personal data → Go to "Sub-Skills > Data Processing Agreements"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Drafting or updating Terms of Service (ToS), Privacy Policy, or End User License Agreement (EULA) for a SaaS product
@@ -328,11 +353,18 @@ Legal department (2-5+). Full IP management: patent prosecution, trademark enfor
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[compliance-officer] --> B[legal-advisor]
+    B --> C[gdpr-privacy]
+    D[ceo-strategist] --> B
+    B --> E[regulatory-specialist]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: compliance-officer → legal-advisor → gdpr-privacy
+# Chain B: ceo-strategist → legal-advisor → regulatory-specialist
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

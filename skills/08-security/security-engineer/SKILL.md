@@ -139,9 +139,11 @@ Team size?
 
 ### Cross-skills Integration
 ```bash
-# Design review → Build → Security review → Deploy → Monitor
-/system-architect && /backend-developer && /security-reviewer && /ci-cd-builder && /incident-responder
-# Security is reviewed at design phase (threat model), build phase (SAST/SCA), and deploy phase (DAST).
+# Security review → Security implementation → Compliance mapping
+/security-reviewer && /security-engineer && /compliance-officer
+# Infrastructure security → Security hardening → Incident response
+/devops-engineer && /security-engineer && /incident-responder
+# Security reviewer finds issues. Security engineer implements fixes. Compliance officer maps to controls.
 ```
 
 ## Sub-Skills

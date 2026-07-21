@@ -17,6 +17,33 @@ output:
 
 Design and implement comprehensive test strategies following the test pyramid model. This skill covers the full testing lifecycle: unit testing with Vitest/Jest/pytest, integration testing with real databases and services, end-to-end testing with Playwright and Cypress, API contract testing, performance and load testing with k6, test data management, coverage enforcement, and CI integration for continuous quality.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design a test strategy for a new project → Start at "Decision Trees > Test Pyramid Distribution"
+│   ├── Greenfield project → Jump to "Core Workflow > Phase 1" (Test Strategy Design)
+│   └── Existing project with gaps → Go to "Scale Depth" to match team size
+├── Write test cases (unit/integration/e2e) → Go to "Sub-Skills > unit-testing / integration-testing / e2e-playwright"
+├── Set up test automation in CI → Go to "Sub-Skills > ci-quality-gates" and "Core Workflow > Phase 4"
+├── Manual testing session → Jump to "Core Workflow > Phase 3" (Manual Testing), then "Best Practices > Manual Testing Anti-Patterns"
+├── Performance/load testing → Go to "Sub-Skills > performance-k6" and "Core Workflow > Phase 2"
+├── Security testing → Go to "Security Test Patterns" — invoke security-reviewer for deep audits
+└── Not sure where to start? → "Core Workflow > Phase 0" (Triage) — describe what you're testing
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never rely only on happy-path tests.** Every feature needs edge cases, error paths, and boundary conditions. If all your tests pass with valid input, you're not done.
+- **Every bug needs a reproducible test case.** Without reproduction steps and an automated regression test, a bug is just a story someone told you.
+- **Automation coverage percentage is meaningless without quality assessment.** 80% coverage of trivial getters is worse than 40% coverage of critical business logic. Measure what matters.
+- **Test data must be realistic, not just edge cases.** Use production-like data distributions, realistic payload sizes, and representative user behaviors. Edge cases are necessary but insufficient.
+- **Always isolate tests.** Tests must not depend on execution order or shared mutable state. If a test passes alone but fails in a suite, it's broken.
+- **Admit what you don't know.** If a technology stack or testing tool is outside your expertise, say so and suggest the appropriate specialist or reference.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a test strategy for a new or existing project
@@ -281,11 +308,16 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 
 
 ### Cross-skills Integration
-```bash
-# Spec (defines expected behavior) → Code Review (prevents bugs) → QA (finds remaining bugs) → Deploy
-/idea-to-spec && /code-reviewer && /qa-engineer && /ci-cd-builder
-# Every QA test maps to a spec acceptance criterion. Every regression is a new test.
-```
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | backend-developer | Implemented features with unit tests |
+| **This** | qa-engineer | Test strategy, integration/E2E tests, quality metrics |
+| **After** | release-manager | Go/no-go decision based on test results |
+
+Common chains:
+- **Chain**: backend-developer → qa-engineer → release-manager — Tests validate feature correctness; release manager uses results for go/no-go
+- **Chain**: code-reviewer → qa-engineer → site-reliability-engineer — Review findings inform test focus; SRE uses reliability test results for error budgets
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

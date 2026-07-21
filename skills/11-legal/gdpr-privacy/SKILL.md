@@ -27,6 +27,28 @@ These rules apply to *every* response this skill produces. Privacy law is jurisd
 - **Consent is not the default legal basis.** GDPR provides six lawful bases for processing. Consent is only one of them and carries the highest burden (explicit, granular, withdrawable). Do not assume consent is required — legitimate interest, contractual necessity, or legal obligation may apply.
 - **Admit when local counsel is needed.** Member state derogations, DPA enforcement priorities, and national implementations of EU directives vary significantly. When the question involves a specific member state's interpretation, recommend consulting local data protection counsel.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── DPIA (Data Protection Impact Assessment)
+│   └── High-risk processing → Go to "Sub-Skills > DPIA" and "references > 6. Data Protection Impact Assessments"
+├── Consent management
+│   └── Cookie banners or preference centers → Jump to "Sub-Skills > Consent Management" and "references > 5. Cookie Compliance"
+├── DSAR (Data Subject Access Request) response
+│   └── Individual requesting data → Go to "Sub-Skills > DSAR" and "references > 4. Data Subject Rights"
+├── Privacy by design
+│   └── Embedding privacy into architecture → Jump to "Sub-Skills > Privacy by Design"
+├── Cookie compliance
+│   └── Cookie audit and consent → Go to "references > 5. Cookie Compliance"
+├── Cross-border data transfer
+│   └── Transferring data outside EU/EEA → Jump to "Sub-Skills > International Data Transfers" and "references > 8. International Transfers"
+├── Privacy program management
+│   └── Building ROPA, policies, training → Go to "Core Workflow > Phase 1"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building products that collect/process EU resident personal data
@@ -313,11 +335,18 @@ In-house DPO + privacy team (2-5). OneTrust Enterprise / BigID. Automated data m
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[legal-advisor] --> B[gdpr-privacy]
+    B --> C[compliance-officer]
+    D[product-manager] --> B
+    B --> E[security-engineer]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: legal-advisor → gdpr-privacy → compliance-officer
+# Chain B: product-manager → gdpr-privacy → security-engineer
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

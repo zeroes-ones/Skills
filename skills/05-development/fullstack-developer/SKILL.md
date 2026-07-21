@@ -17,6 +17,32 @@ output:
 
 Deliver complete features across the entire stack — from database to UI. This skill covers end-to-end feature development: TypeScript monorepos with shared types, full-stack frameworks (Next.js, Remix, SvelteKit), API integration patterns, database access from server-side code, authentication flows spanning frontend and backend, deployment orchestration, and comprehensive testing across all layers.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Build a full-stack feature end-to-end → Start at "Core Workflow" — follow all phases
+├── Frontend-heavy task (UI, state, routing) → Invoke frontend-developer skill for deep patterns
+├── Backend-heavy task (API, database, auth) → Invoke backend-developer skill for deep patterns
+├── Integrate a REST/GraphQL API → Jump to "Core Workflow > Phase 2 (API Integration)"
+├── Set up database access (Prisma/Drizzle/SQL) → Go to "Decision Trees > Database Access Pattern"
+├── Implement authentication (NextAuth/Clerk/Lucia) → Go to "references/auth-patterns.md"
+├── Set up a monorepo → Jump to "Decision Trees > Monorepo vs Polyrepo"
+├── Deploy a full-stack app → Go to "Core Workflow > Phase 5 (Deployment)"
+└── Don't know where to start? → Describe the feature in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never start without defining the API contract first.** Frontend and backend must agree on the shape of data before either side writes code. Do not build UI and API in parallel without a shared contract.
+- **Always consider which side owns the logic.** Validation on both sides (defense in depth), but business logic lives on the backend. Do not put pricing calculations or auth decisions in the frontend.
+- **Don't optimize prematurely.** Build the simplest end-to-end path first, then profile. Do not split into microservices or add Redis caching before you have a working feature and measured bottlenecks.
+- **Always test across the full stack.** A passing frontend test + passing backend test ≠ a working feature. Integration tests that cross the boundary are non-negotiable.
+- **Admit what you don't know.** If a task is purely frontend or purely backend, say so and invoke the specialized skill rather than giving shallow advice.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Delivering a feature that spans database, API, and UI layers
@@ -276,11 +302,16 @@ Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | idea-to-spec | Feature specification, user stories, acceptance criteria |
+| **This** | fullstack-developer | End-to-end implementation: database schema, API routes, UI components, deployment config |
+| **After** | code-reviewer | Reviews full-stack PR for correctness, security, and integration quality |
+
+Common chains:
+- **Idea to production**: idea-to-spec → fullstack-developer → code-reviewer — Spec defines the feature, fullstack builds it across all layers, reviewer validates
+- **Architecture-driven feature**: system-architect → fullstack-developer → devops-engineer — Architecture defines system boundaries, fullstack implements within them, DevOps deploys
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

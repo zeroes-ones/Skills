@@ -32,6 +32,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never write code without understanding the data model.** Before implementing an endpoint, know the schema, relationships, and query patterns. Do not build API handlers against an unknown database.
+- **Always handle errors explicitly.** Every external call (database, API, queue, file system) must have explicit error handling with appropriate status codes, logging, and fallback behavior. Do not let exceptions propagate to the client as 500s with stack traces.
+- **Never trust client input.** Validate everything at the boundary — types, ranges, formats, sizes, and business rules. Do not pass request bodies directly to database queries or external services.
+- **Always version your API contract.** Breaking changes need a new version or a migration window. Use deprecation headers (Sunset, Deprecation) before removal.
+- **Admit what you don't know.** If you don't know the database schema, expected QPS, deployment environment, or auth provider, say so and ask before writing code.
+
 ## When to Use
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework
@@ -143,11 +153,16 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 
 
 ### Cross-skills Integration
-```bash
-# Design API → Build → Test → Deploy → Monitor
-/api-designer && /backend-developer && /qa-engineer && /ci-cd-builder && /observability-engineer
-# Each stage validates the previous: contract tests verify the API, canary verifies the deploy.
-```
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | api-designer | OpenAPI specs, error models, pagination conventions, auth patterns |
+| **This** | backend-developer | Implementation: routes, validation, business logic, database access, caching, async tasks |
+| **After** | code-reviewer | Reviews code quality, security vulnerabilities, error handling completeness |
+
+Common chains:
+- **API to production**: api-designer → backend-developer → code-reviewer — API contract drives implementation, code review ensures quality before merge
+- **Schema to service**: database-designer → backend-developer → qa-engineer — Schema defines data model, backend builds the service layer, QA validates behavior
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -19,6 +19,32 @@ output:
 Customer Support Engineering — the technical bridge between customers and engineering. Unlike general customer support (which handles billing, account, and non-technical queries), the Support Engineer owns the technical investigation, <!-- DEEP: 10+min -->
 debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Ticket triage & prioritization → Start at "Core Workflow > Phase 1: Triage"
+├── Debugging a customer issue → Go to "Core Workflow > Phase 2: Investigate"
+├── Writing a knowledge base article → Jump to "Core Workflow > Phase 4: Learn" then "KB Article" in Sub-Skills
+├── Handling an escalation → Go to "Core Workflow > Phase 3: Resolve" then "SLA & Escalation Management"
+├── Communicating with a customer → Jump to "Customer Communication" under Sub-Skills
+├── Managing SLA compliance → Go to "SLA & Escalation Management" under Sub-Skills
+├── Setting up support tooling → Go to "references/support-tooling.md"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1: Triage"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never close a ticket without root cause.** Symptom-only fixes create repeat incidents.
+- **Every customer communication needs empathy before solution.** Acknowledge the frustration first, then provide the fix.
+- **Never promise timelines you can't control.** "I'll update you by EOD" beats "This will be fixed in 2 hours."
+- **Escalation must include context, not just a handoff.** Summary, reproduction steps, what's been tried, logs, and impact.
+- **Always verify the fix with the customer.** Never assume "deployed" means "solved."
+- **Admit what you don't know.** If root cause is unclear or a bug report is incomplete, say so.
+
 ## When to Use
 
 - A customer reports a production issue and you need to triage it — determine severity, reproduce, and find root cause
@@ -210,11 +236,16 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | incident-responder | Incident report with root cause analysis and severity classification |
+| **This** | customer-support-engineer | Reproduced bugs, knowledge base articles, resolved customer issues |
+| **After** | qa-engineer | Verified fixes, regression tests for resolved issues |
+
+Common chains:
+- **Chain**: incident-responder → customer-support-engineer → qa-engineer — Incident investigation hands off to support for customer-facing resolution; fixes flow to QA for verification.
+- **Chain**: qa-engineer → customer-support-engineer → technical-writer — QA-discovered edge cases become support KB articles and documentation improvements.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

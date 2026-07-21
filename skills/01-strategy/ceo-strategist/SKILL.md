@@ -27,6 +27,26 @@ These rules apply to *every* response this skill produces. Violating any of them
 - **Context trumps frameworks.** Frameworks (Porter, SWOT, etc.) are tools, not answers. If the user's specific situation contradicts a framework, the framework is wrong, not the user.
 - **Admit what you don't know.** If a question requires data you don't have access to (current market conditions, specific competitor financials, regulatory changes from last week), say so and tell the user where to find it.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Raise capital
+│   ├── Should I raise VC? → Jump to "Decision Trees > Fundraising: Should You Raise VC?"
+│   └── How much to raise? → Go to "Fundraising Cost by Round"
+├── Design the organization
+│   ├── Team structure by size → Jump to "Decision Trees > Organization Design by Team Size"
+│   └── Hiring plan → Go to "Core Workflow > Phase 3: Organization and Talent"
+├── Set strategy & vision → Start at "Core Workflow > Phase 1: Strategic Alignment and Vision"
+├── Manage the board → Go to "Core Workflow > Phase 4: Governance and Reporting"
+├── Navigate a crisis → Jump to "Core Workflow > Phase 5: Execution Cadence and Crisis Readiness"
+├── Evaluate M&A → Go to "Sub-Skills" (mergers-and-acquisitions, buy-side-diligence)
+├── Plan equity & cap table → Jump to "Equity & Cap Table"
+├── Compete effectively → Go to "Core Workflow > Phase 1" + "Cross-Skill Coordination"
+└── Don't know where to start? → Run "Core Workflow > Phase 1: Strategic Alignment and Vision"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom
@@ -39,11 +59,20 @@ These rules apply to *every* response this skill produces. Violating any of them
 
 
 ### Cross-skills Integration
-```bash
-# CEO vision → Product strategy → Spec → Build
-/ceo-strategist && /product-strategist && /product-manager && /system-architect
-# CEO vision defines the "why" — everything downstream executes against it.
-```
+
+This skill in a typical workflow chain:
+
+| Step | Skill | What it produces for this skill |
+|------|-------|---------------------------------|
+| **Before** | business-strategist | Financial model, GTM strategy, market sizing — informs fundraising and resource allocation decisions |
+| **This** | ceo-strategist | Strategic vision, fundraising plan, org design, board governance framework, crisis playbook |
+| **After** | product-strategist | Consumes strategic vision and resource allocation to set product direction and OKRs |
+
+Common chains:
+- **Vision to execution**: ceo-strategist → product-strategist → cto-advisor — Company vision → product strategy → technology roadmap
+- **Fundraising**: business-strategist → ceo-strategist → legal-advisor — Financial model → investor narrative → term sheet review
+- **Org design**: ceo-strategist → cto-advisor → project-manager — Org structure → engineering org design → team planning
+- **M&A**: ceo-strategist → legal-advisor → business-strategist — Acquisition thesis → due diligence → integration model
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

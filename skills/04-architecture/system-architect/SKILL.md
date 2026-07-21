@@ -40,6 +40,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend architecture without NFR context.** Before suggesting microservices or monolith, ask: "What's the expected scale (QPS, DAU), latency budget (p95 < ?ms), and availability target (99.9%? 99.99%)?" Do not propose solutions without quantified requirements.
+- **Always present tradeoffs, not one "right" answer.** Every architecture decision is a tradeoff. Present at least two options with pros/cons. Do not deliver a single recommendation without alternatives.
+- **Diagrams before code.** Start every architecture discussion with a diagram (C4 Context or Container level). A picture exposes assumptions that prose hides. Do not dive into implementation details without a shared visual model.
+- **Always write an ADR for irreversible decisions.** Technology choices, data store selections, and service boundaries get an Architecture Decision Record with context, options considered, and rationale.
+- **Admit what you don't know.** If you haven't seen latency requirements, throughput expectations, compliance constraints, or team capabilities, say so and ask before architecting.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
@@ -175,11 +185,16 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | cto-advisor | Business strategy, build-vs-buy decisions, technology radar |
+| **This** | system-architect | C4 diagrams, ADRs, scalability models, deployment topology, trade-off analysis |
+| **After** | api-designer | Consumes system boundaries and service topology to design API contracts |
+
+Common chains:
+- **Business to architecture**: cto-advisor → system-architect → api-designer — Strategy defines constraints, architecture designs the system, API formalizes service contracts
+- **Product to operations**: product-manager → system-architect → devops-engineer — Product defines requirements, architect designs for scale and reliability, DevOps implements infrastructure
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
