@@ -1,6 +1,6 @@
 ---
 name: ux-researcher
-description: Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product decisions with user evidence. Triggers: "create personas", "journey map", "usability test plan", "research synthesis", "competitive analysis", "heuristic evaluation", "user research".
+description: "Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product decisions with user evidence. Triggered by create personas, journey map, usability test plan, research synthesis, competitive analysis, heuristic evaluation, user research."
 author: Sandeep Kumar Penchala
 type: product
 status: stable

@@ -1,6 +1,6 @@
 ---
 name: product-manager
-description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning, backlog grooming, and strategic product decisions. Triggers: "write a PRD", "prioritize features", "build a roadmap", "define user stories", "RICE score this", "stakeholder update".
+description: "Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning, backlog grooming, and strategic product decisions. Triggered by write a PRD, prioritize features, build a roadmap, define user stories, RICE score this, stakeholder update."
 author: Sandeep Kumar Penchala
 type: product
 status: stable
