@@ -21,6 +21,21 @@ secret management (Vault, external-secrets), infrastructure testing (Terratest, 
 optimization (FinOps), disaster recovery (RPO/RTO design, 3-2-1 backup, failover automation), service
 mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flags).
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Write infrastructure as code (Terraform/Pulumi) → Jump to "Core Workflow" — Phase 1 (IaC)
+├── Set up CI/CD or deployment pipelines → Invoke ci-cd-builder skill instead
+├── Configure secrets management (Vault, SOPS) → Jump to "Core Workflow" — Phase 3 (Secrets)
+├── Set up monitoring and observability → Jump to "Core Workflow" — Phase 5 (Observability)
+├── Plan a deployment strategy (canary, blue-green) → Go to "Decision Trees" — Deployment Strategy
+├── Design cloud infrastructure → Invoke cloud-architect skill instead
+├── Respond to an incident → Invoke incident-responder skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures

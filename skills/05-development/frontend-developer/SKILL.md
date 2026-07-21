@@ -17,6 +17,21 @@ output:
 
 Build performant, accessible, and maintainable web applications using React (Next.js App Router) and Vue (Nuxt). This skill covers the complete frontend engineering practice: framework selection with trade-off analysis, component architecture with Server Components and composition patterns, state management taxonomy (server vs client vs form vs URL), CSS architecture at scale, Core Web Vitals optimization to measurable targets, WCAG 2.2 AA accessibility compliance, bundle optimization with tree shaking and code splitting, and comprehensive testing from unit to E2E.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Build a new component or page → Jump to "Core Workflow" — start at Phase 2 (Implementation)
+├── Optimize performance (Core Web Vitals, bundle size) → Jump to "Core Workflow" — Phase 3 (Performance)
+├── Implement responsive layout or CSS architecture → Go to "Decision Trees" — CSS & Styling Strategy
+├── Set up state management (server/client/form) → Jump to "Core Workflow" — Phase 2 (State Management)
+├── Debug a rendering issue or fix a bug → Jump to "Production Checklist" — verify patterns, then Phase 4
+├── Designing the UI or UX → Invoke ui-ux-designer skill instead
+├── Need a backend API → Invoke backend-developer skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project

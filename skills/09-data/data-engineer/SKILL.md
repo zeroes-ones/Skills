@@ -23,6 +23,21 @@ frameworks (Great Expectations, WAP pattern, data contracts), performance optimi
 clustering, materialized views), governance (catalog, lineage, PII, GDPR), and stream processing
 (Kafka, Flink, exactly-once semantics).
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Build an ETL/ELT pipeline → Jump to "Core Workflow" — Phase 1 (Pipeline Design)
+├── Design a data warehouse or lakehouse → Jump to "Core Workflow" — Phase 2 (Architecture)
+├── Set up streaming (Kafka, Flink, CDC) → Jump to "Core Workflow" — Phase 3 (Stream Processing)
+├── Debug data quality issues → Jump to "Core Workflow" — Phase 4 (Data Quality)
+├── Optimize query performance → Jump to "Best Practices" — partitioning, clustering, materialized views
+├── Need ML models on this data → Invoke ml-ai-engineer skill instead
+├── Need analytics or dashboards → Invoke data-analyst skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing end-to-end data pipelines: ingestion → transformation → storage → serving layers

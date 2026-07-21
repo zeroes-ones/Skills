@@ -22,6 +22,20 @@ deep-dive (composite actions, reusable workflows, OIDC, self-hosted runners), bu
 deployment strategies (rolling, blue-green, canary, feature-flagged), SLSA supply chain security,
 release management (semantic release, changelog, approval workflows), and DORA metrics tracking.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Create a new CI/CD pipeline from scratch → Jump to "Core Workflow" — Phase 1 (Pipeline Architecture)
+├── Optimize slow builds (caching, parallelism, sharding) → Jump to "Core Workflow" — Phase 2 (Build Optimization)
+├── Set up deployments (rolling, blue-green, canary) → Jump to "Core Workflow" — Phase 3 (Deployment)
+├── Add security scanning (SAST, SCA, secrets) to pipeline → Jump to "Core Workflow" — Phase 4 (Security Gates)
+├── Debug a failing pipeline → Go to "Decision Trees" — then "Production Checklist"
+├── Need infrastructure provisioning → Invoke devops-engineer skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Architecting a CI/CD pipeline from scratch for monorepos, microservices, or polyglot codebases

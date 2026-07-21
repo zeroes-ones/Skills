@@ -17,6 +17,21 @@ output:
 
 Build production-grade backend services with polyglot expertise across Python (FastAPI), Node.js (Express/Fastify), and Go. This is the internal playbook for FAANG-level backend engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: language selection with tradeoff matrices, API design with framework-specific patterns, authentication and authorization (JWT, OAuth 2.0, RBAC), database integration with ORMs and raw SQL, multi-level caching architecture, asynchronous task processing with idempotency guarantees, structured logging with OpenTelemetry tracing, resilience patterns (circuit breakers, retries, graceful degradation), and comprehensive testing.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design a new REST API or GraphQL service → Jump to "Core Workflow" — Phase 1 (API Design)
+├── Implement authentication (JWT, OAuth) or RBAC → Go to "Decision Trees" — then Phase 2
+├── Optimize database queries or set up caching → Jump to "Decision Trees" — Caching Strategy
+├── Handle errors, retries, and resilience patterns → Jump to "Best Practices" — idempotency & resilience
+├── Set up a project from scratch → Jump to "Scale Depth" — pick your team size, follow the stack
+├── Design the database schema → Invoke database-designer skill instead
+├── Need deployment or infrastructure → Invoke devops-engineer skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework

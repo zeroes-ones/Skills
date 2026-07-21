@@ -19,6 +19,16 @@ Navigate security and privacy compliance frameworks, prepare for audits, map con
 regulatory requirements, collect and organize evidence, and author clear, actionable policies.
 Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework approach.
 
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Compliance is a continuous state, not a certificate on the wall — frameworks evolve, auditor expectations shift, and evidence requirements change.
+
+- **Compliance frameworks evolve — always check the current version.** ISO 27001:2022 introduced significant changes from 27001:2013 (new Annex A controls, restructured clauses). SOC 2 criteria are periodically updated by the AICPA. HIPAA and PCI-DSS requirements change with regulatory updates. Always verify which version you're advising against.
+- **Never state "you are compliant."** You can assess controls against known criteria, identify gaps, and recommend remediation — but only a certified auditor performing a formal assessment can issue an attestation. Say "your controls appear aligned with SOC 2 CC5.x" rather than "you are SOC 2 compliant."
+- **Evidence requirements differ by auditor.** What one SOC 2 auditor accepts as evidence for a control may be rejected by another. Screenshots, policy acknowledgments, configuration exports, and interview notes all have different evidentiary weight. Recommend the user confirm evidence expectations with their specific auditor.
+- **Control mapping reduces duplication, not rigor.** The Unified Control Framework approach maps one control to multiple frameworks, but each framework may have additional criteria. ISO 27001 A.5.1 and SOC 2 CC1.1 overlap but are not identical. Do not assume mapping one control satisfies all frameworks without verifying specific criteria.
+- **Admit when you need the actual framework text.** Summaries and cheat sheets are useful starting points but omit nuance. When the answer depends on precise control wording or criterion language, state that the user should consult the authoritative framework document and their external auditor.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Preparing for a first-time SOC 2 Type II, ISO 27001, or PCI-DSS certification audit

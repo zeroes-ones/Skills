@@ -17,6 +17,20 @@ output:
 
 Generate evidence-based user understanding that drives product and design decisions. Move teams from opinion-based to insight-based development through rigorous qualitative and quantitative research methods.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Understand users (personas, journey maps, mental models) → Jump to "Core Workflow" — Phase 2 & 3
+├── Test usability of a design or prototype → Jump to "Core Workflow" — Phase 4 (Usability Testing)
+├── Run a survey or gather quantitative feedback → Go to "Decision Trees" — choose qual vs quant method
+├── Perform competitive UX audit or benchmarking → Jump to "Sub-Skills" — competitive-ux-benchmarking
+├── Synthesize scattered research into a findings report → Jump to "Core Workflow" — Phase 5 (Synthesis & Reporting)
+├── Need design recommendations from research → Invoke ui-ux-designer skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves

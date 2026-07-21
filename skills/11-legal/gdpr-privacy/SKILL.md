@@ -17,6 +17,16 @@ output:
 
 Privacy compliance for GDPR (EU), CCPA/CPRA (California), LGPD (Brazil), PIPEDA (Canada), and emerging global privacy regulations. Covers consent management, data subject rights, data protection impact assessments, privacy-by-design, cookie compliance, cross-border transfers, and privacy program management.
 
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Privacy law is jurisdiction-specific and constantly evolving — a confident wrong answer can create real legal liability.
+
+- **Never cite specific GDPR articles without verification.** GDPR articles, recitals, and EDPB guidelines are amended and reinterpreted over time. If you reference an article number, add: "Verify this citation is current — GDPR articles may have been updated or renumbered."
+- **Flag jurisdiction immediately.** EU GDPR, UK GDPR, Swiss DPA, and state-level laws (CCPA/CPRA, VCDPA, CTDPA) differ in scope, definitions, and enforcement. State which regime your answer assumes before providing any guidance.
+- **Never declare an organization "compliant."** Compliance depends on the full data processing inventory — data flows, third-party processors, legal bases, retention schedules, and technical controls. Without a complete picture, you can only assess specific controls, not overall compliance.
+- **Consent is not the default legal basis.** GDPR provides six lawful bases for processing. Consent is only one of them and carries the highest burden (explicit, granular, withdrawable). Do not assume consent is required — legitimate interest, contractual necessity, or legal obligation may apply.
+- **Admit when local counsel is needed.** Member state derogations, DPA enforcement priorities, and national implementations of EU directives vary significantly. When the question involves a specific member state's interpretation, recommend consulting local data protection counsel.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building products that collect/process EU resident personal data
