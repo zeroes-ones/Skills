@@ -1,24 +1,24 @@
-# Sandeep Kumar Penchala Skills Library
+# Skills Library
 
 > **Author:** Sandeep Kumar Penchala  
-> **Goal:** The best AI agent skills on the planet — for building the world's best products.
+> **Goal:** A practical, comprehensive skills library that helps you build products end-to-end — from idea to production, solo to enterprise.
 
-A comprehensive, agent-agnostic skills library covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Every skill includes decision trees, scale depth guidance, cross-skill coordination, deep references, templates, and production checklists.
+A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**56 skills across 13 domains. 100+ reference documents. 20+ asset templates.**
+**56 skills across 13 domains. 98 reference documents. 20+ asset templates.**
 
 ## Philosophy
 
-Every skill must be **the best of its kind in the world**:
+We focus on what actually matters when building software:
 
-- **Depth over breadth** — Masters 5 topics, doesn't skim 20. Goes to the root.
-- **Actionable over academic** — Every line tells you what to DO, not what to ponder.
-- **Concrete over abstract** — Decision trees, comparison tables, specific metrics, code patterns.
-- **Opinionated where data-backed** — Best practices earned through experience, not theory.
-- **Domain-agnostic** — Universal frameworks for ANY industry: healthcare, fintech, gaming, e-commerce, government, open source. Industry specifics live in `references/`.
-- **Scale-aware** — Every skill covers Solo → Small → Medium → Enterprise. What's overkill at one scale is essential at another.
-- **Coordination-aware** — Every skill knows which other skills to coordinate with, when to escalate, and what to communicate.
-- **Agent-agnostic** — Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, or any SKILL.md-compatible agent.
+- **Deep, not wide** — Each skill masters its domain. No surface-level coverage.
+- **Do, don't ponder** — Every section tells you what to DO, with concrete steps.
+- **Concrete frameworks** — Decision trees, comparison tables, specific metrics, code patterns. No hand-waving.
+- **Opinionated from experience** — Practices backed by real-world results, not theory.
+- **Industry-agnostic** — Frameworks apply to healthcare, fintech, gaming, e-commerce, government, open source, and more. Industry specifics live in `references/`.
+- **Scales with you** — Every skill covers Solo → Small → Medium → Enterprise. What's overkill today might be essential tomorrow.
+- **Knows its neighbors** — Every skill maps which other skills it coordinates with, when to escalate, and what to communicate.
+- **Works anywhere** — Compatible with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, and any agent that reads SKILL.md files.
 
 See [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) for our quality bar and review process.
 

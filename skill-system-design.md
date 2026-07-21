@@ -1,4 +1,4 @@
-# Universal Skill System — Design for the World's Best Skills
+# Universal Skill System — Design Specification
 
 > **Status:** Design Specification v2.0  
 > **Date:** 2026-07-21  

@@ -8,14 +8,14 @@
 
 ## Quality Philosophy
 
-Every skill in this repository must be **the best skill of its kind in the world**. This means:
+Every skill in this repository must be a skill you'd want to use yourself:
 
 1. **Depth over breadth** — A skill goes deep on its domain. It doesn't skim 20 topics; it masters 5.
 2. **Actionable over academic** — Every section tells you what to DO, not what to think about.
 3. **Concrete over abstract** — Decision trees, comparison tables, specific metrics, code patterns. No "it depends" without the framework to decide.
 4. **Opinionated where justified** — Best practices backed by data and experience. Not all options are equal.
 5. **Agent-agnostic** — Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, or any agent that reads SKILL.md.
-6. **Domain-agnostic** — Universal frameworks applicable to ANY industry (healthcare, fintech, gaming, e-commerce, government, open source). Industry specifics live in `references/`, not in core SKILL.md.
+6. **Domain-agnostic** — Universal frameworks applicable to any industry (healthcare, fintech, gaming, e-commerce, government, open source). Industry specifics live in `references/`, not in core SKILL.md.
 7. **Scale-aware** — Every skill covers Solo → Small → Medium → Enterprise. What's overkill at one scale is essential at another.
 8. **Coordination-aware** — Every skill knows which other skills it must coordinate with, when to escalate, and what to communicate at each scale.
 
