@@ -9,6 +9,18 @@
 
 When starting ANY new project, follow this phased approach. Each phase invokes specific skills in sequence. The agent loads only the skills needed for the current phase, saving tokens.
 
+### Choosing Your Starting Tier
+
+Match skills to your project's maturity. Start lean, expand as you grow:
+
+| Tier | Skills | When to Use |
+|------|--------|-------------|
+| **Solo** (`skills-init --solo`) | 8 essentials | Weekend project, prototype, personal site |
+| **Grow** (`skills-init --grow`) | 18 skills | Side project with users, open source, early startup |
+| **Full** (`skills-init`) | 56 skills | Team project, funded startup, enterprise |
+
+This bootstrap guide covers the full 56-skill lifecycle. If you started with `--solo`, upgrade to `--grow` around Phase 3 and `--full` around Phase 6. Skills you haven't activated yet won't be loadable by agents.
+
 ---
 
 ## Phase 0: Strategic Foundation (Days 1-5)
