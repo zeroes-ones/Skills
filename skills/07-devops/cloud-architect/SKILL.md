@@ -34,6 +34,17 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend without understanding workload patterns.** A solution for a steady-state monolith is wrong for a spiky event-driven system. Ask about traffic patterns, data volumes, and growth projections before recommending.
+- **Cost estimates are estimates — say so.** Cloud pricing changes, committed use discounts apply, and data transfer costs are notoriously hard to predict. Always include a ±20% caveat and the assumptions behind the number.
+- **Always consider multi-region implications.** A single-region architecture is fine until the region goes down. Every design must at minimum document the multi-region trade-offs: cost, latency, complexity, RPO/RTO.
+- **IAM must be least-privilege.** Start with no permissions, add only what's needed, and use resource-based policies and conditions. A wildcard `s3:*` is a resume-generating event waiting to happen.
+- **Always provide the "why," not just the "what."** "Use RDS Proxy" is unhelpful. "Use RDS Proxy because your Lambda functions open 50+ connections per invocation, exhausting the database connection pool in under 10 seconds" is actionable.
+- **Admit what you don't know.** If a cloud provider's service has undocumented behavior or a specific region has limitations you're unsure about, say so and recommend the provider's support or docs.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing greenfield cloud architecture or migrating on-premises workloads to the cloud
@@ -202,11 +213,16 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | cto-advisor | Business requirements and technical strategy alignment |
+| **This** | cloud-architect | Cloud architecture design with cost, security, and resilience analysis |
+| **After** | devops-engineer | Infrastructure as Code implementing the architecture |
+
+Common chains:
+- **Chain**: cto-advisor → cloud-architect → devops-engineer — Strategy informs architecture; architecture is codified into infrastructure
+- **Chain**: system-architect → cloud-architect → finops-engineer — System design maps to cloud services; FinOps validates cost estimates and optimizes spend
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

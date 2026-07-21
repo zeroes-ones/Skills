@@ -36,6 +36,17 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never apply terraform without reviewing the plan.** Always run `terraform plan` and inspect every resource change before `apply`. A typo in a `count` or `for_each` can destroy production.
+- **Infrastructure changes need rollback plans.** Every IaC change must have a documented rollback: can you `terraform apply` the previous commit? Is state versioned? Are there data plane changes that can't be rolled back?
+- **Never expose secrets in state files.** Terraform state contains all resource attributes in plaintext. Use encrypted backends, treat state files as secrets, and never commit them to version control.
+- **Always consider blast radius.** A single Terraform workspace managing 500 resources across 3 environments is a disaster. Use smaller state files, separate workspaces, and explicit dependencies. If you can `destroy` it with one command, it's too big.
+- **Always think about the operator on call at 3 AM.** The runbook for "increase capacity" shouldn't be "run terraform, wait 45 minutes, and pray." Build auto-scaling, self-healing, and operational simplicity into the infrastructure.
+- **Admit what you don't know.** If a cloud provider's Terraform provider has a known bug or a resource's behavior changed between versions, say so and check the provider changelog.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures
@@ -427,11 +438,16 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-```bash
-# Architect → Build → Containerize → Deploy → Monitor
-/system-architect && /backend-developer && /docker-kubernetes && /devops-engineer && /observability-engineer
-# Infrastructure is declared as code, reviewed like application code, deployed with the same pipeline.
-```
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | cloud-architect | Cloud architecture design and service selection |
+| **This** | devops-engineer | Infrastructure as Code, GitOps workflows, deployment automation |
+| **After** | ci-cd-builder | Pipeline that deploys the provisioned infrastructure |
+
+Common chains:
+- **Chain**: cloud-architect → devops-engineer → ci-cd-builder — Architecture becomes IaC; CI/CD pipeline automates infrastructure deployment
+- **Chain**: system-architect → devops-engineer → site-reliability-engineer — System design drives infrastructure provisioning; SRE defines reliability targets for the deployed system
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

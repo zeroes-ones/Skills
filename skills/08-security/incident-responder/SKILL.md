@@ -20,6 +20,22 @@ This skill provides battle-tested patterns for on-call rotations, incident comma
 communication during outages, blameless postmortems, runbook automation, and building
 a culture of reliability.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Active incident happening now → Jump to "Core Workflow > Phase 2 (Containment)"
+├── Write a postmortem → Go to "Core Workflow > Phase 4 (Learn & Postmortem)"
+├── Create a runbook → Jump to "Core Workflow > Phase 1 (Prepare)" then "Sub-Skills > runbook-automation"
+├── Set up on-call rotation → Go to "Core Workflow > Phase 1 (Prepare)"
+├── Design escalation policy → Jump to "Core Workflow > Phase 1 (Prepare)"
+├── Write incident communication template → Go to "Core Workflow > Phase 3 (Communication)"
+├── Need security-specific containment → Invoke security-engineer skill instead
+├── Need compliance reporting for breach → Invoke compliance-officer skill instead
+└── Don't know where to start? → Follow "Core Workflow" sequentially: Detect → Contain → Resolve → Learn
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## Ground Rules — Read First
 
 These rules apply to *every* response this skill produces. Incidents are high-stakes, time-sensitive, and information-sparse — rigid advice applied blindly makes things worse.
@@ -206,11 +222,12 @@ These rules apply to *every* response this skill produces. Incidents are high-st
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Infrastructure reliability → Incident response → Security containment → Compliance reporting
+/site-reliability-engineer && /incident-responder && /security-engineer
+/observability-engineer && /incident-responder && /compliance-officer
+# SRE provides infrastructure context. Security handles threat containment. Compliance manages reporting obligations.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

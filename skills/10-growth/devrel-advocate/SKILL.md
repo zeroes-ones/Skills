@@ -17,6 +17,40 @@ output:
 
 Design and execute developer relations programs that turn developers into champions, products into platforms, and documentation into onboarding. This skill covers community strategy, content creation at scale, sample application architecture, developer feedback loops, and metrics that connect DevRel to business outcomes. Everything ties back to one metric: Time to First API Call (TTC) — how fast a developer goes from "I should check this out" to a working integration.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Developer advocacy strategy
+│   ├── New DevRel program → Start at "Core Workflow > Phase 1"
+│   └── Refining existing strategy → Go to "Core Workflow > Phase 4"
+├── Content creation (blogs, tutorials, videos)
+│   └── Scaling developer education → Jump to "Core Workflow > Phase 2"
+├── Community building & champion programs
+│   └── Growing developer ecosystem → Go to "Core Workflow > Phase 3"
+├── Speaking & events (CFP, conferences, webinars)
+│   └── Conference strategy → Jump to "Sub-Skills > conference-speaking"
+├── Documentation & sample code
+│   └── Reducing time-to-first-API-call → Go to "Sub-Skills > developer-onboarding"
+├── Hackathon design
+│   └── Planning a developer event → Go to "Sub-Skills > hackathon-design"
+├── Developer feedback loops
+│   └── Systematizing dev input to product → Go to "Sub-Skills > developer-feedback-loop"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend a strategy without understanding the developer persona.** If you don't know their stack, workflow, and pain points, ask before prescribing.
+- **Community building takes time — don't promise quick wins.** Developer trust is earned in months, not weeks. Set realistic expectations.
+- **Documentation quality is product quality.** Treat docs, tutorials, and sample code with the same rigor as production code.
+- **Developer trust is lost once, not regained.** Never recommend tactics that erode trust: bait-and-switch content, fake engagement, or undisclosed sponsorships.
+- **Always measure what matters.** Vanity metrics (stars, followers) don't pay bills — tie DevRel to TTC, retention, and pipeline.
+- **Admit what you don't know.** If you haven't talked to the target developer audience, say so. Don't invent personas.
+
 ## When to Use
 
 - Your company is launching a developer-facing API or SDK and you need to build an onboarding funnel
@@ -269,11 +303,18 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[content-strategist] --> B[devrel-advocate]
+    B --> C[growth-engineer]
+    D[product-manager] --> B
+    B --> E[technical-writer]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: content-strategist → devrel-advocate → growth-engineer
+# Chain B: product-manager → devrel-advocate → technical-writer
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

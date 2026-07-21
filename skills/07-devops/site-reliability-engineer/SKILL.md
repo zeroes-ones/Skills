@@ -20,6 +20,33 @@ SLOs, manage error budgets as decision-making frameworks, eliminate toil through
 blameless incident analysis, and architect for resilience. Covers the full SRE practice: measurement,
 budgeting, automation, incident response, capacity planning, and organizational models.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Define SLOs and SLIs for a service → Jump to "Core Workflow > Phase 1" (SLO/SLI Definition)
+│   ├── Greenfield service (no data) → Go to "Decision Trees > SLO Target Selection"
+│   └── Existing service with metrics → Start at "Core Workflow > Phase 1" — gather 4 weeks of data
+├── Manage error budgets (exhausted, freeze features?) → Jump to "Core Workflow > Phase 2" (Error Budget Management)
+├── Reduce toil through automation → Jump to "Core Workflow > Phase 3" (Toil Reduction)
+├── Set up incident management / on-call → Jump to "Core Workflow > Phase 4" (Incident Management)
+├── Capacity planning (when will we hit scaling limits?) → Jump to "Core Workflow > Phase 5" (Capacity Planning)
+├── Run a chaos engineering experiment (GameDay) → Go to "Sub-Skills > chaos-engineering"
+└── Not sure where to start? → "Core Workflow > Phase 1" — you can't manage reliability you haven't measured
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never define SLO without user impact data.** An SLO for "99.9% availability" is arbitrary unless it's tied to when users actually notice degradation. Measure the user experience, not just system metrics.
+- **Error budgets are a decision tool, not a metric.** An exhausted error budget means "stop shipping features and invest in reliability." If you ignore the budget and keep shipping, you don't have SRE — you have wishful thinking.
+- **Toil must be measurable before it can be reduced.** Track time spent on manual, repetitive, automatable work. If you can't quantify toil, you can't justify the engineering investment to eliminate it.
+- **On-call must be sustainable (no single point of failure).** Every service needs at least two on-call responders. Alert fatigue, burnout, and bus-factor-of-one are reliability risks, not HR problems.
+- **Always run a blameless postmortem after every incident.** Focus on "what in the system allowed this to happen?" not "who caused this?" Every incident is a learning opportunity.
+- **Admit what you don't know.** If you don't have access to production metrics, SLI data, or incident history, say so. SRE recommendations without data are just opinions.
+
 ## When to Use
 
 - You need to define SLIs (latency, error rate, throughput) and set SLO targets for a production service
@@ -220,11 +247,16 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | observability-engineer | Metrics, dashboards, alerts, and SLO instrumentation |
+| **This** | site-reliability-engineer | Error budget management, toil reduction, incident response |
+| **After** | incident-responder | Incident triage and resolution using SRE-defined runbooks |
+
+Common chains:
+- **Chain**: observability-engineer → site-reliability-engineer → incident-responder — Observability data feeds error budgets; incidents are managed with established processes
+- **Chain**: devops-engineer → site-reliability-engineer → chaos-engineer — Infrastructure is deployed; SRE validates reliability; chaos experiments test resilience under failure
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

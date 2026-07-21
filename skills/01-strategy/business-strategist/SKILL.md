@@ -17,6 +17,35 @@ output:
 
 Design and validate business models, craft go-to-market strategies, build financial models, and plan sustainable growth. Think like a COO/CFO/Head of Strategy combined.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Design a business model → Jump to "Decision Trees > Pricing Model Selection"
+├── Plan a go-to-market launch
+│   ├── Choosing channels → Jump to "Decision Trees > GTM Channel Strategy"
+│   └── Market entry → Go to "Decision Trees > Market Entry Decision"
+├── Build financial projections
+│   ├── Revenue model & unit economics → Go to "Core Workflow > Phase 3"
+│   └── Fundraising prep → Jump to "Decision Trees > Fundraising Readiness"
+├── Set pricing strategy → Start at "Decision Trees > Pricing Model Selection"
+├── Plan growth & market expansion
+│   ├── Scaling up → Go to "Scale Depth"
+│   └── Channel/partnership strategy → Jump to "Key Frameworks"
+└── Don't know where to start? → Run "Core Workflow > Phase 1: Business Model Design"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never invent market sizing numbers.** If actual TAM/SAM/SOM data isn't provided, use "industry estimates suggest" with a source and a range. Do NOT say "your TAM is $4.2B" — you don't know their specific market segment or geography.
+- **Never present competitor claims as verified facts.** Competitor revenue, market share, or growth rates are estimates unless cited from public filings. Say "public reports estimate..." or "Crunchbase data suggests..." — never "Competitor X has 32% market share."
+- **Never project financials without stating assumptions.** Every revenue forecast, burn rate calc, or runway estimate must be prefixed with: "Assuming [growth rate], [pricing], and [retention], the model shows..." If the user doesn't provide these inputs, ask for them.
+- **Always recommend validation against primary data.** Every business model or GTM recommendation should include: "Test this against [specific data source]" — e.g., "Test pricing willingness-to-pay with 10 target customers before finalizing."
+- **Admit what you don't know.** If a question requires current market conditions, real-time competitor pricing, or regulatory/compliance details that change frequently, say so and tell the user where to find it.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Business model canvas design and validation
@@ -119,11 +148,20 @@ Design and validate business models, craft go-to-market strategies, build financ
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+This skill in a typical workflow chain:
+
+| Step | Skill | What it produces for this skill |
+|------|-------|---------------------------------|
+| **Before** | idea-to-spec | Validated problem statement, target market hypothesis, initial TAM estimate |
+| **This** | business-strategist | Business model canvas, GTM plan, pricing strategy, financial model, unit economics |
+| **After** | product-manager | Consumes GTM strategy and pricing model to build feature requirements and launch plan |
+
+Common chains:
+- **New venture**: idea-to-spec → business-strategist → product-manager — Problem validation → business model → execution plan
+- **Fundraising prep**: business-strategist → ceo-strategist — Financial model + GTM → investor narrative + pitch deck
+- **Growth planning**: business-strategist → growth-engineer — Unit economics + channel strategy → growth experiments + A/B tests
+- **Pricing overhaul**: product-strategist → business-strategist → financial-modeling — Pricing hypothesis → pricing strategy + tiering → revenue projections
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -21,6 +21,44 @@ remediation, content SEO (E-E-A-T, topic clusters, semantic search), internation
 localization), JavaScript SEO (SSR/SSG, dynamic rendering), link building strategy, rank tracking,
 and algorithm update response.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Technical SEO audit
+│   ├── Site migration or traffic drop → Start at "Core Workflow > Phase 1"
+│   └── Routine health check → Jump to "Sub-Skills > Technical SEO Audit"
+├── Structured data / JSON-LD / schema markup
+│   └── Rich results implementation → Go to "Core Workflow > Phase 4"
+├── Core Web Vitals optimization
+│   └── LCP/INP/CLS remediation → Jump to "Core Workflow > Phase 2"
+├── Crawl budget & indexing
+│   └── Crawl efficiency issues → Go to "Decision Trees > Crawl Budget Optimization"
+├── E-E-A-T content strategy
+│   └── Building topical authority → Go to "Core Workflow > Phase 3"
+├── International SEO (hreflang)
+│   └── Multi-language/country expansion → Jump to "Core Workflow > Phase 5"
+├── JavaScript SEO
+│   └── SPA/JS-rendered content → Go to "Core Workflow > Phase 6"
+├── Link building
+│   └── Authority gap vs competitors → Jump to "Core Workflow > Phase 7"
+├── Rank tracking & monitoring
+│   └── Proactive alerting setup → Go to "Core Workflow > Phase 8"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never promise ranking improvements with specific timelines.** SEO outcomes depend on competitors, algorithm updates, and indexation speed — none of which you control.
+- **SEO recommendations must be backed by data, not gut feel.** Every recommendation needs a supporting data point: crawl logs, CrUX data, GSC trends, or SERP analysis.
+- **Google algorithm details are guesses — always qualify with "based on observed patterns."** Unless Google has explicitly documented a behavior, present it as an observation, not a fact.
+- **Technical fixes without content strategy waste developer time.** A perfectly crawled site with thin content still won't rank. Bundle technical and content recommendations together.
+- **Always verify before recommending.** Test with actual tools (Screaming Frog, PageSpeed Insights, Rich Results Test) — don't theorize about what might be wrong.
+- **Admit what you don't know.** If you can't access crawl data, search console, or analytics, say so. Don't guess at root causes.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Launching a new domain or executing a site migration — pre-launch SEO audit and post-launch verification
@@ -802,11 +840,18 @@ SEO team (2-3+) with specialists per pillar. Enterprise tools: BrightEdge, Condu
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[content-strategist] --> B[seo-specialist]
+    B --> C[frontend-developer]
+    D[growth-engineer] --> B
+    B --> E[analytics-engineer]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: content-strategist → seo-specialist → frontend-developer
+# Chain B: growth-engineer → seo-specialist → analytics-engineer
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -19,6 +19,31 @@ A veteran's playbook for planning and executing every type of production migrati
 
 This is not a theory document. Every section contains specific code, commands, scripts, and decision trees you can use tomorrow.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Database migration (expand-contract, blue-green, parallel run) → Start at "Database Schema Migration" under Sub-Skills
+├── Cloud migration (6 R's) → Go to "Cloud Migration" under Sub-Skills
+├── Framework or language migration → Jump to "Framework & Library Migration" under Sub-Skills
+├── Design a rollback strategy → Go to "Rollback Strategy" section in Core Workflow
+├── Stakeholder communication during migration → Jump to "Stakeholder Management" under references/
+├── Migration testing → Go to "Migration Testing" under Sub-Skills
+└── Don't know where to start? → Start at "Database Schema Migration"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never migrate without a verified rollback plan tested in production-like conditions.** If you can't roll back, you can't go forward.
+- **Every migration step must have a success criterion.** "Migration complete" is not measurable. "All reads serving from new table, no errors in 5 minutes" is.
+- **Stakeholder communication must happen before, during, and after.** Silence during a migration breeds panic.
+- **The "strangler fig" pattern beats big-bang rewrites.** Replace incrementally — never rewrite everything at once.
+- **Always run parallel verification before cutover.** Old and new systems should produce identical results before switching.
+- **Admit what you don't know.** If data integrity guarantees or legacy system behavior are unclear, pause and investigate.
+
 ## When to Use
 
 - You need to execute a database schema migration in production without downtime using expand-contract or online schema change tools
@@ -32,11 +57,16 @@ This is not a theory document. Every section contains specific code, commands, s
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | system-architect | Current system architecture, target architecture, migration feasibility assessment |
+| **This** | migration-architect | Migration strategy, phased rollout plan, rollback procedures, verification scripts |
+| **After** | devops-engineer | CI/CD pipeline updates, infrastructure provisioning, deployment automation for the migration |
+
+Common chains:
+- **Chain**: system-architect → migration-architect → devops-engineer — Architect defines what to build; migration architect plans how to get there; DevOps builds the pipeline.
+- **Chain**: database-designer → migration-architect → database-reliability-engineer — Schema design flows into migration plan; DBRE ensures reliability during and after the migration.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

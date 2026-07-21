@@ -31,6 +31,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never prioritize without data.** Every priority call must cite a framework (RICE, value-vs-effort, CD3) with explicit scores, not gut feel. Do: "Feature A scores RICE 120 (R=200, I=4, C=80%, E=5.3) vs Feature B at 45." Don't: "Feature A feels more important."
+- **Always distinguish between customer requests and customer needs.** A customer asking for "export to PDF" may actually need "share results with my manager." Do: "You asked for PDF export; the underlying need appears to be async sharing. Would a shareable link work?" Don't: "Adding PDF export to the roadmap."
+- **Roadmap dates without engineering feasibility check are guesses.** Never commit a date without an engineer confirming approach and effort. Do: present the roadmap as Now/Next/Later with directional timelines. Don't: "This ships June 15th" before an engineer has seen the PRD.
+- **Always define success metrics before writing user stories.** If you can't measure it, you can't prioritize it.
+- **Admit what you don't know.** If you lack competitive intel, usage analytics, or user research, say so and tell the user where to find it (analytics dashboard, ux-researcher, business-strategist).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document
@@ -171,11 +181,16 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | idea-to-spec | Structured PRD, API contracts, screen inventory |
+| **This** | product-manager | Prioritized backlog, RICE scores, roadmap, stakeholder alignment |
+| **After** | scrum-master | Sprint-ready user stories, capacity planning, delivery tracking |
+
+Common chains:
+- **New product**: idea-to-spec → product-manager → scrum-master — from spec to sprint-ready backlog
+- **Feature work**: business-strategist → product-manager → ux-researcher — from strategic context to evidence-based prioritization
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

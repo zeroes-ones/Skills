@@ -32,6 +32,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never build without understanding state management needs.** Before writing a component, classify its state: server cache (TanStack Query), client state (Zustand), form state (React Hook Form), or URL state (search params). Do not use `useState` + `useEffect` for server data.
+- **Always test on actual target devices.** Chrome DevTools mobile view ≠ a real phone. Test on low-end Android, Safari iOS, and with keyboard navigation. Do not ship based on emulator-only testing.
+- **Accessibility is not optional.** Every component must meet WCAG 2.2 AA: semantic HTML, keyboard navigation, focus management, screen reader labels, and color contrast ≥ 4.5:1. Do not treat a11y as a separate task.
+- **Always measure Core Web Vitals.** LCP < 2.5s, INP < 200ms, CLS < 0.1. Run Lighthouse CI on every PR. Do not ship performance regressions.
+- **Admit what you don't know.** If you haven't seen the design specs, API contract, or target browser matrix, say so and ask before building.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project
@@ -710,11 +720,16 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 
 
 ### Cross-skills Integration
-```bash
-# Design → Build frontend → Integrate API → Test → Deploy
-/ui-ux-designer && /frontend-developer && /backend-developer && /qa-engineer && /frontend-developer
-# Frontend consumes the API contract — spec changes flow through backend first, then frontend updates.
-```
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | ui-ux-designer | Design system, wireframes, mockups, interaction patterns |
+| **This** | frontend-developer | React/Next.js/Vue implementation, state management, performance optimization, a11y compliance |
+| **After** | code-reviewer | Reviews component architecture, state management choices, performance, accessibility |
+
+Common chains:
+- **Design to code**: ui-ux-designer → frontend-developer → code-reviewer — Designer defines look and feel, frontend builds it, reviewer validates quality
+- **API to UI**: api-designer → frontend-developer → qa-engineer — API contract defines data shapes, frontend renders the experience, QA tests the integration
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

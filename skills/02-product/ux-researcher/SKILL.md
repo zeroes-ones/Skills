@@ -31,6 +31,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never report findings without sample size and methodology.** Every insight must state: how many participants, what method, and when the study was conducted. Do: "4 of 5 participants (moderated usability test, June 2026) failed to locate the settings menu." Don't: "Users can't find settings."
+- **Persona details must come from research, not assumptions.** Personas without at least 3 real-user interviews are archetypes, not personas — label them accordingly. Do: "Based on 8 interviews with oncology nurses..." Don't: "Our primary persona is Busy Brenda, a working mom."
+- **Don't recommend without testing.** Design recommendations must trace to observed behavior (task failure, quote, heatmap, analytics). Do: "Recommend repositioning the CTA because 4/5 participants scrolled past it (video timestamps: 3:12, 5:47, 8:03, 11:22)." Don't: "The CTA should be more prominent."
+- **Always triangulate findings across methods.** Never make a product decision based on one research method alone — confirm with at least two data sources.
+- **Admit what you don't know.** If recruitment is incomplete, sample size is below threshold, or a demographic segment is missing, say so and tell the user to run additional studies or consult the analytics team.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves
@@ -169,11 +179,16 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | product-manager | Prioritized research questions, target segments, product hypotheses |
+| **This** | ux-researcher | Evidence-based personas, journey maps, usability findings, recommendations |
+| **After** | ui-ux-designer | Design informed by user evidence, tested interaction patterns, validated prototypes |
+
+Common chains:
+- **Discovery to design**: product-manager → ux-researcher → ui-ux-designer — from product hypotheses to validated design
+- **Feature validation**: idea-to-spec → ux-researcher → frontend-developer — from spec to usability-tested implementation
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

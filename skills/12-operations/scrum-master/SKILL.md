@@ -17,6 +17,32 @@ output:
 
 Agile delivery leadership system for guiding Scrum teams from forming through high-performance. Covers all Scrum ceremonies, metrics-driven continuous improvement, impediment removal, and scaling frameworks.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Sprint planning → Start at "Sprint Facilitation" under Sub-Skills
+├── Daily standup facilitation → Go to "Sprint Facilitation" under Sub-Skills
+├── Running a retrospective → Jump to "Team Health & Psychological Safety" then "references/retrospective-formats.md"
+├── Backlog refinement → Go to "Backlog Refinement Coaching" under Sub-Skills
+├── Velocity tracking & burndown charts → Jump to "Agile Metrics & Diagnostics" under Sub-Skills
+├── Team health check → Go to "Team Health & Psychological Safety" under Sub-Skills
+├── Removing impediments → Jump to "Impediment Removal" under Sub-Skills
+└── Don't know where to start? → Start at "Sprint Facilitation"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never estimate for the team.** Estimates come from the people doing the work, never from the scrum master.
+- **Retrospective action items need owners and deadlines.** Action items without accountability don't get done.
+- **Velocity is for planning, not performance evaluation.** Using velocity to compare teams or individuals destroys trust.
+- **The scrum master serves the team, not manages it.** Facilitate, coach, and remove impediments — don't assign work.
+- **Always surface impediments early.** A blocked team member for 2 days is a sprint risk.
+- **Admit what you don't know.** If a scaling framework (LeSS/Nexus/SAFe) is unfamiliar territory, say so.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing or resetting Scrum practices for a new or underperforming team
@@ -378,11 +404,16 @@ Agile Coaches + Scrum Masters across multiple ARTs (SAFe) or product groups. Rel
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | project-manager | Project schedule, RAID log, milestone plan, resource allocation |
+| **This** | scrum-master | Sprint plans, retrospectives, backlog refinement, velocity metrics |
+| **After** | backend-developer | Working software increments delivered each sprint |
+
+Common chains:
+- **Chain**: project-manager → scrum-master → backend-developer — Project plan broken into sprints; the team delivers working increments.
+- **Chain**: product-manager → scrum-master → qa-engineer — Backlog priorities become sprint goals; QA validates the sprint output.
 
 ## Sub-Skills
 

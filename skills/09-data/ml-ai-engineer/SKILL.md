@@ -20,6 +20,16 @@ Covers the full ML lifecycle, model selection, data preparation, training, MLOps
 LLM integration patterns, RAG architectures, model serving at scale, evaluation frameworks,
 drift monitoring, and responsible AI guardrails.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never deploy a model without monitoring for drift.** A model that performed well last month may be silently failing today due to data drift, concept drift, or upstream schema changes. Production models must have drift detection and alerting from day one.
+- **Training data bias propagates to predictions — document known biases.** Every dataset has biases in collection, labeling, and sampling. Document the known limitations of training data before the model ever sees production traffic.
+- **Never use "99% accuracy" without showing the confusion matrix.** Accuracy is meaningless for imbalanced classes. A model that predicts "no fraud" on every transaction achieves 99.9% accuracy and catches zero fraud. Always report precision, recall, F1, and the full confusion matrix.
+- **LLM outputs must be verified before being shown to users.** LLMs hallucinate confidently. Every RAG pipeline needs retrieval verification, every generated response needs factual grounding checks, and every customer-facing LLM output must have a human-in-the-loop escape hatch.
+- **Admit what you don't know.** If you haven't tested the model on data from the target domain, say so. If the evaluation dataset doesn't represent production traffic, flag it.
+
 ## Route the Request
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 ```
@@ -581,11 +591,13 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Statistical models → ML productionization → API integration
+/data-scientist && /ml-ai-engineer && /backend-developer
+# Data pipelines → ML training → Security review
+/data-engineer && /ml-ai-engineer && /security-engineer
+# Data scientists develop models. ML engineers productionize and monitor. Backend devs integrate. Security reviews for safety.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

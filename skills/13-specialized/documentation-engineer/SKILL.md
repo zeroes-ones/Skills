@@ -19,11 +19,16 @@ A veteran documentation engineer's playbook — docs-as-code infrastructure, sta
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | technical-writer | API reference docs, ADRs, READMEs, runbooks, onboarding guides |
+| **This** | documentation-engineer | Docs-as-code infrastructure, CI/CD pipeline, quality automation, versioned site |
+| **After** | devrel-advocate | Developer-facing content strategy, tutorials, conference talks based on docs |
+
+Common chains:
+- **Chain**: technical-writer → documentation-engineer → devrel-advocate — Writer produces content; docs engineer builds the pipeline and site; devrel uses it for developer outreach.
+- **Chain**: backend-developer → documentation-engineer → platform-engineer — Developer provides API specs; docs engineer builds the documentation infrastructure; platform engineer hosts and scales it.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
@@ -40,6 +45,32 @@ When the agent identifies a specific docs engineering need, drill into the relev
 | **Documentation Analytics** | Page analytics (views, bounce rate), search analytics (top queries, no-result queries), "Was this helpful?" feedback widgets, funnel analysis | Section below: "Analytics" |
 
 > **Token-saving rule:** Setting up a docs site? Load "Docs-as-Code Infrastructure" + the SSG decision matrix. Writing an API reference page? Load the API template from `assets/api-reference-template.md` (364 lines) — it's self-contained. Don't load i18n when you're just fixing a broken link.
+
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Set up docs-as-code (Docusaurus/Nextra/Mintlify/GitBook) → Start at "Docs-as-Code Infrastructure" under Sub-Skills
+├── Generate API documentation → Go to "API Documentation Generation" under Sub-Skills
+├── Design information architecture → Jump to "Information Architecture" under Sub-Skills
+├── Automate content quality (linting, link checking) → Go to "Content Quality Automation" under Sub-Skills
+├── Set up documentation versioning → Jump to "Documentation Versioning" under Sub-Skills
+├── Configure i18n for docs → Go to "references/i18n-guide.md"
+├── Set up documentation analytics → Jump to "Documentation Analytics" under Sub-Skills
+└── Don't know where to start? → Start at "Docs-as-Code Infrastructure"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never choose a docs tool before understanding the author workflow.** The best SSG is the one your writers will actually use.
+- **Information architecture must be tested with real users.** Card sorting and tree testing beat designer intuition every time.
+- **Broken links erode trust faster than missing content.** Automate link checking in CI — never ship broken links.
+- **Versioned docs need a clear deprecation policy.** Readers must know when a version is unsupported and what to migrate to.
+- **Always prefer discoverability over completeness.** A well-organized 50-page site beats a chaotic 500-page site.
+- **Admit what you don't know.** If a tool's limitations or an integration is unclear, research before committing.
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->

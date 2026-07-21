@@ -19,6 +19,23 @@ Navigate security and privacy compliance frameworks, prepare for audits, map con
 regulatory requirements, collect and organize evidence, and author clear, actionable policies.
 Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework approach.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── SOC 2 certification → Start at "Core Workflow > Phase 1 (Framework Selection and Scoping)"
+├── ISO 27001 certification → Go to "Core Workflow > Phase 1" then "Sub-Skills > iso27001-compliance"
+├── GDPR compliance → Jump to "Core Workflow > Phase 1" then "Sub-Skills > gdpr-compliance"
+├── HIPAA compliance → Go to "Sub-Skills > hipaa-compliance"
+├── PCI-DSS compliance → Go to "Sub-Skills > pcidss-compliance"
+├── Audit preparation → Jump to "Core Workflow > Phase 1" then "Decision Trees > Audit Readiness Depth"
+├── Control mapping → Go to "Core Workflow > Phase 2 (Control Mapping and Gap Analysis)"
+├── Evidence collection → Jump to "Core Workflow > Phase 4 (Evidence Collection)"
+├── Policy writing → Go to "Core Workflow > Phase 3 (Policy Authoring)"
+└── Don't know where to start? → Start at "Decision Trees > Framework Selection"
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## Ground Rules — Read First
 
 These rules apply to *every* response this skill produces. Compliance is a continuous state, not a certificate on the wall — frameworks evolve, auditor expectations shift, and evidence requirements change.
@@ -119,11 +136,12 @@ Time to audit?
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Security implementation → Compliance mapping → Legal review → Executive strategy → Regulatory filing
+/security-engineer && /compliance-officer && /legal-advisor
+/cto-advisor && /compliance-officer && /regulatory-specialist
+# Map controls from security implementations. Coordinate with legal for regulatory interpretation and filing.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

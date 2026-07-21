@@ -20,6 +20,35 @@ Covers IDP architecture, golden path templates, self-service IaC modules, develo
 implementation (Backstage, Port, Cortex), scaffolding toolchains, ephemeral environments, platform
 APIs, service catalogs, scorecards, and the platform-as-product operating model.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design an Internal Developer Platform (IDP) → Jump to "Core Workflow > Phase 1" (IDP Architecture)
+│   ├── Platform as product → Go to "Best Practices > Platform as Product"
+│   └── Build vs buy decision → See "Decision Trees > Build vs Buy"
+├── Create golden paths / paved roads → Jump to "Core Workflow > Phase 2" (Golden Path Design)
+│   ├── Service template/scaffolding → Go to "Sub-Skills > scaffolding-toolchains"
+│   └── Self-service IaC modules → Go to "Sub-Skills > self-service-infrastructure"
+├── Set up Backstage (or Port/Cortex) → Go to "Core Workflow > Phase 3" (Developer Portal)
+├── Build self-service infrastructure → Go to "Sub-Skills > self-service-infrastructure" and "Core Workflow > Phase 4"
+├── Design a developer portal → Jump to "Core Workflow > Phase 3" (Developer Portal)
+├── Set up scaffolding / project templates → Go to "Sub-Skills > scaffolding-toolchains"
+└── Not sure where to start? → "Decision Trees > Platform Maturity Assessment" — understand current state before building
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never build platform features without developer input.** The platform exists to serve developers, not to satisfy platform engineers' architectural ambitions. Validate every feature with real users before building.
+- **Golden paths must be the easiest path, not the only path.** Teams must be able to escape the paved road when they have legitimate needs the platform doesn't cover. The platform reduces cognitive load, not removes choice.
+- **Platform adoption is earned, not mandated.** If developers are forced to use your platform, you've already failed. Build something so useful they choose it voluntarily.
+- **Self-service means zero tickets.** If a developer needs to open a Jira ticket and wait 3 days to provision a database, you don't have a platform — you have a bottleneck with a portal in front of it.
+- **Always measure developer experience (DX).** Track time-to-first-deploy, time-to-provision, platform NPS, and ticket volume. Platform success is measured in developer productivity, not platform feature count.
+- **Admit what you don't know.** If you haven't interviewed the developers who will use this platform, say so. Recommendations without user research are guesses.
+
 ## When to Use
 
 - Your organization has 3+ teams and developers are spending >30% of their time on infrastructure setup
@@ -219,11 +248,16 @@ Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | devops-engineer | Infrastructure building blocks (IaC modules, clusters) |
+| **This** | platform-engineer | IDP, golden paths, developer portal, self-service APIs |
+| **After** | docker-kubernetes | Containerized workloads deployed via platform golden paths |
+
+Common chains:
+- **Chain**: devops-engineer → platform-engineer → docker-kubernetes — Infrastructure primitives become self-service; developers deploy containers through golden paths
+- **Chain**: cloud-architect → platform-engineer → observability-engineer — Cloud architecture informs platform design; platform provides standard observability across all services
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -23,6 +23,32 @@ experimentation (A/B test design, sample size, statistical significance, SRM), S
 (CTEs vs subqueries, window functions, query plans, materialization), and data visualization
 principles (chart selection, dashboard design, data storytelling).
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Build a dbt model → Jump to "Sub-Skills > dbt Data Modeling"
+├── Define a metric layer → Go to "Sub-Skills > Metric Layer Design"
+├── Build a BI dashboard → Jump to "Core Workflow > Phase 4" then "Sub-Skills > Self-Service BI Enablement"
+├── Design an A/B test → Go to "Sub-Skills > A/B Test Design & Analysis"
+├── Optimize slow SQL → Jump to "Sub-Skills > SQL Performance Tuning"
+├── Create a data visualization → Go to "Sub-Skills > Data Storytelling"
+├── Need raw data pipelines first → Invoke data-engineer skill instead
+├── Need statistical modeling → Invoke data-scientist skill instead
+└── Don't know where to start? → Start at "Core Workflow > Phase 1 (Data Modeling Foundation)"
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never build dashboards without understanding the decision they inform.** A dashboard without a clear "what will you do differently if this number moves?" question is noise, not insight.
+- **Metrics must have definitions, owners, and data lineage.** "Revenue" means different things to Sales, Finance, and Product. Write the definition, assign an owner, and trace it back to source tables.
+- **"Self-service" doesn't mean "no documentation."** A Looker explore without field descriptions and metric definitions creates more questions than it answers. Document every field, every metric, every join.
+- **SQL in dbt models must be readable by others.** Favor CTEs over deeply nested subqueries. Use clear aliases. Comment complex business logic. Your future self during a 3 AM incident will thank you.
+- **Admit what you don't know.** If you haven't seen the query plan, say so. If the data volume might change the recommendation, ask.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a dbt project: model layering (staging → intermediate → marts), incremental strategies, snapshot design
@@ -616,11 +642,13 @@ Distributed analytics engineering pods aligned to domains. Federated semantic la
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Data pipeline → Analytics models → Data science
+/data-engineer && /analytics-engineer && /data-scientist
+# Product requirements → Analytics design → Growth experiments
+/product-manager && /analytics-engineer && /growth-engineer
+# Data engineers deliver clean datasets. Analytics engineers model for consumption. Data scientists run experiments.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
