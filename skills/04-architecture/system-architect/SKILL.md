@@ -17,6 +17,29 @@ output:
 
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── DESIGN something new
+│   ├── Greenfield system → Start at "Decision Trees > Monolith vs Microservices"
+│   ├── New service in existing system → Go to "Architecture Styles Decision Matrix" in references/
+│   └── API or integration → Invoke api-designer skill instead
+├── EVALUATE or decide
+│   ├── Choose between architectures → Start at "Decision Trees"
+│   ├── Review an existing architecture → Go to "Core Workflow > Phase 2"
+│   └── Build vs Buy decision → Invoke cto-advisor skill
+├── DOCUMENT
+│   ├── Write an ADR → Jump to "Core Workflow > Phase 3"
+│   └── Create C4 diagrams → Jump to "Core Workflow > Phase 4"
+├── SCALE or fix
+│   ├── System under load → Go to "Scale Depth" section
+│   ├── Refactoring legacy → Jump to references/complexity-cost-model.md
+│   └── Capacity planning → Jump to "Core Workflow > Phase 5"
+└── Don't know where to start? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
