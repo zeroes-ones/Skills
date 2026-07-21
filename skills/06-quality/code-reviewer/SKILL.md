@@ -1,0 +1,201 @@
+---
+name: code-reviewer
+description: Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review, review code, CR, pull request review, review this.
+author: Sandeep Kumar Penchala
+---
+
+# Code Reviewer
+
+Perform rigorous, structured code reviews across six dimensions: security, performance, code quality, error handling, testing, and documentation. Each finding is graded by severity (Critical, High, Medium, Low, Info) with specific, actionable recommendations. This skill goes beyond linting — it identifies logic errors, architectural concerns, security vulnerabilities, performance bottlenecks, and test gaps that automated tools miss.
+
+## When to Use
+- Reviewing pull requests before merge
+- Performing pre-commit self-review on your own code
+- Auditing a codebase for quality, security, or performance issues
+- Establishing code review standards and checklists for a team
+- Mentoring developers through constructive code review feedback
+
+## Decision Trees
+
+### Review Depth Decision
+
+```
+Change type and risk?
+├── Trivial (typo, comment, formatting) → Light review: correctness only. Approve in <1 hour.
+├── Standard (feature, bug fix, <200 lines) → Full 6-dimension review. <4 hour SLA.
+├── Complex (new module, refactor, >200 lines) → Full review + architectural check. <24 hour SLA.
+└── Critical (auth, payments, data migrations, security) → Multi-reviewer: Peer + Security Specialist.
+      All dimensions mandatory. Critical/High findings block merge.
+
+PR > 400 lines? → Request author to split into smaller PRs. If not possible, schedule live review session.
+```
+
+### When Automated Tools Suffice
+
+```
+Change type?
+├── Dependency update (patch)? → CI passes + changelog reviewed. Auto-merge if safe.
+├── Configuration change? → Lint + validate config schema. Human review only for production values.
+├── Documentation only? → Spell check + link check. Human review for accuracy and tone.
+└── Generated code? → Review the generator/template, not the generated output.
+```
+
+## Six-Dimension Review Framework
+
+### 1. Security
+- **Injection risks**: SQL injection (raw queries, string interpolation), NoSQL injection, command injection (`exec`, `subprocess` without sanitization), LDAP/XML injection.
+- **Authentication & authorization**: Missing auth checks on endpoints, JWT validation gaps (`algorithm: none`, missing signature verification), broken access control (IDOR — user can access other users' resources), privilege escalation paths.
+- **Data exposure**: Secrets in code (API keys, tokens, passwords), sensitive data in logs/error messages, PII not encrypted at rest, excessive data exposure in API responses.
+- **Dependency security**: Outdated packages with known CVEs, unpinned versions, supply chain risks (typosquatting, compromised packages).
+- **Input validation**: Missing server-side validation, unbounded inputs, regex DoS patterns, unsafe deserialization.
+- **CSRF/XSS**: Missing CSRF tokens on state-changing operations, unsanitized user-generated content rendered in HTML, `dangerouslySetInnerHTML` without sanitization.
+
+### 2. Performance
+- **Database queries**: N+1 queries, missing indexes for filtered/sorted columns, `SELECT *` on large tables, unbounded queries (no LIMIT), cartesian products from missing JOIN conditions, inefficient subqueries.
+- **Memory**: Memory leaks (unclosed connections, uncleaned intervals/listeners, growing caches), large object allocations in hot paths, unbounded memory growth.
+- **Network**: Chatty client-server communication (batch requests), unoptimized assets (uncompressed images, missing lazy loading), no CDN for static assets, missing HTTP caching headers.
+- **Algorithmic complexity**: O(n²) or worse in critical paths, unnecessary nested loops, repeated computations without memoization, blocking the event loop (Node.js), synchronous I/O in async contexts.
+- **Bundle size**: Unused dependencies, missing tree shaking, large imported libraries for single functions, unminified production code.
+
+### 3. Code Quality
+- **Readability**: Meaningful variable/function names, consistent naming conventions, shallow nesting (max 3 levels), short functions (ideally < 50 lines), no commented-out code.
+- **Design**: Single Responsibility Principle, DRY violations (copy-pasted code), god objects/classes, feature envy, inappropriate intimacy between modules.
+- **Error-prone patterns**: Mutable global state, implicit type coercion, truthy/falsy checks that miss edge cases (`''`, `0`, `false`), floating point for money, `==` instead of `===`, missing `await`.
+- **TypeScript usage**: `any` types (should be `unknown` or properly typed), missing strict null checks, overuse of type assertions (`as`, `!`), type holes that bypass safety.
+- **Complexity**: High cyclomatic complexity (if-else chains → use lookup tables or strategy pattern), boolean flag parameters (split into separate functions).
+
+### 4. Error Handling
+- **Error propagation**: Errors swallowed silently (empty catch blocks), generic catch without context, error messages leaked to users (stack traces in responses).
+- **Graceful degradation**: Missing fallbacks for optional services, entire app crashes on non-critical error, no retry logic for transient failures.
+- **Edge cases**: Null/undefined not handled, empty arrays/strings not considered, boundary values (0, -1, MAX_INT, empty string), race conditions, timeout handling.
+- **Validation**: Business rule violations not caught, data integrity checks missing, inconsistent state after partial failure (no transactions).
+
+### 5. Testing
+- **Coverage gaps**: Critical paths untested, edge cases not covered, error paths not tested, integration points not verified.
+- **Test quality**: Tests testing implementation details (brittle) rather than behavior, missing assertions (tests that never fail), flaky tests (race conditions, time dependencies, random data), slow tests without clear value.
+- **Test data**: Hard-coded magic values without meaning, test data that doesn't reflect production patterns, tests that pass only with specific data.
+- **Isolation**: Tests depending on execution order, shared mutable state between tests, tests making real network calls.
+
+### 6. Documentation
+- **Code comments**: Comments explaining "what" (should be obvious) not "why", missing JSDoc/docstrings on public APIs, outdated comments that contradict code, TODO comments without ticket references.
+- **API documentation**: Missing or outdated API docs, undocumented error responses, auth requirements not specified, request/response examples missing.
+- **Architecture**: Complex systems without README/architecture docs, onboarding friction for new team members, tribal knowledge not codified.
+
+## Severity Grading
+| Grade | Criteria | Response Required |
+|-------|----------|-------------------|
+| **Critical** | Security vulnerability, data loss/corruption risk, production outage risk | Must fix before merge |
+| **High** | Significant bug, performance degradation, architectural concern | Must fix before merge |
+| **Medium** | Code smell, missing test, unclear logic | Should fix; can be deferred with ticket |
+| **Low** | Style nit, minor improvement, naming suggestion | Optional; author discretion |
+| **Info** | Educational note, alternative approach suggestion | No action required |
+
+## Review Workflow
+1. **Context gathering**: Read PR description, linked issue/ticket, and any design docs. Understand what the change is trying to accomplish.
+2. **High-level review**: Check architectural alignment — does this change fit the existing patterns? Are there simpler approaches?
+3. **File-by-file review**: Apply the six dimensions to each file. Start with the most critical files (business logic, auth, data access).
+4. **Test review**: Run the tests. Do they pass? Do they cover the changed behavior? Are new tests meaningful?
+5. **Manual verification**: Check out the branch and test manually if the change is UI/UX or has complex interactions. Verify edge cases interactively.
+6. **Write review**: Group feedback by file/section. Use the severity grading table. Be specific: reference exact line numbers, suggest concrete fixes, explain the "why". Balance constructive criticism with positive feedback on good patterns.
+
+## Best Practices
+- **Be specific and actionable**: "This query could cause an N+1 problem" → "Use `.include('author')` on the Prisma query at line 47 to eager-load authors in one query."
+- **Explain the "why"**: Don't just say "use `useMemo`" — explain that the derived value recomputes on every render, causing downstream re-renders.
+- **Suggest, don't demand**: Use "Consider...", "What do you think about...", "Could we..." for non-critical items.
+- **Separate nitpicks from substance**: Use `nit:` or `suggestion:` prefixes so authors can filter.
+- **Review in a timely manner**: < 4 hours for small PRs (< 200 lines), < 24 hours for large PRs. Code review is the #1 bottleneck in development velocity.
+- **Automate what can be automated**: Linting, formatting, type checking, security scanning — leave human review for logic, design, and architecture.
+
+## Cross-Skill Coordination
+
+Code reviewers are the last line of defense before changes reach production. They must coordinate with authors, security specialists, QA engineers, and platform teams to ensure comprehensive review coverage.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask |
+|-----------------|------|-------------------|
+| **Security Engineer** | Auth changes, PII handling, crypto usage | Confirm security review completed; share findings for joint assessment of Critical/High items |
+| **Security Reviewer** | Pre-merge security audit | Share PR context, architecture notes; delegate deep security review for auth/payment/data code |
+| **QA Engineer** | Test coverage gaps, edge cases | Flag insufficient test coverage; ask QA to design additional test scenarios for complex changes |
+| **Backend/Frontend Developer** | As PR author | Provide actionable feedback with line references; discuss architectural concerns synchronously |
+| **Database Designer** | Schema migrations, query changes | Review migration safety (locking, backfill, rollback), query performance, index usage |
+| **Observability Engineer** | New metrics, logging, alerts | Verify instrumentation follows standards; log levels appropriate; PII not logged |
+| **DevOps Engineer** | Infrastructure-as-code changes, CI/CD config | Review Terraform/Pulumi changes for security, cost, and reliability implications |
+| **System Architect** | Architectural concerns, tech debt | Escalate patterns that deviate from architecture; flag accumulating tech debt |
+
+### Communication Triggers
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Critical security vulnerability found | Security Engineer, PR author | Immediate fix; may block deploy |
+| Architectural deviation detected | System Architect | Decide: approve exception or redesign |
+| Repeated pattern of same issue across PRs | Engineering Manager | Systemic problem — needs tooling, lint rule, or training |
+| PR too large for effective review (>400 lines) | PR author, Engineering Manager | Request PR decomposition |
+| CI consistently failing/flaky on PRs | DevOps Engineer, CI/CD Builder | Pipeline health investigation |
+
+### Escalation Path
+
+```
+Security finding (Critical/High)? → Security Engineer → Compliance Officer
+Architecture dispute? → System Architect → CTO Advisor
+Repeated quality issues from same author? → Engineering Manager
+CI infrastructure issues? → DevOps Engineer
+```
+
+## Scale Depth: Solo → Small → Medium → Enterprise
+
+### Solo (1 person, 0-100 users)
+- **What changes**: Code review = self-review checklist before merging. Review dimensions: correctness + security (just check for obvious issues). No PR process. No automated checks.
+- **What to skip**: Multi-reviewer PR process. Automated CI checks (lint, type-check, tests). Security specialist review. Review SLAs. Severity grading.
+- **Coordination**: Self-review. Ship fast, fix forward.
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: PR required for all merges. One reviewer (peer). Automated checks: lint, type-check, tests. Review dimensions: all 6 but lighter on architecture/performance. Severity grading used. Review SLA: <24 hours. Security-sensitive changes get extra scrutiny.
+- **What to skip**: Multiple reviewers per PR. Formal review board. Review metrics tracking. Security specialist for every PR.
+- **Coordination**: PR assigned via GitHub. Async review within 24 hours. Quick sync for complex changes.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Two reviewers for critical paths (auth, payments, data). Full 6-dimension review enforced. Automated checks: lint + type-check + tests + security scan + coverage. Severity-based merge gates (Critical/High block merge). Review metrics tracked (turnaround time, review depth). Security reviewer for sensitive changes.
+- **What to skip**: Formal review board (peer review is enough). Mandatory architecture review for every PR. Review metrics as performance evaluation.
+- **Coordination**: CODEOWNERS for domain expertise. Weekly code review quality sync. Monthly review metrics review.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Multiple reviewer tiers (peer → domain expert → security → architecture for critical changes). Automated review bots (linter, type-checker, security scanner, dependency checker). Formal review checklist per change type. Review board for cross-cutting changes. Compliance review gates (SOC 2, HIPAA, PCI DSS). Review metrics as quality KPIs. Reviewer training program.
+- **What's full production**: Automated pre-review (AI-assisted review). Change-risk-based review depth. Reviewer workload balancing. Review quality auditing. Cross-team review coordination.
+- **Coordination**: Weekly review quality audit. Monthly review board for cross-cutting changes. Quarterly reviewer calibration.
+
+### Transition Triggers
+- **Solo → Small**: Second developer joins. Need shared understanding of code changes.
+- **Small → Medium**: 5+ developers. Critical production incidents traced to merged code. >10K users.
+- **Medium → Enterprise**: Compliance requirements. Multiple teams with shared code ownership. >50 developers.
+
+## Sub-Skills
+
+| Sub-Skill | When to Use | Reference |
+|-----------|-------------|-----------|
+| `security-review` | Auth, crypto, PII, payment code | Dimension 1 — injection, auth, data exposure, dependency CVEs |
+| `performance-review` | Query-heavy, memory-intensive, latency-sensitive code | Dimension 2 — N+1, memory leaks, complexity, bundle size |
+| `code-quality-review` | All PRs — readability, design, error-prone patterns | Dimension 3 — SRP, DRY, TypeScript strictness, cyclomatic complexity |
+| `error-handling-review` | Error paths, external integrations, async code | Dimension 4 — propagation, graceful degradation, edge cases, transactions |
+| `testing-review` | Test coverage gaps, test quality, flaky tests | Dimension 5 — behavior vs implementation, assertions, isolation |
+| `documentation-review` | API docs, READMEs, architecture docs, comments | Dimension 6 — JSDoc, API specs, architecture decisions, TODOs |
+| `language-specific` (Python/TS/Go/Rust) | Per-language anti-patterns | `references/language-specific-review-guides.md` |
+
+## Production Checklist
+- [ ] Every PR reviewed against all six dimensions before merge
+- [ ] Critical and High severity items resolved before merge
+- [ ] Medium severity items tracked as follow-up tickets
+- [ ] Review comments are specific, actionable, and explain the "why"
+- [ ] Automated checks pass (lint, type-check, tests, security scan) before human review
+- [ ] Reviewer pulled branch and manually tested UI/UX changes
+- [ ] Test coverage for changed code verified (added/modified tests present and meaningful)
+- [ ] Positive feedback given alongside constructive criticism
+- [ ] Review turnaround time tracked and < 24 hours
+- [ ] Security-sensitive changes (auth, payments, PII) reviewed by security specialist
+
+## References
+- [Google Engineering Practices — Code Review](https://google.github.io/eng-practices/review/)
+- [Conventional Comments](https://conventionalcomments.org/)
+- [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/)
+- [Best Kept Secrets of Peer Code Review](https://www.amazon.com/Best-Kept-Secrets-Peer-Review/dp/1599160676) — Jason Cohen
+- [Code Review Best Practices — Palantir](https://blog.palantir.com/code-review-best-practices-19e02780015f)
