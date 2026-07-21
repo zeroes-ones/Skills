@@ -1,6 +1,6 @@
 # Scale Depth Framework
 
-Every skill in this library provides depth at 4 scale levels. This framework defines the universal pattern.
+Every skill in this library provides depth at 4 scale levels. This framework defines the universal pattern. The deployment system mirrors these scales with tiered activation: `--solo` (Solo), `--grow` (Small), and `--full` (Medium/Enterprise).
 
 ## The Four Scales
 
