@@ -100,13 +100,44 @@ Change type?
 | **Low** | Style nit, minor improvement, naming suggestion | Optional; author discretion |
 | **Info** | Educational note, alternative approach suggestion | No action required |
 
-## Review Workflow
-1. **Context gathering**: Read PR description, linked issue/ticket, and any design docs. Understand what the change is trying to accomplish.
-2. **High-level review**: Check architectural alignment — does this change fit the existing patterns? Are there simpler approaches?
-3. **File-by-file review**: Apply the six dimensions to each file. Start with the most critical files (business logic, auth, data access).
-4. **Test review**: Run the tests. Do they pass? Do they cover the changed behavior? Are new tests meaningful?
-5. **Manual verification**: Check out the branch and test manually if the change is UI/UX or has complex interactions. Verify edge cases interactively.
-6. **Write review**: Group feedback by file/section. Use the severity grading table. Be specific: reference exact line numbers, suggest concrete fixes, explain the "why". Balance constructive criticism with positive feedback on good patterns.
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~5 min): Context Gathering
+1. Read PR description, linked issue/ticket, and any design docs.
+2. Understand what the change is trying to accomplish and why.
+3. Verify the PR description explains the problem, not just the solution.
+**Output:** Clear understanding of intent and expected behavior.
+
+### Phase 2 (~10 min): High-Level Review
+1. Check architectural alignment — does this change fit existing patterns?
+2. Identify simpler approaches. Is the solution proportionate to the problem?
+3. Verify the change doesn't duplicate existing functionality.
+4. Flag any module boundary violations or unexpected coupling.
+**Output:** Go/no-go on architectural fit; list of concerns to probe deeper.
+
+### Phase 3 (~15 min): Six-Dimension Deep Review
+1. **Security**: Injection, auth, data exposure, dependency CVEs, input validation.
+2. **Performance**: N+1 queries, memory leaks, bundle size, algorithmic complexity.
+3. **Code Quality**: Readability, design principles, TypeScript strictness, error-prone patterns.
+4. **Error Handling**: Propagation, graceful degradation, edge cases, transaction safety.
+5. **Testing**: Coverage gaps, test quality, isolation, flaky tests.
+6. **Documentation**: Comment intent, API docs, architecture decisions.
+**Output:** Findings grouped by severity (Critical/High/Medium/Low/Info), each with line references and concrete fix suggestions.
+
+### Phase 4 (~5 min): Test Verification
+1. Run the test suite. Do tests pass on this branch?
+2. Review new tests for meaningfulness — do they test behavior or implementation?
+3. Check coverage on changed paths. Is coverage gap acceptable given risk?
+4. Manually verify UI/UX or complex interaction changes if applicable.
+**Output:** Confirmation tests pass; flag any coverage gaps or test quality issues.
+
+### Phase 5 (~5 min): Write Review
+1. Group feedback by file/section for readability.
+2. Apply severity grading table consistently.
+3. Balance constructive criticism with positive feedback.
+4. Use `nit:` and `suggestion:` prefixes for non-critical items.
+5. Request specific changes on Critical/High items.
+**Output:** Published review — actionable, specific, respectful, and timely.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
