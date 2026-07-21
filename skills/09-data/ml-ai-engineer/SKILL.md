@@ -20,6 +20,21 @@ Covers the full ML lifecycle, model selection, data preparation, training, MLOps
 LLM integration patterns, RAG architectures, model serving at scale, evaluation frameworks,
 drift monitoring, and responsible AI guardrails.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Train a new model (classical ML or deep learning) → Jump to "Core Workflow" — Phase 2 (Training)
+├── Deploy a model to production → Jump to "Core Workflow" — Phase 4 (MLOps & Serving)
+├── Build a RAG pipeline with LLMs → Jump to "Core Workflow" — Phase 3 (RAG Architecture)
+├── Evaluate model performance or detect drift → Jump to "Core Workflow" — Phase 5 (Evaluation & Monitoring)
+├── Fine-tune an existing model (LoRA, QLoRA) → Jump to "Core Workflow" — Phase 2 (Fine-tuning)
+├── Need data pipelines for training data → Invoke data-engineer skill instead
+├── Need to deploy LLM with safety guardrails → Jump to "Best Practices" — responsible AI
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Framing a business problem as an ML task and selecting the right approach

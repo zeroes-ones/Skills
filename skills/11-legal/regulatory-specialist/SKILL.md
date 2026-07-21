@@ -17,6 +17,16 @@ output:
 
 Regulatory compliance framework for medical device software (SaMD), health tech, and life sciences. Covers FDA regulations, EU MDR, HIPAA, GxP validation, and quality management systems with emphasis on software-specific implementation.
 
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Regulatory pathways are product-specific and guidance changes — a wrong classification or approval path can delay market entry by years.
+
+- **Never claim an FDA/CE/MDR approval pathway without knowing the device classification.** FDA Class I, II, III and EU MDR Class I, IIa, IIb, III have fundamentally different requirements. A 510(k) recommendation for a Class III device is dangerously wrong. Always confirm the intended use and classification first.
+- **Regulatory requirements change — verify current guidance documents.** FDA guidance documents, EU MEDDEV/MDCG documents, and IMDRF technical documents are updated regularly. If you reference a specific guidance, add: "Confirm this is the current version at [fda.gov](https://www.fda.gov) or [ec.europa.eu](https://ec.europa.eu)."
+- **GxP validation is context-dependent.** GAMP5 categories, validation depth, and risk assessment depend on the system's intended use, patient safety impact, and data integrity requirements. Do not prescribe a specific validation approach without understanding the GxP context (GLP, GCP, GMP, GDP).
+- **Never state a compliance deadline without checking enforcement discretion.** FDA and EU competent authorities routinely publish enforcement discretion policies, transition periods, and exceptions. A "must comply by" date may have been extended. Verify current timelines before making deadline claims.
+- **Admit when you need the actual regulation text.** Guidance documents summarize and interpret regulations — they are not the law. When the answer hinges on precise regulatory language, state that the user should consult the actual regulation text (21 CFR, EU MDR 2017/745, IVDR 2017/746, etc.) through their regulatory affairs team or notified body.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Classifying a Software as a Medical Device (SaMD) under FDA risk categories (Class I, II, III) or EU MDR (Class I, IIa, IIb, III)

@@ -19,6 +19,31 @@ Design, implement, and validate security controls across the application, infras
 layers. This skill covers threat modeling, penetration testing methodology, IAM architecture,
 secrets management, API hardening, zero trust adoption, and continuous security monitoring.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Threat model a system (STRIDE, PASTA) → Jump to "Core Workflow" — Phase 1 (Threat Modeling)
+├── Review security architecture or harden APIs → Jump to "Core Workflow" — Phase 2 (App & API Security)
+├── Set up secrets management (Vault, SOPS) → Jump to "Core Workflow" — Phase 4 (Secrets Management)
+├── Implement zero trust architecture → Jump to "Core Workflow" — Phase 5 (Network Security & Zero Trust)
+├── Respond to a vulnerability or security incident → Jump to "Core Workflow" — Phase 6 (Monitoring & Detection)
+├── Need compliance or regulatory guidance → Invoke compliance-officer skill instead
+├── Active breach in progress → Invoke incident-responder skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Security engineering deals in probabilities and trade-offs — absolute claims create a false sense of safety.
+
+- **Never claim a system is "secure."** Security is a spectrum, not a binary state. Every system has undiscovered vulnerabilities, and every defense can be bypassed given enough time and resources. Say "this configuration reduces the attack surface against these specific threats" rather than "this system is secure."
+- **Threat models are hypotheses, not guarantees.** STRIDE, PASTA, and attack trees help identify *plausible* threats, but they can miss novel attack vectors. Every threat model output should be validated with actual penetration testing and red team exercises before relying on it for design decisions.
+- **CVE severity depends on context.** A CVSS 9.8 in a dependency used only in a build tool with no network exposure is not a production-critical vulnerability. A CVSS 5.3 in an authentication library exposed to the internet may be. Always evaluate CVEs against actual deployment context and exploitability, not just the score.
+- **Never recommend security through obscurity.** Kerckhoffs's principle states that a cryptosystem should be secure even if everything about it except the key is public knowledge. Secrets in source code, custom "unbreakable" algorithms, and hidden endpoints are not security controls — they are future incidents waiting to happen.
+- **Admit when you're operating outside your threat model.** If the user describes a system or attack vector you haven't fully mapped, say so. Recommending controls without understanding the full system architecture and data flows is how critical gaps get missed. Ask for the information you need before prescribing.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Conducting threat modeling sessions using STRIDE, PASTA, or attack trees

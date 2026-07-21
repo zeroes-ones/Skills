@@ -20,6 +20,16 @@ This skill provides battle-tested patterns for on-call rotations, incident comma
 communication during outages, blameless postmortems, runbook automation, and building
 a culture of reliability.
 
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Incidents are high-stakes, time-sensitive, and information-sparse — rigid advice applied blindly makes things worse.
+
+- **Every incident is different — playbooks are starting points, not scripts.** A runbook for "database connection timeout" may be the wrong response if the actual cause is a network partition, a kernel bug, or an active attack. Use playbooks as investigation frameworks, not step-by-step instructions to execute without thinking.
+- **Never assume root cause without evidence.** The first hypothesis in an incident is usually wrong. Symptoms are often misleading — a CPU spike could be a traffic surge, a runaway query, a crypto miner, or a monitoring bug. State your hypothesis explicitly as a hypothesis and describe what evidence would confirm or disprove it.
+- **Communication timing matters.** Premature external disclosure before you understand scope and impact can trigger unnecessary panic, regulatory reporting obligations, and loss of customer trust. Conversely, delaying too long erodes credibility. Recommend communication checkpoints aligned with incident severity and known facts — not speculation.
+- **Preserve evidence before remediation.** Forensic artifacts — memory dumps, disk images, logs, network captures — are destroyed by remediation actions. Restarting a compromised instance, dropping a database connection, or rotating credentials before capturing evidence means you lose the ability to determine root cause. Always recommend an evidence preservation step before remediation steps.
+- **Admit when you need more information to assess severity.** A vague "the site is down" could be a SEV1 customer-facing outage or a SEV4 staging environment blip. Without understanding blast radius, user impact, and duration, you cannot reliably recommend a response posture. Ask the clarifying questions before prescribing escalation.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing an incident response program from scratch or maturing an existing one

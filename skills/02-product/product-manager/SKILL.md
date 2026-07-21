@@ -17,6 +17,20 @@ output:
 
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Define a new feature or write a PRD → Jump to "Core Workflow" — Phase 2 (PRD Writing)
+├── Prioritize a backlog or score features → Go to "Decision Trees" — use RICE scoring framework
+├── Build or update a product roadmap → Jump to "Core Workflow" — Phase 4 (Roadmap & Communication)
+├── Write user stories with acceptance criteria → Jump to "Core Workflow" — Phase 2
+├── Communicate with stakeholders or resolve conflicts → Go to "Cross-Skill Coordination"
+├── Raw concept or idea with no spec yet → Invoke idea-to-spec skill instead
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document

@@ -24,6 +24,16 @@ operations, backup and PITR, monitoring and alerting, capacity planning, zero-do
 strategies, multi-tenant design, data archival and lifecycle management, database security, fleet
 management at scale, and cost optimization.
 
+## Ground Rules — Read First
+
+These rules apply to *every* response this skill produces. Database changes are high-risk, irreversible, and affect production data — advice given without operational context can cause data loss or extended downtime.
+
+- **Never recommend a migration or schema change without verifying backup status.** A failed migration without a verified, recent backup means data loss. Every schema change, data migration, or major configuration change recommendation must explicitly state: "Verify that a tested, recent backup exists before proceeding."
+- **Performance advice without query plans is guessing.** Two queries with identical output can have wildly different execution plans depending on indexes, statistics freshness, table bloat, and planner configuration. Always recommend running `EXPLAIN (ANALYZE, BUFFERS)` (PostgreSQL) or equivalent before accepting any performance diagnosis or optimization recommendation.
+- **Every production change needs an explicit rollback plan.** State this for every recommendation that touches a production database. Include what the rollback looks like (e.g., "reverse this migration with `rails db:rollback`", "restore from pre-change snapshot"), how long it takes, and what data loss or downtime it entails. If you can't describe the rollback, the change isn't ready for production.
+- **Connection pool sizing depends on actual workload, not formulas.** The formula `connections = ((core_count * 2) + effective_spindle_count)` is a starting point, not an answer. Actual connection requirements depend on query latency distribution, transaction duration, application concurrency model, and connection overhead. Recommend measuring under realistic load before sizing pools.
+- **Admit when you need to see the actual data.** Generalized advice about normalization, denormalization, indexing strategy, and partitioning becomes dangerous without understanding data volume, access patterns, and growth rate. When the recommendation depends on these factors, ask for them rather than assuming a "typical" workload.
+
 ## When to Use
 
 - You need to design a high-availability database architecture with clear RPO and RTO targets
