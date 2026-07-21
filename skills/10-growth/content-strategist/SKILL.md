@@ -2,14 +2,23 @@
 name: content-strategist
 description: Content planning, editorial calendars, content audits, content marketing funnel, topic clusters, content repurposing, tone of voice guidelines, content metrics.
 author: Sandeep Kumar Penchala
+type: growth
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - content-strategist
+token_budget: 2820
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Content Strategist
 
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building a new content program from scratch — defining pillars, audience personas, and editorial workflows
 - Running a content audit to identify gaps, consolidation opportunities, and refresh candidates
 - Designing a topic cluster architecture to establish topical authority for SEO
@@ -19,9 +28,161 @@ End-to-end content strategy system covering planning, creation, governance, and 
 - Measuring content ROI and building dashboards that connect content to pipeline/revenue
 - Optimizing a content marketing funnel from awareness through conversion and retention
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Content Format Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Which content      │
+                     │ format to create?         │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Target is TOFU (Top of     │
+                    │ Funnel — awareness)?       │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Best for   │    │ BOFU (Bottom)?    │
+                    │ organic    │    └──┬──────────┬────┘
+                    │ search?    │       │YES       │NO (MOFU)
+                    └──┬───┬─────┘  ┌────▼────┐ ┌───▼──────────┐
+                       │YES│NO     │Case study│ │Webinar,      │
+                  ┌────▼──┐┌▼──────┐│Comparison│ │Guide,         │
+                  │Blog   ││Video, ││ROI calc, │ │Checklist,     │
+                  │post,  ││Podcast││Free trial│ │Template —     │
+                  │Guide  ││Social │└──────────┘ │POV content    │
+                  │(SEO)  ││media  │              └──────────────┘
+                  └───────┘└───────┘
+```
+**When to choose Blog/Guide:** TOFU + organic search focus — invest in SEO, cluster strategy, evergreen content with 6-12 month shelf life.  
+**When to choose Video/Podcast:** TOFU + brand building — reach audiences on YouTube, Spotify; high production cost, long payback.  
+**When to choose Case Study/Comparison:** BOFU — close deals with social proof; quantifiable ROI metrics required.  
+**When to choose Webinar/Template:** MOFU — nurture leads with gated assets; capture email → nurture sequence.
 
-### Phase 1: Strategy Foundation
+### Content Refresh vs. New Creation
+```
+                     ┌──────────────────────────┐
+                     │ START: Publish new or      │
+                     │ refresh existing?          │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Existing page ranks #4-15  │
+                    │ for target keyword AND     │
+                    │ age > 6 months?            │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Refresh   │    │ Keyword gap      │
+                    │ existing  │    │ not covered at   │
+                    │ page —    │    │ all?             │
+                    │ update    │    └──┬──────────┬────┘
+                    │ stats, add│      │YES       │NO
+                    │ new       │ ┌────▼────┐ ┌──▼──────────┐
+                    │ section,  │ │Create new│ │Content      │
+                    │ republish │ │pillar +  │ │cannibaliz-  │
+                    │ with new  │ │cluster   │ │ation risk — │
+                    │ date      │ └──────────┘ │consolidate  │
+                    └───────────┘               │or de-optimize│
+                                                └─────────────┘
+```
+**When to Refresh:** Existing page ranks #4-15, 6+ months old — update stats, add new sections, republish with fresh date (SEO win in 30-60 days).  
+**When to Create New:** Keyword gap uncovered, no existing page within striking distance — build pillar + cluster, target long-tail first.  
+**When to Consolidate:** Multiple pages competing for same keyword — merge into one definitive resource, 301 redirects.
+
+### Content Distribution Channel Mix
+```
+                     ┌──────────────────────────┐
+                     │ START: Where to distribute │
+                     │ this content?              │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Content drives organic     │
+                    │ search traffic (SEO ROI)?  │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ SEO +     │    │ Content is        │
+                    │ owned     │    │ time-sensitive?   │
+                    │ channels  │    └──┬──────────┬────┘
+                    │ + email   │       │YES       │NO
+                    │ nurture   │  ┌────▼────┐ ┌──▼──────────┐
+                    └───────────┘  │Social    │ │Gated asset  │
+                                   │(real-time)│ │— email      │
+                                   │+ push     │ │capture +    │
+                                   │notifications│ │retargeting │
+                                   └──────────┘ └─────────────┘
+```
+**When to choose SEO + Owned:** Evergreen content, ROI from organic — invest in keyword research, backlinks, updates. Distribution: blog + newsletter.
+**When to choose Social + Push:** News, announcements, time-sensitive — Twitter, LinkedIn, Slack communities, push notifications.  
+**When to choose Gated + Retargeting:** High-value lead gen asset — landing page, form, email sequence, retargeting ads.
+
+### Content Audit Decision Matrix
+```
+                     ┌──────────────────────────────┐
+                     │ START: How to handle existing  │
+                     │ content piece?                 │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Traffic > 100/month AND        │
+                    │ conversion rate > 1%?          │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ KEEP +        │    │ Traffic > 100    │
+                    │ OPTIMIZE:     │    │ but < 1% CVR?    │
+                    │ Add CTAs,     │    └──┬──────────┬────┘
+                    │ update offers,│      │YES       │NO
+                    │ internal links│ ┌────▼────┐ ┌──▼──────────┐
+                    └───────────────┘ │REFRESH  │ │Traffic < 10 │
+                                      │Improve  │ │AND age > 1yr│
+                                      │CVR: CTAs,│ └──┬──────┬───┘
+                                      │offers,   │   │YES   │NO
+                                      │format    │┌──▼──┐┌─▼──────┐
+                                      └──────────┘│DELETE││KEEP +  │
+                                                   │or 301││MONITOR │
+                                                   │redirect││(low   │
+                                                   └──────┘│priority)│
+                                                           └────────┘
+```
+**When to Keep + Optimize:** High traffic + high CVR — your best assets. Update CTAs, add related content links, optimize for conversions.  
+**When to Refresh:** High traffic, low conversion — content is found but doesn't convert. Improve CTAs, update offers, or fix format/paywall.
+**When to Delete/Redirect:** <10 visits/month, >1 year old, no backlinks — prune. 301 redirect to closest relevant page.
+
+### Content Team Structure Decision
+```
+                     ┌──────────────────────────────┐
+                     │ START: How to staff content?   │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Publishing cadence > 4         │
+                    │ long-form pieces/week?         │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ In-house team │    │ Need specialized  │
+                    │ + freelance   │    │ domain expertise  │
+                    │ pool for      │    │ (SME-level)?     │
+                    │ overflow      │    └──┬──────────┬────┘
+                    └───────────────┘       │YES       │NO
+                                       ┌────▼────┐ ┌──▼──────────┐
+                                       │Agency+  │ │Freelance    │
+                                       │SME      │ │generalist   │
+                                       │external │ │or small     │
+                                       │partners │ │in-house team│
+                                       └─────────┘ └─────────────┘
+```
+**When to build in-house team:** >4 pieces/week, need deep product knowledge, fast iteration — hire editor + writers; supplement with freelancers.
+**When to use Agency + SME:** Niche domain expertise (legal, medical, financial) — pair agency with subject matter experts for accuracy.  
+**When to use Freelance:** <4 pieces/week, general topics — cost-effective, flexible, no benefits overhead.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Strategy Foundation
 
 1. **Audience & Persona Research** — Define primary and secondary personas including: job titles, pain points, goals, information needs by funnel stage, preferred content formats, and channels. Validate with customer interviews, sales call recordings, and support ticket analysis.
 2. **Content Mission Statement** — Articulate who the content serves, what unique value it provides, and how it differentiates from competitors. Example: "We help backend engineers transition from monolith to microservices with production-tested patterns."
@@ -29,7 +190,7 @@ End-to-end content strategy system covering planning, creation, governance, and 
 4. **Competitive Content Audit** — Analyze top 5 competitors: content formats, publishing cadence, average word count, content depth scores, backlink profiles, social engagement. Identify whitespace — topics they under-serve or formats they ignore.
 5. **Deliverable: Content Strategy Brief** — A document including persona cards, topic cluster map, competitive analysis, content funnel mapping, and KPIs per funnel stage.
 
-### Phase 2: Content Operations
+### Phase 2 (~30 min): Content Operations
 
 1. **Editorial Calendar Setup** — Build a quarterly calendar with: working titles, target keywords, funnel stage, assigned writer, draft deadline, review deadline, publish date, distribution channels. Use Notion/Airtable/Asana with calendar and Kanban views.
 2. **Content Brief Template** — Standardize briefs with: target persona, funnel stage, primary/secondary keywords, search intent (informational/commercial/transactional/navigational), target word count, outline with H2/H3 structure, internal links to include, competitor URLs to beat, CTAs.
@@ -37,7 +198,7 @@ End-to-end content strategy system covering planning, creation, governance, and 
 4. **Review & Approval Workflow** — Define stages: outline review → first draft → peer review → SEO review → final edit → stakeholder approval (if needed) → publish. Set SLAs per stage. Use Google Docs "suggesting" mode or a collaborative CMS.
 5. **Content Governance** — Establish content ownership (who updates what), refresh cadence (quarterly for high-traffic, annually for evergreen), deprecation criteria (outdated, low traffic for 12+ months, brand misalignment). Maintain a content inventory with status, owner, last-updated, and performance fields.
 
-### Phase 3: Measurement & Optimization
+### Phase 3 (~20 min): Measurement & Optimization
 
 1. **Content Metrics Framework** — Map metrics to funnel stages:
    - **Awareness**: organic sessions, impressions, new users, social shares, backlinks acquired
@@ -49,7 +210,7 @@ End-to-end content strategy system covering planning, creation, governance, and 
 4. **Repurposing Engine** — From each high-performing long-form piece, generate: Twitter thread, LinkedIn carousel, email newsletter version, podcast talking points, YouTube script, infographic. Maximize ROI per research investment.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Always write for search intent first, search engines second. Google rewards content that satisfies user needs.
 - Use the "inverted pyramid" structure: key takeaway first, supporting details next, background last.
 - Every piece of content should have exactly one primary CTA. Too many choices reduce conversion.
@@ -59,7 +220,7 @@ End-to-end content strategy system covering planning, creation, governance, and 
 - Use the "skyscraper technique" for competitive topics: find the best existing content, make something 10x better, then promote it.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Content strategy sits between marketing, product, SEO, and brand. Content produced in silos underperforms; coordination amplifies reach and relevance.
 
 | Coordinate With | When | What to Share/Ask |
@@ -96,22 +257,66 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 | Resource request denied for critical content hire | **CEO Strategist** or CMO | Content under-investment affects all growth channels |
 | Content team blocked by engineering (CMS, publishing, tooling) | **CTO Advisor** + Project Manager | Operational bottleneck; needs engineering prioritization |
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Founder or solo marketer writing everything. Content strategy = a Notion doc. Publish 1-2 posts/week on company blog. Distribution: Twitter/LinkedIn + email to small list. SEO: basic keyword research (free tools), no cluster strategy. No editorial calendar beyond Google Calendar. Measure: page views + email signups. Cost: $0-200/month (CMS hosting, email tool free tier). Overkill: content agency, topic cluster tools, T-shaped writers, multi-channel attribution.
 
-- [ ] Content mission statement is documented and visible to all content creators
-- [ ] Topic cluster map exists with pillar pages and cluster relationships defined
-- [ ] Editorial calendar covers next 90 days with assignments, deadlines, and distribution plan
-- [ ] Content brief template is standardized and used for every assigned piece
-- [ ] Tone of voice guidelines are published and include do/don't examples for each voice attribute
-- [ ] Review workflow is defined with SLAs per stage and tracked
-- [ ] Content inventory is maintained with status, owner, last-updated, and performance data
-- [ ] Quarterly content audit process is in place — identifies gaps, refreshes, consolidations, and deletions
-- [ ] Content performance dashboard shows funnel-stage metrics and month-over-month trends
-- [ ] Keyword cannibalization is monitored and addressed within each content cluster
-- [ ] All published content has structured data (Article, HowTo, or FAQ schema as applicable)
-- [ ] Internal linking strategy is enforced — every new post links to pillar page and 3+ relevant cluster posts
-- [ ] Accessibility baseline met: proper heading hierarchy, alt text, sufficient color contrast in embedded graphics
-- [ ] Content refresh triggers are automated: pages dropping >20% traffic over 90 days flagged for review
+### Small (2-10 people, 100-10K users)
+Hire 1-2 content writers or a fractional editor. Editorial calendar in Airtable/Notion. Publish 2-4 pieces/week. SEO: keyword research (Ahrefs/Semrush), topic clusters, pillar pages. Content refresh cycle established. Distribution: newsletter, social scheduling (Buffer/Hootsuite), syndication. Basic attribution: UTM + CRM tracking. Cost: $3K-10K/month. Overkill: in-house video production, dedicated content operations role.
+
+### Medium (10-50 people, 10K-1M users)
+Content team (3-5): editor, writers, content strategist, freelance pool. CMS with workflows and approvals. SEO: advanced (enterprise Ahrefs, Clearscope/MarketMuse). Content Ops: content management platform (Contentful/Sanity). Multi-channel: blog, newsletter, podcast, webinars, gated assets. Attribution: multi-touch, pipeline influence modeling. A/B test headlines, CTAs, formats. Cost: $15K-50K/month.
+
+### Enterprise (50+ people, 1M+ users)
+Content department (10+): specialists per channel, content ops manager, managing editor. Multi-language, multi-region content operations. AI-assisted content creation + human editorial review. Content supply chain: request → brief → draft → review → publish → distribute → measure. Full attribution: content-sourced vs content-influenced pipeline. Brand-level editorial standards. Cost: $100K-500K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | >2 posts/week consistently for 3 months, or content requests > 1/day | Hire fractional writer/editor; add SEO tool (Ahrefs/Semrush); implement editorial calendar |
+| Small → Medium | >4 posts/week, 3+ content channels active, or content ROI > $50K/month | Build in-house team; implement CMS workflows; add attribution model |
+| Medium → Enterprise | Multi-language needs, >10 content creators, or content influences >$1M pipeline/month | Dedicate content ops; invest in AI tools; build content supply chain |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **Content Audit & Inventory** | Traffic declining or content bloat >100 pieces | Screaming Frog, Google Analytics, GSC — categorize: keep/refresh/consolidate/delete |
+| **Topic Cluster Architecture** | Building SEO authority for a new or competitive niche | Pillar + cluster model, keyword mapping, internal linking structure — Ahrefs, Semrush |
+| **Editorial Calendar Design** | >2 writers contributing, multiple deadlines/week | Airtable, Notion, CoSchedule — align with product launches, campaigns, events |
+| **Tone-of-Voice & Style Guidelines** | Multi-writer team, inconsistent brand voice across channels | Brand voice charter, style guide, writing templates, editorial review process |
+| **Content Repurposing** | High-performing long-form content exists; want to maximize ROI | Blog → social threads, video scripts, newsletter, slides, infographics, podcast episodes |
+| **Content ROI Measurement** | Justifying content budget or optimizing content investment | Multi-touch attribution, pipeline influence, content scoring — tools: Google Analytics, HubSpot, Salesforce |
+| **B2B vs B2C Content Strategy** | Differentiating approach by audience type | B2B: case studies, whitepapers, webinars, LinkedIn. B2C: blog, video, social, email nurture |
+| **AI-Assisted Content Production** | Scaling output while maintaining quality and brand voice | ChatGPT, Claude, Jasper — draft, research, summarize; human editing for accuracy + voice |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Content mission statement is documented and visible to all content creators
+- [ ] **[S2]**  Topic cluster map exists with pillar pages and cluster relationships defined
+- [ ] **[S3]**  Editorial calendar covers next 90 days with assignments, deadlines, and distribution plan
+- [ ] **[S4]**  Content brief template is standardized and used for every assigned piece
+- [ ] **[S5]**  Tone of voice guidelines are published and include do/don't examples for each voice attribute
+- [ ] **[S6]**  Review workflow is defined with SLAs per stage and tracked
+- [ ] **[S7]**  Content inventory is maintained with status, owner, last-updated, and performance data
+- [ ] **[S8]**  Quarterly content audit process is in place — identifies gaps, refreshes, consolidations, and deletions
+- [ ] **[S9]**  Content performance dashboard shows funnel-stage metrics and month-over-month trends
+- [ ] **[S10]**  Keyword cannibalization is monitored and addressed within each content cluster
+- [ ] **[S11]**  All published content has structured data (Article, HowTo, or FAQ schema as applicable)
+- [ ] **[S12]**  Internal linking strategy is enforced — every new post links to pillar page and 3+ relevant cluster posts
+- [ ] **[S13]**  Accessibility baseline met: proper heading hierarchy, alt text, sufficient color contrast in embedded graphics
+- [ ] **[S14]**  Content refresh triggers are automated: pages dropping >20% traffic over 90 days flagged for review
 
 ## MVP vs Growth vs Scale
 
@@ -199,7 +404,7 @@ python3 scripts/content_audit.py --site example.com --url /blog/x --compare-30d
 **Principle:** Automated audit scripts output JSON. Agent reads structured data, not prose. Decision tree maps every audit finding to exactly one action. No deliberation loops.
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Content Marketing Institute — B2B Content Marketing Benchmarks](https://contentmarketinginstitute.com/)
 - [HubSpot — Topic Clusters and Pillar Pages](https://blog.hubspot.com/marketing/topic-clusters-seo)
 - [Backlinko — Skyscraper Technique](https://backlinko.com/skyscraper-technique)

@@ -2,13 +2,23 @@
 name: ux-researcher
 description: Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product decisions with user evidence. Triggers: "create personas", "journey map", "usability test plan", "research synthesis", "competitive analysis", "heuristic evaluation", "user research".
 author: Sandeep Kumar Penchala
+type: product
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - ux-researcher
+token_budget: 1488
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # UX Researcher
 
 Generate evidence-based user understanding that drives product and design decisions. Move teams from opinion-based to insight-based development through rigorous qualitative and quantitative research methods.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves
 - You need to understand the end-to-end user journey across touchpoints
 - Before a major redesign — baseline usability with a heuristic evaluation
@@ -17,7 +27,7 @@ Generate evidence-based user understanding that drives product and design decisi
 - A feature is high-risk and needs moderated usability testing before launch
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Research Method Selection
 
 ```
@@ -45,24 +55,24 @@ Sample size decision?
 - You have < 10 users? → Talk to all of them directly. Formal methods add no value.
 
 ## Core Workflow
-
-### Phase 1: Research Planning
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Research Planning
 Define the research objective in one sentence. Identify the key research questions (3–5 max). Choose the method: moderated usability test for interaction flow, unmoderated for volume/statistical significance, semi-structured interview for mental models, diary study for longitudinal behavior, survey for attitudes/preferences. Recruit participants: 5 per persona segment for qualitative, 30+ per segment for quantitative. Draft a discussion guide or test script with timestamps. Prepare consent forms, recording setups, and note-taking templates (split observer and facilitator roles).
 
-### Phase 2: Persona Generation
+### Phase 2 (~30 min): Persona Generation
 Build personas from behavioral data, not demographics. For each persona: name, archetype label, primary goal, core tasks (3–5), pain points, current tools/workarounds, context of use (environment, device, time pressure), and a representative quote. Map each persona to a Jobs-to-be-Done (JTBD): "When [situation], I want to [motivation], so I can [outcome]." Create an empathy map for the top 2 personas: Says, Thinks, Does, Feels. Validate personas with at least 3 real users matching the profile before distributing.
 
-### Phase 3: Journey Mapping
+### Phase 3 (~20 min): Journey Mapping
 Map the end-to-end experience across time, channel, and emotional state. For each step in the journey: user action, touchpoint/channel, emotion (high/low), pain points, and opportunities. Identify the "moments of truth" — steps where satisfaction or abandonment is determined. Overlay the frontstage (user-visible) and backstage (system/internal) actions per step. Annotate with quantitative data where available: drop-off rates, time-on-step, support ticket volume per step.
 
-### Phase 4: Usability Testing
+### Phase 4 (~15 min): Usability Testing
 Create task scenarios that are realistic, specific, and avoid leading language. For each task: define the success criteria (completion rate, time-on-task, error count), the maximum acceptable error rate, and the benchmark. Run a dry-run with one participant before the actual sessions. During testing: think-aloud protocol, minimal intervention, note severity of each observed issue (1 = cosmetic, 2 = minor, 3 = major blocker, 4 = catastrophic). Debrief after each session while memory is fresh. Aggregate findings in a rainbow spreadsheet: row per participant, column per issue, color-coded by severity.
 
-### Phase 5: Synthesis & Reporting
+### Phase 5 (~25 min): Synthesis & Reporting
 Cluster observations into themes using affinity diagramming. For each theme: state the insight, the evidence (quotes, clips, metrics), the severity/impact, and a design recommendation. Structure the final report as: Executive Summary, Methodology, Key Insights (top 3), Detailed Findings (by theme), Recommendations (prioritized), Appendix (raw data, session recordings, recruitment screener). Socialize findings with a highlights reel (3 minutes max) before the written report — stakeholders consume video faster than documents.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 UX research findings are useless if they don't change what gets built. Coordination ensures insights flow from research into design, product, and engineering — not into a PDF that nobody reads.
 
 ### Coordinate With
@@ -104,6 +114,7 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Recruit participants who have performed the target behavior within the last 3 months — not "would-be" users.
 - Five participants uncover ~85% of usability issues — run multiple small rounds instead of one large study.
 - Record everything and timestamp key moments during the session so you can clip evidence instantly.
@@ -140,7 +151,7 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 - **Medium → Enterprise**: Global user base requires multi-language research. Regulatory requirements for user data handling. >100K users.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `research-planning` | Scoping study, selecting method, recruiting | Phase 1 — research questions, discussion guide, screener |
@@ -151,19 +162,31 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 | `competitive-ux-benchmarking` | Comparing UX against competitors | `competitive-analysis` — feature parity, UX heuristics |
 | `accessibility-research` | Inclusive research with assistive tech | `accessibility-auditor` — WCAG testing, diverse recruitment |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] Research objective and key questions documented and reviewed by stakeholders
-- [ ] Participant screener validated — recruits match target behavior, not just demographics
-- [ ] Discussion guide or test script drafted with time allocations per section
-- [ ] Consent forms signed and recording setup tested with a dry-run participant
-- [ ] Personas backed by at least 3 real-user interviews each
-- [ ] Journey map covers all touchpoints and includes emotion curve and pain points
-- [ ] Usability issues severity-rated (1–4 scale) with video evidence timestamps
-- [ ] Findings report includes prioritized recommendations with owner assignments
-- [ ] Highlights reel shared with stakeholders before the full report
-- [ ] Raw data, transcripts, and analysis artifacts archived for future reference
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Research objective and key questions documented and reviewed by stakeholders
+- [ ] **[S2]**  Participant screener validated — recruits match target behavior, not just demographics
+- [ ] **[S3]**  Discussion guide or test script drafted with time allocations per section
+- [ ] **[S4]**  Consent forms signed and recording setup tested with a dry-run participant
+- [ ] **[S5]**  Personas backed by at least 3 real-user interviews each
+- [ ] **[S6]**  Journey map covers all touchpoints and includes emotion curve and pain points
+- [ ] **[S7]**  Usability issues severity-rated (1–4 scale) with video evidence timestamps
+- [ ] **[S8]**  Findings report includes prioritized recommendations with owner assignments
+- [ ] **[S9]**  Highlights reel shared with stakeholders before the full report
+- [ ] **[S10]**  Raw data, transcripts, and analysis artifacts archived for future reference
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - **product-manager** — for translating research insights into prioritized features and PRDs
 - **ui-ux-designer** — for incorporating usability findings into design system and component specs
 - **accessibility-auditor** — for extending heuristic evaluations with WCAG-specific checks

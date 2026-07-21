@@ -2,8 +2,17 @@
 name: seo-specialist
 description: Technical SEO audits, structured data (JSON-LD), Core Web Vitals optimization, crawl budget management, E-E-A-T content strategy, international SEO, JavaScript SEO, link building, schema markup, algorithm update response, rank tracking. Triggered by SEO audit, structured data, Core Web Vitals, crawl budget, hreflang, JSON-LD, schema markup, organic traffic, ranking drop, JavaScript SEO.
 author: Sandeep Kumar Penchala
+type: growth
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - seo-specialist
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # SEO Specialist
 
 Expert field manual for technical SEO strategy, audit execution, and search visibility optimization.
@@ -13,7 +22,7 @@ localization), JavaScript SEO (SSR/SSG, dynamic rendering), link building strate
 and algorithm update response.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Launching a new domain or executing a site migration — pre-launch SEO audit and post-launch verification
 - Organic traffic decline: root cause diagnosis — manual actions, algorithm update, technical regression, competitor moves
 - Implementing structured data (JSON-LD): Article, Product, FAQ, HowTo, LocalBusiness, Organization, BreadcrumbList, Sitelinks Searchbox
@@ -25,9 +34,176 @@ and algorithm update response.
 - Building a link acquisition strategy: digital PR, broken link building, HARO, link reclamation
 - Setting up SEO monitoring: GSC API dashboards, rank tracking, algorithm update alerts
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Traffic Decline Diagnosis
+```
+                     ┌──────────────────────────────┐
+                     │ START: Organic traffic drop    │
+                     │ >20% week-over-week            │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Drop is sudden (1-3 days)      │
+                    │ vs gradual (weeks)?            │
+                    └────┬──────────────────────┬───┘
+                         │ Sudden               │ Gradual
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Check GSC     │    │ Check GSC for   │
+                    │ Manual Actions│    │ declining avg   │
+                    │ → Penalty?    │    │ position across │
+                    └──┬────────┬───┘    │ keywords        │
+                       │YES     │NO      └──┬──────────┬────┘
+                  ┌────▼───┐ ┌─▼────────┐   │YES       │NO
+                  │File    │ │Server 5xx │ ┌─▼──────┐ ┌─▼──────────┐
+                  │recon-  │ │or robots │ │Algorithm│ │Competitor  │
+                  │sideration│ │.txt      │ │Update:  │ │Gained:     │
+                  │request │ │blocking? │ │Content  │ │Analyze     │
+                  │and fix │ │Fix issue │ │refresh +│ │SERP overlap│
+                  │cause   │ └──────────┘ │E-E-A-T  │ │+ gap       │
+                  └────────┘              │improve  │ │analysis    │
+                                          └─────────┘ └────────────┘
+```
+**When to suspect manual action:** Sudden drop with GSC notification — check manual actions report, fix violation, submit reconsideration request.
+**When to suspect technical issue:** Sudden drop, no GSC penalty — check server logs (5xx), robots.txt, noindex tags, sitemap accessibility.
+**When to suspect algorithm update:** Gradual decline, positions slipping across terms — align with known Google updates (Semrush Sensor, MozCast), improve content E-E-A-T.
+**When to suspect competitor gain:** Your positions unchanged but traffic down — competitor took SERP features (featured snippet, PAA, image pack) eating your CTR.
 
-### Phase 1: Technical SEO Audit & Crawl Optimization
+### International SEO: ccTLD vs Subdirectory vs Subdomain
+```
+                     ┌──────────────────────────────┐
+                     │ START: Multi-language/region   │
+                     │ site architecture?             │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Have local team + budget for   │
+                    │ separate domains AND need      │
+                    │ geo-targeting signal?          │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────┐    ┌──────────▼──────────┐
+                    │ ccTLD     │    │ Want to consolidate │
+                    │ (example. │    │ domain authority?   │
+                    │ de,       │    └──┬──────────────┬────┘
+                    │ example.  │       │YES          │NO
+                    │ fr)       │  ┌────▼────┐ ┌──────▼─────────┐
+                    │ Strongest │  │Subdirect-│ │Subdomain       │
+                    │ geo-signal│  │ory:      │ │(de.example.com)│
+                    │ Cost: $$  │  │example   │ │Moderate geo    │
+                    │ per domain│  │.com/de/  │ │signal, easier  │
+                    └───────────┘  │Weak geo  │ │ops separation  │
+                                   │signal,   │ └────────────────┘
+                                   │best for  │
+                                   │SEO auth  │
+                                   └──────────┘
+```
+**When to choose ccTLD:** Dedicated country presence, local team, local hosting, and budget for separate domains — strongest geo-targeting signal to Google.
+**When to choose Subdirectory:** Want to consolidate domain authority (backlinks count toward main domain) — weaker geo-signal but best for unified SEO.
+**When to choose Subdomain:** Separate tech stacks per market (different CMS, server), moderate geo-signal via GSC geo-targeting, easier operational split.
+
+### JavaScript Rendering Strategy
+```
+                     ┌──────────────────────────────┐
+                     │ START: JS-heavy site — how     │
+                     │ to handle indexing?            │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Site is primarily SPA (React,   │
+                    │ Vue, Angular) with CSR?         │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Viable to     │    │ Partial JS —     │
+                    │ migrate to    │    │ key content in   │
+                    │ SSR/SSG       │    │ HTML but some    │
+                    │ (Next.js,     │    │ dynamic?         │
+                    │ Nuxt.js)?     │    └──┬──────────┬────┘
+                    └──┬────────┬───┘       │YES       │NO
+                       │YES     │NO     ┌────▼────┐ ┌──▼──────────┐
+                  ┌────▼───┐ ┌─▼──────┐│Hybrid:  │ │Full SSR/SSG │
+                  │Migrate │ │Dynamic ││SSR for  │ │recommended  │
+                  │to Next │ │Render  ││critical │ │for all SEO- │
+                  │.js/Nuxt│ │(Prerender││pages, CSR│ │sensitive    │
+                  │or Remix│ │io,     ││for app  │ │content      │
+                  │(SSR/SSG│ │Puppeteer││features │ └─────────────┘
+                  │preferred)│ │Service)│└─────────┘
+                  └────────┘ └────────┘
+```
+**When to migrate to SSR/SSG:** Primary choice for SEO-dependent sites — Next.js (React), Nuxt (Vue), Remix, SvelteKit. Full control, best Core Web Vitals.
+**When to use Dynamic Rendering:** Can't migrate from SPA (legacy, team constraints) — Prerender.io or Puppeteer service serves static HTML to bots only.
+**When to use Hybrid:** Most of site is app-like but marketing/blog pages need SEO — SSR for public-facing pages, CSR for logged-in features.
+
+### Crawl Budget Optimization
+```
+                     ┌──────────────────────────────┐
+                     │ START: Crawl budget wasted?    │
+                     │ (GSC: discovered-not-indexed)  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Faceted navigation generating  │
+                    │ >10K low-value URLs (filters,  │
+                    │ sort variants, pagination)?    │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Block in      │    │ Thin/duplicate   │
+                    │robots.txt or │    │ content pages    │
+                    │canonicalize  │    │ (<300 words,     │
+                    │+ noindex     │    │ >50% duplicate)? │
+                    │parameterized │    └──┬──────────┬────┘
+                    │URLs          │       │YES       │NO
+                    └──────────────┘  ┌────▼────┐ ┌──▼──────────┐
+                                      │Consolidate│ │Slow server  │
+                                      │or improve│ │response?    │
+                                      │content to│ │Optimize TTFB│
+                                      │>500 words│ │<200ms,       │
+                                      │unique    │ │upgrade infra│
+                                      └──────────┘ └────────────┘
+```
+**When to block + canonicalize:** Facets/filters/sort producing 10K+ low-value URLs — disallow in robots.txt, canonical to root, noindex parameter URLs.
+**When to consolidate thin content:** Pages <300 words, >50% duplicate — merge into comprehensive resources, 301 redirect, or improve to 500+ unique words.
+**When to optimize server:** Crawl delay from slow TTFB — optimize to <200ms, reduce page size, upgrade hosting, enable caching.
+
+### Link Building: Strategy Selection
+```
+                     ┌──────────────────────────────┐
+                     │ START: Which link building     │
+                     │ strategy to prioritize?        │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Have high-quality, unique data │
+                    │ or research (original surveys, │
+                    │ industry benchmarks)?          │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Digital PR +  │    │ Have existing    │
+                    │Data Journalism│    │ broken pages    │
+                    │Pitch original│    │ with backlinks   │
+                    │research to   │    │ pointing to them?│
+                    │journalists   │    └──┬──────────┬────┘
+                    └──────────────┘       │YES       │NO
+                                      ┌────▼────┐ ┌──▼──────────┐
+                                      │Broken   │ │Expert roundup│
+                                      │Link      │ │or guest post │
+                                      │Building: │ │on relevant   │
+                                      │find broke│ │sites with    │
+                                      │links →   │ │high DR +     │
+                                      │offer your│ │traffic       │
+                                      │resource  │ └──────────────┘
+                                      └──────────┘
+```
+**When to use Digital PR:** Unique data/research that journalists want — original surveys, industry reports, data studies. Highest ROI but requires data capabilities.
+**When to use Broken Link Building:** Find dead pages with backlinks in your niche using Ahrefs/Semrush — reach out with your relevant replacement resource.
+**When to use Expert/Guest Posting:** No unique data — contribute expert insights to authoritative sites in your niche; focus on quality over quantity.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Technical SEO Audit & Crawl Optimization
 
 1. **Crawl Budget Management** — Define what percentage of crawl budget reaches valuable pages:
    ```
@@ -109,7 +285,7 @@ and algorithm update response.
    <!-- Trailing slash → pick one convention and canonical to it -->
    ```
 
-### Phase 2: Core Web Vitals for SEO
+### Phase 2 (~30 min): Core Web Vitals for SEO
 
 1. **LCP (Largest Contentful Paint) < 2.5s** — Measures when the largest visible content element renders:
 
@@ -185,7 +361,7 @@ and algorithm update response.
    Not a tiebreaker: Excellent CWV won't outrank highly relevant content from a slow site.
    ```
 
-### Phase 3: Content SEO & E-E-A-T
+### Phase 3 (~20 min): Content SEO & E-E-A-T
 
 1. **E-E-A-T Framework** (Experience, Expertise, Authoritativeness, Trustworthiness):
 
@@ -234,7 +410,7 @@ and algorithm update response.
    - Answer "People Also Ask" questions in H2s with concise answers below
    ```
 
-### Phase 4: Schema Markup (JSON-LD)
+### Phase 4 (~15 min): Schema Markup (JSON-LD)
 
 1. **Schema Decision Matrix** — Which schema per page type:
 
@@ -338,7 +514,7 @@ and algorithm update response.
    - Schema on page but not in GSC → check canonical is correct, page is indexed
    ```
 
-### Phase 5: International SEO
+### Phase 5 (~25 min): International SEO
 
 1. **Domain Strategy Decision**:
 
@@ -379,7 +555,7 @@ and algorithm update response.
    4. Localize meta titles and descriptions independently per language
    ```
 
-### Phase 6: JavaScript SEO
+### Phase 6 (~25 min): JavaScript SEO
 
 1. **Rendering Strategy Decision Tree**:
    ```
@@ -443,7 +619,7 @@ and algorithm update response.
    - Static rendering: skip hydration entirely for static content (Astro islands architecture)
    ```
 
-### Phase 7: Link Building Strategy
+### Phase 7 (~25 min): Link Building Strategy
 
 1. **Link Acquisition Methods** (white-hat, sustainable):
 
@@ -490,7 +666,7 @@ and algorithm update response.
              Google is good at ignoring low-quality links. Disavow can hurt if misused.
    ```
 
-### Phase 8: SEO Monitoring & Alerting
+### Phase 8 (~30 min): SEO Monitoring & Alerting
 
 1. **GSC API Integration for Dashboards**:
    ```python
@@ -551,7 +727,7 @@ and algorithm update response.
    ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Indexability is job #1** — You can't rank what Google can't index. Sitemaps, robots.txt, HTTP status codes, and canonicals are the foundation.
 - **Renderability matters** — Google renders JavaScript. If content depends on JS, verify it's in the rendered HTML (GSC URL Inspection → View Crawled Page).
 - **E-E-A-T is not optional for YMYL** — Medical, financial, legal content without demonstrated expertise will not rank.
@@ -562,7 +738,7 @@ and algorithm update response.
 - **Algorithm updates happen every 3-6 months** — Don't panic-react. Wait for the update to finish rolling out (usually 2 weeks), then analyze.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 SEO touches content, engineering, marketing, and design. Rankings degrade when any of these operate in isolation.
 
 | Coordinate With | When | What to Share/Ask |
@@ -599,54 +775,98 @@ SEO touches content, engineering, marketing, and design. Rankings degrade when a
 | SEO recommendations blocked by engineering for >2 sprints | **CTO Advisor** or VP Product | SEO debt compounds; needs prioritization authority |
 | Paid and organic cannibalizing >30% overlap | **Marketing Lead** + Growth Engineer | Budget waste; needs channel alignment |
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Founder or solo marketer doing SEO alongside other tasks. Google Search Console + Google Analytics (free). Keyword research: Google Keyword Planner free or Ubersuggest. CMS: WordPress + Yoast/RankMath. No structured data beyond Yoast defaults. Backlink strategy: none — focus on content quality. Core Web Vitals: hope your theme is fast. Cost: $0-200/month (hosting, domain). Overkill: enterprise SEO tools (Ahrefs/Semrush), Screaming Frog, dedicated SEO hire, programmatic SEO.
 
+### Small (2-10 people, 100-10K users)
+Part-time SEO specialist or agency retainer. Tools: Ahrefs/Semrush ($130-200/month), Screaming Frog ($200/year). Structured data: Article, FAQ, BreadcrumbList. Core Web Vitals: monitor via CrUX, optimize LCP/CLS. Topic clusters + pillar pages. Backlink strategy: HARO + guest posting. Monthly technical audits. Cost: $500-3K/month. Overkill: enterprise crawlers (Botify/Lumar), log file analysis, multi-language.
+
+### Medium (10-50 people, 10K-1M users)
+Dedicated SEO specialist or small team. Tools: Ahrefs enterprise, Lumar/OnCrawl, Clearscope/MarketMuse, SurferSEO. Full structured data coverage: Product, HowTo, LocalBusiness, Organization. AI-assisted content optimization. Technical: log file analysis, JS rendering (Prerender.io/Dynamic Rendering), Core Web Vitals programmatic monitoring. Multi-region/hreflang. Link building: digital PR + data journalism. Cost: $5K-20K/month.
+
+### Enterprise (50+ people, 1M+ users)
+SEO team (2-3+) with specialists per pillar. Enterprise tools: BrightEdge, Conductor, Botify, seoClarity. AI-driven content optimization at scale. Programmatic SEO for large catalogs. Comprehensive technical: multi-region, edge SEO (Cloudflare Workers), real-time monitoring. News/publisher SEO if applicable. Strategic link acquisition: brand-level partnerships. Cost: $30K-200K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | Organic traffic >10K/month, or revenue attribution >$50K/month from organic | Invest in Ahrefs/Semrush; implement structured data; hire specialist |
+| Small → Medium | >100K indexed pages, multi-language, or organic >$500K/month revenue | Add enterprise crawler; implement log analysis; build SEO team |
+| Medium → Enterprise | >1M indexed pages, programmatic SEO, news/publisher, or multi-brand | Enterprise platform (Botify/BrightEdge); edge SEO; dedicated technical SEO role |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **Technical SEO Audit** | Site migration, traffic drop, or quarterly health check | Screaming Frog, Sitebulb, log file analysis — crawl, index, render audit |
+| **Content SEO & Topic Clusters** | Building topical authority for competitive keywords | Clearscope, SurferSEO, MarketMuse — pillar + cluster strategy, content briefs |
+| **Structured Data Implementation** | Rich results eligibility — FAQ, HowTo, Product, LocalBusiness | JSON-LD, Schema.org, Google Rich Results Test, Merchant Center |
+| **Core Web Vitals Optimization** | LCP > 2.5s, INP > 200ms, CLS > 0.1 on CrUX | PageSpeed Insights, Lighthouse CI, CrUX API — image optimization, font loading, layout stability |
+| **International & Multilingual SEO** | Multi-country or multi-language site expansion | hreflang, ccTLD vs subdirectory, geo-targeting (GSC), localized keyword research |
+| **JavaScript SEO** | SPA, CSR-heavy, or JS-rendered content | SSR/SSG (Next.js, Nuxt), dynamic rendering (Prerender.io), hydration analysis |
+| **Link Building & Digital PR** | Competitor has stronger backlink profile; need authority boost | HARO, data journalism, broken link building, unlinked brand mentions — Ahrefs, Pitchbox |
+| **SEO Monitoring & Alerting** | Proactive detection before traffic impact | GSC API, Semrush Sensor, MozCast, Little Warden — rank tracking, algorithm update alerts, anomaly detection |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Technical Foundation
-- [ ] XML sitemap(s) valid, compressed, submitted to GSC — only canonical, indexable URLs
-- [ ] robots.txt configured — blocks staging/dev, allows crawling, doesn't block CSS/JS
-- [ ] All indexable pages have unique `<title>` (50-60 chars) and meta description (150-160 chars)
-- [ ] Canonical tags: self-referencing, absolute URLs, consistent trailing slash policy
-- [ ] Redirects: all single-hop 301s, no redirect chains, no redirect loops
-- [ ] HTTPS everywhere — HSTS header with `max-age=31536000; includeSubDomains; preload`
-- [ ] 404 pages return actual 404 status code (not soft 404), with helpful navigation
+- [ ] **[S1]**  XML sitemap(s) valid, compressed, submitted to GSC — only canonical, indexable URLs
+- [ ] **[S2]**  robots.txt configured — blocks staging/dev, allows crawling, doesn't block CSS/JS
+- [ ] **[S3]**  All indexable pages have unique `<title>` (50-60 chars) and meta description (150-160 chars)
+- [ ] **[S4]**  Canonical tags: self-referencing, absolute URLs, consistent trailing slash policy
+- [ ] **[S5]**  Redirects: all single-hop 301s, no redirect chains, no redirect loops
+- [ ] **[S6]**  HTTPS everywhere — HSTS header with `max-age=31536000; includeSubDomains; preload`
+- [ ] **[S7]**  404 pages return actual 404 status code (not soft 404), with helpful navigation
 
 ### Structured Data
-- [ ] JSON-LD schema deployed on homepage: Organization + WebSite + SitelinksSearchBox
-- [ ] Article schema on all blog posts with author Person entity
-- [ ] Product schema on product pages with Offer, price, availability
-- [ ] BreadcrumbList schema on all pages deeper than homepage
-- [ ] FAQ/HowTo schema on eligible pages
-- [ ] Zero errors in GSC Enhancements report
-- [ ] Schema validated: Rich Results Test → Schema Markup Validator → GSC
+- [ ] **[S8]**  JSON-LD schema deployed on homepage: Organization + WebSite + SitelinksSearchBox
+- [ ] **[S9]**  Article schema on all blog posts with author Person entity
+- [ ] **[S10]**  Product schema on product pages with Offer, price, availability
+- [ ] **[S11]**  BreadcrumbList schema on all pages deeper than homepage
+- [ ] **[S12]**  FAQ/HowTo schema on eligible pages
+- [ ] **[S13]**  Zero errors in GSC Enhancements report
+- [ ] **[S14]**  Schema validated: Rich Results Test → Schema Markup Validator → GSC
 
 ### Core Web Vitals
-- [ ] LCP < 2.5s (75th percentile) — CrUX + Lighthouse lab data confirmed
-- [ ] INP < 200ms (75th percentile) — interaction responsiveness verified
-- [ ] CLS < 0.1 (75th percentile) — visual stability confirmed
-- [ ] Images optimized: WebP/AVIF, srcset, preloaded LCP, explicit dimensions
-- [ ] Critical CSS inlined, non-critical CSS deferred, JS deferred/async
-- [ ] No interstitials or intrusive popups per Google guidelines
+- [ ] **[S15]**  LCP < 2.5s (75th percentile) — CrUX + Lighthouse lab data confirmed
+- [ ] **[S16]**  INP < 200ms (75th percentile) — interaction responsiveness verified
+- [ ] **[S17]**  CLS < 0.1 (75th percentile) — visual stability confirmed
+- [ ] **[S18]**  Images optimized: WebP/AVIF, srcset, preloaded LCP, explicit dimensions
+- [ ] **[S19]**  Critical CSS inlined, non-critical CSS deferred, JS deferred/async
+- [ ] **[S20]**  No interstitials or intrusive popups per Google guidelines
 
 ### Content & International
-- [ ] E-E-A-T signals present: author bios, credentials, contact info, trust signals
-- [ ] Topic clusters: pillar pages + linked cluster content with descriptive anchors
-- [ ] Content gap analysis complete for top 20 target keywords
-- [ ] Hreflang: bidirectional, self-referencing, x-default, zero GSC errors (if multi-language)
-- [ ] Localized keyword research per locale (not translated English keywords)
+- [ ] **[S21]**  E-E-A-T signals present: author bios, credentials, contact info, trust signals
+- [ ] **[S22]**  Topic clusters: pillar pages + linked cluster content with descriptive anchors
+- [ ] **[S23]**  Content gap analysis complete for top 20 target keywords
+- [ ] **[S24]**  Hreflang: bidirectional, self-referencing, x-default, zero GSC errors (if multi-language)
+- [ ] **[S25]**  Localized keyword research per locale (not translated English keywords)
 
 ### JavaScript SEO
-- [ ] Critical content rendered server-side (SSR/SSG) — visible in View Source
-- [ ] Meta tags (title, description, canonical, hreflang) in server-rendered HTML
-- [ ] Internal navigation uses `<a href>` or framework Link components
-- [ ] Infinite scroll implements History API pushState or pagination with rel=next/prev
+- [ ] **[S26]**  Critical content rendered server-side (SSR/SSG) — visible in View Source
+- [ ] **[S27]**  Meta tags (title, description, canonical, hreflang) in server-rendered HTML
+- [ ] **[S28]**  Internal navigation uses `<a href>` or framework Link components
+- [ ] **[S29]**  Infinite scroll implements History API pushState or pagination with rel=next/prev
 
 ### Monitoring
-- [ ] GSC integrated: manual weekly check + API dashboard for daily metrics
-- [ ] Rank tracking: top 50 keywords daily, 50-500 weekly
-- [ ] Core Web Vitals dashboard: CrUX data + lab data trended over time
-- [ ] Algorithm update monitoring: volatility alerts (SERP tracking tool)
-- [ ] Backlink monitoring: new links detected, toxic links flagged, broken backlinks tracked
-- [ ] SEO on-call: 24-hour response SLA for >20% traffic drop or manual action
+- [ ] **[S30]**  GSC integrated: manual weekly check + API dashboard for daily metrics
+- [ ] **[S31]**  Rank tracking: top 50 keywords daily, 50-500 weekly
+- [ ] **[S32]**  Core Web Vitals dashboard: CrUX data + lab data trended over time
+- [ ] **[S33]**  Algorithm update monitoring: volatility alerts (SERP tracking tool)
+- [ ] **[S34]**  Backlink monitoring: new links detected, toxic links flagged, broken backlinks tracked
+- [ ] **[S35]**  SEO on-call: 24-hour response SLA for >20% traffic drop or manual action
 
 ## When NOT to Use This Skill (Overkill)
 
@@ -657,7 +877,7 @@ SEO touches content, engineering, marketing, and design. Rankings degrade when a
 - **Ranking #1 for all target keywords** — Shift to CRO (conversion rate optimization).
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Google Search Central — SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide)
 - [Schema.org — Full Hierarchy](https://schema.org/docs/full.html)
 - [web.dev — Core Web Vitals](https://web.dev/vitals/)

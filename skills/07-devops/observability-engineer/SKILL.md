@@ -2,8 +2,17 @@
 name: observability-engineer
 description: Metrics, logs, traces integration, SLO/SLI/error budget framework, Prometheus/Grafana/Loki/Tempo, OpenTelemetry, dashboard design (USE/RED/golden signals), alert design, and incident response. Triggered by observability, monitoring, prometheus, grafana, SLO, alert, dashboard, golden signals, tracing, opentelemetry.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - observability-engineer
+token_budget: 3081
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Observability Engineer
 
 Design, implement, and operate observability systems that deliver actionable insight into system
@@ -13,7 +22,7 @@ coverage of OpenTelemetry instrumentation, Prometheus recording/alerting rules, 
 provisioning, Loki log aggregation, and Tempo distributed tracing.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Instrumenting services with OpenTelemetry SDKs for unified metrics, traces, and structured logs
 - Designing SLOs, SLIs, and error budgets for critical user journeys with multi-window burn rate alerting
 - Building tiered Grafana dashboards from RED (Rate-Errors-Duration) and USE (Utilization-Saturation-Errors) methods
@@ -23,9 +32,128 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
 - Correlating metrics → traces → logs via exemplars and trace_id injection
 - Establishing observability as code: dashboards, alerts, recording rules in Git
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Metrics Backend: Prometheus vs SaaS
+```
+                     ┌──────────────────────────┐
+                     │ START: Metrics collection  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Team <5 AND monthly budget  │
+                    │ <$500 for observability?    │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Self-hosted │   │ >500 nodes /    │
+                    │ Prometheus  │   │ 10M active      │
+                    │ + Grafana   │   │ series?         │
+                    │ (free, ops  │   └────┬────────┬───┘
+                    │  overhead)  │        │ YES    │ NO
+                    └─────────────┘   ┌────▼────┐ ┌▼──────────┐
+                                      │ SaaS    │ │ Prometheus │
+                                      │ (Datadog│ │ + Thanos/  │
+                                      │ /Grafana│ │ Mimir for  │
+                                      │ Cloud)  │ │ scale      │
+                                      └─────────┘ └────────────┘
+```
+**When to choose Self-Hosted Prometheus:** Budget <$500/month, <500 nodes, <10M active series, team has ops capacity (2-4 hrs/week). **When to choose SaaS:** >500 nodes, >10M series, no ops capacity, need integrated APM + logs + traces, budget >$2K/month. **When to choose Prometheus+Thanos:** Scale beyond single Prometheus but budget-constrained, 10M-100M series, team can manage distributed TSDB.
 
-### Phase 1: Observability Strategy & SLO Framework
+### Log Aggregation: Loki vs Elasticsearch
+```
+                     ┌──────────────────────────┐
+                     │ START: Log aggregation     │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need full-text search AND   │
+                    │ complex aggregations?       │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Elasticsearch│  │ Grafana Loki    │
+                    │ (powerful    │   │ (label-based,   │
+                    │  search,     │   │  S3-backed,     │
+                    │  higher ops) │   │  lower ops)     │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Loki:** K8s-native, label-based indexing sufficient, want S3-backed storage, budget <$1K/month, already using Grafana. **When to choose Elasticsearch:** Full-text log search required, complex aggregations (e.g., business analytics on logs), team has ES expertise, budget >$2K/month.
+
+### Alert Severity Classification
+```
+                     ┌──────────────────────────┐
+                     │ START: New alert condition │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ User-facing functionality   │
+                    │ is broken or degraded?      │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ CRITICAL    │   │ Will cause user  │
+                    │ (page on-   │   │ impact in <2hr   │
+                    │ call, <5min │   │ if unaddressed?  │
+                    │ ack)        │   └────┬────────┬───┘
+                    └─────────────┘        │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ WARNING │ │ INFO       │
+                                      │ (page   │ │ (dashboard │
+                                      │ business│ │ or ticket,  │
+                                      │ hours)  │ │ no page)    │
+                                      └─────────┘ └────────────┘
+```
+**When to set CRITICAL:** User-facing broken, error budget burning >10% in 1hr, revenue impact, page on-call with <5min ack SLA. **When to set WARNING:** Error budget burning >5% in 6hr, approaching threshold, page during business hours only. **When to set INFO:** Trend anomaly, no immediate user impact, dashboard-only, auto-generate ticket.
+
+### Dashboard Design: RED vs USE vs Golden Signals
+```
+                     ┌──────────────────────────┐
+                     │ START: Dashboard for a     │
+                     │ service or resource        │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Monitoring a service (API,  │
+                    │ worker, consumer)?          │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ RED Method  │   │ USE Method      │
+                    │ (Rate,      │   │ (Utilization,   │
+                    │  Errors,    │   │  Saturation,    │
+                    │  Duration)  │   │  Errors) for    │
+                    │ + Golden    │   │ infra resources │
+                    │ Signals     │   │ (CPU, mem, disk)│
+                    └─────────────┘   └────────────────┘
+```
+**When to use RED:** Every service endpoint — Rate (req/sec), Errors (5xx %), Duration (p50/p95/p99 latency). Add Golden Signals: traffic, latency, errors, saturation. **When to use USE:** Infrastructure — CPU utilization, memory saturation (OOM risk), disk I/O errors, network packet drops.
+
+### Tracing Sampling Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: Sampling strategy   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >10K spans/sec AND budget   │
+                    │ <$1K/month for tracing?     │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Tail-based  │   │ Head-based      │
+                    │ sampling    │   │ sampling (10-   │
+                    │ (keep 100%  │   │ 50% rate, keep  │
+                    │  of errors  │   │ all at lower    │
+                    │  + slow     │   │ throughput)     │
+                    │  traces)    │   └────────────────┘
+                    └─────────────┘
+```
+**When to choose Tail-Based:** >10K spans/sec, need 100% error/slow traces, budget-constrained, can deploy OpenTelemetry Collector with tail sampling processor. **When to choose Head-Based:** <10K spans/sec, simpler to implement, 10-50% sampling rate sufficient, no Collector deployment desired.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Observability Strategy & SLO Framework
 
 1. **Critical User Journey Identification** — Not every endpoint. Identify the 3-5 journeys that directly deliver user value (login, search, checkout, content feed, API). Each journey gets its own SLI + SLO.
 
@@ -69,7 +197,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
        └─ Best for: Small team, rapid onboarding, reduced ops burden
    ```
 
-### Phase 2: Metrics & Dashboard Design
+### Phase 2 (~30 min): Metrics & Dashboard Design
 
 1. **USE Method — Infrastructure Resources**
 
@@ -139,7 +267,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
    }
    ```
 
-### Phase 3: Log Aggregation & Analysis
+### Phase 3 (~20 min): Log Aggregation & Analysis
 
 1. **Structured Logging Standard** — Every log line MUST include:
    ```json
@@ -202,7 +330,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
      sum by (le) (rate({service="nginx"} | json | unwrap duration_ms [5m])))
    ```
 
-### Phase 4: Distributed Tracing
+### Phase 4 (~15 min): Distributed Tracing
 
 1. **OpenTelemetry Architecture**:
    ```
@@ -241,7 +369,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
    # Available in every downstream span
    ```
 
-### Phase 5: Alerting & Incident Response
+### Phase 5 (~25 min): Alerting & Incident Response
 
 1. **Alert Philosophy**:
    > Page on symptoms (user impact), not causes (infrastructure anomaly). Every page must require immediate human action.
@@ -318,7 +446,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
    - [ ] Monthly fire-drill: inject synthetic failure, verify full notification chain
    - [ ] Alert count per on-call shift < 5 (if > 5, reduce sensitivity or fix root causes)
 
-### Phase 6: Observability as Code
+### Phase 6 (~25 min): Observability as Code
 
 1. **Git-Based Observability** — All dashboards, alerts, recording rules in version control:
    ```
@@ -345,7 +473,7 @@ provisioning, Loki log aggregation, and Tempo distributed tracing.
 3. **Dashboard Review Process** — Quarterly: which dashboards have zero views in 90 days? Archive or consolidate. Which dashboards have high view counts but low utility? Redesign.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -358,7 +486,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `metrics-collection` | Prometheus metrics design, cardinality management, recording rules, and long-term storage |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Observability engineers make systems understandable. They instrument services, build dashboards, configure alerts, and define SLOs — coordinating with every service owner, SRE, and incident responder in the organization.
 
 ### Coordinate With
@@ -393,7 +521,7 @@ Cardinality explosion degrading Prometheus? → DevOps Engineer → Cloud Archit
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Tag everything**: `team`, `service`, `environment`, `region` on all metrics for consistent drill-down and cost attribution.
 - **RED over USE for alerts** — User-facing symptoms (error rate, latency) trump infrastructure causes (high CPU, low disk).
 - **One dashboard per service, ≤ 12 panels** — Focused, scannable. Use drill-down links for detail, not infinite scrolling.
@@ -431,54 +559,64 @@ Cardinality explosion degrading Prometheus? → DevOps Engineer → Cloud Archit
 - **Small → Medium**: >3 services with inter-service calls. First incident where you couldn't trace root cause without distributed tracing.
 - **Medium → Enterprise**: 10+ services with SLO commitments. Multi-team on-call. Compliance requires audit trails.
 
-## Production Checklist
 
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Instrumentation
-- [ ] All services instrumented with OpenTelemetry SDKs (auto-instrumentation minimum)
-- [ ] Manual instrumentation for critical business logic spans with domain attributes
-- [ ] `trace_id` and `span_id` in all structured log lines
-- [ ] Resource attributes set: `service.name`, `service.version`, `deployment.environment`
-- [ ] Sampling strategy documented and tuned: head 10% + tail 100% errors/slow
+- [ ] **[S1]**  All services instrumented with OpenTelemetry SDKs (auto-instrumentation minimum)
+- [ ] **[S2]**  Manual instrumentation for critical business logic spans with domain attributes
+- [ ] **[S3]**  `trace_id` and `span_id` in all structured log lines
+- [ ] **[S4]**  Resource attributes set: `service.name`, `service.version`, `deployment.environment`
+- [ ] **[S5]**  Sampling strategy documented and tuned: head 10% + tail 100% errors/slow
 
 ### SLOs & Alerting
-- [ ] SLIs defined for all critical user journeys (3-5 journeys)
-- [ ] SLO targets set with error budget policy per journey
-- [ ] Multi-window burn-rate alerts configured for each SLO (5x, 14.4x, 36x)
-- [ ] Alertmanager routing: severity-based → PagerDuty/Slack with inhibition rules
-- [ ] Runbook URLs on every alert annotation
-- [ ] Dead man's switch (Watchdog alert) monitoring pipeline health
-- [ ] Monthly alerting fire-drill verifies end-to-end notification chain
+- [ ] **[S6]**  SLIs defined for all critical user journeys (3-5 journeys)
+- [ ] **[S7]**  SLO targets set with error budget policy per journey
+- [ ] **[S8]**  Multi-window burn-rate alerts configured for each SLO (5x, 14.4x, 36x)
+- [ ] **[S9]**  Alertmanager routing: severity-based → PagerDuty/Slack with inhibition rules
+- [ ] **[S10]**  Runbook URLs on every alert annotation
+- [ ] **[S11]**  Dead man's switch (Watchdog alert) monitoring pipeline health
+- [ ] **[S12]**  Monthly alerting fire-drill verifies end-to-end notification chain
 
 ### Dashboards
-- [ ] SLO compliance dashboard with burn-down charts per critical journey
-- [ ] RED dashboards for every production service (Rate, Errors, Duration)
-- [ ] USE dashboards for infrastructure: CPU, memory, disk, network per node
-- [ ] Dashboards provisioned as code (Terraform/Grafonnet/Git)
-- [ ] Recording rules for expensive PromQL queries
+- [ ] **[S13]**  SLO compliance dashboard with burn-down charts per critical journey
+- [ ] **[S14]**  RED dashboards for every production service (Rate, Errors, Duration)
+- [ ] **[S15]**  USE dashboards for infrastructure: CPU, memory, disk, network per node
+- [ ] **[S16]**  Dashboards provisioned as code (Terraform/Grafonnet/Git)
+- [ ] **[S17]**  Recording rules for expensive PromQL queries
 
 ### Logging
-- [ ] Structured JSON logging with consistent schema across all services
-- [ ] Log aggregation pipeline: Promtail/Fluent Bit → Loki or Elasticsearch
-- [ ] Retention tiers configured (hot 7d, warm 30d, cold 1yr+)
-- [ ] PII redaction pipeline at collection time (emails, credit cards, SSNs)
-- [ ] Log-based metrics derived for error rates, latency distributions
+- [ ] **[S18]**  Structured JSON logging with consistent schema across all services
+- [ ] **[S19]**  Log aggregation pipeline: Promtail/Fluent Bit → Loki or Elasticsearch
+- [ ] **[S20]**  Retention tiers configured (hot 7d, warm 30d, cold 1yr+)
+- [ ] **[S21]**  PII redaction pipeline at collection time (emails, credit cards, SSNs)
+- [ ] **[S22]**  Log-based metrics derived for error rates, latency distributions
 
 ### Tracing
-- [ ] Distributed tracing with head + tail sampling strategy
-- [ ] OpenTelemetry Collector Agent (DaemonSet) on every node
-- [ ] Gateway (≥ 3 replicas) for tail sampling and multi-backend routing
-- [ ] Trace-log correlation working end-to-end: log → trace_id → full waterfall
-- [ ] Semantic conventions followed for HTTP, DB, messaging spans
+- [ ] **[S23]**  Distributed tracing with head + tail sampling strategy
+- [ ] **[S24]**  OpenTelemetry Collector Agent (DaemonSet) on every node
+- [ ] **[S25]**  Gateway (≥ 3 replicas) for tail sampling and multi-backend routing
+- [ ] **[S26]**  Trace-log correlation working end-to-end: log → trace_id → full waterfall
+- [ ] **[S27]**  Semantic conventions followed for HTTP, DB, messaging spans
 
 ### Operations
-- [ ] On-call rotations, escalation policies, silence/maintenance windows configured
-- [ ] Synthetic monitoring (black-box probes) validates critical paths from outside
-- [ ] Runbooks exist for all P0/P1/P2 alerts with specific, actionable steps
-- [ ] Blameless postmortem process established; action items tracked to completion
-- [ ] Capacity planning: metrics retention ≥ 13 months for year-over-year trends
+- [ ] **[S28]**  On-call rotations, escalation policies, silence/maintenance windows configured
+- [ ] **[S29]**  Synthetic monitoring (black-box probes) validates critical paths from outside
+- [ ] **[S30]**  Runbooks exist for all P0/P1/P2 alerts with specific, actionable steps
+- [ ] **[S31]**  Blameless postmortem process established; action items tracked to completion
+- [ ] **[S32]**  Capacity planning: metrics retention ≥ 13 months for year-over-year trends
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [SLO Cookbook — Production Field Manual](references/slo-cookbook.md) — SLI patterns, SLO formulation, error budget mechanics, burn rate alerting, dashboard design
 - [Alert Design Patterns](references/alert-design-patterns.md) — USE/RED methods, multi-window burn rate alerts, severity definitions, runbook integration, deduplication
 - [OpenTelemetry Guide — Production Field Manual](references/opentelemetry-guide.md) — SDK configuration, collector deployment, sampling strategies, attribute conventions, trace-log correlation

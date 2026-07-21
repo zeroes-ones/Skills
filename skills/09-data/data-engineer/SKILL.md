@@ -2,8 +2,17 @@
 name: data-engineer
 description: ETL/ELT pipelines, data architecture (medallion/data mesh/lakehouse), data modeling (star/snowflake/data vault), dbt/Airflow/Spark/Kafka, data quality (Great Expectations/WAP), data governance, streaming (Kafka/Flink), and performance optimization. Triggered by ETL, data warehouse, Spark, Airflow, Kafka, data pipeline, data modeling, data quality, CDC, data mesh.
 author: Sandeep Kumar Penchala
+type: data
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - data-engineer
+token_budget: 2763
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Data Engineer
 
 Build robust, scalable, and reliable data pipelines and platforms. This skill covers the full data
@@ -15,7 +24,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
 (Kafka, Flink, exactly-once semantics).
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing end-to-end data pipelines: ingestion → transformation → storage → serving layers
 - Building or migrating a data warehouse (Snowflake, BigQuery, Redshift) or lakehouse (Databricks, Delta Lake)
 - Architecting the data platform: medallion layers, medallion-to-mesh evolution
@@ -26,9 +35,141 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
 - Implementing data governance: catalog (DataHub/Amundsen), lineage, PII masking, GDPR right-to-erasure
 - Building real-time analytics with Kafka Streams, Flink, or Spark Structured Streaming
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Batch vs Streaming vs CDC
+```
+                     ┌──────────────────────────┐
+                     │ START: New data ingestion │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Latency requirement < 5min?│
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼────┐       ┌─────▼──────┐
+                    │Source is │       │ Batch ELT  │
+                    │database? │       │dbt/Airflow │
+                    └─┬────┬───┘       │hourly/daily│
+                      │YES │NO         └────────────┘
+                 ┌────▼──┐ ┌▼────────┐
+                 │  CDC   │ │Streaming│
+                 │Debezium│ │Kafka +  │
+                 │+ Kafka │ │Flink    │
+                 └────────┘ └─────────┘
+```
+**When to choose Batch:** Data freshness SLA ≥ 1 hour, large historical reprocessing needed, SQL-first transformations via dbt.  
+**When to choose CDC:** Database replication, audit trail capture, cache invalidation — need <5 min freshness from transactional DBs.  
+**When to choose Streaming:** Real-time dashboards, fraud detection, alerting — need sub-second to sub-minute latency.
 
-### Phase 1: Data Architecture Design
+### Data Warehouse vs Lakehouse vs Data Mesh
+```
+                     ┌──────────────────────────┐
+                     │ START: Architecture choice │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >5 autonomous domain teams?│
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼────────┐  ┌──────▼──────────┐
+                    │  Data Mesh  │  │ ML/Spark heavy   │
+                    │Federated gov│  │ workloads?       │
+                    │Domain-owned │  └──┬──────────┬────┘
+                    │data products│     │YES       │NO
+                    └─────────────┘  ┌──▼────┐ ┌──▼──────┐
+                                     │Lakehouse│ │Data     │
+                                     │Databricks│ │Warehouse│
+                                     │Delta/Iceberg│ │Snowflake│
+                                     └─────────┘ │BigQuery │
+                                                  └─────────┘
+```
+**When to choose Warehouse:** SQL-only analytics, BI-dominant, no unstructured data — Snowflake/BigQuery/Redshift.  
+**When to choose Lakehouse:** Mix of SQL + Spark + ML, unstructured data (logs, images), open table formats — Databricks.  
+**When to choose Data Mesh:** 5+ teams, domain autonomy required, each team needs to own data quality and SLAs.
+
+### Star Schema vs Data Vault vs OBT
+```
+                     ┌──────────────────────────────┐
+                     │ START: Data model selection    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Enterprise DW with audit trail │
+                    │ and multi-source integration?  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼────────┐    ┌────────▼──────────┐
+                    │  Data Vault │    │ < 6 dimensions and │
+                    │  Hub+Link   │    │ predictable queries?│
+                    │  +Satellite │    └──┬────────────┬────┘
+                    └─────────────┘       │YES         │NO
+                                    ┌─────▼───┐  ┌────▼─────┐
+                                    │  Star   │  │  OBT or  │
+                                    │ Schema  │  │  Data    │
+                                    │Fact+Dim │  │  Vault   │
+                                    └─────────┘  └──────────┘
+```
+**When to choose Star Schema:** BI and self-service analytics, predictable query patterns, 3-10 dimensions, Kimball methodology.  
+**When to choose Data Vault:** Enterprise data warehouse integrating 10+ source systems, full audit trail required, frequent schema evolution.  
+**When to choose OBT:** Performance-critical, simple dimensional model (≤ 5 dims), no SCD Type 2 history, dashboard-specific.
+
+### Pipeline Reliability Pattern
+```
+                     ┌──────────────────────────┐
+                     │ START: Pipeline hardening │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Pipeline processes >1M     │
+                    │ rows per run?              │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼───────┐    ┌─────▼────────┐
+                    │Must re-run  │    │ Simple retry  │
+                    │safely?      │    │ on failure OK │
+                    └──┬──────┬───┘    └──────────────┘
+                       │YES   │NO
+                  ┌────▼──┐ ┌─▼────────┐
+                  │Idempotent│ │At-least- │
+                  │MERGE not │ │once OK   │
+                  │INSERT    │ │(dedup in │
+                  │+ Checkpt │ │silver)   │
+                  └──────────┘ └──────────┘
+```
+**When to use Idempotent + Checkpointing:** Financial data, regulatory reports, any pipeline where duplicate rows cause incorrect metrics. Use MERGE/UPSERT with unique keys.  
+**When to use At-least-once:** High-volume event streams where occasional duplicates are tolerable and downstream dedup handles it.  
+**When to add DLQ:** Any streaming pipeline — bad messages must go to dead letter queue, never silently dropped.
+
+### dbt Materialization Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: dbt materialization │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Table > 100M rows?         │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐     ┌─────▼─────────┐
+                    │Incremental│     │Simple transform│
+                    │+ partition│     │(rename + cast)?│
+                    │by date    │     └──┬─────────┬───┘
+                    └───────────┘        │YES      │NO
+                                    ┌────▼──┐ ┌───▼──────┐
+                                    │ View  │ │ Table or │
+                                    │always │ │Ephemeral │
+                                    │fresh  │ │(reusable)│
+                                    └───────┘ └──────────┘
+```
+**When to use Incremental:** Append-only fact tables >100M rows, daily partitions, 3-day lookback for late data.  
+**When to use View:** Staging layer, small datasets, always-fresh requirement — but recomputed on every query.  
+**When to use Table:** Dashboard source tables, complex joins queried 100×/day — fast reads at storage cost.  
+**When to use Ephemeral:** Reusable CTEs needed by multiple downstream models, never queried directly.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Data Architecture Design
 
 1. **Source Inventory** — Catalog every data source:
    - Transactional databases (PostgreSQL, MySQL, MongoDB) → CDC via Debezium
@@ -72,7 +213,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
    - **Prefect**: Dynamic workflows, Pythonic API, easy local dev. Best for developer experience.
    - **dbt Cloud**: SQL transformations only, zero-infra. Best for analytics engineering teams.
 
-### Phase 2: Data Modeling
+### Phase 2 (~30 min): Data Modeling
 
 1. **Modeling Approach Decision**:
 
@@ -115,7 +256,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
    - **Clustering**: High-cardinality filter columns (e.g., `region`, `product_category`).
    - **Iceberg**: Partition evolution without rewriting data.
 
-### Phase 3: Pipeline Implementation
+### Phase 3 (~20 min): Pipeline Implementation
 
 1. **Ingestion Pattern Selection**:
 
@@ -170,7 +311,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
    - Events older than watermark → side output (not dropped)
    - dbt incremental: 3-day lookback window `WHERE order_date >= '{{ ds }}' - INTERVAL '3 days'`
 
-### Phase 4: Data Quality
+### Phase 4 (~15 min): Data Quality
 
 1. **Quality Dimensions** — Validate every pipeline output against:
 
@@ -211,7 +352,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
    - `accepted_values` on all enums/status fields
    - Custom: positive amounts, date consistency (`shipped_at > created_at`)
 
-### Phase 5: Governance & Operations
+### Phase 5 (~25 min): Governance & Operations
 
 1. **Data Catalog** — Amundsen, DataHub, or Atlan:
    - Every dataset tagged with: owner, domain, sensitivity classification, refresh cadence, SLA
@@ -246,7 +387,7 @@ clustering, materialized views), governance (catalog, lineage, PII, GDPR), and s
    - Cost-level: Warehouse credits consumed, Spark cluster hours, Kafka storage
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -260,7 +401,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `data-governance` | Cataloging with DataHub/Amundsen, lineage tracking, PII handling, and retention policies |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Data engineers build the pipelines that feed analytics, ML, and product decisions. They coordinate with backend developers for data production, analytics engineers for transformation, ML engineers for feature stores, and DevOps for pipeline reliability.
 
 ### Coordinate With
@@ -294,8 +435,29 @@ Cross-team schema conflict? → System Architect → Data governance council
 Pipeline cost overrun? → Cloud Architect (FinOps) → CTO Advisor
 ```
 
-## Best Practices
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Data engineering at this scale means one developer managing pipelines part-time. Use Fivetran/Airbyte free tier for ingestion, dbt Cloud free tier for transformations, and a single warehouse (BigQuery sandbox, Snowflake trial). Keep Bronze in S3/GCS with lifecycle policies; Silver/Gold as dbt models directly in warehouse. No orchestration needed beyond dbt Cloud schedules. No CDC, no streaming, no data mesh. Cost: $0-200/month. Overkill: Kafka, Airflow, Spark clusters, DataHub, Great Expectations.
 
+### Small (2-10 people, 100-10K users)
+Introduce orchestration (Airflow or Dagster) when you exceed 10 dbt models with dependencies. One data engineer dedicated. Medallion architecture with Bronze (S3), Silver/Gold in Snowflake/BigQuery. Use dbt incremental for fact tables. CDC via Debezium if you need database replication. Data quality: dbt tests + elementary for anomaly detection. Data catalog starts with dbt docs. Cost: $500-3K/month. Overkill: Data mesh, Kafka Streams, Flink, GPU clusters, multi-region failover.
+
+### Medium (10-50 people, 10K-1M users)
+Dedicated data engineering team (2-5). Formal medallion architecture with Delta Lake or Iceberg for Silver layer. Streaming with Kafka for real-time pipelines. Data quality: Great Expectations + WAP pattern for critical datasets. Data catalog: DataHub or Amundsen. Infrastructure as code (Terraform). Multi-environment: dev/staging/prod. CI/CD for dbt. Cost: $5K-30K/month. Overkill: Manual Part 11 validation, multi-PB data mesh unless domain complexity demands it.
+
+### Enterprise (50+ people, 1M+ users)
+Data mesh with federated governance, domain-owned data products. Multiple data engineering pods aligned to domains. Streaming backbone (Kafka + Flink) with exactly-once semantics. Comprehensive data governance: lineage tracking, PII automation, retention enforcement. Data contracts between producers and consumers. FinOps: chargeback models per domain. Multi-region, active-active DR. Cost: $50K-500K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | >10 dbt models with cross-model dependencies | Add orchestration (Airflow/Dagster); hire dedicated data engineer |
+| Small → Medium | Data freshness SLAs < 1 hour or >50 source tables | Introduce streaming (Kafka); add data quality framework (Great Expectations) |
+| Medium → Enterprise | 5+ autonomous domain teams with conflicting data needs | Adopt data mesh; implement data contracts; federate governance |
+
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Idempotency first** — Every pipeline must produce identical output on re-run. Use MERGE, never bare INSERT.
 - **ELT over ETL** — Load raw data first, transform in the warehouse. Raw data enables reprocessing and auditing.
 - **Push compute to the warehouse** — Don't run Spark for aggregations that Snowflake/BigQuery can do 10x faster with 1/10th the code.
@@ -305,52 +467,62 @@ Pipeline cost overrun? → Cloud Architect (FinOps) → CTO Advisor
 - **Partition before you cluster** — Partition pruning eliminates 99% of data before query execution. Cluster on high-cardinality columns within partitions.
 - **Track lineage obsessively** — When a dashboard shows wrong numbers, you need to trace back through Gold → Silver → Bronze → Source in seconds, not hours.
 
-## Production Checklist
 
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Architecture
-- [ ] Data architecture documented: medallion layers (or mesh domains), storage, compute, and orchestration
-- [ ] Medallion layers: Bronze (raw, append-only), Silver (cleansed, merge-capable), Gold (aggregated, BI-ready)
-- [ ] Partitioning and clustering strategy defined for all large tables (> 1GB)
-- [ ] Small file compaction scheduled (weekly minimum)
+- [ ] **[S1]**  Data architecture documented: medallion layers (or mesh domains), storage, compute, and orchestration
+- [ ] **[S2]**  Medallion layers: Bronze (raw, append-only), Silver (cleansed, merge-capable), Gold (aggregated, BI-ready)
+- [ ] **[S3]**  Partitioning and clustering strategy defined for all large tables (> 1GB)
+- [ ] **[S4]**  Small file compaction scheduled (weekly minimum)
 
 ### Data Modeling
-- [ ] Data model designed: star schema, data vault, or OBT — documented with ER diagrams
-- [ ] Surrogate keys on all dimensions; natural keys used only for business lookup
-- [ ] SCD strategy defined per dimension (most will be Type 2 via dbt snapshots)
-- [ ] Data dictionary: every column documented (business meaning, type, constraints, source)
+- [ ] **[S5]**  Data model designed: star schema, data vault, or OBT — documented with ER diagrams
+- [ ] **[S6]**  Surrogate keys on all dimensions; natural keys used only for business lookup
+- [ ] **[S7]**  SCD strategy defined per dimension (most will be Type 2 via dbt snapshots)
+- [ ] **[S8]**  Data dictionary: every column documented (business meaning, type, constraints, source)
 
 ### Pipelines
-- [ ] All pipelines are idempotent — safe to re-run without data duplication
-- [ ] Merge/upsert strategy defined for every ingestion pipeline
-- [ ] Dead letter queues with replay mechanism for streaming pipelines
-- [ ] Checkpointing enabled for stateful stream processors
-- [ ] Backfill process documented and tested
-- [ ] Late-arriving data window defined and handled (not silently dropped)
+- [ ] **[S9]**  All pipelines are idempotent — safe to re-run without data duplication
+- [ ] **[S10]**  Merge/upsert strategy defined for every ingestion pipeline
+- [ ] **[S11]**  Dead letter queues with replay mechanism for streaming pipelines
+- [ ] **[S12]**  Checkpointing enabled for stateful stream processors
+- [ ] **[S13]**  Backfill process documented and tested
+- [ ] **[S14]**  Late-arriving data window defined and handled (not silently dropped)
 
 ### Data Quality
-- [ ] dbt tests on every model: unique, not_null, relationships, accepted_values
-- [ ] Custom data quality checks: positive amounts, date consistency, row count anomaly
-- [ ] WAP pattern for critical datasets — audit before publish
-- [ ] Source freshness checks running on schedule with alert on breach
-- [ ] Quality score dashboard with per-table and aggregate scores
+- [ ] **[S15]**  dbt tests on every model: unique, not_null, relationships, accepted_values
+- [ ] **[S16]**  Custom data quality checks: positive amounts, date consistency, row count anomaly
+- [ ] **[S17]**  WAP pattern for critical datasets — audit before publish
+- [ ] **[S18]**  Source freshness checks running on schedule with alert on breach
+- [ ] **[S19]**  Quality score dashboard with per-table and aggregate scores
 
 ### Governance
-- [ ] Data catalog deployed: DataHub, Amundsen, or Atlan
-- [ ] Lineage tracked from source to dashboard
-- [ ] PII identified, classified, and masked/anonymized in Silver and Gold
-- [ ] Row-level security and column-level masking enforced
-- [ ] GDPR/CCPA deletion process defined and tested
-- [ ] Retention policies: auto-delete Bronze after N days, archive cold data
+- [ ] **[S20]**  Data catalog deployed: DataHub, Amundsen, or Atlan
+- [ ] **[S21]**  Lineage tracked from source to dashboard
+- [ ] **[S22]**  PII identified, classified, and masked/anonymized in Silver and Gold
+- [ ] **[S23]**  Row-level security and column-level masking enforced
+- [ ] **[S24]**  GDPR/CCPA deletion process defined and tested
+- [ ] **[S25]**  Retention policies: auto-delete Bronze after N days, archive cold data
 
 ### Operations
-- [ ] Pipeline monitoring dashboard: DAG health, data freshness, row count trends
-- [ ] Alerting on: pipeline failure, freshness breach, quality test failure, row count anomaly
-- [ ] Runbooks for top 5 pipeline failure modes with documented remediation
-- [ ] Cost monitoring: warehouse credits, Spark cluster hours, Kafka storage
-- [ ] DR: Cross-region backups for data warehouse, Kafka mirroring, schema versioning in Git
+- [ ] **[S26]**  Pipeline monitoring dashboard: DAG health, data freshness, row count trends
+- [ ] **[S27]**  Alerting on: pipeline failure, freshness breach, quality test failure, row count anomaly
+- [ ] **[S28]**  Runbooks for top 5 pipeline failure modes with documented remediation
+- [ ] **[S29]**  Cost monitoring: warehouse credits, Spark cluster hours, Kafka storage
+- [ ] **[S30]**  DR: Cross-region backups for data warehouse, Kafka mirroring, schema versioning in Git
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Data Architecture Patterns — Production Field Manual](references/data-architecture-patterns.md) — Medallion, data mesh, lake vs warehouse, schema design, SCD, partitioning
 - [ETL/ELT Pipeline Cookbook](references/etl-pipeline-cookbook.md) — Ingestion patterns, Kafka, CDC, Airflow/Dagster, idempotency, backfill
 - [Data Quality Framework](references/data-quality-framework.md) — Great Expectations, WAP pattern, data contracts, dbt testing, quality monitoring

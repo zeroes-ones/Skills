@@ -2,8 +2,17 @@
 name: finops-engineer
 description: FinOps, cloud cost optimization, AWS billing, Azure cost management, GCP billing, cloud economics, cost governance, resource optimization, waste reduction, reserved instances, savings plans, unit economics. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - finops-engineer
+token_budget: 2314
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # FinOps Engineer / Cloud Cost Optimization
 
 Drive cloud financial accountability through the FinOps lifecycle: Inform (visibility, allocation),
@@ -12,8 +21,19 @@ economics, continuous improvement). Covers multi-cloud cost management, tagging 
 Reserved Instances/Savings Plans, Kubernetes cost optimization, spot instance strategy, storage
 tiering, data transfer optimization, anomaly detection, and carbon-aware cost reduction.
 
-## Decision Trees
+## When to Use
 
+- Your monthly cloud bill (AWS/Azure/GCP) has spiked and you need to identify the root cause
+- You need to implement a tagging strategy to allocate cloud costs to teams, projects, and environments
+- You are evaluating Reserved Instances vs. Savings Plans vs. on-demand to reduce compute spend
+- You need to right-size underutilized resources — instances with <10% CPU or idle load balancers
+- You are setting up cost anomaly detection and budget alerts to catch spending surprises early
+- You need to optimize Kubernetes cluster costs through node autoscaling, bin packing, and spot instances
+- You are building unit economics dashboards to tie cloud spend to business metrics (cost per customer, per API call)
+- You need to reduce data transfer costs between regions, availability zones, or out to the public internet
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Reserved Instance vs. Savings Plan vs. On-Demand
 ```
 What's the workload profile?
@@ -113,11 +133,14 @@ Cluster cost attack surface:
 ├─ Over-provisioned cluster?
 │   └─ Cluster autoscaler not scaling down? → Check PDBs preventing eviction; tune scale-down thresholds
 └─ Implementation: kubecost for visibility → right-size requests → spot adoption → autoscaler tuning
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Inform — Visibility and Allocation
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Inform — Visibility and Allocation
 1. **Implement comprehensive tagging strategy**: mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`) enforced via SCP/Azure Policy/Org Policy.
    - Output: Tagging policy document with enforcement mechanism; > 95% resource tag compliance within 60 days.
 2. **Enable cost allocation**: map untagged costs to teams using proportional allocation rules.
@@ -130,7 +153,7 @@ Cluster cost attack surface:
 5. **Enable anomaly detection**: AWS Cost Anomaly Detection, Azure Anomaly Alerts, GCP Billing anomaly detection.
    - Output: Anomaly alerting with < 24-hour detection; > 90% of anomalies investigated within 48 hours.
 
-### Phase 2: Optimize — Cost Reduction
+### Phase 2 (~30 min): Optimize — Cost Reduction
 1. **Right-size underutilized resources**: run Compute Optimizer / Recommender across all compute; implement changes.
    - Input: 30-day utilization data from cloud provider.
    - Output: Right-sizing recommendations list with estimated savings; implementation plan.
@@ -150,7 +173,7 @@ Cluster cost attack surface:
    - Input: kubecost or equivalent cost allocation data.
    - Output: K8s optimization backlog ranked by savings; implemented changes.
 
-### Phase 3: Operate — Governance and Continuous Improvement
+### Phase 3 (~20 min): Operate — Governance and Continuous Improvement
 1. **Establish cost governance**: define approval workflow for resources above cost threshold; auto-approve below.
    - Output: Cost governance policy; automated guardrails for high-cost resource provisioning.
 2. **Define unit economics**: cost per customer, cost per transaction, cost per API call — tie cloud cost to business value.
@@ -163,7 +186,7 @@ Cluster cost attack surface:
 5. **Manage cloud provider relationships**: negotiate EDP/private pricing, track credit consumption, renew commitments.
    - Output: Provider relationship dashboard; quarterly business review with providers.
 
-### Phase 4: Carbon-Aware Optimization (GreenOps)
+### Phase 4 (~15 min): Carbon-Aware Optimization (GreenOps)
 1. **Measure carbon footprint**: cloud provider carbon dashboards (AWS Customer Carbon Footprint Tool, Azure Emissions Impact, GCP Carbon Footprint).
    - Output: Carbon baseline; monthly carbon report alongside cost report.
 2. **Shift workloads to low-carbon regions**: prioritize regions with low carbon intensity for new and relocatable workloads.
@@ -172,7 +195,7 @@ Cluster cost attack surface:
    - Output: Carbon optimization playbook integrated into standard FinOps practices.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When | What to Share/Ask |
 |---|---|---|
 | **Cloud Architect** | Architecture decisions impacting cost, multi-cloud strategy, landing zone design | Cost implications of architecture choices, tagging requirements, commitment discount strategy |
@@ -196,7 +219,7 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: No FinOps practice. Check cloud bill monthly. Set billing alerts for $X/month threshold. Use free tier aggressively. No tagging, no RIs, no optimization beyond "did my bill spike?"
 - **Overkill**: Tagging strategy, RIs/Savings Plans, cost allocation to teams, unit economics, FinOps lifecycle, carbon tracking, budget governance.
@@ -226,7 +249,7 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 - **Transition trigger**: Monthly bill > $100K; multi-cloud environment; > 100 engineers; public company financial controls; customer-facing SaaS with per-tenant cost sensitivity.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `tagging-strategy` | Designing and enforcing a cost allocation tagging taxonomy | Tag taxonomy design, enforcement mechanisms (SCP, Policy), tag propagation, compliance tracking |
@@ -239,7 +262,7 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 | `unit-economics` | Tying cloud cost to business value (cost per customer, per transaction) | Metric definition, data pipeline, dashboard design, anomaly detection, pricing model feedback |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Tag or die**: untagged resources are invisible costs. Enforce tags via policy; auto-shutdown resources that remain untagged after 24 hours. > 95% compliance is non-negotiable.
 - **RI/SP coverage targets 60-80%, not 100%**: 100% coverage means you're committed for every workload — no flexibility. Keep 20-40% on-demand for variable workloads and new services.
 - **Right-size before you commit**: never buy a 3-year RI for an instance that's 80% idle. Right-size first, then commit to the optimized size.
@@ -251,26 +274,36 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 - **FinOps is cultural, not a tool**: tools provide visibility; the culture of cost awareness drives savings. Engineers who see their costs optimize them; engineers who don't, don't.
 - **GreenOps is the next frontier**: carbon-aware scheduling and region selection often align with cost optimization (low-carbon regions tend to be cheaper). Track carbon alongside cost.
 
-## Production Checklist
 
-- [ ] Tagging strategy documented with mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`)
-- [ ] Tag enforcement in place via SCP, Azure Policy, or Org Policy; > 95% resource tag compliance
-- [ ] Budget alerts configured per team/environment at 50%, 80%, 100%, 120% thresholds
-- [ ] Cost anomaly detection enabled and alerting to team communication channels
-- [ ] Cost dashboards available to all engineering teams (self-service, updated daily)
-- [ ] RI/SP coverage at 60-80% for steady-state compute; review coverage monthly
-- [ ] Right-sizing review completed within last 90 days; recommendations implemented
-- [ ] Spot instances adopted for > 40% non-production and > 20% production stateless workloads
-- [ ] S3/Azure Blob/GCS lifecycle policies applied to all buckets; deletion policies for logs/temp data
-- [ ] Data transfer optimization: VPC endpoints for S3/DynamoDB, CDN for egress-heavy endpoints
-- [ ] Kubernetes cost allocation implemented (kubecost or equivalent); resource requests right-sized
-- [ ] Idle resource cleanup automated: non-production shutdown nights/weekends; unattached resources deleted
-- [ ] Monthly FinOps review established with action items and ownership
-- [ ] Unit economics dashboard for at least top-3 products/customer segments
-- [ ] Carbon footprint baseline measured; reduction targets set
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Tagging strategy documented with mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`)
+- [ ] **[S2]**  Tag enforcement in place via SCP, Azure Policy, or Org Policy; > 95% resource tag compliance
+- [ ] **[S3]**  Budget alerts configured per team/environment at 50%, 80%, 100%, 120% thresholds
+- [ ] **[S4]**  Cost anomaly detection enabled and alerting to team communication channels
+- [ ] **[S5]**  Cost dashboards available to all engineering teams (self-service, updated daily)
+- [ ] **[S6]**  RI/SP coverage at 60-80% for steady-state compute; review coverage monthly
+- [ ] **[S7]**  Right-sizing review completed within last 90 days; recommendations implemented
+- [ ] **[S8]**  Spot instances adopted for > 40% non-production and > 20% production stateless workloads
+- [ ] **[S9]**  S3/Azure Blob/GCS lifecycle policies applied to all buckets; deletion policies for logs/temp data
+- [ ] **[S10]**  Data transfer optimization: VPC endpoints for S3/DynamoDB, CDN for egress-heavy endpoints
+- [ ] **[S11]**  Kubernetes cost allocation implemented (kubecost or equivalent); resource requests right-sized
+- [ ] **[S12]**  Idle resource cleanup automated: non-production shutdown nights/weekends; unattached resources deleted
+- [ ] **[S13]**  Monthly FinOps review established with action items and ownership
+- [ ] **[S14]**  Unit economics dashboard for at least top-3 products/customer segments
+- [ ] **[S15]**  Carbon footprint baseline measured; reduction targets set
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [FinOps Foundation](https://www.finops.org/) — FinOps Framework, lifecycle, maturity model, certification
 - [Well-Architected Cost Optimization Pillar (AWS)](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/) — AWS cost optimization best practices
 - [Google Cloud FinOps](https://cloud.google.com/finops/) — GCP cost optimization guides and best practices

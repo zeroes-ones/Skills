@@ -2,14 +2,23 @@
 name: scrum-master
 description: Sprint planning, daily standups, retrospectives, backlog refinement, velocity tracking, burndown charts, team health, impediment removal, agile metrics.
 author: Sandeep Kumar Penchala
+type: operations
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - scrum-master
+token_budget: 1477
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Scrum Master
 
 Agile delivery leadership system for guiding Scrum teams from forming through high-performance. Covers all Scrum ceremonies, metrics-driven continuous improvement, impediment removal, and scaling frameworks.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing or resetting Scrum practices for a new or underperforming team
 - Coaching a team through sprint planning — effective story decomposition, estimation, sprint goal crafting
 - Facilitating retrospectives that produce actionable, tracked improvement experiments
@@ -19,15 +28,186 @@ Agile delivery leadership system for guiding Scrum teams from forming through hi
 - Onboarding a team to Scrum from waterfall or ad-hoc processes
 - Improving Product Owner and Development Team collaboration on backlog health and refinement
 
-## Core Workflow
+## Decision Trees
 
-### Phase 1: Team Formation & Foundations
+### Scrum vs Kanban vs Scrumban
+```
+                     ┌──────────────────────────────┐
+                     │ START: Which agile framework?  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Work arrives predictably in     │
+                    │ batches (features, epics) vs    │
+                    │ continuous flow (tickets, bugs)?│
+                    └────┬──────────────────────┬───┘
+                         │ Batches             │ Continuous
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Team needs     │    │ Need predictable │
+                    │ regular        │    │ delivery         │
+                    │ ceremony       │    │ cadence (e.g.,   │
+                    │ cadence for    │    │ release every    │
+                    │ alignment?     │    │ sprint)?         │
+                    └──┬────────┬───┘    └──┬──────────┬────┘
+                       │YES     │NO        │YES       │NO
+                  ┌────▼───┐ ┌─▼──────┐ ┌─▼──────┐ ┌─▼──────────┐
+                  │Scrum   │ │Scrumban│ │Scrumban│ │Pure Kanban │
+                  │2-week  │ │Sprints │ │Sprints+│ │WIP limits, │
+                  │sprints,│ │+ WIP   │ │Kanban  │ │continuous  │
+                  │all     │ │limits, │ │metrics │ │flow, CFD   │
+                  │ceremonies│ │fewer   │ │        │ │metrics     │
+                  └────────┘ │ceremon.│ └────────┘ └────────────┘
+                             └────────┘
+```
+**When to choose Scrum:** Predictable batched work, team needs regular alignment — full ceremonies (sprint planning, daily scrum, review, retro), 2-week cadence, defined sprint goal.
+**When to choose Kanban:** Continuous inflow (support tickets, ops), no natural sprint boundary — WIP limits, cycle time, cumulative flow diagram (CFD), no fixed iterations.
+**When to choose Scrumban:** Mix of planned features + unplanned work — retain sprint structure with WIP limits, fewer ceremonies, use CFD + burndown metrics.
+
+### Sprint Length Decision
+```
+                     ┌──────────────────────────────┐
+                     │ START: Sprint duration?        │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Requirements change frequently  │
+                    │ (stakeholders want flexibility)  │
+                    │ AND team is experienced?         │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ 1-week sprint │    │ Team new to      │
+                    │ for fast      │    │ Scrum (<6 months)│
+                    │ feedback.     │    │ OR work is       │
+                    │ Risk: overhead │    │ complex (needs   │
+                    │ of ceremonies │    │ spikes + deep    │
+                    │ per sprint.   │    │ design)?         │
+                    └───────────────┘    └──┬──────────┬────┘
+                                           │YES       │NO
+                                      ┌────▼────┐ ┌──▼──────────┐
+                                      │3-4 week │ │2-week sprint │
+                                      │sprint   │ │(default for  │
+                                      │for      │ │most teams)   │
+                                      │complex  │ │Balance of    │
+                                      │work     │ │feedback +    │
+                                      └─────────┘ │ceremony cost │
+                                                  └──────────────┘
+```
+**When to choose 1-week:** Experienced team, volatile requirements, fast feedback needed — cost: ceremony overhead ~15% of sprint time.
+**When to choose 2-week:** Default for most teams — balances feedback frequency with ceremony overhead (~10%), validates assumptions every 10 business days.
+**When to choose 3-4 week:** New Scrum team or inherently complex work (research spikes, deep technical design) — more time to produce meaningful increment, less ceremony overhead.
+
+### Retrospective Health Diagnosis
+```
+                     ┌──────────────────────────────┐
+                     │ START: Retrospectives not      │
+                     │ producing value?               │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Same issues surface sprint      │
+                    │ after sprint — "Groundhog Day"  │
+                    │ retro?                          │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Action items   │    │ Team disengaged  │
+                    │ not completed  │    │ (quiet, phones,  │
+                    │ or tracked?    │    │ laptops out)?    │
+                    └──┬────────┬───┘    └──┬──────────┬────┘
+                       │YES     │NO        │YES       │NO
+                  ┌────▼───┐ ┌─▼───────┐ ┌─▼──────┐ ┌─▼──────────┐
+                  │Implement│ │Issues are│ │Change  │ │Format is   │
+                  │action   │ │systemic  │ │format: │ │fine —      │
+                  │tracking │ │(outside  │ │silent  │ │investigate │
+                  │board    │ │team      │ │writing, │ │why issues  │
+                  │with     │ │control): │ │1-on-1  │ │not being   │
+                  │owner +  │ │escalate  │ │check-  │ │raised      │
+                  │deadline │ │to mgmt   │ │ins,    │ │(psycho-    │
+                  └─────────┘ └──────────┘ │start-  │ │logical     │
+                                           │stop-cont│ │safety?)    │
+                                           │nue     │ └────────────┘
+                                           └────────┘
+```
+**When to implement action tracking:** Same issues recurring — create visible action board with owner + deadline per item, review at start of each retro, escalate if >2 sprints stale.
+**When to escalate:** Issues are systemic/organizational — team can't fix alone. Escalate with data (e.g., "3 sprints blocked by procurement SLAs").
+**When to change format:** Disengagement — try silent writing, start-stop-continue, 4Ls (liked/learned/lacked/longed), or 1-on-1 check-ins to rebuild psychological safety.
+
+### Impediment Escalation Triage
+```
+                     ┌──────────────────────────────┐
+                     │ START: Team blocked by          │
+                     │ impediment?                    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Can the team resolve it         │
+                    │ themselves within 24 hours?     │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Team self-    │    │ Impediment is    │
+                    │ resolves.     │    │ cross-team       │
+                    │ SM monitors   │    │ dependency?      │
+                    │ but doesn't    │    └──┬──────────┬────┘
+                    │ intervene.    │       │YES       │NO
+                    └───────────────┘  ┌────▼────┐ ┌──▼──────────┐
+                                       │SM       │ │Organizational│
+                                       │facilitates│ │blocker:     │
+                                       │cross-team│ │SM escalates │
+                                       │resolution│ │to leadership│
+                                       │meeting   │ │with business │
+                                       └──────────┘ │impact data  │
+                                                    └─────────────┘
+```
+**When team self-resolves:** Impediment within team's span of control — SM observes and coaches but doesn't do it for them. Builds team autonomy.
+**When SM facilitates cross-team:** Dependency on another team — SM schedules and facilitates resolution meeting, tracks action items, follows up daily.
+**When SM escalates to leadership:** Organizational blocker (procurement, hiring, policy) — SM escalates with quantified business impact data, not just frustration.
+
+### Scaling Framework Selection (LeSS vs SAFe vs Nexus)
+```
+                     ┌──────────────────────────────┐
+                     │ START: Which scaling framework?│
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ 2-8 teams working on same       │
+                    │ product, co-located or          │
+                    │ timezone-aligned?               │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ LeSS (2-8     │    │ 5+ teams across   │
+                    │ teams) or     │    │ multiple products, │
+                    │ Nexus (3-9    │    │ need portfolio    │
+                    │ teams) —      │    │ management,       │
+                    │ lightweight,  │    │ compliance, and   │
+                    │ single product│    │ enterprise        │
+                    │ backlog       │    │ governance?       │
+                    └───────────────┘    └──┬──────────┬────┘
+                                           │YES       │NO
+                                      ┌────▼────┐ ┌──▼──────────┐
+                                      │SAFe     │ │Stay with    │
+                                      │Full     │ │coordinated  │
+                                      │with ART,│ │Scrum of     │
+                                      │PI       │ │Scrums —     │
+                                      │Planning,│ │don't        │
+                                      │RTE role │ │over-framework│
+                                      └─────────┘ └─────────────┘
+```
+**When to choose LeSS/Nexus:** Single product, 2-9 teams, co-located — LeSS (minimalist), Nexus (Scrum.org). Keep it simple; avoid SAFe overhead for single product.
+**When to choose SAFe:** Enterprise with 5+ teams across multiple products/programs, need portfolio management, compliance, executive visibility — ART, PI Planning, RTE role.
+**When to choose Scrum of Scrums:** 3-5 teams, no enterprise governance needed — lightweight coordination with ambassador from each team meeting 2-3×/week.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Team Formation & Foundations
 
 1. **Team Chartering** — Purpose, norms, Definition of Ready (DoR), Definition of Done (DoD), roles clarified.
 2. **Backlog Establishment** — User story format, ordered by value (WSJF for complex prioritization), relative sizing (Fibonacci), top 2-3 sprints refined.
 3. **Sprint Cadence** — 2 weeks standard. Fixed ceremony schedule. Protect the rhythm.
 
-### Phase 2: Ceremony Facilitation
+### Phase 2 (~30 min): Ceremony Facilitation
 
 1. **Sprint Planning** (4hr for 2-week sprint) — What: PO presents sprint goal, team pulls PBIs. How: decompose PBIs into tasks (≤8hrs each). Commit to sprint goal, not individual PBIs.
 2. **Daily Scrum** (15 min) — Team coordination, not status report. Walk board right-to-left.
@@ -35,14 +215,14 @@ Agile delivery leadership system for guiding Scrum teams from forming through hi
 4. **Sprint Review** (1hr/week of sprint) — Collaborative inspection of increment + backlog adaptation.
 5. **Sprint Retrospective** (1.5hr for 2-week sprint) — Gather data → generate insights → decide 1-3 improvement experiments → close.
 
-### Phase 3: Metrics, Impediments & Scaling
+### Phase 3 (~20 min): Metrics, Impediments & Scaling
 
 1. **Agile Metrics** — Velocity (3-sprint rolling avg), Sprint Burndown, Cumulative Flow Diagram (CFD), Cycle Time, Escaped Defects, Team Health, Sprint Goal Success Rate.
 2. **Impediment Removal** — External and internal impediments. Maintain impediment log. Track resolution time.
 3. **Scaling** — Nexus (3-9 teams), LeSS (up to 8 teams, single backlog), SAFe (if organizational mandate). Goal: minimize cross-team dependencies.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - The Scrum Master is a coach, not a secretary. Teach, don't do.
 - Sprint goals, not sprint backlogs, are the commitment.
 - Protect the retrospective — never cancel it.
@@ -133,7 +313,7 @@ python3 scripts/sprint_health.py --team backend --compare-sprint 14 --output jso
 **Principle:** `sprint_health.py` queries Linear/Jira API, returns JSON. Agent reads numbers, not narratives. Retro data auto-generated. Improvement tracked via exit codes.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 The Scrum Master is a servant-leader who enables the team, removes impediments, and facilitates agile ceremonies. Coordination is about protecting the team while keeping stakeholders informed.
 
 | Coordinate With | When | What to Share/Ask |
@@ -171,25 +351,69 @@ The Scrum Master is a servant-leader who enables the team, removes impediments, 
 | Agile transformation resistance from senior leadership | **Agile Coach** (external) + CTO Advisor | Cultural change requires executive sponsorship |
 | Team consistently over-committing and burning out (utilization >110% for 4+ sprints) | **Engineering Lead** + HR + Project Manager | Sustainability crisis; capacity protection needed |
 
-## Production Checklist
+## Scale Depth
 
-- [ ] Team charter established: purpose, norms, DoR, DoD, roles clarified and agreed
-- [ ] Product backlog exists with user stories, acceptance criteria, and relative size estimates
-- [ ] Sprint cadence fixed: sprint length, ceremony schedule
-- [ ] Sprint Planning produces a sprint goal, selected PBIs, and a task breakdown
-- [ ] Daily Scrums timeboxed at 15 minutes, focused on coordination toward sprint goal
-- [ ] Backlog Refinement occurs weekly (10% of capacity); top 2-3 sprints ready
-- [ ] Sprint Review demonstrates working increment; stakeholders provide feedback; backlog adapts
-- [ ] Sprint Retrospective produces 1-3 actionable improvement experiments tracked to completion
-- [ ] Agile metrics tracked: velocity (rolling avg), burndown, CFD, cycle time, escaped defects
-- [ ] Team health metric collected each sprint; declining trends addressed proactively
-- [ ] Impediment log maintained with resolution time tracked; systemic impediments escalated
-- [ ] DoD enforced: no PBI marked "Done" without meeting all DoD criteria
-- [ ] If multi-team: scaling framework selected; cross-team coordination operational
-- [ ] Retrospective action items integrated into sprint backlog and counted toward capacity
+### Solo (1 person, 0-100 users)
+One Scrum Master serving 1 team part-time (often a developer wearing SM hat). Ceremonies: daily scrum (15 min), sprint planning (2 hours/biweekly), review + retro (1.5 hours combined). Backlog: Product Owner manages in Jira/Linear. No formal scaling needed. Metrics: velocity (basic), sprint burndown. SM focuses on facilitation + impediment removal, light coaching. Cost: $0-200/month (Jira/Linear). Overkill: SAFe, LeSS, Nexus, dedicated SM, agile coaching, portfolio Kanban.
+
+### Small (2-10 people, 100-10K users)
+Dedicated Scrum Master for 1-2 teams. Ceremonies standardized with team working agreements. Metrics: velocity, sprint burndown, cycle time, escaped defects. Retrospectives produce tracked action items. Sprint goal consistently achieved (>70% sprint success rate). SM coaches PO on backlog refinement. Cost: $200-1K/month. Overkill: scaling framework, release train, PI Planning.
+
+### Medium (10-50 people, 10K-1M users)
+2-3 Scrum Masters or Agile Coaches. Scaling: LeSS or Nexus for 3-8 teams on same product. Metrics: cumulative flow, throughput, lead time, defect density. Cross-team dependency management via Scrum of Scrums. SM community of practice. Agile health assessments (Spotify Squad Health Check). SM coaches leadership on agile principles. Cost: $2K-10K/month. Overkill: SAFe unless enterprise governance demands it.
+
+### Enterprise (50+ people, 10K+ users)
+Agile Coaches + Scrum Masters across multiple ARTs (SAFe) or product groups. Release Train Engineer (RTE) for PI Planning. Enterprise agile metrics: flow efficiency, time-to-market, employee NPS. Portfolio Kanban linking strategy to execution. Center of Excellence for agile practices. Value stream mapping. Cost: $20K-150K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | 2+ teams needing SM, or sprint success rate <60% | Dedicate SM; standardize ceremonies; implement action tracking from retros |
+| Small → Medium | 3+ teams on same product, cross-team dependencies blocking sprints | Adopt LeSS/Nexus; implement Scrum of Scrums; add agile health assessments |
+| Medium → Enterprise | 5+ products, portfolio governance required, or 50+ developers | Adopt SAFe (if enterprise); add RTE role; implement portfolio Kanban; establish CoE |
+
+## Sub-Skills
+
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **Sprint Facilitation** | Running sprint planning, daily scrum, review, and retrospective | Time-boxed facilitation, sprint goal crafting, capacity-based planning, visual boards (Miro, Jira) |
+| **Backlog Refinement Coaching** | Backlog >2 sprints deep, stories lack clear acceptance criteria, or PO overwhelmed | INVEST criteria, story splitting patterns, 3-amigos sessions, estimation (story points, t-shirt sizing) |
+| **Agile Metrics & Diagnostics** | Diagnosing delivery bottlenecks or reporting team health | Velocity trend, CFD, cycle time, throughput, escaped defects, sprint burndown — Jira, Linear, ActionableAgile |
+| **Impediment Removal** | Systematic blockers slowing team velocity | Impediment log, escalation paths, cross-team facilitation, organizational blocker quantification in business impact |
+| **Team Health & Psychological Safety** | Team engagement declining, conflict surfacing, or turnover rising | Retrospective formats (4Ls, sailboat, start-stop-continue), health checks, 1-on-1s, conflict mediation |
+| **Scaling Scrum (LeSS/Nexus/SAFe)** | 3+ teams on same product or multi-team coordination needed | LeSS (2-8 teams, single product), Nexus (3-9 teams), SAFe (enterprise, 5+ products, PI Planning) |
+| **Agile Transformation Coaching** | Organization transitioning from waterfall or ad-hoc to agile | Change management, leadership coaching, agile principles over practices, pilot teams, metrics-driven adoption |
+| **DoR/DoD Facilitation** | Quality issues from unclear readiness or completion criteria | Definition of Ready (DoR) checklist, Definition of Done (DoD) with quality gates, team agreement, PO + team alignment |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Team charter established: purpose, norms, DoR, DoD, roles clarified and agreed
+- [ ] **[S2]**  Product backlog exists with user stories, acceptance criteria, and relative size estimates
+- [ ] **[S3]**  Sprint cadence fixed: sprint length, ceremony schedule
+- [ ] **[S4]**  Sprint Planning produces a sprint goal, selected PBIs, and a task breakdown
+- [ ] **[S5]**  Daily Scrums timeboxed at 15 minutes, focused on coordination toward sprint goal
+- [ ] **[S6]**  Backlog Refinement occurs weekly (10% of capacity); top 2-3 sprints ready
+- [ ] **[S7]**  Sprint Review demonstrates working increment; stakeholders provide feedback; backlog adapts
+- [ ] **[S8]**  Sprint Retrospective produces 1-3 actionable improvement experiments tracked to completion
+- [ ] **[S9]**  Agile metrics tracked: velocity (rolling avg), burndown, CFD, cycle time, escaped defects
+- [ ] **[S10]**  Team health metric collected each sprint; declining trends addressed proactively
+- [ ] **[S11]**  Impediment log maintained with resolution time tracked; systemic impediments escalated
+- [ ] **[S12]**  DoD enforced: no PBI marked "Done" without meeting all DoD criteria
+- [ ] **[S13]**  If multi-team: scaling framework selected; cross-team coordination operational
+- [ ] **[S14]**  Retrospective action items integrated into sprint backlog and counted toward capacity
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Scrum Guide (Schwaber & Sutherland)](https://scrumguides.org/)
 - [LeSS — Large-Scale Scrum](https://less.works/)
 - [Nexus Guide](https://www.scrum.org/resources/nexus-guide)

@@ -2,8 +2,17 @@
 name: data-scientist
 description: Scientific method applied to data — hypothesis testing, A/B testing, causal inference, predictive modeling, EDA, time series analysis, statistical modeling, and experiment design. Triggered by data science, statistical analysis, hypothesis testing, experimentation, A/B test, causal inference, predictive modeling, EDA, statistical modeling, time series.
 author: Sandeep Kumar Penchala
+type: data
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - data-scientist
+token_budget: 2092
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Data Scientist
 
 Apply the scientific method to data problems — frame questions as testable hypotheses, design rigorous
@@ -14,8 +23,19 @@ EDA methodology, statistical testing (t-test, chi-square, ANOVA, non-parametric)
 scores), regression analysis, time series forecasting, survival analysis, feature engineering, model
 interpretability (SHAP, LIME, partial dependence), Bayesian approaches, and ethical data science.
 
-## Decision Trees
+## When to Use
 
+- You need to choose the right statistical test (t-test, chi-square, ANOVA, non-parametric) for a hypothesis
+- You are designing an A/B test — sample size calculation, minimum detectable effect, peeking corrections
+- You need to run exploratory data analysis (EDA) on a new dataset to surface patterns and anomalies
+- You are building a predictive model (regression, classification, time series) for a business forecast
+- You need to apply causal inference (difference-in-differences, RDD, instrumental variables) to observational data
+- You are interpreting a black-box model using SHAP values, LIME explanations, or partial dependence plots
+- You need to analyze time-to-event data with survival analysis or customer churn models
+- You are setting up an experiment design with proper randomization, control groups, and statistical power
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Choosing the Right Statistical Test
 
 ```
@@ -69,11 +89,14 @@ What question are you answering?
     ├── Which features matter? → SHAP values, permutation importance
     ├── Non-linear patterns? → GAMs, splines, partial dependence plots
     └── Segments behave differently? → Interaction terms, stratified analysis
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Problem Framing & Hypothesis Generation
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Problem Framing & Hypothesis Generation
 
 1. **Translate business question into statistical question**
    - Input: Stakeholder asks "Why is churn increasing?"
@@ -90,7 +113,7 @@ What question are you answering?
    - Document known biases: selection bias, survivorship bias, measurement error
    - Determine if existing data can answer the question or if new data collection is needed
 
-### Phase 2: Exploratory Data Analysis (EDA)
+### Phase 2 (~30 min): Exploratory Data Analysis (EDA)
 
 4. **Univariate analysis** — One variable at a time
    - Continuous: distribution (histogram, boxplot), central tendency (mean/median), spread (std/IQR), skew, outliers
@@ -114,7 +137,7 @@ What question are you answering?
    - Duplicate records, near-duplicates
    - Input: dataset. Output: data quality issues log with remediation actions
 
-### Phase 3: Statistical Testing & Experimentation
+### Phase 3 (~20 min): Statistical Testing & Experimentation
 
 8. **Check test assumptions before running the test**
    - Normality: Shapiro-Wilk (n < 2000) or Kolmogorov-Smirnov (n > 2000), Q-Q plot visual inspection
@@ -139,7 +162,7 @@ What question are you answering?
     - Multiple comparison correction: Bonferroni or Benjamini-Hochberg if testing many metrics
     - Input: experiment data. Output: decision (ship/iterate/kill) with evidence memo
 
-### Phase 4: Predictive Modeling
+### Phase 4 (~15 min): Predictive Modeling
 
 12. **Feature engineering** — more impactful than model choice
     - Transformations: log for skewed targets, Box-Cox for normality, one-hot/label/target encoding
@@ -163,7 +186,7 @@ What question are you answering?
     - Local: SHAP waterfall for individual predictions, LIME for text/image
     - Input: trained model + holdout set. Output: interpretability report
 
-### Phase 5: Communication
+### Phase 5 (~25 min): Communication
 
 16. **Craft the narrative — not the methodology**
     - Lead with the decision: "We should ship variant B — +3.2% conversion [95% CI: +1.8%, +4.6%]"
@@ -176,7 +199,7 @@ What question are you answering?
     - Input: all analysis outputs. Output: 1-2 page memo + appendix with technical details
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Data scientists translate raw data into business decisions. They coordinate downstream (with ML engineers
 for model productionization) and upstream (with data engineers for pipeline reliability). They also
 coordinate cross-functionally (with product managers on experiment design, with business strategists on
@@ -214,7 +237,7 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: Data scientist = you also do data engineering, analytics, and ML. Focus on fast, directional analyses. Jupyter notebooks are fine. Statistical rigor: report p-values but don't obsess over power analysis. Models are proof-of-concept.
 - **What to skip**: Power analysis for every test. Formal experiment documentation. Separate training/serving infrastructure. Model monitoring and drift detection. Multiple comparison corrections for exploratory analyses.
@@ -245,7 +268,7 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 - **Medium → Enterprise**: 20+ data scientists. Model risk management required by regulation. Cross-team experiment interference observed.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
 | `experiment-design` | Designing A/B tests, multi-arm bandits, quasi-experiments | Power analysis, MDE calculation, SRM checks, peeking corrections, CUPED, sequential testing |
@@ -258,7 +281,7 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 | `bayesian-methods` | When prior knowledge exists or uncertainty quantification matters | Bayesian A/B testing, hierarchical models, probabilistic programming (PyMC, Stan), credible intervals |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Frame before you analyze** — Write down the hypothesis, null, alternative, and decision criteria before opening the dataset. Prevents p-hacking and confirmation bias.
 - **Always report effect size + confidence interval** — A p-value alone is insufficient. "Statistically significant" with 0.01% lift on a $10 test is useless.
 - **CUPED by default** — Pre-experiment covariates reduce variance 10-30%, cutting required sample size proportionally. The single highest-ROI experiment technique.
@@ -270,26 +293,36 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 - **Simpson's paradox is lurking** — Always check if aggregated trends reverse within subgroups. Analyze both overall and segmented.
 - **Communicate uncertainty visually** — Error bars, confidence bands, prediction intervals. Point estimates alone mislead decision-makers.
 
-## Production Checklist
 
-- [ ] Business question translated to falsifiable statistical hypothesis (H₀ and Hₐ explicitly stated)
-- [ ] Primary metric defined; guardrail metrics identified; diagnostic metrics mapped
-- [ ] EDA completed: univariate distributions, bivariate relationships, missing data characterized (MCAR/MAR/MNAR)
-- [ ] Data quality issues documented: impossible values, timestamp anomalies, duplicates, measurement errors
-- [ ] Experiment: power analysis completed (α=0.05, power≥0.80); MDE justified in business terms
-- [ ] Experiment: SRM check automated and passing before analysis
-- [ ] Experiment: peeking correction in place (sequential testing or alpha-spending)
-- [ ] Experiment: results reported as effect size + 95% CI + practical significance assessment
-- [ ] Model: chronological or grouped split used (no random split leakage)
-- [ ] Model: baseline model comparison included (always compare to simple heuristic)
-- [ ] Model: interpretability analysis completed (SHAP, LIME, or partial dependence)
-- [ ] Model: fairness evaluation across demographic segments (if relevant)
-- [ ] Decision memo written: TL;DR, context, results, recommendation, risks, next steps
-- [ ] Code, data, and results reproducible (pinned dependencies, seed set, data version documented)
-- [ ] Stakeholder communication: 1-page summary with visualization, technical appendix for peer review
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Business question translated to falsifiable statistical hypothesis (H₀ and Hₐ explicitly stated)
+- [ ] **[S2]**  Primary metric defined; guardrail metrics identified; diagnostic metrics mapped
+- [ ] **[S3]**  EDA completed: univariate distributions, bivariate relationships, missing data characterized (MCAR/MAR/MNAR)
+- [ ] **[S4]**  Data quality issues documented: impossible values, timestamp anomalies, duplicates, measurement errors
+- [ ] **[S5]**  Experiment: power analysis completed (α=0.05, power≥0.80); MDE justified in business terms
+- [ ] **[S6]**  Experiment: SRM check automated and passing before analysis
+- [ ] **[S7]**  Experiment: peeking correction in place (sequential testing or alpha-spending)
+- [ ] **[S8]**  Experiment: results reported as effect size + 95% CI + practical significance assessment
+- [ ] **[S9]**  Model: chronological or grouped split used (no random split leakage)
+- [ ] **[S10]**  Model: baseline model comparison included (always compare to simple heuristic)
+- [ ] **[S11]**  Model: interpretability analysis completed (SHAP, LIME, or partial dependence)
+- [ ] **[S12]**  Model: fairness evaluation across demographic segments (if relevant)
+- [ ] **[S13]**  Decision memo written: TL;DR, context, results, recommendation, risks, next steps
+- [ ] **[S14]**  Code, data, and results reproducible (pinned dependencies, seed set, data version documented)
+- [ ] **[S15]**  Stakeholder communication: 1-page summary with visualization, technical appendix for peer review
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Statistical Testing Field Manual](references/statistical-testing.md) — Test selection, assumption checking, effect sizes, multiple comparisons
 - [A/B Testing Design & Analysis Guide](references/ab-testing-guide.md) — Power analysis, SRM, CUPED, sequential testing, multi-arm bandits
 - [Causal Inference Cookbook](references/causal-inference.md) — DID, RDD, IV, propensity scores, DAGs, do-calculus

@@ -2,14 +2,34 @@
 name: localization-engineer
 description: i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: development
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - localization-engineer
+token_budget: 2517
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Localization / i18n-L10n Engineer
 
 Design and implement end-to-end internationalization (i18n) and localization (l10n) systems. This skill covers message extraction, translation pipeline architecture, locale-aware formatting, RTL layout, pseudo-localization testing, and continuous localization integrated into CI/CD. Every decision balances developer ergonomics, translator workflow, and end-user experience across languages and cultures.
 
-## Decision Trees
+## When to Use
 
+- You are adding i18n support to a new web or mobile application from day one
+- You need to extract hardcoded strings from an existing codebase for translation
+- You are setting up a translation management system (Lokalise, Phrase, Crowdin) integrated with CI/CD
+- You need to implement locale-aware date, number, currency, and plural formatting using ICU MessageFormat
+- You are adding support for right-to-left (RTL) languages and need to adapt layouts and styles
+- You need to set up pseudo-localization in CI to catch i18n bugs before translators see the strings
+- You are designing a locale detection and negotiation strategy (URL path, subdomain, Accept-Language header)
+- You need to build a continuous localization pipeline that pushes source strings and pulls translations automatically
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
 NEW PROJECT — How should we structure i18n from day one?
 ├── Single-language MVP (<3 months to launch)?
@@ -74,11 +94,14 @@ LOCALE DETECTION — How should we decide which language to show?
 └── User preference (saved in account settings)?
     └── Always honor explicit user preference over any automatic detection.
         This is the ultimate source of truth.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: i18n Foundation — Externalize & Standardize
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): i18n Foundation — Externalize & Standardize
 
 1. **Choose i18n library** per stack:
    - **JavaScript/React**: `react-i18next` (most popular), `formatjs` (ICU-first), `next-intl` (Next.js native)
@@ -105,7 +128,7 @@ LOCALE DETECTION — How should we decide which language to show?
    Subdirectory is the default recommendation — best SEO, simplest infrastructure.
    - **Output**: Locale routing live. Language switcher functional.
 
-### Phase 2: Translation Pipeline — Connect Dev to Translator
+### Phase 2 (~30 min): Translation Pipeline — Connect Dev to Translator
 
 1. **Select and integrate a TMS** (Translation Management System):
    - **Lokalise**: Best UX for translators, strong API, screenshot support. $120+/mo.
@@ -145,7 +168,7 @@ LOCALE DETECTION — How should we decide which language to show?
    - **Include context**: Suffix with `_label`, `_placeholder`, `_error`, `_tooltip`, `_aria`
    - **Output**: Naming convention documented. Automated linting for key format.
 
-### Phase 3: Locale-Aware Everything — Format, Sort, Display
+### Phase 3 (~20 min): Locale-Aware Everything — Format, Sort, Display
 
 1. **Locale-aware formatting**: Never hardcode formats. Always use `Intl` APIs or ICU.
    - **Dates**: `new Intl.DateTimeFormat('de-DE').format(date)` → "21.07.2026" vs US "07/21/2026"
@@ -172,7 +195,7 @@ LOCALE DETECTION — How should we decide which language to show?
    Use `dir="auto"` on user-generated content containers. Test with `direction: rtl` override.
    - **Output**: RTL layout verified with pseudo-localization. Visual diff screenshots for Arabic locale.
 
-### Phase 4: Testing & Quality Assurance
+### Phase 4 (~15 min): Testing & Quality Assurance
 
 1. **Pseudo-localization**: Generate a pseudo-locale that replaces characters with accented/Unicode equivalents
    and lengthens strings by 30-40% (German text averages 30% longer than English). Run in CI on every PR.
@@ -188,7 +211,7 @@ LOCALE DETECTION — How should we decide which language to show?
    - **Output**: Coverage dashboard. CI gate on coverage threshold.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When (Trigger) | What Info Flows |
 |---|---|---|
 | **Frontend Developer** | Component development, CSS architecture | i18n wrapper usage, RTL CSS patterns, locale-aware component API |
@@ -217,7 +240,7 @@ LOCALE DETECTION — How should we decide which language to show?
 | Translation memory shows 40%+ overlap with existing content | Content Strategist, TMS admin | Reuse existing translations; reduce cost and turnaround |
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-1K users)
 - **What changes**: One locale file (`en.json`). No TMS. Translate via JSON diff + Google Translate for initial pass, then hire a freelance translator for polish. Pseudo-locale via a simple Node script. RTL: logical properties only if you plan to add RTL within 6 months; skip otherwise.
 - **What's overkill**: TMS integration, continuous localization CI, visual diff testing, translation memory, glossary, dedicated i18n library abstraction layer. ICU MessageFormat (simple key-value is fine for 1-2 languages).
@@ -247,7 +270,7 @@ LOCALE DETECTION — How should we decide which language to show?
 - **Transition trigger**: 30+ locales OR regulatory requirement for locale-specific legal content OR revenue from international markets >30% of total.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `i18n-architecture` | New project setup or i18n overhaul | Choosing i18n library, message format, locale routing strategy, SSR vs CSR i18n |
@@ -260,7 +283,7 @@ LOCALE DETECTION — How should we decide which language to show?
 | `translation-quality` | Ensuring translations are correct and consistent | Quality scoring, automated checks, glossary enforcement, native speaker review workflows |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Externalize on day one**: Adding i18n to a 200K LOC codebase costs 5-10x more than building it in from the start. Even if you only support English at launch, put every user-facing string in a locale file.
 - **ICU MessageFormat for anything with variables**: Key-value `"Hello {name}"` breaks in languages with different word order or gender. ICU handles this. Exceptions: truly static strings (labels, headings with no variables).
 - **Pseudo-localize in CI, not just before release**: A CI job that builds with pseudo-locale on every PR catches i18n regressions immediately, not 2 days before launch.
@@ -272,29 +295,43 @@ LOCALE DETECTION — How should we decide which language to show?
 - **Never concatenate translated strings**: `msg = translate("Page") + " " + pageNumber + " " + translate("of") + " " + totalPages` — this breaks in Japanese (word order), Arabic (RTL), Korean (counters). Use ICU: `"Page {current} of {total}"`.
 - **Test with native speakers, not just bilingual colleagues**: A bilingual developer can verify correctness. A native speaker verifies naturalness. These are different quality bars. Budget for native-speaker QA per locale.
 
-## Production Checklist
 
-- [ ] All user-facing strings externalized — zero hardcoded strings in the codebase (enforced by CI)
-- [ ] ICU MessageFormat used for all strings with variables, plurals, or gender
-- [ ] Locale routing functional — URL strategy consistent (subdirectory or subdomain), language switcher works
-- [ ] CSS logical properties used throughout (no `margin-left`/`margin-right`/`padding-left`/`padding-right`)
-- [ ] Pseudo-localization CI job runs on every PR and blocks merge on failures
-- [ ] Translation pipeline: strings push to TMS on merge to main; translations PR created automatically
-- [ ] Locale-aware formatting for dates, numbers, currencies, relative time, list formatting, and collation across all target locales
-- [ ] Plural rules tested for all target locales (Polish has 4 forms, Arabic has 6 — don't assume English-like rules)
-- [ ] RTL layout verified: pseudo-locale screenshots reviewed, `dir="auto"` on UGC containers, BIDI controls for mixed text
-- [ ] Translations code-split by locale — only current locale loaded, no 2MB bundle with 40 languages
-- [ ] hreflang tags implemented and verified (correct reciprocal links between all locale variants)
-- [ ] Translation coverage ≥ 95% for production locales; CI gate blocks release if below threshold
-- [ ] Visual diff testing for top 5 locales and top 20 pages — no unexpected layout shifts
-- [ ] Translation memory set up and populated — reuse existing translations to reduce cost and ensure consistency
-- [ ] Glossary defined and enforced in TMS — brand terms, technical terms, never-translate terms
-- [ ] Legal requirements verified: Quebec (French mandatory), EU (right to official language), any jurisdiction-specific rules
-- [ ] Accessibility verified: `lang` and `dir` attributes correct on `<html>`, screen reader language switches properly
-- [ ] Locale detection respects: user preference → Accept-Language → GeoIP fallback (NEVER GeoIP first)
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Module not found: Can't resolve '...'` | Missing dependency or incorrect import path | `npm install <package>` or fix import path |
+| `TypeError: Cannot read properties of undefined` | Accessing property on null/undefined value | Add optional chaining (`?.`) or null check before access |
+| `Connection refused` | Target service not running or wrong host/port | Check service status: `docker ps`; verify environment variables |
+| `ECONNREFUSED` | Database server not running | `docker compose up -d db`; check connection string |
+| `413 Payload Too Large` | Request body exceeds server limit | Increase `body-parser` limit or paginate the request |
+| `port 3000 already in use` | Previous process still bound to port | `lsof -ti:3000 \| xargs kill` or use `PORT=3001` |
+| `ETIMEDOUT` | Network connectivity issue or firewall | Check network: `ping <host>`; verify firewall rules |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  All user-facing strings externalized — zero hardcoded strings in the codebase (enforced by CI)
+- [ ] **[S2]**  ICU MessageFormat used for all strings with variables, plurals, or gender
+- [ ] **[S3]**  Locale routing functional — URL strategy consistent (subdirectory or subdomain), language switcher works
+- [ ] **[S4]**  CSS logical properties used throughout (no `margin-left`/`margin-right`/`padding-left`/`padding-right`)
+- [ ] **[S5]**  Pseudo-localization CI job runs on every PR and blocks merge on failures
+- [ ] **[S6]**  Translation pipeline: strings push to TMS on merge to main; translations PR created automatically
+- [ ] **[S7]**  Locale-aware formatting for dates, numbers, currencies, relative time, list formatting, and collation across all target locales
+- [ ] **[S8]**  Plural rules tested for all target locales (Polish has 4 forms, Arabic has 6 — don't assume English-like rules)
+- [ ] **[S9]**  RTL layout verified: pseudo-locale screenshots reviewed, `dir="auto"` on UGC containers, BIDI controls for mixed text
+- [ ] **[S10]**  Translations code-split by locale — only current locale loaded, no 2MB bundle with 40 languages
+- [ ] **[S11]**  hreflang tags implemented and verified (correct reciprocal links between all locale variants)
+- [ ] **[S12]**  Translation coverage ≥ 95% for production locales; CI gate blocks release if below threshold
+- [ ] **[S13]**  Visual diff testing for top 5 locales and top 20 pages — no unexpected layout shifts
+- [ ] **[S14]**  Translation memory set up and populated — reuse existing translations to reduce cost and ensure consistency
+- [ ] **[S15]**  Glossary defined and enforced in TMS — brand terms, technical terms, never-translate terms
+- [ ] **[S16]**  Legal requirements verified: Quebec (French mandatory), EU (right to official language), any jurisdiction-specific rules
+- [ ] **[S17]**  Accessibility verified: `lang` and `dir` attributes correct on `<html>`, screen reader language switches properly
+- [ ] **[S18]**  Locale detection respects: user preference → Accept-Language → GeoIP fallback (NEVER GeoIP first)
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [ICU MessageFormat Specification](https://unicode-org.github.io/icu/userguide/format_parse/messages/) — Unicode Consortium
 - [CLDR — Unicode Common Locale Data Repository](https://cldr.unicode.org/) — Locale-specific formatting data
 - [W3C Internationalization Best Practices](https://www.w3.org/International/) — Authoritative i18n reference

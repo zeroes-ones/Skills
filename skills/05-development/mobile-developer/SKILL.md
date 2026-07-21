@@ -2,13 +2,23 @@
 name: mobile-developer
 description: Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android.
 author: Sandeep Kumar Penchala
+type: development
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - mobile-developer
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Mobile Developer
 
-Build world-class mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
+Build production mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between native (Swift/Kotlin), React Native, Flutter, or PWA for a new mobile project
 - Designing navigation architecture (stack, tab, drawer, deep linking, universal links, deferred deep links)
 - Implementing state management (Zustand, TanStack Query, Riverpod, BLoC) and local persistence layers
@@ -17,11 +27,130 @@ Build world-class mobile applications — spanning native (Swift/Kotlin), React 
 - Handling platform-specific design conventions, permissions, biometrics, and hardware APIs
 - Profiling and optimizing cold start time, scroll performance (60fps), memory usage, and binary size
 - Setting up CI/CD pipelines for TestFlight, App Store, Google Play, and over-the-air updates
+- Setting up CI/CD pipelines for TestFlight, App Store, Google Play, and over-the-air updates
 - Implementing security: certificate pinning, secure storage, code obfuscation, root/jailbreak detection
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Offline-First Strategy
+```
+                     ┌──────────────────────────────┐
+                     │ START: Offline support level?│
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Is real-time data critical (chat,       │
+              │ live tracking, trading)?                │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Online-first:    │    │ Can users create/     │
+        │ Cache for speed, │    │ edit data offline?   │
+        │ not availability.│    └──┬───────────────┬───┘
+        │ Show stale data  │       │ YES           │ NO
+        │ with indicator.  │       ▼               ▼
+        └──────────────────┘ ┌────────────┐  ┌───────────┐
+                             │ Full       │  │ Read-only │
+                             │ offline-   │  │ offline:  │
+                             │ first with │  │ cache API │
+                             │ local DB + │  │ responses │
+                             │ sync queue │  │ + assets  │
+                             └────────────┘  └───────────┘
+```
+**When full offline-first:** Field workers, travelers, areas with unreliable connectivity. Users must create/edit data offline. Conflict resolution needed.  
+**When read-only offline:** Content consumption app (news, docs, media). Users don't create data. Pre-cache on WiFi, serve from local when offline.
 
-### Phase 0: Native vs Cross-Platform Decision Framework
+### Navigation Architecture
+```
+                     ┌──────────────────────────────┐
+                     │ START: Navigation pattern?   │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ App has 5+ main sections with deep     │
+              │ linking to detail screens?             │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Tab navigator    │    │ Simple stack or      │
+        │ with nested      │    │ single-screen flow   │
+        │ stacks per tab.  │    │ (< 4 screens)?      │
+        │ React Navigation │    └──┬───────────────┬───┘
+        │ or GoRouter.     │       │ YES           │ NO
+        └──────────────────┘       ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ Stack      │  │ Tab + Stack  │
+                            │ navigator  │  │ + Drawer.    │
+                            │ with deep  │  │ Full deep    │
+                            │ linking    │  │ link support │
+                            └────────────┘  └──────────────┘
+```
+**When Tab + Stack:** Instagram/YouTube pattern. 3-5 top-level sections. Each tab has its own navigation history. Deep linking into nested screens required.  
+**When Stack only:** Linear flows (onboarding, checkout wizard, setup). No persistent bottom navigation. Each screen leads to the next or back.
+
+### Push Notification Strategy
+```
+                     ┌───────────────────────────────┐
+                     │ START: Notification approach? │
+                     └──────────────┬────────────────┘
+                                    │
+              ┌─────────────────────▼─────────────────────┐
+              │ Is this a real-time messaging app         │
+              │ (chat, live events)?                      │
+              └────┬──────────────────────┬───────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌────────────────────────┐
+        │ FCM/APNs data-   │    │ Notifications are      │
+        │ only payload +   │    │ marketing or re-       │
+        │ in-app WebSocket │    │ engagement triggers?   │
+        │ for actual data. │    └──┬─────────────────┬───┘
+        │ Decouple push    │       │ YES             │ NO
+        │ from content.    │       ▼                 ▼
+        └──────────────────┘ ┌────────────┐  ┌──────────────┐
+                             │ FCM/APNs   │  │ Local        │
+                             │ with deep  │  │ notifications│
+                             │ link +     │  │ only.        │
+                             │ rich media │  │ Scheduled    │
+                             │ + analytics│  │ reminders.   │
+                             └────────────┘  └──────────────┘
+```
+**When data-only + WebSocket:** Real-time chat/messaging. Push delivers wake-up signal; actual content fetched via persistent connection. Avoids 4KB APNs limit.  
+**When FCM/APNs with deep link:** Transactional alerts, marketing. Notification tappable → deep link to relevant screen. Rich media (images, video thumbnails) for engagement.
+
+### State Management
+```
+                     ┌──────────────────────────┐
+                     │ START: State solution?   │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Does state come from an API?        │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ TanStack Query / │  │ Shared across        │
+        │ Riverpod Future  │  │ screens (auth,       │
+        │ for server-state │  │ theme, prefs)?       │
+        │ caching + refetch│  └──┬───────────────┬───┘
+        └──────────────────┘     │ YES           │ NO
+                                 ▼               ▼
+                          ┌────────────┐  ┌──────────────┐
+                          │ Zustand /  │  │ Local state: │
+                          │ Riverpod   │  │ useState /   │
+                          │ (global)   │  │ BLoC /       │
+                          │            │  │ Provider     │
+                          └────────────┘  └──────────────┘
+```
+**When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.  
+**When Zustand/Riverpod:** Client-only global state (auth token, theme mode, feature flags). Cross-screen persistence without API round-trip. Lightweight (< 5KB).
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 0 (~15 min): Native vs Cross-Platform Decision Framework
 
 Before writing a single line of code, select the right technology for the job. The wrong choice can cost months of rework.
 
@@ -56,7 +185,7 @@ Before writing a single line of code, select the right technology for the job. T
 | Memory baseline (MB) | 30-60 | 60-120 | 40-80 | 50-150 |
 | Native API access | Complete | Via native modules | Via platform channels | Limited |
 
-### Phase 1: Project Scaffolding & Architecture
+### Phase 1 (~15 min): Project Scaffolding & Architecture
 
 **Clean Architecture Layers (applies to all frameworks):**
 - **Presentation layer**: Screens, widgets, UI components. Depends on Domain layer. Contains no business logic — only UI state transformation and event delegation.
@@ -109,7 +238,7 @@ apps/
 ```
 Use `turborepo` for task orchestration — it caches build outputs and only rebuilds changed packages.
 
-### Phase 2: Navigation & Deep Linking
+### Phase 2 (~30 min): Navigation & Deep Linking
 
 **Architecture decision: file-based vs programmatic routing**
 - **File-based** (expo-router, go_router with ShellRoute): best for standard navigation patterns; co-location of routes with screens; automatic type generation
@@ -148,7 +277,7 @@ Use `turborepo` for task orchestration — it caches build outputs and only rebu
 5. Hide splash ONLY after navigation target is determined — this prevents the "flash of wrong screen"
 6. On logout: clear all cached data, navigate to auth stack with `reset` (no back button to main app)
 
-### Phase 3: State Management & Offline-First Data Layer
+### Phase 3 (~20 min): State Management & Offline-First Data Layer
 
 **State management taxonomy — choose the right tool for each state category:**
 
@@ -222,7 +351,7 @@ syncQueue.onConnectivityChange(async (online) => {
 - **Isar** (Flutter): NoSQL with links (relationships), full-text search, ACID transactions. Best all-rounder for Flutter local storage.
 - **Drift** (Flutter): Type-safe SQLite wrapper with reactive queries. Use when you need complex SQL joins and migrations.
 
-### Phase 4: Push Notifications
+### Phase 4 (~15 min): Push Notifications
 
 **Provider architecture:**
 ```
@@ -249,7 +378,7 @@ syncQueue.onConnectivityChange(async (online) => {
 | Normal (5) | `priority: normal` | `apns-priority: 5` | Standard: social updates, content alerts, reminders |
 | Background | Silent FCM | `content-available: 1` | Data sync trigger, no user-visible notification |
 
-### Phase 5: Platform Design Systems
+### Phase 5 (~25 min): Platform Design Systems
 
 **iOS Human Interface Guidelines — non-negotiable rules:**
 - **Touch targets**: minimum 44×44pt. No exception. Apple rejects apps with tappable elements smaller than this.
@@ -270,7 +399,7 @@ syncQueue.onConnectivityChange(async (online) => {
 
 For complete platform design system details, see `references/ios-hig-cheatsheet.md` and `references/material-design-cheatsheet.md`.
 
-### Phase 6: Performance Optimization
+### Phase 6 (~25 min): Performance Optimization
 
 Performance is the #1 reason users delete apps. A 2-second delay in startup increases abandonment by 20%.
 
@@ -302,7 +431,7 @@ Performance is the #1 reason users delete apps. A 2-second delay in startup incr
 
 For deep performance optimization guides, see `references/performance-optimization.md`.
 
-### Phase 7: Security
+### Phase 7 (~25 min): Security
 
 Mobile security is defense-in-depth. Assume the device is compromised — never trust the client.
 
@@ -320,7 +449,7 @@ Mobile security is defense-in-depth. Assume the device is compromised — never 
 - Certificate pinning adds ~50KB to binary. Rotate pins every 90 days. Have a backup pin — if you only pin one cert and it expires, your app is bricked until an update is approved (3-7 days for App Store).
 - Biometric auth is convenience, not security. Always fall back to server-validated credential after biometric gate. Biometrics can be compelled legally; a password cannot (5th Amendment, US).
 
-### Phase 8: Deployment & CI/CD
+### Phase 8 (~30 min): Deployment & CI/CD
 
 **Build pipeline — the gold standard flow:**
 ```
@@ -352,7 +481,7 @@ Tag release → Production build → Store submission
 4. App crashes on launch on iPad if you only tested iPhone (Apple tests on both).
 5. Using private APIs (Apple static analysis catches these). No `LSApplicationQueriesSchemes` beyond what you need.
 
-### Phase 9: Testing Strategy
+### Phase 9 (~20 min): Testing Strategy
 
 **Testing pyramid for mobile — adapted from web:**
 ```
@@ -382,7 +511,7 @@ Tag release → Production build → Store submission
 - Performance regression: measure cold start time and scroll FPS in CI. Fail the build if cold start exceeds 2s or average scroll FPS drops below 58.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Mobile development spans platform-specific concerns, API consumption, push infrastructure, and app store compliance. Coordination with backend, design, security, and release management is continuous.
 
 ### Coordinate With
@@ -445,24 +574,65 @@ Cross-platform inconsistency? → UI/UX Designer → Product Strategist
 - **Small → Medium**: Offline support needed. Performance becomes critical (cold start > 2s). >10K installs.
 - **Medium → Enterprise**: Multi-platform team split. Store review rejections need process. >100K installs.
 
-## Production Checklist
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| `cross-platform-selection` | Choosing between React Native (Expo), Flutter, Swift/Kotlin native, or PWA | Performance requirements, team skills, time-to-market, platform-specific API needs, long-term maintenance cost |
+| `navigation-architecture` | Designing tab/stack/drawer navigation with deep linking and universal links | React Navigation/GoRouter, `apple-app-site-association`, `assetlinks.json`, deferred deep links |
+| `offline-first` | Building apps for unreliable connectivity, field workers, or data-entry-heavy workflows | WatermelonDB/Isar local DB, sync queue with conflict resolution (CRDT, LWW), network status monitoring |
+| `push-notifications` | Implementing FCM/APNs with deep-link routing, rich media, and analytics | Token registration/refresh, notification channels (Android), provisional auth (iOS), foreground handling |
+| `mobile-security` | Certificate pinning, Keychain/Keystore, biometric auth, root/jailbreak detection | SSL pinning with TrustKit/okhttp, secure enclave storage, code obfuscation (ProGuard/R8), runtime integrity checks |
+| `performance-optimization` | Cold start < 1.5s, 60fps scrolling, memory < 50MB on low-end devices | Hermes engine tuning, FlatList/RecyclerView optimization, image caching tiers, main thread offloading |
+| `app-store-deployment` | TestFlight, App Store Connect, Google Play Console, over-the-air updates (CodePush) | Store metadata (privacy labels, screenshots), phased rollout, app review guidelines, EAS Submit |
+| `platform-design-compliance` | iOS HIG and Material Design 3 conformance: touch targets, safe areas, typography | 44pt/48dp touch targets, Dynamic Type/font scaling, Dark Mode, SafeArea/WindowInsets, platform-specific gestures |
 
-- [ ] Technology selection documented: native vs cross-platform decision with rationale, team skills, performance requirements
-- [ ] Navigation architecture: deep links map to every shareable screen; universal links (iOS) + app links (Android) configured and verified with `apple-app-site-association` and `assetlinks.json`
-- [ ] Auth flow: zero-flash launch (splash → resolved auth state → correct screen); token refresh with retry queue; logout clears all cached data
-- [ ] Offline-first data: local DB is source of truth; sync queue processes mutations FIFO with conflict resolution; network status indicator shown during offline; stale data flagged visually
-- [ ] Push notifications: FCM + APNs tokens registered and refreshed on each launch; notification deep-link routing tested for each notification type; foreground notification handling defined
-- [ ] Platform design compliance: all touch targets ≥ 44pt (iOS) / 48dp (Android); Dynamic Type + font scaling tested; Dark Mode supported on every screen; Safe Area / WindowInsets respected
-- [ ] Permissions: requested at point of need with rationale dialog; denial gracefully handled with settings deep link
-- [ ] Biometric auth: implemented with device credential fallback; sensitive data re-validated server-side after biometric gate
-- [ ] Performance: cold start < 1.5s (measured on low-end device); 60fps scrolling on lists with 1000+ items; memory < 50MB on 2GB RAM device; image caching with disk + memory layers
-- [ ] Security: certificate pinning active; Keychain/Keystore for secrets; ProGuard/R8 enabled with keep rules for serialization models; root/jailbreak detection (at minimum, log and alert)
-- [ ] Crash reporting: Sentry/Firebase Crashlytics with source maps uploaded in CI; breadcrumbs for critical user flows
-- [ ] CI/CD: lint → type-check → unit test → integration test → build → TestFlight/Play Internal on every push to main
-- [ ] Store metadata: App Store privacy nutrition labels accurate; all Info.plist usage descriptions included; account deletion flow inside app; screenshots for all required device sizes
-- [ ] Testing: unit tests for all domain logic (>80% coverage on domain layer); integration tests for critical flows; accessibility audit pass
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Measure performance on low-end devices, not your flagship phone:** Target a $200 Android device (2GB RAM) for baseline. If cold start < 1.5s and scrolling hits 60fps there, it works everywhere. Your iPhone 15 Pro Max is not representative.
+2. **Local DB is source of truth; server is the sync target:** In offline-first apps, the local database drives the UI. API calls update the local DB, which triggers reactive UI updates. Never show a spinner waiting for the network when local data exists.
+3. **Request permissions at point of need with rationale:** Don't ask for camera access on app launch. Ask when the user taps "Scan QR code." Show a rationale dialog before the system prompt. If denied, show a disabled state with a link to Settings.
+4. **Deep-link every shareable screen:** Every screen a user might share, receive as a notification target, or bookmark must have a deep-link URL. Test universal links (iOS) and app links (Android) with `apple-app-site-association` and `assetlinks.json` validators.
+5. **Push notifications: token refresh on every launch, silent notification for data sync:** Register for push on each app launch — tokens change. Use silent/background notifications to trigger data sync, not to deliver content. Content notifications should wake the app and fetch fresh data.
+6. **Design for platform conventions, not pixel-perfect cross-platform parity:** iOS users expect bottom tab bars, swipe-to-go-back, and SF Symbols. Android users expect Material Design 3, top app bars, and system back button. Delight comes from feeling native, not identical.
+7. **Graceful degradation for offline, permissions denied, and low battery:** Every feature should define its degraded experience: offline (stale data with indicator), permissions denied (disabled with explanation), low battery (reduce animation, pause background sync).
+8. **Automate store submission, don't manually upload:** CI should build, sign, and upload to TestFlight/Play Console on every merge to main. Manual uploads lead to wrong versions, missing symbols, and late-night App Store Connect panic.
+9. **Crash reporting with breadcrumbs, not just stack traces:** Log user actions (screen visited, button tapped, API called) as breadcrumbs before the crash. A stack trace tells you what crashed; breadcrumbs tell you what the user was doing — and how to reproduce it.
+10. **Security is defense-in-depth:** Certificate pinning + Keychain/Keystore + ProGuard/R8 + root detection + disable screenshots in app switcher + jailbreak detection. Each layer alone can be bypassed; together they raise the bar from opportunistic to targeted attack.
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Module not found: Can't resolve '...'` | Missing dependency or incorrect import path | `npm install <package>` or fix import path |
+| `TypeError: Cannot read properties of undefined` | Accessing property on null/undefined value | Add optional chaining (`?.`) or null check before access |
+| `Connection refused` | Target service not running or wrong host/port | Check service status: `docker ps`; verify environment variables |
+| `ECONNREFUSED` | Database server not running | `docker compose up -d db`; check connection string |
+| `413 Payload Too Large` | Request body exceeds server limit | Increase `body-parser` limit or paginate the request |
+| `port 3000 already in use` | Previous process still bound to port | `lsof -ti:3000 \| xargs kill` or use `PORT=3001` |
+| `ETIMEDOUT` | Network connectivity issue or firewall | Check network: `ping <host>`; verify firewall rules |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Technology selection documented: native vs cross-platform decision with rationale, team skills, performance requirements
+- [ ] **[S2]**  Navigation architecture: deep links map to every shareable screen; universal links (iOS) + app links (Android) configured and verified with `apple-app-site-association` and `assetlinks.json`
+- [ ] **[S3]**  Auth flow: zero-flash launch (splash → resolved auth state → correct screen); token refresh with retry queue; logout clears all cached data
+- [ ] **[S4]**  Offline-first data: local DB is source of truth; sync queue processes mutations FIFO with conflict resolution; network status indicator shown during offline; stale data flagged visually
+- [ ] **[S5]**  Push notifications: FCM + APNs tokens registered and refreshed on each launch; notification deep-link routing tested for each notification type; foreground notification handling defined
+- [ ] **[S6]**  Platform design compliance: all touch targets ≥ 44pt (iOS) / 48dp (Android); Dynamic Type + font scaling tested; Dark Mode supported on every screen; Safe Area / WindowInsets respected
+- [ ] **[S7]**  Permissions: requested at point of need with rationale dialog; denial gracefully handled with settings deep link
+- [ ] **[S8]**  Biometric auth: implemented with device credential fallback; sensitive data re-validated server-side after biometric gate
+- [ ] **[S9]**  Performance: cold start < 1.5s (measured on low-end device); 60fps scrolling on lists with 1000+ items; memory < 50MB on 2GB RAM device; image caching with disk + memory layers
+- [ ] **[S10]**  Security: certificate pinning active; Keychain/Keystore for secrets; ProGuard/R8 enabled with keep rules for serialization models; root/jailbreak detection (at minimum, log and alert)
+- [ ] **[S11]**  Crash reporting: Sentry/Firebase Crashlytics with source maps uploaded in CI; breadcrumbs for critical user flows
+- [ ] **[S12]**  CI/CD: lint → type-check → unit test → integration test → build → TestFlight/Play Internal on every push to main
+- [ ] **[S13]**  Store metadata: App Store privacy nutrition labels accurate; all Info.plist usage descriptions included; account deletion flow inside app; screenshots for all required device sizes
+- [ ] **[S14]**  Testing: unit tests for all domain logic (>80% coverage on domain layer); integration tests for critical flows; accessibility audit pass
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [references/platform-comparison.md](references/platform-comparison.md) — Detailed native vs cross-platform decision matrix
 - [references/ios-hig-cheatsheet.md](references/ios-hig-cheatsheet.md) — Complete iOS Human Interface Guidelines reference
 - [references/material-design-cheatsheet.md](references/material-design-cheatsheet.md) — Complete Material Design 3 reference

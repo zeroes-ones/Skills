@@ -2,14 +2,34 @@
 name: customer-support-engineer
 description: Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]
 author: Sandeep Kumar Penchala
+type: operations
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - customer-support-engineer
+token_budget: 2868
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Customer Support Engineer
 
 Customer Support Engineering — the technical bridge between customers and engineering. Unlike general customer support (which handles billing, account, and non-technical queries), the Support Engineer owns the technical investigation, debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.
 
-## Decision Trees
+## When to Use
 
+- A customer reports a production issue and you need to triage it — determine severity, reproduce, and find root cause
+- You are designing a multi-tier support structure (L1/L2/L3) with clear escalation paths and SLAs
+- You need to set up a knowledge base (KB) workflow — article creation, review, publishing, and maintenance
+- A bug report comes in and you need to write a clear, reproducible bug ticket for the engineering team
+- You are tracking customer health signals (CSAT, NPS, CES) to identify at-risk accounts before they churn
+- You need to establish SLAs for response and resolution times by severity level (SEV1 through SEV4)
+- A feature request arrives and you need to triage it — assess demand, find workarounds, and route to Product
+- You are building a proactive support strategy — monitoring error rates, reaching out before customers report
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
 WHAT TYPE OF ISSUE IS THIS?
 ├── "How do I...?" → Documentation gap. Answer + flag for KB article or docs update.
@@ -39,11 +59,14 @@ IS THIS A KNOWN ISSUE?
 ├── YES, open bug → Add customer report as +1. Share bug link. Offer workaround if exists.
 └── NO, new issue → Start investigation. Check: logs, recent deploys, affected versions, environment.
     If reproducible → file bug. If not → gather more data, escalate.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Support Tier Design & Setup
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Support Tier Design & Setup
 
 1. **Define tiers**: L1 (triage, KB lookup, basic troubleshooting, account issues), L2 (technical debug, reproduction, log analysis, bug filing), L3 (engineering escalation, code fix, architecture-level). Output: tier definitions with SLA per tier.
 2. **SLA framework**: First Response Time (FRT), Resolution Time, Update Cadence. Per severity level. Output: SLA matrix documented and tool-configured.
@@ -51,7 +74,7 @@ IS THIS A KNOWN ISSUE?
 4. **Escalation path**: L1 → L2 → L3 → Engineering on-call → Incident Commander. Document for each severity + scenario (security, data, outage). Output: escalation runbook.
 5. **On-call rotation**: Define schedule, handoff process, escalation policy. Output: on-call schedule + runbook.
 
-### Phase 2: Ticket Management Workflow
+### Phase 2 (~30 min): Ticket Management Workflow
 
 1. **Triage (L1)**: Categorize (bug, feature request, how-to, performance, account, billing). Set severity. Check for duplicates. Assign to appropriate queue. Output: categorized and prioritized ticket.
 2. **Initial Response (L1)**: Acknowledge within SLA. Set expectations (when they'll hear back, next steps). Ask clarifying questions if needed. Output: first customer response with ticket reference.
@@ -60,7 +83,7 @@ IS THIS A KNOWN ISSUE?
 5. **Customer Communication (L2/L3)**: Update customer with findings, expected timeline, workaround if available. Never go silent — even "still investigating, no update yet" counts. Output: ticket update.
 6. **Verification & Close (L2)**: Customer confirms fix works. Document resolution in ticket and KB if reusable. Output: closed ticket with resolution notes.
 
-### Phase 3: Debugging & Root Cause Analysis
+### Phase 3 (~20 min): Debugging & Root Cause Analysis
 
 1. **Information gathering**: Environment (version, OS, browser, device), exact steps to reproduce, expected vs actual behavior, screenshots/recordings, logs (application, error, network HAR), timing (when did it start? after deploy?).
 2. **Reproduction**: Set up matching environment. Follow exact steps. If cannot reproduce → ask customer for screen recording or live session. Output: reproduction confirmed or documented gap.
@@ -68,34 +91,34 @@ IS THIS A KNOWN ISSUE?
 4. **Root cause identification**: Isolate to: code bug, configuration error, data issue, infrastructure problem, third-party dependency, user error. Output: root cause statement.
 5. **Impact assessment**: How many customers affected? Since when? Severity? Data impacted? Output: impact summary for bug report.
 
-### Phase 4: Bug Reporting to Engineering
+### Phase 4 (~15 min): Bug Reporting to Engineering
 
 1. **Quality bug report**: Title (concise, descriptive), severity, environment, reproduction steps (numbered, exact), expected vs actual behavior, logs/screenshots, impact (customers affected, business impact), suggested fix (optional). Output: bug ticket meeting engineering quality bar.
 2. **Prioritization alignment**: Review with engineering or product. Confirm severity and priority. Discuss if hotfix or next sprint. Output: prioritized bug with committed timeline.
 3. **Follow-through**: Track bug status. If SLA at risk → escalate. Update customer with progress. Output: linked support ticket updated.
 
-### Phase 5: Knowledge Base & Self-Service
+### Phase 5 (~25 min): Knowledge Base & Self-Service
 
 1. **KB article creation**: For every issue resolved that could recur: title (as customer would search), problem description, solution steps, screenshots, applicable versions. Output: published KB article.
 2. **KB maintenance**: Quarterly audit: are articles accurate for current version? Are top search queries covered? Update or archive stale articles. Output: KB health report.
 3. **Self-service strategy**: Chatbot for L1 deflection (common Q&A, KB search). In-app help widget. Public status page. Output: self-service funnel metrics (% deflected).
 4. **Documentation feedback loop**: When KB articles reveal documentation gaps, file doc requests to Technical Writer. Output: doc improvement tickets.
 
-### Phase 6: Proactive Support & Customer Health
+### Phase 6 (~25 min): Proactive Support & Customer Health
 
 1. **Customer health signals**: Track per-customer: ticket volume trend, severity distribution, resolution time, CSAT trend, repeated issues (same bug re-reported). Output: customer health dashboard.
 2. **Churn risk detection**: Red flags: increasing ticket volume, decreasing CSAT, repeated unresolved issues, "cancellation" or "competitor" keywords in tickets, executive escalation. Output: churn risk alert to Customer Success/Account Manager.
 3. **Proactive communication**: Update status page BEFORE customers report. Announce known issues in-app. Send changelog for fixes. Output: proactive communication cadence.
 4. **Enterprise customer support**: Dedicated Slack Connect channel. Priority SLA. Named support contact. Quarterly business review (QBR) with support metrics. Output: enterprise support package.
 
-### Phase 7: Metrics & Continuous Improvement
+### Phase 7 (~25 min): Metrics & Continuous Improvement
 
 1. **Support metrics tracking**: CSAT (target >90%), NPS, CES (Customer Effort Score), First Response Time (median + p95), Resolution Time (median + p95), Ticket Volume, Deflection Rate, Escalation Rate. Output: weekly metrics dashboard.
 2. **Trend analysis**: Weekly: top issue categories, emerging patterns, team bottlenecks. Output: weekly support insights report.
 3. **Retrospective & improvement**: Monthly: what went well, what broke, what process needs to change. Output: improvement action items.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 The Support Engineer is the frontline technical contact. Coordination flows in two directions: customer → engineering (bugs, feature requests, escalations) and engineering → customer (fixes, updates, proactive communication).
 
 | Coordinate With | When | What to Share/Ask |
@@ -144,7 +167,7 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | Customer abusive or threatening toward support staff | **Support Lead** + Legal Advisor | Staff safety; may need to fire customer or restrict communication |
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, < 50 customers)
 - **What changes**: You ARE support. No tiers. One inbox. Simple ticket tracker (Linear, GitHub Issues). No formal SLA (respond when you can, target < 24 hours).
 - **What's overkill**: Tier structure, formal on-call rotation, SLAs per severity, support metrics dashboard, enterprise support packages, dedicated KB tool.
@@ -183,7 +206,7 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | Enterprise → Medium | Customer base consolidation; product maturity reduces ticket volume; self-service deflection >60% |
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
 | **Ticket Triage & Prioritization** | Every incoming ticket. High ticket volume. Mixed severity queue. | Categorize (bug/feature/how-to/account), set severity (SEV1-SEV4), check duplicates, route to correct owner. |
@@ -198,7 +221,7 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | **Proactive Support & Incident Communication** | Known issue discovered. Outage or degradation. Upcoming change. | Update status page BEFORE customers report. Communicate: what happened, what's affected, what you're doing, when they'll hear next. Changelog for resolved issues. |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Empathy before technical investigation**: The first 30 seconds of a response set the tone. Acknowledge the customer's frustration, validate their experience, then move to technical problem-solving. "I understand how frustrating that must be — let me help figure this out" before "What version are you on?"
 - **Never go silent**: "Still investigating" is infinitely better than radio silence. Set a timer for SLA update cadence and never miss it. Silence destroys trust faster than any technical issue.
 - **Reproduce before you escalate**: L2's highest-value work is reproduction. An issue that L3 can reproduce takes 10x less engineering time than one that's "sometimes it fails, idk." If you can't reproduce, say so and share what you tried.
@@ -210,31 +233,41 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 - **Feature requests are product signals, not noise**: Track them. Categorize them. Report patterns weekly. The support team sees product gaps before anyone else. One request is noise. Ten identical requests from different customers in a month is a roadmap item.
 - **Protect your team from abuse**: Have a policy for abusive customers. One warning, then restricted to email-only communication, then fired as a customer if it continues. Support engineers are not emotional punching bags.
 
-## Production Checklist
 
-- [ ] Support tier structure defined: L1 (triage/KB), L2 (debug/reproduce/bug file), L3 (engineering escalation)
-- [ ] SLA framework implemented: FRT, Resolution Time, Update Cadence per severity level (SEV1-SEV4)
-- [ ] Support tool stack deployed: ticketing (Zendesk/Intercom/Linear), monitoring (Datadog/Sentry), KB (Notion/GitBook), comms (Slack Connect/email/in-app)
-- [ ] Escalation runbook documented for each severity and scenario (security, data, outage)
-- [ ] On-call rotation established with handoff process and escalation policy
-- [ ] Ticket triage workflow: categorize, prioritize, assign — with automation rules
-- [ ] Bug report template standardized with required fields: reproduction steps, environment, logs, impact
-- [ ] Knowledge base live with ≥20 articles covering top customer questions
-- [ ] Self-service funnel: chatbot, KB search, in-app help — with deflection rate measured
-- [ ] Customer communication templates: initial response, status update, resolution, delay notification, escalation
-- [ ] CSAT survey triggered on ticket close; NPS for enterprise accounts
-- [ ] Support metrics dashboard: CSAT, FRT (median + p95), Resolution Time (median + p95), Ticket Volume, Deflection Rate, Escalation Rate — reviewed weekly
-- [ ] Customer health dashboard: per-customer ticket trends, severity distribution, CSAT trend, repeat issues — reviewed weekly
-- [ ] Feature request tracker with categorization and weekly product feedback loop
-- [ ] Churn risk detection: automated flagging for customers with high ticket volume + low CSAT + repeat issues
-- [ ] Proactive communication setup: status page, changelog, in-app announcements, email for enterprise
-- [ ] Enterprise support package defined: Slack Connect, priority SLA, named contact, QBR cadence
-- [ ] Documentation feedback loop: KB gaps → doc requests → Technical Writer
-- [ ] Security incident handling procedure: secure ticket handling, escalation path, customer communication template, legal notification if required
-- [ ] Postmortem process for SLA breaches and SEV1 incidents: root cause, process improvement, action items
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Support tier structure defined: L1 (triage/KB), L2 (debug/reproduce/bug file), L3 (engineering escalation)
+- [ ] **[S2]**  SLA framework implemented: FRT, Resolution Time, Update Cadence per severity level (SEV1-SEV4)
+- [ ] **[S3]**  Support tool stack deployed: ticketing (Zendesk/Intercom/Linear), monitoring (Datadog/Sentry), KB (Notion/GitBook), comms (Slack Connect/email/in-app)
+- [ ] **[S4]**  Escalation runbook documented for each severity and scenario (security, data, outage)
+- [ ] **[S5]**  On-call rotation established with handoff process and escalation policy
+- [ ] **[S6]**  Ticket triage workflow: categorize, prioritize, assign — with automation rules
+- [ ] **[S7]**  Bug report template standardized with required fields: reproduction steps, environment, logs, impact
+- [ ] **[S8]**  Knowledge base live with ≥20 articles covering top customer questions
+- [ ] **[S9]**  Self-service funnel: chatbot, KB search, in-app help — with deflection rate measured
+- [ ] **[S10]**  Customer communication templates: initial response, status update, resolution, delay notification, escalation
+- [ ] **[S11]**  CSAT survey triggered on ticket close; NPS for enterprise accounts
+- [ ] **[S12]**  Support metrics dashboard: CSAT, FRT (median + p95), Resolution Time (median + p95), Ticket Volume, Deflection Rate, Escalation Rate — reviewed weekly
+- [ ] **[S13]**  Customer health dashboard: per-customer ticket trends, severity distribution, CSAT trend, repeat issues — reviewed weekly
+- [ ] **[S14]**  Feature request tracker with categorization and weekly product feedback loop
+- [ ] **[S15]**  Churn risk detection: automated flagging for customers with high ticket volume + low CSAT + repeat issues
+- [ ] **[S16]**  Proactive communication setup: status page, changelog, in-app announcements, email for enterprise
+- [ ] **[S17]**  Enterprise support package defined: Slack Connect, priority SLA, named contact, QBR cadence
+- [ ] **[S18]**  Documentation feedback loop: KB gaps → doc requests → Technical Writer
+- [ ] **[S19]**  Security incident handling procedure: secure ticket handling, escalation path, customer communication template, legal notification if required
+- [ ] **[S20]**  Postmortem process for SLA breaches and SEV1 incidents: root cause, process improvement, action items
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - **Internal**: `references/ticket-triage-template.md` — Ticket triage checklist: categorization, severity assessment, duplicate check, assignment, initial response template.
 - **Internal**: `references/bug-report-template.md` — Engineering-quality bug report template: title, severity, environment, reproduction steps, logs, impact, suggested fix.
 - **Internal**: `references/kb-article-template.md` — Knowledge base article template: customer-facing title, problem, solution, steps, screenshots, applicable versions, related articles.

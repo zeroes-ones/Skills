@@ -2,14 +2,34 @@
 name: technical-program-manager
 description: Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS: technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]
 author: Sandeep Kumar Penchala
+type: operations
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - technical-program-manager
+token_budget: 2508
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Technical Program Manager
 
 Technical Program Manager (TPM) — the role that bridges engineering execution across multiple teams. Unlike a PM (single project, single team) or Scrum Master (team process), the TPM owns **cross-team technical initiatives**: programs that span 3+ teams, have complex technical dependencies, and require architectural alignment. Think API migrations, platform launches, multi-team feature rollouts, deprecation programs, and infrastructure modernization.
 
-## Decision Trees
+## When to Use
 
+- You are launching a cross-team initiative that spans 3+ engineering teams with interdependent deliverables
+- You need to map dependencies across teams, identify blockers, and build a program timeline with critical path
+- Your program is technically ambiguous and you need to run an RFC process or Architecture Decision Record (ADR) review
+- You are managing a migration or deprecation program that requires a dual-run strategy (old and new in parallel)
+- You need to estimate timelines using PERT (optimistic/pessimistic/most-likely) and track schedule risk
+- You are building a RACI matrix and stakeholder communication plan for a multi-team program
+- You need to define program health metrics — milestone completion rate, dependency risk score, schedule variance
+- An external deadline (regulatory, contractual, market) is approaching and you need to assess the feasibility of the date
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
 WHAT SCOPE IS THIS INITIATIVE?
 ├── Single team, well-defined deliverable → This is a PROJECT. Hand off to Project Manager.
@@ -39,11 +59,14 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 │   Define: cutover criteria, rollback plan, data migration verification, sunset date.
 │   Key metric: % traffic/usage on new system. Target 100% before sunset deadline.
 └── NO → Standard program lifecycle. Go/No-Go at each phase gate.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Program Definition & Scoping
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Program Definition & Scoping
 
 1. **Problem Statement** — One paragraph: what problem exists, who it affects, why it matters now. Output: 3-sentence doc.
 2. **Success Criteria** — Measurable outcomes (not deliverables). "P95 latency < 200ms" not "build caching layer." Output: 3-5 OKRs or KPIs.
@@ -51,14 +74,14 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 4. **Scope Definition** — What's IN, what's OUT, what's a known unknown. Output: scope document (1 page).
 5. **Program Charter** — Combines #1-4 + timeline estimate + resource ask. Output: charter doc for sponsor sign-off.
 
-### Phase 2: Architecture & Technical Alignment
+### Phase 2 (~30 min): Architecture & Technical Alignment
 
 1. **Technical Design Review (TDR)** — If solution is ambiguous: gather senior engineers from all affected teams. Facilitate, don't dictate. Output: 1-3 architecture options with trade-offs.
 2. **Architecture Decision Record (ADR)** — Document architectural choice, context, alternatives considered, consequences. Output: ADR in repo (see references/adr-template.md).
 3. **RFC Process** — If change affects public APIs or cross-team contracts: write RFC, circulate, collect feedback (1-2 weeks), decide. Output: approved RFC.
 4. **API Contract Definition** — For any cross-team integration: OpenAPI spec, gRPC proto, or event schema. Contract first, implement second. Output: versioned contract artifact.
 
-### Phase 3: Planning & Dependency Mapping
+### Phase 3 (~20 min): Planning & Dependency Mapping
 
 1. **Work Breakdown** — Each team breaks down their scope into epics/stories. TPM validates cross-team consistency. Output: per-team backlog.
 2. **Dependency Map** — For each dependency: type (technical, resource, external), owner team, blocking team, committed date, buffer. Output: dependency matrix or graph.
@@ -67,7 +90,7 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 5. **Resource Negotiation** — Per team: how many engineers, what skills, for how long. Resolve conflicts with engineering managers. Output: staffing plan.
 6. **Risk Register** — Technical risks (scalability, data integrity), schedule risks (dependency delays), resource risks (key person dependency), organizational risks (reorgs, priority changes). Mitigation for each. Output: risk register with T-shirt sizing.
 
-### Phase 4: Execution & Tracking
+### Phase 4 (~15 min): Execution & Tracking
 
 1. **Program Cadence** — Weekly: TPM sync with team leads (30 min). Bi-weekly: stakeholder status. Monthly: program review with sponsor. Output: meeting calendar.
 2. **Dependency Tracking** — Weekly check: are dependencies on track? If any slips >3 days, trigger escalation. Output: dependency status dashboard.
@@ -76,13 +99,13 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 5. **Stakeholder Communication** — Weekly: 1-page exec summary (top 3 wins, top 3 risks, decisions needed). Monthly: program review presentation. Output: status reports.
 6. **Technical Debt Tracking** — Maintain program-level tech debt register. Negotiate repayment windows between feature work. Output: tech debt backlog with priority.
 
-### Phase 5: Risk & Change Management
+### Phase 5 (~25 min): Risk & Change Management
 
 1. **Risk Review** — Weekly: review risk register. Update probability/impact. Escalate any risk moving from Medium → High. Output: updated risk register.
 2. **Change Control** — For any scope/date/resource change: impact analysis → options (cut scope, add resources, push date) → sponsor decision. Output: change request log.
 3. **Escalation** — When: deadline certain to be missed, key resource lost, team conflict blocking progress >1 week, external dependency breach. Output: escalation to sponsor with 3 options.
 
-### Phase 6: Closure & Transition
+### Phase 6 (~25 min): Closure & Transition
 
 1. **Program Closure** — All success criteria met? All migrations complete? Old systems decommissioned? Output: closure checklist signed.
 2. **Postmortem** — What went well, what went wrong, what to do differently next program. Output: postmortem doc + action items.
@@ -90,7 +113,7 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 4. **Metrics Retrospective** — Planned vs actual: timeline, resources, quality. Output: metrics summary for future estimation.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 The TPM is the central coordination point for multi-team technical programs. Unlike the PM (who coordinates within a project), the TPM coordinates *across* projects, teams, and sometimes organizations.
 
 | Coordinate With | When | What to Share/Ask |
@@ -138,7 +161,7 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 | Security vulnerability discovered mid-program affecting architecture | **Security Engineer** + CTO Advisor + All Team Leads | May require architecture change; full impact assessment |
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, < 2 teams)
 - **What changes**: No formal program. You ARE the program. Lightweight dependency tracking in a todo list.
 - **What's overkill**: RACI, formal ADRs, program dashboards, milestone plans, PERT estimation, dedicated program reviews.
@@ -177,7 +200,7 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 | Enterprise → Medium | Program concludes, postmortem done, ongoing ownership handed to platform team |
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
 | **Program Scoping** | New program initiation. Ambiguous problem space. Multiple stakeholders with conflicting priorities. | Define problem statement, success criteria, scope boundaries, stakeholder map, program charter. |
@@ -192,7 +215,7 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 | **Program Health & Metrics** | Sponsor asks "are we on track?" Need objective program health data. | Metrics: milestone progress (on-track/at-risk/blocked), risk score, burndown/velocity, dependency health, team satisfaction. Dashboard auto-updated weekly. |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **TPM ≠ PM + technical knowledge**: A TPM manages technical *alignment* across teams, not project tasks within a team. If you're updating Jira tickets, you're doing PM work, not TPM work.
 - **Contract first, implement second**: Before Team A builds an integration with Team B, agree on the API contract (OpenAPI spec, event schema, gRPC proto). Version it. Both teams build against the contract. This is the single highest-leverage TPM practice.
 - **ADR before implementation, not after**: Architecture Decision Records capture *why* a decision was made. Without them, 6 months later no one remembers why Redis was chosen over Memcached and the program pays for it again.
@@ -204,31 +227,41 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 - **Estimate with uncertainty, communicate with confidence intervals**: "Q3" is not a date. "Q3 with 80% confidence" is. Use PERT: (optimistic + 4×most-likely + pessimistic) ÷ 6. Share the range, not a single date.
 - **The TPM's output is decisions, not documents**: Every artifact (charter, ADR, status report, risk register) exists to drive a decision. If no decision is being made, stop producing the artifact.
 
-## Production Checklist
 
-- [ ] Program charter written and signed by sponsor with clear success criteria (measurable OKRs/KPIs)
-- [ ] Stakeholder map complete with RACI for all major decisions
-- [ ] Scope defined: what's IN, what's OUT, what's a KNOWN UNKNOWN
-- [ ] Technical Design Review completed (if architecture ambiguous); ADRs published
-- [ ] API contracts defined and versioned for all cross-team integrations
-- [ ] Dependency map complete: every dependency has owner team, blocking team, committed date, buffer
-- [ ] Critical path identified with buffer (25-30% for fixed-date programs)
-- [ ] Milestone plan established: 5-8 milestones with entry/exit criteria
-- [ ] Resource plan confirmed with all engineering managers — no over-allocations >120%
-- [ ] Risk register initialized with ≥10 risks, T-shirt sized, with mitigation plans
-- [ ] Change control process documented and socialized to all teams
-- [ ] Program cadence established: weekly TPM sync, bi-weekly stakeholder update, monthly review
-- [ ] Program health dashboard live with milestone progress, dependency status, risk score
-- [ ] Decision log started — every significant decision recorded with rationale
-- [ ] Escalation path defined with triggers and named decision-makers
-- [ ] Communication plan: exec summary template, stakeholder update cadence, self-serve dashboard
-- [ ] Technical debt register maintained with repayment windows negotiated
-- [ ] If migration program: dual-run strategy, cutover criteria, rollback plan, sunset date defined
-- [ ] Program closure criteria defined (all success criteria met, old systems decommissioned, knowledge transferred)
-- [ ] Postmortem scheduled at program midpoint and program closure
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Program charter written and signed by sponsor with clear success criteria (measurable OKRs/KPIs)
+- [ ] **[S2]**  Stakeholder map complete with RACI for all major decisions
+- [ ] **[S3]**  Scope defined: what's IN, what's OUT, what's a KNOWN UNKNOWN
+- [ ] **[S4]**  Technical Design Review completed (if architecture ambiguous); ADRs published
+- [ ] **[S5]**  API contracts defined and versioned for all cross-team integrations
+- [ ] **[S6]**  Dependency map complete: every dependency has owner team, blocking team, committed date, buffer
+- [ ] **[S7]**  Critical path identified with buffer (25-30% for fixed-date programs)
+- [ ] **[S8]**  Milestone plan established: 5-8 milestones with entry/exit criteria
+- [ ] **[S9]**  Resource plan confirmed with all engineering managers — no over-allocations >120%
+- [ ] **[S10]**  Risk register initialized with ≥10 risks, T-shirt sized, with mitigation plans
+- [ ] **[S11]**  Change control process documented and socialized to all teams
+- [ ] **[S12]**  Program cadence established: weekly TPM sync, bi-weekly stakeholder update, monthly review
+- [ ] **[S13]**  Program health dashboard live with milestone progress, dependency status, risk score
+- [ ] **[S14]**  Decision log started — every significant decision recorded with rationale
+- [ ] **[S15]**  Escalation path defined with triggers and named decision-makers
+- [ ] **[S16]**  Communication plan: exec summary template, stakeholder update cadence, self-serve dashboard
+- [ ] **[S17]**  Technical debt register maintained with repayment windows negotiated
+- [ ] **[S18]**  If migration program: dual-run strategy, cutover criteria, rollback plan, sunset date defined
+- [ ] **[S19]**  Program closure criteria defined (all success criteria met, old systems decommissioned, knowledge transferred)
+- [ ] **[S20]**  Postmortem scheduled at program midpoint and program closure
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - **Internal**: `references/adr-template.md` — Architecture Decision Record template with sections: context, decision, alternatives considered, consequences, status.
 - **Internal**: `references/program-charter-template.md` — Program charter template: problem statement, success criteria, scope, stakeholders, timeline, resource ask.
 - **Internal**: `references/dependency-map-template.md` — Dependency tracking spreadsheet template with columns: ID, type, description, blocking team, dependent team, committed date, buffer, status, escalation.

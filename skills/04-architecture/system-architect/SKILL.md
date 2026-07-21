@@ -2,13 +2,23 @@
 name: system-architect
 description: System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Trigger: system design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning.
 author: Sandeep Kumar Penchala
+type: architecture
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - system-architect
+token_budget: 2006
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # System Architect
 
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
 - Evaluating microservices vs monolith vs modular monolith trade-offs
 - Creating C4 architecture diagrams or Architecture Decision Records (ADRs)
@@ -18,8 +28,130 @@ Design and evaluate system architectures through structured modeling, trade-off 
 - Cloud-native deployment topology design (Kubernetes, serverless, hybrid)
 - Multi-tenancy strategy design (database-per-tenant, schema-per-tenant, shared)
 
-## Sub-Skills
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Monolith vs Microservices
+```
+                     ┌──────────────────────────┐
+                     │ START: Greenfield system  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Team <20 engineers AND     │
+                    │ single tech stack?         │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Modular     │   │ Independent     │
+                    │ Monolith    │   │ deploy + scale  │
+                    │             │   │ needed per      │
+                    │             │   │ domain?         │
+                    └─────────────┘   └────┬────────┬───┘
+                                           │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ Extract  │ │ Modular   │
+                                      │ one      │ │ Monolith  │
+                                      │ bounded  │ │ first      │
+                                      │ context  │ └────────────┘
+                                      │ at a time│
+                                      └──────────┘
+```
+**When to choose Monolith:** <20 engineers, <$20M ARR, single tech stack, deploy <daily, DB CPU <50%. Shopify ran a monolith past 1M merchants. **When to extract microservices:** Independent deploy/scale proven needed, >2 teams colliding in same codebase, >50 engineers, CI >15 min.
 
+### Synchronous vs Asynchronous Communication
+```
+                     ┌──────────────────────────┐
+                     │ START: Service A needs    │
+                     │ data/action from Service B│
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Caller needs immediate     │
+                    │ response to proceed?       │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Sync (REST/ │   │ Event-driven    │
+                    │ gRPC) +     │   │ (Kafka/SQS) +   │
+                    │ circuit     │   │ eventual        │
+                    │ breaker     │   │ consistency OK  │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Sync:** Request-response needed within <200ms, user waiting on result, strong consistency required. **When to choose Async:** Fire-and-forget, >500ms processing, need retry/backpressure, decouple service lifecycles, eventual consistency acceptable.
+
+### Caching Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: P95 latency >200ms │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Same data requested >10×   │
+                    │ per second with same key?  │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Add cache   │   │ Optimize query  │
+                    │ layer:      │   │ or add index    │
+                    │ Redis for   │   │ first           │
+                    │ hot data    │   └────────────────┘
+                    └────┬────────┘
+                         │
+                    ┌────▼────────┐
+                    │ Monitor hit  │
+                    │ rate — drop  │
+                    │ cache if     │
+                    │ <50%         │
+                    └──────────────┘
+```
+**When to add cache:** Same key hit >10×/sec, p95 >200ms with optimized queries, data changes <1×/min, cache hit rate projected >70%. **When to remove cache:** Hit rate <50%, invalidation logic >50 lines, cache-induced bugs >1 per sprint — the cache is hurting more than helping.
+
+### Multi-Region Deployment Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: Global user base    │
+                     │ needs <100ms latency       │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ 99.99% SLA contractually    │
+                    │ required AND DAU >100K?     │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Active-     │   │ Warm standby    │
+                    │ Active (DB  │   │ + DNS failover  │
+                    │ multi-master│   │ (RTO <15 min,   │
+                    │ or Spanner) │   │ RPO <5 min)     │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Active-Active:** 99.99% SLA contractual, DAU >100K globally, can afford multi-master DB complexity ($500K+/yr). **When to choose Warm Standby:** 99.9% SLA, DAU <100K, RTO 15 min acceptable, want DR without multi-master complexity.
+
+### CQRS & Event Sourcing Decision
+```
+                     ┌──────────────────────────┐
+                     │ START: Complex domain with │
+                     │ high read/write disparity  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need full audit trail AND  │
+                    │ read:write ratio >100:1?   │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Event       │   │ CQRS without    │
+                    │ Sourcing +  │   │ Event Sourcing: │
+                    │ CQRS        │   │ separate read   │
+                    │             │   │ models via       │
+                    │             │   │ materialized     │
+                    │             │   │ views           │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Event Sourcing:** Financial/audit systems, full history required by regulation, complex state transitions, event replay needed. **When to choose CQRS-only:** Read:write >100:1, read-side query complexity high, no audit trail requirement, materialized views sufficient.
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -34,14 +166,14 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `security-architecture` | Compliance, threat modeling | `security-engineer` skill |
 
 ## Core Workflow
-
-### Phase 1: Requirements & Constraints Gathering
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Requirements & Constraints Gathering
 1. Identify functional requirements (use cases, user journeys, data flows).
 2. Capture non-functional requirements: availability (e.g., 99.99%), latency (p50/p95/p99), throughput (QPS), data consistency, compliance (SOC2, GDPR, HIPAA).
 3. Document constraints: budget, team size, technology mandate, existing ecosystem, vendor lock-in posture.
 4. Define Service Level Objectives (SLOs) and error budgets.
 
-### Phase 2: Architecture Design & Modeling
+### Phase 2 (~30 min): Architecture Design & Modeling
 1. **C4 Context Diagram**: System boundaries, external actors (users, third-party APIs, partner systems), data flows.
 2. **C4 Container Diagram**: Deployable units (web app, API gateway, microservices, databases, message brokers, caches), communication protocols (REST, gRPC, async messaging).
 3. **C4 Component Diagram** (for complex containers): Internal component structure, ports & adapters, hexagonal architecture boundaries.
@@ -49,13 +181,13 @@ When this skill is invoked, drill into these specialized areas as needed:
 5. **Communication Patterns**: Synchronous (REST/gRPC/GraphQL) vs asynchronous (event choreography, orchestration with Saga, pub/sub, CQRS, event sourcing).
 6. **Deployment Topology**: Kubernetes (pod anti-affinity, HPA, cluster autoscaling, Istio service mesh) vs serverless (AWS Lambda, Cloud Run) vs traditional VMs.
 
-### Phase 3: Trade-off Analysis & Decision Records
+### Phase 3 (~20 min): Trade-off Analysis & Decision Records
 1. Write ADRs in a structured format: Title, Status (Proposed/Accepted/Deprecated/Superseded), Context, Decision, Consequences.
 2. Evaluate each architectural decision against: scalability, complexity, cost, team expertise, operational burden, vendor lock-in.
 3. Document rejected alternatives with rationale.
 4. Maintain an architecture decision log in the repository (`docs/adr/`).
 
-### Phase 4: Scalability & Capacity Planning
+### Phase 4 (~15 min): Scalability & Capacity Planning
 1. Estimate traffic: peak QPS, daily active users, data ingestion rate, read/write ratio.
 2. Calculate latency budgets: break down end-to-end latency into service-level budgets.
 3. Model data growth: storage requirements (1y/3y projection), hot/warm/cold tiering.
@@ -64,7 +196,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 6. Plan for resilience: circuit breakers, retries (with exponential backoff + jitter), bulkheads, timeouts, graceful degradation, chaos engineering.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 System architecture is the skeleton everything hangs on. Decisions ripple across every team — coordination isn't optional, it's the job.
 
 ### Coordinate With
@@ -107,6 +239,7 @@ Architecture guidance, review, or approval for team-level design
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Evolvable architecture**: Start with modular monolith; extract microservices only when bounded contexts are clear and independent scaling is needed.
 - **Loose coupling, high cohesion**: Services communicate through well-defined APIs and events; avoid shared databases across services.
 - **Design for failure**: Every dependency can fail — implement retries, circuit breakers, fallbacks, and dead-letter queues.
@@ -194,19 +327,32 @@ Cache hit rate < 50%? → Remove the cache. It's adding latency.
 - **Small → Medium**: 3+ teams working in the same codebase causes merge conflicts. First service extraction justified (independent deploy + scale needs).
 - **Medium → Enterprise**: 10+ services require platform team. Multi-region or compliance (SOC 2, HIPAA) required. >50 engineers.
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `relation "..." does not exist` | Migration not run or wrong database | `npx prisma migrate dev` or check `DATABASE_URL` |
+| `deadlock detected` | Concurrent transactions in wrong order | Enforce consistent lock ordering; use `NOWAIT` where appropriate |
+| `connection pool exhausted` | Too many concurrent connections | Increase pool size; add connection timeout; check for leaked connections |
+| `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
+
+
 ## Production Checklist
-- [ ] C4 Context and Container diagrams created and reviewed
-- [ ] Architecture Decision Records documented for all key decisions
-- [ ] Non-functional requirements captured with measurable SLOs
-- [ ] Scalability model with peak QPS, latency budgets, and data growth projections
-- [ ] Failure mode analysis conducted (FMEA, fault tree, or chaos engineering plan)
-- [ ] Data storage strategy documented (primary store, cache, search, analytics)
-- [ ] Authentication, authorization, and secrets management strategy defined
-- [ ] Observability stack planned (tracing, metrics, logging, alerting)
-- [ ] Deployment and rollback strategy documented (blue-green, canary, rolling)
-- [ ] Capacity planning and cost estimation completed for 12-month horizon
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  C4 Context and Container diagrams created and reviewed
+- [ ] **[S2]**  Architecture Decision Records documented for all key decisions
+- [ ] **[S3]**  Non-functional requirements captured with measurable SLOs
+- [ ] **[S4]**  Scalability model with peak QPS, latency budgets, and data growth projections
+- [ ] **[S5]**  Failure mode analysis conducted (FMEA, fault tree, or chaos engineering plan)
+- [ ] **[S6]**  Data storage strategy documented (primary store, cache, search, analytics)
+- [ ] **[S7]**  Authentication, authorization, and secrets management strategy defined
+- [ ] **[S8]**  Observability stack planned (tracing, metrics, logging, alerting)
+- [ ] **[S9]**  Deployment and rollback strategy documented (blue-green, canary, rolling)
+- [ ] **[S10]**  Capacity planning and cost estimation completed for 12-month horizon
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Complexity Cost Model](references/complexity-cost-model.md) — Complexity cost formula, monolith vs microservices cost comparison, architecture fitness functions
 - [C4 Model](https://c4model.com/) — Simon Brown
 - [Architecture Decision Records](https://adr.github.io/) — adr.github.io

@@ -2,14 +2,23 @@
 name: growth-engineer
 description: A/B testing frameworks, conversion rate optimization, viral loops, referral programs, onboarding optimization, activation metrics, growth modeling, experimentation culture.
 author: Sandeep Kumar Penchala
+type: growth
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - growth-engineer
+token_budget: 2935
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Growth Engineer
 
 Technical growth engineering system for designing, instrumenting, and scaling growth loops. Combines product instrumentation, experimentation infrastructure, and data-driven optimization to drive sustainable user acquisition, activation, retention, and monetization.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing or rebuilding an A/B testing infrastructure from scratch (server-side, client-side, or hybrid)
 - Diagnosing a leaky activation funnel with high drop-off between signup and aha moment
 - Implementing a referral or viral loop program (double-sided rewards, invite tracking, fraud prevention)
@@ -19,16 +28,171 @@ Technical growth engineering system for designing, instrumenting, and scaling gr
 - Establishing an experimentation culture: hypothesis frameworks, statistical rigor, experiment backlogs
 - Designing feature flags and progressive rollouts to de-risk product changes
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Experiment Design: A/B vs Multivariate vs Sequential vs Bayesian
+```
+                     ┌──────────────────────────────┐
+                     │ START: Experiment type?        │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Testing >3 variables            │
+                    │ simultaneously AND need         │
+                    │ interaction effects?            │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────┐    ┌──────────▼──────────┐
+                    │ Multivariate│    │ Need early stopping  │
+                    │ Test (MVT) │    │ for clear winners?   │
+                    │ Requires 4x │    └──┬──────────────┬────┘
+                    │ traffic of  │       │YES          │NO
+                    │ A/B         │  ┌────▼────┐ ┌──────▼─────────┐
+                    └─────────────┘  │Sequential│ │Standard A/B    │
+                                     │or Bayesian│ │Frequentist:   │
+                                     │A/B — stop │ │Fixed horizon, │
+                                     │at interim │ │MDE pre-defined│
+                                     │looks      │ │p-value < 0.05 │
+                                     └──────────┘ └────────────────┘
+```
+**When to choose Multivariate:** Testing layout, headline, CTA, and image simultaneously — needs 4× traffic of A/B per variant, interaction effects matter.
+**When to choose Sequential/Bayesian:** Early stopping allowed, continuous monitoring, faster decision when effect is large — use Eppo, Statsig, or custom Bayesian framework.
+**When to choose Standard A/B:** Simple change, fixed duration, pre-registered analysis — most common, lowest complexity, p-value < 0.05 at planned horizon.
 
-### Phase 1: Instrumentation & Modeling
+### Activation: Aha Moment Diagnosis
+```
+                     ┌──────────────────────────────┐
+                     │ START: Activation rate low     │
+                     │ (< 30% of signups activated)? │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Users dropping before first    │
+                    │ key action (e.g., first        │
+                    │ transaction, first playlist)?  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Onboarding     │    │ Users activate   │
+                    │Friction:      │    │ but don't return │
+                    │Simplify flow, │    │ (Day 7 retention │
+                    │progressive    │    │ < 20%)?          │
+                    │disclosure,    │    └──┬──────────┬────┘
+                    │tooltips       │       │YES      │NO
+                    └───────────────┘  ┌────▼────┐ ┌─▼──────────┐
+                                       │Habit    │ │Value prop  │
+                                       │formation│ │mismatch —  │
+                                       │— email, │ │targeting or│
+                                       │push,    │ │acquisition │
+                                       │in-app   │ │channel     │
+                                       │nudges   │ │problem     │
+                                       └─────────┘ └────────────┘
+```
+**When to optimize onboarding:** Metric: time-to-aha moment > target. Simplify initial flow, remove optional steps, progressive disclosure, contextual tooltips.
+**When to build habits:** Users activate once but churn — add email/push notifications, streaks, in-app nudges, re-engagement triggers.
+**When to fix acquisition:** Users don't even reach aha moment — wrong audience, misleading ads, or value proposition mismatch.
+
+### CRO: Funnel Leak Diagnosis
+```
+                     ┌──────────────────────────────┐
+                     │ START: Which funnel stage      │
+                     │ to optimize?                   │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ >60% drop between landing      │
+                    │ page visit → signup?           │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Top-of-funnel  │    │ >50% drop between │
+                    │CRO:          │    │ signup → aha?     │
+                    │Headline,hero,│    └──┬──────────┬────┘
+                    │CTA,social    │       │YES       │NO
+                    │proof,above-  │  ┌────▼────┐ ┌──▼──────────┐
+                    │fold tweaks   │  │Activation│ │Monetization │
+                    └──────────────┘  │CRO:     │ │CRO:         │
+                                      │onboarding│ │pricing page,│
+                                      │flow,     │ │trial length,│
+                                      │TTV reduce│ │payment flow │
+                                      └──────────┘ └─────────────┘
+```
+**When to optimize top-of-funnel:** >60% drop LP → signup — A/B test headline, hero image, CTA copy, social proof placement, form fields reduction.
+**When to optimize activation:** >50% drop signup → aha — simplify onboarding, add guided tours, reduce TTV, trigger contextual help.
+**When to optimize monetization:** Low conversion free→paid — test pricing page layout, trial length, payment options, upgrade prompts.
+
+### Viral Loop Design
+```
+                     ┌──────────────────────────────┐
+                     │ START: What type of viral      │
+                     │ mechanism to build?            │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Product inherently improves    │
+                    │ with more users (network       │
+                    │ effect, collaboration)?        │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Inherent      │    │ Users motivated   │
+                    │Virality:     │    │ by reward (credit,│
+                    │Invite        │    │ storage, cash)?   │
+                    │collaborators │    └──┬──────────┬────┘
+                    │vs invite     │       │YES       │NO
+                    │strangers     │  ┌────▼────┐ ┌──▼──────────┐
+                    └──────────────┘  │Incentivized│ │Content     │
+                                      │Referral   │ │Virality:   │
+                                      │(Dropbox   │ │Shareable   │
+                                      │model —    │ │outputs,    │
+                                      │two-sided  │ │public      │
+                                      │reward)    │ │results     │
+                                      └───────────┘ └────────────┘
+```
+**When to build inherent virality:** Slack, Figma, Notion — collaboration drives adoption. Build invite-to-workspace, shared links, guest access.
+**When to build incentivized referral:** Dropbox, Uber model — two-sided reward (give $10/get $10), clear trigger post-aha moment, fraud detection.
+**When to build content virality:** Spotify Wrapped, Strava — create shareable outputs from product usage; public by default with privacy controls.
+
+### Experiment Ramp Decision
+```
+                     ┌──────────────────────────────┐
+                     │ START: How to ramp an          │
+                     │ experiment?                    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ High-risk change (payment,      │
+                    │ auth, core experience)?         │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Phased rollout │    │ User-facing UI   │
+                    │1% → 5% → 25% │    │ change?          │
+                    │→ 50% with    │    └──┬──────────┬────┘
+                    │monitoring     │       │YES       │NO
+                    │gates per stage│  ┌────▼────┐ ┌──▼──────────┐
+                    └───────────────┘  │Instant   │ │Shadow       │
+                                       │50/50 A/B │ │deployment:  │
+                                       │with kill │ │log both     │
+                                       │switch    │ │variants,    │
+                                       │ready     │ │compare      │
+                                       └──────────┘ │analytically │
+                                                    └─────────────┘
+```
+**When to do phased rollout:** High-risk — payment flow, auth, core UX. Start at 1%, monitor revenue/errors, gate at each stage, auto-rollback on anomaly.
+**When to launch 50/50 A/B:** Standard UI/UX change with kill switch — quick statistical read, lower operational overhead than phased.
+**When to shadow deploy:** Backend algorithm change, ML model update — log predictions from new model, compare offline, no user impact until validated.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Instrumentation & Modeling
 
 1. **Event Taxonomy Design** — Define a standardized event schema: `category.action_label` (e.g., `user.signed_up`, `checkout.started_payment`). Document every event with: trigger condition, properties schema, expected volume, and downstream use cases. Implement via a CDI (Customer Data Infrastructure) like Segment, RudderStack, or mParticle.
 2. **Growth Model Construction** — Build a bottom-up growth model in a spreadsheet or Python notebook. Inputs: new user acquisition by channel (organic, paid, referral, viral), activation rate, retention curve (D1/D7/D30), resurrection rate, monetization (ARPU by cohort). Model different scenarios: doubling referral conversion, improving D7 retention by 10%, adding a new acquisition channel.
 3. **North Star Metric & Driver Tree** — Identify the single metric that best captures user value (e.g., DAU, messages sent, projects created). Decompose into a driver tree: each driver has sub-drivers with measurable inputs. This becomes the experimentation backlog source.
 4. **Activation Analysis** — Define the "aha moment" for the product. Use cohort analysis to find the action that, when completed within the first N days, correlates most strongly with long-term retention. Example: "User who invites 3 teammates within 7 days has 80% D30 retention vs. 20% baseline."
 
-### Phase 2: Experimentation Infrastructure
+### Phase 2 (~30 min): Experimentation Infrastructure
 
 1. **A/B Testing Framework** — Choose approach based on needs:
    - **Client-side** (e.g., Optimizely, LaunchDarkly for visual tests): fast to iterate, limited to UI changes.
@@ -38,7 +202,7 @@ Technical growth engineering system for designing, instrumenting, and scaling gr
 3. **Experiment Governance** — Define workflow: hypothesis document → engineering review → ethics/privacy review → implementation → QA (AA test validation) → ramp (1% → 10% → 50%) → analysis → ship/kill decision → post-experiment review.
 4. **Feature Flags** — Implement a feature flag system (LaunchDarkly, Flagr, or custom). Every non-trivial change ships behind a flag. Supports: percentage rollouts, user targeting by property, kill switches, operational flags for load shedding.
 
-### Phase 3: Growth Loop Execution
+### Phase 3 (~20 min): Growth Loop Execution
 
 1. **Acquisition Loops**:
    - **Viral/Referral**: Double-sided incentive ("Give $10, Get $10"). Track: invites sent, click-through rate, signup conversion, reward redemption rate, viral coefficient (K = invites_per_user × CTR × signup_rate). Fraud detection: velocity checks, device fingerprinting, reward limits per household/IP.
@@ -49,7 +213,7 @@ Technical growth engineering system for designing, instrumenting, and scaling gr
 4. **Monetization Loop**: Optimize pricing page (design, copy, social proof, money-back guarantee). Test: annual vs. monthly defaults, price anchoring, feature gating, expansion revenue (upsell/cross-sell). Measure ARPU, expansion MRR, churn rate.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Run AA tests on every new experiment configuration before launching real tests — ensure no systemic bias in randomization.
 - Never stop an experiment early based on "significance trending" — pre-commit to runtime based on sample size calculations.
 - Segment experiment results by platform, geography, and user type — aggregate lift can hide heterogeneous treatment effects.
@@ -60,7 +224,7 @@ Technical growth engineering system for designing, instrumenting, and scaling gr
 - Growth model should be a living document — update monthly with actuals and reforecast.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Growth engineering intersects product, marketing, data, and engineering. Experiments fail when coordination breaks — wrong data, wrong audience, or wrong interpretation.
 
 | Coordinate With | When | What to Share/Ask |
@@ -98,22 +262,66 @@ Growth engineering intersects product, marketing, data, and engineering. Experim
 | Growth team blocked by engineering for >1 sprint without resolution | **CTO Advisor** or VP Engineering | Prioritization escalation; growth impact quantified |
 | Experiment suggests pricing change could increase revenue >20% | **Product Strategist** + CEO Strategist + Legal Advisor | Strategic pricing decision; legal and competitive review |
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Founder running experiments manually with a Google Sheet + Google Optimize free tier. Feature flags via environment variables or simple config toggles. Funnel analysis: Mixpanel/Amplitude free tier. No formal experimentation framework — ship and measure. Growth model: spreadsheet projections. Cost: $0-200/month. Overkill: server-side A/B framework, experiment platform (Eppo/Optimizely), full CDP, feature flag SaaS.
 
-- [ ] Event taxonomy is documented, versioned, and enforced through CI checks on instrumentation PRs
-- [ ] A/B testing framework supports server-side and client-side experiments with consistent user bucketing
-- [ ] Sample size calculator is accessible to all experimenters with minimum detectable effect, power, and alpha inputs
-- [ ] Experiment governance: every experiment has a hypothesis document, success metrics, guardrail metrics, and pre-registered runtime
-- [ ] Feature flag system supports percentage rollouts, targeting rules, and instant kill-switch capability
-- [ ] Growth model is built, reviewed, and updated monthly — covers acquisition, activation, retention, monetization
-- [ ] Activation analysis identifies the aha moment and the critical path users must complete within N days
-- [ ] Referral/viral program has fraud detection: velocity limits, device fingerprinting, reward caps
-- [ ] Onboarding flow is instrumented end-to-end with funnel analysis tracking reach/drop-off at each step
-- [ ] Attribution model is defined and consistently applied across all marketing spend analysis
-- [ ] Holdout group exists for measuring long-term incremental impact of growth interventions
-- [ ] Dashboard tracks: experiment velocity (tests per week), win rate, cumulative uplift from shipped experiments
-- [ ] All experiment results are documented in a searchable knowledge base with ship/kill rationale
-- [ ] Privacy review process exists for experiments involving user data or behavioral targeting
+### Small (2-10 people, 100-10K users)
+Dedicated growth engineer. A/B testing: LaunchDarkly/Flagsmith + custom or lightweight platform (GrowthBook open-source). Funnel analysis: Mixpanel/Amplitude with SQL access. Experimentation framework with hypothesis template and pre-registration. Feature flags for progressive rollouts. Growth model: Python/spreadsheet with weekly updates. Cost: $500-3K/month. Overkill: CDP (Segment), multivariate testing, multi-armed bandits.
+
+### Medium (10-50 people, 10K-1M users)
+Growth team (2-3 engineers). Experiment platform: Eppo, Statsig, or Optimizely with server-side + client-side. Feature flag platform with targeting rules, gradual rollouts, kill switches. CDP for unified user profiles. Multi-armed bandits for ongoing optimization. Statistical rigor: CUPED, sequential testing, stratified sampling. Growth model in Python with data warehouse integration. Cost: $5K-25K/month.
+
+### Enterprise (50+ people, 1M+ users)
+Growth engineering pod (5-10). Experiment platform with custom integrations, holdout groups, long-term effect measurement. Shadow deployments for ML models. Experiment interaction detection. Global feature flag management with change management. Dedicated experimentation data pipeline. Causal inference: diff-in-diff, IV, synthetic control. Growth model: real-time, ML-driven forecast. Cost: $50K-300K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | >2 experiments/month, need feature flags for production safety | Add LaunchDarkly/Flagsmith; implement hypothesis template; move beyond Google Optimize |
+| Small → Medium | >10 experiments/month, need interaction detection, or >3 growth engineers | Adopt experiment platform (Eppo/Statsig); add CDP; implement advanced statistical methods |
+| Medium → Enterprise | >50 experiments/month, ML-driven personalization, regulatory experimentation requirements | Build dedicated experimentation pipeline; add causal inference; implement holdout groups |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **A/B Testing Infrastructure** | Building or replacing experimentation framework | LaunchDarkly, GrowthBook, Eppo, Statsig — server-side + client-side bucketing, consistent hashing |
+| **Funnel Optimization** | Diagnosing conversion drop-offs at specific stages | Mixpanel, Amplitude, PostHog — funnel analysis, segmentation, session replay (Hotjar/FullStory) |
+| **Growth Modeling** | Forecasting user/revenue growth and modeling what-if scenarios | Python (pandas, numpy) or spreadsheet — acquisition × activation × retention × referral × revenue |
+| **Feature Flag Architecture** | Implementing progressive rollouts and operational safety | LaunchDarkly, Flagsmith, Unleash — kill switches, percentage rollouts, target groups |
+| **Referral & Viral Loop Engineering** | Building invite/referral programs with fraud prevention | Custom + fraud detection — two-sided rewards, invite tracking, rate limiting, verification |
+| **Onboarding Optimization** | Reducing time-to-value and improving activation rates | Progressive disclosure, tooltips, guided tours, checklists — measure: time-to-aha moment |
+| **Pricing & Packaging Experiments** | Testing monetization models and pricing page CRO | Survey-based (Van Westendorp), A/B pricing page, trial length, feature gating — requires legal review |
+| **Causal Inference for Growth** | Measuring long-term effects when A/B tests are impractical | Diff-in-diff, instrumental variables, synthetic control, regression discontinuity — Python (DoWhy, CausalPy) |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Event taxonomy is documented, versioned, and enforced through CI checks on instrumentation PRs
+- [ ] **[S2]**  A/B testing framework supports server-side and client-side experiments with consistent user bucketing
+- [ ] **[S3]**  Sample size calculator is accessible to all experimenters with minimum detectable effect, power, and alpha inputs
+- [ ] **[S4]**  Experiment governance: every experiment has a hypothesis document, success metrics, guardrail metrics, and pre-registered runtime
+- [ ] **[S5]**  Feature flag system supports percentage rollouts, targeting rules, and instant kill-switch capability
+- [ ] **[S6]**  Growth model is built, reviewed, and updated monthly — covers acquisition, activation, retention, monetization
+- [ ] **[S7]**  Activation analysis identifies the aha moment and the critical path users must complete within N days
+- [ ] **[S8]**  Referral/viral program has fraud detection: velocity limits, device fingerprinting, reward caps
+- [ ] **[S9]**  Onboarding flow is instrumented end-to-end with funnel analysis tracking reach/drop-off at each step
+- [ ] **[S10]**  Attribution model is defined and consistently applied across all marketing spend analysis
+- [ ] **[S11]**  Holdout group exists for measuring long-term incremental impact of growth interventions
+- [ ] **[S12]**  Dashboard tracks: experiment velocity (tests per week), win rate, cumulative uplift from shipped experiments
+- [ ] **[S13]**  All experiment results are documented in a searchable knowledge base with ship/kill rationale
+- [ ] **[S14]**  Privacy review process exists for experiments involving user data or behavioral targeting
 
 ## MVP vs Growth vs Scale
 
@@ -207,7 +415,7 @@ python3 scripts/analyze_experiment.py \
 **Principle:** `growth_diagnostic.py` outputs JSON with one bottleneck. Agent follows decision tree to exactly one action. Analysis script outputs exit code for significance. No parsing prose output.
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Microsoft — CUPED Variance Reduction](https://www.microsoft.com/en-us/research/publication/controlled-experiments-on-the-web-survey-and-practical-guide/)
 - [Ron Kohavi — Trustworthy Online Controlled Experiments (Book)](https://experimentguide.com/)
 - [LaunchDarkly — Feature Management](https://launchdarkly.com/)

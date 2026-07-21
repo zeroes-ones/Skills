@@ -1,9 +1,9 @@
-# Zeroes & Ones — World-Class Skills Library
+# Sandeep Kumar Penchala Skills Library
 
 > **Author:** Sandeep Kumar Penchala  
 > **Goal:** The best AI agent skills on the planet — for building the world's best products.
 
-A comprehensive, agent-agnostic skills library covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Every skill is built to world-class standards with deep references, templates, and production checklists.
+A comprehensive, agent-agnostic skills library covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Every skill includes decision trees, scale depth guidance, cross-skill coordination, deep references, templates, and production checklists.
 
 **50+ skills across 13 domains. 100+ reference documents. 20+ asset templates.**
 
@@ -183,19 +183,28 @@ cp -r ~/skills-library/skills/11-legal ~/.claude/skills/
 | [`TECH-STACK-DECISIONS.md`](TECH-STACK-DECISIONS.md) | Technology selection by project archetype with cost projections |
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — which skills to invoke at each of 10 phases |
 | [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 150+ sub-skills across all domains with industry variations |
-| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | A+ through F grading rubric, anti-patterns, review process |
+| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error decoders, war stories, and 8 quality tests |
+| [`scripts/upgrade_to_10.py`](scripts/upgrade_to_10.py) | Batch upgrade tool — applies progressive disclosure, token budgets, error decoders, and checklist numbering to all 56 skills |
 
 ## Contributing
 
-1. Read [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) — 8 quality principles
+1. Read [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) — the 10/10 quality bar
 2. Read [`AGNOSTIC-PRINCIPLES.md`](AGNOSTIC-PRINCIPLES.md) — universal by default, specific by reference
 3. Read [`SCALE-DEPTH-FRAMEWORK.md`](SCALE-DEPTH-FRAMEWORK.md) — every skill covers Solo→Small→Medium→Enterprise
 4. Follow the four-layer architecture: SKILL.md + scripts/ + references/ + assets/
-5. Every `SKILL.md` must have: `## When to Use`, `## Core Workflow`, `## Cross-Skill Coordination`, `## Scale Depth`, `## Best Practices`, `## Production Checklist`
-6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`
+5. Every `SKILL.md` must pass the 10/10 checklist:
+   - Full YAML frontmatter with `type`, `version`, `updated`, `token_budget`, `output`, `chain`
+   - `<!-- QUICK: 30s -->` markers on every section for progressive disclosure
+   - `## Error Decoder` — at least 7 common errors mapped to root cause and fix
+   - `## Production Checklist` items numbered with `[S1]`, `[S2]`, etc. referencing standards
+   - Time estimates on every workflow phase (`(~15 min)`)
+   - "What good looks like" description after decision trees
+   - Token budget declared in frontmatter
+6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`, `type`, `version`, `updated`, `token_budget`
 7. No fluff — if a sentence doesn't help someone DO something, cut it
-6. Test with at least one AI agent before submitting
+8. Test with at least one AI agent before submitting
+9. After manual edits, run `python3 scripts/upgrade_to_10.py` to re-sync progressive disclosure markers and validation
 
 ## License
 
-MIT — Zeroes & Ones
+MIT — Sandeep kumar Penchala

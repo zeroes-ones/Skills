@@ -2,8 +2,17 @@
 name: release-manager
 description: Release management, release train, deployment calendar, go/no-go, release coordination, version management, launch readiness, rollback, canary deployment, feature flags. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - release-manager
+token_budget: 2278
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Release Manager
 
 Orchestrate the safe, predictable delivery of software to production. Design release trains,
@@ -12,8 +21,19 @@ automate release notes, coordinate feature flag dark launches, and run post-rele
 Covers the full release lifecycle from branch strategy through production verification and
 retrospective.
 
-## Decision Trees
+## When to Use
 
+- Your team is shipping too infrequently (or too chaotically) and you need to establish a release cadence
+- You need to decide on a release strategy — continuous deployment, daily, weekly train, or sprint-based
+- You are running a go/no-go meeting and need a structured readiness checklist to evaluate release risk
+- You need to coordinate a release across 3+ teams with interdependent changes and shared deployment windows
+- You are designing a canary deployment or blue-green rollout with automated metric comparison and rollback triggers
+- You need to set up feature flag dark launches so features can ship disabled and activate safely in production
+- You are automating release notes, changelog generation, and version bumping from conventional commits
+- You need a rollback playbook — how to detect a bad deploy, who to notify, and how to revert safely
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Release Cadence Selection
 ```
 What release cadence fits your risk tolerance and team capacity?
@@ -116,11 +136,14 @@ Critical bug found in production:
     ├─ Must pass full test suite (no shortcuts)
     ├─ Must update release notes and changelog
     └─ Post-hotfix: root cause analysis within 48h to prevent recurrence
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Release Planning
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Release Planning
 1. **Establish release calendar**: define release train schedule (weekly, bi-weekly), deployment windows, and freeze periods.
    - Output: Shared calendar with release dates, code freeze deadlines, QA windows, and deploy windows for next quarter.
 2. **Map cross-team dependencies**: identify which services/teams must release together.
@@ -132,7 +155,7 @@ Critical bug found in production:
 4. **Assign release roles**: release commander, QA lead, deployment engineer, communications liaison.
    - Output: Release role assignment for each release in the calendar.
 
-### Phase 2: Release Preparation
+### Phase 2 (~30 min): Release Preparation
 1. **Create release branch**: branch from main at code freeze; cherry-pick approved changes only after freeze.
    - Output: `release/v2.5.0` branch with frozen scope; `main` continues forward development.
 2. **Run full test suite**: unit, integration, E2E, performance, security on release branch.
@@ -145,7 +168,7 @@ Critical bug found in production:
 5. **Brief stakeholders**: support team, customer success, marketing — provide release summary and expected impact.
    - Output: Stakeholder briefing doc (1-pager) sent 48 hours before deploy window.
 
-### Phase 3: Go/No-Go Decision
+### Phase 3 (~20 min): Go/No-Go Decision
 1. **Run go/no-go checklist**: evaluate all CRITICAL and CONDITIONAL criteria (see Decision Tree #2).
    - Output: Go/No-Go scorecard with pass/fail per criterion.
 2. **Conduct go/no-go meeting** (30 min max, day before deploy):
@@ -155,7 +178,7 @@ Critical bug found in production:
 3. **NO-GO resolution**: fix failures, re-run tests, reconvene. Maximum 2 NO-GO attempts before scope reduction.
    - Output: Updated scope (smaller, safer) or new release date.
 
-### Phase 4: Deployment Execution
+### Phase 4 (~15 min): Deployment Execution
 1. **Pre-deploy verification**: smoke tests on staging, database migration dry-run, load balancer health check.
    - Output: Pre-deploy checklist all green.
 2. **Execute deployment strategy**: canary (5% → monitor 10 min → 25% → monitor 10 min → 100%) or blue-green.
@@ -168,7 +191,7 @@ Critical bug found in production:
 5. **Feature flag rollout**: enable features gradually over 1-3 days, monitoring each increment.
    - Output: Feature rollout plan with % increments and verification windows.
 
-### Phase 5: Post-Release
+### Phase 5 (~25 min): Post-Release
 1. **Monitor for 24-72 hours**: watch error budgets, performance, user reports, support ticket volume.
    - Output: Post-release monitoring report at T+24h and T+72h.
 2. **Finalize release notes**: add any post-release fixes, known issues discovered during rollout.
@@ -180,7 +203,7 @@ Critical bug found in production:
    - Output: Release archive for audit and future reference.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When | What to Share/Ask |
 |---|---|---|
 | **CI/CD Builder** | Pipeline design, deployment automation, rollback automation | Release workflow requirements, canary/blue-green configuration, gating criteria |
@@ -204,7 +227,7 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 ```
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: No formal release process. Merge to main → deploy. Feature flags via env vars. Release notes are git log. Rollback = `git revert` + redeploy.
 - **Overkill**: Release trains, go/no-go meetings, release branches, formal versioning, stakeholder briefings, deployment calendars.
@@ -234,7 +257,7 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 - **Transition trigger**: > 10 teams deploying to same production, regulatory environment (SOX, FDA), customer contractual release SLAs, > $100M revenue with release-dependent revenue recognition.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `release-train-design` | Designing the release cadence, train tracks, and freeze windows | Cadence selection, train topology, emergency/hotfix track, calendar management |
@@ -247,7 +270,7 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 | `release-health-dashboard` | Building dashboards for release tracking, health, and predictability | Key metrics, stakeholder views, historical trend analysis, deploy frequency tracking |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Release trains create predictability**: teams know exactly when their code ships. This reduces "is my change in prod?" anxiety and makes planning possible.
 - **Code freeze means CODE FREEZE**: only bug fixes and security patches after the freeze deadline. Feature work goes to the next train. No exceptions without release commander + CTO approval.
 - **Go/No-Go is not a democracy**: the release commander makes the final call. A clear decision-maker prevents deadlocks. Rotate the role to share risk awareness.
@@ -259,25 +282,35 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 - **Post-release monitoring is mandatory**: the first 24 hours after deploy is when most regressions surface. Keep the deployer on-call for at least 24 hours post-release.
 - **Release retrospectives compound**: each retro should produce < 5 action items. Track them across releases. If the same issue appears in 3 consecutive retros, escalate to engineering leadership.
 
-## Production Checklist
 
-- [ ] Release calendar published for current quarter with freeze dates, deploy windows, and release commander assignments
-- [ ] Go/no-go checklist defined with CRITICAL (auto NO-GO if fail) and CONDITIONAL criteria
-- [ ] Release branch strategy documented: branch naming, cherry-pick process, merge-back to main
-- [ ] Rollback pipeline tested within last 30 days; target: < 10 minutes from decision to previous healthy state
-- [ ] All database migrations have tested downgrade scripts; irreversible migrations flagged and planned separately
-- [ ] Feature flag platform in place; all new features behind flags with rollout plan and removal date
-- [ ] Release notes auto-generated from conventional commits with human-written summary and breaking change callouts
-- [ ] Canary deployment pipeline: 5% → monitor → 25% → monitor → 100% with automated metric gates at each stage
-- [ ] Post-release monitoring dashboard active for 72 hours after every deploy
-- [ ] Release retrospective conducted within 1 week of every release; action items tracked
-- [ ] Stakeholder briefing template ready; stakeholders briefed 48 hours before major releases
-- [ ] Release archive maintained: branch, build artifacts, test results, go/no-go decision for audit
-- [ ] Deployment window communicated to all teams; no competing infrastructure changes during window
-- [ ] Support/customer success team has escalation path for release-related issues
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Release calendar published for current quarter with freeze dates, deploy windows, and release commander assignments
+- [ ] **[S2]**  Go/no-go checklist defined with CRITICAL (auto NO-GO if fail) and CONDITIONAL criteria
+- [ ] **[S3]**  Release branch strategy documented: branch naming, cherry-pick process, merge-back to main
+- [ ] **[S4]**  Rollback pipeline tested within last 30 days; target: < 10 minutes from decision to previous healthy state
+- [ ] **[S5]**  All database migrations have tested downgrade scripts; irreversible migrations flagged and planned separately
+- [ ] **[S6]**  Feature flag platform in place; all new features behind flags with rollout plan and removal date
+- [ ] **[S7]**  Release notes auto-generated from conventional commits with human-written summary and breaking change callouts
+- [ ] **[S8]**  Canary deployment pipeline: 5% → monitor → 25% → monitor → 100% with automated metric gates at each stage
+- [ ] **[S9]**  Post-release monitoring dashboard active for 72 hours after every deploy
+- [ ] **[S10]**  Release retrospective conducted within 1 week of every release; action items tracked
+- [ ] **[S11]**  Stakeholder briefing template ready; stakeholders briefed 48 hours before major releases
+- [ ] **[S12]**  Release archive maintained: branch, build artifacts, test results, go/no-go decision for audit
+- [ ] **[S13]**  Deployment window communicated to all teams; no competing infrastructure changes during window
+- [ ] **[S14]**  Support/customer success team has escalation path for release-related issues
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Keep a Changelog](https://keepachangelog.com/) — Standard for human-readable changelogs
 - [Semantic Versioning](https://semver.org/) — SemVer specification
 - [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention for automated changelogs
