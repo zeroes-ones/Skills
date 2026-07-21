@@ -2,8 +2,17 @@
 name: cloud-architect
 description: AWS, Azure, GCP architecture design, landing zones, multi-cloud strategy, cost optimization, IAM, networking, and serverless. Triggered by cloud, AWS, Azure, GCP, architecture, landing zone, multi-cloud, serverless, IAM, Well-Architected.
 author: Sandeep Kumar Penchala
+type: devops
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - cloud-architect
+token_budget: 2139
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Cloud Architect
 
 Design secure, scalable, cost-optimized cloud architectures across AWS, Azure, and GCP. Covers
@@ -11,7 +20,7 @@ landing zone design, multi-account/ multi-project governance, networking topolog
 managed service selection, serverless patterns, and the Well-Architected Framework.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing greenfield cloud architecture or migrating on-premises workloads to the cloud
 - Setting up a cloud landing zone with multi-account (AWS Organizations) or multi-project (GCP resource hierarchy) isolation
 - Architecting networking: VPC design, transit gateway, hub-and-spoke, private link, Cloud Interconnect
@@ -21,16 +30,130 @@ managed service selection, serverless patterns, and the Well-Architected Framewo
 - Implementing FinOps: cost allocation tags, budgets, reserved instances, savings plans, anomaly detection
 - Architecting for multi-region DR with RPO/RTO targets and automated failover
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Compute Selection: EC2 vs ECS vs EKS vs Lambda
+```
+                     ┌──────────────────────────┐
+                     │ START: New workload deploy │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Event-driven, sporadic      │
+                    │ invocations, <15 min run?   │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Lambda /    │   │ >5 microservices│
+                    │ Cloud Run   │   │ needing         │
+                    │ (serverless)│   │ orchestration?  │
+                    └─────────────┘   └────┬────────┬───┘
+                                           │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ EKS/GKE  │ │ ECS Fargate│
+                                      │ (full    │ │ or App      │
+                                      │ K8s)     │ │ Runner      │
+                                      └──────────┘ └────────────┘
+```
+**When to choose Lambda:** Event-driven, <15 min runtime, <10GB memory, cold start acceptable (<1s for non-latency-critical). **When to choose EKS:** >5 microservices, team has K8s expertise, need service mesh, budget >$600/month. **When to choose ECS Fargate:** Containerized but <5 services, no K8s expertise, simpler than EKS, budget $200-500/month.
 
-### Phase 1: Discovery and Requirements
+### Managed vs Self-Managed Database
+```
+                     ┌──────────────────────────┐
+                     │ START: Database deployment │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Team <5 engineers OR no    │
+                    │ dedicated DBA available?   │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ RDS / Cloud │   │ Self-managed on │
+                    │ SQL (managed│   │ EC2 only if:    │
+                    │ — automatic │   │ • Custom        │
+                    │ backups,    │   │   extensions    │
+                    │ patching)   │   │ • >$50K/mo at   │
+                    └─────────────┘   │   scale savings │
+                                      └────────────────┘
+```
+**When to choose Managed (RDS/Aurora):** Team <5, no DBA, automatic failover needed, compliance (automated patching). Saves 10-20 hrs/week in maintenance. **When to choose Self-Managed:** Custom PostgreSQL extensions, >$50K/month where 30-40% savings offset DBA cost, specific version pinning needed.
+
+### VPC Networking Topology
+```
+                     ┌──────────────────────────┐
+                     │ START: Networking design   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >3 VPCs/VNets across        │
+                    │ multiple accounts/projects? │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Hub-Spoke   │   │ Simple VPC      │
+                    │ + Transit   │   │ peering (or     │
+                    │ Gateway     │   │ single VPC)     │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Hub-Spoke:** >3 VPCs, multi-account, centralized egress/inspection needed, on-prem hybrid connectivity. **When to choose Simple Peering:** <3 VPCs, single account, no on-prem connectivity, no centralized inspection requirement.
+
+### Disaster Recovery Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: DR topology choice  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ RTO <1 min AND RPO <1 sec   │
+                    │ contractually required?     │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Active-     │   │ RTO <15 min?    │
+                    │ Active      │   └────┬────────┬───┘
+                    │ ($3-5× cost)│        │ YES    │ NO
+                    └─────────────┘   ┌────▼────┐ ┌▼──────────┐
+                                      │ Warm    │ │ Pilot      │
+                                      │ Standby │ │ Light      │
+                                      │ (2× cost│ │ (1.2× cost)│
+                                      │  +15min │ │  +1hr      │
+                                      │  failover│ │  restore) │
+                                      └─────────┘ └────────────┘
+```
+**When to choose Active-Active:** 99.99% SLA, RTO <1 min, revenue loss >$10K/min during outage, budget for 3-5× infra cost. **When to choose Warm Standby:** 99.9% SLA, RTO <15 min, 2× cost acceptable. **When to choose Pilot Light:** 99.5% SLA, RTO <1 hr, cost-sensitive — replicate data continuously, scale compute on failover.
+
+### Multi-Account Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: AWS Organizations  │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ >3 independent teams with   │
+                    │ separate blast radius needs?│
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Account per │   │ Single account  │
+                    │ environment │   │ + resource      │
+                    │ + workload  │   │ groups / tags   │
+                    │ (OU-based)  │   │ (2-3 accounts   │
+                    │             │   │ max)            │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Account-per-workload:** >3 teams, compliance isolation (PCI vs non-PCI), >$10K/month spend, need SCP-based guardrails per team. **When to choose few accounts:** <3 teams, <$5K/month, simple compliance, tagging sufficient for cost allocation.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Discovery and Requirements
 1. Gather business requirements: user base, expected throughput, data residency constraints, compliance regime.
 2. Define RPO (Recovery Point Objective) and RTO (Recovery Time Objective) for each workload tier.
 3. Inventory existing workloads: compute, databases, storage, DNS, identity providers, third-party integrations.
 4. Identify constraints: latency budgets between services, egress costs, data sovereignty, vendor lock-in tolerance.
 5. Select cloud provider(s) based on feature parity, team expertise, existing commitments, and geographic presence.
 
-### Phase 2: Landing Zone and Governance
+### Phase 2 (~30 min): Landing Zone and Governance
 1. Design the organization structure: AWS OUs/accounts per environment and workload; GCP folders/projects; Azure management groups/subscriptions.
 2. Implement a security account/project for centralized logging, audit trails (CloudTrail, Audit Logs), and security tooling.
 3. Establish networking foundation: hub VPC/VNet with inspection (firewall, IDS/IPS), spoke VPCs for workloads, transit gateway for inter-VPC routing.
@@ -39,7 +162,7 @@ managed service selection, serverless patterns, and the Well-Architected Framewo
 6. Implement Service Control Policies (AWS) or Organization Policies (GCP) to deny high-risk actions organization-wide.
 7. Automate account/project provisioning with Terraform or custom Control Tower/Azure Landing Zone accelerator.
 
-### Phase 3: Workload Architecture
+### Phase 3 (~20 min): Workload Architecture
 1. Choose compute: containers (EKS, GKE, AKS) for microservices; serverless (Lambda, Cloud Run, Azure Functions) for event-driven; VMs for lift-and-shift.
 2. Design data tier: relational (RDS, Cloud SQL), NoSQL (DynamoDB, Firestore), caching (ElastiCache, Memorystore), object storage (S3, GCS).
 3. Architect for high availability: multi-AZ deployments within a region; multi-region with DNS failover (Route 53, Cloud DNS) or global load balancers.
@@ -47,7 +170,7 @@ managed service selection, serverless patterns, and the Well-Architected Framewo
 5. Design CI/CD integration: OIDC-based authentication from pipelines to cloud APIs; immutable infrastructure deployments.
 6. Select appropriate managed services and justify trade-offs: RDS vs. self-managed PostgreSQL on EC2 — consider backup, patching, scaling overhead.
 
-### Phase 4: Cost Optimization (FinOps)
+### Phase 4 (~15 min): Cost Optimization (FinOps)
 1. Tag all resources with `Environment`, `Service`, `Team`, `CostCenter`; enforce tagging with SCPs or policy.
 2. Set budgets with alerts at 50%, 80%, and 100% thresholds; configure anomaly detection in AWS Cost Explorer or GCP Billing.
 3. Purchase reserved instances or savings plans for stable baseline workloads; use spot/preemptible instances for fault-tolerant batch jobs.
@@ -55,7 +178,7 @@ managed service selection, serverless patterns, and the Well-Architected Framewo
 5. Implement data lifecycle policies: transition infrequently accessed objects to colder storage tiers; auto-delete after retention period.
 6. Review egress costs: prefer PrivateLink/Private Service Connect over NAT Gateway for service-to-service traffic; use CloudFront/CDN to reduce origin egress.
 
-### Phase 5: Security and Compliance
+### Phase 5 (~25 min): Security and Compliance
 1. Encrypt data at rest with KMS/Cloud KMS customer-managed keys; encrypt data in transit with TLS 1.2+.
 2. Implement VPC Flow Logs, DNS query logging, and S3 access logging for network forensics.
 3. Use AWS Config, Azure Policy, or GCP Security Command Center for continuous compliance monitoring.
@@ -63,7 +186,7 @@ managed service selection, serverless patterns, and the Well-Architected Framewo
 5. Conduct regular Well-Architected Framework reviews and penetration tests.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -77,7 +200,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `serverless-architecture` | Designing event-driven systems with Lambda, Cloud Run, or Azure Functions — cold starts, scaling, costs | This file — Serverless Cost Traps |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Cloud architects design the foundational infrastructure that all services run on. They coordinate with every engineering team for workload placement, DevOps for implementation, security for hardening, and finance for cost governance.
 
 ### Coordinate With
@@ -116,7 +239,7 @@ Cross-cloud migration decision? → CTO Advisor → CEO Strategist
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Account/project isolation**: separate production and non-production at the account level; never mix in a single VPC.
 - **Infrastructure as Code from day one**: the console is for exploration only; all production changes go through IaC pipelines.
 - **Least privilege IAM**: start with no permissions, add only what's needed; use IAM Access Analyzer to validate.
@@ -183,21 +306,31 @@ Cross-cloud migration decision? → CTO Advisor → CEO Strategist
 - **Small → Medium**: 3+ teams with separate cloud needs. First compliance audit. >$5K/month cloud spend.
 - **Medium → Enterprise**: Multi-region required. Regulatory compliance. >$50K/month cloud spend.
 
-## Production Checklist
 
-- [ ] Multi-account/multi-project isolation with separate production and non-production environments
-- [ ] Networking: non-overlapping CIDRs, private subnets for workloads, NAT Gateway for egress, VPC Flow Logs enabled
-- [ ] IAM: SSO configured, no long-lived access keys, break-glass roles, permission boundaries enforced
-- [ ] Encryption: data at rest with CMK, TLS 1.2+ in transit, S3 bucket policies block public access
-- [ ] Logging: CloudTrail/Audit Logs enabled organization-wide, centralized to a security account
-- [ ] Backups: automated backups for all data stores, cross-region replication for critical data, restore tested quarterly
-- [ ] Cost: budgets set with alerts, tagging strategy enforced, RI/SP coverage for baseline workloads
-- [ ] DR: RPO/RTO defined, failover runbook documented and tested, multi-region for tier-1 services
-- [ ] Well-Architected Framework review completed within the last 6 months
-- [ ] Incident response plan covers cloud-specific scenarios and is tested annually
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Multi-account/multi-project isolation with separate production and non-production environments
+- [ ] **[S2]**  Networking: non-overlapping CIDRs, private subnets for workloads, NAT Gateway for egress, VPC Flow Logs enabled
+- [ ] **[S3]**  IAM: SSO configured, no long-lived access keys, break-glass roles, permission boundaries enforced
+- [ ] **[S4]**  Encryption: data at rest with CMK, TLS 1.2+ in transit, S3 bucket policies block public access
+- [ ] **[S5]**  Logging: CloudTrail/Audit Logs enabled organization-wide, centralized to a security account
+- [ ] **[S6]**  Backups: automated backups for all data stores, cross-region replication for critical data, restore tested quarterly
+- [ ] **[S7]**  Cost: budgets set with alerts, tagging strategy enforced, RI/SP coverage for baseline workloads
+- [ ] **[S8]**  DR: RPO/RTO defined, failover runbook documented and tested, multi-region for tier-1 services
+- [ ] **[S9]**  Well-Architected Framework review completed within the last 6 months
+- [ ] **[S10]**  Incident response plan covers cloud-specific scenarios and is tested annually
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Cloud Cost Optimization Playbook](references/cloud-cost-optimization.md) — Commitment discounts, spot strategy, right-sizing, serverless cost traps, free tier maximization
 - AWS Well-Architected Framework: https://aws.amazon.com/architecture/well-architected/
 - Azure Well-Architected Framework: https://learn.microsoft.com/en-us/azure/well-architected/

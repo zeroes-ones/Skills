@@ -2,14 +2,34 @@
 name: networking-engineer
 description: Cloud networking architecture (VPC/VNet/VCN), subnet/CIDR planning, DNS architecture, CDN strategy, load balancing (L4/L7), network security (security groups/NACLs/WAF/DDoS), hybrid/multi-cloud networking (VPN/Direct Connect/ExpressRoute), BGP routing, service mesh (sidecar/ambient/eBPF), API gateway/ingress, Zero Trust (ZTNA), and network observability. Trigger: networking, VPC, DNS, CDN, load balancer, BGP, network architecture, subnet, firewall, VPN, SDN, network security, network design, peering, transit gateway. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
+type: architecture
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - networking-engineer
+token_budget: 2978
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Networking Engineer
 
 Design, deploy, and operate cloud-native and hybrid network architectures. This skill covers the full stack: from IP address planning and subnet design through DNS, load balancing, CDN, firewalls, VPNs, and service mesh. Every design considers cost, latency, security, and operational complexity. The goal is a network that developers never think about because it just works — secure by default, fast everywhere, and cheap at scale.
 
-## Decision Trees
+## When to Use
 
+- You are designing a new VPC/VNet with subnets, CIDR ranges, and routing tables from scratch
+- You need to connect multiple VPCs across accounts or regions via peering or transit gateway
+- You are planning DNS architecture (public/private zones, split-horizon, multi-cloud resolution)
+- You need to set up load balancers (ALB/NLB/GLB) with health checks and SSL termination
+- You are configuring network security layers — security groups, NACLs, WAF rules, DDoS protection
+- You are establishing hybrid connectivity between on-prem data centers and cloud (VPN, Direct Connect, ExpressRoute)
+- You need to deploy a service mesh (Istio, Linkerd, Cilium) with mTLS and traffic policies
+- You are designing a CDN strategy with edge caching, origin shield, and DDoS mitigation
+
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ```
 VPC/BLOCK DESIGN — How many VPCs and what CIDR ranges?
 ├── Single region, single environment (dev/prod combined), < 10 services?
@@ -115,11 +135,14 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
     └── AWS Client VPN (OpenVPN-based, $0.10/hour + $0.05/connection-hour).
         Or Tailscale/ZeroTier (WireGuard-based, simpler, cheaper for <100 users).
         NEVER expose SSH/RDP to 0.0.0.0/0 — always behind VPN or SSM Session Manager.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Network Design & IP Planning
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Network Design & IP Planning
 
 1. **Define network topology**: Choose single-VPC vs multi-VPC vs hub-and-spoke (Transit Gateway).
    Document in a network topology diagram. Include all: regions, VPCs, subnets, NAT gateways,
@@ -143,7 +166,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
    - **Input**: Service placement plan, internet access requirements.
    - **Output**: Subnet map per VPC per AZ. Route tables configured.
 
-### Phase 2: DNS & Traffic Management
+### Phase 2 (~30 min): DNS & Traffic Management
 
 1. **Design DNS architecture**: Create public hosted zone (`example.com`) for customer-facing records.
    Private hosted zone (`internal.example.com`) for service discovery. Set up DNS forwarding rules
@@ -164,7 +187,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
    - **Input**: Content types, cacheability analysis, global user distribution.
    - **Output**: CDN distribution deployed. Cache hit rate monitored. Origin load reduced.
 
-### Phase 3: Security Hardening
+### Phase 3 (~20 min): Security Hardening
 
 1. **Implement security groups and NACLs**: Security groups: least privilege. Allow only required
    ports and sources. Never allow 0.0.0.0/0 on database ports. Reference security group IDs,
@@ -187,7 +210,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
    - **Input**: Service dependency graph, compliance boundaries (PCI, HIPAA).
    - **Output**: Segmentation enforced. East-west traffic limited to authorized paths.
 
-### Phase 4: Observability & Operations
+### Phase 4 (~15 min): Observability & Operations
 
 1. **Enable network observability**: VPC Flow Logs (to S3/CloudWatch). Publish to CloudWatch
    Logs for real-time analysis, S3 for long-term archive (Athena queryable). DNS query logging
@@ -211,7 +234,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
    - **Output**: IaC repository with network modules. CI pipeline for network changes.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 | Coordinate With | When (Trigger) | What Info Flows |
 |---|---|---|
 | **System Architect** | Initial network design, multi-region strategy | Network topology, latency requirements, security boundaries, capacity projections |
@@ -240,7 +263,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 | Direct Connect BGP session flapping | Cloud Architect, Incident Responder | Hybrid connectivity instability; provider escalation |
 
 ## Scale Depth
-
+<!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
 - **What changes**: Default VPC or a single custom VPC. 2-3 subnets. Security groups: allow-list for your IP. No NAT gateway (use public subnets with careful security groups). DNS: Route 53 public zone or Cloudflare. CDN: Cloudflare free tier. No service mesh, no Transit Gateway, no VPN, no Direct Connect. Network changes: console or simple Terraform.
 - **What's overkill**: Multi-VPC, Transit Gateway, NACLs (security groups are enough), WAF, Direct Connect, service mesh, VPC endpoints, flow logs analysis, network automation beyond basic IaC.
@@ -270,7 +293,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 - **Transition trigger**: Multi-cloud with >$1M/mo cloud spend OR 500K+ users globally OR regulatory requirement for air-gapped or data-residency networking.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |---|---|---|
 | `vpc-design` | Designing a new cloud network or restructuring existing | CIDR planning, subnet architecture, route tables, NAT/IGW/VPC endpoints, multi-VPC peering |
@@ -283,7 +306,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 | `network-observability` | Monitoring and troubleshooting the network | VPC Flow Logs, packet capture, route analyzers, latency monitoring, dashboards, alerting |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Never overlap CIDR ranges between any networks that might connect**: This seems obvious but is the #1 cause of multi-VPC/cloud networking pain. Plan all CIDRs in a spreadsheet before creating anything. Overlapping ranges make peering, VPN, and Transit Gateway impossible.
 - **Security groups as primary filter, NACLs as defense-in-depth**: Security groups are stateful, easy to reason about, and work per-resource. NACLs are stateless, per-subnet, and easy to misconfigure. Use NACLs as a SECOND layer for broad rules (block entire CIDRs, enforce ephemeral port ranges) — never as your only filter.
 - **VPC endpoints for all AWS services**: NAT gateway costs $0.045/hour + $0.045/GB processed. S3 VPC endpoint: free. DynamoDB VPC endpoint: free. Every GB going through VPC endpoints instead of NAT is money saved. Audit quarterly: any AWS service traffic going through NAT should be migrated to VPC endpoints.
@@ -295,31 +318,42 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 - **Monitor inter-AZ data transfer costs**: Chatty services that talk cross-AZ can generate massive bills. A service making 1000 req/s with 1KB payload cross-AZ costs ~$2,600/month in data transfer ALONE. Use availability-zone-aware service discovery (topology-aware routing in Kubernetes).
 - **Plan IPv6 alongside IPv4 — don't treat it as a future project**: IPv4 exhaustion is real. AWS charges $3.65/month per public IPv4 address starting 2024. Dual-stack your VPCs from the start. It adds minimal complexity now and saves a major migration later.
 
-## Production Checklist
 
-- [ ] Network topology diagram exists and is current — includes all VPCs, subnets, route tables, gateways, and interconnects
-- [ ] CIDR allocation plan documented with no overlaps; sufficient headroom for 3-year growth
-- [ ] Subnets properly tiered: public (IGW), private (NAT), isolated (no internet); one NAT gateway per AZ
-- [ ] Security groups use least-privilege: allow only required ports and sources; no 0.0.0.0/0 on databases
-- [ ] Security group referencing used for inter-service traffic (not CIDR ranges)
-- [ ] NACLs configured as defense-in-depth; ephemeral port ranges correct for return traffic
-- [ ] WAF deployed on all public endpoints with managed rule groups (OWASP Top 10, IP reputation)
-- [ ] DDoS protection enabled (Shield Standard minimum; Shield Advanced for critical workloads)
-- [ ] DNS: split-horizon with public zone (customer-facing) and private zone (internal services)
-- [ ] CDN configured with appropriate cache behaviors, origin shield enabled, access logs to S3
-- [ ] Load balancer health checks passing; access logs enabled; cross-zone load balancing on
-- [ ] VPC Flow Logs enabled on all VPCs; published to S3 + CloudWatch Logs
-- [ ] VPN/Direct Connect redundant (2 tunnels/connections minimum); BGP configured correctly
-- [ ] Service mesh (if applicable): mTLS enforced, authorization policies defined, control plane HA
-- [ ] Network automation: all resources in IaC (Terraform/Pulumi/CDK); changes via CI/CD pipeline
-- [ ] Monitoring: alarms on NAT gateway errors, VPN tunnel status, ALB 5xx rate, CDN cache hit rate
-- [ ] VPC endpoints for S3, DynamoDB, and other frequently accessed AWS services
-- [ ] IPv6 dual-stack (or plan documented); public IPv4 address inventory tracked
-- [ ] Network runbooks documented: common troubleshooting steps, escalation paths, contact info
-- [ ] Network cost review quarterly: data transfer, NAT gateway hours, public IPs, inter-AZ traffic
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `relation "..." does not exist` | Migration not run or wrong database | `npx prisma migrate dev` or check `DATABASE_URL` |
+| `deadlock detected` | Concurrent transactions in wrong order | Enforce consistent lock ordering; use `NOWAIT` where appropriate |
+| `connection pool exhausted` | Too many concurrent connections | Increase pool size; add connection timeout; check for leaked connections |
+| `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Network topology diagram exists and is current — includes all VPCs, subnets, route tables, gateways, and interconnects
+- [ ] **[S2]**  CIDR allocation plan documented with no overlaps; sufficient headroom for 3-year growth
+- [ ] **[S3]**  Subnets properly tiered: public (IGW), private (NAT), isolated (no internet); one NAT gateway per AZ
+- [ ] **[S4]**  Security groups use least-privilege: allow only required ports and sources; no 0.0.0.0/0 on databases
+- [ ] **[S5]**  Security group referencing used for inter-service traffic (not CIDR ranges)
+- [ ] **[S6]**  NACLs configured as defense-in-depth; ephemeral port ranges correct for return traffic
+- [ ] **[S7]**  WAF deployed on all public endpoints with managed rule groups (OWASP Top 10, IP reputation)
+- [ ] **[S8]**  DDoS protection enabled (Shield Standard minimum; Shield Advanced for critical workloads)
+- [ ] **[S9]**  DNS: split-horizon with public zone (customer-facing) and private zone (internal services)
+- [ ] **[S10]**  CDN configured with appropriate cache behaviors, origin shield enabled, access logs to S3
+- [ ] **[S11]**  Load balancer health checks passing; access logs enabled; cross-zone load balancing on
+- [ ] **[S12]**  VPC Flow Logs enabled on all VPCs; published to S3 + CloudWatch Logs
+- [ ] **[S13]**  VPN/Direct Connect redundant (2 tunnels/connections minimum); BGP configured correctly
+- [ ] **[S14]**  Service mesh (if applicable): mTLS enforced, authorization policies defined, control plane HA
+- [ ] **[S15]**  Network automation: all resources in IaC (Terraform/Pulumi/CDK); changes via CI/CD pipeline
+- [ ] **[S16]**  Monitoring: alarms on NAT gateway errors, VPN tunnel status, ALB 5xx rate, CDN cache hit rate
+- [ ] **[S17]**  VPC endpoints for S3, DynamoDB, and other frequently accessed AWS services
+- [ ] **[S18]**  IPv6 dual-stack (or plan documented); public IPv4 address inventory tracked
+- [ ] **[S19]**  Network runbooks documented: common troubleshooting steps, escalation paths, contact info
+- [ ] **[S20]**  Network cost review quarterly: data transfer, NAT gateway hours, public IPs, inter-AZ traffic
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [AWS VPC Documentation](https://docs.aws.amazon.com/vpc/) — Core VPC, Transit Gateway, VPN, Direct Connect
 - [AWS Well-Architected Framework — Networking](https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/networking.html) — Reliability pillar networking
 - [Azure Virtual Network Documentation](https://learn.microsoft.com/en-us/azure/virtual-network/) — VNet, peering, ExpressRoute

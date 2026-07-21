@@ -2,14 +2,23 @@
 name: product-strategist
 description: Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led growth, JTBD, North Star metric, product roadmap.
 author: Sandeep Kumar Penchala
+type: strategy
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - product-strategist
+token_budget: 1362
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Product Strategist
 
 End-to-end product strategy from discovery through growth. Covers product-market fit validation, OKR-driven planning, pricing strategy, competitive positioning, and product-led growth — connecting business outcomes to product execution.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Validating product-market fit for a new product or feature
 - Setting up OKRs cascading from company strategy to team execution
 - Pricing strategy: freemium, usage-based, tiered, per-seat, hybrid
@@ -20,7 +29,7 @@ End-to-end product strategy from discovery through growth. Covers product-market
 - North Star metric definition and product metrics framework
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Product-Market Fit Assessment
 
 ```
@@ -54,8 +63,8 @@ Average deal size (ACV)?
 | Hybrid | Complex products | Maximized | Datadog, Snowflake |
 
 ## Core Workflow
-
-### Phase 1: Discovery & Validation
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Discovery & Validation
 
 1. **Problem validation**: Vitamin or painkiller? Talk to 20+ target users.
 2. **JTBD**: Functional job + emotional job + social job. "People don't want a drill, they want a hole."
@@ -63,21 +72,21 @@ Average deal size (ACV)?
 4. **Opportunity sizing**: TAM → SAM → SOM. Top-down + bottom-up.
 5. **Value proposition**: For [customer] who [problem], [product] is a [category] that [benefit]. Unlike [alternatives], we [differentiator].
 
-### Phase 2: Strategy & Planning
+### Phase 2 (~30 min): Strategy & Planning
 
 1. **Vision (3-5yr) → Strategy (12-18mo) → Tactics (quarterly)**
 2. **OKRs**: Objectives (qualitative, inspiring). KRs (quantitative, outcome-based). NOT output-based.
 3. **Roadmap**: Now → Next → Later. Theme-based, tied to objectives.
 4. **North Star metric**: Single metric capturing core value. Supporting: AARRR or HEART.
 
-### Phase 3: Prioritization
+### Phase 3 (~20 min): Prioritization
 
 1. **RICE**: Reach × Impact × Confidence ÷ Effort
 2. **Kano Model**: Basic → Performance → Delighters
 3. **Cost of Delay**: CD3 = Cost of Delay ÷ Duration. Highest CD3 first.
 4. **Opportunity Scoring**: Importance × (1 − Satisfaction). High importance + low satisfaction = biggest opportunity.
 
-### Phase 4: Growth & Optimization
+### Phase 4 (~15 min): Growth & Optimization
 
 1. **Growth loops**: Identify bottleneck in Acquisition → Activation → Retention → Revenue → Referral. Optimize.
 2. **PLG**: Time-to-value < 5 min. PQL scoring for sales handoff.
@@ -85,7 +94,7 @@ Average deal size (ACV)?
 4. **Retention**: Cohort analysis. Identify "aha moment". Drive users there faster.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Product strategy sits at the intersection of business, design, engineering, and operations. Know when to coordinate:
 
 | Coordinate With | When | What to Share/Ask |
@@ -116,7 +125,7 @@ Product strategy sits at the intersection of business, design, engineering, and 
 | OKR at risk | CEO Strategist, CTO Advisor | Expectation management, resource reallocation |
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Outcomes over output**: Ship features that move metrics, not just roadmap items.
 - **Say no strategically**: Frame as trade-off: "If we build A, we delay B by 3 months."
 - **PMF is a spectrum**: Segment analysis. PMF for one segment ≠ PMF for all.
@@ -147,7 +156,7 @@ Agency building for clients? → Client = PM. You execute.
 ```
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `product-discovery` | New product, pivot | Phase 1 |
@@ -186,23 +195,33 @@ Agency building for clients? → Client = PM. You execute.
 - **Small → Medium**: Single PM can't cover all product areas. Need specialization. >10K users or second product line.
 - **Medium → Enterprise**: Multiple product lines with P&L. IPO or acquisition requires formal product governance. >100K users.
 
-## Production Checklist
 
-- [ ] Product vision documented and communicated
-- [ ] PMF assessed (Sean Ellis test or equivalent)
-- [ ] Competitive landscape with win/loss data
-- [ ] Pricing strategy with value metric and tiering
-- [ ] OKRs: objectives qualitative, KRs quantitative and outcome-based
-- [ ] Roadmap: Now/Next/Later, theme-based, aligned to objectives
-- [ ] North Star metric defined and tracked
-- [ ] Prioritization framework in place (RICE, CD3, or equivalent)
-- [ ] Customer feedback loop: interviews, NPS, tickets, win/loss
-- [ ] Retention cohort analysis: "aha moment" identified, time-to-value tracked
-- [ ] GTM model validated with rationale
-- [ ] Cross-skill coordination map documented for key decisions
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Product vision documented and communicated
+- [ ] **[S2]**  PMF assessed (Sean Ellis test or equivalent)
+- [ ] **[S3]**  Competitive landscape with win/loss data
+- [ ] **[S4]**  Pricing strategy with value metric and tiering
+- [ ] **[S5]**  OKRs: objectives qualitative, KRs quantitative and outcome-based
+- [ ] **[S6]**  Roadmap: Now/Next/Later, theme-based, aligned to objectives
+- [ ] **[S7]**  North Star metric defined and tracked
+- [ ] **[S8]**  Prioritization framework in place (RICE, CD3, or equivalent)
+- [ ] **[S9]**  Customer feedback loop: interviews, NPS, tickets, win/loss
+- [ ] **[S10]**  Retention cohort analysis: "aha moment" identified, time-to-value tracked
+- [ ] **[S11]**  GTM model validated with rationale
+- [ ] **[S12]**  Cross-skill coordination map documented for key decisions
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Inspired](https://www.svpg.com/books/inspired/) — Marty Cagan
 - [Escaping the Build Trap](https://www.amazon.com/dp/149197379X) — Melissa Perri
 - [Obviously Awesome](https://www.amazon.com/dp/1999023005) — April Dunford

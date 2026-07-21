@@ -2,13 +2,23 @@
 name: api-designer
 description: REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination, SDK.
 author: Sandeep Kumar Penchala
+type: architecture
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - api-designer
+token_budget: 2064
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # API Designer
 
 Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skill covers full API lifecycle design: specification-first development with OpenAPI 3.1, consistent error modeling, authentication and authorization patterns, rate limiting, pagination strategies, versioning approaches, and developer experience (DX) including SDK generation and documentation.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new REST, GraphQL, or gRPC API from scratch
 - Creating OpenAPI 3.1 specifications for existing or new APIs
 - Deciding between API paradigms (REST, GraphQL, gRPC, WebSocket) for a use case
@@ -18,15 +28,123 @@ Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skil
 - Generating SDKs, API reference documentation, or Postman collections from specs
 - Reviewing API designs for consistency, security, and DX quality
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### REST vs GraphQL vs gRPC
+```
+                     ┌──────────────────────────┐
+                     │ START: New API endpoint   │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Multiple client types with │
+                    │ different data needs?      │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ GraphQL     │   │ Service-to-     │
+                    │             │   │ service comms?  │
+                    └─────────────┘   └────┬────────┬───┘
+                                           │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────┐
+                                      │ gRPC    │ │ REST  │
+                                      └─────────┘ └───────┘
+```
+**When to choose REST:** Public-facing CRUD APIs, >3 consumer types, need HTTP caching, team has REST experience. **When to choose GraphQL:** 3+ client platforms with divergent data needs, nested/relational data, over-fetching problem measured at >40% unused fields. **When to choose gRPC:** Internal microservices, >1000 req/s, need bidirectional streaming, polyglot service mesh.
 
-### Phase 1: API Paradigm Selection
+### URL Path vs Header Versioning
+```
+                     ┌──────────────────────────┐
+                     │ START: Breaking API       │
+                     │ change required           │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Public API with external   │
+                    │ third-party consumers?     │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ URL Path    │   │ Header or no    │
+                    │ (/v1/,/v2/) │   │ versioning yet  │
+                    └─────────────┘   └────────────────┘
+```
+**When to choose URL Path:** Public API, >100 consumers, need discoverability and caching by version. **When to choose Header:** Internal-only API, <10 consumers, want clean URLs, can mandate Accept header usage.
+
+### Cursor vs Offset Pagination
+```
+                     ┌──────────────────────────┐
+                     │ START: List endpoint      │
+                     │ with >1000 items          │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Real-time data with        │
+                    │ frequent inserts/deletes?  │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Cursor-based│   │ Offset is fine  │
+                    │ (stable,     │   │ (simpler for    │
+                    │  consistent) │   │ static datasets)│
+                    └─────────────┘   └────────────────┘
+```
+**When to choose Cursor:** Data changes frequently (>10 writes/sec), need stable pagination during mutations, dataset >10K records. **When to choose Offset:** Static or slowly-changing data (<1 write/min), need jump-to-page-N UX, dataset <10K records, simpler client implementation acceptable.
+
+### API Key vs OAuth2 vs JWT
+```
+                     ┌──────────────────────────┐
+                     │ START: Auth mechanism     │
+                     │ for API endpoints         │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ End-user context needed    │
+                    │ (scoped access per user)?  │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ OAuth2 +    │   │ Machine-to-     │
+                    │ OIDC        │   │ machine only?   │
+                    └─────────────┘   └────┬────────┬───┘
+                                           │ YES    │ NO
+                                      ┌────▼────┐ ┌▼──────────┐
+                                      │ API Key │ │ JWT (self- │
+                                      │ (simple) │ │ contained) │
+                                      └─────────┘ └────────────┘
+```
+**When to choose OAuth2:** User-facing APIs, delegated access, need refresh tokens and scope-based permissions. **When to choose API Key:** Server-to-server, <10 internal consumers, no user context needed, simplest integration. **When to choose JWT:** Stateless auth, distributed systems, need claims without token lookup, short-lived tokens (<15 min).
+
+### Rate Limiting Tier Design
+```
+                     ┌──────────────────────────┐
+                     │ START: Rate limit         │
+                     │ per consumer              │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Revenue-generating API     │
+                    │ with paid tiers?           │
+                    └────┬──────────────────┬────┘
+                         │ YES              │ NO
+                    ┌────▼────────┐   ┌─────▼──────────┐
+                    │ Tiered: Free │   │ Flat per-IP:   │
+                    │ 100/min, Pro │   │ 1000 req/min   │
+                    │ 1000/min,    │   │ with burst 2x  │
+                    │ Ent 10000/min│   └────────────────┘
+                    └──────────────┘
+```
+**When to choose Tiered:** Monetized API, >3 consumer tiers, need overage billing integration. **When to choose Flat:** Internal API, <100 consumers, no billing complexity needed, simple protection against abuse.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): API Paradigm Selection
 1. **REST**: CRUD-heavy, document/collection-oriented, wide client audience, caching needs (HTTP caching), simple data shapes. Use when you need cacheability, discoverability (HATEOAS), and broad compatibility.
 2. **GraphQL**: Complex client-driven data fetching, multiple frontend clients, nested/relational data, over-fetching/under-fetching problems. Use when frontend teams need flexible queries.
 3. **gRPC**: High-performance service-to-service, streaming (bidirectional), strongly-typed contracts, polyglot microservices. Use Protocol Buffers for internal service mesh.
 4. **WebSocket/SSE**: Real-time push, live updates, collaborative features, streaming events to browsers.
 
-### Phase 2: Specification-First Design
+### Phase 2 (~30 min): Specification-First Design
 1. Write the OpenAPI 3.1 specification before implementation.
 2. Define **paths** with clear resource naming: plural nouns (`/users`, `/orders`), nested for sub-resources (`/users/{id}/orders`), no verbs in URLs (except for non-CRUD actions like `/orders/{id}/cancel`).
 3. Define **schemas** with complete property types, formats, constraints (minLength, pattern, enum), examples, and descriptions.
@@ -34,7 +152,7 @@ Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skil
 5. Add **security schemes** (Bearer JWT, OAuth2, API Key) and `security` requirements per operation.
 6. Include `servers` with environment URLs, `tags` for grouping, `info` with version and contact.
 
-### Phase 3: Consistency & Governance
+### Phase 3 (~20 min): Consistency & Governance
 1. **Error Schema** — Standardize on RFC 7807 Problem Details:
    ```json
    { "type": "https://api.example.com/errors/validation-error", "title": "Validation Error", "status": 422, "detail": "The 'email' field is required.", "instance": "/users/abc123", "errors": [{ "field": "email", "code": "required", "message": "Email is required" }] }
@@ -43,14 +161,14 @@ Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skil
 3. **Filtering & Sorting** — Query parameters: `?filter[status]=active&filter[createdAt][gte]=2024-01-01&sort=-createdAt&fields=id,name,email` (sparse fieldsets).
 4. **Idempotency** — Require `Idempotency-Key` header for mutating operations (POST/PUT/PATCH/DELETE); return stored response for duplicate keys.
 
-### Phase 4: Versioning & Lifecycle
+### Phase 4 (~15 min): Versioning & Lifecycle
 1. **URL path versioning** (`/v1/users`) — explicit, simple, allows major breaking changes. Preferred for public APIs.
 2. **Header versioning** (`Accept: application/vnd.api+json; version=1`) — cleaner URLs but harder to explore.
 3. **Deprecation** — Use `Sunset` and `Deprecation` HTTP headers; emit `Deprecation` notice in API changelog at least 6 months before removal.
 4. **Sunset policy**: vN supported for 12 months after vN+1 release.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -64,7 +182,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `api-testing` | Contract testing, integration | `references/` (create as needed) |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 API design is a social contract. The spec is the agreement, but coordination ensures that agreement holds — across teams, across services, and over time as the API evolves.
 
 ### Coordinate With
@@ -107,6 +225,7 @@ Minor API addition or non-breaking change
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Spec-first, not code-first**: OpenAPI spec is the source of truth; generate server stubs and client SDKs from it.
 - **Naming consistency**: camelCase for JSON properties, kebab-case for headers and query params, UPPER_SNAKE for enum values.
 - **Use HTTP semantics correctly**: GET (safe, idempotent), PUT (idempotent replace), PATCH (partial update), POST (create), DELETE (idempotent).
@@ -187,19 +306,32 @@ POST /rpc  { "method": "createOrder", "params": {...}, "id": 1 }
 - **Small → Medium**: >100 API consumers or external developers. First breaking change requires versioning.
 - **Medium → Enterprise**: >1000 API consumers. Multi-product API surface. Developer portal needed.
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `relation "..." does not exist` | Migration not run or wrong database | `npx prisma migrate dev` or check `DATABASE_URL` |
+| `deadlock detected` | Concurrent transactions in wrong order | Enforce consistent lock ordering; use `NOWAIT` where appropriate |
+| `connection pool exhausted` | Too many concurrent connections | Increase pool size; add connection timeout; check for leaked connections |
+| `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
+
+
 ## Production Checklist
-- [ ] OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
-- [ ] Error responses follow RFC 7807 Problem Details across all endpoints
-- [ ] Pagination strategy defined (cursor-based for lists > 1000 items)
-- [ ] Authentication (JWT/OAuth2/API Key) and authorization (RBAC/ABAC) defined per endpoint
-- [ ] Rate limiting configured with tiered quotas and appropriate headers
-- [ ] Idempotency key support for all mutating endpoints
-- [ ] API versioning and deprecation policy documented and communicated
-- [ ] SDKs generated and published for target languages (TypeScript, Python, Go at minimum)
-- [ ] Interactive documentation (Swagger UI/Scalar/Redoc) deployed
-- [ ] Health check endpoint (`GET /health`, `GET /health/ready`) implemented
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
+- [ ] **[S2]**  Error responses follow RFC 7807 Problem Details across all endpoints
+- [ ] **[S3]**  Pagination strategy defined (cursor-based for lists > 1000 items)
+- [ ] **[S4]**  Authentication (JWT/OAuth2/API Key) and authorization (RBAC/ABAC) defined per endpoint
+- [ ] **[S5]**  Rate limiting configured with tiered quotas and appropriate headers
+- [ ] **[S6]**  Idempotency key support for all mutating endpoints
+- [ ] **[S7]**  API versioning and deprecation policy documented and communicated
+- [ ] **[S8]**  SDKs generated and published for target languages (TypeScript, Python, Go at minimum)
+- [ ] **[S9]**  Interactive documentation (Swagger UI/Scalar/Redoc) deployed
+- [ ] **[S10]**  Health check endpoint (`GET /health`, `GET /health/ready`) implemented
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [OpenAPI 3.1 Specification](https://spec.openapis.org/oas/v3.1.0)
 - [RFC 7807 — Problem Details for HTTP APIs](https://datatracker.ietf.org/doc/html/rfc7807)
 - [JSON:API Specification](https://jsonapi.org/)
