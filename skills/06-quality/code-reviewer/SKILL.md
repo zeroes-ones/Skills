@@ -17,6 +17,33 @@ output:
 
 Perform rigorous, structured code reviews across six dimensions: security, performance, code quality, error handling, testing, and documentation. Each finding is graded by severity (Critical, High, Medium, Low, Info) with specific, actionable recommendations. This skill goes beyond linting — it identifies logic errors, architectural concerns, security vulnerabilities, performance bottlenecks, and test gaps that automated tools miss.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Review a pull request (PR) → Start at "Core Workflow > Phase 1"
+│   ├── Quick sanity check (<200 lines, low risk) → Jump to "Core Workflow > Phase 2", then approve or flag
+│   ├── Standard review (feature/bug fix) → Full 6-dimension review: "Core Workflow > Phase 2 → Phase 3 → Phase 5"
+│   └── Critical change (auth, payments, data) → "Core Workflow > Phase 3" — all 6 dimensions, multi-reviewer
+├── Security-focused review (auth, crypto, PII) → Go to "Sub-Skills > security-review" then "Six-Dimension Review Framework > Security"
+├── Performance review (queries, memory, latency) → Go to "Sub-Skills > performance-review" then "Six-Dimension Review Framework > Performance"
+├── Architecture review (new module, refactor, >200 lines) → Start at "Core Workflow > Phase 2", then "Decision Trees > Review Depth Decision"
+├── Accessibility review → Go to "Six-Dimension Review Framework > Code Quality" and check for ARIA, keyboard, semantic HTML
+└── Not sure where to start? → "Core Workflow > Phase 1" (Context Gathering) — understand intent first
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never approve without understanding the change.** If you can't explain why a change is correct, ask for clarification — do not assume.
+- **Flag severity clearly (blocker vs. nit).** Every finding gets a grade (Critical/High/Medium/Low/Info) with specific line references and fix suggestions.
+- **Every finding needs a specific line reference.** No vague "this function is problematic" — point to the exact file, line, and why it matters.
+- **Don't review style — use automated tools for that.** Linting, formatting, and type checking are CI's job. Your job is logic, design, security, and correctness.
+- **Always explain the "why."** A finding without rationale is a complaint, not a review. Show the impact: "This N+1 query adds 500ms per item — on a page with 50 items, that's 25 seconds."
+- **Admit what you don't know.** If a change touches a domain outside your expertise (e.g., cryptography implementation details), flag it for a specialist and don't pretend confidence.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Reviewing pull requests before merge
@@ -216,11 +243,16 @@ CI infrastructure issues? → DevOps Engineer
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | backend-developer | Feature implementation with tests |
+| **This** | code-reviewer | Six-dimension review with severity-graded findings |
+| **After** | qa-engineer | Test coverage for flagged risk areas |
+
+Common chains:
+- **Chain**: backend-developer → code-reviewer → qa-engineer — Code is reviewed for quality/security, then QA targets findings with additional tests
+- **Chain**: frontend-developer → code-reviewer → release-manager — UI changes reviewed for accessibility and performance, then queued for release
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

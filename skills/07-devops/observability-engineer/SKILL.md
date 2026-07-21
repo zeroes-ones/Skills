@@ -21,6 +21,31 @@ traces — through SLO-based alerting, meaningful dashboards, and incident-ready
 coverage of OpenTelemetry instrumentation, Prometheus recording/alerting rules, Grafana dashboard
 provisioning, Loki log aggregation, and Tempo distributed tracing.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Instrument a service with metrics → Jump to "Core Workflow > Phase 1" (Instrumentation) and "Sub-Skills > metrics-instrumentation"
+├── Set up a logging pipeline → Go to "Core Workflow > Phase 2" (Logging) and "Sub-Skills > log-aggregation"
+├── Implement distributed tracing → Jump to "Core Workflow > Phase 3" (Tracing) and "Sub-Skills > distributed-tracing"
+├── Design a dashboard (RED/USE/Golden Signals) → Go to "Core Workflow > Phase 4" (Dashboards) and "Best Practices > Dashboard Design"
+├── Configure alerts (SLO-based, multi-window burn rate) → Jump to "Core Workflow > Phase 5" (Alerting) and "Best Practices > Alert Design"
+├── Define SLOs and error budgets → Go to "Decision Trees > SLO Definition" and "Core Workflow > Phase 5"
+└── Not sure where to start? → "Core Workflow > Phase 1" — instrumentation comes first; you can't observe what you don't measure
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never alert on symptoms without a runbook.** If the alert fires and the on-call engineer has no documented steps to diagnose and mitigate, it's not an alert — it's noise that wakes someone up.
+- **Dashboards must tell a story, not just show numbers.** Every dashboard should answer a specific question: "Is the service healthy?", "Where is latency coming from?", "Are we within SLO?" A grid of random graphs helps no one.
+- **Logs need structure (JSON).** Free-form text logs are impossible to query at scale. Every log line must be structured (JSON) with consistent field names and types across services.
+- **Cardinality kills metrics — watch label values.** A metric label with user IDs, request IDs, or full URLs creates a new time series for every unique value. Use high-cardinality data in logs/traces, not metrics.
+- **Always define what "normal" looks like before alerting.** Threshold-based alerts without understanding baseline patterns generate false positives. Use anomaly detection or multi-window burn rates where possible.
+- **Admit what you don't know.** If you're unfamiliar with a specific observability backend (Datadog, New Relic, Honeycomb), say so and stick to the principles — the tools change, the concepts don't.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Instrumenting services with OpenTelemetry SDKs for unified metrics, traces, and structured logs
@@ -478,11 +503,16 @@ Root cause: connection pool leak in PaymentService v2.3.0
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | devops-engineer | Deployed infrastructure and services |
+| **This** | observability-engineer | Instrumentation, dashboards, alerts, SLO definitions |
+| **After** | site-reliability-engineer | Error budgets and reliability decisions based on observability data |
+
+Common chains:
+- **Chain**: devops-engineer → observability-engineer → site-reliability-engineer — Services are deployed and instrumented; SRE uses observability data for reliability management
+- **Chain**: platform-engineer → observability-engineer → incident-responder — Platform provides standard instrumentation; incident response uses dashboards and alerts during outages
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

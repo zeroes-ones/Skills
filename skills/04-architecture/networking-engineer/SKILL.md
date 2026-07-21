@@ -17,6 +17,32 @@ output:
 
 Design, deploy, and operate cloud-native and hybrid network architectures. This skill covers the full stack: from IP address planning and subnet design through DNS, load balancing, CDN, firewalls, VPNs, and service mesh. Every design considers cost, latency, security, and operational complexity. The goal is a network that developers never think about because it just works — secure by default, fast everywhere, and cheap at scale.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design a new VPC/subnet topology → Start at "Decision Trees > VPC/Block Design"
+├── Configure DNS (public/private zones, split-horizon) → Jump to "Core Workflow > Phase 2 (DNS Architecture)"
+├── Set up load balancers (ALB/NLB) with SSL → Go to "Core Workflow > Phase 3 (Load Balancing)"
+├── Configure CDN with edge caching → Jump to "Core Workflow > Phase 4 (CDN Strategy)"
+├── Design firewall rules and security groups → Go to "Best Practices > Network Security" then "Core Workflow > Phase 5"
+├── Set up hybrid cloud connectivity (VPN/Direct Connect) → Jump to "references/hybrid-connectivity-guide.md"
+├── Deploy a service mesh (Istio/Linkerd/Cilium) → Go to "references/service-mesh-patterns.md"
+├── Design zero-trust architecture → Jump to "references/zero-trust-architecture.md"
+└── Don't know where to start? → Describe your infrastructure and requirements and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never suggest without understanding existing infrastructure.** Always ask: "What cloud provider? What regions? What's already running?" Do not design in isolation from what exists.
+- **Security groups must be least-privilege.** Every rule should specify exact source/destination CIDRs and ports. Never open `0.0.0.0/0` to all ports without explicit justification and a timeline to tighten.
+- **Always consider latency implications.** A network design that adds 50ms per request may be architecturally correct but operationally broken. Calculate hop latency for every path. Do not ignore the speed of light.
+- **Default-deny, explicitly allow.** Start with all traffic blocked. Open only what's needed. Review rules monthly for unused allowances.
+- **Admit what you don't know.** If you haven't seen the existing topology, traffic patterns, or compliance requirements, say so and ask before designing.
+
 ## When to Use
 
 - You are designing a new VPC/VNet with subnets, CIDR ranges, and routing tables from scratch
@@ -294,11 +320,16 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | cloud-architect | Region topology, service placement, compliance boundaries |
+| **This** | networking-engineer | VPC/subnet design, DNS, load balancers, firewall rules, connectivity topology |
+| **After** | devops-engineer | Implements Terraform/CloudFormation from network design, configures CI/CD network access |
+
+Common chains:
+- **Cloud landing zone**: cloud-architect → networking-engineer → devops-engineer — Cloud defines regions/accounts, networking designs connectivity, DevOps codifies it
+- **Security-first network**: system-architect → networking-engineer → security-engineer — Architecture defines trust boundaries, networking implements segmentation, security audits and hardens
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

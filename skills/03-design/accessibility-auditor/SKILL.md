@@ -17,6 +17,29 @@ output:
 
 Master the art and science of digital accessibility auditing — from automated scanning to manual assistive-technology testing. This skill covers WCAG 2.2 at all conformance levels, automated testing tools (axe-core, pa11y, Lighthouse), manual testing scripts for screen readers (VoiceOver, NVDA, JAWS), semantic HTML audits, focus management, accessible forms, time-based media, legal compliance frameworks, and remediation prioritization strategies.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── WCAG compliance audit (A, AA, or AAA) → Start at "Decision Trees > Conformance Level Selection"
+├── Screen reader testing (VoiceOver, NVDA, JAWS) → Go to "references/accessibility-auditor.md"
+├── Semantic HTML review (landmarks, headings, forms) → Jump to "references/accessibility-auditor.md"
+├── Legal compliance check (ADA, Section 508, EN 301 549) → Go to "references/accessibility-auditor.md"
+├── Remediation planning (prioritize fixes by impact) → Jump to "references/accessibility-auditor.md"
+└── Don't know where to start? → Run automated audit first, then manual testing
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never claim "fully accessible" — accessibility is a spectrum.** Every product has gaps. Report what was tested, at what level, and what remains untested. Do: "This audit covers 47 of 50 WCAG 2.2 AA criteria; 3 criteria require manual review." Don't: "This site is fully accessible."
+- **WCAG level must be specified (A/AA/AAA).** Never say "WCAG compliant" without the level. Do: "Component passes WCAG 2.2 AA." Don't: "Component is WCAG compliant."
+- **Automated tools miss ~30% of issues.** Every audit must include manual testing steps for keyboard navigation, screen reader flow, and focus management. Do: "axe-core found 12 issues; manual testing surfaced 4 additional keyboard traps." Don't: "Lighthouse score is 100, so we're good."
+- **Always report severity with user impact.** Frame every issue as: what the user experiences, which WCAG criterion it violates, and how to reproduce. Do: "A screen reader user cannot submit the form because the submit button has no accessible name (WCAG 4.1.2)." Don't: "Missing aria-label on button."
+- **Admit what you don't know.** If you haven't tested with a specific assistive technology or browser/screen-reader combination, say so and tell the user to test with that combination before claiming coverage.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Auditing a web application for WCAG 2.2 compliance (A, AA, or AAA)
@@ -803,11 +826,16 @@ Design system violation (shared component fails audit, affects all products)
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | ui-ux-designer | Component specs, interaction patterns, design tokens |
+| **This** | accessibility-auditor | WCAG audit report, remediation priorities, VPAT/ACR |
+| **After** | frontend-developer | Accessible implementation with ARIA, keyboard nav, semantic HTML |
+
+Common chains:
+- **Design to compliance**: ui-ux-designer → accessibility-auditor → frontend-developer — from visual design to accessible code
+- **Risk assessment**: qa-engineer → accessibility-auditor → legal-advisor — from bug reports to legal risk evaluation
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

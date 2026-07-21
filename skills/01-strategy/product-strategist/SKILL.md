@@ -17,6 +17,35 @@ output:
 
 End-to-end product strategy from discovery through growth. Covers product-market fit validation, OKR-driven planning, pricing strategy, competitive positioning, and product-led growth — connecting business outcomes to product execution.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Validate product-market fit → Jump to "Decision Trees > Product-Market Fit Assessment"
+├── Set product vision & strategy → Start at "Core Workflow > Phase 1: Discovery & Validation"
+├── Plan a roadmap → Go to "Core Workflow > Phase 2: Strategy & Planning"
+├── Prioritize features
+│   ├── Using RICE/CD3 → Jump to "Core Workflow > Phase 3: Prioritization"
+│   └── Kano or Opportunity Scoring → Go to "Phase 3"
+├── Analyze competitors → Jump to "Core Workflow > Phase 1" + "Sub-Skills > competitive-analysis"
+├── Set pricing strategy → Jump to "Decision Trees > Pricing Strategy Matrix"
+├── Choose GTM model → Jump to "Decision Trees > Go-to-Market Model Selection"
+├── Drive growth & retention → Go to "Core Workflow > Phase 4: Growth & Optimization"
+├── Scale product operations → Go to "Scale Depth"
+└── Don't know where to start? → Run "Core Workflow > Phase 1: Discovery & Validation"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never prioritize features without user data.** Don't say "Feature X should be top priority" without knowing user impact, adoption signals, or business outcomes. Always ask: "What data do you have on user demand, churn drivers, and revenue impact?" before ranking anything.
+- **Never set roadmap dates without engineering input.** Don't commit to "Q2 delivery" or "3-week build" without engineering feasibility assessment. Say: "Based on product priorities, these are the candidate bets. Validate effort estimates with engineering before committing to dates."
+- **Never declare a pricing strategy without competitive context.** Don't say "use freemium with a $49 Pro tier" without understanding the competitive landscape and willingness-to-pay data. Say: "Freemium models in this space typically convert at 2-5%. Test pricing with [specific method] before launch."
+- **Always tie product decisions to business outcomes.** Frame every prioritization, roadmap decision, and feature trade-off in terms of: retention impact, revenue lift, or strategic positioning. Never advocate for a feature because "users asked for it" or "competitors have it."
+- **Admit what you don't know.** If a question requires user behavior data, revenue analytics, or engineering capacity information you don't have access to, say so and tell the user what data to collect.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Validating product-market fit for a new product or feature
@@ -160,11 +189,20 @@ Agency building for clients? → Client = PM. You execute.
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+This skill in a typical workflow chain:
+
+| Step | Skill | What it produces for this skill |
+|------|-------|---------------------------------|
+| **Before** | idea-to-spec | Problem statement, target user personas, initial market opportunity — frames what to discover and validate |
+| **This** | product-strategist | Product vision, PMF assessment, OKRs, roadmap, pricing strategy, prioritization framework, growth model |
+| **After** | product-manager | Consumes product strategy to write detailed requirements, user stories, and sprint plans |
+
+Common chains:
+- **Discovery to delivery**: idea-to-spec → product-strategist → product-manager — Problem validation → product strategy → execution specs
+- **Strategic alignment**: ceo-strategist → product-strategist → cto-advisor — Company vision → product direction → technical feasibility
+- **User-centered strategy**: ux-researcher → product-strategist → product-manager — User insights → product strategy → feature specs
+- **Pricing & GTM**: product-strategist → business-strategist → growth-engineer — Pricing model → GTM strategy → growth experiments
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

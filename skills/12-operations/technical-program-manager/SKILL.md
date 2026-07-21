@@ -17,6 +17,32 @@ output:
 
 Technical Program Manager (TPM) — the role that bridges engineering execution across multiple teams. Unlike a PM (single project, single team) or Scrum Master (team process), the TPM owns **cross-team technical initiatives**: programs that span 3+ teams, have complex technical dependencies, and require architectural alignment. Think API migrations, platform launches, multi-team feature rollouts, deprecation programs, and infrastructure modernization.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Building a program roadmap → Start at "Roadmap & Milestone Planning" under Sub-Skills
+├── Cross-team coordination → Go to "Dependency Management" under Sub-Skills
+├── Managing dependencies across teams → Jump to "Dependency Management" under Sub-Skills
+├── Tracking a cross-team initiative → Go to "Program Scoping" then "Roadmap & Milestone Planning"
+├── Executive reporting → Jump to "Stakeholder Communication" under Sub-Skills
+├── Resource planning across programs → Go to "Risk & Change Management" under Sub-Skills
+├── Managing program-level risk → Jump to "Risk & Change Management" under Sub-Skills
+└── Don't know where to start? → Start at "Program Scoping"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never coordinate across teams without clear ownership per deliverable.** Every dependency needs a named owner and committed date.
+- **Dependency management needs buffer — things will slip.** Plan 20-30% buffer on cross-team dependencies.
+- **Executive reporting must be honest about risks, not optimistic for comfort.** Red status today beats a surprise failure next month.
+- **Always run an RFC or ADR for cross-cutting technical decisions.** Verbal agreements between teams don't survive turnover.
+- **Stakeholder communication should match the audience.** C-suite needs summaries; engineering teams need technical detail.
+- **Admit what you don't know.** If a team's architecture or capacity is unclear, escalate and clarify before committing.
+
 ## When to Use
 
 - You are launching a cross-team initiative that spans 3+ engineering teams with interdependent deliverables
@@ -201,11 +227,16 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | project-manager | Project schedule, resource plan, RAID log, stakeholder map |
+| **This** | technical-program-manager | Program roadmap, cross-team dependency map, ADRs, executive reports |
+| **After** | scrum-master | Sprint plans per team, backlog refinement, velocity tracking |
+
+Common chains:
+- **Chain**: project-manager → technical-program-manager → scrum-master — Individual project plans are integrated into a multi-team program; scrum masters drive sprint-level execution.
+- **Chain**: ceo-strategist → technical-program-manager → release-manager — Strategic initiative gets program-level orchestration; release manager coordinates the launch.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

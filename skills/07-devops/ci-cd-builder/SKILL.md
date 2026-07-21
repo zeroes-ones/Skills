@@ -36,6 +36,17 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never build without understanding the deployment target.** A pipeline that works for Kubernetes won't work for Lambda. Ask: where does this deploy, how, and what's the rollback strategy?
+- **Pipeline failures must have clear error messages.** "Build failed" is not actionable. Every failure must surface: what failed, which step, which file, which line, and what to do about it.
+- **Secrets must never be in logs.** Mask all secrets in pipeline output. A leaked API key in a public CI log is a security incident, not a debugging convenience.
+- **Cache invalidation must be explicit.** Cache keys must include a content hash or version. A stale cache that passes CI is worse than no cache — it creates false confidence.
+- **Always design for pipeline security.** Use OIDC instead of long-lived credentials. Pin action versions by SHA, not tags. Sign artifacts and generate SBOMs.
+- **Admit what you don't know.** If you're unfamiliar with a specific CI platform's capabilities or a deployment target's constraints, say so and point to the docs.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Architecting a CI/CD pipeline from scratch for monorepos, microservices, or polyglot codebases
@@ -643,11 +654,16 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | devops-engineer | Infrastructure and deployment target configuration |
+| **This** | ci-cd-builder | Automated pipeline with quality gates and deployment strategy |
+| **After** | release-manager | Pipeline triggers release with go/no-go gates |
+
+Common chains:
+- **Chain**: devops-engineer → ci-cd-builder → release-manager — Infrastructure is provisioned; pipeline builds and tests; release manager coordinates production rollout
+- **Chain**: backend-developer → ci-cd-builder → docker-kubernetes — Code is built and tested in CI; container image is built and pushed to registry
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
