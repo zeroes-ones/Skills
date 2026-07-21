@@ -38,24 +38,21 @@ echo -e "      ${GREEN}✓${NC} Skills library at ${SKILLS_HOME}"
 # Step 2: Set up global agent symlinks
 echo -e "${YELLOW}[2/4]${NC} Creating global agent symlinks..."
 
-declare -A AGENT_DIRS=(
-    ["claude"]="$HOME/.claude/skills"
-    ["copilot"]="$HOME/.copilot/skills"
-    ["cursor"]="$HOME/.cursor/skills"
-    ["openclaw"]="$HOME/.openclaw/workspace/skills"
-)
+# Format: agent_name:target_dir (colon-separated)
+AGENT_LIST="claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills cursor:$HOME/.cursor/skills openclaw:$HOME/.openclaw/workspace/skills"
 
-agents_configured=()
-for agent in "${!AGENT_DIRS[@]}"; do
-    target="${AGENT_DIRS[$agent]}"
+agents_configured=""
+for entry in $AGENT_LIST; do
+    agent="${entry%%:*}"
+    target="${entry#*:}"
     if [ -L "$target" ]; then
         echo -e "      ${GREEN}✓${NC} $agent already linked"
-        agents_configured+=("$agent")
+        agents_configured="$agents_configured $agent"
     elif [ -d "$(dirname "$target")" ] || mkdir -p "$(dirname "$target")" 2>/dev/null; then
         rm -rf "$target" 2>/dev/null || true
         ln -sf "$SKILLS_HOME/skills" "$target"
         echo -e "      ${GREEN}✓${NC} $agent → $target"
-        agents_configured+=("$agent")
+        agents_configured="$agents_configured $agent"
     else
         echo -e "      ${YELLOW}○${NC} $agent not installed (skip)"
     fi
@@ -75,15 +72,12 @@ PROJECT="${1:-.}"
 cd "$PROJECT" || { echo "Cannot access $PROJECT"; exit 1; }
 echo "Activating skills in $(pwd)..."
 
-declare -A AGENT_DIRS=(
-    ["claude"]=".claude/skills"
-    ["copilot"]=".copilot/skills"
-    ["cursor"]=".cursor/skills"
-    ["openclaw"]=".openclaw/workspace/skills"
-)
+# Format: agent_name:target_dir (colon-separated)
+AGENT_LIST="claude:.claude/skills copilot:.copilot/skills cursor:.cursor/skills openclaw:.openclaw/workspace/skills"
 
-for agent in "${!AGENT_DIRS[@]}"; do
-    target="${AGENT_DIRS[$agent]}"
+for entry in $AGENT_LIST; do
+    agent="${entry%%:*}"
+    target="${entry#*:}"
     parent=$(dirname "$target")
     if [ -d "$parent" ] || mkdir -p "$parent" 2>/dev/null; then
         rm -rf "$target" 2>/dev/null || true
@@ -120,8 +114,8 @@ echo -e "${YELLOW}[4/4]${NC} Verifying installation..."
 skill_count=$(find "$SKILLS_HOME/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
 echo -e "      ${GREEN}✓${NC} $skill_count skills available"
 
-if [ ${#agents_configured[@]} -gt 0 ]; then
-    echo -e "      ${GREEN}✓${NC} Agents configured: ${agents_configured[*]}"
+if [ -n "$agents_configured" ]; then
+    echo -e "      ${GREEN}✓${NC} Agents configured:$agents_configured"
 fi
 
 # PATH reminder

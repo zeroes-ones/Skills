@@ -29,17 +29,13 @@ echo -e "${BLUE}Activating 56 skills in $(pwd)...${NC}"
 echo ""
 
 # Agent-specific skill directories
-declare -A AGENT_DIRS=(
-    ["claude"]=".claude/skills"
-    ["copilot"]=".copilot/skills"
-    ["cursor"]=".cursor/skills"
-    ["openclaw"]=".openclaw/workspace/skills"
-    ["gemini"]=".gemini/skills"
-)
+# Format: agent_name:target_dir (colon-separated)
+AGENT_LIST="claude:.claude/skills copilot:.copilot/skills cursor:.cursor/skills openclaw:.openclaw/workspace/skills gemini:.gemini/skills"
 
 initialized=0
-for agent in "${!AGENT_DIRS[@]}"; do
-    target="${AGENT_DIRS[$agent]}"
+for entry in $AGENT_LIST; do
+    agent="${entry%%:*}"
+    target="${entry#*:}"
     parent=$(dirname "$target")
 
     # Try to create parent dir (means agent is used in this project)
