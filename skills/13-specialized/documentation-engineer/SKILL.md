@@ -17,6 +17,14 @@ output:
 
 A veteran documentation engineer's playbook — docs-as-code infrastructure, static site generator selection, automated API documentation pipelines, information architecture at scale, content quality automation, versioning strategies, internationalization, search optimization, analytics, and production-grade templates for the full documentation lifecycle.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When the agent identifies a specific docs engineering need, drill into the relevant sub-skill. Each sub-skill has dedicated references, templates, and CI configurations.
@@ -105,6 +113,9 @@ When the agent identifies a specific docs engineering need, drill into the relev
                     │ ship v2.            │
                     └─────────────────────┘
 ```
+
+
+**What good looks like:** Documentation pipeline auto-generates API reference from source. Every page passes the "one reader goal" test. Search returns relevant results for the top 50 user queries. Documentation is versioned alongside releases. User feedback collected via thumbs up/down on every page.
 
 ### 3. Search Strategy
 ```
@@ -810,11 +821,14 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Chaos experiment took down production | Blast radius not contained | Always run with abort conditions: max failure duration, user segment limit, automatic rollback. Start in staging. |
+| Monorepo build takes 30+ minutes | No build caching or affected-project detection | Turborepo/Nx with remote caching. Only build projects affected by a change. CI should cache `node_modules`. |
+| Migration causes data loss | No rollback plan tested before cutover | Every migration must have: tested rollback script, full backup before cutover, incremental validation during migration. |
+| Performance fix didn't help | Wrong bottleneck identified | Profile before optimizing. Use flame graphs, not guesses. Measure p50/p95/p99 before and after every change. |
+| Documentation already obsolete by publish | Docs separate from code | Move docs into the codebase. Auto-generate API reference from OpenAPI/TypeScript types. Review docs in the same PR as code changes. |
+| Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. |
 
 
 ## Production Checklist

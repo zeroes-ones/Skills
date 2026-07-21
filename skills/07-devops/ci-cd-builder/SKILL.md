@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - ci-cd-builder
-token_budget: 2973
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -187,6 +187,9 @@ Do not read the entire skill. Follow the route above and read only the sections 
                 └───────────┬───────────┘
                        Quality Gates
    ```
+
+
+**What good looks like:** Pipeline completes in under 15 minutes for a full build-test-deploy cycle. All stages pass on every PR merge. Failed deploys auto-rollback within 2 minutes. Secrets are injected at runtime — zero plaintext in pipeline config.
 
 2. **Pipeline Topology Decision Tree**:
    ```
@@ -637,6 +640,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
        # Capture flaky test names, post to flaky test dashboard
        cat junit.xml | grep '<failure' | notify-flaky-tracker
    ```
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

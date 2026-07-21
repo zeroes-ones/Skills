@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - content-strategist
-token_budget: 2820
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -278,6 +278,14 @@ Content department (10+): specialists per channel, content ops manager, managing
 | Small → Medium | >4 posts/week, 3+ content channels active, or content ROI > $50K/month | Build in-house team; implement CMS workflows; add attribution model |
 | Medium → Enterprise | Multi-language needs, >10 content creators, or content influences >$1M pipeline/month | Dedicate content ops; invest in AI tools; build content supply chain |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -294,11 +302,15 @@ Content department (10+): specialists per channel, content ops manager, managing
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Organic traffic drops sharply | Algorithm update or technical SEO issue | Check GSC for manual actions, verify crawlability, check Core Web Vitals. Rollback recent structural changes. |
+| Content ranks but doesn't convert | Content targets top-of-funnel only | Map content to buyer journey: awareness → consideration → decision. Every content piece has a next step CTA. |
+| A/B test shows no winner | Sample size too small or test duration too short | Minimum 1 full business cycle per variant. Use sequential testing — don't peek at results. |
+| Viral loop doesn't activate | Invite flow has friction | Cut invite flow to 3 taps max. Show invite value before asking. Track invite-to-signup conversion rate. |
+| Developer community is silent | No low-friction contribution path | Start with issues labeled "good first issue." Respond within 24h. Celebrate first PR with public thank-you. |
+| Paid acquisition CPA too high | Targeting too broad or creative not differentiated | Narrow to lookalike audiences. Test 5+ creative angles per audience segment. Kill underperformers after $500 spend. |
+| Activation rate < 10% | Onboarding doesn't demonstrate core value in first session | Force "aha moment" within first 5 minutes. Cut all non-essential onboarding steps. Show value before asking for commitment. |
 
 
 ## Production Checklist
@@ -364,6 +376,9 @@ Are you producing content in 1 format only (all blog posts)?
 ├── YES → Repurpose top 3 performers: blog → LinkedIn post → email newsletter → Twitter thread. Zero new research cost.
 └── NO → Already multi-format. Focus on format that drives most conversions.
 ```
+
+
+**What good looks like:** Content calendar published for the next 30 days with topics, authors, and distribution channels. Topic cluster map covers all primary keywords. Every content piece has a CTA linked to a measurable outcome. Content audit completed within the last 90 days.
 
 ## When NOT to Use This Skill (Overkill)
 

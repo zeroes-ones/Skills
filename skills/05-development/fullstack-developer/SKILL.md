@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - fullstack-developer
-token_budget: 1910
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -26,7 +26,8 @@ Deliver complete features across the entire stack — from database to UI. This 
 - Implementing authentication flows that span client and server (NextAuth, Lucia, Clerk)
 - Querying databases from server-side code (Prisma, Drizzle, SQLAlchemy)
 - Setting up CI/CD pipelines for full-stack deployments (Vercel, Railway, Docker)
-- Debugging issues that cross the frontend-backend boundary
+- <!-- DEEP: 10+min -->
+Debugging issues that cross the frontend-backend boundary
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
@@ -243,6 +244,9 @@ Cross-service integration broken? → Backend Developer → System Architect
 Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 ```
 
+
+**What good looks like:** Feature works end-to-end: user clicks button → API call → database write → UI updates. TypeScript types shared between frontend and backend with zero contract drift. CI pipeline runs full-stack tests in under 10 minutes.
+
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
 ### Solo (1 person, 0-100 users)
@@ -269,6 +273,14 @@ Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 - **Solo → Small**: Second fullstack developer. Monolith becomes hard to reason about for one person.
 - **Small → Medium**: Need to separate concerns (compute-heavy work blocking request lifecycle). >1K req/s.
 - **Medium → Enterprise**: 5+ teams in monorepo. Multi-region or compliance requirements. >10K req/s.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - idea-to-spec
-token_budget: 1439
+token_budget: 2190
 output:
   type: "code"
   path_hint: "./"
@@ -116,7 +116,8 @@ Cross-team dependency deadlock (two teams block each other)
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - Always define the empty state and error state before the happy path — they reveal the most design complexity.
 - Prefer denormalized read models for query-heavy screens; normalize only writes.
-- Every API response must include a `requestId` field for production debugging.
+- Every API response must include a `requestId` field for production <!-- DEEP: 10+min -->
+debugging.
 - Write acceptance criteria as executable assertions: "Given X, when Y, then Z."
 - Use the "Mom Test" on every story: would a real user pay or change behavior for this?
 - Version the spec artifact — date-stamp every iteration so teams can trace decisions.
@@ -150,6 +151,14 @@ Cross-team dependency deadlock (two teams block each other)
 - **Small → Medium**: 3+ teams need coordinated specs. First enterprise customer demands traceability.
 - **Medium → Enterprise**: Regulatory compliance requires spec sign-off. Multi-product spec dependencies. IPO audit trail needed.
 
+
+### Cross-skills Integration
+```bash
+# Idea → Spec → Build → Test
+/idea-to-spec && /product-manager && /backend-developer && /qa-engineer
+# Spec is the contract: what's in scope, what's out, what success looks like.
+```
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
@@ -165,11 +174,15 @@ Cross-team dependency deadlock (two teams block each other)
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Stakeholder rejects spec | Spec solves wrong problem or misses context | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing before solution. |
+| Dev estimates don't match spec | Spec has hidden complexity, missing edge cases | Every screen needs loading/empty/error/edge states defined. Ambiguity → estimate buffer. |
+| Users don't use the feature | Built what was asked, not what was needed | Outcome-based specs: "increase X by Y%" not "build Z". User research before writing. |
+| Scope creep during build | Spec didn't define explicit non-goals | "Out of scope" section is non-negotiable. Refer back when scope tries to expand. |
+| No adoption after launch | Success metric not validated before building | Define success metric before writing first user story. Validate with prototype before building. |
+| Cross-team dependency blocks delivery | Spec assumed dependencies would be available | Map all dependencies with owners and dates in the spec. Flag red dependencies to PM weekly. |
+| PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. |
 
 
 ## Production Checklist

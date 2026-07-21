@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - system-architect
-token_budget: 2006
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -173,6 +173,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
 ```
 **When to choose Event Sourcing:** Financial/audit systems, full history required by regulation, complex state transitions, event replay needed. **When to choose CQRS-only:** Read:write >100:1, read-side query complexity high, no audit trail requirement, materialized views sufficient.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
@@ -260,6 +268,9 @@ Architecture decision that blocks multiple teams or changes core assumptions
 Architecture guidance, review, or approval for team-level design
   └── System Architect reviews, team implements. No escalation needed. ADR if decision affects other teams.
 ```
+
+
+**What good looks like:** C4 model diagrams (Context → Container → Component) documented and reviewed. ADRs for the last 5 major decisions with alternatives considered. Architecture sketch that a new team member can understand in 10 minutes.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

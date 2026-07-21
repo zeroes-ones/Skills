@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - regulatory-specialist
-token_budget: 3983
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -360,6 +360,14 @@ RA/QA department (3-10+). QMS: enterprise (Veeva Vault, TrackWise, Sparta). Mult
 | Small → Medium | First regulatory submission filed; QMS audit scheduled (FDA/Notified Body) | Implement electronic QMS; hire RA/QA specialist; pursue ISO 13485 |
 | Medium → Enterprise | Multiple cleared devices; international expansion (>3 markets); post-market surveillance required | Build RA/QA department; implement Veeva/TrackWise; establish regulatory intelligence; CER/PMS programs |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -376,11 +384,15 @@ RA/QA department (3-10+). QMS: enterprise (Veeva Vault, TrackWise, Sparta). Mult
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Contract signed with unfavorable terms | Missing redline on key clauses | Never sign first draft. Redline: liability cap, indemnification, termination for convenience, IP ownership, data processing. |
+| No BAA with HIPAA-covered vendor | Assumed vendor had one | Verify BAA before sharing any PHI. Retroactive BAA does not cover data already shared. |
+| GDPR fine exposure | No data inventory or lawful basis documented | Document every data field, its purpose, lawful basis, retention period, and third-party sharing. |
+| Open source license violation | Dependency used in proprietary product | Check license compatibility: GPL/AGPL is not compatible with proprietary distribution. Use only MIT/Apache 2.0/BSD in proprietary products. |
+| Employee classification lawsuit | Contractor treated as employee | IRS 20-factor test. If contractor works exclusively, uses company equipment, and has set hours → they're an employee. |
+| Privacy policy doesn't match app behavior | Policy written before features built | Policy must reflect actual data collection. Conduct pre-release audit: every permission request maps to a policy disclosure. |
+| Jurisdiction conflict for international users | Terms only reference one country | Specify governing law AND dispute resolution. EU users need GDPR compliance regardless of where you're based. |
 
 
 ## Production Checklist
@@ -457,6 +469,9 @@ Is your software changing (new feature, new algorithm, new intended use)?
 │   └── NO → Document in change control. No submission needed. Move forward.
 └── NO → Maintain. Review annually.
 ```
+
+
+**What good looks like:** Regulatory pathway document with requirements, timeline, and budget. Evidence binder prepared for submission (QMS, risk management, clinical evaluation, PMS). Regulatory submission accepted within first review cycle. Post-market surveillance plan active.
 
 ## When NOT to Use This Skill (Overkill)
 

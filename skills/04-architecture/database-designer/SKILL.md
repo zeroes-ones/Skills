@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - database-designer
-token_budget: 2277
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -204,6 +204,14 @@ Design efficient, scalable, and maintainable database schemas across relational 
 4. **Connection pooling**: PgBouncer (transaction mode) or built-in pool (HikariCP for JVM, `asyncpg` pool for Python).
 5. **Read replicas**: Route read queries to replicas; accept replication lag for non-critical reads.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
@@ -259,6 +267,9 @@ Schema migration that blocks 3+ teams or requires coordinated multi-service depl
 Routine schema change (new column, index addition, non-breaking type change)
   └── Database Designer reviews PR, team deploys with migration. No escalation needed.
 ```
+
+
+**What good looks like:** ERD covering all entities with relationships and cardinalities. Indexing strategy covers the top 10 query patterns. Migration script with rollback for each change. Query plan analysis shows sequential scans eliminated for the critical path.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

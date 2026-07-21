@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - security-engineer
-token_budget: 1315
+token_budget: 2835
 output:
   type: "code"
   path_hint: "./"
@@ -135,6 +135,14 @@ Team size?
 3. Set up SOAR playbooks for automated triage: enrich alerts with threat intelligence, quarantine compromised hosts, revoke credentials.
 4. Hunt for threats proactively: run hypothesis-driven threat hunts monthly based on threat intelligence and MITRE ATT&CK.
 5. Tune alerting to balance signal-to-noise: measure mean time to detect (MTTD) and mean time to acknowledge (MTTA).
+
+
+### Cross-skills Integration
+```bash
+# Design review → Build → Security review → Deploy → Monitor
+/system-architect && /backend-developer && /security-reviewer && /ci-cd-builder && /incident-responder
+# Security is reviewed at design phase (threat model), build phase (SAST/SCA), and deploy phase (DAST).
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

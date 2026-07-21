@@ -252,6 +252,9 @@ Do not read the entire skill. Follow the route above and read only the sections 
        └── Vision + Language                  → GPT-4V, Gemini, LLaVA, CogVLM, Fuyu
    ```
 
+
+**What good looks like:** ML pipeline reproducible from raw data to deployed model. Feature store serves consistent features for training and inference. Model monitoring tracks prediction drift, data drift, and performance metrics. A/B test framework compares model versions. Training pipeline completes in under 2 hours.
+
 4. **Data requirements by approach:**
    | Approach                     | Minimum Labeled Data | Notes                                    |
    |------------------------------|---------------------|------------------------------------------|
@@ -575,6 +578,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
    | LLM APIs       | Prompt compression, shorter context, tiered models (GPT-4→3.5 for simple tasks), prompt caching | 30–80% |
    | Embeddings     | Cache embeddings; don't re-embed unchanged documents           | 50–90% |
    | Vector DB      | Dimension reduction (PCA), scalar quantization, disk-based index for cold data | 30–60% |
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

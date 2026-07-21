@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - database-reliability-engineer
-token_budget: 2804
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -332,6 +332,14 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 - **Solo → Small**: >100 users. First paying customers. Downtime costs real money (>$100/hr). Manual backup restore too slow.
 - **Small → Medium**: >10K users. Read replica needed. Replication lag causing data inconsistencies. Connection pool exhaustion.
 - **Medium → Enterprise**: >1M users. Compliance requirements (SOC 2, HIPAA). Multiple teams with shared database dependencies. Single instance cannot scale vertically.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - code-reviewer
-token_budget: 1681
+token_budget: 3000
 output:
   type: "code"
   path_hint: "./"
@@ -39,6 +39,9 @@ Change type and risk?
 
 PR > 400 lines? → Request author to split into smaller PRs. If not possible, schedule live review session.
 ```
+
+
+**What good looks like:** Review covers all 6 dimensions (correctness, security, performance, maintainability, style, testing). Every finding has a severity, rationale, and suggested fix. Author can address all changes in under 2 hours. No critical or high findings remain.
 
 ### When Automated Tools Suffice
 
@@ -210,6 +213,14 @@ CI infrastructure issues? → DevOps Engineer
 - **Solo → Small**: Second developer joins. Need shared understanding of code changes.
 - **Small → Medium**: 5+ developers. Critical production incidents traced to merged code. >10K users.
 - **Medium → Enterprise**: Compliance requirements. Multiple teams with shared code ownership. >50 developers.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

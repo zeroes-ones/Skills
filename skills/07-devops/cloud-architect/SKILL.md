@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - cloud-architect
-token_budget: 2139
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -200,6 +200,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
 4. Establish incident response runbooks specific to cloud attack vectors: compromised credentials, exposed buckets, cryptomining.
 5. Conduct regular Well-Architected Framework reviews and penetration tests.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
@@ -252,6 +260,9 @@ Cost overrun threatening budget? → Finance → CTO
 Architecture decision deadlock? → CTO Advisor
 Cross-cloud migration decision? → CTO Advisor → CEO Strategist
 ```
+
+
+**What good looks like:** Architecture diagram with all services, data flows, and network boundaries. Multi-region failover tested and documented. Cost projection within 10% of actual for 3 consecutive months. Every service has SLO with error budget.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
