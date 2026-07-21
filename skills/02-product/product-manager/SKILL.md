@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - product-manager
-token_budget: 1484
+token_budget: 2430
 output:
   type: "code"
   path_hint: "./"
@@ -58,6 +58,9 @@ Strategic vs tactical feature?
 ├── Strategic bet (new market, platform play) → Don't use RICE. CEO judgment call.
 └── Tactical improvement → RICE/Value-vs-Effort. Data-driven.
 ```
+
+
+**What good looks like:** PRD with problem statement validated by user research. Success metrics defined with baseline and target. RICE scoring on all features. Stakeholders have reviewed and signed off. Open questions have owners and due dates.
 
 ### When NOT to Write a PRD
 
@@ -166,6 +169,14 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 - **Small → Medium**: 3+ PMs with overlapping stakeholder groups. >10K users or second product line.
 - **Medium → Enterprise**: Multi-product with independent P&L. IPO preparation. >100K users.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
@@ -181,11 +192,15 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Stakeholder rejects spec | Spec solves wrong problem or misses context | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing before solution. |
+| Dev estimates don't match spec | Spec has hidden complexity, missing edge cases | Every screen needs loading/empty/error/edge states defined. Ambiguity → estimate buffer. |
+| Users don't use the feature | Built what was asked, not what was needed | Outcome-based specs: "increase X by Y%" not "build Z". User research before writing. |
+| Scope creep during build | Spec didn't define explicit non-goals | "Out of scope" section is non-negotiable. Refer back when scope tries to expand. |
+| No adoption after launch | Success metric not validated before building | Define success metric before writing first user story. Validate with prototype before building. |
+| Cross-team dependency blocks delivery | Spec assumed dependencies would be available | Map all dependencies with owners and dates in the spec. Flag red dependencies to PM weekly. |
+| PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. |
 
 
 ## Production Checklist

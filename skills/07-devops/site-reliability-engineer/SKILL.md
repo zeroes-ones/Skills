@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - site-reliability-engineer
-token_budget: 2037
+token_budget: 3555
 output:
   type: "code"
   path_hint: "./"
@@ -218,6 +218,14 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 - **Cost**: $3-8M/year (10-25 SREs across teams). Enterprise monitoring/paging $15-50K/month. Chaos engineering platform $5-10K/month.
 - **Transition trigger**: > 200 engineers, multi-product portfolio, 99.99%+ contractual obligations, public company reliability reporting.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
@@ -238,7 +246,8 @@ Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → C
 - **100% is the wrong target**: 100% reliability costs exponentially more and prevents innovation. Users don't notice the difference between 99.99% and 99.999% on a mobile connection.
 - **Automate toil until it hurts (and then automate some more)**: every manual step is a future incident. SREs should spend > 50% of time on engineering work, not operations.
 - **Blameless is not consequence-free**: postmortems should be blameless in tone but rigorous in action items. "Blameless" means "we all want to fix the system," not "nobody is accountable."
-- **Alert on symptoms, not causes**: alert on "user-facing error rate > 1%" not "CPU > 80%." The latter is a debugging signal, not a user-impact signal.
+- **Alert on symptoms, not causes**: alert on "user-facing error rate > 1%" not "CPU > 80%." The latter is a <!-- DEEP: 10+min -->
+debugging signal, not a user-impact signal.
 - **Every alert must require human action**: if an alert fires and you can ignore it, it's noise — tune the threshold or remove it. Alert fatigue kills response times.
 - **Runbooks before alerts**: never create an alert without a linked runbook. "Page first, figure it out later" is how SEV1s become SEV0s.
 - **Capacity is a reliability concern**: running out of capacity is a self-inflicted outage. Plan for 2x peak and have elastic scaling as backup.

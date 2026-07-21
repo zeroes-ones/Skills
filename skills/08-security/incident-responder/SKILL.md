@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - incident-responder
-token_budget: 2001
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -204,6 +204,14 @@ These rules apply to *every* response this skill produces. Incidents are high-st
 4. Use error budgets to drive reliability investments: when the budget is exhausted, freeze feature launches and prioritize reliability work.
 5. Reduce toil: identify manual steps during incidents and automate them — runbook automation, auto-rollback, self-healing.
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -254,6 +262,9 @@ Security breach confirmed? → CISO + CTO immediately
 Customer data exposed? → CISO + Legal + CTO immediately
 Regulatory notification required? → Compliance Officer → Legal → CEO
 ```
+
+
+**What good looks like:** Incident timeline documented with all decisions and actions. Root cause identified and confirmed. Containment completed within SLA (SEV1 < 1 hour). Post-mortem published within 48 hours with action items, owners, and due dates.
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 

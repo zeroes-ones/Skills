@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - release-manager
-token_budget: 2278
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -255,6 +255,14 @@ Customer-impacting regression found post-release? → SRE → Rollback → Postm
 - **Coordination**: Release manager runs release planning weekly. Go/no-go with VP-level visibility for major releases. Cross-team dependency sync daily during freeze week. Monthly release program review with CTO.
 - **Cost**: $300-600K/year (1-2 release managers + platform). Feature flag enterprise platform $30-80K/year. Release management tooling $10-30K/year.
 - **Transition trigger**: > 10 teams deploying to same production, regulatory environment (SOX, FDA), customer contractual release SLAs, > $100M revenue with release-dependent revenue recognition.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
