@@ -2,14 +2,23 @@
 name: ceo-strategist
 description: CEO field manual covering vision, fundraising, board management, competitive strategy, org design, OKRs, crisis management, executive hiring, M&A, metrics dashboards, and personal effectiveness. Use when making company-defining decisions, raising capital, designing organizations, navigating crises, or scaling from seed to enterprise.
 author: Sandeep Kumar Penchala
+type: strategy
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - ceo-strategist
+token_budget: 1522
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # CEO Strategist — The Operator's Field Manual
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom
 - Organizational design: team structure by stage and size
 - Equity and cap table planning: founder splits, employee option pools, dilution modeling
@@ -19,7 +28,7 @@ Executive-level strategy for company formation, fundraising, organizational desi
 - Company-building through MVP → Growth → Scale phases
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -33,7 +42,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `vision-to-execution` | Translating 5-year vision to quarterly OKRs | This file — MVP-to-Scale section |
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Fundraising: Should You Raise VC?
 
 ```
@@ -64,6 +73,43 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 | **15-30** (Series A) | Functional teams: eng, product, GTM. | 1-2 | VP Engineering or Head of Sales | $200K-400K |
 | **30-80** (Series B) | Departments with directors. CEO delegates. | 2-3 | CFO/COO | $500K-1.2M |
 | **80-200** (Series C+) | VPs with directors under them. COO runs ops. | 3-4 | CPO, CRO | $1.5M-4M |
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~20 min): Strategic Alignment and Vision
+1. Articulate the 3-year vision: what does success look like? What must be true for the company to win?
+2. Translate vision into annual strategic pillars (3-5 max). Each pillar must have a measurable outcome.
+3. Derive quarterly OKRs: 3-5 objectives with 3-5 key results each. KRs must be outcome-based, not activity-based.
+4. Socialize with leadership team. Pressure-test assumptions. Identify the "one thing" that would kill the plan.
+5. Document in a strategy memo (2 pages max). Circulate to board and entire company.
+
+### Phase 2 (~15 min): Resourcing and Capital Allocation
+1. Map strategic pillars to required resources: headcount, budget, time, executive attention.
+2. Identify the binding constraint: is it engineering capacity, sales pipeline, capital, or market timing?
+3. Run a "zero-based" exercise: if starting from scratch, would you allocate resources the same way? Cut what wouldn't survive.
+4. Determine funding needs: runway in months, burn rate, hiring plan, contingency buffer (20% minimum).
+5. Build a financial model with best/base/worst case scenarios. Stress-test against losing your top customer or key hire.
+
+### Phase 3 (~20 min): Organization and Talent
+1. Design the org chart for the next 12 months, not today. What roles will you need at the next funding milestone?
+2. Identify the top 3 hires that will unlock the next phase. Write job descriptions with success criteria.
+3. Evaluate current team: who has outgrown their role? Who needs support? Is there a single point of failure?
+4. Define compensation philosophy: salary bands by role/level, equity refresh policy, performance review cadence.
+5. Plan for culture scaling: what values are non-negotiable? How will you preserve them as you double headcount?
+
+### Phase 4 (~15 min): Governance and Reporting
+1. Set board meeting cadence (quarterly minimum, monthly during crises). Define board packet contents.
+2. Establish a company-wide metric dashboard: revenue, burn, runway, CAC, LTV, churn, NPS, headcount.
+3. Define decision rights: which decisions require CEO approval vs. VP discretion? Document in a RACI matrix.
+4. Create an escalation framework: what constitutes a "CEO must know immediately" event vs. weekly update?
+5. Schedule skip-level 1:1s with key ICs quarterly. Information bottlenecks kill companies.
+
+### Phase 5 (~25 min): Execution Cadence and Crisis Readiness
+1. Establish operating rhythm: weekly leadership standup (30 min), monthly business review (2 hrs), quarterly offsite (full day).
+2. Run a pre-mortem: "It's 12 months from now, we failed. What happened?" — then build mitigations into the plan.
+3. Define crisis triggers: down round, co-founder departure, major customer loss, security breach, regulatory action.
+4. For each crisis trigger, pre-designate a response owner, communication template, and first 24-hour action plan.
+5. Review quarterly: what got done vs. committed? What did we learn? What changes for next quarter?
 
 ## MVP-to-Scale Progression
 
@@ -108,7 +154,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 | Head of Product | 0.5-1.5% |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 The CEO sits at the center of all strategic decisions. Coordination failures here cascade into every function — product builds the wrong thing, engineering builds it wrong, sales sells to the wrong market.
 
 ### Coordinate With
@@ -189,20 +235,30 @@ Functional level (tactical: org change, process issue, vendor decision)
 - **Small → Medium**: You're hiring specialists (not just generalists). Burn rate requires institutional capital. Revenue > $2M ARR.
 - **Medium → Enterprise**: Board demands independent governance. IPO/liquidity event within 24 months. Revenue > $20M ARR.
 
-## Production Checklist
 
-- [ ] Cap table modeled with dilution at each round (use Carta/Pulley)
-- [ ] 18-24 month runway modeled with hiring plan and burn rate
-- [ ] Board composition planned with independent director identified
-- [ ] Employee option pool sized correctly for hiring plan
-- [ ] Fundraising materials: pitch deck, financial model, data room
-- [ ] Investor pipeline: 30+ target investors per round
-- [ ] Org chart designed for next 2 phases (MVP → Growth → Scale)
-- [ ] Key person risk mitigated: no single employee is irreplaceable
-- [ ] Founder agreement signed: vesting, IP assignment, decision rights
-- [ ] 409A valuation completed for option pricing
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Cap table modeled with dilution at each round (use Carta/Pulley)
+- [ ] **[S2]**  18-24 month runway modeled with hiring plan and burn rate
+- [ ] **[S3]**  Board composition planned with independent director identified
+- [ ] **[S4]**  Employee option pool sized correctly for hiring plan
+- [ ] **[S5]**  Fundraising materials: pitch deck, financial model, data room
+- [ ] **[S6]**  Investor pipeline: 30+ target investors per round
+- [ ] **[S7]**  Org chart designed for next 2 phases (MVP → Growth → Scale)
+- [ ] **[S8]**  Key person risk mitigated: no single employee is irreplaceable
+- [ ] **[S9]**  Founder agreement signed: vesting, IP assignment, decision rights
+- [ ] **[S10]**  409A valuation completed for option pricing
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - Related: `cto-advisor`, `business-strategist`, `product-manager`
 - Books: Venture Deals (Feld & Mendelson), The Hard Thing About Hard Things (Horowitz), High Growth Handbook (Gil)

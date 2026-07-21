@@ -2,14 +2,23 @@
 name: technical-writer
 description: API documentation (OpenAPI), architecture decision records, READMEs, runbooks, onboarding guides, changelogs, knowledge base articles, documentation site structure.
 author: Sandeep Kumar Penchala
+type: operations
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - technical-writer
+token_budget: 2493
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Technical Writer
 
 Technical documentation system covering the full documentation lifecycle — from API reference generation to architecture decision records to knowledge base management. Designed for developer-tooling, platform, and infrastructure teams.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Generating or maintaining API reference documentation from OpenAPI/Swagger specifications
 - Writing architecture decision records (ADRs) to capture technical decisions with context and consequences
 - Crafting high-quality READMEs that serve as the entry point for open-source or internal repositories
@@ -19,9 +28,176 @@ Technical documentation system covering the full documentation lifecycle — fro
 - Writing automated changelogs from conventional commits or manually curated release notes
 - Structuring a knowledge base that stays discoverable and up-to-date as the codebase evolves
 
-## Core Workflow
+## Decision Trees
 
-### Phase 1: Documentation Audit & Strategy
+### Documentation Type Selection
+```
+                     ┌──────────────────────────────┐
+                     │ START: What type of docs?       │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Audience integrating with our   │
+                    │ API or SDK?                     │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ API Reference │    │ Audience operating │
+                    │ OpenAPI/Swagger│    │ or troubleshooting │
+                    │ auto-generated│    │ a running system?   │
+                    │ + conceptual │    └──┬──────────┬────┘
+                    │ guides        │       │YES       │NO
+                    └───────────────┘  ┌────▼────┐ ┌──▼──────────┐
+                                       │Runbooks,│ │Audience      │
+                                       │Troubleshoot│ │onboarding  │
+                                       │guides,  │ │(new dev on  │
+                                       │Incident │ │team)?       │
+                                       │response │ └──┬──────┬───┘
+                                       │procedures│   │YES   │NO
+                                       └──────────┘ ┌▼────┐┌▼──────────┐
+                                                     │On-  ││Conceptual │
+                                                     │board││Guides,    │
+                                                     │guide││Architecture│
+                                                     │+    ││Decisions  │
+                                                     │setup ││(ADRs),    │
+                                                     │script││Tutorials  │
+                                                     └─────┘└───────────┘
+```
+**When to build API Reference:** Integrating developers — auto-generate from OpenAPI 3.x spec, include authentication, endpoints, request/response examples, error codes.
+**When to build Runbooks:** Operators/on-call — incident response procedures, deployment guides, rollback steps, health check endpoints, alert response playbooks.
+**When to build Onboarding Guides:** New team members — dev environment setup, architecture overview, first commit walkthrough, team norms, toolchain setup.
+**When to build Conceptual Guides:** Learning/understanding — architecture overviews, design patterns, ADRs, tutorials, "why" not just "how".
+
+### Information Architecture Decision
+```
+                     ┌──────────────────────────────┐
+                     │ START: How to structure docs?  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Documentation spans >50 pages  │
+                    │ with >5 distinct audience      │
+                    │ types?                         │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Diátaxis      │    │ Single product,  │
+                    │ framework:    │    │ single audience? │
+                    │ Tutorials     │    └──┬──────────┬────┘
+                    │ How-to Guides │       │YES       │NO
+                    │ Explanation   │  ┌────▼────┐ ┌──▼──────────┐
+                    │ Reference     │  │Flat     │ │Simple       │
+                    │ (4 quadrants) │  │structure│ │hierarchy:   │
+                    └───────────────┘  │with     │ │Getting      │
+                                       │search as│ │Started,     │
+                                       │primary  │ │Guides,      │
+                                       │nav      │ │Reference,   │
+                                       └─────────┘ │Changelog    │
+                                                   └─────────────┘
+```
+**When to use Diátaxis:** Large docs site (>50 pages), multiple audience types — 4-quadrant structure (tutorials, how-to guides, explanation, reference) with cross-links.
+**When to use Flat + Search:** Small product, single audience — good search as primary navigation, minimal hierarchy, fast to maintain.
+**When to use Simple Hierarchy:** Medium scope — Getting Started → Guides → Reference → Changelog, works for most open-source projects and startups.
+
+### README Quality Gate
+```
+                     ┌──────────────────────────────┐
+                     │ START: Is this README good?    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Does it answer: "What is this?" │
+                    │ "Why does it exist?" "How do I │
+                    │ get started?" in <30 seconds?  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Has one-liner │    │ Missing critical │
+                    │ install       │    │ section. Add:    │
+                    │ command?      │    │ - Description    │
+                    └──┬────────┬───┘    │ - Install        │
+                       │YES     │NO      │ - Usage          │
+                  ┌────▼───┐ ┌─▼────────┐│ - Contributing   │
+                  │Has badge│ │Add clear││ - License        │
+                  │(CI,     │ │install  │└──────────────────┘
+                  │version, │ │section  │
+                  │license)?│ └─────────┘
+                  └──┬───┬──┘
+                     │YES│NO
+                ┌────▼─┐┌▼───────┐
+                │README││Add     │
+                │PASSES││missing │
+                │quality││badges │
+                │gate  │└────────┘
+                └──────┘
+```
+**When README passes:** One-liner description, install command, basic usage example, contributing link, license, CI/version badges — new developer builds in <5 minutes.
+**When README needs work:** Missing any of: description, install, usage, contributing, license. Each missing piece costs new contributors 5-20 minutes of frustration.
+
+### API Documentation Generation Strategy
+```
+                     ┌──────────────────────────────┐
+                     │ START: How to generate API     │
+                     │ documentation?                 │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Have an OpenAPI 3.x spec        │
+                    │ (machine-readable, validated)?  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Auto-generate │    │ API is simple    │
+                    │ from spec:    │    │ (<10 endpoints)? │
+                    │ Swagger UI,   │    └──┬──────────┬────┘
+                    │ Redoc,        │       │YES       │NO
+                    │ Scalar — CI   │  ┌────▼────┐ ┌──▼──────────┐
+                    │ pipeline       │  │Manual MD│ │Create       │
+                    │ regenerates   │  │with code│ │OpenAPI spec │
+                    │ on spec change│  │snippets │ │first — it   │
+                    └───────────────┘  │from tests│ │becomes the  │
+                                       └─────────┘ │source of    │
+                                                   │truth        │
+                                                   └─────────────┘
+```
+**When to auto-generate from spec:** Have validated OpenAPI 3.x — use Redoc (static, clean), Swagger UI (interactive), or Scalar (modern). CI pipeline: spec change triggers doc regeneration + deploy.
+**When to write manually in Markdown:** <10 endpoints, no OpenAPI spec — write Markdown with code snippets extracted from integration tests, ensure examples are runnable.
+**When to create OpenAPI spec first:** >10 endpoints without spec — invest in creating the spec; it becomes source of truth for docs, SDK generation, and validation.
+
+### Changelog Strategy
+```
+                     ┌──────────────────────────────┐
+                     │ START: Changelog approach?     │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Team uses Conventional Commits  │
+                    │ AND has CI pipeline?            │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Auto-generate │    │ Releases are     │
+                    │ changelog from│    │ infrequent       │
+                    │ commits:      │    │ (monthly or      │
+                    │ standard-     │    │ slower)?         │
+                    │ version +     │    └──┬──────────┬────┘
+                    │ commitlint +  │       │YES       │NO
+                    │ release-please│  ┌────▼────┐ ┌──▼──────────┐
+                    │or semantic-   │  │Manual   │ │Keep a       │
+                    │release        │  │curated  │ │CHANGELOG.md │
+                    └───────────────┘  │changelog│ │write entries │
+                                       │per      │ │per PR in    │
+                                       │release  │ │keepachangelog│
+                                       └─────────┘ │.com format  │
+                                                   └─────────────┘
+```
+**When to auto-generate:** Conventional Commits + CI — semantic-release or release-please generates changelog, bumps version, publishes. Zero manual effort but requires commit discipline.
+**When to manually curate:** Infrequent releases — hand-write curated changelog per release with narrative, highlights, migration guide. Better for marketing-facing releases.
+**When to keep running CHANGELOG.md:** Per-PR entries in keepachangelog.com format — each PR adds entry under Unreleased; cut version on release. Good for fast-moving projects.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Documentation Audit & Strategy
 
 1. **Documentation Inventory** — Catalog all existing docs: repository READMEs, wiki pages, `/docs` directories, API specs (OpenAPI, GraphQL), ADRs, runbooks, onboarding materials, blog posts with technical content, internal Google Docs/Notion pages. For each: audience, freshness (last updated), accuracy (% still correct), discoverability (how do people find it?).
 2. **Audience & Needs Mapping** — Identify documentation personas:
@@ -40,7 +216,7 @@ Technical documentation system covering the full documentation lifecycle — fro
    - **Linting**: Vale or textlint for style guide enforcement; markdownlint for formatting.
 5. **Deliverable: Documentation Strategy Document** — Inventory, persona map, gap analysis, prioritized backlog of docs to create/update, toolchain decision, IA proposal for doc site.
 
-### Phase 2: Core Documentation Types
+### Phase 2 (~30 min): Core Documentation Types
 
 1. **README** — Every repository's landing page. Structure:
    - **Title & Badge Bar**: build status, coverage, version, license, downloads.
@@ -71,7 +247,7 @@ Technical documentation system covering the full documentation lifecycle — fro
    - **Manual curation**: for user-facing changelogs, write in feature language, not commit language. "Added support for SAML SSO" not "implemented SAML provider in auth module." Include migration guide (steps the user must take to adopt the change) and deprecation notices with timeline.
    - **Keep a BREAKING CHANGES section**: `BREAKING CHANGE: the 'api_key' config field is now 'credentials.api_key'. Migration: rename in config file.`
 
-### Phase 3: Operations & Maintenance
+### Phase 3 (~20 min): Operations & Maintenance
 
 1. **Documentation Site IA (Information Architecture)** — Structure by persona or by activity:
    - Persona-based: "For Developers" / "For Operators" / "For Integrators".
@@ -88,7 +264,7 @@ Technical documentation system covering the full documentation lifecycle — fro
    - **Deprecation banners**: when a feature is deprecated, add a banner at the top of every related doc page with the deprecation timeline and migration path. Archive deprecated docs after the retention period.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Write documentation for the reader, not for yourself. A reader has less context, less time, and a specific goal. Answer their question and get out of the way.
 - Every docs page should answer one question well. If a page tries to answer multiple unrelated questions, split it.
 - Code examples must be copy-pasteable and runnable. Include complete imports and dependencies. Use `<!-- auto-generated -->` markers for examples pulled from test suites.
@@ -98,7 +274,7 @@ Technical documentation system covering the full documentation lifecycle — fro
 - Diagrams: use Mermaid (in-Markdown, version-controlled) for architecture diagrams. Keep them simple — a diagram with 50 boxes communicates nothing.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Technical writing serves developers, product teams, support, and users. Docs degrade when writers are isolated from the people building and using the product.
 
 | Coordinate With | When | What to Share/Ask |
@@ -137,22 +313,66 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 | Docs platform migration required (tooling EOL, scaling limits) | **Documentation Engineer** + CTO Advisor | Platform decision; migration cost and timeline |
 | Legal or compliance issue in published docs | **Legal Advisor** + Security Reviewer | Regulatory exposure; content takedown or revision |
 
-## Production Checklist
+## Scale Depth
 
-- [ ] Documentation site exists with search, TOC on every page, dark mode support, and responsive design
-- [ ] API reference is generated from an OpenAPI 3.x spec that is version-controlled and CI-validated
-- [ ] Every API endpoint in the spec has: summary, description, request example, response example, error responses
-- [ ] Every repository has a README with: description, quick start (<5 min), motivation, contributing link, license
-- [ ] Architecture Decision Records are maintained in `docs/adr/` with consistent template; ADR log index present
-- [ ] Runbooks exist for top operational incidents: DB failover, traffic spike, cert expiry, disk full, deployment rollback
-- [ ] Onboarding guide enables a new developer to make their first commit within 1 day of starting
-- [ ] Changelog is maintained per release: user-facing language, migration steps, deprecation notices with timelines
-- [ ] Documentation style guide is defined and enforced via linting (Vale or textlint) in CI
-- [ ] Docs are versioned alongside code; docs for current and N-1 versions are available; deprecated docs have migration banners
-- [ ] Broken link checker runs in CI on every PR; all internal links resolve; external links checked weekly
-- [ ] "Was this page helpful?" feedback widget is deployed on docs site; feedback routed to owning team
-- [ ] Documentation refresh process active: docs not updated in >6 months flagged for review
-- [ ] Docs PRs are required alongside code PRs for any user-facing or API change
+### Solo (1 person, 0-100 users)
+Developer writing docs alongside code. Docs as Markdown in the repo, served via GitHub Pages, Mintlify, or Docusaurus free tier. README + CONTRIBUTING + basic API reference (manually written). No dedicated documentation site beyond repo. No style guide, no CI for docs. Update docs when something breaks. Cost: $0-100/month. Overkill: dedicated docs platform (GitBook/ReadMe), OpenAPI auto-generation, docs-as-code pipeline, dedicated technical writer.
+
+### Small (2-10 people, 100-10K users)
+Developer with docs focus or part-time technical writer. Docs-as-code: Markdown in repo, CI validates links, site via Docusaurus/Mintlify/ReadMe. API reference from OpenAPI spec (Redoc/Swagger UI). Style guide (Google Developer Style Guide or custom). Changelog: keepachangelog.com format. Onboarding guide maintained. Cost: $200-1K/month. Overkill: dedicated docs engineer, localization, content testing platform.
+
+### Medium (10-50 people, 10K-1M users)
+Dedicated technical writer or small docs team (1-2). Full docs platform: GitBook, ReadMe, or custom. Diátaxis framework. API reference auto-generated + conceptual guides. Automated link checking, spell checking, readability scoring in CI. Content testing: user feedback surveys, search analytics, page-level NPS. Style guide enforced via Vale linter. Cost: $2K-10K/month.
+
+### Enterprise (50+ people, 10K+ users)
+Docs team (3-10+). Enterprise docs platform with SSO, analytics, versioning. Multi-product documentation with consistent IA. Localization pipeline for 3+ languages. Docs product management: roadmap, user research, content design. API docs: SDK generation from OpenAPI, interactive API explorer. Docs metrics: CSAT, self-service resolution rate, time-to-answer. Cost: $20K-200K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | >3 contributors find docs confusing, or product has paying customers | Adopt docs-as-code; add docs CI; implement style guide; auto-generate API reference |
+| Small → Medium | >50 docs pages, multiple products, or >100 support tickets/month traceable to docs gaps | Hire dedicated writer; implement Diátaxis; add content testing |
+| Medium → Enterprise | 3+ languages needed, >100K monthly docs users, or docs-driven revenue (PLG) | Build docs team; implement localization; add docs product management; enterprise platform |
+
+## Sub-Skills
+
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **API Reference Documentation** | REST, GraphQL, or gRPC APIs that developers integrate with | OpenAPI 3.x (Swagger) → Redoc/Swagger UI/Scalar, SDK generation, code samples in multiple languages |
+| **README & Repo Documentation** | Every public or internal repository | One-liner → install → usage → contributing → license — Markdown, conventional formatting, CI badges |
+| **Developer Onboarding Guides** | New team members taking >2 days to first commit | Dev environment setup, architecture overview, first-commit walkthrough, toolchain, team norms, FAQ |
+| **Architecture Decision Records (ADRs)** | Technical decisions with >1 month lifespan | ADR template (title, status, context, decision, consequences), numbered sequentially, stored in repo |
+| **Operational Runbooks** | On-call engineers responding to incidents | Incident response procedures, deployment guides, rollback steps, health checks, alert response playbooks |
+| **Changelogs & Release Notes** | Communicating changes to users and stakeholders | keepachangelog.com format, conventional commits auto-generation (semantic-release), curated narrative for major releases |
+| **Documentation Information Architecture** | Organizing >50 pages for findability | Diátaxis framework (tutorials/how-to/explanation/reference), card sorting, tree testing, search analytics |
+| **Docs-as-Code Pipeline** | Treating documentation like software — version-controlled, reviewed, tested | Markdown in Git, CI/CD (link checking, spell check, Vale linting), PR reviews, automated deploy to docs site |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Documentation site exists with search, TOC on every page, dark mode support, and responsive design
+- [ ] **[S2]**  API reference is generated from an OpenAPI 3.x spec that is version-controlled and CI-validated
+- [ ] **[S3]**  Every API endpoint in the spec has: summary, description, request example, response example, error responses
+- [ ] **[S4]**  Every repository has a README with: description, quick start (<5 min), motivation, contributing link, license
+- [ ] **[S5]**  Architecture Decision Records are maintained in `docs/adr/` with consistent template; ADR log index present
+- [ ] **[S6]**  Runbooks exist for top operational incidents: DB failover, traffic spike, cert expiry, disk full, deployment rollback
+- [ ] **[S7]**  Onboarding guide enables a new developer to make their first commit within 1 day of starting
+- [ ] **[S8]**  Changelog is maintained per release: user-facing language, migration steps, deprecation notices with timelines
+- [ ] **[S9]**  Documentation style guide is defined and enforced via linting (Vale or textlint) in CI
+- [ ] **[S10]**  Docs are versioned alongside code; docs for current and N-1 versions are available; deprecated docs have migration banners
+- [ ] **[S11]**  Broken link checker runs in CI on every PR; all internal links resolve; external links checked weekly
+- [ ] **[S12]**  "Was this page helpful?" feedback widget is deployed on docs site; feedback routed to owning team
+- [ ] **[S13]**  Documentation refresh process active: docs not updated in >6 months flagged for review
+- [ ] **[S14]**  Docs PRs are required alongside code PRs for any user-facing or API change
 
 ## MVP vs Growth vs Scale
 
@@ -248,7 +468,7 @@ python3 scripts/docs_health.py --site-dir docs --compare last-week --output json
 **Principle:** `docs_health.py` scans the docs directory, outputs JSON with metrics. Agent applies decision tree to exactly one action. Build, lint, and link check exit codes verify quality. Never reads doc content into agent context (token waste). 
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Write the Docs — Documentation Guide](https://www.writethedocs.org/guide/)
 - [OpenAPI Specification 3.x](https://spec.openapis.org/oas/latest.html)
 - [Mermaid — Diagramming and Charting](https://mermaid.js.org/)

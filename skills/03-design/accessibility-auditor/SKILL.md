@@ -2,13 +2,23 @@
 name: accessibility-auditor
 description: WCAG 2.2 compliance auditing across automated and manual testing, screen reader workflows, semantic HTML validation, focus management, accessible forms, legal landscape (ADA, Section 508, EN 301 549), and remediation prioritization.
 author: Sandeep Kumar Penchala
+type: design
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - accessibility-auditor
+token_budget: 3941
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Accessibility Auditor
 
 Master the art and science of digital accessibility auditing — from automated scanning to manual assistive-technology testing. This skill covers WCAG 2.2 at all conformance levels, automated testing tools (axe-core, pa11y, Lighthouse), manual testing scripts for screen readers (VoiceOver, NVDA, JAWS), semantic HTML audits, focus management, accessible forms, time-based media, legal compliance frameworks, and remediation prioritization strategies.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Auditing a web application for WCAG 2.2 compliance (A, AA, or AAA)
 - Setting up automated accessibility testing in CI/CD pipelines
 - Performing manual screen reader testing with VoiceOver, NVDA, or JAWS
@@ -19,9 +29,127 @@ Master the art and science of digital accessibility auditing — from automated 
 - Assessing legal risk under ADA Title III, Section 508, or EN 301 549
 - Prioritizing accessibility remediation by user impact severity
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Conformance Level Selection
+```
+                     ┌──────────────────────────────┐
+                     │ START: WCAG target level?    │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Is this a government, healthcare, or    │
+              │ education product?                      │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ WCAG 2.2 AA      │    │ Is this a public-    │
+        │ minimum. Section │    │ facing consumer      │
+        │ 508 / EN 301 549 │    │ product with >10K   │
+        │ likely apply.    │    │ users?               │
+        └──────────────────┘    └──┬───────────────┬───┘
+                                   │ YES           │ NO
+                                   ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ WCAG 2.2 AA│  │ WCAG 2.2 A   │
+                            │ for legal  │  │ minimum.     │
+                            │ risk       │  │ Internal tool│
+                            │ mitigation │  │ or MVP.      │
+                            └────────────┘  └──────────────┘
+```
+**When AA required:** Government, healthcare, education, financial services. Public-facing with > 10K users. Legal department advises or ADA litigation risk exists.  
+**When A acceptable:** Internal admin tool used by < 100 known employees. Early-stage MVP with accessibility roadmap. No legal obligation (confirmed by counsel).
 
-### Phase 1: WCAG 2.2 Conformance Target Selection
+### Testing Method Selection
+```
+                     ┌──────────────────────────────┐
+                     │ START: Automated or manual?  │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Checking color contrast, heading order, │
+              │ ARIA syntax, or alt text presence?      │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Automated:       │    │ Can a screen reader  │
+        │ axe-core,        │    │ user complete the    │
+        │ Lighthouse,      │    │ core task?           │
+        │ pa11y CI.        │    └──┬───────────────┬───┘
+        │ ~30% of issues.  │       │ YES           │ NO
+        └──────────────────┘       ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ Manual:    │  │ Manual +     │
+                            │ Screen     │  │ Keyboard +   │
+                            │ reader test│  │ Focus order  │
+                            │ (VoiceOver,│  │ test. Cannot │
+                            │ NVDA, JAWS)│  │ automate.    │
+                            └────────────┘  └──────────────┘
+```
+**When automated suffices:** ~30% of WCAG criteria are machine-testable. Color contrast, heading structure, ARIA validity, alt text presence. Run in CI on every PR.  
+**When manual required:** ~70% of WCAG criteria need human judgment. Keyboard operability, focus management, meaningful alt text (not just presence), modal focus trapping.
+
+### Remediation Priority
+```
+                     ┌──────────────────────────────┐
+                     │ START: Fix priority?         │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Does this issue completely block a user │
+              │ from completing a core task?            │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ P0: Critical.    │    │ Affects > 5% of users│
+        │ Fix this sprint. │    │ or causes significant│
+        │ E.g., login      │    │ friction?            │
+        │ button not       │    └──┬───────────────┬───┘
+        │ keyboard-        │       │ YES           │ NO
+        │ accessible.      │       ▼               ▼
+        └──────────────────┘ ┌────────────┐  ┌───────────┐
+                             │ P1: Fix    │  │ P2: Fix   │
+                             │ within 4   │  │ within 3  │
+                             │ weeks.     │  │ months.   │
+                             └────────────┘  └───────────┘
+```
+**When P0 (Critical):** Task-blocking for any disability group. Login, checkout, core navigation not operable. Legal exposure from ADA lawsuit precedent.  
+**When P2:** Enhancement-level issue. Workaround exists. Affects WCAG AAA criteria only. Low-traffic page with no critical function.
+
+### Legal Risk Assessment
+```
+                     ┌──────────────────────────────┐
+                     │ START: Legal exposure?       │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Product serves US consumers and meets   │
+              │ ADA "place of public accommodation"?   │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ HIGH risk. ADA   │    │ EU public sector or  │
+        │ Title III applies.│    │ government contract? │
+        │ WCAG 2.2 AA is   │    └──┬───────────────┬───┘
+        │ de facto standard│       │ YES           │ NO
+        │ per DOJ guidance. │      ▼               ▼
+        └──────────────────┘ ┌────────────┐  ┌───────────┐
+                             │ EN 301 549 │  │ LOW risk. │
+                             │ applies.   │  │ Monitor   │
+                             │ AA required│  │ regulatory│
+                             └────────────┘  │ changes.  │
+                                             └───────────┘
+```
+**When HIGH risk:** US consumer-facing website/app. > 10K monthly visitors. E-commerce, education, healthcare, employment, or financial services.  
+**When LOW risk:** Internal tool with < 100 known users. B2B SaaS with enterprise contracts (accessibility negotiated per deal). No US nexus.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): WCAG 2.2 Conformance Target Selection
 
 Choose your target based on audience, legal obligations, and product maturity:
 
@@ -33,7 +161,7 @@ Choose your target based on audience, legal obligations, and product maturity:
 
 **Decision rule:** Target WCAG 2.2 AA for all public-facing products. AAA is aspirational — pursue for specific criteria where achievable, but don't claim AAA conformance unless ALL criteria are met.
 
-### Phase 2: Automated Testing
+### Phase 2 (~30 min): Automated Testing
 
 #### 2.1 axe-core (The Engine Under Everything)
 
@@ -132,7 +260,7 @@ axe-core has excellent precision but flags things that need human review:
 
 **Rule of thumb:** Investigate every violation. If it's genuinely not a problem, document why in an accessibility exceptions log.
 
-### Phase 3: Manual Testing
+### Phase 3 (~20 min): Manual Testing
 
 Automated testing catches ~30% of accessibility issues. The remaining 70% require human judgment.
 
@@ -259,7 +387,7 @@ Automated testing catches ~30% of accessibility issues. The remaining 70% requir
 # Good: "Red items (⚠ overdue) and green items (✓ on-time)"
 ```
 
-### Phase 4: Semantic HTML Audit
+### Phase 4 (~15 min): Semantic HTML Audit
 
 #### 4.1 Landmark Region Audit
 
@@ -317,8 +445,7 @@ Every page must have these ARIA landmarks (or equivalent HTML5 elements):
 ```
 
 ---
-
-### Phase 5: Focus Management Deep Dive
+### Phase 5 (~25 min): Focus Management Deep Dive
 
 #### 5.1 Focus Order
 
@@ -451,8 +578,7 @@ function Modal({ isOpen, onClose, children }) {
 ```
 
 ---
-
-### Phase 6: Accessible Forms
+### Phase 6 (~25 min): Accessible Forms
 
 #### 6.1 Labeling
 
@@ -516,8 +642,7 @@ function Modal({ isOpen, onClose, children }) {
 ```
 
 ---
-
-### Phase 7: Time-Based Media
+### Phase 7 (~25 min): Time-Based Media
 
 | Media Type | Level A | Level AA | Level AAA |
 |------------|---------|----------|-----------|
@@ -534,8 +659,7 @@ function Modal({ isOpen, onClose, children }) {
 - Captions synchronized within 100ms of audio.
 
 ---
-
-### Phase 8: Accessibility Statement
+### Phase 8 (~30 min): Accessibility Statement
 
 Every public product needs an accessibility statement. Template:
 
@@ -566,8 +690,7 @@ This statement was prepared on [Date]. It was last reviewed on [Date].
 ```
 
 ---
-
-### Phase 9: Legal Landscape
+### Phase 9 (~20 min): Legal Landscape
 
 | Law/Standard | Jurisdiction | Applies To | Key Requirement |
 |-------------|-------------|------------|-----------------|
@@ -583,7 +706,6 @@ This statement was prepared on [Date]. It was last reviewed on [Date].
 - **Lower risk:** Internal tools, developer tools, early-stage startups (though this is changing).
 
 ---
-
 ### Phase 10: Remediation Prioritization
 
 Use severity-based triage — prioritize by user impact, not by WCAG level:
@@ -599,7 +721,7 @@ Use severity-based triage — prioritize by user impact, not by WCAG level:
 **Blocker → Critical → Major → Minor → Cosmetic.** Fix in that order, regardless of WCAG level. A Level A issue that blocks users is more urgent than a Level AA issue that's cosmetic.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Accessibility is not a QA gate at the end — it's a design constraint from day one. Coordination with design, engineering, and legal ensures accessibility is built in, not bolted on.
 
 ### Coordinate With
@@ -641,6 +763,7 @@ Design system violation (shared component fails audit, affects all products)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Test with real users:** Automated tools and manual scripts are proxies. Real users with disabilities find issues you'll never catch. Test with at least 3 users with different disabilities.
 - **Shift left:** Catch accessibility issues in design (color contrast, focus order, heading structure) before code is written.
 - **Design system integration:** Build accessible components once. A button with correct focus, label, and role in the design system benefits every page.
@@ -675,19 +798,44 @@ Design system violation (shared component fails audit, affects all products)
 - **Small → Medium**: Enterprise deals require WCAG conformance. Legal risk from accessibility lawsuits. >10K users.
 - **Medium → Enterprise**: Multiple products requiring accessibility governance. Regulatory mandate (Section 508, EN 301 549). >100K users.
 
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| `wcag-conformance` | Selecting WCAG 2.2 conformance target (A, AA, AAA) based on legal obligations and user needs | 87 success criteria across 13 guidelines, 4 principles (Perceivable, Operable, Understandable, Robust) |
+| `automated-a11y-testing` | Setting up axe-core, Lighthouse, pa11y in CI with quality gates | ~30% of WCAG criteria machine-testable; integrate in PR pipeline, fail on violations |
+| `screen-reader-testing` | Manual testing with VoiceOver (macOS/iOS), NVDA (Windows), JAWS (Windows), TalkBack (Android) | ~70% of WCAG criteria require human judgment; test reading order, landmark navigation, live regions |
+| `keyboard-audit` | Verifying all interactive elements are keyboard-operable with visible focus indicators | Tab order, focus trapping in modals, skip links, no keyboard traps, focus management on SPA navigation |
+| `semantic-html-audit` | Auditing landmark regions, heading hierarchy, form labeling, table structure | `<main>`, `<nav>`, `<aside>`, heading levels without skips, `<label>` with `for`, `<th scope>`, ARIA fallback |
+| `form-accessibility` | Labels, error messages, instructions, `aria-describedby`, `aria-invalid`, required fields | Error announcement on submit, error recovery path, sufficient color contrast for error state indicators |
+| `time-based-media` | Captions, transcripts, audio descriptions for video and audio content | WCAG 1.2.x criteria; captions (1.2.2 AA), audio description (1.2.5 AA), sign language (1.2.6 AAA) |
+| `legal-compliance` | ADA Title III, Section 508, EN 301 549, AODA — which applies and what's the exposure | Jurisdiction analysis, demand letter response, VPAT/ACR preparation, structured negotiation strategy |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] WCAG 2.2 AA conformance target defined and communicated
-- [ ] Automated testing (axe-core + Lighthouse) in CI pipeline with quality gates (≥ 95 Lighthouse a11y score)
-- [ ] Manual keyboard testing completed on all critical user flows
-- [ ] Screen reader testing completed: VoiceOver (macOS) + NVDA (Windows) on core flows
-- [ ] Semantic HTML audit: single `<main>`, named `<nav>` elements, heading hierarchy without skips
-- [ ] All interactive elements have visible focus indicators (no `outline: none` without custom indicator)
-- [ ] Focus trapping implemented in all modals, drawers, and dialogs
-- [ ] All form inputs have associated labels; errors linked via `aria-describedby`; `aria-invalid` on error
-- [ ] Color is never the sole differentiator for information (supplement with icons, text, or patterns)
-- [ ] Accessibility statement published with conformance claims, known limitations, and contact info
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  WCAG 2.2 AA conformance target defined and communicated
+- [ ] **[S2]**  Automated testing (axe-core + Lighthouse) in CI pipeline with quality gates (≥ 95 Lighthouse a11y score)
+- [ ] **[S3]**  Manual keyboard testing completed on all critical user flows
+- [ ] **[S4]**  Screen reader testing completed: VoiceOver (macOS) + NVDA (Windows) on core flows
+- [ ] **[S5]**  Semantic HTML audit: single `<main>`, named `<nav>` elements, heading hierarchy without skips
+- [ ] **[S6]**  All interactive elements have visible focus indicators (no `outline: none` without custom indicator)
+- [ ] **[S7]**  Focus trapping implemented in all modals, drawers, and dialogs
+- [ ] **[S8]**  All form inputs have associated labels; errors linked via `aria-describedby`; `aria-invalid` on error
+- [ ] **[S9]**  Color is never the sole differentiator for information (supplement with icons, text, or patterns)
+- [ ] **[S10]**  Accessibility statement published with conformance claims, known limitations, and contact info
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
 - [axe-core Documentation](https://github.com/dequelabs/axe-core)
 - [WebAIM Screen Reader Survey](https://webaim.org/projects/screenreadersurvey9/)

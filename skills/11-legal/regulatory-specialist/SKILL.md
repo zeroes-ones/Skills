@@ -2,14 +2,23 @@
 name: regulatory-specialist
 description: FDA 21 CFR Part 11, ISO 13485, MDR, HIPAA compliance, GxP validation, audit trail requirements, medical device software (SaMD), quality management systems.
 author: Sandeep Kumar Penchala
+type: legal
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - regulatory-specialist
+token_budget: 3983
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Regulatory Specialist
 
 Regulatory compliance framework for medical device software (SaMD), health tech, and life sciences. Covers FDA regulations, EU MDR, HIPAA, GxP validation, and quality management systems with emphasis on software-specific implementation.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Classifying a Software as a Medical Device (SaMD) under FDA risk categories (Class I, II, III) or EU MDR (Class I, IIa, IIb, III)
 - Preparing a 510(k) premarket submission, De Novo request, or CE marking technical documentation
 - Implementing 21 CFR Part 11 compliant electronic records and electronic signatures (ER/ES)
@@ -19,9 +28,190 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
 - Designing audit trail and data integrity controls compliant with FDA ALCOA+ principles
 - Preparing for FDA inspection or notified body audit — mock audit, CAPA review, documentation readiness
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### SaMD Classification (FDA)
+```
+                     ┌──────────────────────────────┐
+                     │ START: FDA SaMD risk class?    │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Device drives or informs        │
+                    │ clinical management where       │
+                    │ error could cause serious       │
+                    │ injury or death?                │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Class III     │    │ Device informs    │
+                    │ PMA required  │    │ clinical mgmt     │
+                    │ (highest risk)│    │ where error could │
+                    │ e.g., AI for  │    │ cause non-serious │
+                    │ stroke        │    │ injury?           │
+                    │ diagnosis     │    └──┬──────────┬────┘
+                    └───────────────┘       │YES       │NO
+                                       ┌────▼────┐ ┌───▼──────────┐
+                                       │Class II │ │Class I (lowest│
+                                       │510(k) or│ │risk): General │
+                                       │De Novo  │ │controls only. │
+                                       │e.g.,    │ │e.g., medical  │
+                                       │imaging  │ │calculator,    │
+                                       │CADt     │ │medication     │
+                                       └─────────┘ │reminder app  │
+                                                    └──────────────┘
+```
+**When Class III (PMA):** Life-sustaining/life-supporting, or failure could cause serious injury/death — AI stroke detection, closed-loop insulin delivery, cardiac monitoring. PMA required.
+**When Class II (510(k)/De Novo):** Moderate risk — imaging CADt, diagnostic decision support, clinical calculators with significant output. Clearance via substantial equivalence or novel De Novo.
+**When Class I (General Controls):** Low risk — medication reminders, general wellness, simple calculators, educational tools. No premarket submission; register + list + QSR compliance.
 
-### Phase 1: Product Classification & Regulatory Pathway
+### EU MDR Classification
+```
+                     ┌──────────────────────────────┐
+                     │ START: EU MDR classification?  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Is it an active device (relies │
+                    │ on energy source beyond human  │
+                    │ body/gravity)?                 │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────────────────▼────┐
+                    │ Active therapeutic or           │
+                    │ diagnostic?                     │
+                    └──────────────────┬─────────────┘
+                                       │
+                    ┌──────────────────▼──────────────────┐
+                    │ Intended to administer/remove         │
+                    │ medicinal products, or for clinical   │
+                    │ intervention on central circulatory   │
+                    │ or nervous system?                    │
+                    └────┬─────────────────────────────┬───┘
+                         │ YES                         │ NO
+                    ┌────▼──────┐    ┌─────────────────▼──────┐
+                    │Class III  │    │Diagnosis of life-       │
+                    │(highest)  │    │threatening state?       │
+                    │Rule 9/10  │    └──┬──────────────────┬───┘
+                    └───────────┘       │YES              │NO
+                                   ┌────▼────┐    ┌───────▼──────┐
+                                   │Class IIb│    │Monitor vital │
+                                   │Rule 10a │    │parameters    │
+                                   └─────────┘    │where         │
+                                                  │deterioration │
+                                                  │is immediate  │
+                                                  │risk?         │
+                                                  └──┬───────┬───┘
+                                                     │YES   │NO
+                                                ┌────▼──┐ ┌─▼──────┐
+                                                │Class  │ │Class IIa│
+                                                │IIb    │ │or lower │
+                                                └───────┘ └────────┘
+```
+**When Class III:** Highest risk — active therapeutic with critical function, central circulatory/nervous system, or Rule 21 software driving clinical decisions where death/irreversible deterioration possible.
+**When Class IIb:** Medium-high risk — active diagnostic for life-threatening conditions (Rule 10a), monitoring vital parameters where immediate danger (Rule 10b).
+**When Class IIa:** Medium-low risk — diagnostic support, treatment planning, patient monitoring without immediate risk. Most clinical decision support software.
+**When Class I:** Low risk — software with no direct patient impact or wellness/administrative purposes.
+
+### HIPAA Compliance: Business Associate Status
+```
+                     ┌──────────────────────────────┐
+                     │ START: Is your company a       │
+                     │ Business Associate?            │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Create, receive, maintain, or   │
+                    │ transmit PHI on behalf of a     │
+                    │ Covered Entity?                 │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ BA Agreement  │    │ Process PHI at   │
+                    │ REQUIRED with │    │ direction of     │
+                    │ Covered Entity│    │ customer but no  │
+                    │ Implement:    │    │ CE relationship? │
+                    │ - Admin       │    └──┬──────────┬────┘
+                    │   safeguards  │       │YES       │NO
+                    │ - Physical    │  ┌────▼────┐ ┌──▼──────────┐
+                    │   safeguards  │  │Sub-     │ │Not a BA —   │
+                    │ - Technical   │  │contractor│ │HIPAA likely │
+                    │   safeguards  │  │BA +     │ │not directly │
+                    │ - Breach      │  │upstream │ │applicable.  │
+                    │   notification│  │BA agree-│ │Still follow │
+                    │ - BA policy & │  │ment req.│ │security best │
+                    │   training    │  └─────────┘ │practices.   │
+                    └───────────────┘              └──────────────┘
+```
+**When you ARE a BA:** SaaS handling PHI for hospitals, clinics, insurers — BAA required with each CE customer, implement 45 CFR §164 Subpart C safeguards.
+**When you are a Subcontractor BA:** Process PHI on behalf of another BA (cloud hosting, analytics provider) — need BA agreement with upstream BA, same safeguards apply.
+**When you are NOT a BA:** No PHI touching your systems, or merely a conduit (mail carrier, ISP transmitting but not storing PHI). HIPAA not applicable but security best practices encouraged.
+
+### Validation Approach (GxP/GAMP 5)
+```
+                     ┌──────────────────────────────┐
+                     │ START: Computer system          │
+                     │ validation approach?            │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ System is commercial off-the-   │
+                    │ shelf (COTS) with no            │
+                    │ customization?                  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │GAMP Category │    │ Configured COTS  │
+                    │3: Leverage    │    │ (config not code)│
+                    │supplier QMS + │    │?                │
+                    │vendor audit.  │    └──┬──────────┬────┘
+                    │Validate       │       │YES       │NO
+                    │config only.   │  ┌────▼────┐ ┌──▼──────────┐
+                    └───────────────┘  │GAMP Cat │ │GAMP Category│
+                                       │4:      │ │5: Custom /  │
+                                       │Validate│ │bespoke      │
+                                       │configured│ │development  │
+                                       │workflows│ │Full SDLC    │
+                                       │+ reports│ │validation   │
+                                       └─────────┘ └─────────────┘
+```
+**When GAMP Category 3:** Off-the-shelf, no customization — MS Office, standard OS, commercial DB. Leverage vendor QMS; validate that it works in your environment.
+**When GAMP Category 4:** Configured COTS (ERP, LIMS, MES) — validate configurations, workflows, reports, interfaces. Test that configs meet requirements.
+**When GAMP Category 5:** Custom-built — full SDLC validation: URS → FS → DS → IQ → OQ → PQ. Traceability matrix, code review, unit testing, integration testing.
+
+### Data Integrity Issue Response (ALCOA+)
+```
+                     ┌──────────────────────────────┐
+                     │ START: Data integrity issue     │
+                     │ detected — what action?         │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Data was modified, deleted, or  │
+                    │ fabricated deliberately?        │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO (accidental)
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Immediately    │    │ System error or  │
+                    │halt GxP       │    │ user mistake?    │
+                    │operations     │    └──┬──────────┬────┘
+                    │involved.      │       │YES       │NO
+                    │Engage QA +    │  ┌────▼────┐ ┌──▼──────────┐
+                    │Legal. Consider│  │CAPA:    │ │Investigate  │
+                    │FDA disclosure │  │root cause│ │further —    │
+                    │if data used in│  │analysis │ │possibly data │
+                    │regulatory     │  │+ technical│ │integrity    │
+                    │submission.    │  │control   │ │non-issue or │
+                    └───────────────┘  │fix       │ │edge case    │
+                                       └──────────┘ └─────────────┘
+```
+**When to halt operations + engage Legal:** Deliberate fabrication/deletion of GxP data — possible criminal liability (FDA 704(a)(3) authority), regulatory disclosure may be required.
+**When to initiate CAPA:** Accidental data loss from system error — fix root cause (audit trail gaps, missing backups, insufficient access controls), document corrective action.
+**When to invest more:** Unexplained issue — could be one-off or systemic. Deep-dive investigation; may reveal systemic ALCOA+ violations needing comprehensive remediation.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Product Classification & Regulatory Pathway
 
 1. **SaMD Classification** —
    - **FDA (per IMDRF framework)**:
@@ -43,7 +233,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
    - Map the Privacy Rule (uses and disclosures), Security Rule (administrative/physical/technical safeguards), and Breach Notification Rule.
 4. **Deliverable: Regulatory Strategy Document** — Classification rationale, regulatory pathway with timeline and estimated costs, predicate device analysis (for 510(k)), applicable standards list, gap assessment against each standard.
 
-### Phase 2: Quality Management System (QMS)
+### Phase 2 (~30 min): Quality Management System (QMS)
 
 1. **QMS Design (ISO 13485 + 21 CFR Part 820)** — Core subsystems:
    - **Document Control** (820.40 / 13485 §4.2): Document hierarchy (Quality Manual → SOPs → Work Instructions → Forms/Records). Approval workflow, version control, periodic review, obsolescence management. eQMS tooling: Greenlight Guru, Qualio, MasterControl.
@@ -56,7 +246,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
 2. **Design History File (DHF) Structure** — For software: User Needs Document → Software Requirements Specification (SRS) → Software Architecture Document (SAD) → Software Design Specification (SDS) → Source Code (with traceability) → Unit/Integration/System Test Protocols and Reports → Software V&V Report → Risk Management File → Labeling → Release to Production record.
 3. **Software Development Life Cycle (IEC 62304)** — Software safety classification (A: no harm, B: non-serious injury, C: death or serious injury). Documentation requirements scale with class. Key deliverables: Software Development Plan, Software Requirements, Architecture Design, Detailed Design, Unit Implementation & Verification, Integration & Integration Testing, System Testing, Software Release.
 
-### Phase 3: Validation & Part 11 Compliance
+### Phase 3 (~20 min): Validation & Part 11 Compliance
 
 1. **21 CFR Part 11 (Electronic Records / Electronic Signatures)** — Requirements for systems that create, modify, maintain, or transmit electronic records used in regulated activities:
    - **Validation**: Validate systems to ensure accuracy, reliability, and consistent intended performance.
@@ -80,7 +270,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
    - **+** Complete, Consistent, Enduring, Available
    - For software: implement audit trails per ALCOA+. Never allow direct database edits in production. All changes go through the application layer with full audit trail.
 
-### Phase 4: Submission & Ongoing Compliance
+### Phase 4 (~15 min): Submission & Ongoing Compliance
 
 1. **Premarket Submission Preparation**:
    - **510(k)**: Cover letter, 510(k) summary, Truthful and Accurate statement, Indications for Use, 510(k) Summary or Statement, Standards Data Report, Financial Certification, Device Description, Substantial Equivalence Discussion, Software documentation (per FDA Guidance on Content of Premarket Submissions for Software), Biocompatibility, Sterilization, Electromagnetic Compatibility, Performance Testing (bench, animal, clinical).
@@ -90,7 +280,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
 4. **Software Updates & Change Control** — Assess impact of every software change on safety and effectiveness. Document in Change Control per QMS. Determine whether change requires a new 510(k) (FDA guidance: changes that significantly affect safety or effectiveness — new indication, new algorithm, new risk profile). For MDR: assess whether change requires notified body re-approval.
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - In a software context, "validation" does NOT mean testing the software works — it means producing documented evidence that the software meets user needs and intended uses in a production-equivalent environment.
 - Build your QMS to be audit-ready at all times, not just when an inspection is announced. An auditor should find the evidence they need without anyone hunting for it.
 - Every design output must trace back to a design input, and every design input must trace forward to verification. Maintain this traceability matrix from day one — retrofitting it is painful.
@@ -100,7 +290,7 @@ Regulatory compliance framework for medical device software (SaMD), health tech,
 - The Predicate Device analysis for 510(k) is the single most scrutinized part of your submission — invest the time to make the substantial equivalence argument airtight.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Regulatory compliance in healthcare, finance, and safety-critical domains requires deep cross-functional coordination. Engineering, quality, and legal all own pieces of the compliance puzzle.
 
 | Coordinate With | When | What to Share/Ask |
@@ -139,23 +329,67 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 | ISO 13485 / MDR certification at risk (major nonconformity) | **Notified Body** + CEO Strategist + QA Lead | CE marking at risk; EU market access may be suspended |
 | Whistleblower allegation of data integrity fraud (GxP) | **External Counsel** + Board + FDA (if required) | Criminal liability potential; DOJ/FDA investigation risk |
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+Regulatory compliance by founder reading FDA guidance docs. No QMS, no validation, no regulatory submissions. Class I self-declaration only. HIPAA: BAA templates from legal marketplace. No CE marking. Operate as "not a medical device" if defensible. Risk: must have regulatory strategy documented before first pilot. Cost: $0-500/month. Overkill: ISO 13485 certification, QMS software, 510(k) preparation, external regulatory counsel.
 
-- [ ] SaMD classification documented with rationale per FDA and EU MDR criteria
-- [ ] Regulatory pathway selected (510(k), De Novo, PMA, CE Marking) with timeline and cost estimates
-- [ ] QMS implements all required subsystems per ISO 13485 and 21 CFR Part 820 — audited within last 12 months
-- [ ] Design History File (DHF) complete for current device version — traceability from user needs to verification
-- [ ] ISO 14971 Risk Management File exists with hazard traceability matrix and risk/benefit analysis
-- [ ] Software development follows IEC 62304 lifecycle with artifacts appropriate for safety classification
-- [ ] 21 CFR Part 11 controls implemented for all GxP-regulated electronic records: audit trails, authority checks, e-signatures
-- [ ] Computer System Validation (CSV/GAMP5) performed for all GxP systems with IQ/OQ/PQ documentation
-- [ ] Audit trails are secure, tamper-resistant, time-stamped, and retained per record retention requirements
-- [ ] ALCOA+ data integrity principles embedded in system design and verified through periodic data integrity audits
-- [ ] HIPAA compliance: BAA executed with all covered entities, Security Rule safeguards implemented, Breach Notification procedures in place
-- [ ] CAPA system operational: issues tracked to closure with root cause analysis and effectiveness verification
-- [ ] FDA inspection / Notified Body audit readiness program in place with mock audits conducted
-- [ ] Post-market surveillance programs active: complaint handling, MDR/vigilance reporting, PSUR, PMCF
-- [ ] Change control process includes assessment of regulatory impact (new 510(k) or notified body notification required?)
+### Small (2-10 people, 100-10K users)
+Regulatory consultant (10-20 hours/month) or fractional RA/QA lead. SaMD classification memo documented. QMS: paper-based or lightweight (Greenlight Guru Essentials). 510(k) or CE marking preparation begins. HIPAA: full BAA process, annual risk assessment, security rule compliance. Part 11: audit trail requirements designed in. Cost: $3K-10K/month. Overkill: full QMS software suite, multiple regulatory submissions in parallel, clinical trials.
+
+### Medium (10-50 people, 10K-1M users)
+In-house RA/QA specialist or dedicated consulting firm. QMS: electronic (Greenlight Guru, Qualio, MasterControl). 510(k) submitted or CE marking technical file under review. ISO 13485 certification. HIPAA: annual assessments, breach simulation exercises. Validation: GAMP 5 framework applied. Regulatory affairs capability: EU MDR transition, UKCA, TGA, Health Canada. Cost: $10K-50K/month.
+
+### Enterprise (50+ people, 1M+ users)
+RA/QA department (3-10+). QMS: enterprise (Veeva Vault, TrackWise, Sparta). Multiple cleared/approved devices across FDA, EU MDR, and international markets. Post-market surveillance: complaint handling, adverse event reporting (MDR, MEDDEV 2.12). Clinical evaluation reports (CER) per MEDDEV 2.7.1 Rev 4. Design controls integrated with product development. Regulatory intelligence: monitoring global changes. Cost: $100K-500K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | Product confirmed as medical device by regulatory assessment; preparing first regulatory submission | Hire regulatory consultant; document QMS; begin 510(k) or CE Marking technical file |
+| Small → Medium | First regulatory submission filed; QMS audit scheduled (FDA/Notified Body) | Implement electronic QMS; hire RA/QA specialist; pursue ISO 13485 |
+| Medium → Enterprise | Multiple cleared devices; international expansion (>3 markets); post-market surveillance required | Build RA/QA department; implement Veeva/TrackWise; establish regulatory intelligence; CER/PMS programs |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **SaMD Regulatory Classification** | Determining whether software qualifies as a medical device and at what risk class | FDA 21 CFR 862-892, EU MDR Annex VIII, IMDRF risk categorization — classification memo with rationale |
+| **510(k) / De Novo Submission** | Seeking FDA clearance for Class II medical device software | Substantial equivalence (510(k)) or novel device (De Novo) — predicate device analysis, performance testing, software documentation per IEC 62304 |
+| **CE Marking / EU MDR Technical File** | Placing medical device software on EU market | Technical documentation per Annex II/III, Clinical Evaluation Report (CER) per MEDDEV 2.7.1 Rev 4, Notified Body audit preparation |
+| **HIPAA Compliance Program** | Handling PHI as a Covered Entity or Business Associate | 45 CFR §164 — administrative/physical/technical safeguards, BAA management, breach notification, annual risk assessment, workforce training |
+| **21 CFR Part 11 / EU Annex 11 Validation** | Electronic records/electronic signatures in regulated GxP environments | Audit trail design, ALCOA+ data integrity, electronic signature controls, CSV per GAMP 5, IQ/OQ/PQ documentation |
+| **QMS Implementation (ISO 13485 / 21 CFR 820)** | Building quality management system for medical device development | Greenlight Guru, Qualio, MasterControl, Veeva Vault — document control, CAPA, complaint handling, design controls, management review |
+| **FDA Inspection Readiness** | Preparing for FDA pre-approval inspection, routine surveillance, or for-cause inspection | Mock audit, SME preparation, back-room coordination, CAPA evidence, documentation organization, 483 response strategy |
+| **Post-Market Surveillance (PMS)** | Ongoing monitoring of device safety and performance after market clearance | Vigilance reporting (MDR, MEDDEV 2.12), complaint trending, PMCF, PSUR, recall/field action management |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  SaMD classification documented with rationale per FDA and EU MDR criteria
+- [ ] **[S2]**  Regulatory pathway selected (510(k), De Novo, PMA, CE Marking) with timeline and cost estimates
+- [ ] **[S3]**  QMS implements all required subsystems per ISO 13485 and 21 CFR Part 820 — audited within last 12 months
+- [ ] **[S4]**  Design History File (DHF) complete for current device version — traceability from user needs to verification
+- [ ] **[S5]**  ISO 14971 Risk Management File exists with hazard traceability matrix and risk/benefit analysis
+- [ ] **[S6]**  Software development follows IEC 62304 lifecycle with artifacts appropriate for safety classification
+- [ ] **[S7]**  21 CFR Part 11 controls implemented for all GxP-regulated electronic records: audit trails, authority checks, e-signatures
+- [ ] **[S8]**  Computer System Validation (CSV/GAMP5) performed for all GxP systems with IQ/OQ/PQ documentation
+- [ ] **[S9]**  Audit trails are secure, tamper-resistant, time-stamped, and retained per record retention requirements
+- [ ] **[S10]**  ALCOA+ data integrity principles embedded in system design and verified through periodic data integrity audits
+- [ ] **[S11]**  HIPAA compliance: BAA executed with all covered entities, Security Rule safeguards implemented, Breach Notification procedures in place
+- [ ] **[S12]**  CAPA system operational: issues tracked to closure with root cause analysis and effectiveness verification
+- [ ] **[S13]**  FDA inspection / Notified Body audit readiness program in place with mock audits conducted
+- [ ] **[S14]**  Post-market surveillance programs active: complaint handling, MDR/vigilance reporting, PSUR, PMCF
+- [ ] **[S15]**  Change control process includes assessment of regulatory impact (new 510(k) or notified body notification required?)
 
 ## MVP vs Growth vs Scale
 
@@ -251,7 +485,7 @@ python3 scripts/qms_status.py --qms-dir docs/qms --output json
 **Principle:** `classify_samd.py` outputs JSON with classification + pathway. Agent follows decision tree to exactly one next action. Document checks verify completeness via exit codes. Never reads regulation text into agent context.
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [FDA — 21 CFR Part 11 (Electronic Records; Electronic Signatures)](https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-11)
 - [FDA — 21 CFR Part 820 (Quality System Regulation — transitioning to ISO 13485 via QMSR)](https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-820)
 - [ISO 13485:2016 — Medical Devices Quality Management Systems](https://www.iso.org/standard/59752.html)

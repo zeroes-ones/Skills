@@ -2,13 +2,23 @@
 name: product-manager
 description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning, backlog grooming, and strategic product decisions. Triggers: "write a PRD", "prioritize features", "build a roadmap", "define user stories", "RICE score this", "stakeholder update".
 author: Sandeep Kumar Penchala
+type: product
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - product-manager
+token_budget: 1484
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Product Manager
 
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document
 - The backlog is bloated and needs objective prioritization (RICE scoring)
 - Stakeholders are asking for conflicting features — need a decision framework
@@ -17,7 +27,7 @@ Own the product discovery-to-delivery pipeline: translate business goals into pr
 - A feature is stalled because requirements are ambiguous or contradictory
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Prioritization Method Selection
 
 ```
@@ -43,24 +53,24 @@ Strategic vs tactical feature?
 - Already-solved problem (e.g., "add forgot password")? → Reuse existing pattern. Minimal spec.
 
 ## Core Workflow
-
-### Phase 1: Problem Discovery
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Problem Discovery
 Interview stakeholders and users. Separate expressed solutions from underlying problems. Draft the problem statement in one sentence: "[User] struggles to [outcome] because [constraint]." Define success criteria — choose one North Star metric and 2–3 supporting KPIs. Identify the target cohort with behavioral segmentation (not just demographics). Document the current-state workflow and quantify the pain with data where possible (time spent, error rate, churn).
 
-### Phase 2: PRD Writing
+### Phase 2 (~30 min): PRD Writing
 Structure the PRD with these sections, in order: Executive Summary (3 sentences), Problem Statement, Success Metrics, Target Personas, User Stories (ordered), Functional Requirements, Non-Functional Requirements (performance, security, compliance), Out of Scope, Assumptions & Risks, Launch Plan, and Appendix with wireframe links and API references. Write user stories in the format: `As a [persona], I want [capability] so that [benefit].` Attach acceptance criteria using Gherkin syntax (`GIVEN/WHEN/THEN`). Define edge cases for each story — empty data, concurrent edits, offline, permission revocation.
 
-### Phase 3: RICE Prioritization
+### Phase 3 (~20 min): RICE Prioritization
 Score each initiative on Reach (number of users impacted per quarter), Impact (1 = minimal, 2 = low, 3 = medium, 4 = high, 5 = massive), Confidence (20% = gut, 50% = qualitative data, 80% = quantitative data, 100% = proven), and Effort (person-months). Compute `(Reach × Impact × Confidence) / Effort`. Sort by RICE score descending. Flag items where Confidence < 50% for a spike or time-boxed investigation before committing. Review scores with the team to surface hidden assumptions.
 
-### Phase 4: Roadmap & Communication
+### Phase 4 (~15 min): Roadmap & Communication
 Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current quarter. Now = committed and in active development. Next = discovered, spec'd, ready when capacity opens. Later = validated problems without committed solutions. For each initiative, describe the problem, not the solution syntax. Publish the roadmap visibly and update it monthly. Prepare stakeholder-specific summaries: engineering needs technical context, executives need risk/ROI, sales needs timelines and talking points.
 
-### Phase 5: Delivery Partnership
+### Phase 5 (~25 min): Delivery Partnership
 Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Product management is a multiplier role — you don't build, design, or sell, but your coordination (or lack thereof) determines whether those functions produce value or waste.
 
 ### Coordinate With
@@ -105,6 +115,7 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Write the PRD before writing the first line of code — and share it asynchronously for 48-hour comment period.
 - Use the RICE framework consistently; subjectivity is inevitable but consistency surfaces the right conversations.
 - Separate outcome roadmaps from output roadmaps — track what users do, not what the team ships.
@@ -142,7 +153,7 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 - **Medium → Enterprise**: Multi-product with independent P&L. IPO preparation. >100K users.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `problem-discovery` | Stakeholder/user interviews, problem framing | Phase 1 — problem statement, success metrics, cohort segmentation |
@@ -153,19 +164,31 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 | `okr-setting` | Goal cascading, measurable outcomes | `ceo-strategist` — North Star alignment, KPI definition |
 | `competitive-analysis` | Market positioning, feature gap analysis | `business-strategist` — win/loss, feature comparison |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] PRD approved by engineering lead, design lead, and primary stakeholder
-- [ ] Success metrics defined with baseline values and target values
-- [ ] Every user story has acceptance criteria in GIVEN/WHEN/THEN format
-- [ ] RICE scores computed and reviewed with the team
-- [ ] Edge cases documented for top-5 user stories (empty, error, concurrency, permissions)
-- [ ] Non-functional requirements specified (latency, throughput, availability, security)
-- [ ] Roadmap published and communicated to all stakeholders
-- [ ] Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria
-- [ ] Post-launch metrics dashboard set up before GA
-- [ ] Backlog groomed and free of stale items older than 2 quarters
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  PRD approved by engineering lead, design lead, and primary stakeholder
+- [ ] **[S2]**  Success metrics defined with baseline values and target values
+- [ ] **[S3]**  Every user story has acceptance criteria in GIVEN/WHEN/THEN format
+- [ ] **[S4]**  RICE scores computed and reviewed with the team
+- [ ] **[S5]**  Edge cases documented for top-5 user stories (empty, error, concurrency, permissions)
+- [ ] **[S6]**  Non-functional requirements specified (latency, throughput, availability, security)
+- [ ] **[S7]**  Roadmap published and communicated to all stakeholders
+- [ ] **[S8]**  Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria
+- [ ] **[S9]**  Post-launch metrics dashboard set up before GA
+- [ ] **[S10]**  Backlog groomed and free of stale items older than 2 quarters
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - **idea-to-spec** — for bootstrapping the spec artifact from a raw concept
 - **ux-researcher** — for persona validation and usability testing before PRD finalization
 - **ui-ux-designer** — for design system and interaction pattern alignment

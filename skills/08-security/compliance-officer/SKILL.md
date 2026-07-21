@@ -2,8 +2,17 @@
 name: compliance-officer
 description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation, control mapping, evidence collection, and policy writing. Triggered by compliance, SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS, audit, GRC, policy, control.
 author: Sandeep Kumar Penchala
+type: security
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - compliance-officer
+token_budget: 1220
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Compliance Officer
 
 Navigate security and privacy compliance frameworks, prepare for audits, map controls across
@@ -11,7 +20,7 @@ regulatory requirements, collect and organize evidence, and author clear, action
 Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework approach.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Preparing for a first-time SOC 2 Type II, ISO 27001, or PCI-DSS certification audit
 - Mapping controls across multiple frameworks to reduce duplication (Unified Control Framework)
 - Responding to customer security questionnaires and vendor risk assessments
@@ -22,7 +31,7 @@ Covers SOC 2, ISO 27001, GDPR, HIPAA, PCI-DSS, and the unified control framework
 - Conducting internal readiness assessments before external audits
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Framework Selection
 
 ```
@@ -49,11 +58,14 @@ Time to audit?
 ├── 6-12 months → Framework mapping. Policy implementation. Evidence collection pipeline.
 ├── 3-6 months → Internal readiness assessment. Gap remediation. Evidence sprint.
 └── < 3 months → Audit prep crunch. Focus on must-pass controls. Get a readiness consultant.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Framework Selection and Scoping
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Framework Selection and Scoping
 1. Identify applicable frameworks based on business model, customer requirements, and geography:
    - **SOC 2**: SaaS/B2B, based on Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy).
    - **ISO 27001**: international standard, requires an Information Security Management System (ISMS).
@@ -64,14 +76,14 @@ Time to audit?
 3. Determine audit type: Type I (point-in-time design) vs. Type II (operating effectiveness over a period, typically 3–12 months).
 4. Engage a certified external auditor (AICPA for SOC 2, accredited certification body for ISO 27001, QSA for PCI-DSS).
 
-### Phase 2: Control Mapping and Gap Analysis
+### Phase 2 (~30 min): Control Mapping and Gap Analysis
 1. Build a unified control framework: map each regulatory requirement to a single internal control to reduce duplication.
 2. Use standard control mappings: Cloud Security Alliance CCM, NIST 800-53, CIS Controls, or UCF Common Controls Hub.
 3. Perform a gap analysis: for each required control, assess current state (fully implemented, partially, not implemented).
 4. Prioritize gaps by risk: controls that address high-likelihood/high-impact risks get remediation priority.
 5. Create a remediation roadmap with owners, deadlines, and success criteria for each gap.
 
-### Phase 3: Policy Authoring
+### Phase 3 (~20 min): Policy Authoring
 1. Establish a policy hierarchy:
    - **Policy**: high-level, principle-based, approved by leadership (e.g., Access Control Policy).
    - **Standard**: specific technical requirements (e.g., password standard: min 16 chars, MFA required).
@@ -81,14 +93,14 @@ Time to audit?
 4. Version policies, maintain a review cadence (annual minimum), and require employee acknowledgment.
 5. Store policies in a single accessible location with search and linking between related documents.
 
-### Phase 4: Evidence Collection
+### Phase 4 (~15 min): Evidence Collection
 1. Create an evidence matrix mapping each control to the required evidence type and collection frequency.
 2. Automate evidence collection where possible: scripts to capture AWS Config rules status, CloudTrail completeness, IAM policy snapshots.
 3. For manual evidence: document screenshots with visible timestamps, system identifiers, and clear descriptions.
 4. Organize evidence by control ID in a centralized repository (GRC tool, SharePoint, or structured cloud storage).
 5. Implement continuous compliance monitoring: drift detection alerts when a previously compliant control falls out of compliance.
 
-### Phase 5: Audit Execution and Ongoing Compliance
+### Phase 5 (~25 min): Audit Execution and Ongoing Compliance
 1. Hold a kickoff with the auditor: review scope, timeline, evidence delivery method, and communication cadence.
 2. Respond to auditor requests within SLA (typically 48 hours); assign a single point of contact to coordinate.
 3. For findings: acknowledge, categorize by severity, define a corrective action plan (CAP) with deadlines, and implement.
@@ -96,7 +108,7 @@ Time to audit?
 5. Schedule quarterly internal reviews, annual external surveillance audits (ISO), and continuous monitoring.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
 
 | Sub-Skill | When to Use |
@@ -109,8 +121,26 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `gdpr-compliance` | Conducting DPIAs, designating a DPO, handling DSARs, and managing cross-border transfers |
 | `evidence-automation` | Automating evidence collection, screen captures, and audit trails across all frameworks |
 
-## Cross-Skill Coordination
+## Scale Depth
+<!-- QUICK: 30s -- scaling differences at a glance -->
+| Aspect | Solo | Small (2-20) | Medium (20-200) | Enterprise (200+) |
+|--------|------|-------------|-----------------|-------------------|
+| **Frameworks** | 1 framework (SOC 2 Type I) | 1-2 frameworks (SOC 2 + GDPR) | 3-4 frameworks (SOC 2, ISO 27001, GDPR, PCI-DSS) | Unified Control Framework across 6+ regulations |
+| **Audit Prep** | DIY with checklist, 1-2 weeks | Consultant-assisted readiness, 4-6 weeks | Full-time GRC person, 8-12 weeks | Dedicated GRC team (2+), continuous compliance |
+| **Evidence** | Manual screenshots, shared drive | Semi-automated (scripts + docs) | Automated pipeline (60% auto-collected) | Continuous monitoring with drift detection |
+| **Policies** | 5-10 core policies, template-based | 15-25 policies, annual review | 30-50 policies, semi-annual review, exception process | 50+ policies, policy-as-code, automated attestation |
+| **Tooling** | Spreadsheets + shared drive | Vanta/Drata (automated monitoring) | GRC platform (Vanta + Jira integration) | Enterprise GRC (Archer, ServiceNow) + custom integrations |
+| **Cost** | $0-200/month | $2K-10K/month | $10K-50K/month | $50K-200K+/month (incl. external auditors) |
 
+### Transition Triggers
+| From → To | Trigger |
+|-----------|---------|
+| Solo → Small | First enterprise customer requires SOC 2 report |
+| Small → Medium | First major audit with external auditor; multiple frameworks overlap |
+| Medium → Enterprise | IPO prep, FedRAMP, or operating in 5+ regulated jurisdictions |
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s -- table of who to talk to when -->
 Compliance officers translate regulatory requirements into actionable controls. They coordinate with security for implementation, engineering for evidence, legal for interpretation, and executives for risk acceptance.
 
 ### Coordinate With
@@ -146,7 +176,7 @@ Control implementation blocked (technical)? → Security Engineer → CTO Adviso
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Unified control framework**: one control satisfies many requirements; do the work once.
 - **Policy as code**: where possible, enforce policies automatically (OPA, AWS SCPs, Azure Policy) rather than relying on manual adherence.
 - **Evidence automation**: script evidence collection; manual screenshots don't scale beyond 20 controls.
@@ -154,21 +184,31 @@ Control implementation blocked (technical)? → Security Engineer → CTO Adviso
 - **Vendor risk management**: assess third-party compliance; require SOC 2 reports or ISO certificates from critical vendors.
 - **Privacy by design**: bake GDPR/CCPA data subject rights (access, deletion, portability) into system architecture from day one.
 
-## Production Checklist
 
-- [ ] Applicable frameworks identified and scoped; external auditor engaged
-- [ ] Unified control framework established; all controls mapped to regulatory requirements
-- [ ] Gap analysis completed with prioritized remediation roadmap
-- [ ] Policy hierarchy in place: policies, standards, procedures — all versioned and reviewed within 12 months
-- [ ] Evidence matrix defined; automated evidence collection for at least 60% of controls
-- [ ] Continuous compliance monitoring configured with drift alerts
-- [ ] Vendor risk management program operational; critical vendor assessments current
-- [ ] Incident response and breach notification procedures documented per GDPR/HIPAA requirements
-- [ ] Employee security awareness training completed with acknowledgment records
-- [ ] Audit preparation dry-run conducted; internal findings remediated before external audit begins
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Applicable frameworks identified and scoped; external auditor engaged
+- [ ] **[S2]**  Unified control framework established; all controls mapped to regulatory requirements
+- [ ] **[S3]**  Gap analysis completed with prioritized remediation roadmap
+- [ ] **[S4]**  Policy hierarchy in place: policies, standards, procedures — all versioned and reviewed within 12 months
+- [ ] **[S5]**  Evidence matrix defined; automated evidence collection for at least 60% of controls
+- [ ] **[S6]**  Continuous compliance monitoring configured with drift alerts
+- [ ] **[S7]**  Vendor risk management program operational; critical vendor assessments current
+- [ ] **[S8]**  Incident response and breach notification procedures documented per GDPR/HIPAA requirements
+- [ ] **[S9]**  Employee security awareness training completed with acknowledgment records
+- [ ] **[S10]**  Audit preparation dry-run conducted; internal findings remediated before external audit begins
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - AICPA SOC 2 Guide: https://www.aicpa.org/soc4so
 - ISO 27001:2022 Standard: https://www.iso.org/standard/27001
 - GDPR Official Text: https://gdpr-info.eu/

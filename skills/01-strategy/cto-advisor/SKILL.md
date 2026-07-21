@@ -2,8 +2,17 @@
 name: cto-advisor
 description: Technology strategy, engineering org design, architecture governance, technical due diligence, innovation management, and vendor evaluation. Triggered by CTO, technology strategy, build vs buy, tech debt, architecture review, team topologies, due diligence, vendor selection.
 author: Sandeep Kumar Penchala
+type: strategy
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - cto-advisor
+token_budget: 3119
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # CTO Advisor
 
 Strategic technology leadership: build-vs-buy decisions, engineering organization design,
@@ -11,7 +20,7 @@ architecture governance, technical due diligence, innovation management, and ven
 evaluation. Every section is a decision-making framework, not abstract advice.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Making build-vs-buy decisions for critical infrastructure or product components
 - Designing or restructuring engineering organizations: team design, reporting structures, career ladders
 - Establishing architecture governance: RFC processes, architecture review boards, decision frameworks
@@ -20,9 +29,129 @@ evaluation. Every section is a decision-making framework, not abstract advice.
 - Managing innovation: hackathons, research time, innovation funnels
 - Running vendor evaluations: RFIs, RFPs, proof-of-concept design, TCO modeling
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Build vs Buy
+```
+                     ┌────────────────────────┐
+                     │ START: Build or Buy?   │
+                     └───────────┬────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Is this a competitive differentiator │
+              │ for your core product?              │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ Can you hire and │  │ Is there a mature     │
+        │ retain the talent│  │ vendor with < 20%     │
+        │ in-house?        │  │ market share risk?    │
+        └──┬───────────┬───┘  └──┬───────────────┬────┘
+           │ YES       │ NO      │ YES           │ NO
+           ▼           ▼         ▼               ▼
+      ┌────────┐ ┌──────────┐ ┌──────┐    ┌───────────┐
+      │ BUILD  │ │BUY +     │ │ BUY  │    │ BUILD      │
+      │        │ │customize │ │      │    │ (no good   │
+      │        │ │wrapper   │ │      │    │  vendor)   │
+      └────────┘ └──────────┘ └──────┘    └───────────┘
+```
+**When to BUILD:** It's core IP that creates competitive moat. Team has domain expertise. Time-to-market > 6 months is acceptable. Total cost of build < 3x annual license cost over 3 years.  
+**When to BUY:** Commodity infrastructure (auth, payments, monitoring, CI/CD). Vendor switching cost is manageable (< 3 months migration). Build would divert > 30% of engineering from product work.
 
-### Phase 1: Technology Strategy
+### Architecture Pattern Selection
+```
+                     ┌──────────────────────────────┐
+                     │ START: Monolith or Services?  │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Team size > 20 engineers?               │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Do 2+ teams need │    │ Modular monolith.    │
+        │ independent      │    │ Deploy as single     │
+        │ deploy cadences? │    │ unit. Fast iteration.│
+        └──┬───────────┬───┘    └──────────────────────┘
+           │ YES       │ NO
+           ▼           ▼
+    ┌────────────┐ ┌──────────────┐
+    │ Micro-     │ │ Monorepo     │
+    │ services   │ │ with         │
+    │ per domain │ │ modular      │
+    └────────────┘ │ packages     │
+                   └──────────────┘
+```
+**When to choose Microservices:** 3+ teams with independent release cycles. Different scaling requirements per component. Polyglot persistence is needed.  
+**When to choose Modular Monolith:** < 20 engineers. Single deployment pipeline is adequate. Data consistency across domains is critical. Premature distribution adds latency and debugging complexity.
+
+### Tech Debt Prioritization
+```
+                     ┌────────────────────────────┐
+                     │ START: Prioritize tech debt │
+                     └─────────────┬──────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Does this debt block a critical feature │
+              │ or cause > 1 SEV1/quarter?              │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ P0: Fix this     │    │ Does it slow feature │
+        │ sprint. Allocate │    │ delivery by > 30%?   │
+        │ 20% capacity.    │    └──┬───────────────┬───┘
+        └──────────────────┘       │ YES           │ NO
+                                   ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ P1: Fix    │  │ P2: Fix when │
+                            │ within 4   │  │ touching the │
+                            │ weeks      │  │ file anyway  │
+                            └────────────┘  └──────────────┘
+```
+**When to fix immediately (P0):** Security vulnerability with known exploit. Data corruption risk. Prevents shipping revenue-generating feature.  
+**When to defer (P2):** Legacy code that works reliably. Module slated for replacement within 6 months. No customer-facing impact.
+
+### Vendor Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: Evaluate vendor   │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Does vendor SOC 2 / ISO 27001       │
+              │ + serve > 100 customers at scale?   │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ POC in 2 weeks:  │  │ REJECT or wait for   │
+        │ test critical    │  │ maturity. Too risky   │
+        │ path + failure   │  │ for production use.   │
+        │ modes            │  └──────────────────────┘
+        └──┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────────┐
+    │ Pricing < 15% of feature │
+    │ budget? Lock-in risk     │
+    │ reversible in 3 months?  │
+    └──┬───────────────────┬───┘
+       │ YES               │ NO
+       ▼                   ▼
+  ┌─────────┐        ┌──────────────┐
+  │ PROCEED │        │ Negotiate or │
+  │         │        │ find alt     │
+  └─────────┘        └──────────────┘
+```
+**When to proceed:** Vendor passes security review, POC succeeds on critical path, pricing fits budget, and data migration OUT is feasible.  
+**When to reject:** Vendor < 2 years old with < 50 customers. No SOC 2 or equivalent. Proprietary data format with no export API. Key-person dependency (single maintainer).
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Technology Strategy
 
 **Build vs Buy Framework:**
 
@@ -78,7 +207,7 @@ NOT all debt should be paid down. Debt that doesn't generate interest
 (touch it once a year) is cheaper to carry than pay off.
 ```
 
-### Phase 2: Engineering Org Design
+### Phase 2 (~30 min): Engineering Org Design
 
 **Team Topologies — four fundamental team types:**
 
@@ -129,7 +258,7 @@ Fellow                       CTO / CPO
 Both tracks must extend equally far with equivalent compensation. The worst
 org design mistake: forcing engineers into management to advance.
 
-### Phase 3: Architecture Governance
+### Phase 3 (~20 min): Architecture Governance
 
 **RFC (Request for Comments) Process:**
 
@@ -182,7 +311,7 @@ Adopt PostgreSQL as the single relational database across all services.
 - Deprecation of a widely-used internal service
 - Introduction of a new programming language or paradigm
 
-### Phase 4: Technical Due Diligence
+### Phase 4 (~15 min): Technical Due Diligence
 
 **For acquisitions, investments, or major vendor decisions:**
 
@@ -228,7 +357,7 @@ Adopt PostgreSQL as the single relational database across all services.
 6. **Single database for everything** → scaling and coupling nightmare
 7. **No code reviews** → quality rot, no knowledge sharing
 
-### Phase 5: Innovation Management
+### Phase 5 (~25 min): Innovation Management
 
 **Innovation Time Allocation:**
 
@@ -260,7 +389,7 @@ Gate criteria:
 - **Target**: >30% of hackathon projects ship within 6 months; <30% = either ideas aren't viable or follow-through is broken
 - **Investment**: 2 days/quarter × entire eng team ≈ 2% of engineering time; cheap for the cultural and innovation ROI
 
-### Phase 6: Vendor Evaluation
+### Phase 6 (~25 min): Vendor Evaluation
 
 **RFI/RFP Process:**
 
@@ -331,7 +460,7 @@ Decision: Buy ($1.14M < $1.77M) — unless this is a competitive differentiator.
 - Key person dependency: "Our CTO will answer that" for every technical question
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
 
 | Sub-Skill | When to Use | Reference |
@@ -345,7 +474,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `vendor-evaluation` | Selecting SaaS, cloud, and infrastructure providers with 3-year total cost of ownership modeling | This file — Build vs Buy Cost Analysis |
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 The CTO bridges business strategy and technical execution. A CTO who doesn't coordinate with product builds systems nobody wants; one who doesn't coordinate with the CEO builds systems the company can't afford.
 
 ### Coordinate With
@@ -389,7 +518,7 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Build what differentiates, buy everything else**: your engineering talent should work on things that create competitive advantage. Auth? Buy. Payments? Buy. Your secret sauce? Build.
 - **Team design dictates architecture**: if you want loosely coupled services, create loosely coupled teams. Conway's Law is not negotiable.
 - **Architecture decisions are reversible or irreversible**: reversible decisions (language choice within a service) → delegate to team. Irreversible decisions (database choice for core data, API contracts) → review broadly.
@@ -424,21 +553,31 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 - **Small → Medium**: Coordination overhead between 3+ teams becomes painful without process. First enterprise customer asks about architecture governance.
 - **Medium → Enterprise**: Multiple business units need technology alignment. IPO or large M&A on horizon. SOC 2/ISO 27001 audit required.
 
-## Production Checklist
 
-- [ ] Build-vs-buy evaluations documented with 5-year TCO comparison for all major infrastructure/procurement decisions
-- [ ] Technology radar maintained and reviewed quarterly; every technology categorized (Adopt/Trial/Assess/Hold)
-- [ ] Technical debt quantified (principal × interest rate) and prioritized in sprint planning
-- [ ] Engineering org design: stream-aligned teams with clear ownership; platform team exists if >3 stream teams
-- [ ] Dual-track career ladder with equivalent levels and compensation for IC and management tracks
-- [ ] RFC process documented and adopted; ADRs archived for all significant architecture decisions
-- [ ] ARB meets regularly; decisions default to team autonomy unless cross-cutting
-- [ ] Technical due diligence framework: code quality, architecture, team capability, infrastructure checklists
-- [ ] Innovation funnel with clear gates and metrics; hackathon projects tracked to production
-- [ ] Vendor evaluation scorecard with weighted criteria; TCO model for all major vendors
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Build-vs-buy evaluations documented with 5-year TCO comparison for all major infrastructure/procurement decisions
+- [ ] **[S2]**  Technology radar maintained and reviewed quarterly; every technology categorized (Adopt/Trial/Assess/Hold)
+- [ ] **[S3]**  Technical debt quantified (principal × interest rate) and prioritized in sprint planning
+- [ ] **[S4]**  Engineering org design: stream-aligned teams with clear ownership; platform team exists if >3 stream teams
+- [ ] **[S5]**  Dual-track career ladder with equivalent levels and compensation for IC and management tracks
+- [ ] **[S6]**  RFC process documented and adopted; ADRs archived for all significant architecture decisions
+- [ ] **[S7]**  ARB meets regularly; decisions default to team autonomy unless cross-cutting
+- [ ] **[S8]**  Technical due diligence framework: code quality, architecture, team capability, infrastructure checklists
+- [ ] **[S9]**  Innovation funnel with clear gates and metrics; hackathon projects tracked to production
+- [ ] **[S10]**  Vendor evaluation scorecard with weighted criteria; TCO model for all major vendors
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - Team Topologies (Skelton & Pais): https://teamtopologies.com/
 - Accelerate (Forsgren, Humble, Kim): https://itrevolution.com/product/accelerate/
 - Architecture Decision Records: https://adr.github.io/

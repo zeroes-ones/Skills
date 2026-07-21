@@ -2,13 +2,23 @@
 name: brand-guidelines
 description: Brand architecture, identity system design, logo system, color palette with accessibility validation, typography hierarchy, iconography, imagery, motion design, brand-in-product expression, and brand governance.
 author: Sandeep Kumar Penchala
+type: design
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - brand-guidelines
+token_budget: 3832
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Brand Guidelines
 
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Creating a brand identity system for a new company, product, or sub-brand
 - Auditing and evolving an existing brand for consistency and accessibility
 - Designing a logo system: primary, secondary, icon-only, wordmark, responsive variants
@@ -19,9 +29,139 @@ Design, document, and enforce a comprehensive brand identity system. This skill 
 - Integrating brand expression into product UI without compromising usability
 - Setting up brand governance: review processes, asset distribution, violation handling
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Brand Architecture Model
+```
+                     ┌──────────────────────────┐
+                     │ START: Brand architecture│
+                     │ model?                   │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Are the sub-brands/products         │
+              │ stronger than the parent brand?     │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ House of Brands: │  │ Do products share    │
+        │ Independent      │  │ the same brand       │
+        │ identities (P&G, │  │ promise and audience?│
+        │ Unilever).       │  └──┬───────────────┬───┘
+        └──────────────────┘     │ YES           │ NO
+                                 ▼               ▼
+                          ┌────────────┐  ┌──────────────┐
+                          │ Branded    │  │ Endorsed or  │
+                          │ House:     │  │ Hybrid:      │
+                          │ One master │  │ Parent brand │
+                          │ brand      │  │ endorsement  │
+                          │ (Google,   │  │ (Nest by     │
+                          │ Apple)     │  │ Google)      │
+                          └────────────┘  └──────────────┘
+```
+**When Branded House:** Single strong master brand. Products are features/verticals of one promise. Marketing efficiency through unified awareness.  
+**When House of Brands:** Acquired companies with existing equity. Targeting different audiences with conflicting brand promises. Risk isolation between brands.
 
-### Phase 1: Brand Architecture & Strategy
+### Logo System Complexity
+```
+                     ┌──────────────────────────────┐
+                     │ START: Logo variants needed? │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Logo needs to work in favicon (16×16),  │
+              │ app icon (1024×1024), and billboard?   │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Full system:     │    │ Single use-case?     │
+        │ Primary + Icon-  │    │ Primary + Stacked   │
+        │ only + Wordmark  │    │ variant only.       │
+        │ + Responsive     │    │ Skip responsive.    │
+        │ variants.        │    └──────────────────────┘
+        └──────────────────┘
+```
+**When full system needed:** Multi-platform product (web, iOS, Android, print). Logo appears at extreme sizes. Brand used by external partners.  
+**When minimal suffices:** Single-context use (web only). Logo always appears at predictable sizes. Internal or B2B tool with limited brand exposure.
+
+### Color Palette Scope
+```
+                     ┌──────────────────────────────┐
+                     │ START: Palette complexity?   │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Product has dark mode, data             │
+              │ visualization, or multiple themes?      │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Full token       │    │ Core palette:        │
+        │ system: primary, │    │ Primary, secondary,  │
+        │ secondary,       │    │ neutral, semantic    │
+        │ neutral, semantic│    │ (error, success,     │
+        │ + dark variants  │    │ warning). 12–20      │
+        │ + chart palette. │    │ colors total.        │
+        │ 30–50 tokens.    │    └──────────────────────┘
+        └──────────────────┘
+```
+**When full token system:** Product UI with light/dark mode. Analytics dashboards with charts. White-label or multi-tenant theming requirements.  
+**When core palette:** Marketing site + simple app. Light mode only. No data visualization beyond status indicators. Fast time to launch.
+
+### Typography Hierarchy Depth
+```
+                     ┌──────────────────────────────┐
+                     │ START: Type scale depth?     │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Product has long-form content,          │
+              │ documentation, or articles?             │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Full scale:      │    │ Compact scale:       │
+        │ Display, H1–H4,  │    │ H1–H3, Body,        │
+        │ Body Large, Body,│    │ Caption, Overline.   │
+        │ Body Small,      │    │ 6–8 sizes. UI-       │
+        │ Caption, Overline│    │ focused.             │
+        │ + Blockquote.    │    └──────────────────────┘
+        │ 10–14 sizes.     │
+        └──────────────────┘
+```
+**When full scale:** Blog, documentation, marketing site with long-form reading. Multiple content types (articles, case studies, legal). Readability-critical.  
+**When compact scale:** Dashboard, admin panel, B2B tool. Primarily UI components. Short text mostly. Consistency over typographic expression.
+
+### Governance Model
+```
+                     ┌──────────────────────────────┐
+                     │ START: Governance approach?  │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Brand assets used by external partners, │
+              │ agencies, or > 10 internal creators?    │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ Full governance: │    │ Light governance:    │
+        │ Self-serve portal│    │ Shared Figma +       │
+        │ + review process │    │ design token repo.   │
+        │ + asset CDN +    │    │ PR-based review.     │
+        │ violation tiers. │    └──────────────────────┘
+        └──────────────────┘
+```
+**When full governance:** Co-branding with partners. Multiple agencies creating assets. Brand used in 20+ countries. Enterprise with legal/compliance requirements.  
+**When light governance:** Single design team. Assets consumed only by internal engineering. No external co-branding. Brand changes < quarterly.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Brand Architecture & Strategy
 
 #### 1.1 Brand Architecture Models
 
@@ -58,7 +198,7 @@ Before designing, document:
 5. **Brand Voice:** Tone attributes for copy and content.
    - *Example: "Stripe is: clear over clever, direct over decorative, helpful over hype."*
 
-### Phase 2: Logo System
+### Phase 2 (~30 min): Logo System
 
 #### 2.1 Logo Variants
 
@@ -124,8 +264,7 @@ Clear Space Rule:
 | `.pdf` | Print proofing | Press-ready, CMYK, embedded fonts. |
 
 ---
-
-### Phase 3: Color Palette
+### Phase 3 (~20 min): Color Palette
 
 #### 3.1 Palette Architecture
 
@@ -215,8 +354,7 @@ Shadows                 →    Shadows don't work on dark. Use borders or elevat
 ```
 
 ---
-
-### Phase 4: Typography Hierarchy
+### Phase 4 (~15 min): Typography Hierarchy
 
 #### 4.1 Type Scale
 
@@ -278,8 +416,7 @@ Web font loading strategy:
 ```
 
 ---
-
-### Phase 5: Iconography
+### Phase 5 (~25 min): Iconography
 
 #### 5.1 Style Direction
 
@@ -336,8 +473,7 @@ Design rules:
 ```
 
 ---
-
-### Phase 6: Imagery
+### Phase 6 (~25 min): Imagery
 
 #### 6.1 Photography Direction
 
@@ -379,8 +515,7 @@ Usage: Empty states, onboarding flows, error pages, feature spot illustrations, 
 ```
 
 ---
-
-### Phase 7: Motion Design
+### Phase 7 (~25 min): Motion Design
 
 #### 7.1 Motion Tokens
 
@@ -446,8 +581,7 @@ Brand moments: Empty states, success states, error states.
 ```
 
 ---
-
-### Phase 8: Brand in Product
+### Phase 8 (~30 min): Brand in Product
 
 #### 8.1 Brand Expression vs Usability
 
@@ -482,8 +616,7 @@ The hardest challenge: brand personality must not compromise product usability.
 ```
 
 ---
-
-### Phase 9: Brand Governance
+### Phase 9 (~20 min): Brand Governance
 
 #### 9.1 Review Process
 
@@ -563,9 +696,8 @@ Always reference the latest version. Archive, never delete old versions.
 ```
 
 ---
-
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Brand guidelines are useless if nobody uses them. Coordination with design, engineering, and marketing ensures the brand is applied consistently — not just in Figma, but in production code, marketing materials, and partner content.
 
 ### Coordinate With
@@ -608,6 +740,7 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Tokenize everything:** Colors, spacing, typography, motion — every design decision becomes a named token in a single source of truth (design-tokens.json).
 - **Test at extremes:** Your color palette works on white. Does it work on brand-colored backgrounds? In dark mode? At 400% zoom? With color blindness simulation?
 - **Design for non-designers:** Templates for presentations, documents, social media. If marketers don't have a template, they'll invent their own (wrong) brand.
@@ -642,19 +775,44 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 - **Small → Medium**: Multiple products or sub-brands. Design system needs consistent tokens. >10 people creating branded content.
 - **Medium → Enterprise**: International expansion with localization. M&A activity. >50 people creating branded content across markets.
 
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| `brand-architecture` | Defining master brand, sub-brand, endorsed, or house-of-brands structure for new products or acquisitions | Branded House vs House of Brands vs Endorsed vs Hybrid — selection criteria and migration planning |
+| `logo-system` | Designing primary, stacked, icon-only, wordmark, and responsive logo variants with clear space rules | Grid construction, minimum size thresholds, exclusion zones, monochrome/inverse variants, favicon to billboard |
+| `color-palette` | Creating semantic color tokens: primary, secondary, accent, neutral, semantic, dark mode variants | HCT/HSLuv perceptual color spaces, WCAG 2.2 AA contrast validation (4.5:1 / 3:1), color blindness simulation |
+| `typography-hierarchy` | Defining display, heading, body, caption, and overline type scales with usage rules | Font pairing, fluid type scales, line-height and letter-spacing tokens, performance (font loading strategy) |
+| `iconography` | Establishing icon set: style (filled/outlined/duotone), grid (24×24), stroke weight, corner radius | Icon contribution guidelines, naming conventions, SVG optimization, accessibility labeling |
+| `motion-design` | Creating motion tokens: duration scale, easing curves, animation principles, reduced-motion respect | `prefers-reduced-motion` query, entrance/exit/hover/attention animation categories, performance budget (no layout thrashing) |
+| `brand-in-product` | Expressing brand within UI components: buttons, cards, navigation, empty states, loading states | Brand expression without compromising usability — color isn't the sole affordance, motion isn't distracting |
+| `brand-governance` | Establishing review processes, asset distribution portal, violation tiers, and versioned guidelines | Self-serve brand portal, PR-based review for digital assets, violation severity (tier 1–3), changelog |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] Brand architecture model documented (Branded House / House of Brands / Endorsed / Hybrid)
-- [ ] Logo system: primary, stacked, icon-only, wordmark, responsive variants all provided in SVG and PNG
-- [ ] Clear space rule defined (equal to icon height) and enforced with visual diagrams
-- [ ] Color palette with semantic tokens documented: primary, secondary, accent, neutral, semantic, dark mode
-- [ ] All text-on-background color combinations validated for WCAG 2.2 AA (4.5:1 normal, 3:1 large text)
-- [ ] Typography hierarchy: display, h1-h4, body-lg/body/body-sm, caption, overline — with sizes, weights, and usage rules
-- [ ] Icon set consistent in style, stroke weight, corner radius, and grid alignment (24×24 base)
-- [ ] Imagery/illustration direction documented with style keywords and composition rules
-- [ ] Motion tokens defined: durations (instant/fast/base/slow), easings (default/enter/exit), reduced-motion respect
-- [ ] Brand governance: review process, violation tiers, asset distribution portal, versioned guidelines
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Brand architecture model documented (Branded House / House of Brands / Endorsed / Hybrid)
+- [ ] **[S2]**  Logo system: primary, stacked, icon-only, wordmark, responsive variants all provided in SVG and PNG
+- [ ] **[S3]**  Clear space rule defined (equal to icon height) and enforced with visual diagrams
+- [ ] **[S4]**  Color palette with semantic tokens documented: primary, secondary, accent, neutral, semantic, dark mode
+- [ ] **[S5]**  All text-on-background color combinations validated for WCAG 2.2 AA (4.5:1 normal, 3:1 large text)
+- [ ] **[S6]**  Typography hierarchy: display, h1-h4, body-lg/body/body-sm, caption, overline — with sizes, weights, and usage rules
+- [ ] **[S7]**  Icon set consistent in style, stroke weight, corner radius, and grid alignment (24×24 base)
+- [ ] **[S8]**  Imagery/illustration direction documented with style keywords and composition rules
+- [ ] **[S9]**  Motion tokens defined: durations (instant/fast/base/slow), easings (default/enter/exit), reduced-motion respect
+- [ ] **[S10]**  Brand governance: review process, violation tiers, asset distribution portal, versioned guidelines
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [Design Tokens Format](https://design-tokens.github.io/community-group/format/) — W3C Community Group
 - [Stripe Brand Guidelines](https://stripe.com/brand) — Reference implementation of comprehensive brand portal
 - [Material Design 3 — Color System](https://m3.material.io/styles/color) — HCT color space for accessibility

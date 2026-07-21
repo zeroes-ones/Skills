@@ -51,13 +51,17 @@ A skill is not a document. A skill is a **conversation starter between two agent
 
 ### What Makes a Skill "World's Best"
 
-A skill is world-class when it passes these tests:
+A skill is production-grade when it passes these tests:
 
 1. **The 30-second test:** Someone who has never used this skill can open it, read the quickstart, and produce something useful in under a minute.
 2. **The footgun test:** Someone who has used this skill 10 times still discovers a gotcha they didn't know about, saving them a future debugging session.
 3. **The handoff test:** The output of this skill is in the exact format the next skill in the chain expects.
 4. **The checklist test:** Running the checklist catches all common errors before they reach production.
 5. **The neighbor test:** Reading this skill tells you exactly which skill to use next and what it needs from you.
+6. **The progressive disclosure test:** Every section is parseable at 30 seconds (marker), 3 minutes (standard), and 10+ minutes (deep with war stories).
+7. **The error decoder test:** Common errors are mapped to root cause and exact fix — no search engine needed.
+8. **The what-good-looks-like test:** Every quickstart describes the concrete success output (file size, expected response, visual outcome).
+9. **The token budget test:** Frontmatter declares token_budget so the agent knows what it's loading.
 
 ---
 
@@ -113,6 +117,7 @@ chain:
 | `dependencies` | Prevents "command not found" midway through execution. |
 | `output` | Enables chain-of-skills automation (skills pipeline). |
 | `chain` | The skill graph — essential for the pipeline architecture. |
+| `token_budget` | Informs the agent how many tokens this skill consumes (~word_count × 0.75). Enables token-aware loading. |
 
 ---
 

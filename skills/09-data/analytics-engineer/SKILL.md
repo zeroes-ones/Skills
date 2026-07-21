@@ -2,8 +2,17 @@
 name: analytics-engineer
 description: dbt patterns, metric layers, BI architecture, data modeling for analytics, A/B testing and experimentation, SQL optimization, data visualization, and self-service analytics (Looker/Metabase/Lightdash). Triggered by analytics, dbt, Looker, Metabase, A/B test, metric layer, event tracking, SQL optimization, dashboard.
 author: Sandeep Kumar Penchala
+type: data
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - analytics-engineer
+token_budget: 3114
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Analytics Engineer
 
 Bridge raw data and actionable business insight. This skill covers dbt project design and patterns
@@ -15,7 +24,7 @@ experimentation (A/B test design, sample size, statistical significance, SRM), S
 principles (chart selection, dashboard design, data storytelling).
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a dbt project: model layering (staging → intermediate → marts), incremental strategies, snapshot design
 - Defining a company-wide metric layer: single source of truth for "DAU," "Revenue," "Churn Rate"
 - Building self-service BI with Looker, Metabase, Lightdash, or Superset for non-technical stakeholders
@@ -25,9 +34,178 @@ principles (chart selection, dashboard design, data storytelling).
 - Creating data visualizations that tell a story: chart selection, dashboard architecture, data storytelling
 - Migrating from "Excel hell" or legacy BI to a modern analytics stack
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### dbt Materialization Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: Which dbt          │
+                     │ materialization?          │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Need to store historical   │
+                    │ versions of rows (SCD      │
+                    │ Type 2)?                   │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Snapshot  │    │ Table < 1M rows  │
+                    │ (dbt      │    │ AND runtime <    │
+                    │ snapshot) │    │ 5 min?           │
+                    └───────────┘    └──┬──────────┬────┘
+                                       │YES       │NO
+                                  ┌────▼────┐ ┌───▼──────────┐
+                                  │ View    │ │ Incremental:  │
+                                  │ (always │ │ append-only?  │
+                                  │ fresh)  │ └──┬───────┬────┘
+                                  └──────────┘    │YES   │NO (mutating)
+                                              ┌───▼──┐ ┌─▼─────────┐
+                                              │Append│ │Merge/delete│
+                                              │+ insert│ │+ insert    │
+                                              │overwrite│ │overwrite   │
+                                              └──────┘ └────────────┘
+```
+**When to choose Snapshot:** Historical tracking needed (SCD Type 2), audit trail required, or regulatory timestamp tracking.
+**When to choose View:** Small reference tables (<1M rows), always want live data, zero storage cost, acceptable latency.  
+**When to choose Incremental:** >1M rows or runtime >5 min — append-only for event data, merge for mutable entities.
 
-### Phase 1: dbt Project Design & Patterns
+### Metric Layer: dbt vs BI Tool vs Semantic Layer
+```
+                     ┌──────────────────────────┐
+                     │ START: Where should this   │
+                     │ metric be defined?         │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Used across multiple BI    │
+                    │ tools or teams?            │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Semantic  │    │ Metric requires   │
+                    │ Layer     │    │ multi-table joins │
+                    │ (dbt SL, │    │ or complex        │
+                    │ Cube)     │    │ aggregations?     │
+                    └───────────┘    └──┬──────────┬────┘
+                                       │YES       │NO
+                                  ┌────▼────┐ ┌───▼──────────┐
+                                  │ dbt mart│ │ BI tool       │
+                                  │ (SQL)   │ │ calculation   │
+                                  │ single  │ │ (LookML, DAX) │
+                                  │ source  │ │ simple formula │
+                                  └─────────┘ └──────────────┘
+```
+**When to choose Semantic Layer:** Multi-tool consumption (Looker + Metabase + embedded), need centralized governance, access control per metric.
+**When to choose dbt mart:** Complex logic requiring SQL, need version control and testing, single source of truth in warehouse.  
+**When to choose BI tool:** Single-tool consumption only, simple arithmetic (ratio, sum), rapid prototyping by analysts.
+
+### A/B Test Design
+```
+                     ┌──────────────────────────┐
+                     │ START: Designing an       │
+                     │ experiment                │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │ Expected effect size       │
+                    │ < 5% relative lift?        │
+                    └────┬──────────────────┬───┘
+                         │ YES              │ NO (large)
+                    ┌────▼──────┐    ┌──────▼──────────┐
+                    │ Large     │    │ Can randomize     │
+                    │ sample    │    │ at user level?    │
+                    │ needed    │    └──┬──────────┬────┘
+                    │ (power    │       │YES       │NO
+                    │ analysis) │  ┌────▼────┐ ┌───▼──────────┐
+                    └──┬────────┘  │Standard │ │Switchback/    │
+                       │           │user-level│ │geo-level      │
+                  ┌────▼───────┐  │A/B test │ │experiment     │
+                  │ Use CUPED  │  └──┬───────┘ │(market test)  │
+                  │ variance   │     │         └───────────────┘
+                  │ reduction  │     │
+                  └──┬─────────┘     │
+                     │          ┌────▼──────────┐
+                     ▼          │ Secondary:     │
+              ┌──────────┐     │ Multiple MHT   │
+              │ Calculate │     │ correction if   │
+              │sequential │     │ multiple metrics│
+              │ testing if│     │ or segments     │
+              │continuous │     └────────────────┘
+              │monitoring │
+              └───────────┘
+```
+**When to use CUPED:** Small effects (<5%), want to reduce variance using pre-experiment covariates, increase statistical power without bigger sample.
+**When to use Market/Switchback:** Cannot randomize at user level (network effects, supply-side constraints), use time-based or geo-based randomization.
+**When to use sequential testing:** Continuous monitoring needed for safety, want early stopping for clear winners/losers — control false-positive rate.
+
+### SQL Performance Tuning
+```
+                     ┌──────────────────────────────┐
+                     │ START: Query too slow (>30s)?  │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Check EXPLAIN: full table      │
+                    │ scan on large fact table?      │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────┐    ┌──────────▼──────────┐
+                    │ Missing/  │    │ JOIN causing many-to- │
+                    │ wrong     │    │ many explosion?       │
+                    │ index/part│    └──┬──────────────┬────┘
+                    │ key       │       │YES          │NO
+                    │ → add     │  ┌────▼────┐ ┌──────▼─────────┐
+                    │ cluster   │  │Fix grain│ │ CTE materialized │
+                    │ key       │  │(pre-     │ │multiple times?   │
+                    └───────────┘  │aggregate)│ └──┬──────────┬───┘
+                                   └──────────┘    │YES      │NO
+                                               ┌───▼──┐ ┌───▼───────┐
+                                               │Use   │ │Window fn  │
+                                               │temp  │ │optimization│
+                                               │table │ │or partition│
+                                               │or mat│ │pruning    │
+                                               │CTE   │ └───────────┘
+                                               └──────┘
+```
+**When to add partitioning/clustering:** Full scans on tables >10GB — partition by date, cluster by frequent filter columns.
+**When to pre-aggregate:** Many-to-many JOIN causing row explosion — aggregate to target grain before joining, not after.
+**When to use materialized CTE:** Same CTE referenced 3+ times — materialize to temp table to avoid redundant computation.
+
+### Dashboard Design: Exploratory vs. Operational vs. Strategic
+```
+                     ┌──────────────────────────────┐
+                     │ START: Dashboard type?         │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Need to monitor live systems   │
+                    │ with alerts (p99 latency,     │
+                    │ error rates)?                  │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────┐    ┌──────────▼──────────┐
+                    │Operational│    │ For executive/board  │
+                    │Dashboard  │    │ review (monthly/     │
+                    │Auto-refresh│    │ quarterly)?          │
+                    │<5 min data│    └──┬──────────────┬────┘
+                    │Alerts on  │       │YES          │NO
+                    │thresholds │  ┌────▼────┐ ┌──────▼─────────┐
+                    └───────────┘  │Strategic│ │Exploratory     │
+                                   │Dashboard│ │Dashboard       │
+                                   │High-level│ │Interactive    │
+                                   │KPIs,    │ │filters,       │
+                                   │trends   │ │drill-down,    │
+                                   │MoM/YoY  │ │ad-hoc analysis│
+                                   └─────────┘ └───────────────┘
+```
+**When to build Operational:** Real-time monitoring, alerting, on-call response — use streaming data, auto-refresh, threshold alerts.
+**When to build Strategic:** Executive review, board reporting — high-level KPIs, trend lines, MoM/YoY comparisons, snapshot data.
+**When to build Exploratory:** Self-service analysis — interactive filters, drill-down capabilities, flexible date ranges, multi-dimensional pivots.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): dbt Project Design & Patterns
 
 1. **Project Structure** — The standard layered approach:
    ```
@@ -99,7 +277,7 @@ principles (chart selection, dashboard design, data storytelling).
    -- Usage: {{ cents_to_dollars('amount_cents') }} AS amount_dollars
    ```
 
-### Phase 2: Metric Layer & Semantic Models
+### Phase 2 (~30 min): Metric Layer & Semantic Models
 
 1. **Metric Definition Framework** — The single source of truth:
 
@@ -153,7 +331,7 @@ principles (chart selection, dashboard design, data storytelling).
    └── conversion_rate.yaml # Funnel step N+1 / Funnel step N
    ```
 
-### Phase 3: BI Architecture
+### Phase 3 (~20 min): BI Architecture
 
 1. **BI Tool Decision**:
 
@@ -197,7 +375,7 @@ principles (chart selection, dashboard design, data storytelling).
    FILTER USING (region = SESSION_USER());
    ```
 
-### Phase 4: A/B Testing & Experimentation
+### Phase 4 (~15 min): A/B Testing & Experimentation
 
 1. **Experiment Design Process**:
    ```
@@ -277,7 +455,7 @@ principles (chart selection, dashboard design, data storytelling).
    SRM detected                                → INVALID (fix bug, re-randomize)
    ```
 
-### Phase 5: SQL Optimization
+### Phase 5 (~25 min): SQL Optimization
 
 1. **CTE vs Subquery Decision**:
    ```sql
@@ -338,7 +516,7 @@ principles (chart selection, dashboard design, data storytelling).
    --   Best: Fact tables, event streams, daily aggregations
    ```
 
-### Phase 6: Data Visualization & Storytelling
+### Phase 6 (~25 min): Data Visualization & Storytelling
 
 1. **Chart Selection Framework**:
 
@@ -368,7 +546,7 @@ principles (chart selection, dashboard design, data storytelling).
    - [ ] Time on X-axis is consistent: daily, weekly, monthly — not mixed
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **One source of truth for metrics** — Define in dbt semantic layer or metric registry. Never duplicate `revenue = SUM(amount)` across 5 dashboards.
 - **Stage → Intermediate → Mart** — Never expose raw source tables to end users. Stage for cleanliness, intermediate for business logic, marts for consumption.
 - **Test data, not code** — dbt `unique`, `not_null`, `relationships` tests on every model. Custom tests for business rules (`revenue >= 0`).
@@ -378,7 +556,7 @@ principles (chart selection, dashboard design, data storytelling).
 - **Document metric definitions** — "Is 'active user' someone who opened the app or made a purchase?" Put the answer in the dashboard description.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Analytics engineers build the metrics layer that drives business decisions. They coordinate with data engineers for raw data, product for metric definitions, ML engineers for feature data, and business stakeholders for reporting needs.
 
 ### Coordinate With
@@ -412,47 +590,91 @@ Dashboard showing materially incorrect data? → Data Engineer → Affected stak
 PII exposed in analytics layer? → Security Engineer → Compliance Officer
 ```
 
-## Production Checklist
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+One analyst/analytics engineer running dbt on a free tier warehouse (BigQuery sandbox, Snowflake trial). No orchestration; dbt Cloud free tier schedules. BI tool: Metabase open-source or Looker Studio free. Manual data quality checks. Metrics in dbt marts; no semantic layer needed. No A/B testing infrastructure beyond SQL queries in notebooks. Cost: $0-200/month. Overkill: data catalog, semantic layer, Airbyte/Fivetran, CI/CD, staging environments.
 
+### Small (2-10 people, 100-10K users)
+Dedicated analytics engineer. dbt Cloud team plan or self-hosted with Airflow. BI: Looker/Metabase with shared dashboards. Start A/B testing framework (SQL + statistical functions). Data quality: dbt tests + elementary for anomaly detection. Metric governance with dbt docs. CI/CD: lint + test on PRs. Cost: $500-3K/month. Overkill: full semantic layer, feature store, real-time dashboards.
+
+### Medium (10-50 people, 10K-1M users)
+Analytics engineering team (2-3). Semantic layer (dbt Semantic Layer or Cube) for centralized metric governance. Multi-environment: dev/staging/prod with CI/CD. Data catalog (DataHub/Amundsen). Automated A/B testing with SRM checks, CUPED, sequential testing (Eppo/Statsig integration). Certified metrics with lineage tracking. Embedded analytics for product. Cost: $5K-20K/month. Overkill: data mesh (stay centralized unless domain count > 10).
+
+### Enterprise (50+ people, 1M+ users)
+Distributed analytics engineering pods aligned to domains. Federated semantic layer with global metric registry. Real-time operational dashboards. Automated metric anomaly detection with Slack/PagerDuty integration. Data product lifecycle management: beta → GA → deprecated. Cross-domain metric consistency enforcement. Multi-region BI deployment. FinOps: warehouse cost attribution to domains. Cost: $30K-200K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | 3+ BI consumers across different teams | Set up dbt Cloud team plan; formalize metric taxonomy; introduce CI/CD |
+| Small → Medium | Metric disagreement across teams; >20 dashboards | Implement semantic layer (dbt SL/Cube); add data catalog; build A/B testing framework |
+| Medium → Enterprise | 10+ domain teams needing self-service analytics | Adopt federated semantic layer; implement data product lifecycle; cross-domain governance |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **dbt Data Modeling** | Building or refactoring data transformation pipelines | dbt (Core or Cloud), dimensional modeling, Kimball star schema, medallion architecture |
+| **Metric Layer Design** | Defining company-wide KPIs, single source of truth for "DAU" or "Revenue" | dbt Semantic Layer, Cube, LookML — centralized metric definition with lineage |
+| **A/B Test Design & Analysis** | Running experiments to measure product changes | Power analysis, CUPED, SRM checks, sequential testing — Eppo, Statsig, or SQL-based framework |
+| **SQL Performance Tuning** | Queries exceeding 30s or consuming excessive warehouse credits | EXPLAIN plans, partitioning/clustering, CTE optimization, warehouse sizing |
+| **Self-Service BI Enablement** | Non-technical stakeholders need ad-hoc data access | Looker, Metabase, Lightdash, Superset — governed self-service with certified metrics |
+| **Event Tracking Design** | Defining what user actions to capture and how | Tracking plans, Snowplow, Segment, RudderStack — schema validation, identity resolution |
+| **Data Storytelling** | Communicating insights to drive decisions | Visualization principles, narrative structure, dashboard architecture, executive summaries |
+| **Data Quality & Observability** | Proactive detection of data issues before stakeholders notice | dbt tests, elementary, Great Expectations, Monte Carlo — freshness, volume, schema anomaly checks |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### dbt & Data Modeling
-- [ ] dbt project structured: staging → intermediate → marts with consistent naming
-- [ ] Materialization strategy documented per model type
-- [ ] dbt tests on every model: unique, not_null, relationships, accepted_values minimum
-- [ ] Custom tests for business logic: positive amounts, date consistency, logical invariants
-- [ ] Snapshots (SCD Type 2) configured for slowly changing dimensions
-- [ ] Source freshness checks running on schedule
-- [ ] `dbt docs` generated and published; column-level descriptions complete
+- [ ] **[S1]**  dbt project structured: staging → intermediate → marts with consistent naming
+- [ ] **[S2]**  Materialization strategy documented per model type
+- [ ] **[S3]**  dbt tests on every model: unique, not_null, relationships, accepted_values minimum
+- [ ] **[S4]**  Custom tests for business logic: positive amounts, date consistency, logical invariants
+- [ ] **[S5]**  Snapshots (SCD Type 2) configured for slowly changing dimensions
+- [ ] **[S6]**  Source freshness checks running on schedule
+- [ ] **[S7]**  `dbt docs` generated and published; column-level descriptions complete
 
 ### Metrics & BI
-- [ ] Metric layer defined — single source of truth for all KPIs
-- [ ] Semantic models: entities, dimensions, measures documented
-- [ ] BI tool configured: caching, row-level security, scheduled reports
-- [ ] Executive dashboard (3-5 top-level KPIs) + Product dashboard (funnels, cohorts, segments)
-- [ ] Dashboard load time < 5 seconds (materialized tables, aggregate awareness, BI cache)
+- [ ] **[S8]**  Metric layer defined — single source of truth for all KPIs
+- [ ] **[S9]**  Semantic models: entities, dimensions, measures documented
+- [ ] **[S10]**  BI tool configured: caching, row-level security, scheduled reports
+- [ ] **[S11]**  Executive dashboard (3-5 top-level KPIs) + Product dashboard (funnels, cohorts, segments)
+- [ ] **[S12]**  Dashboard load time < 5 seconds (materialized tables, aggregate awareness, BI cache)
 
 ### Experimentation
-- [ ] A/B test design template: hypothesis, primary metric, guardrail metrics, sample size, duration
-- [ ] Sample size calculator accessible to all product teams
-- [ ] CUPED or equivalent variance reduction implemented
-- [ ] SRM (Sample Ratio Mismatch) check on every experiment
-- [ ] Experiment results repo: hypothesis, setup, results, decision, learnings
-- [ ] Pre-registration enforced — no peeking or cherry-picking
+- [ ] **[S13]**  A/B test design template: hypothesis, primary metric, guardrail metrics, sample size, duration
+- [ ] **[S14]**  Sample size calculator accessible to all product teams
+- [ ] **[S15]**  CUPED or equivalent variance reduction implemented
+- [ ] **[S16]**  SRM (Sample Ratio Mismatch) check on every experiment
+- [ ] **[S17]**  Experiment results repo: hypothesis, setup, results, decision, learnings
+- [ ] **[S18]**  Pre-registration enforced — no peeking or cherry-picking
 
 ### SQL & Performance
-- [ ] Incremental models for tables > 100M rows
-- [ ] Query plan reviewed for top 10 most-expensive queries
-- [ ] Window functions used for running totals, moving averages, rankings (not self-joins)
-- [ ] Materialized views or aggregate tables for frequently accessed aggregations
-- [ ] CI pipeline: `dbt build --select state:modified+` — only build changed models
+- [ ] **[S19]**  Incremental models for tables > 100M rows
+- [ ] **[S20]**  Query plan reviewed for top 10 most-expensive queries
+- [ ] **[S21]**  Window functions used for running totals, moving averages, rankings (not self-joins)
+- [ ] **[S22]**  Materialized views or aggregate tables for frequently accessed aggregations
+- [ ] **[S23]**  CI pipeline: `dbt build --select state:modified+` — only build changed models
 
 ### Operations
-- [ ] Data freshness monitoring with alerts on stale dashboards
-- [ ] Analytics on-call rotation for critical pipeline failures
-- [ ] BI tool usage analytics: which dashboards are viewed? Which are ignored (archive candidates)?
-- [ ] Stakeholder training: self-service exploration, how to read an A/B test result, when to ask for help
+- [ ] **[S24]**  Data freshness monitoring with alerts on stale dashboards
+- [ ] **[S25]**  Analytics on-call rotation for critical pipeline failures
+- [ ] **[S26]**  BI tool usage analytics: which dashboards are viewed? Which are ignored (archive candidates)?
+- [ ] **[S27]**  Stakeholder training: self-service exploration, how to read an A/B test result, when to ask for help
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - dbt Best Practices: https://docs.getdbt.com/best-practices
 - dbt Semantic Layer: https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-semantic-layer
 - Looker LookML Best Practices: https://cloud.google.com/looker/docs/best-practices

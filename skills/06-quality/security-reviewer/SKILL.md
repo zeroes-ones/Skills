@@ -2,13 +2,23 @@
 name: security-reviewer
 description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API security, dependency and container security, IaC and mobile security, CVSS-aligned severity grading, and structured review reports.
 author: Sandeep Kumar Penchala
+type: quality
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - security-reviewer
+token_budget: 3750
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Security Reviewer
 
 Comprehensive security review of applications, APIs, infrastructure, and mobile platforms. Covers STRIDE threat modeling during code review, OWASP Top 10 2021 mapped to language-specific patterns, authentication and authorization hardening, data protection and encryption, injection defense across all vectors, API security posture, dependency and supply chain analysis, container and IaC hardening, mobile security review, CVSS-aligned severity classification, and structured review reports with reproduction and verification steps.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Performing a security code review on a pull request, feature branch, or release candidate
 - Threat modeling during design or architecture review sessions
 - Auditing authentication flows: JWT validation, OAuth2/OIDC, session management
@@ -19,9 +29,121 @@ Comprehensive security review of applications, APIs, infrastructure, and mobile 
 - Hardening container images and auditing Infrastructure as Code
 - Reviewing mobile app security: secure storage, cert pinning, root detection, code obfuscation
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Review Depth by Change Type
+```
+                     ┌──────────────────────────┐
+                     │ START: Security review   │
+                     │ depth?                   │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Change involves auth, payments,     │
+              │ PII, or crypto?                     │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ Full STRIDE +    │  │ Change touches input │
+        │ OWASP All 10 +   │  │ validation, API     │
+        │ manual code      │  │ surface, or deps?   │
+        │ review. No       │  └──┬───────────────┬───┘
+        │ exceptions.      │     │ YES           │ NO
+        └──────────────────┘     ▼               ▼
+                          ┌────────────┐  ┌──────────────┐
+                          │ Focused    │  │ Light:       │
+                          │ review on  │  │ SAST +       │
+                          │ relevant   │  │ dependency   │
+                          │ OWASP cats │  │ scan only    │
+                          └────────────┘  └──────────────┘
+```
+**When full STRIDE + OWASP All:** Auth flows, payment processing, PII handling, cryptographic operations. Any change that could expose user data or enable privilege escalation.  
+**When light review suffices:** Documentation changes, test-only changes, configuration changes with no security surface. SAST passes + `npm audit` clean = approve.
 
-### Phase 1: Threat Modeling with STRIDE During Code Review
+### Auth Vulnerability Severity
+```
+                     ┌──────────────────────────────┐
+                     │ START: Auth finding found    │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Allows unauthenticated access to        │
+              │ protected resources or privilege        │
+              │ escalation?                             │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ CRITICAL. Block  │    │ Token sent over HTTP │
+        │ merge. Notify    │    │ or stored in         │
+        │ Security Lead.   │    │ localStorage?       │
+        │ Fix within 24hrs.│    └──┬───────────────┬───┘
+        └──────────────────┘       │ YES           │ NO
+                                   ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ HIGH. Fix  │  │ MEDIUM. JWT  │
+                            │ before     │  │ missing exp  │
+                            │ merge.     │  │ claim, weak  │
+                            │            │  │ algorithm.   │
+                            └────────────┘  └──────────────┘
+```
+**When CRITICAL:** Auth bypass discovered. Any user can access another user's data (IDOR). Admin functions accessible without role check.  
+**When MEDIUM:** JWT with `algorithm: none` possible but mitigated elsewhere. Session timeout is too long (72h+). Missing `SameSite` on non-critical cookie.
+
+### Dependency Risk Triage
+```
+                     ┌──────────────────────────────┐
+                     │ START: CVE found in dep      │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ CVSS ≥ 9.0 OR has known public exploit? │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ CRITICAL. Patch  │    │ Is the vulnerable    │
+        │ immediately.      │    │ code path reachable │
+        │ Hotfix deploy     │    │ in your app?        │
+        │ outside band.     │    └──┬───────────────┬───┘
+        └──────────────────┘       │ YES           │ NO
+                                   ▼               ▼
+                            ┌────────────┐  ┌──────────────┐
+                            │ HIGH. Fix  │  │ MEDIUM. Fix  │
+                            │ within 7   │  │ within 30    │
+                            │ days.      │  │ days.        │
+                            └────────────┘  └──────────────┘
+```
+**When immediate hotfix:** Log4Shell-level vulnerability. RCE with public exploit. Dependency used in request path. CVSS ≥ 9.0 with network attack vector.  
+**When 30-day fix:** Vulnerable in dev dependency only. Reachable code path requires non-default config. CVSS < 7.0 with local attack vector only.
+
+### Tool vs Manual Review
+```
+                     ┌──────────────────────────────┐
+                     │ START: SAST flag or manual?  │
+                     └─────────────┬────────────────┘
+                                   │
+              ┌────────────────────▼────────────────────┐
+              │ Is this a SQL injection, XSS, hardcoded │
+              │ secret, or known CWE pattern?           │
+              └────┬──────────────────────┬─────────────┘
+                   │ YES                  │ NO
+                   ▼                      ▼
+        ┌──────────────────┐    ┌──────────────────────┐
+        │ SAST catches     │    │ Requires manual      │
+        │ consistently.    │    │ review: auth logic   │
+        │ Verify + auto-fix│    │ flaws, business      │
+        │ if low FP rate.  │    │ logic bypass, race   │
+        │                   │    │ conditions.          │
+        └──────────────────┘    └──────────────────────┘
+```
+**When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.  
+**When manual review required:** Authorization logic (role checks, ownership verification). Race conditions in financial transactions. Cryptographic algorithm misuse.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Threat Modeling with STRIDE During Code Review
 Apply STRIDE per component by examining the code, not just architecture diagrams. For each component (API endpoint, service, database query, UI element), ask:
 
 **Spoofing**: Can an attacker impersonate a user, service, or system?
@@ -54,7 +176,7 @@ Apply STRIDE per component by examining the code, not just architecture diagrams
 - Verify: server-side authZ on every endpoint, resource ownership checks, JWT scope validation
 - Code smell: `if (user.role === 'admin')` checked ONLY on the client
 
-### Phase 2: OWASP Top 10 2021 -- Language-Specific Code Patterns
+### Phase 2 (~30 min): OWASP Top 10 2021 -- Language-Specific Code Patterns
 
 #### A01:2021 Broken Access Control
 | Language | Detection Pattern | Fix Pattern |
@@ -148,7 +270,7 @@ Review for design-level gaps during PR review:
 - No blocking of private/reserved IP ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 127.0.0.0/8, 169.254.169.254)
 - Redirect following enabled on outbound HTTP clients (SSRF via open redirect)
 
-### Phase 3: Data Protection Review
+### Phase 3 (~20 min): Data Protection Review
 
 #### Encryption at Rest
 - Database: TDE (Transparent Data Encryption) or column-level encryption for PII
@@ -177,7 +299,7 @@ Review for design-level gaps during PR review:
 - Logging: redact sensitive fields before logging (PII, tokens, passwords)
 - Database queries: select specific columns, not `SELECT *`
 
-### Phase 4: Input Validation & Injection Defense
+### Phase 4 (~15 min): Input Validation & Injection Defense
 
 #### Defense-in-Depth Strategy
 **Layer 1 -- Network**: WAF rules (SQL injection patterns, XSS patterns, path traversal)
@@ -199,7 +321,7 @@ Review for design-level gaps during PR review:
 - Stored procedures: still vulnerable if concatenating strings inside the procedure
 - Never, ever concatenate user input into SQL strings. No exceptions.
 
-### Phase 5: API Security Review
+### Phase 5 (~25 min): API Security Review
 
 #### Rate Limiting
 - All endpoints rate-limited, especially: auth (login, signup, password reset), API mutations, file upload
@@ -226,7 +348,7 @@ Review for design-level gaps during PR review:
 - Field-level authorization (not just resolver-level)
 - Rate limiting based on query cost, not just request count
 
-### Phase 6: Dependency Security
+### Phase 6 (~25 min): Dependency Security
 
 #### Audit Commands
 ```bash
@@ -256,7 +378,7 @@ For each CVE, assess:
 - Pin dependencies by digest for critical packages
 - Review new dependencies: maintenance status, contributor activity, security history
 
-### Phase 7: Container Security Review
+### Phase 7 (~25 min): Container Security Review
 
 #### Dockerfile Hardening Checklist
 - [ ] Base image pinned by SHA256 digest (not floating tag like `:latest`)
@@ -272,7 +394,7 @@ For each CVE, assess:
 - [ ] Image scanned: Trivy/Grype/Snyk scan in CI with blocking on Critical findings
 - [ ] `COPY --chown=appuser:appgroup` to set ownership during copy
 
-### Phase 8: Infrastructure as Code Security
+### Phase 8 (~30 min): Infrastructure as Code Security
 
 #### Terraform Security Audit
 | Resource | What to Check | Finding if Missing |
@@ -292,7 +414,7 @@ checkov --directory .             # Multi-IaC scanner (Terraform, CloudFormation
 trivy config .                    # Misconfiguration scanning
 ```
 
-### Phase 9: Mobile Security Review
+### Phase 9 (~20 min): Mobile Security Review
 
 #### Secure Storage Requirements
 | Platform | Never Use | Must Use |
@@ -394,7 +516,7 @@ Every finding must follow this structured format:
 ```
 
 ## Best Practices
-
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Defense in depth**: Validate at every layer. A WAF does NOT excuse missing input validation in application code.
 - **Assume breach**: Design for containment. Segment networks. Implement anomaly detection. A single vulnerability shouldn't compromise everything.
 - **Shift-left**: Catch vulnerabilities in code review, not penetration testing. SAST in CI on every PR. DAST on every staging deploy.
@@ -403,6 +525,49 @@ Every finding must follow this structured format:
 - **Positive reinforcement**: Highlight secure patterns. "Good use of parameterized queries here" and "Nice job validating with Zod at the boundary" reinforce good habits.
 - **Security is quality**: Frame findings as bugs. Don't appeal to fear -- appeal to correctness and engineering excellence.
 - **Know thy threat model**: A startup MVP has a different threat model than a bank. Calibrate review depth and severity to the actual risk.
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s -- table of who to talk to when -->
+Security reviewers do not operate in isolation. Vulnerabilities span backend, frontend, infrastructure, and mobile — coordination with domain experts is essential for accurate severity assessment, effective remediation, and organization-wide security posture improvement.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask |
+|-----------------|------|-------------------|
+| **Backend Developer** | API security, auth implementation, database queries | Vulnerability location with line numbers, proposed fix code, context on exploitation path |
+| **Frontend Developer** | XSS, CSRF, CSP, client-side storage, auth token handling | Input/output context, CSP configuration, secure cookie attributes, content sanitization approach |
+| **Mobile Developer** | Certificate pinning, secure storage, code obfuscation, biometric auth | Secure storage patterns (Keychain/Keystore), pinning implementation, root/jailbreak detection bypasses |
+| **DevOps Engineer** | Container hardening, IaC audit, CI/CD security, secrets management | Non-root user, read-only fs, pinned base images, least-privilege IAM, secret scanning in pipeline |
+| **Incident Responder** | Active exploitation, zero-day disclosure, breach containment | IoCs identified, CVSS vector, affected components, mitigation priority, detection rules to add |
+| **Compliance Officer** | PII exposure, regulatory impact, audit evidence | Affected data classifications, regulatory frameworks triggered (GDPR, HIPAA, PCI DSS), notification timelines |
+| **System Architect** | Architectural security concerns, trust boundaries, data flow risks | Threat model findings, trust boundary violations, defense-in-depth gaps requiring architectural changes |
+| **Code Reviewer** | Pre-merge security review, security-sensitive PRs | Security findings for joint severity assessment, patterns to add to code review checklist |
+
+### Communication Triggers
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Critical vulnerability found in production | Incident Responder, DevOps Lead, CTO | Incident response activation; may require hotfix or rollback |
+| Data breach confirmed (PII, PHI, financial data) | Compliance Officer, Legal Advisor, CISO | Regulatory notification clock starts; evidence preservation required |
+| Vulnerability pattern found across 5+ services | System Architect, Engineering Manager | Systemic issue — root cause may be architectural or framework-level |
+| Dependency with critical CVE in production | DevOps Engineer, Backend Lead | Patch or remove; assess exploitability in deployed context |
+| Security finding blocking release | Engineering Manager, Product Strategist | Go/no-go decision; risk acceptance or deferral process |
+
+### Escalation Path
+
+```
+Critical (CVSS ≥ 9.0, actively exploitable, data breach)?
+  └── CISO + Incident Responder + CTO. Immediate war room. Fix within 24 hours.
+
+High (CVSS 7.0–8.9, no public exploit, significant impact)?
+  └── Security Lead + Engineering Manager. Fix before next deployment. Review within 48 hours.
+
+Medium (CVSS 4.0–6.9, limited impact, requires non-default config)?
+  └── Development team. Fix within sprint. Security reviewer validates fix.
+
+Low / Info?
+  └── Log in backlog. No escalation needed. Fix when refactoring.
+```
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -431,21 +596,48 @@ Every finding must follow this structured format:
 - **Small → Medium**: SOC 2 or compliance audit required. First penetration test finding critical issues. >10K users.
 - **Medium → Enterprise**: Regulatory compliance (PCI DSS, HIPAA, FedRAMP). Public breach in similar company. >100K users.
 
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| `auth-security-review` | JWT/OAuth2/SAML/OIDC implementation, session management, MFA bypass attempts | Token validation gaps, algorithm confusion, missing claims verification, session fixation, CSRF |
+| `injection-defense-review` | SQL, NoSQL, command injection, LDAP, XSS, SSTI, path traversal | Parameterization audit, ORM escape analysis, context-aware encoding, CSP bypass testing |
+| `data-protection-review` | PII/PHI handling, encryption at rest/transit, data minimization, logging | Field classification, KMS key management, TLS configuration, PII-in-logs grep, GDPR/CCPA retention |
+| `api-security-review` | REST/GraphQL/gRPC endpoint hardening, rate limiting, CORS, mass assignment | Auth middleware coverage (every endpoint), input allowlists, CORS origin validation, resource ownership checks |
+| `dependency-audit` | SBOM generation, CVE triage, supply chain risk, transitive dependency analysis | `npm audit`/`pip audit`/`govulncheck`, reachability analysis, pinned versions, lockfile integrity |
+| `container-iac-review` | Dockerfile hardening, Kubernetes manifests, Terraform/Pulumi security | Non-root containers, read-only fs, capability dropping, least-privilege IAM, network policy audit |
+| `mobile-security-review` | React Native/Flutter/native app security: storage, transport, code integrity | Keychain/Keystore usage, cert pinning, ProGuard/R8 rules, root/jailbreak detection, screenshot blocking |
+| `threat-modeling` | STRIDE per component during code review (not just architecture diagrams) | Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege |
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Test timed out` | Async test not resolving | Add `await` to async assertions; increase `testTimeout` |
+| `Element not found` | Selector doesn't match rendered DOM | Use `page.waitForSelector()` before interaction; check render timing |
+| `flaky test` | Race condition between test and app state | Add `waitFor`/`toBeVisible` instead of fixed timeouts |
+| `Snapshot mismatch` | Component output changed | Run `--updateSnapshot` after intentional UI changes |
+| `Network Error` | Mock not set up for endpoint | Add `page.route()` or `server.use()` for all API calls |
+
+
 ## Production Checklist
-- [ ] STRIDE threat model conducted for components handling auth, payments, PII, or admin functions
-- [ ] OWASP Top 10 2021 assessed: no Critical or High findings outstanding
-- [ ] Authentication: JWT claims validated, sessions hardened (HttpOnly/Secure/SameSite), OAuth2 with PKCE
-- [ ] Authorization: auth middleware on every endpoint, resource ownership verified, RBAC enforced server-side
-- [ ] Data protection: PII fields classified, encryption at rest (KMS) and in transit (TLS 1.3), PII not logged
-- [ ] Input validation: parameterized SQL queries everywhere, schema validation at boundaries, output encoding for XSS
-- [ ] API security: rate limiting, strict CORS allowlist, CSP without unsafe-eval/inline, mass assignment protection
-- [ ] Dependencies: audit clean (no Critical/High CVEs), SBOM generated, supply chain checks passing
-- [ ] Containers: non-root user, read-only fs where possible, pinned base image digest, image scan clean
-- [ ] IaC: no public S3 buckets, no 0.0.0.0/0 security groups, least-privilege IAM, scanned in CI
-- [ ] Mobile: Keychain/Keystore for auth tokens, cert pinning, root/jailbreak detection, no plaintext logs
-- [ ] Every finding documented: description, reproduction, severity, fix, verification, and references
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  STRIDE threat model conducted for components handling auth, payments, PII, or admin functions
+- [ ] **[S2]**  OWASP Top 10 2021 assessed: no Critical or High findings outstanding
+- [ ] **[S3]**  Authentication: JWT claims validated, sessions hardened (HttpOnly/Secure/SameSite), OAuth2 with PKCE
+- [ ] **[S4]**  Authorization: auth middleware on every endpoint, resource ownership verified, RBAC enforced server-side
+- [ ] **[S5]**  Data protection: PII fields classified, encryption at rest (KMS) and in transit (TLS 1.3), PII not logged
+- [ ] **[S6]**  Input validation: parameterized SQL queries everywhere, schema validation at boundaries, output encoding for XSS
+- [ ] **[S7]**  API security: rate limiting, strict CORS allowlist, CSP without unsafe-eval/inline, mass assignment protection
+- [ ] **[S8]**  Dependencies: audit clean (no Critical/High CVEs), SBOM generated, supply chain checks passing
+- [ ] **[S9]**  Containers: non-root user, read-only fs where possible, pinned base image digest, image scan clean
+- [ ] **[S10]**  IaC: no public S3 buckets, no 0.0.0.0/0 security groups, least-privilege IAM, scanned in CI
+- [ ] **[S11]**  Mobile: Keychain/Keystore for auth tokens, cert pinning, root/jailbreak detection, no plaintext logs
+- [ ] **[S12]**  Every finding documented: description, reproduction, severity, fix, verification, and references
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [OWASP Top 10 (2021)](https://owasp.org/www-project-top-ten/)
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
 - [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/)

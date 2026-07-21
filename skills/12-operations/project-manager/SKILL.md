@@ -2,14 +2,23 @@
 name: project-manager
 description: Technical project management specialist. Project planning (WBS, Gantt charts), risk management (RAID logs), stakeholder communication, resource allocation, budget tracking, milestone management, status reporting, and project postmortems. PMBOK and agile-hybrid methodologies.
 author: Sandeep Kumar Penchala
+type: operations
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - project-manager
+token_budget: 2745
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Technical Project Manager
 
 Technical project management covering initiation through closure. Work breakdown structures (WBS), dependency mapping, critical path analysis, risk management (RAID logs), stakeholder communication plans, budget tracking, resource leveling, milestone management, status reporting cadence, and project postmortems.
 
 ## When to Use
-
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Starting a new project that needs structured planning (initiation phase)
 - Project slipped deadlines or scope creeping — need replanning
 - Multiple stakeholders with misaligned expectations
@@ -21,9 +30,168 @@ Technical project management covering initiation through closure. Work breakdown
 - Resource conflicts across multiple projects
 - Need a communication plan (who gets what info, when, how)
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Methodology Selection: Waterfall vs Agile vs Hybrid
+```
+                     ┌──────────────────────────┐
+                     │ START: Project methodology? │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Requirements well-understood,   │
+                    │ unlikely to change (>80%        │
+                    │ confidence in scope)?           │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Deliverable is│    │ Deliverable is   │
+                    │ physical/     │    │ software AND     │
+                    │ construction? │    │ team co-located  │
+                    └──┬────────┬───┘    │ or async-capable?│
+                       │YES     │NO      └──┬──────────┬────┘
+                  ┌────▼───┐ ┌─▼────────┐   │YES       │NO
+                  │Waterfall│ │Hybrid:   │ ┌─▼──────┐ ┌─▼──────────┐
+                  │(critical│ │planning  │ │Scrum/  │ │Agile        │
+                  │path,    │ │milestones│ │Kanban  │ │framework    │
+                  │phase    │ │+ agile   │ │based on│ │with async   │
+                  │gates)   │ │delivery  │ │team size│ │ceremonies   │
+                  └─────────┘ │sprints   │ │+ cadence│ └─────────────┘
+                              └──────────┘ └─────────┘
+```
+**When to choose Waterfall:** Physical/construction deliverables, regulatory phase-gate requirements, fixed-price contracts with clear scope — critical path method, milestone-driven.
+**When to choose Hybrid:** Fixed scope + evolving implementation — waterfall planning/milestones with agile delivery sprints. Good for heavily regulated software.
+**When to choose Agile/Scrum:** Software with evolving requirements, co-located or async-capable team — 2-week sprints, backlog refinement, working software increments.
 
-### Phase 1: Initiation & Planning
+### Risk Response Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: Risk response?       │
+                     └────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Probability × Impact score      │
+                    │ HIGH (>15 on 5×5 matrix)?      │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ Can we avoid   │    │ Medium risk      │
+                    │ the risk       │    │ (5-15)?          │
+                    │ entirely by    │    └──┬──────────┬────┘
+                    │ changing plan? │       │YES       │NO (Low)
+                    └──┬────────┬───┘  ┌────▼────┐ ┌──▼──────────┐
+                       │YES     │NO    │Mitigate:│ │Accept +     │
+                  ┌────▼───┐ ┌─▼────────┐│reduce P │ │monitor only:│
+                  │Avoid:  │ │Can we     ││or I with│ │log in RAID, │
+                  │change  │ │transfer?  ││concrete │ │no active    │
+                  │scope,  │ └──┬────┬───┘│actions  │ │mitigation   │
+                  │tech, or│    │YES │NO  │+ owners │ └─────────────┘
+                  │approach│ ┌──▼──┐┌▼────┐└─────────┘
+                  └────────┘ │Trans-││Miti-│
+                              │fer:  ││gate: │
+                              │insure││build │
+                              │ance, ││con-  │
+                              │vendor││tingen-│
+                              │SLA   ││cy plan│
+                              └──────┘└──────┘
+```
+**When to Avoid:** High risk, viable alternative approach — change technology, scope, or delivery plan to eliminate the risk entirely (strongest response).
+**When to Transfer:** Financial or liability risk that can be insured or contracted away — insurance, vendor SLA, fixed-price contract with penalty clauses.
+**When to Mitigate:** Can reduce probability (add testing, prototyping) or impact (contingency budget, fallback plan) — always assign an owner and deadline.
+**When to Accept:** Low impact or low probability — document in RAID log, monitor triggers, no active mitigation unless threshold crossed.
+
+### Stakeholder Communication Escalation
+```
+                     ┌──────────────────────────────┐
+                     │ START: Who needs what comms?   │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Executive sponsor or steering   │
+                    │ committee member?               │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │High-level:    │    │ Directly blocked  │
+                    │Status on 1    │    │ or dependent on   │
+                    │page: RAG,     │    │ deliverables?     │
+                    │milestones,    │    └──┬──────────┬────┘
+                    │key risks,     │       │YES       │NO
+                    │decisions needed│  ┌────▼────┐ ┌─▼──────────┐
+                    │Frequency:      │  │Detailed │ │FYI only:   │
+                    │monthly or      │  │status:  │ │broadcast   │
+                    │at gate reviews │  │task-level│ │channel,    │
+                    └────────────────┘  │blockers,│ │newsletter  │
+                                        │dependen-│ │or wiki     │
+                                        │cies     │ │update      │
+                                        └─────────┘ └────────────┘
+```
+**When to send Executive-level comms:** Sponsor/steering committee — 1-page RAG status, milestone vs plan, top 3 risks, decisions needed. Monthly or at gate reviews.
+**When to send Detailed comms:** Team leads, dependent teams, blockers — task-level status, dependencies, timeline changes. Weekly or per sprint.
+**When to send General comms:** Wider org, indirect stakeholders — project newsletter, wiki update, Slack broadcast. Optional consumption, no action required.
+
+### Project Health Assessment
+```
+                     ┌──────────────────────────────┐
+                     │ START: Is the project healthy? │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ SPI (Schedule Performance      │
+                    │ Index) < 0.85 OR CPI (Cost     │
+                    │ Performance Index) < 0.85?     │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │ RED: Immediate│    │ SPI/CPI 0.85-0.95│
+                    │ Corrective    │    │?                 │
+                    │ Action:       │    └──┬──────────┬────┘
+                    │ - Root cause  │       │YES       │NO
+                    │ - Recovery    │  ┌────▼────┐ ┌───▼──────────┐
+                    │   plan        │  │AMBER:   │ │GREEN:        │
+                    │ - Stakeholder │  │Course-  │ │Monitor only. │
+                    │   notification│  │correct  │ │Celebrate if   │
+                    │ - Escalate if │  │before it │ │SPI/CPI > 1.0 │
+                    │   >2 weeks    │  │hits RED  │ │— ahead of    │
+                    └───────────────┘  └─────────┘ │plan.         │
+                                                   └──────────────┘
+```
+**When RED (SPI/CPI < 0.85):** >15% behind schedule or over budget — immediate root cause analysis, recovery plan with specific dates, stakeholder escalation, increased monitoring frequency.
+**When AMBER (SPI/CPI 0.85-0.95):** 5-15% off plan — course correct now with specific actions, don't wait for RED. Adjust resource allocation or re-baseline.
+**When GREEN (SPI/CPI > 0.95):** On or ahead of plan — continue monitoring, celebrate ahead-of-plan performance, but verify metrics aren't gamed.
+
+### Resource Conflict Resolution
+```
+                     ┌──────────────────────────────┐
+                     │ START: Resource conflict       │
+                     │ between projects?              │
+                     └────────────┬─────────────────┘
+                                  │
+                    ┌─────────────▼─────────────────┐
+                    │ Both projects have same         │
+                    │ strategic priority from         │
+                    │ sponsor/portfolio?              │
+                    └────┬──────────────────────┬───┘
+                         │ YES                  │ NO
+                    ┌────▼──────────┐    ┌──────▼──────────┐
+                    │Capacity-based│    │ Lower priority   │
+                    │Split:         │    │ project yields.  │
+                    │% allocation   │    │ Re-plan with     │
+                    │agreed with    │    │ remaining        │
+                    │both sponsors. │    │ capacity. If     │
+                    │If not feasible│    │ blocking higher  │
+                    │→ escalate to  │    │ priority →       │
+                    │portfolio      │    │ escalate to      │
+                    │governance     │    │ portfolio for    │
+                    └───────────────┘    │ decision.        │
+                                         └──────────────────┘
+```
+**When to capacity-split:** Equal priority — agree % allocation with both sponsors (e.g., 60/40), document impact on both timelines, review monthly. Escalate to portfolio if not feasible.
+**When to yield:** Unequal priority — lower priority project adjusts plan, higher priority proceeds. Escalate to portfolio governance for formal decision if contested.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Initiation & Planning
 
 1. **Project charter**: Problem statement, business case, success criteria, constraints, assumptions
 2. **Stakeholder analysis**: Power-interest grid, communication preferences, RACI for key decisions
@@ -36,7 +204,7 @@ Technical project management covering initiation through closure. Work breakdown
 9. **Communication plan**: Stakeholder → information need → format → frequency → owner
 10. **Risk register (RAID)**: Risks, Assumptions, Issues, Decisions — T-shirt sizing (L/M/S), probability, impact, mitigation
 
-### Phase 2: Execution & Monitoring
+### Phase 2 (~30 min): Execution & Monitoring
 
 1. **Daily ops**: Standup attendance (observe, don't run), unblocking, dependency tracking
 2. **Weekly status**: Progress against milestones, SPI/CPI, top 3 risks, blocked items, decisions needed
@@ -45,7 +213,7 @@ Technical project management covering initiation through closure. Work breakdown
 5. **Burndown/burnup**: Track earned value vs planned value
 6. **Stakeholder updates**: Tailored by audience (executive summary vs detailed technical)
 
-### Phase 3: Closure & Postmortem
+### Phase 3 (~20 min): Closure & Postmortem
 
 1. **Project closure checklist**: All deliverables accepted, contracts closed, resources released
 2. **Lessons learned**: What went well, what went wrong, what to do differently
@@ -54,7 +222,7 @@ Technical project management covering initiation through closure. Work breakdown
 5. **Celebration**: Acknowledge the team. Seriously — it matters for retention.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Project management is the hub — coordinating product, engineering, design, QA, DevOps, stakeholders, and business. The PM doesn't do the work; the PM ensures the right people talk to each other at the right time.
 
 | Coordinate With | When | What to Share/Ask |
@@ -94,8 +262,42 @@ Project management is the hub — coordinating product, engineering, design, QA,
 | Regulatory/compliance deadline at risk of being missed | **Legal Advisor** + Regulatory Specialist + Sponsor | Regulatory exposure; may require external notification |
 | >20% budget or schedule overrun without recovery path | **Sponsor** + Portfolio Governance + Finance | Re-baseline or termination decision; executive approval required |
 
-## Best Practices
+## Scale Depth
+<!-- QUICK: 30s -- find your team size column -->
+### Solo (1 person, 0-100 users)
+One person managing 1-3 small projects part-time. Tools: Google Sheets + Notion for tracking, Slack for comms. No formal RAID log — issues tracked in a doc. No EVM; simple milestone tracking. Communication: async updates, no stakeholder meetings beyond weekly check-in. Cost: $0-100/month. Overkill: MS Project, Jira Advanced Roadmaps, portfolio dashboards, formal gate reviews.
 
+### Small (2-10 people, 10-100 users)
+Dedicated PM or tech lead wearing PM hat. Tools: Jira/Linear + Confluence/Notion. RAID log maintained. Basic EVM: SPI/CPI on major deliverables. Weekly status reports to stakeholders. Gate reviews for major milestones. Risk register with owners and mitigation plans. Cost: $100-500/month (tools). Overkill: PMO, formal portfolio governance, resource management software.
+
+### Medium (10-50 people, 100-10K users)
+1-3 PMs or PMO lead. Tools: Jira Advanced Roadmaps, MS Project, Smartsheet. EVM across all workstreams. Portfolio-level RAID log with cross-project dependencies. Formal stage-gate process with steering committee. Resource capacity planning. Vendor management process. Cost: $2K-10K/month. Overkill: dedicated PMO department, enterprise PPM (Planview, Clarity).
+
+### Enterprise (50+ people, 10K+ users)
+PMO (3-10+). Enterprise PPM: Planview, ServiceNow PPM, Clarity. Portfolio governance with stage-gate, benefits realization tracking. Resource management across all projects. Strategic alignment scoring. Vendor performance management. PM methodology training and coaching. Cost: $20K-200K+/month.
+
+### Transition Triggers
+| From → To | Trigger | What to Change |
+|-----------|---------|----------------|
+| Solo → Small | 3+ concurrent projects with cross-team dependencies | Add Jira/Linear for tracking; implement RAID log; start weekly stakeholder reporting |
+| Small → Medium | 5+ concurrent projects, shared resource pool, or portfolio budget >$500K | Add PPM tool; implement stage-gate governance; hire dedicated PM(s) |
+| Medium → Enterprise | 10+ projects, multi-department resource conflicts, or regulatory oversight | Establish PMO; implement enterprise PPM; add portfolio governance board |
+
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| **Project Planning & Scheduling** | New project initiation or major re-plan | WBS, Gantt charts, critical path method — MS Project, Smartsheet, Jira Advanced Roadmaps |
+| **RAID Log Management** | Any project with >2 stakeholders or >1 month duration | Risks, Assumptions, Issues, Dependencies — tracked in spreadsheet or Jira/Confluence with owners and review cadence |
+| **Earned Value Management (EVM)** | Budget >$100K or sponsor requires objective progress metrics | SPI (schedule), CPI (cost), EAC (estimate at completion) — calculate from planned vs actual vs earned |
+| **Stakeholder Communication** | 3+ stakeholder groups with different information needs | RACI matrix, communication plan (who, what, when, how), steering committee decks, status dashboards |
+| **Vendor & Procurement Management** | External vendors delivering project components | RFP/RFQ process, SOW review, SLA monitoring, milestone acceptance, invoice verification |
+| **Risk Management** | High-uncertainty projects or regulated environments | Probability × Impact matrix, Monte Carlo simulation, risk response strategies (avoid/transfer/mitigate/accept), contingency reserves |
+| **Agile/Scrum PM** | Software projects with evolving requirements | Sprint planning facilitation, backlog grooming, velocity tracking, Scrum of Scrums for multi-team coordination |
+| **Project Recovery** | Project >15% behind schedule or >20% over budget | Root cause analysis, recovery plan (crash/fast-track/re-scope), stakeholder re-alignment, increased governance frequency |
+
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Plan for the plan to be wrong**: No plan survives contact with reality. Build 15-20% buffer.
 - **RAID log is your second brain**: If it's not in the RAID log, it doesn't exist
 - **Status reports are pull, not push**: Dashboard where stakeholders self-serve; don't email PDFs
@@ -195,25 +397,35 @@ python3 scripts/raid_audit.py --project-id PROJECT --stale-threshold-days 14
 
 **Principle:** `project_health.py` reads from the project tracker (Jira/Linear/GitHub issues), computes SPI/CPI, checks milestone dates, and outputs a JSON snapshot. Agent reads 1 JSON file, applies the decision tree, and generates exactly 1 action. No reading task lists into agent context.
 
-## Production Checklist
 
-- [ ] Project charter approved with clear success criteria
-- [ ] WBS created with work packages decomposed to <80 hours each
-- [ ] Dependency map complete with critical path identified
-- [ ] RAID log initialized with at least 10 identified risks
-- [ ] Stakeholder analysis complete with communication preferences mapped
-- [ ] Schedule baseline established with milestones and buffer
-- [ ] Budget approved with contingency reserve (10-20%)
-- [ ] Communication plan defined (who gets what info, when, how)
-- [ ] Change control process documented and socialized
-- [ ] Status report template ready (dashboard or document format)
-- [ ] Escalation path defined with triggers
-- [ ] Resource allocation confirmed (no over-allocations >120%)
-- [ ] Kickoff meeting held with all stakeholders
-- [ ] Project retrospective/postmortem scheduled at 2-4 week cadence
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Project charter approved with clear success criteria
+- [ ] **[S2]**  WBS created with work packages decomposed to <80 hours each
+- [ ] **[S3]**  Dependency map complete with critical path identified
+- [ ] **[S4]**  RAID log initialized with at least 10 identified risks
+- [ ] **[S5]**  Stakeholder analysis complete with communication preferences mapped
+- [ ] **[S6]**  Schedule baseline established with milestones and buffer
+- [ ] **[S7]**  Budget approved with contingency reserve (10-20%)
+- [ ] **[S8]**  Communication plan defined (who gets what info, when, how)
+- [ ] **[S9]**  Change control process documented and socialized
+- [ ] **[S10]**  Status report template ready (dashboard or document format)
+- [ ] **[S11]**  Escalation path defined with triggers
+- [ ] **[S12]**  Resource allocation confirmed (no over-allocations >120%)
+- [ ] **[S13]**  Kickoff meeting held with all stakeholders
+- [ ] **[S14]**  Project retrospective/postmortem scheduled at 2-4 week cadence
 
 ## References
-
+<!-- QUICK: 30s -- links to deeper reading -->
 - [PMBOK Guide (7th Edition)](https://www.pmi.org/pmbok-guide-standards/foundational/pmbok)
 - [Atlassian Project Management Guide](https://www.atlassian.com/project-management)
 - [Linear Method](https://linear.app/method)

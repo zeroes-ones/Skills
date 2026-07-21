@@ -2,13 +2,23 @@
 name: idea-to-spec
 description: Transform raw product ideas into structured PRDs, data models, API contracts, screen definitions, and work items. Use when converting napkin sketches, feature requests, or brainstorming notes into actionable engineering specs. Triggers: "spec this out", "write a PRD from this idea", "formalize this feature", "idea to spec".
 author: Sandeep Kumar Penchala
+type: product
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - idea-to-spec
+token_budget: 1439
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Idea to Spec
 
 Systematically decompose a raw product idea into a complete, implementation-ready specification package — PRD, domain model, API surface, screen inventory, and prioritized work items — so that an engineering team can estimate and build without ambiguity.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A stakeholder has a one-paragraph idea and needs a formal spec before sprint planning
 - A feature request lacks technical detail (data shapes, API endpoints, error states)
 - You need to evaluate feasibility and surface unknowns before committing to a roadmap
@@ -16,7 +26,7 @@ Systematically decompose a raw product idea into a complete, implementation-read
 - An existing system needs a net-new module and someone must bootstrap the design doc
 
 ## Decision Trees
-
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Spec Depth Decision
 
 ```
@@ -38,27 +48,30 @@ Adding to existing system? → Focus on API contract and screen inventory. Domai
 Solo/Small team? → Notion/Google Docs with OpenAPI snippets. Keep it simple.
 Medium team? → Notion + dedicated OpenAPI tool (Stoplight/SwaggerHub). RFC in doc comments.
 Enterprise? → Spec management platform (Notion/Confluence + Jira integration). Automated validation.
+
+**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
+
 ```
 
 ## Core Workflow
-
-### Phase 1: Discovery & Scoping
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 1 (~15 min): Discovery & Scoping
 Extract the core problem, target persona, and success criteria from the raw input. Use the Five Whys to drill past solution proposals to root needs. Document explicit non-goals — what the feature deliberately excludes. Identify assumptions and unknowns that need validation before writing code. Output a one-page **Scope Brief** that captures: Problem Statement, Target Users, Success Metrics (leading and lagging), Scope Boundaries (in/out), and Open Questions with owners.
 
-### Phase 2: Domain Modeling
+### Phase 2 (~30 min): Domain Modeling
 Identify entities, their attributes, relationships, and cardinalities. Favor composition over deep inheritance. Define state machines for entities with lifecycle transitions. Annotate each entity with: required vs. optional fields, validation rules, uniqueness constraints, and indexing strategy. Produce an **Entity Relationship Diagram** (textual or visual) and a **Data Dictionary** with one row per field. For each relationship, specify ownership direction and cascade behavior.
 
-### Phase 3: API Design
+### Phase 3 (~20 min): API Design
 For every operation identified in the scope brief, define: HTTP method, URL path, request body schema (JSON/Protobuf), query parameters, response body schema, and error codes for every failure mode. Group endpoints by resource. Define pagination, sorting, and filtering conventions uniformly. Specify authentication and authorization per endpoint. Document idempotency guarantees. Output an **OpenAPI 3.1 spec** snippet or equivalent **API Contract** document.
 
-### Phase 4: Screen & Interaction Inventory
+### Phase 4 (~15 min): Screen & Interaction Inventory
 List every screen, modal, drawer, or stateful view the feature requires. For each screen: name the route, list data dependencies (which API calls fire on mount), define loading, empty, error, and edge-case states, and enumerate all user actions with their system responses. Produce a **Screen Inventory** table and wireframe descriptions. Include accessibility requirements per screen (heading hierarchy, focus management, ARIA landmarks).
 
-### Phase 5: Work Item Breakdown
+### Phase 5 (~25 min): Work Item Breakdown
 Slice the spec into vertically deliverable user stories. Each story must be independently shippable and demonstrable. Write stories in the `As a [role], I want [action], so that [value]` format with concrete acceptance criteria. Sequence stories by dependency and value-to-effort ratio. Tag each story with a t-shirt size estimate for early capacity planning. Output a **Story Map** ordered by priority.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Converting an idea into a spec is inherently collaborative — it synthesizes product intent, design thinking, and engineering reality. A spec written in isolation produces three things: rework, frustration, and missed deadlines.
 
 ### Coordinate With
@@ -100,6 +113,7 @@ Cross-team dependency deadlock (two teams block each other)
 ```
 
 ## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
 - Always define the empty state and error state before the happy path — they reveal the most design complexity.
 - Prefer denormalized read models for query-heavy screens; normalize only writes.
 - Every API response must include a `requestId` field for production debugging.
@@ -137,7 +151,7 @@ Cross-team dependency deadlock (two teams block each other)
 - **Medium → Enterprise**: Regulatory compliance requires spec sign-off. Multi-product spec dependencies. IPO audit trail needed.
 
 ## Sub-Skills
-
+<!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Reference |
 |-----------|-------------|-----------|
 | `prd-writing` | Feature definition, stakeholder alignment | Phase 2 — scope brief, success metrics, non-goals |
@@ -148,19 +162,31 @@ Cross-team dependency deadlock (two teams block each other)
 | `rfc-process` | Cross-team spec review, async approval | `product-manager` — stakeholder alignment |
 | `accessibility-requirements` | WCAG integration into screen specs | `accessibility-auditor` — heading hierarchy, focus management |
 
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
+| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
+| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+
+
 ## Production Checklist
-- [ ] Scope brief approved by product owner and tech lead
-- [ ] Non-goals explicitly documented and agreed upon
-- [ ] Entity state machines cover all lifecycle transitions including rollback paths
-- [ ] API contract includes error schemas for every 4xx and 5xx response
-- [ ] Pagination, sorting, and filtering patterns are consistent with existing APIs
-- [ ] Every screen has defined loading, empty, error, and permission-denied states
-- [ ] Story map ordered by dependency and value-to-effort ratio
-- [ ] Each user story has at least 3 acceptance criteria in Given/When/Then format
-- [ ] Open questions have assigned owners and due dates
-- [ ] Spec versioned and distributed for async review before any planning meeting
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Scope brief approved by product owner and tech lead
+- [ ] **[S2]**  Non-goals explicitly documented and agreed upon
+- [ ] **[S3]**  Entity state machines cover all lifecycle transitions including rollback paths
+- [ ] **[S4]**  API contract includes error schemas for every 4xx and 5xx response
+- [ ] **[S5]**  Pagination, sorting, and filtering patterns are consistent with existing APIs
+- [ ] **[S6]**  Every screen has defined loading, empty, error, and permission-denied states
+- [ ] **[S7]**  Story map ordered by dependency and value-to-effort ratio
+- [ ] **[S8]**  Each user story has at least 3 acceptance criteria in Given/When/Then format
+- [ ] **[S9]**  Open questions have assigned owners and due dates
+- [ ] **[S10]**  Spec versioned and distributed for async review before any planning meeting
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - **product-manager** — for stakeholder alignment and RICE prioritization after spec generation
 - **ui-ux-designer** — for design system integration of screen inventory
 - **accessibility-auditor** — for WCAG compliance of screen definitions

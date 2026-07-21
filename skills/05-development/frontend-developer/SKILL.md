@@ -2,13 +2,23 @@
 name: frontend-developer
 description: React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility.
 author: Sandeep Kumar Penchala
+type: development
+status: stable
+version: "1.0.0"
+updated: 2026-07-21
+tags:
+  - frontend-developer
+token_budget: 4000
+output:
+  type: "code"
+  path_hint: "./"
 ---
-
 # Frontend Developer
 
 Build performant, accessible, and maintainable web applications using React (Next.js App Router) and Vue (Nuxt). This skill covers the complete frontend engineering practice: framework selection with trade-off analysis, component architecture with Server Components and composition patterns, state management taxonomy (server vs client vs form vs URL), CSS architecture at scale, Core Web Vitals optimization to measurable targets, WCAG 2.2 AA accessibility compliance, bundle optimization with tree shaking and code splitting, and comprehensive testing from unit to E2E.
 
 ## When to Use
+<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project
 - Implementing React Server Components (RSC) with Client Component boundaries and streaming
 - Designing component architecture: compound components, render props vs hooks, Server Component composition
@@ -19,9 +29,124 @@ Build performant, accessible, and maintainable web applications using React (Nex
 - Analyzing and optimizing bundle size: dynamic imports, tree shaking verification, code splitting strategies
 - Setting up comprehensive testing: Vitest + React Testing Library (components), Playwright (E2E), axe-core (a11y)
 
-## Core Workflow
+## Decision Trees
+<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+### Rendering Strategy
+```
+                     ┌──────────────────────────┐
+                     │ START: SSR, SSG, or ISR? │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Does content change per user or     │
+              │ per request?                        │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ SSR (dynamic).   │  │ How often does       │
+        │ Render on each   │  │ content change?      │
+        │ request. Use for │  └──┬───────────────┬───┘
+        │ dashboards, auth │     │ < 1/day       │ > 1/day
+        │ pages, real-time │     ▼               ▼
+        │ data.            │ ┌────────┐    ┌───────────┐
+        └──────────────────┘ │ SSG    │    │ ISR       │
+                             │ Build  │    │ Revalidate│
+                             │ time   │    │ every N   │
+                             │ only   │    │ seconds   │
+                             └────────┘    └───────────┘
+```
+**When to choose SSR:** Content is per-user (dashboards, settings) or real-time (live scores, stock prices). SEO is critical and content changes by request.  
+**When to choose SSG:** Content changes < once per deploy (blog posts, docs, marketing pages). Maximum cache hit ratio desired. Build time < 5 minutes.
 
-### Phase 0: Framework Selection — Decision Tree
+### State Management Selection
+```
+                     ┌──────────────────────────┐
+                     │ START: State type?       │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Does the state come from the        │
+              │ server (API/DB)?                    │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ TanStack Query / │  │ Shared across        │
+        │ SWR. Caching,    │  │ unrelated components?│
+        │ refetch, mutate. │  └──┬───────────────┬───┘
+        └──────────────────┘     │ YES           │ NO
+                                 ▼               ▼
+                          ┌────────────┐  ┌──────────────┐
+                          │ Zustand /  │  │ useState /   │
+                          │ Jotai      │  │ useReducer   │
+                          │ (global)   │  │ (local)      │
+                          └────────────┘  └──────────────┘
+```
+**When TanStack Query:** Data originates from API. Needs caching, background refetch, optimistic updates. Pagination/infinite scroll required.  
+**When Zustand:** Client-only global state (theme, auth status, UI preferences). Cross-component shared state not tied to server. Avoids prop drilling across > 3 levels.
+
+### CSS Architecture
+```
+                     ┌──────────────────────────┐
+                     │ START: CSS approach?     │
+                     └───────────┬──────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Team size > 5 + design system       │
+              │ with tokens?                        │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ Tailwind with    │  │ Solo dev or rapid    │
+        │ design tokens in │  │ prototyping?         │
+        │ config. Utility- │  └──┬───────────────┬───┘
+        │ first, component │     │ YES           │ NO
+        │ extraction at    │     ▼               ▼
+        │ > 5 repetitions. │ ┌────────┐    ┌───────────┐
+        └──────────────────┘ │Tailwind│    │ CSS       │
+                             │utility │    │Modules or │
+                             │classes │    │styled-    │
+                             │        │    │components │
+                             └────────┘    └───────────┘
+```
+**When Tailwind + tokens:** Team with design system. Design tokens (colors, spacing, typography) defined once. Rapid iteration with constraints.  
+**When CSS Modules:** Scoped styles per component. No utility-class learning curve. Complex pseudo-selectors or animations that don't map well to utilities.
+
+### Component Testing Strategy
+```
+                     ┌───────────────────────────┐
+                     │ START: How to test this   │
+                     │ component?                │
+                     └───────────┬───────────────┘
+                                 │
+              ┌──────────────────▼──────────────────┐
+              │ Does component handle user          │
+              │ interaction + async data?           │
+              └────┬────────────────────┬───────────┘
+                   │ YES                │ NO
+                   ▼                    ▼
+        ┌──────────────────┐  ┌──────────────────────┐
+        │ React Testing    │  │ Pure render (no      │
+        │ Library + MSW.   │  │ state, no async)?   │
+        │ Test: render →   │  └──┬───────────────┬───┘
+        │ interact → wait  │     │ YES           │ NO
+        │ for async →      │     ▼               ▼
+        │ assert UI.       │ ┌────────┐    ┌───────────┐
+        └──────────────────┘ │Vitest  │    │ Playwright│
+                             │snapshot│    │ E2E for   │
+                             │or      │    │ critical  │
+                             │render  │    │ user flow │
+                             │assert  │    └───────────┘
+                             └────────┘
+```
+**When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.  
+**When snapshot test:** Presentational component with stable output. No dynamic data. Quick regression detector. Avoid for large component trees.
+
+## Core Workflow
+<!-- QUICK: 30s -- scan phase titles to understand the process -->
+### Phase 0 (~15 min): Framework Selection — Decision Tree
 
 Choosing the wrong framework costs months of migration. Start here:
 
@@ -64,7 +189,7 @@ Is SEO critical OR do you need server-side rendering?
 - Simpler reactivity model: Vue's `ref()`/`reactive()` is more intuitive than React's immutable state + useEffect dance
 - Single-file components (.vue) with scoped styles are preferred over JSX + separate CSS files
 
-### Phase 1: Project Architecture & TypeScript Mastery
+### Phase 1 (~15 min): Project Architecture & TypeScript Mastery
 
 **Next.js App Router — the definitive project structure:**
 ```
@@ -147,7 +272,7 @@ type Status = typeof STATUS[number]; // 'active' | 'inactive' | 'suspended'
 // Switch on Status — TypeScript ensures all cases handled
 ```
 
-### Phase 2: State Management Taxonomy
+### Phase 2 (~30 min): State Management Taxonomy
 
 The #1 mistake in React apps: treating all state the same. Different state categories need different tools.
 
@@ -230,7 +355,7 @@ const [page, setPage] = useQueryState('page', { defaultValue: '1' });
 // URL becomes: /products?page=3 — shareable, bookmarkable, SSR-compatible
 ```
 
-### Phase 3: CSS Architecture at Scale
+### Phase 3 (~20 min): CSS Architecture at Scale
 
 **The definitive CSS strategy for 2026:**
 
@@ -264,7 +389,7 @@ CSS-in-JS (runtime) NOT RECOMMENDED                  Runtime performance cost, S
 **CSS Modules — when Tailwind doesn't fit:**
 Use CSS Modules for: complex animations that Tailwind can't express, component libraries distributed as npm packages (avoid forcing Tailwind on consumers), legacy codebases already on CSS Modules.
 
-### Phase 4: Core Web Vitals — The Definitive Optimization Guide
+### Phase 4 (~15 min): Core Web Vitals — The Definitive Optimization Guide
 
 **The three metrics that Google cares about — and that users feel:**
 
@@ -315,7 +440,7 @@ INP measures the worst interaction delay on your page. Poor INP means users expe
 
 For the complete CWV optimization playbook, see `references/performance-cwv.md`.
 
-### Phase 5: Accessibility — WCAG 2.2 AA Compliance
+### Phase 5 (~25 min): Accessibility — WCAG 2.2 AA Compliance
 
 Accessibility is not optional. It's a legal requirement in most jurisdictions (ADA, Section 508, EAA) and affects 15-20% of users.
 
@@ -350,7 +475,7 @@ Accessibility is not optional. It's a legal requirement in most jurisdictions (A
 - Screen reader: Test with VoiceOver (macOS/iOS) or NVDA (Windows). Can you navigate by heading? Are live regions announcing dynamic updates?
 - CI integration: Run axe-core in Playwright E2E tests. Fail the build on violations above "minor" severity.
 
-### Phase 6: Bundle Optimization
+### Phase 6 (~25 min): Bundle Optimization
 
 **Bundle size budget — hard limits:**
 | Metric | Target | Red flag |
@@ -375,7 +500,7 @@ Look for: duplicated modules (same library in multiple chunks), large unused exp
 
 For complete bundle optimization guide, see `references/bundle-optimization.md`.
 
-### Phase 7: Error Handling & Resilience
+### Phase 7 (~25 min): Error Handling & Resilience
 
 **Error boundary strategy — layers of defense:**
 ```
@@ -461,7 +586,7 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### Phase 8: Testing Strategy
+### Phase 8 (~30 min): Testing Strategy
 
 ```
         /\
@@ -501,7 +626,7 @@ test('shows loading skeleton while fetching', async () => {
 - Use `page.route()` to mock API responses when testing error states (network failure, server error) — don't depend on real server errors.
 
 ## Cross-Skill Coordination
-
+<!-- QUICK: 30s -- table of who to talk to when -->
 Frontends consume APIs, render designs, and deliver user experiences — coordination with backend, design, and platform teams is continuous. Poor coordination manifests as mismatched contracts, broken UIs, and missed performance targets.
 
 ### Coordinate With
@@ -565,24 +690,65 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 - **Small → Medium**: 3+ frontend developers. Performance or accessibility becomes a user-reported issue. >10K users.
 - **Medium → Enterprise**: 5+ frontend teams. Multi-brand or international. >100K users.
 
-## Production Checklist
+## Sub-Skills
+<!-- QUICK: 30s -- table of deeper dives by topic -->
+| Sub-Skill | When to Use | Context |
+|-----------|-------------|---------|
+| `react-server-components` | Next.js App Router with RSC, streaming, and Suspense boundaries | Server Component patterns, Client Component boundaries, `use client` vs `use server` |
+| `state-management` | Choosing between TanStack Query, Zustand, URL state, or React Hook Form | Server-state/Client-state/Form-state/URL-state taxonomy with selection criteria |
+| `core-web-vitals` | LCP > 2.5s, INP > 200ms, CLS > 0.1 — or optimizing proactively | LCP (hero image preload, critical CSS inline), INP (long task breaking, input debouncing), CLS (dimensions, font loading) |
+| `accessibility-audit` | WCAG 2.2 AA compliance: semantic HTML, keyboard, screen reader, focus | axe-core CI, manual VoiceOver/NVDA testing, focus management on SPA navigation |
+| `bundle-optimization` | Bundle > 150KB gzipped initial JS per route | Dynamic imports, `next/dynamic`, tree shaking verification, Bundle Analyzer, code splitting |
+| `css-architecture` | Scaling Tailwind beyond utility classes, design token integration | `tailwind.config.ts` tokens, component extraction rules, responsive strategy, dark mode |
+| `component-testing` | Vitest + React Testing Library strategy, MSW for API mocking | Render → interact → assert pattern, loading/error/empty state coverage, accessibility assertions |
+| `framework-migration` | Migrating from Pages Router → App Router, CRA → Vite, or Vue 2 → Vue 3 | Migration strategy, codemods, parallel-running strategy, incremental adoption patterns |
 
-- [ ] Framework selection documented with rationale (Next.js App Router, Remix, Vite SPA, or Nuxt)
-- [ ] TypeScript strict mode enabled; zero `any` in domain types; discriminated unions for async states
-- [ ] State management follows taxonomy: TanStack Query for server state, Zustand for global client state, React Hook Form + Zod for forms, URL for shareable filters/pagination
-- [ ] CSS architecture: Tailwind with design tokens in config; no hardcoded color values; mobile-first responsive; dark mode via class strategy
-- [ ] Core Web Vitals: LCP < 2.5s (preloaded hero image, inlined critical CSS, self-hosted fonts); INP < 200ms (long tasks broken, inputs debounced); CLS < 0.1 (explicit dimensions, reserved spaces)
-- [ ] Lighthouse score ≥ 90 in Performance, Accessibility, Best Practices, SEO on both mobile and desktop
-- [ ] WCAG 2.2 AA: semantic HTML throughout; heading hierarchy without gaps; keyboard navigation verified; focus management on SPA navigation; color contrast ≥ 4.5:1; axe-core zero violations in CI
-- [ ] Images: using next/image or Nuxt Image; WebP/AVIF with responsive sizes; explicit width/height; LCP image preloaded with fetchpriority="high"
-- [ ] Bundle: initial JS < 150KB gzipped per route; heavy libraries dynamically imported; bundle analyzed for duplication; tree shaking verified
-- [ ] Error boundaries at route and feature levels; graceful fallback UI; error logging to monitoring service (Sentry/Datadog)
-- [ ] Security headers configured: CSP, X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy
-- [ ] Sitemap, robots.txt, canonical URLs, Open Graph meta tags configured
-- [ ] Playwright E2E tests: critical user flows covered; axe-core accessibility audit in CI; API mocking for error states
-- [ ] CI pipeline: TypeScript check → ESLint → Prettier → Vitest → Playwright → Lighthouse CI; fails on regression
+## Best Practices
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Server-first data fetching:** Fetch data in Server Components whenever possible. Eliminate client-server waterfalls. Client components should receive data as props, not fetch it themselves — this cuts LCP by 300-800ms on average.
+2. **TypeScript strict mode with discriminated unions:** Enable `strict: true` in tsconfig. Model async states as `{ status: 'loading' } | { status: 'success', data: T } | { status: 'error', error: E }` — never `data?: T, isLoading: boolean, error?: Error` which allows impossible states.
+3. **Measure Web Vitals from real users (RUM), not just Lighthouse:** Lighthouse is lab data (simulated). Deploy RUM (Vercel Analytics, Web Vitals JS, Sentry) to get 75th percentile field data. Fix what real users experience, not what a simulation shows.
+4. **Semantic HTML before ARIA:** Use `<button>`, `<nav>`, `<main>`, `<dialog>` instead of `<div role="button">`. ARIA adds roles/states but not behavior — you must implement keyboard interaction yourself. Native elements work out of the box.
+5. **Image optimization is non-negotiable:** Use `next/image` or Nuxt Image with explicit width/height, WebP/AVIF formats, responsive sizes, and lazy loading. Preload LCP image with `fetchpriority="high"`. Unoptimized images are the #1 cause of poor LCP.
+6. **CSS: design tokens in Tailwind config, never hardcoded values:** `tailwind.config.ts` defines colors, spacing, fonts, breakpoints. Components reference tokens, not arbitrary values. Changing a brand color should require one config edit.
+7. **Error boundaries at route and feature level:** Wrap every route segment in an error boundary. Feature-level boundaries prevent one widget crash from taking down the entire page. Log to Sentry/Datadog with React component stack.
+8. **Test behavior, not implementation:** Assert what the user sees (`screen.getByText('Order confirmed')`) not internal state (`expect(component.state.confirmed).toBe(true)`). Implementation tests break on refactor; behavior tests survive.
+9. **Bundle budget: 150KB gzipped JS per route:** Use `@next/bundle-analyzer` or `vite-bundle-visualizer` on every PR. Flag any route exceeding budget. Heavy libraries (`moment.js`, `lodash` all) should be replaced or dynamically imported.
+10. **CI must fail on regression:** TypeScript check, ESLint, Prettier, Vitest, Playwright smoke, Lighthouse CI, and axe-core must all pass before merge. A red CI that developers ignore is worse than no CI — it trains the team that failures are acceptable.
+
+
+### Error Decoder
+
+| Error | Root Cause | Fix |
+|-------|------------|-----|
+| `Module not found: Can't resolve '...'` | Missing dependency or incorrect import path | `npm install <package>` or fix import path |
+| `TypeError: Cannot read properties of undefined` | Accessing property on null/undefined value | Add optional chaining (`?.`) or null check before access |
+| `Connection refused` | Target service not running or wrong host/port | Check service status: `docker ps`; verify environment variables |
+| `ECONNREFUSED` | Database server not running | `docker compose up -d db`; check connection string |
+| `413 Payload Too Large` | Request body exceeds server limit | Increase `body-parser` limit or paginate the request |
+| `port 3000 already in use` | Previous process still bound to port | `lsof -ti:3000 \| xargs kill` or use `PORT=3001` |
+| `ETIMEDOUT` | Network connectivity issue or firewall | Check network: `ping <host>`; verify firewall rules |
+
+
+## Production Checklist
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+- [ ] **[S1]**  Framework selection documented with rationale (Next.js App Router, Remix, Vite SPA, or Nuxt)
+- [ ] **[S2]**  TypeScript strict mode enabled; zero `any` in domain types; discriminated unions for async states
+- [ ] **[S3]**  State management follows taxonomy: TanStack Query for server state, Zustand for global client state, React Hook Form + Zod for forms, URL for shareable filters/pagination
+- [ ] **[S4]**  CSS architecture: Tailwind with design tokens in config; no hardcoded color values; mobile-first responsive; dark mode via class strategy
+- [ ] **[S5]**  Core Web Vitals: LCP < 2.5s (preloaded hero image, inlined critical CSS, self-hosted fonts); INP < 200ms (long tasks broken, inputs debounced); CLS < 0.1 (explicit dimensions, reserved spaces)
+- [ ] **[S6]**  Lighthouse score ≥ 90 in Performance, Accessibility, Best Practices, SEO on both mobile and desktop
+- [ ] **[S7]**  WCAG 2.2 AA: semantic HTML throughout; heading hierarchy without gaps; keyboard navigation verified; focus management on SPA navigation; color contrast ≥ 4.5:1; axe-core zero violations in CI
+- [ ] **[S8]**  Images: using next/image or Nuxt Image; WebP/AVIF with responsive sizes; explicit width/height; LCP image preloaded with fetchpriority="high"
+- [ ] **[S9]**  Bundle: initial JS < 150KB gzipped per route; heavy libraries dynamically imported; bundle analyzed for duplication; tree shaking verified
+- [ ] **[S10]**  Error boundaries at route and feature levels; graceful fallback UI; error logging to monitoring service (Sentry/Datadog)
+- [ ] **[S11]**  Security headers configured: CSP, X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy
+- [ ] **[S12]**  Sitemap, robots.txt, canonical URLs, Open Graph meta tags configured
+- [ ] **[S13]**  Playwright E2E tests: critical user flows covered; axe-core accessibility audit in CI; API mocking for error states
+- [ ] **[S14]**  CI pipeline: TypeScript check → ESLint → Prettier → Vitest → Playwright → Lighthouse CI; fails on regression
 
 ## References
+<!-- QUICK: 30s -- links to deeper reading -->
 - [references/react-patterns.md](references/react-patterns.md) — Server Components, compound components, render props vs hooks, custom hooks
 - [references/performance-cwv.md](references/performance-cwv.md) — Core Web Vitals optimization: LCP, INP, CLS techniques and measurement
 - [references/bundle-optimization.md](references/bundle-optimization.md) — Dynamic imports, code splitting, tree shaking, bundle analysis
