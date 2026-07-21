@@ -21,6 +21,35 @@ economics, continuous improvement). Covers multi-cloud cost management, tagging 
 Reserved Instances/Savings Plans, Kubernetes cost optimization, spot instance strategy, storage
 tiering, data transfer optimization, anomaly detection, and carbon-aware cost reduction.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Analyze cloud costs (understand what's driving spend) → Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility)
+│   ├── Tagging strategy → Go to "Best Practices > Tagging Strategy"
+│   └── Anomaly detection → Go to "Best Practices > Anomaly Detection"
+├── Optimize resource usage (right-sizing, waste reduction) → Jump to "Core Workflow > Phase 2" (Resource Optimization)
+│   ├── Idle/underutilized resources → Go to "Decision Trees > Resource Right-Sizing"
+│   └── Kubernetes cost optimization → Go to "Sub-Skills > kubernetes-cost-optimization"
+├── Plan reserved instances / savings plans → Go to "Decision Trees > RI vs Savings Plans vs Spot"
+├── Reduce cloud waste (orphaned resources, idle LBs, old snapshots) → Jump to "Core Workflow > Phase 2" (Waste Reduction)
+├── Set up budgeting and governance → Jump to "Core Workflow > Phase 3" (Budgeting & Governance)
+├── Implement showback/chargeback → Go to "Best Practices > Cost Allocation & Showback/Chargeback"
+└── Not sure where to start? → "Core Workflow > Phase 1" — start with visibility: you can't optimize what you can't measure
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never report savings without showing the calculation.** "Save $50K/month" is meaningless without showing: current spend, target spend, unit price, usage delta, and time period. Show your work.
+- **Reserved instance recommendations need utilization data.** Don't recommend a 1-year RI for a workload with 40% CPU utilization that might be decommissioned next quarter. Match commitment to predictable baseload.
+- **Cost attribution must be transparent.** Every dollar must trace to a team, project, or environment through tags, labels, or account structure. If you can't answer "who owns this spend?", you can't fix it.
+- **Don't optimize before measuring.** Right-sizing an instance that costs $50/month is noise. Find the top 5 cost drivers first, then focus optimization effort where it matters.
+- **Always consider the operational cost of optimization.** Turning off dev environments on weekends saves money but may cost engineering velocity. Every cost decision has a trade-off.
+- **Admit what you don't know.** If you don't have access to actual billing data, say so. Estimates without data are speculation. Point users to their cloud provider's cost explorer.
+
 ## When to Use
 
 - Your monthly cloud bill (AWS/Azure/GCP) has spiked and you need to identify the root cause
@@ -250,11 +279,16 @@ Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec spo
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | cloud-architect | Cloud architecture with cost estimates |
+| **This** | finops-engineer | Cost analysis, optimization recommendations, savings projections |
+| **After** | devops-engineer | Infrastructure changes implementing cost optimizations |
+
+Common chains:
+- **Chain**: cloud-architect → finops-engineer → devops-engineer — Architecture cost estimates are validated; optimization recommendations are implemented via IaC
+- **Chain**: platform-engineer → finops-engineer → cto-advisor — Platform usage costs are analyzed; CTO receives cost-to-value analysis for strategic decisions
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -17,6 +17,33 @@ output:
 
 Technical documentation system covering the full documentation lifecycle — from API reference generation to architecture decision records to knowledge base management. Designed for developer-tooling, platform, and infrastructure teams.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── API documentation (OpenAPI) → Start at "API Reference Documentation" under Sub-Skills
+├── Writing an ADR → Go to "Architecture Decision Records (ADRs)" under Sub-Skills
+├── Creating a README → Jump to "README & Repo Documentation" under Sub-Skills
+├── Writing a runbook → Go to "Operational Runbooks" under Sub-Skills
+├── Building an onboarding guide → Jump to "Developer Onboarding Guides" under Sub-Skills
+├── Maintaining a changelog → Go to "Changelogs & Release Notes" under Sub-Skills
+├── Organizing a knowledge base → Jump to "Documentation Information Architecture" under Sub-Skills
+├── Setting up a docs site structure → Go to "Docs-as-Code Pipeline" under Sub-Skills
+└── Don't know where to start? → Start at "API Reference Documentation"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never write documentation without understanding the reader's context.** Who is reading this and what do they already know?
+- **Every procedure must be tested by a naive user.** If someone unfamiliar can't follow it, it's incomplete.
+- **Documentation without examples is reference, not learning material.** Show, then tell.
+- **API docs without request/response examples are incomplete.** Every endpoint needs a concrete example.
+- **Always prefer tested, copy-pasteable code samples.** Untested snippets breed frustration and bug reports.
+- **Admit what you don't know.** If a feature is undocumented or behavior is unclear, flag it — don't guess.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Generating or maintaining API reference documentation from OpenAPI/Swagger specifications
@@ -337,11 +364,16 @@ Docs team (3-10+). Enterprise docs platform with SSO, analytics, versioning. Mul
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | backend-developer | API implementations, OpenAPI specs, RFC documents |
+| **This** | technical-writer | API reference docs, ADRs, READMEs, runbooks, onboarding guides |
+| **After** | documentation-engineer | Published documentation site, CI/CD pipeline, quality automation |
+
+Common chains:
+- **Chain**: backend-developer → technical-writer → documentation-engineer — API code becomes polished documentation; docs engineer integrates it into the site and CI pipeline.
+- **Chain**: qa-engineer → technical-writer → devrel-advocate — QA-discovered edge cases inform runbooks and troubleshooting guides; devrel uses them for developer outreach.
 
 ## Sub-Skills
 

@@ -17,6 +17,32 @@ output:
 
 Technical project management covering initiation through closure. Work breakdown structures (WBS), dependency mapping, critical path analysis, risk management (RAID logs), stakeholder communication plans, budget tracking, resource leveling, milestone management, status reporting cadence, and project postmortems.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Project planning (WBS, Gantt) → Start at "Project Planning & Scheduling" under Sub-Skills
+├── Risk management (RAID log) → Go to "RAID Log Management" under Sub-Skills
+├── Stakeholder communication → Jump to "Stakeholder Communication" under Sub-Skills
+├── Resource allocation → Go to "Resource Allocation" under references/
+├── Budget tracking → Jump to "Earned Value Management (EVM)" under Sub-Skills
+├── Milestone management & status reporting → Go to "Project Recovery" and "Stakeholder Communication"
+├── Running a postmortem → Jump to "Postmortem" section in Core Workflow
+└── Don't know where to start? → Start at "Project Planning & Scheduling"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never commit to dates without team input.** Dates decided in isolation will slip.
+- **Risk register needs mitigation plans, not just identification.** Every risk needs an owner and a response strategy.
+- **Status reports must surface blockers, not just progress.** Green status hiding red risks is a project killer.
+- **Stakeholder communication should be proactive, not reactive.** Bad news early beats bad news late.
+- **Always track dependencies with buffer.** Cross-team dependencies slip — plan for it.
+- **Admit what you don't know.** If estimates are rough or key stakeholders haven't committed, say so.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Starting a new project that needs structured planning (initiation phase)
@@ -285,11 +311,16 @@ PMO (3-10+). Enterprise PPM: Planview, ServiceNow PPM, Clarity. Portfolio govern
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | product-manager | Prioritized product backlog, roadmap, and feature requirements |
+| **This** | project-manager | WBS, project schedule, RAID log, status reports, resource plan |
+| **After** | scrum-master | Sprint plans, backlog refinement, team velocity tracking |
+
+Common chains:
+- **Chain**: product-manager → project-manager → scrum-master — Product vision becomes a structured project plan; the scrum master executes sprints against it.
+- **Chain**: ceo-strategist → project-manager → technical-program-manager — Strategic initiative gets project-level planning; handed off to TPM for cross-team execution.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

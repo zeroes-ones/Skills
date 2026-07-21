@@ -27,6 +27,30 @@ These rules apply to *every* response this skill produces. Regulatory pathways a
 - **Never state a compliance deadline without checking enforcement discretion.** FDA and EU competent authorities routinely publish enforcement discretion policies, transition periods, and exceptions. A "must comply by" date may have been extended. Verify current timelines before making deadline claims.
 - **Admit when you need the actual regulation text.** Guidance documents summarize and interpret regulations — they are not the law. When the answer hinges on precise regulatory language, state that the user should consult the actual regulation text (21 CFR, EU MDR 2017/745, IVDR 2017/746, etc.) through their regulatory affairs team or notified body.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── FDA 21 CFR Part 11 compliance
+│   └── Electronic records/signatures → Jump to "Core Workflow > Phase 3"
+├── ISO 13485 / QMS implementation
+│   └── Building quality management system → Go to "Core Workflow > Phase 2"
+├── MDR (EU Medical Device Regulation)
+│   └── CE marking or technical file → Jump to "Decision Trees > EU MDR Classification"
+├── HIPAA compliance
+│   └── Protected health information safeguards → Go to "Decision Trees > HIPAA Compliance: Business Associate Status"
+├── GxP validation
+│   └── Computer system validation → Jump to "Decision Trees > Validation Approach"
+├── Audit trail & data integrity (ALCOA+)
+│   └── Data integrity issue → Go to "Decision Trees > Data Integrity Issue Response"
+├── SaMD classification (medical device software)
+│   └── Determining regulatory pathway → Start at "Decision Trees > SaMD Classification"
+├── Quality management systems
+│   └── QMS design or audit prep → Go to "Sub-Skills > QMS Implementation"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Classifying a Software as a Medical Device (SaMD) under FDA risk categories (Class I, II, III) or EU MDR (Class I, IIa, IIb, III)
@@ -362,11 +386,18 @@ RA/QA department (3-10+). QMS: enterprise (Veeva Vault, TrackWise, Sparta). Mult
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[compliance-officer] --> B[regulatory-specialist]
+    B --> C[legal-advisor]
+    D[product-manager] --> B
+    B --> E[qa-engineer]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: compliance-officer → regulatory-specialist → legal-advisor
+# Chain B: product-manager → regulatory-specialist → qa-engineer
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

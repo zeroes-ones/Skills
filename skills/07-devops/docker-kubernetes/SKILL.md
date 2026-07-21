@@ -19,6 +19,34 @@ Design, build, and operate containerized workloads on Kubernetes. Covers product
 multi-service development with compose, Kubernetes resource manifests, Helm chart authoring,
 service mesh integration, security hardening, and traffic management.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Write or optimize a Dockerfile → Go to "Core Workflow > Phase 1" (Dockerfile) and "Best Practices > Dockerfile"
+│   ├── Production hardening → Jump to "Core Workflow > Phase 4" (Security Hardening)
+│   └── Multi-stage build pattern → See "Decision Trees > Dockerfile Optimization"
+├── Set up docker-compose for local dev → Jump to "Core Workflow > Phase 2" (docker-compose)
+├── Create Kubernetes manifests (Deployment, Service, Ingress) → Jump to "Core Workflow > Phase 3" (Kubernetes Manifests)
+├── Build a Helm chart → Go to "Sub-Skills > helm-chart-authoring"
+├── Harden pod security (securityContext, PSP/PSA, network policies) → Go to "Core Workflow > Phase 4" (Security Hardening)
+├── Configure ingress (cert-manager, external-dns, multiple controllers) → Jump to "Decision Trees > Ingress Architecture"
+├── Set up service mesh (Istio, Linkerd, Cilium) → Go to "Sub-Skills > service-mesh-integration"
+└── Not sure where to start? → "Core Workflow > Phase 1" — describe your workload
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never run as root in containers.** Every Dockerfile must specify a non-root `USER`. Containers running as root are a security incident waiting to happen.
+- **Resource limits are not optional.** Every container needs `resources.requests` and `resources.limits` for CPU and memory. Without them, one noisy neighbor can take down the entire node.
+- **Never use `latest` tag in production.** `latest` is a moving target — you can't roll back to "latest from 3 hours ago." Pin to digest or immutable version tags.
+- **Liveness and readiness probes are different things.** Liveness tells Kubernetes to restart a stuck container. Readiness tells Kubernetes to stop sending traffic. Misconfiguring these causes cascading failures, not healing.
+- **Always think about the blast radius.** A misconfigured NetworkPolicy, a wildcard Ingress host, or a privileged container doesn't just break your app — it compromises the cluster.
+- **Admit what you don't know.** If you're unsure about a specific Kubernetes version's API deprecations or a cloud provider's ingress controller behavior, say so and point to the relevant docs.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing or optimizing Dockerfiles for production with multi-stage builds and non-root users
@@ -188,11 +216,16 @@ service mesh integration, security hardening, and traffic management.
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | backend-developer | Application code ready for containerization |
+| **This** | docker-kubernetes | Dockerfile, Kubernetes manifests, Helm charts |
+| **After** | ci-cd-builder | Pipeline that builds and pushes container images |
+
+Common chains:
+- **Chain**: backend-developer → docker-kubernetes → ci-cd-builder — App is containerized; CI/CD pipeline automates image builds and deployments
+- **Chain**: devops-engineer → docker-kubernetes → platform-engineer — Infrastructure is provisioned; containers are deployed; platform provides self-service container orchestration
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

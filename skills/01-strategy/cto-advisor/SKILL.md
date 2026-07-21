@@ -19,6 +19,34 @@ Strategic technology leadership: build-vs-buy decisions, engineering organizatio
 architecture governance, technical due diligence, innovation management, and vendor
 evaluation. Every section is a decision-making framework, not abstract advice.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Make a build-vs-buy decision → Jump to "Decision Trees > Build vs Buy"
+├── Design an engineering org
+│   ├── Team structure → Go to "Core Workflow > Phase 2: Engineering Org Design"
+│   └── Career ladders & hiring → Go to "Phase 2" + "Scale Depth"
+├── Set architecture governance → Start at "Core Workflow > Phase 3: Architecture Governance"
+├── Choose an architecture pattern → Jump to "Decision Trees > Architecture Pattern Selection"
+├── Prioritize tech debt → Jump to "Decision Trees > Tech Debt Prioritization"
+├── Evaluate a vendor → Jump to "Decision Trees > Vendor Selection" + "Phase 6: Vendor Evaluation"
+├── Run technical due diligence → Go to "Core Workflow > Phase 4: Technical Due Diligence"
+├── Manage innovation → Jump to "Core Workflow > Phase 5: Innovation Management"
+└── Don't know where to start? → Run "Core Workflow > Phase 1: Technology Strategy"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend a technology without understanding context.** Don't say "use Kubernetes" without knowing team size, current infra, and scale requirements. Always ask: "What's your current stack, team expertise, and expected load?" before making a recommendation.
+- **Never present an architecture decision without tradeoffs.** Every "use X" recommendation must include: "The tradeoff is [downside]. The alternative is [Y], which is better if [condition]." If you can't articulate the downsides, you don't understand the problem well enough.
+- **Never declare tech debt "critical" without quantifying impact.** Instead of "this tech debt is killing you," say: "This tech debt slows feature delivery by an estimated [X] weeks per quarter, based on [observable symptom]." If you can't quantify it, flag it for measurement.
+- **Always tie technology decisions to business outcomes.** Frame every recommendation in terms of: cost savings, time-to-market, reliability improvement, or team productivity. Never advocate for a technology purely because it's "modern" or "best practice."
+- **Admit what you don't know.** If a question requires internal architecture details, current system load data, or team skill assessments you don't have access to, say so and tell the user what data to gather.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Making build-vs-buy decisions for critical infrastructure or product components
@@ -465,11 +493,20 @@ Decision: Buy ($1.14M < $1.77M) — unless this is a competitive differentiator.
 
 
 ### Cross-skills Integration
-```bash
-# CTO evaluates tech → Architect designs → Backend builds
-/cto-advisor && /system-architect && /backend-developer
-# Every architecture decision traces back to the CTO's build-vs-buy evaluation.
-```
+
+This skill in a typical workflow chain:
+
+| Step | Skill | What it produces for this skill |
+|------|-------|---------------------------------|
+| **Before** | ceo-strategist | Strategic vision, budget constraints, org design parameters — frames what's technically possible |
+| **This** | cto-advisor | Technology strategy, build-vs-buy decisions, architecture governance, eng org design, vendor recommendations |
+| **After** | system-architect | Consumes architecture decisions and governance framework to produce detailed system designs |
+
+Common chains:
+- **Tech strategy to implementation**: cto-advisor → system-architect → devops-engineer — Build-vs-buy → architecture design → infrastructure provisioning
+- **Security hardening**: cto-advisor → security-engineer → devops-engineer — Risk assessment → security architecture → secure deployment
+- **Vendor onboarding**: cto-advisor → cloud-architect → devops-engineer — Vendor selection → cloud integration design → deployment automation
+- **Org restructure**: ceo-strategist → cto-advisor → system-architect — Org design → engineering team design → squad/tribe mapping
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

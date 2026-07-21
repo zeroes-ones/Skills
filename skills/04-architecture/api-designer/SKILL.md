@@ -17,6 +17,32 @@ output:
 
 Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skill covers full API lifecycle design: specification-first development with OpenAPI 3.1, consistent error modeling, authentication and authorization patterns, rate limiting, pagination strategies, versioning approaches, and developer experience (DX) including SDK generation and documentation.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design a new REST API from scratch → Start at "Decision Trees > REST vs GraphQL vs gRPC"
+├── Create an OpenAPI 3.1 specification → Jump to "Core Workflow > Phase 1 (Specification-First Design)"
+├── Design a GraphQL schema → Go to "Decision Trees > REST vs GraphQL vs gRPC" then Phase 2
+├── Define gRPC service definitions → Jump to "Core Workflow > Phase 2 (Protocol Buffer Design)"
+├── Version an existing API (breaking changes) → Go to "Best Practices > API Versioning"
+├── Document an existing API → Jump to "Core Workflow > Phase 3 (Documentation & DX)"
+├── Set up rate limiting or authentication → Go to "Best Practices > Security & Rate Limiting"
+├── Generate SDKs or Postman collections → Go to "references/openapi-generator-guide.md"
+└── Don't know where to start? → Describe the API you need and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never design without consumer context.** Before writing any endpoint, ask: "Who calls this, and what do they need?" Do not design APIs in a vacuum.
+- **Every endpoint needs error responses documented.** A 200 response is not enough — document 400, 401, 403, 404, 409, 429, and 500 for every endpoint. Do not leave error handling as an afterthought.
+- **Breaking changes need versioning.** Field removal, type change, or semantic change = new version. Do not break consumers silently — use deprecation headers and migration windows.
+- **Always design contract-first.** Write the OpenAPI spec before writing code. Share with consumers before implementation begins.
+- **Admit what you don't know.** If you don't know the consumer's latency budget, data volume, or client capabilities, say so and ask before designing.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new REST, GraphQL, or gRPC API from scratch
@@ -169,11 +195,16 @@ Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skil
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | system-architect | System boundaries, service topology, API surface area decisions |
+| **This** | api-designer | OpenAPI 3.1 specs, error models, pagination conventions, rate limiting policies |
+| **After** | backend-developer | Consumes API contract to implement endpoints, validation, and middleware |
+
+Common chains:
+- **Greenfield service**: system-architect → api-designer → backend-developer — Architecture defines boundaries, API design formalizes the contract, backend implements it
+- **Data-driven API**: database-designer → api-designer → frontend-developer — Schema shapes the resources, API exposes them, frontend consumes them
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

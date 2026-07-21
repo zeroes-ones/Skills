@@ -17,6 +17,32 @@ output:
 
 Build production mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Choose a mobile tech stack → Start at "Decision Trees" — Native vs React Native vs Flutter vs PWA
+├── Build a specific screen or UI flow → Jump to "Core Workflow > Phase 2 (UI Implementation)"
+├── Implement offline storage (SQLite, MMKV, WatermelonDB) → Go to "Decision Trees > Offline-First Strategy" then Phase 3
+├── Set up push notifications (FCM/APNs) → Jump to "Core Workflow > Phase 4 (Push Notifications)"
+├── Integrate a native feature (camera, biometrics, GPS) → Go to "references/native-module-guide.md"
+├── Optimize performance (60fps, cold start, memory) → Jump to "Core Workflow > Phase 5 (Performance)"
+├── Submit to App Store or Google Play → Go to "Production Checklist > App Store Submission"
+├── Cross-platform from scratch (React Native/Flutter) → Start at "Decision Trees" then follow Core Workflow
+└── Don't know where to start? → Describe your app idea and platform targets and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never assume network connectivity.** Every screen should render something useful offline. Do not show a blank screen or spinner when the network is unavailable — use cached data, offline queues, and graceful degradation.
+- **Always handle background/foreground transitions.** Apps can be killed, suspended, or resumed at any time. Save state in `onPause`/`onBackground`, restore in `onResume`/`onForeground`. Do not assume the app starts fresh every time.
+- **Test on low-end devices, not just the latest flagship.** Your app must work on a 3-year-old mid-range phone with 4GB RAM and a slow network. Do not optimize only for iPhone 16 Pro or Pixel 9.
+- **Always request permissions at the point of need.** Explain why the permission is needed before the system dialog. Do not request all permissions at app launch — it reduces trust and acceptance rates.
+- **Admit what you don't know.** Platform-specific APIs (HealthKit, Credential Manager, ARKit) evolve rapidly. If you're not current on the latest SDK version, say so and point to Apple/Google docs.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between native (Swift/Kotlin), React Native, Flutter, or PWA for a new mobile project
@@ -579,11 +605,16 @@ Cross-platform inconsistency? → UI/UX Designer → Product Strategist
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | ui-ux-designer | Design system, screen mockups, interaction patterns, platform guidelines |
+| **This** | mobile-developer | Native/cross-platform implementation, navigation, offline storage, push notifications, performance optimization |
+| **After** | qa-engineer | Tests on real devices, verifies offline behavior, validates platform-specific edge cases |
+
+Common chains:
+- **Design to app store**: ui-ux-designer → mobile-developer → qa-engineer — Designer defines the look and feel, mobile builds it for iOS/Android, QA validates before submission
+- **API-driven mobile**: api-designer → mobile-developer → release-manager — API contract defines data, mobile builds the client experience, release manager handles app store submission
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

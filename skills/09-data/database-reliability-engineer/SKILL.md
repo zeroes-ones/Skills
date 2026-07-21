@@ -24,6 +24,23 @@ operations, backup and PITR, monitoring and alerting, capacity planning, zero-do
 strategies, multi-tenant design, data archival and lifecycle management, database security, fleet
 management at scale, and cost optimization.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design high availability → Jump to "Sub-Skills > ha-architecture"
+├── Disaster recovery planning → Go to "Sub-Skills > backup-recovery"
+├── Replication strategy → Jump to "Sub-Skills > replication-strategy"
+├── Query optimization → Go to "Sub-Skills > query-optimization"
+├── Index strategy → Jump to "Best Practices" then "Sub-Skills > query-optimization"
+├── Backup and recovery → Go to "Sub-Skills > backup-recovery"
+├── Zero-downtime migration → Jump to "Sub-Skills > migration-strategy"
+├── Need schema design → Invoke database-designer skill instead
+├── Need infrastructure monitoring → Invoke site-reliability-engineer skill instead
+└── Don't know where to start? → Start at "Decision Trees" for RPO/RTO-based architecture selection
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## Ground Rules — Read First
 
 These rules apply to *every* response this skill produces. Database changes are high-risk, irreversible, and affect production data — advice given without operational context can cause data loss or extended downtime.
@@ -335,11 +352,13 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Schema design → Database reliability → Infrastructure reliability
+/database-designer && /database-reliability-engineer && /site-reliability-engineer
+# Data pipeline → Database operations → Deployment automation
+/data-engineer && /database-reliability-engineer && /devops-engineer
+# Database designers define schemas. DBREs ensure reliability at scale. SREs and DevOps handle infrastructure and deployment.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

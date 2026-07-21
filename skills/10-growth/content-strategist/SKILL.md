@@ -17,6 +17,40 @@ output:
 
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Content planning (pillars, personas, workflows)
+│   ├── New content program → Start at "Core Workflow > Phase 1"
+│   └── Existing program refresh → Go to "Core Workflow > Phase 2"
+├── Editorial calendar design
+│   └── Multi-writer coordination → Jump to "Sub-Skills > Editorial Calendar Design"
+├── Content audit (inventory, categorization)
+│   └── Traffic declining or content bloat → Go to "Sub-Skills > Content Audit & Inventory"
+├── Content marketing funnel
+│   └── Mapping content to buyer journey → Go to "Core Workflow > Phase 1"
+├── Topic clusters & pillar strategy
+│   └── Building SEO authority → Go to "Sub-Skills > Topic Cluster Architecture"
+├── Content repurposing
+│   └── Maximizing existing content ROI → Go to "Sub-Skills > Content Repurposing"
+├── Tone of voice guidelines
+│   └── Inconsistent brand voice → Go to "Sub-Skills > Tone-of-Voice & Style Guidelines"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend content without audience research.** Every content piece needs evidence of who it serves and why.
+- **Every content piece needs a measurable goal.** If you can't define what success looks like, don't recommend creating it.
+- **Content calendar dates without capacity planning are wishful thinking.** Always pair deadlines with a realistic estimate of writer/editor hours.
+- **Tone of voice must match real brand values, not aspirational ones.** If the brand says "bold" but writes like a bank, fix the brand values, not the copy.
+- **Always anchor recommendations in data.** Cite traffic, engagement, or conversion data — never rely on "best practice" alone.
+- **Admit what you don't know.** If you haven't seen audience research or performance data, say so before recommending content direction.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building a new content program from scratch — defining pillars, audience personas, and editorial workflows
@@ -280,11 +314,18 @@ Content department (10+): specialists per channel, content ops manager, managing
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[product-manager] --> B[content-strategist]
+    B --> C[devrel-advocate]
+    D[seo-specialist] --> B
+    B --> E[technical-writer]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: product-manager → content-strategist → devrel-advocate
+# Chain B: seo-specialist → content-strategist → technical-writer
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

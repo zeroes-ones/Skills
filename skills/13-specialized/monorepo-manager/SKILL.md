@@ -17,6 +17,32 @@ output:
 
 Veteran's playbook for designing, configuring, and optimizing monorepo architectures at scale. Covers every major tool in the JS/TS ecosystem — Turborepo, Nx, pnpm workspaces, Bazel, Lerna, and Rush — plus repository structure, build orchestration, dependency governance, CI/CD, versioning, and polyrepo migration.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Choose monorepo tooling (Turborepo/Nx/pnpm workspaces/Bazel/Lerna/Rush) → Start at "Workspace Configuration" then "Build Orchestration" under Sub-Skills
+├── Design repository structure → Go to "Workspace Configuration" under Sub-Skills
+├── Set up build orchestration → Jump to "Build Orchestration" under Sub-Skills
+├── Enforce dependency governance → Go to "Dependency Governance" and "Package Boundary Enforcement" under Sub-Skills
+├── Optimize CI/CD for monorepo → Jump to "CI/CD for Monorepos" under Sub-Skills
+├── Set up versioning strategy → Go to "Versioning & Release" under Sub-Skills
+├── Migrate from polyrepo → Jump to "Polyrepo Migration" under references/
+└── Don't know where to start? → Start at "Workspace Configuration"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never adopt a monorepo without understanding the tooling cost.** The benefits are real but so is the CI, caching, and governance overhead.
+- **Build caching is not optional — without it, CI times explode.** Remote caching (Turborepo, Nx Cloud, or custom S3) is table stakes.
+- **Dependency boundaries must be explicit, not accidental.** Every package should declare what it depends on and what depends on it.
+- **Migrating to a monorepo takes weeks, not days.** Tooling setup, CI rework, developer retraining, and history preservation are non-trivial.
+- **Always enforce package boundaries in CI.** A circular dependency that compiles locally will break in production.
+- **Admit what you don't know.** If a tool (Bazel, Rush) is new territory, research before recommending.
+
 ## When to Use
 
 - You are choosing a monorepo tool (Turborepo vs. Nx vs. Bazel vs. pnpm workspaces) and need a comparison matrix
@@ -30,11 +56,16 @@ Veteran's playbook for designing, configuring, and optimizing monorepo architect
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | system-architect | Software architecture, module boundaries, dependency graph, technology stack decisions |
+| **This** | monorepo-manager | Repository structure, build orchestration config, dependency governance rules, CI/CD pipeline |
+| **After** | ci-cd-builder | Optimized CI pipelines with caching, affected detection, and parallel builds |
+
+Common chains:
+- **Chain**: system-architect → monorepo-manager → ci-cd-builder — Architect defines module boundaries; monorepo manager implements them in tooling; CI/CD builder optimizes the pipeline.
+- **Chain**: devops-engineer → monorepo-manager → frontend-developer — DevOps provisions infrastructure; monorepo manager configures the workspace; frontend dev benefits from shared tooling and fast builds.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

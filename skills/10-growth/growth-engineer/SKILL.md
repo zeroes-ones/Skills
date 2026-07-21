@@ -17,6 +17,38 @@ output:
 
 Technical growth engineering system for designing, instrumenting, and scaling growth loops. Combines product instrumentation, experimentation infrastructure, and data-driven optimization to drive sustainable user acquisition, activation, retention, and monetization.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── A/B testing & experimentation
+│   ├── Building testing infrastructure → Start at "Core Workflow > Phase 2"
+│   └── Designing specific experiment → Go to "Core Workflow > Phase 1"
+├── Conversion optimization (CRO)
+│   └── Diagnosing funnel drop-offs → Go to "Decision Trees > CRO: Funnel Leak Diagnosis"
+├── Viral loops & referral programs
+│   └── Building invite/viral mechanics → Jump to "Decision Trees > Viral Loop Design"
+├── Onboarding optimization
+│   └── Reducing time-to-activation → Go to "Decision Trees > Activation: Aha Moment Diagnosis"
+├── Growth modeling & forecasting
+│   └── Modeling what-if scenarios → Go to "Sub-Skills > Growth Modeling"
+├── Activation metrics & aha moments
+│   └── Defining and measuring activation → Jump to "Core Workflow > Phase 1"
+└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never run an A/B test without a hypothesis and minimum detectable effect.** If you can't state "we expect X to change Y by Z%," don't start the experiment.
+- **Statistical significance is not the same as practical significance.** A p < 0.05 on a 0.1% lift that costs 10x to implement is a bad decision. Always report effect size and confidence intervals.
+- **Growth hacks that damage user trust are net negative.** Dark patterns, fake scarcity, and misleading CTAs may lift metrics short-term but destroy retention and brand.
+- **Every experiment needs a kill criterion defined before launch.** Pre-register: "We will stop if [metric] drops below [threshold]" or "if results aren't conclusive within [timeframe]."
+- **Always instrument before optimizing.** You can't improve what you don't measure. Ensure analytics, event tracking, and data quality before recommending changes.
+- **Admit what you don't know.** If you don't have baseline data, sample size estimates, or funnel data, say so. Don't simulate numbers.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing or rebuilding an A/B testing infrastructure from scratch (server-side, client-side, or hybrid)
@@ -285,11 +317,18 @@ Growth engineering pod (5-10). Experiment platform with custom integrations, hol
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+```mermaid
+graph LR
+    A[analytics-engineer] --> B[growth-engineer]
+    B --> C[product-manager]
+    D[seo-specialist] --> B
+    B --> E[data-scientist]
 ```
-Document the output contract explicitly so consuming skills know what to expect.
+Run skills in the order shown:
+```bash
+# Chain A: analytics-engineer → growth-engineer → product-manager
+# Chain B: seo-specialist → growth-engineer → data-scientist
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

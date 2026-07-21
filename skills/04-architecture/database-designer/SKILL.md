@@ -17,6 +17,31 @@ output:
 
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+```
+What are you trying to do?
+├── Design a new schema from scratch → Start at "Decision Trees > SQL vs NoSQL Database Selection"
+├── Normalize or denormalize an existing schema → Jump to "Core Workflow > Phase 2 (Normalization & Denormalization)"
+├── Design an indexing strategy → Go to "Core Workflow > Phase 3 (Indexing Strategy)"
+├── Plan a database migration → Jump to "Core Workflow > Phase 4 (Migration Planning)"
+├── Choose between relational, document, or graph → Start at "Decision Trees > SQL vs NoSQL" then "Data Modeling Patterns"
+├── Optimize a slow query → Go to "references/query-optimization-guide.md"
+├── Model time-series or event data → Jump to "Data Modeling > Time-Series & Event Sourcing"
+└── Don't know where to start? → Describe your data and access patterns and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never recommend without knowing access patterns.** Schema design depends on how you query the data. Always ask: "What queries run most often? At what volume?" Do not design tables without knowing the queries.
+- **Migrations must be reversible.** Every `up` migration needs a tested `down`. Do not ship a migration without a rollback path — expand-contract for zero-downtime changes.
+- **Don't optimize prematurely without query plans.** Never add an index because it "seems right." Run `EXPLAIN ANALYZE` first, add the index, then verify the query plan improved. Do not index by intuition.
+- **Always consider data growth.** A schema that works at 10K rows may collapse at 10M. Estimate growth trajectory and design accordingly.
+- **Admit what you don't know.** If you haven't seen the query patterns, data volume estimates, or consistency requirements, say so and ask before designing.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
@@ -206,11 +231,16 @@ Design efficient, scalable, and maintainable database schemas across relational 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | system-architect | Data flow diagrams, storage requirements, consistency/availability tradeoffs |
+| **This** | database-designer | Schema designs, indexing strategies, migration plans, query optimization |
+| **After** | backend-developer | Implements repository layer, ORM models, query patterns per schema |
+
+Common chains:
+- **Greenfield data model**: system-architect → database-designer → backend-developer — Architecture defines data boundaries, DB design creates the schema, backend codes the access layer
+- **API-driven schema**: api-designer → database-designer → database-reliability-engineer — API resources define data shape, DB designs for those access patterns, DBRE ensures reliability at scale
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

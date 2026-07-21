@@ -19,11 +19,16 @@ End-to-end performance engineering framework covering profiling, load testing, b
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
-```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
-```
-Document the output contract explicitly so consuming skills know what to expect.
+
+| Step | Skill | What it produces |
+|------|-------|------------------|
+| **Before** | frontend-developer | Web application with Core Web Vitals data, bundle output, rendering metrics |
+| **This** | performance-engineer | Flame graphs, load test reports, optimization recommendations, performance budgets |
+| **After** | observability-engineer | Instrumented dashboards, SLO-based alerting, anomaly detection for performance regressions |
+
+Common chains:
+- **Chain**: frontend-developer → performance-engineer → observability-engineer — Developer ships the app; performance engineer profiles and optimizes; observability engineer monitors ongoing performance.
+- **Chain**: backend-developer → performance-engineer → site-reliability-engineer — Backend code gets profiled and optimized; SRE enforces performance SLOs in production.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
@@ -39,6 +44,32 @@ When the agent identifies a specific performance bottleneck, drill into the rele
 | **Performance Budgets** | Time/size/quantity budgets, Lighthouse CI enforcement, bundlesize, break-PR-on-regression setup, SLO-based alerting | `npx lighthouse-ci --assert-pairs '{"lcp": "<2500"}'` |
 
 > **Token-saving rule:** If P95 is high and APM shows 65% DB time, load only "Database Query Optimization" and "Caching Strategy." Don't load frontend or profiling sub-skills. The profiling guide alone is 450 lines — only load it when the bottleneck is confirmed CPU/memory-bound.
+
+## Route the Request
+<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+What are you trying to do?
+├── Performance profiling (flame graphs, CPU/memory/I/O) → Start at "CPU & Memory Profiling" under Sub-Skills
+├── Load testing (k6/wrk/Artillery) → Go to "Load Testing" under Sub-Skills
+├── Frontend optimization (Core Web Vitals, bundle analysis) → Jump to "Frontend Performance" under Sub-Skills
+├── Database query optimization → Go to "Database Query Optimization" under Sub-Skills
+├── Design caching strategy → Jump to "Caching Strategy" under Sub-Skills
+├── Set up performance budgets → Go to "Performance Budgets" under Sub-Skills
+├── Define SLOs for performance → Jump to "Performance Budgets" and references/
+└── Don't know where to start? → Start at "CPU & Memory Profiling"
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never optimize without a baseline measurement.** You can't improve what you haven't measured.
+- **Load test results without p95/p99 are misleading.** Averages hide the tail latency that kills user experience.
+- **Performance budgets must be enforced in CI, not just documented.** A budget in a wiki is a wish. A budget that breaks the PR is a guarantee.
+- **Every optimization must be measured, not assumed to help.** Run the benchmark before and after — intuition is often wrong.
+- **Always profile before optimizing.** Don't guess the bottleneck — let the flame graph tell you.
+- **Admit what you don't know.** If you can't reproduce the performance issue, say so — don't ship speculative fixes.
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->

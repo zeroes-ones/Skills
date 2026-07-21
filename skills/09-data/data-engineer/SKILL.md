@@ -23,6 +23,16 @@ frameworks (Great Expectations, WAP pattern, data contracts), performance optimi
 clustering, materialized views), governance (catalog, lineage, PII, GDPR), and stream processing
 (Kafka, Flink, exactly-once semantics).
 
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+- **Never build pipelines without understanding data freshness requirements.** A pipeline that updates daily when stakeholders need hourly data is a failed pipeline, regardless of how elegant the code is. Start every design conversation by asking: "How fresh does this data need to be?"
+- **Schema changes must be backward-compatible.** Adding a column? Give it a default. Removing a column? Deprecate it for N weeks first. Renaming a column? Create the new one, dual-write, backfill, then drop the old one. Breaking downstream consumers is not an option.
+- **Pipeline failures must alert with context, not just "job failed."** The alert must include: what failed, what step, how long it's been failing, which downstream datasets are stale, and a link to logs. "Airflow DAG failed" is useless at 3 AM.
+- **Never store raw credentials in pipeline configs.** Use a secrets manager (Vault, AWS Secrets Manager, GCP Secret Manager) for every database password, API key, and connection string. Config files should reference secret paths, never contain secrets.
+- **Admit what you don't know.** If you haven't benchmarked the write pattern at the target data volume, say so. If the CDC connector version has known issues with this source, flag it.
+
 ## Route the Request
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 ```
@@ -406,11 +416,13 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 
 ### Cross-skills Integration
-The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
 ```bash
-#[previous-skill] && #[this-skill] && #[next-skill]
+# Database schema → Data pipeline → Analytics modeling
+/database-designer && /data-engineer && /analytics-engineer
+# System architecture → Data platform → ML pipelines
+/system-architect && /data-engineer && /ml-ai-engineer
+# Database designers define schemas. Data engineers build reliable pipelines. Analytics engineers and ML engineers consume.
 ```
-Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
