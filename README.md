@@ -105,19 +105,35 @@ Skills are deployed once globally via symlinks — every project (existing and n
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 ```
 
-This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, and installs two convenience commands:
+This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, installs convenience commands, and sets up auto-activation for new projects.
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init [project-path]` | Run inside any project to activate all 56 skills |
+| `skills-init` | Activate all 56 skills in current project (team/company default) |
+| `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
+| `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
+| `skills-init --status` | Show current tier and skill count |
 | `skills-update` | Pull latest skills — all symlinked projects update instantly |
 
-### Using Skills in Any Project
+### Tiered Activation — Match Skills to Project Maturity
+
+Skills scale with your project. Start lean, expand as you grow:
 
 ```bash
-cd my-new-project
-skills-init          # symlinks skills into .claude/ .copilot/ .cursor/ etc.
+# Personal side project — just the essentials
+cd ~/code/my-app
+skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, CI/CD, security, GDPR
+
+# Project is gaining users — need architecture, UX, backend depth
+skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
+
+# Startup or team project — full 56 skills
+skills-init               # All 13 domains, 56 skills, full lifecycle coverage
 ```
+
+**Auto-activation:** When you `cd` into any git repo, the shell prompts you to activate skills. It auto-detects the right tier based on your project location and structure.
+
+### Using Skills in Any Project
 
 Then in your agent:
 ```
@@ -136,15 +152,6 @@ Then in your agent:
 | **Cursor** | `.cursor/skills/` | `@skill-{name}` |
 | **OpenClaw** | `.openclaw/workspace/skills/` | `/{name}` |
 | **Gemini CLI** | `.gemini/skills/` | Paste content or custom injection |
-
-### Selective Installation
-
-Want only specific domains? After global install, use `skills-init` only in projects that need them, or symlink manually:
-
-```bash
-ln -s ~/.zeroes-ones/skills/skills/01-strategy ~/.claude/skills/01-strategy
-ln -s ~/.zeroes-ones/skills/skills/05-development ~/.claude/skills/05-development
-```
 
 ### Keeping Skills Updated
 
