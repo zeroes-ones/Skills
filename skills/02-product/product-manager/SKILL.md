@@ -1,0 +1,174 @@
+---
+name: product-manager
+description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning, backlog grooming, and strategic product decisions. Triggers: "write a PRD", "prioritize features", "build a roadmap", "define user stories", "RICE score this", "stakeholder update".
+author: Sandeep Kumar Penchala
+---
+
+# Product Manager
+
+Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
+
+## When to Use
+- A new feature or product area needs a formal Product Requirements Document
+- The backlog is bloated and needs objective prioritization (RICE scoring)
+- Stakeholders are asking for conflicting features — need a decision framework
+- Sprint planning requires well-scoped user stories with acceptance criteria
+- Executive or investor updates need a clear product roadmap with milestones
+- A feature is stalled because requirements are ambiguous or contradictory
+
+## Decision Trees
+
+### Prioritization Method Selection
+
+```
+Company stage and data availability?
+├── Pre-PMF (0-100 users) → Value vs Effort matrix (2×2). RICE is overkill without data.
+│     Ask: "Does this move the needle on retention/revenue?"
+├── Post-PMF (100-10K users) → RICE scoring. Enough quant data for Reach and Confidence.
+│     Ask: "Which delivers the most impact per unit of effort?"
+├── Scale (10K-1M+ users) → RICE + CD3 (Cost of Delay Divided by Duration).
+│     Ask: "What's the cost of NOT doing this now vs later?"
+└── Multi-product portfolio → WSJF (Weighted Shortest Job First). Cross-product tradeoffs.
+
+Strategic vs tactical feature?
+├── Strategic bet (new market, platform play) → Don't use RICE. CEO judgment call.
+└── Tactical improvement → RICE/Value-vs-Effort. Data-driven.
+```
+
+### When NOT to Write a PRD
+
+- Bug fix (no user-facing change)? → GitHub issue + acceptance criteria. No PRD.
+- One-day tweak? → Task in project tracker. Ship and verify.
+- Spike/exploration? → Time-boxed research doc, not full PRD.
+- Already-solved problem (e.g., "add forgot password")? → Reuse existing pattern. Minimal spec.
+
+## Core Workflow
+
+### Phase 1: Problem Discovery
+Interview stakeholders and users. Separate expressed solutions from underlying problems. Draft the problem statement in one sentence: "[User] struggles to [outcome] because [constraint]." Define success criteria — choose one North Star metric and 2–3 supporting KPIs. Identify the target cohort with behavioral segmentation (not just demographics). Document the current-state workflow and quantify the pain with data where possible (time spent, error rate, churn).
+
+### Phase 2: PRD Writing
+Structure the PRD with these sections, in order: Executive Summary (3 sentences), Problem Statement, Success Metrics, Target Personas, User Stories (ordered), Functional Requirements, Non-Functional Requirements (performance, security, compliance), Out of Scope, Assumptions & Risks, Launch Plan, and Appendix with wireframe links and API references. Write user stories in the format: `As a [persona], I want [capability] so that [benefit].` Attach acceptance criteria using Gherkin syntax (`GIVEN/WHEN/THEN`). Define edge cases for each story — empty data, concurrent edits, offline, permission revocation.
+
+### Phase 3: RICE Prioritization
+Score each initiative on Reach (number of users impacted per quarter), Impact (1 = minimal, 2 = low, 3 = medium, 4 = high, 5 = massive), Confidence (20% = gut, 50% = qualitative data, 80% = quantitative data, 100% = proven), and Effort (person-months). Compute `(Reach × Impact × Confidence) / Effort`. Sort by RICE score descending. Flag items where Confidence < 50% for a spike or time-boxed investigation before committing. Review scores with the team to surface hidden assumptions.
+
+### Phase 4: Roadmap & Communication
+Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current quarter. Now = committed and in active development. Next = discovered, spec'd, ready when capacity opens. Later = validated problems without committed solutions. For each initiative, describe the problem, not the solution syntax. Publish the roadmap visibly and update it monthly. Prepare stakeholder-specific summaries: engineering needs technical context, executives need risk/ROI, sales needs timelines and talking points.
+
+### Phase 5: Delivery Partnership
+Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
+
+## Cross-Skill Coordination
+
+Product management is a multiplier role — you don't build, design, or sell, but your coordination (or lack thereof) determines whether those functions produce value or waste.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask |
+|-----------------|------|-------------------|
+| **CEO Strategist** | Pivot decisions, resource allocation, strategic trade-offs | Product roadmap implications, market signals, competitive threats |
+| **CTO Advisor** | Build vs buy, tech debt prioritization, architecture decisions | Technical feasibility, engineering capacity, cost of delay for tech investments |
+| **UX Researcher** | Discovery, usability testing, persona validation | Problem hypotheses, target segments, research questions, success criteria |
+| **Idea to Spec** | Feature definition, requirement translation | PRD, user stories, acceptance criteria, edge case identification |
+| **UI/UX Designer** | Feature design, prototypes, design system usage | User stories, acceptance criteria, design constraints, accessibility requirements |
+| **Frontend Developer** | Feature estimation, implementation, UX fidelity | Prioritized backlog, acceptance criteria, design specs, interaction requirements |
+| **Backend Developer** | Feature estimation, API design, data model changes | API contracts, data requirements, performance expectations, error handling |
+| **QA Engineer** | Acceptance criteria, test planning, bug triage | User scenarios, edge cases, severity definitions, expected behavior |
+| **Growth Engineer** | Experimentation, A/B testing, PLG funnel optimization | Hypotheses, success metrics, experiment scope, statistical significance thresholds |
+| **Data/Analytics** | Metrics definition, tracking, dashboards, product analytics | What to measure, event taxonomy, reporting cadence, success criteria |
+| **Sales / Customer Success** | Feature requests, customer feedback, competitive intel | Feature gaps, win/loss reasons, churn signals, customer pain points |
+| **Project Manager / Scrum Master** | Sprint planning, capacity, dependencies, delivery tracking | Priorities, timeline estimates, cross-team dependencies, blockers |
+
+### Communication Triggers — When to Proactively Notify
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Major scope change mid-sprint | Engineering Lead, QA, Project Manager | Sprint replanning, capacity reallocation, timeline communication |
+| Pivot signal from PMF data | CEO, CTO, UX Researcher | Strategic replanning, research deep-dive, roadmap overhaul |
+| Competitive launch with >50% feature parity | CEO, CTO, Sales, Marketing | Competitive response, roadmap reprioritization, positioning update |
+| Customer churn spike (>10% monthly) | CEO, Sales/Customer Success, Growth | Churn root cause, feature gap analysis, retention intervention |
+| OKR at risk (red status at mid-quarter) | CEO, CTO, Project Manager | Expectation management, resource reallocation, scope negotiation |
+| Critical production bug discovered | Engineering Lead, QA, Customer Success | Impact assessment, hotfix prioritization, customer communication |
+
+### Escalation Path
+
+```
+Strategic product conflict (CEO wants X, CTO says impossible, customer demands Y)
+  └── CEO + CTO + Product Manager. ADR or decision memo within 1 week.
+
+Delivery risk (team velocity drop >40%, key engineer departure, critical blocker)
+  └── Engineering Lead + CTO + Product Manager. Replan or descope within 48 hours.
+
+Customer escalation (enterprise customer threatening churn over missing feature)
+  └── Sales/Customer Success + Product Manager + CEO if >10% revenue at risk.
+```
+
+## Best Practices
+- Write the PRD before writing the first line of code — and share it asynchronously for 48-hour comment period.
+- Use the RICE framework consistently; subjectivity is inevitable but consistency surfaces the right conversations.
+- Separate outcome roadmaps from output roadmaps — track what users do, not what the team ships.
+- Accept that the "Next" column is a buffer, not a promise — reprioritize quarterly without guilt.
+- Every user story must have a measurable completion criterion — "works" is not a criterion.
+- Keep PRDs under 10 pages; appendices carry supplementary detail so the core remains skimmable.
+- When stakeholders disagree, escalate the decision criteria, not the decision.
+- Run a pre-mortem: "It's 6 months from now and this feature failed. What happened?"
+
+## Scale Depth: Solo → Small → Medium → Enterprise
+
+### Solo (1 person, 0-100 users)
+- **What changes**: PM = you talking to users and writing todos. No PRDs. No roadmap beyond "what's next." Success metric = revenue or active users. Prioritization = whatever keeps the lights on.
+- **What to skip**: PRDs. OKRs. RICE. NPS. Roadmap presentations. Stakeholder management (you're the only stakeholder).
+- **Coordination**: Talk to users. Ship. Repeat.
+
+### Small Team (2-10 people, 100-10K users)
+- **What changes**: Lightweight PRDs (<5 pages). Simple roadmap (Now/Next/Later). North Star metric identified. Basic OKRs. Customer interviews structured (not ad-hoc). Prioritization = value vs effort. Feature flags for safer launches.
+- **What to skip**: Full RICE/CD3. Competitive analysis program. Product ops. Beta programs. Post-launch metrics dashboards.
+- **Coordination**: Weekly product sync with eng lead. Monthly roadmap review with CEO. Bi-weekly customer interview debriefs.
+
+### Medium Team (10-50 people, 10K-1M users)
+- **What changes**: Full PRD template. RICE prioritization. OKRs cascading. Dedicated PM per product area. Launch plans with rollout and rollback. Beta program management. Post-launch metrics dashboard. Stakeholder communication cadence. Competitive win/loss analysis.
+- **What to skip**: Product portfolio management (unless multi-product). Product ops as dedicated function. Formal product council.
+- **Coordination**: Bi-weekly product review. Monthly roadmap review with stakeholders. Quarterly OKR review. Pre-launch go/no-go meetings.
+
+### Enterprise (50+ people, 1M+ users)
+- **What changes**: Multi-product portfolio with P&L. Product ops team. Product council with formal gates. Advanced analytics team. Pricing science. PLG team. M&A product integration. International product strategy. Accessibility and compliance built into PRD template.
+- **What's full production**: Quarterly business review (QBR). Product portfolio review monthly. Product council bi-weekly. Launch governance with stage gates. Product analytics embedded in every team.
+- **Coordination**: QBR with exec team. Monthly portfolio review. Bi-weekly product council. Weekly PLG + growth review.
+
+### Transition Triggers
+- **Solo → Small**: Second PM needed because you can't cover all features + users. >500 active users.
+- **Small → Medium**: 3+ PMs with overlapping stakeholder groups. >10K users or second product line.
+- **Medium → Enterprise**: Multi-product with independent P&L. IPO preparation. >100K users.
+
+## Sub-Skills
+
+| Sub-Skill | When to Use | Reference |
+|-----------|-------------|-----------|
+| `problem-discovery` | Stakeholder/user interviews, problem framing | Phase 1 — problem statement, success metrics, cohort segmentation |
+| `prd-writing` | Feature definition, requirements documentation | Phase 2 — executive summary, user stories, NFRs, edge cases |
+| `rice-prioritization` | Backlog grooming, roadmap decisions | Phase 3 — Reach × Impact × Confidence / Effort scoring |
+| `roadmap-communication` | Stakeholder updates, executive reviews | Phase 4 — Now/Next/Later, problem-focused, stakeholder summaries |
+| `delivery-partnership` | Sprint execution, unblocking, launch validation | Phase 5 — standups, demos, launch metrics, post-launch retro |
+| `okr-setting` | Goal cascading, measurable outcomes | `ceo-strategist` — North Star alignment, KPI definition |
+| `competitive-analysis` | Market positioning, feature gap analysis | `business-strategist` — win/loss, feature comparison |
+
+## Production Checklist
+- [ ] PRD approved by engineering lead, design lead, and primary stakeholder
+- [ ] Success metrics defined with baseline values and target values
+- [ ] Every user story has acceptance criteria in GIVEN/WHEN/THEN format
+- [ ] RICE scores computed and reviewed with the team
+- [ ] Edge cases documented for top-5 user stories (empty, error, concurrency, permissions)
+- [ ] Non-functional requirements specified (latency, throughput, availability, security)
+- [ ] Roadmap published and communicated to all stakeholders
+- [ ] Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria
+- [ ] Post-launch metrics dashboard set up before GA
+- [ ] Backlog groomed and free of stale items older than 2 quarters
+
+## References
+- **idea-to-spec** — for bootstrapping the spec artifact from a raw concept
+- **ux-researcher** — for persona validation and usability testing before PRD finalization
+- **ui-ux-designer** — for design system and interaction pattern alignment
+- _Inspired_ by Marty Cagan — for product discovery habits
+- _Escaping the Build Trap_ by Melissa Perri — for outcome-driven product management
+- RICE Scoring by Intercom (Sean McBride) — for the original prioritization framework
