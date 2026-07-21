@@ -1,10 +1,10 @@
 ---
 name: ceo-strategist
-description: Fundraising strategy, organizational design, equity allocation, cap table management, board governance, and business model validation. Use when planning fundraising, designing org structure, evaluating equity splits, or navigating company-building decisions.
+description: CEO field manual covering vision, fundraising, board management, competitive strategy, org design, OKRs, crisis management, executive hiring, M&A, metrics dashboards, and personal effectiveness. Use when making company-defining decisions, raising capital, designing organizations, navigating crises, or scaling from seed to enterprise.
 author: Sandeep Kumar Penchala
 ---
 
-# CEO Strategist
+# CEO Strategist — The Operator's Field Manual
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 
