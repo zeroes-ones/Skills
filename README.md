@@ -5,7 +5,7 @@
 
 A comprehensive, agent-agnostic skills library covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Every skill is built to world-class standards with deep references, templates, and production checklists.
 
-**50+ skills across 13 domains. 100+ reference documents. 20+ asset templates.**
+**56 skills across 13 domains. 100+ reference documents. 20+ asset templates.**
 
 ## Philosophy
 
@@ -47,15 +47,15 @@ This keeps `SKILL.md` lean (~150-250 lines) while making deep expertise availabl
 | 01 | **Strategy & Leadership** | CEO Strategist, CTO Advisor, Business Strategist | Vision, fundraising, org design, competitive strategy, board management |
 | 02 | **Product Management** | Idea-to-Spec, Product Manager, UX Researcher | Discovery, prioritization, user research, PRDs, roadmaps |
 | 03 | **Design** | UI/UX Designer, Accessibility Auditor, Brand Guidelines | Design systems, WCAG 2.2 AA/AAA, visual identity, motion design |
-| 04 | **Architecture** | System Architect, API Designer, Database Designer | C4 model, ADRs, REST/GraphQL/gRPC, schema design, normalization |
-| 05 | **Development** | Backend, Frontend, Mobile, Fullstack Developer | Multi-language, platform HIG, offline-first, performance |
+| 04 | **Architecture** | System Architect, API Designer, Database Designer, Networking Engineer | C4 model, ADRs, REST/GraphQL/gRPC, schema, VPC, DNS, CDN, zero trust |
+| 05 | **Development** | Backend, Frontend, Mobile, Fullstack, Localization Engineer | Multi-language, platform HIG, offline-first, RTL, i18n/l10n pipelines |
 | 06 | **Quality** | Code Reviewer, QA Engineer, Security Reviewer | 6-dimension review, test strategy, OWASP, SAST |
-| 07 | **DevOps & Infra** | DevOps, CI/CD Builder, Observability, Docker/K8s, Cloud Architect | IaC, GitOps, SLOs, container security, Well-Architected |
+| 07 | **DevOps & Infra** | DevOps, CI/CD Builder, Observability, Docker/K8s, Cloud Architect, Platform Engineer, SRE, Release Manager, FinOps Engineer | IaC, GitOps, SLOs, IDP, error budgets, release trains, cloud cost governance |
 | 08 | **Security** | Security Engineer, Compliance Officer, Incident Responder | Threat modeling, SOC 2/ISO 27001, IR phases, forensics |
-| 09 | **Data & AI** | Data Engineer, Analytics Engineer, ML/AI Engineer | ETL/ELT, dbt, LLM patterns, RAG, MLOps, responsible AI |
-| 10 | **Growth** | SEO Specialist, Content Strategist, Growth Engineer | Technical SEO, E-E-A-T, A/B testing, growth loops |
+| 09 | **Data & AI** | Data Engineer, Analytics Engineer, ML/AI Engineer, Data Scientist, DBRE | ETL/ELT, dbt, LLM patterns, RAG, statistical analysis, database reliability |
+| 10 | **Growth** | SEO Specialist, Content Strategist, Growth Engineer, DevRel Advocate | Technical SEO, E-E-A-T, A/B testing, developer community, API advocacy |
 | 11 | **Legal & Compliance** | Legal Advisor, GDPR/Privacy, Regulatory Specialist | SaaS contracts, DPAs, fundraising legal, global regulations |
-| 12 | **Operations** | Project Manager, Scrum Master, Technical Writer | RAID, agile ceremonies, Diátaxis, docs-as-code |
+| 12 | **Operations** | Project Manager, Scrum Master, Technical Writer, TPM, Customer Support Engineer | RAID, agile ceremonies, Diátaxis, cross-team programs, support workflows |
 | 13 | **Specialized** | Monorepo Manager, Migration Architect, Performance Engineer, Chaos Engineer, Documentation Engineer | Monorepo tooling, strangler fig, profiling, chaos experiments |
 
 ## Usage
@@ -94,83 +94,73 @@ ceo-strategist → product-manager → ui-ux-designer → system-architect
 → backend-developer → frontend-developer → code-reviewer → ci-cd-builder
 ```
 
-## Deployment
+## Deployment — One Command, All Projects
 
-### Choosing Your Agent
+Skills are deployed once globally via symlinks — every project (existing and new) gets them automatically.
 
-These skills are **agent-agnostic** — they work with any AI coding agent that supports SKILL.md or custom instructions. Choose the agent you already use:
+### Quick Start
 
-| Agent | Skill Format | How Skills Load | Best For |
-|-------|-------------|-----------------|----------|
-| **Claude Code** | `.claude/skills/` | Auto-loaded from directory | Terminal-native, full project context |
-| **GitHub Copilot CLI** | `.copilot/skills/` | `/copilot-skill {name}` | GitHub-integrated, PR-focused |
-| **Cursor** | `.cursor/skills/` | `@skill-{name}` in chat | IDE-native, visual context |
-| **OpenClaw** | `.openclaw/workspace/skills/` | `/{name}` in workspace | Custom agent orchestration |
-| **Gemini CLI** | Custom instructions injection | Paste SKILL.md content | Google ecosystem projects |
-
-### Installation
-
-#### Claude Code (Recommended)
 ```bash
-git clone https://github.com/zeroes-ones/Skills.git ~/skills-library
-mkdir -p ~/.claude/skills/
-cp -r ~/skills-library/skills/* ~/.claude/skills/
+# One-time global install
+curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 ```
-Verify: run `/{ceo-strategist}` in Claude Code — it should load the CEO strategist skill.
 
-#### GitHub Copilot CLI
-```bash
-git clone https://github.com/zeroes-ones/Skills.git ~/skills-library
-mkdir -p ~/.copilot/skills/
-cp -r ~/skills-library/skills/* ~/.copilot/skills/
-```
-Verify: run `/copilot-skill ceo-strategist` — should load the skill context.
+This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for all your agents, and installs two convenience commands:
 
-#### Cursor
-```bash
-git clone https://github.com/zeroes-ones/Skills.git ~/skills-library
-mkdir -p ~/.cursor/skills/
-cp -r ~/skills-library/skills/* ~/.cursor/skills/
-```
-Verify: type `@skill-ceo-strategist` in Cursor chat — should load the skill.
+| Command | What It Does |
+|---------|-------------|
+| `skills-init [project-path]` | Run inside any project to activate all 56 skills |
+| `skills-update` | Pull latest skills — all symlinked projects update instantly |
 
-#### OpenClaw
-```bash
-git clone https://github.com/zeroes-ones/Skills.git ~/skills-library
-mkdir -p ~/.openclaw/workspace/skills/
-cp -r ~/skills-library/skills/* ~/.openclaw/workspace/skills/
-```
-Verify: run `/{ceo-strategist}` in your OpenClaw workspace.
+### Using Skills in Any Project
 
-#### Staying Up to Date
 ```bash
-cd ~/skills-library
-git pull origin main
-cp -r skills/* ~/.claude/skills/  # or your agent's directory
+cd my-new-project
+skills-init          # symlinks skills into .claude/ .copilot/ .cursor/ etc.
 ```
+
+Then in your agent:
+```
+/ceo-strategist      # Start with strategy
+/product-manager     # Define the product
+/system-architect    # Design the architecture
+/backend-developer   # Build it
+```
+
+### Supported Agents
+
+| Agent | Skill Directory | How to Invoke |
+|-------|----------------|---------------|
+| **Claude Code** | `.claude/skills/` | `/{skill-name}` |
+| **GitHub Copilot CLI** | `.copilot/skills/` | `/copilot-skill {name}` |
+| **Cursor** | `.cursor/skills/` | `@skill-{name}` |
+| **OpenClaw** | `.openclaw/workspace/skills/` | `/{name}` |
+| **Gemini CLI** | `.gemini/skills/` | Paste content or custom injection |
 
 ### Selective Installation
 
-You don't need all 45 skills. Install only the domains you need:
+Want only specific domains? After global install, use `skills-init` only in projects that need them, or symlink manually:
 
 ```bash
-# Example: only strategy and development domains
-cp -r ~/skills-library/skills/01-strategy ~/.claude/skills/
-cp -r ~/skills-library/skills/05-development ~/.claude/skills/
+ln -s ~/.zeroes-ones/skills/skills/01-strategy ~/.claude/skills/01-strategy
+ln -s ~/.zeroes-ones/skills/skills/05-development ~/.claude/skills/05-development
+```
 
-# Example: only security and compliance
-cp -r ~/skills-library/skills/08-security ~/.claude/skills/
-cp -r ~/skills-library/skills/11-legal ~/.claude/skills/
+### Keeping Skills Updated
+
+```bash
+skills-update   # Pulls latest from GitHub — all symlinked projects see changes instantly
 ```
 
 ### Troubleshooting
 
 | Problem | Likely Cause | Fix |
 |---------|-------------|-----|
-| Agent doesn't recognize skill | Wrong install directory | Check your agent's docs for the correct skills directory path |
-| Skill loads but no domain knowledge | References not copied | Ensure `references/` directories were copied alongside `SKILL.md` |
-| Skill is too verbose for quick tasks | Agent reads entire SKILL.md | Skills are designed to be skimmed — agent reads scale-appropriate section (~200 lines). If still too slow, use the `## Decision Trees` section as entry point. |
-| Skill missing for my domain | Coverage gap | Open an issue with your use case. Meanwhile, skills are domain-agnostic — the closest domain skill likely applies. |
+| `skills-init: command not found` | PATH missing | Add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc` |
+| Agent doesn't see skills | Symlinks broken | Run `skills-init` again inside the project |
+| Skills load but no references | References in wrong path | Symlinks handle this — ensure `~/.zeroes-ones/skills/` is intact |
+| Skill too verbose for quick tasks | Agent reads full SKILL.md | Agent reads scale-appropriate section (~200 lines). Use `## Decision Trees` as entry point. |
+| "Cannot update protected ref" | GPG key not on GitHub | Add GPG key at https://github.com/settings/gpg/new |
 
 ## Core Framework Documents
 
