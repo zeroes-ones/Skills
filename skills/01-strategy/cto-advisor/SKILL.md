@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - cto-advisor
-token_budget: 3119
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -85,7 +85,8 @@ evaluation. Every section is a decision-making framework, not abstract advice.
                    └──────────────┘
 ```
 **When to choose Microservices:** 3+ teams with independent release cycles. Different scaling requirements per component. Polyglot persistence is needed.  
-**When to choose Modular Monolith:** < 20 engineers. Single deployment pipeline is adequate. Data consistency across domains is critical. Premature distribution adds latency and debugging complexity.
+**When to choose Modular Monolith:** < 20 engineers. Single deployment pipeline is adequate. Data consistency across domains is critical. Premature distribution adds latency and <!-- DEEP: 10+min -->
+debugging complexity.
 
 ### Tech Debt Prioritization
 ```
@@ -168,6 +169,9 @@ Can this be a competitive differentiator?
         ├── YES → BUILD (first-mover advantage possible)
         └── NO  → WAIT (let the market mature, then buy)
 ```
+
+
+**What good looks like:** Technology radar document with every major dependency categorized (Adopt/Trial/Assess/Hold). Build-vs-buy evaluation compares 3 options with 5-year TCO. Architecture decision records exist for the last 5 major decisions.
 
 **Build-vs-buy cost comparison (5-year TCO):**
 
@@ -459,6 +463,14 @@ Decision: Buy ($1.14M < $1.77M) — unless this is a competitive differentiator.
 - Product hasn't had a major release in 12+ months
 - Key person dependency: "Our CTO will answer that" for every technical question
 
+
+### Cross-skills Integration
+```bash
+# CTO evaluates tech → Architect designs → Backend builds
+/cto-advisor && /system-architect && /backend-developer
+# Every architecture decision traces back to the CTO's build-vs-buy evaluation.
+```
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, drill into these specialized areas as needed:
@@ -556,11 +568,15 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Market timing wrong | Product launched too early (no demand) or too late (crowded) | Run demand validation with 10+ paid pre-orders before building; use Wardley Map to time your entry |
+| Team can't execute | Key hires missing, wrong incentives, no clear owner | Hire for the next 6 months' problems, not the last 6 months'; DRI model with written OKRs |
+| Runway < 12 months | Burn rate exceeds plan, revenue slower than projected | Cut burn to 18-month runway immediately; model best/worst/realistic case scenarios |
+| Investor pass | Pitch doesn't articulate defensible moat | Lead with TAM → problem → traction → team → ask. Your demo is not your pitch. |
+| Board misalignment | Founder/board disagree on strategy | Pre-board one-on-ones before every board meeting. Surface disagreement in the room, not after. |
+| Scaling prematurely | Growing team/features before PMF | Sean Ellis test: < 40% "very disappointed" if product disappeared → do not scale |
+| Co-founder conflict | Roles, equity, or vision disagreement | Written founder agreement with vesting, roles, decision rights, and exit terms |
 
 
 ## Production Checklist

@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - analytics-engineer
-token_budget: 3114
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -217,6 +217,9 @@ principles (chart selection, dashboard design, data storytelling).
    └── marts/          # fct_orders.sql — business-facing, single source of truth
                        #   Config: materialized='table' or 'incremental'
    ```
+
+
+**What good looks like:** dbt project with model documentation, tests, and lineage. BI dashboard loads in under 5 seconds. All metrics have definitions documented in a shared glossary. Data freshness meets SLA for every report. No hard-coded table references in SQL — all ref()'d.
 
 2. **Materialization Decision Matrix**:
 
@@ -610,6 +613,14 @@ Distributed analytics engineering pods aligned to domains. Federated semantic la
 | Solo → Small | 3+ BI consumers across different teams | Set up dbt Cloud team plan; formalize metric taxonomy; introduce CI/CD |
 | Small → Medium | Metric disagreement across teams; >20 dashboards | Implement semantic layer (dbt SL/Cube); add data catalog; build A/B testing framework |
 | Medium → Enterprise | 10+ domain teams needing self-service analytics | Adopt federated semantic layer; implement data product lifecycle; cross-domain governance |
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

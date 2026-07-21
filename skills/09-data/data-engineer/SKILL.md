@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - data-engineer
-token_budget: 2763
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -204,6 +204,9 @@ Do not read the entire skill. Follow the route above and read only the sections 
    └─ 20+ sources, 5+ autonomous teams → Data mesh
        └─ Federated governance, domain-owned data products
    ```
+
+
+**What good looks like:** Data pipeline processes daily batch within SLA. Data quality checks pass (completeness, freshness, uniqueness, referential integrity). dbt tests cover 90%+ of source tables. Pipeline dashboard shows row counts, latency, and error rates per stage.
 
 3. **Medallion Architecture** — The standard layering pattern:
 
@@ -401,6 +404,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
    - Data-level: Row counts, freshness, null rates, partition sizes
    - Cost-level: Warehouse credits consumed, Spark cluster hours, Kafka storage
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -438,7 +449,8 @@ Data engineers build the pipelines that feed analytics, ML, and product decision
 | Source schema change (new/removed column, type change) | Analytics Engineer, ML Engineer | Update downstream models; prevent pipeline breakage |
 | Pipeline failure (data not delivered within SLA) | Analytics Engineer, ML Engineer, Observability | SLA breach; downstream dashboards/training jobs stale |
 | PII discovered in non-PII-designated column | Security Engineer, Compliance Officer | Data classification update; access control review; potential breach assessment |
-| Data quality check failure (null rate spike, row count anomaly) | Backend Developer (if source issue), Analytics Engineer | Root cause: source data bug or pipeline regression? |
+| Data quality check failure (null rate spike, row count anomaly) | Backend Developer (if source issue), Analytics Engineer | <!-- DEEP: 10+min -->
+Root cause: source data bug or pipeline regression? |
 | Major backfill required (>7 days of historical data) | Analytics Engineer, ML Engineer, DevOps | Compute cost estimate; coordination on backfill window |
 
 ### Escalation Path

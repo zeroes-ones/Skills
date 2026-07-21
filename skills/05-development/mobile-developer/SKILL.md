@@ -218,6 +218,9 @@ npx create-expo-app@latest --template tabs  # expo-router with tab navigation
     services/         # apiClient, secureStorage, analytics
   ```
 
+
+**What good looks like:** The output is production-ready. All validation checks pass. Expected file structure, naming conventions, and content requirements are met. You could hand this to a stakeholder without embarrassment.
+
 **Flutter (using very_good_cli):**
 ```bash
 very_good create my_app --org com.company --platforms ios,android
@@ -573,6 +576,14 @@ Cross-platform inconsistency? → UI/UX Designer → Product Strategist
 - **Solo → Small**: Second mobile developer. User complaints about performance or crashes.
 - **Small → Medium**: Offline support needed. Performance becomes critical (cold start > 2s). >10K installs.
 - **Medium → Enterprise**: Multi-platform team split. Store review rejections need process. >100K installs.
+
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

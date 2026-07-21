@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - scrum-master
-token_budget: 1477
+token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
@@ -261,7 +261,8 @@ Is your team size >7 people?
 └── NO → Single team is fine.
 
 Are sprints consistently finishing with >30% carryover?
-├── YES → Root cause: overcommitment? scope creep? unplanned work? Fix the cause.
+├── YES → <!-- DEEP: 10+min -->
+Root cause: overcommitment? scope creep? unplanned work? Fix the cause.
 └── NO → Carryover <20% is healthy.
 
 Is velocity variance >30% sprint-over-sprint?
@@ -280,6 +281,9 @@ Do you have >3 teams on the SAME product?
 ├── YES → Cross-team coordination needed. Nexus or LeSS. Single Product Backlog.
 └── NO → No scaling framework needed.
 ```
+
+
+**What good looks like:** Team velocity tracked for 5+ sprints with predictable range. Sprint goal achieved in 8 of 10 sprints. Retro produces action items tracked to completion. Impediments removed within 24 hours. Team health score > 4/5 in retro survey.
 
 ## When NOT to Use This Skill (Overkill)
 
@@ -372,6 +376,14 @@ Agile Coaches + Scrum Masters across multiple ARTs (SAFe) or product groups. Rel
 | Small → Medium | 3+ teams on same product, cross-team dependencies blocking sprints | Adopt LeSS/Nexus; implement Scrum of Scrums; add agile health assessments |
 | Medium → Enterprise | 5+ products, portfolio governance required, or 50+ developers | Adopt SAFe (if enterprise); add RTE role; implement portfolio Kanban; establish CoE |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 
 | Sub-Skill | When to Use | Context |
@@ -388,11 +400,15 @@ Agile Coaches + Scrum Masters across multiple ARTs (SAFe) or product groups. Rel
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Project misses deadline consistently | No buffer for unknowns | Add 20% schedule buffer for every phase. Track actual vs estimated to calibrate future planning. |
+| Stakeholder disengaged | Updates don't answer their questions | Executive updates: progress toward milestones, blocking issues, decisions needed. Not activity reports. |
+| Team demotivated | Retrospectives without action | Every retro must produce at least one action item with an owner. Track follow-through. |
+| Scope keeps growing | No change control process | Formal change request: cost/impact assessment, approval gate, backlog vs current sprint decision. |
+| Documentation nobody reads | Written for completeness, not task completion | Diátaxis framework: Tutorials (learning), How-to guides (tasks), Reference (facts), Explanation (understanding). |
+| Customer churn repeats same issue | Symptoms addressed, root cause ignored | Five Whys on every recurring ticket. Escalate systemic issues, don't just reply to each report. |
+| Cross-team meeting with no outcome | No written agenda or decision log | Every meeting must have: agenda shared 24h before, decision log during, summary sent within 1h of end. |
 
 
 ## Production Checklist

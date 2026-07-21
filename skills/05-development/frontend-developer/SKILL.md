@@ -187,6 +187,9 @@ Is SEO critical OR do you need server-side rendering?
                Tradeoff: smaller ecosystem than Next.js, less mature RSC support
 ```
 
+
+**What good looks like:** The output is production-ready. All validation checks pass. Expected file structure, naming conventions, and content requirements are met. You could hand this to a stakeholder without embarrassment.
+
 **Framework comparison — hard numbers:**
 
 | Criterion | Next.js App Router | Remix/React Router v7 | Astro | Vite SPA | Nuxt (Vue) |
@@ -704,6 +707,14 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 - **Solo → Small**: Second frontend developer. UI inconsistency across pages becomes visible.
 - **Small → Medium**: 3+ frontend developers. Performance or accessibility becomes a user-reported issue. >10K users.
 - **Medium → Enterprise**: 5+ frontend teams. Multi-brand or international. >100K users.
+
+
+### Cross-skills Integration
+```bash
+# Design → Build frontend → Integrate API → Test → Deploy
+/ui-ux-designer && /frontend-developer && /backend-developer && /qa-engineer && /frontend-developer
+# Frontend consumes the API contract — spec changes flow through backend first, then frontend updates.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

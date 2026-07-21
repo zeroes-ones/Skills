@@ -1,6 +1,7 @@
 ---
 name: customer-support-engineer
-description: Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]
+description: Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, <!-- DEEP: 10+min -->
+debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
@@ -8,14 +9,15 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - customer-support-engineer
-token_budget: 2868
+token_budget: 3420
 output:
   type: "code"
   path_hint: "./"
 ---
 # Customer Support Engineer
 
-Customer Support Engineering — the technical bridge between customers and engineering. Unlike general customer support (which handles billing, account, and non-technical queries), the Support Engineer owns the technical investigation, debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.
+Customer Support Engineering — the technical bridge between customers and engineering. Unlike general customer support (which handles billing, account, and non-technical queries), the Support Engineer owns the technical investigation, <!-- DEEP: 10+min -->
+debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.
 
 ## When to Use
 
@@ -83,7 +85,8 @@ IS THIS A KNOWN ISSUE?
 5. **Customer Communication (L2/L3)**: Update customer with findings, expected timeline, workaround if available. Never go silent — even "still investigating, no update yet" counts. Output: ticket update.
 6. **Verification & Close (L2)**: Customer confirms fix works. Document resolution in ticket and KB if reusable. Output: closed ticket with resolution notes.
 
-### Phase 3 (~20 min): Debugging & Root Cause Analysis
+### Phase 3 (~20 min): <!-- DEEP: 10+min -->
+Debugging & Root Cause Analysis
 
 1. **Information gathering**: Environment (version, OS, browser, device), exact steps to reproduce, expected vs actual behavior, screenshots/recordings, logs (application, error, network HAR), timing (when did it start? after deploy?).
 2. **Reproduction**: Set up matching environment. Follow exact steps. If cannot reproduce → ask customer for screen recording or live session. Output: reproduction confirmed or documented gap.
@@ -205,12 +208,21 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | Medium → Enterprise | >5,000 customers OR 24/7 coverage OR 10+ enterprise with custom SLAs |
 | Enterprise → Medium | Customer base consolidation; product maturity reduces ticket volume; self-service deflection >60% |
 
+
+### Cross-skills Integration
+The preceding skill in the chain documents output format requirements. The following skill in the chain expects that format. Run them sequentially:
+```bash
+#[previous-skill] && #[this-skill] && #[next-skill]
+```
+Document the output contract explicitly so consuming skills know what to expect.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |
 |-----------|-------------|---------|
 | **Ticket Triage & Prioritization** | Every incoming ticket. High ticket volume. Mixed severity queue. | Categorize (bug/feature/how-to/account), set severity (SEV1-SEV4), check duplicates, route to correct owner. |
-| **Technical Debugging & Reproduction** | Functional bug reported. "It doesn't work" without clear cause. | Reproduce environment, gather logs (app, server, network), trace request IDs, isolate component, identify root cause. |
+| **Technical <!-- DEEP: 10+min -->
+Debugging & Reproduction** | Functional bug reported. "It doesn't work" without clear cause. | Reproduce environment, gather logs (app, server, network), trace request IDs, isolate component, identify root cause. |
 | **Log Analysis & Forensics** | Issue in production. Intermittent bug. Cross-service issue. | Query log aggregation (ELK, Datadog, Splunk), correlate timestamps, trace request flow, identify error patterns and anomalies. |
 | **Customer Communication** | Every customer interaction. Especially: bad news, delays, unclear timelines. | Empathy first, clarity second, expectations third. Never go silent. Use templates for consistency without sounding robotic. |
 | **Bug Report Writing** | Reproducible bug found. Code fix needed. | Quality bug report: title, severity, environment, exact reproduction steps, expected vs actual, logs/screenshots, impact. Must meet engineering quality bar — incomplete bug reports waste engineering time. |
@@ -236,11 +248,15 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 
 ### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Project misses deadline consistently | No buffer for unknowns | Add 20% schedule buffer for every phase. Track actual vs estimated to calibrate future planning. |
+| Stakeholder disengaged | Updates don't answer their questions | Executive updates: progress toward milestones, blocking issues, decisions needed. Not activity reports. |
+| Team demotivated | Retrospectives without action | Every retro must produce at least one action item with an owner. Track follow-through. |
+| Scope keeps growing | No change control process | Formal change request: cost/impact assessment, approval gate, backlog vs current sprint decision. |
+| Documentation nobody reads | Written for completeness, not task completion | Diátaxis framework: Tutorials (learning), How-to guides (tasks), Reference (facts), Explanation (understanding). |
+| Customer churn repeats same issue | Symptoms addressed, root cause ignored | Five Whys on every recurring ticket. Escalate systemic issues, don't just reply to each report. |
+| Cross-team meeting with no outcome | No written agenda or decision log | Every meeting must have: agenda shared 24h before, decision log during, summary sent within 1h of end. |
 
 
 ## Production Checklist
