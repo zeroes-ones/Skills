@@ -1,28 +1,34 @@
 ---
 name: bizdev-manager
-description: "Business development & strategic partnerships: partner identification & qualification, partnership models (reseller, OEM, marketplace, co-sell), deal structuring & term sheets, channel sales enablement, co-marketing agreements, API/integration partnerships, ISV ecosystem building, partner tier programs (Silver/Gold/Platinum), joint business planning, partner-sourced revenue tracking."
+description: 'Business development & strategic partnerships: partner identification & qualification, partnership models (reseller, OEM, marketplace, co-sell), deal structuring & term sheets, channel sales
+  enablement, co-marketing agreements, API/integration partnerships, ISV ecosystem building, partner tier programs (Silver/Gold/Platinum), joint business planning, partner-sourced revenue tracking.'
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - bizdev-manager
-  - business-development
-  - partnerships
+- bizdev-manager
+- business-development
+- partnerships
 token_budget: 3900
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - business-strategist
-    - legal-advisor
+  - business-strategist
+  - legal-advisor
+  - marketing-manager
+  - partnerships-manager
   feeds_into:
-    - sales-engineer
-    - product-manager
+  - ceo-strategist
+  - marketing-manager
+  - partnerships-manager
+  - product-manager
+  - sales-engineer
   alternatives:
-    - partnerships-manager
+  - partnerships-manager
 ---
 # Business Development Manager (BizDev / Strategic Partnerships)
 
@@ -41,6 +47,10 @@ What are you trying to do?
 ├── Design partner tier programs (Silver/Gold/Platinum) → Go to "Decision Trees > Partner Tier Design"
 ├── Build an ISV / API integration partner ecosystem → Jump to "Core Workflow > Phase 2: Ecosystem Design"
 ├── Create a joint business plan with a key partner → Go to "Core Workflow > Phase 6"
+├── Need partnership execution & management → Invoke `partnerships-manager` skill
+├── Need product roadmap / integration scoping → Invoke `product-manager` skill
+├── Need co-marketing campaign execution → Invoke `marketing-manager` skill
+├── Need strategic direction / board-level partnership → Invoke `ceo-strategist` skill
 └── Not sure where to start? → Start at "Core Workflow > Phase 1"
 ```
 
@@ -270,9 +280,10 @@ The JBP is the annual operating plan for a strategic partnership. Structure: (1)
 | **Legal Advisor** | Term sheet, partnership agreement, IP terms, exclusivity clauses | Draft term sheet, deal structure, risk assessment, compliance requirements |
 | **Sales Engineer** | Partner training, technical qualification, deal support | Partner enablement materials, technical certification requirements, demo environment |
 | **Product Manager** | Integration roadmap, API requirements, OEM product gaps | Partner feedback on product gaps, integration requirements, co-development opportunities |
-| **Marketing Manager** | Co-marketing agreements, partner positioning, joint content | Campaign briefs, co-branding guidelines, MDF budget allocation |
-| **Partnerships Manager** | Handoff: deal structure → partner execution, onboarding, management | Signed partnership agreement, JBP, partner contact, deal structure details |
-| **Customer Success Manager** | Partner-sourced customer health, retention of partner deals | Customer onboarding plan, health scores, renewal risk for partner-sourced customers |
+| **Marketing Manager** | Co-marketing agreements, partner positioning, joint content | Campaign briefs, co-branding guidelines, MDF budget allocation. **Decision gate:** Is MDF ROI > 3:1 on pipeline generated? → continue funding. **Artifact:** co-marketing campaign brief + MDF allocation approval. |
+| **Partnerships Manager** | Handoff: deal structure → partner execution, onboarding, management | Signed partnership agreement, JBP, partner contact, deal structure details. **Decision gate:** Has partner completed certification within 30 days? → ready for deal registration. **Artifact:** partner onboarding scorecard + certification status. |
+| **Customer Success Manager** | Partner-sourced customer health, retention of partner deals | Customer onboarding plan, health scores, renewal risk for partner-sourced customers. **Decision gate:** Is health score > 70 for partner-sourced accounts? → renewal on track. **Artifact:** partner-sourced account health dashboard. |
+| **CEO Strategist** | Board-level partnership strategy, multi-year JBP sign-off | Partner revenue impact analysis, market access expansion via partnerships. **Decision gate:** Does partnership open > $1M addressable market? → board visibility. **Artifact:** partnership strategy memo + revenue model. |
 
 ### Communication Triggers — When to Proactively Notify
 

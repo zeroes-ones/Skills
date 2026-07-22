@@ -1,17 +1,25 @@
 ---
 name: business-strategist
-description: Business model design, go-to-market strategy, financial modeling, pricing strategy, and growth planning. Use when designing business models, creating go-to-market plans, modeling financials, evaluating pricing, or planning market expansion.
+description: Business model design, go-to-market strategy, financial modeling, pricing strategy, and growth planning. Use when designing business models, creating go-to-market plans, modeling financials,
+  evaluating pricing, or planning market expansion.
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - business-strategist
+- business-strategist
+chain:
+  consumes_from: []
+  feeds_into:
+  - bizdev-manager
+  - ceo-strategist
+  - marketing-manager
+  - product-strategist
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Business Strategist
 
@@ -32,6 +40,9 @@ What are you trying to do?
 ├── Plan growth & market expansion
 │   ├── Scaling up → Go to "Scale Depth"
 │   └── Channel/partnership strategy → Jump to "Key Frameworks"
+├── Need company vision or fundraising strategy? → `ceo-strategist`
+├── Need product-market fit or competitive analysis? → `product-strategist`
+├── Need technology strategy or architecture governance? → `cto-advisor`
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Business Model Design"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -268,43 +279,43 @@ Healthy: SOM > $100M with clear path to $1B TAM.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Business strategy lives or dies on cross-functional alignment. A brilliant GTM strategy fails if product can't ship, sales can't sell, and finance can't fund.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `ceo-strategist` | Strategic vision, fundraising status, board priorities, resource constraints | Before any market entry decision; quarterly strategic review |
+| `product-strategist` | TAM/SAM/SOM analysis, competitive landscape, PMF signal, pricing hypotheses | During business model design; before GTM strategy finalization |
+| `legal-advisor` | Regulatory constraints, IP strategy, partnership agreement risks, compliance obligations | Before international expansion; during partnership negotiation |
+| `fp-and-a-analyst` | Unit economics baseline, revenue projections, cost structure analysis, scenario models | During financial modeling; before fundraising preparation |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CEO Strategist** | Fundraising, pivot, market entry, major pricing changes | Strategic options with financial implications, risk/reward scenarios, resource requirements |
-| **Product Strategist** | Product-market fit assessment, pricing, competitive positioning | Market data, competitive intelligence, customer segmentation, willingness-to-pay research |
-| **Legal Advisor** | Terms of service, partnership agreements, international expansion, regulatory strategy | Business model requirements, risk tolerance, deal structure preferences |
-| **Finance / CFO** | Financial modeling, fundraising, budget allocation, unit economics | Revenue projections, cost structure, market assumptions, sensitivity ranges |
-| **Growth Engineer** | Experimentation roadmap, PLG funnel, A/B testing | Business hypotheses to test, success metrics, guardrail metrics |
-| **Sales / CRO** | GTM strategy, territory design, pricing, sales compensation | ICP definition, competitive win/loss data, customer objections, channel economics |
-| **Marketing Lead** | Positioning, messaging, demand gen, brand strategy | Market research, segmentation, competitive landscape, channel performance |
-| **Data/Analytics** | Market analysis, customer segmentation, LTV modeling, forecasting | Business questions, data requirements, analysis priorities |
-| **Partnerships / BD** | Channel partnerships, platform integrations, strategic alliances | Partnership economics, integration requirements, co-marketing strategy |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ceo-strategist` | Business model canvas, GTM strategy, pricing model, unit economics, financial projections | CEO makes fundraising decisions without financial context — wrong round size or timing |
+| `product-strategist` | Market segmentation, competitive intelligence, channel economics, willingness-to-pay data | Product bets are uninformed by market reality — roadmap misses target |
+| `marketing-manager` | ICP definition, positioning inputs, channel strategy, demand gen economics | Marketing campaigns target wrong segments — wasted ad spend |
+| `growth-engineer` | Business hypotheses, success metrics, guardrail metrics, experiment scope | A/B tests optimize vanity metrics rather than business outcomes |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| New market entry decision | CEO, Product, Marketing, Sales, Legal, Finance | Cross-functional launch planning, localization requirements, hiring plan |
-| Pricing model change | CEO, Product, Sales, Finance, Legal | Revenue impact modeling, customer communication, contract updates |
-| Competitive threat (new entrant with >20% feature parity) | CEO, Product, Marketing, Sales | Competitive response, positioning adjustment, product roadmap reprioritization |
-| Fundraising preparation begins | CEO, Finance, Legal, Product | Data room prep, financial modeling, due diligence readiness |
-| Major partnership (>$500K ACV potential) | CEO, Legal, Product, Engineering | Integration requirements, resource allocation, deal structure |
-| Business model pivot | CEO, Product, Finance, All functional leads | Org impact, financial replanning, product strategy realignment |
-| Unit economics turn negative at scale | CEO, Finance, Product, Sales | Root cause analysis, pricing review, cost structure optimization |
+| New market entry decision | `ceo-strategist`, `product-strategist`, `marketing-manager`, `legal-advisor` | Cross-functional launch planning, localization requirements, hiring plan |
+| Pricing model change | `ceo-strategist`, `product-strategist`, `fp-and-a-analyst`, `legal-advisor` | Revenue impact modeling, customer communication, contract updates |
+| Competitive threat (new entrant with >20% feature parity) | `ceo-strategist`, `product-strategist`, `marketing-manager` | Competitive response, positioning adjustment, product roadmap reprioritization |
+| Fundraising preparation begins | `ceo-strategist`, `fp-and-a-analyst`, `legal-advisor`, `product-strategist` | Data room prep, financial modeling, due diligence readiness |
+| Major partnership (>$500K ACV potential) | `ceo-strategist`, `legal-advisor`, `product-strategist` | Integration requirements, resource allocation, deal structure |
+| Business model pivot | `ceo-strategist`, `product-strategist`, `fp-and-a-analyst` | Org impact, financial replanning, product strategy realignment |
+| Unit economics turn negative at scale | `ceo-strategist`, `fp-and-a-analyst`, `product-strategist` | Root cause analysis, pricing review, cost structure optimization |
 
 ### Escalation Path
 
 ```
 Existential business risk (losing >30% revenue, regulatory shutdown, market collapse)
-  └── CEO + Business Strategist + Legal + Finance. Emergency board meeting if public/funded.
+  └── `ceo-strategist` + `legal-advisor` + `fp-and-a-analyst`. Emergency board meeting if public/funded.
 
 Strategic business decision (market entry, business model change, major pricing)
-  └── Business Strategist + CEO + Product + Finance. Decision within 2 weeks. Board informed.
+  └── `business-strategist` + `ceo-strategist` + `product-strategist` + `fp-and-a-analyst`. Decision within 2 weeks. Board informed.
 
 Tactical business decision (segment targeting, campaign optimization, channel mix)
-  └── Functional lead handles. Business Strategist consulted. No escalation needed.
+  └── Functional lead handles. `business-strategist` consulted. No escalation needed.
 ```
 
 ## Sub-Skills

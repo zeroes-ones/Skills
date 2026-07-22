@@ -19,10 +19,13 @@ output:
   path_hint: "./"
 chain:
   consumes_from:
+    - system-architect
     - embedded-engineer
     - firmware-developer
-  feeds_into:
     - performance-engineer
+  feeds_into:
+    - embedded-engineer
+    - firmware-developer
     - documentation-engineer
 ---
 # Hardware Architect
@@ -44,6 +47,12 @@ Request involves hardware design?
 │   └── → Mechanical engineer (not in library — consider general engineering guidance)
 ├── Electrical system design — schematics, component selection, power distribution
 │   └── → Electrical engineer (not in library — consider general engineering guidance)
+├── System-level architecture, product requirements, cost/power/performance tradeoffs
+│   └── → Invoke `system-architect` for cross-disciplinary architecture decisions
+├── Performance analysis, signal integrity, power integrity, thermal simulation
+│   └── → Invoke `performance-engineer` for SI/PI simulation and EMC pre-compliance
+├── Hardware documentation, architecture specifications, compliance test plans
+│   └── → Invoke `documentation-engineer` for architecture specs and design decision logs
 └── Unclear / need help routing
     └── → Default to hardware-architect and re-route if it's pure firmware
 ```
@@ -70,6 +79,47 @@ Request involves hardware design?
 - Making make-vs-buy decisions on IP blocks — licensing ARM cores, buying reference designs, custom silicon
 
 **Use `/embedded-engineer` instead when:** You're implementing firmware on a chosen MCU — writing device drivers, configuring peripherals, optimizing for power. Hardware-architect picks the platform; embedded-engineer builds on it.
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s — who to talk to, when, what to share -->
+
+Hardware architecture decisions cascade through the entire product development lifecycle. A wrong SoC selection costs 6+ months and $100K+ in respins. Every architectural decision must be validated with downstream teams before committing to silicon.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask | Decision Gate / Artifact |
+|-----------------|------|-------------------|--------------------------|
+| **System Architect** | Product requirements definition, system-level tradeoffs | Power budget, latency budgets, throughput requirements, cost targets | Gate: System architecture review before SoC downselect. Artifact: System requirements document with hardware constraints. |
+| **Embedded Engineer** | MCU/MPU selection, peripheral assignment, pin muxing, clock tree | Peripheral conflict analysis, GPIO drive strength, ADC reference, ISR latency budget | Gate: Pin mux review before schematic freeze. Artifact: Pin assignment spreadsheet with alternate functions. |
+| **Firmware Developer** | Memory map, boot pin strapping, secure element integration, flash partitioning | Flash/RAM sizing, external memory interface, secure element protocol, boot sequence | Gate: Memory map review before PCB layout. Artifact: Memory map document with linker script constraints. |
+| **Performance Engineer** | Signal integrity analysis, power integrity, thermal simulation, EMC pre-compliance | PCB stackup, impedance targets, decoupling strategy, thermal budget | Gate: Signal integrity sign-off before fab. Artifact: SI/PI simulation report with margin analysis. |
+| **Documentation Engineer** | Hardware architecture specification, design decisions log, compliance test plan | Architecture decisions, component selection rationale, regulatory requirements | Gate: Architecture spec finalized before detailed design. Artifact: Hardware architecture specification document. |
+
+### Communication Triggers
+
+| Trigger | Notify | Why | Decision Gate |
+|---------|--------|-----|---------------|
+| Silicon errata with no workaround | System Architect, Embedded Engineer, Firmware Developer | Chip reselection may be required | Gate: Reselection decision within 5 business days. |
+| BOM cost exceeds target >15% | System Architect, Product Manager | Design-to-cost review; component substitution | Gate: Cost review board approval before proceeding. |
+| EMC pre-compliance failure >6dB | Performance Engineer, Firmware Developer | PCB respin or shielding design | Gate: Fix-or-respin decision with VP Engineering. |
+| Power budget exceeded >20% | Embedded Engineer, Firmware Developer | PMIC reselection; power tree redesign | Gate: Power tree review before next prototype. |
+| Component EOL with no drop-in replacement | System Architect, Embedded Engineer | Redesign or lifetime buy | Gate: Redesign decision within 10 business days. |
+
+### Escalation Path
+
+```
+Silicon errata, no workaround? → System Architect → Chip reselection → +8 weeks schedule impact
+EMC failure >6dB over limit? → Performance Engineer → PCB respin → $15K-50K + 4-6 weeks
+BOM cost >25% over target? → Product Manager → Redesign or pricing adjustment
+Thermal junction temp exceeds rating? → Performance Engineer → Heatsink redesign or clock reduction
+```
+
+### Cross-Skill Chain
+
+```bash
+# System Architecture → Hardware Architecture → Embedded bring-up → Firmware → QA
+/system-architect && /hardware-architect && /embedded-engineer && /firmware-developer && /qa-engineer
+```
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->

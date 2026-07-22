@@ -1,17 +1,63 @@
 ---
 name: backend-developer
-description: "Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development."
+description: 'Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured
+  logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - backend-developer
+- backend-developer
 token_budget: 2835
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - algorithmic-trader
+  - api-designer
+  - code-reviewer
+  - database-designer
+  - documentation-engineer
+  - engineering-manager
+  - idea-to-spec
+  - migration-architect
+  - monorepo-manager
+  - performance-engineer
+  - platform-engineer
+  - privacy-engineer
+  - security-engineer
+  - security-reviewer
+  - staff-engineer
+  - system-architect
+  feeds_into:
+  - algorithmic-trader
+  - api-designer
+  - ci-cd-builder
+  - clinical-informatics-specialist
+  - code-reviewer
+  - customer-support-engineer
+  - data-engineer
+  - database-designer
+  - devops-engineer
+  - devrel-advocate
+  - docker-kubernetes
+  - embedded-engineer
+  - frontend-developer
+  - fullstack-developer
+  - llm-engineer
+  - market-data-engineer
+  - mobile-developer
+  - monorepo-manager
+  - observability-engineer
+  - performance-engineer
+  - privacy-engineer
+  - qa-engineer
+  - sales-engineer
+  - security-reviewer
+  - staff-engineer
+  - technical-writer
 ---
 # Backend Developer
 
@@ -28,6 +74,12 @@ What are you trying to do?
 ├── Set up a project from scratch → Jump to "Scale Depth" — pick your team size, follow the stack
 ├── Design the database schema → Invoke database-designer skill instead
 ├── Need deployment or infrastructure → Invoke devops-engineer skill instead
+├── Need API specification/contract → Invoke api-designer skill instead
+├── Need system architecture decisions → Invoke system-architect skill instead
+├── Need frontend implementation consuming this API → Invoke frontend-developer skill instead
+├── Need fullstack feature delivery → Invoke fullstack-developer skill instead
+├── Need security review of backend → Invoke security-reviewer skill instead
+├── Need QA/test strategy for backend → Invoke qa-engineer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -229,35 +281,31 @@ Common chains:
 - [Designing Data-Intensive Applications](https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/) — Martin Kleppmann
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Backend services are integration hubs — they connect databases, external APIs, frontends, and infrastructure. Proactive coordination prevents integration surprises.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `api-designer` | OpenAPI 3.1 spec, auth scheme, rate limits, error codes, pagination conventions | Before implementing any endpoint; contract-first development |
+| `database-designer` | ERD, schema DDL, indexing strategy, migration scripts, query performance baselines | Before implementing data access layer; schema changes |
+| `system-architect` | Service boundaries, technology stack decisions, inter-service contracts, deployment topology | Before choosing framework/language or defining service boundaries |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Frontend Developer** | API contract changes, new endpoints | OpenAPI spec, field deprecation timeline, breaking change migration path |
-| **Mobile Developer** | API changes affecting mobile clients | Same as frontend + rate limiting changes, push notification payload design |
-| **Fullstack Developer** | Shared monorepo features, tRPC/GraphQL schema changes | Type definitions, validation schemas, middleware behavior |
-| **Security Engineer** | Auth flows, PII handling, new dependencies | Auth implementation details, data classification, dependency inventory |
-| **DevOps Engineer** | Infrastructure changes, CI/CD, secrets | Resource requirements (CPU/memory), health check endpoints, migration steps |
-| **CI/CD Builder** | Pipeline design, deploy strategy | Build/test commands, environment variables, database migration scripts |
-| **QA Engineer** | Test environments, API testing | Test data requirements, API test scenarios, mock service endpoints |
-| **System Architect** | Service boundaries, data ownership | API design decisions, database schema changes, inter-service contracts |
-| **Data Engineer** | Data produced/consumed, event schemas | Event payload schemas, data freshness SLAs, webhook endpoints |
-| **Observability Engineer** | Instrumentation, SLOs | Metrics requirements, log format, trace context propagation, alert thresholds |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `frontend-developer` | OpenAPI spec, type-safe SDK, error response formats, pagination conventions | Frontend builds against wrong API shapes — costly rework |
+| `fullstack-developer` | API implementation, type definitions, validation schemas, middleware behavior | Fullstack features blocked on backend availability |
+| `devops-engineer` | Resource requirements (CPU/memory), health check endpoints, migration steps, build commands | Infrastructure can't be provisioned or CI/CD can't be configured |
+| `qa-engineer` | Test data requirements, API test scenarios, mock service endpoints, error response patterns | QA can't author integration tests without API implementation |
+| `security-reviewer` | Auth implementation details, data classification, dependency inventory, API surface | Security review can't assess implementation without understanding the code |
+| `mobile-developer` | API implementation with mobile-specific concerns (rate limiting, push notification payloads) | Mobile client development blocked on backend availability |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | API breaking change (field removal, type change) | Frontend, Mobile, Fullstack | Coordinated migration to avoid production errors |
 | Database migration with locking/downtime | DevOps, CI/CD Builder, QA | Deploy sequencing, test environment updates |
 | New external service dependency | Security Engineer, DevOps | Security review, network egress rules, secrets setup |
 | Auth flow change (token format, session behavior) | Security Engineer, Frontend, Mobile | Auth integration testing across all clients |
 | Performance degradation discovered | Observability Engineer, DevOps | Metrics review, incident readiness |
-| New async job/task worker | DevOps, Data Engineer | Queue setup, monitoring, retry/dead-letter configuration |
-| Schema change to shared event payloads | Data Engineer | Downstream pipeline compatibility |
 
 ### Escalation Path
 

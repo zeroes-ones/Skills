@@ -1,31 +1,36 @@
 ---
 name: medical-content-reviewer
-description: Clinical accuracy review of health content — medical misinformation detection and prevention, evidence-based content validation (use of citations, GRADE framework for evidence quality), community Q&A medical accuracy, health claims fact-checking, clinical guideline compliance, disclaimer and liability language, adverse event reporting triggers. Use when reviewing patient-facing content for clinical accuracy, building medical misinformation detection rules, or establishing a content review workflow.
+description: Clinical accuracy review of health content — medical misinformation detection and prevention, evidence-based content validation (use of citations, GRADE framework for evidence quality), community
+  Q&A medical accuracy, health claims fact-checking, clinical guideline compliance, disclaimer and liability language, adverse event reporting triggers. Use when reviewing patient-facing content for clinical
+  accuracy, building medical misinformation detection rules, or establishing a content review workflow.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-22
 tags:
-  - medical-content-review
-  - clinical-accuracy
-  - misinformation
-  - evidence-based-medicine
-  - health-content
+- medical-content-review
+- clinical-accuracy
+- misinformation
+- evidence-based-medicine
+- health-content
 token_budget: 3500
 output:
-  type: "document"
-  path_hint: "review/"
+  type: document
+  path_hint: review/
 chain:
   consumes_from:
-    - patient-health-educator
-    - content-strategist
-    - trust-safety-engineer
+  - ai-safety-engineer
+  - clinical-informatics-specialist
+  - compliance-officer
+  - legal-advisor
   feeds_into:
-    - compliance-officer
-    - legal-advisor
+  - ai-safety-health-reviewer
+  - content-policy-manager
+  - medical-illustrator
+  - patient-health-educator
   alternatives:
-    - compliance-officer
+  - compliance-officer
 ---
 # Medical Content Reviewer
 
@@ -41,7 +46,12 @@ What are you trying to do?
 ├── ASSESS whether a claim is evidence-based → Go to "Decision Trees > Evidence Quality Assessment"
 ├── WRITE medical disclaimers for app content → Jump to "Best Practices — Disclaimers"
 ├── REPORT a potential adverse event discovered in community content → Go to "Core Workflow" — Phase 4
-├── Need compliance/regulatory sign-off → Invoke compliance-officer after this skill
+├── Need compliance/regulatory sign-off → Invoke `compliance-officer` after this skill
+├── Need clinical terminology, FHIR, or EHR integration expertise? → Invoke `clinical-informatics-specialist` for coded clinical references and data standards
+├── Detected an adverse event or patient safety concern? → Invoke `crisis-response-manager` immediately — do NOT just delete the content
+├── Creating patient-facing education content? → Invoke `patient-health-educator` for health-literate content design; return here for clinical review
+├── Need AI safety review of health content? → Invoke `ai-safety-health-reviewer` for automated clinical validation guardrails
+├── Need content policy alignment for misinformation rules? → Invoke `content-policy-manager` for policy enforcement and triage criteria
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -67,6 +77,46 @@ These rules apply to *every* response this skill produces. Medical content revie
 - Identifying adverse event signals in community content that may need regulatory reporting
 - Evaluating whether a pharma partner's educational content meets your clinical accuracy standards
 - Auditing existing app content for outdated or inaccurate medical information
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s — table of who to talk to when -->
+Medical content review operates at the intersection of clinical accuracy, regulatory compliance, and patient safety. Every content approval carries clinical liability — coordination with clinical, regulatory, and content teams ensures evidence-based content that is legally defensible and medically safe.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask | Clinical Validation Gate |
+|-----------------|------|-------------------|--------------------------|
+| **Clinical Informatics Specialist** | Content requiring FHIR terminology mapping, EHR integration context, clinical workflow validation | Terminology codes (SNOMED, LOINC, ICD-10), clinical workflow context, data standard alignment | Gate: All coded clinical references must map to validated ValueSets before content approval. |
+| **Compliance Officer** | Regulatory review of health claims, FDA labeling compliance, disclaimer language | Content for regulatory review, health claim assessment, labeling compliance check | Gate: Any content making therapeutic claims requires regulatory sign-off before publication. Artifact: Regulatory review checklist with sign-off. |
+| **Legal Advisor** | Liability review of content, disclaimer adequacy, adverse event reporting obligation assessment | Content with potential liability risk, AE trigger language, disclaimer effectiveness | Gate: Content with liability exposure must receive legal review before publication. Artifact: Legal review memo. |
+| **Content Policy Manager** | Content policy alignment, misinformation flagging rules, community content triage criteria | Medical misinformation detection rules, content policy gaps, triage criteria updates | Gate: Misinformation detection rules validated against clinical evidence before deployment. |
+| **Patient Health Educator** | Patient-facing content for clinical accuracy review, readability assessment, health literacy validation | Education content drafts, behavior change frameworks, health literacy scores | Gate: All patient education content must pass clinical accuracy review before reaching patients. Artifact: Clinical accuracy sign-off form. |
+| **AI Safety Health Reviewer** | AI-generated health content review, automated clinical validation, safety guardrail testing | AI content outputs, safety validation results, guardrail effectiveness data | Gate: AI-generated health content must pass human clinical review before patient exposure. Artifact: AI safety validation report. |
+
+### Regulatory Handoffs & Patient Safety Protocols
+
+| Handoff Trigger | Route To | Protocol | Regulatory Timeline |
+|----------------|----------|----------|---------------------|
+| Adverse event signal detected in community content | `crisis-response-manager` | Flag → Isolate content → Do NOT delete → Document timestamp → Transfer to crisis response | Within 1 hour of detection |
+| Content contains unapproved drug claims (off-label promotion) | `compliance-officer` → `legal-advisor` | Flag content → Halt publication → Regulatory review → Corrective action | Before publication or within 24 hours of discovery |
+| Content contradicts FDA-approved labeling | `compliance-officer` → `clinical-informatics-specialist` | Flag → Clinical review → Regulatory assessment → Content correction or removal | Within 48 hours |
+| Medical misinformation detected at scale (>100 posts) | `content-policy-manager` → `crisis-response-manager` | Triage → Pattern analysis → Policy update → Community notification | Within 24 hours |
+| Patient safety concern (self-harm, suicide risk, abuse) | `crisis-response-manager` (immediately) | Warm handoff protocol → Do NOT leave patient with automated response → Document | Within 5 minutes |
+
+### Escalation Path
+
+```
+Patient safety concern (self-harm, AE, abuse)? → crisis-response-manager. Within 5 minutes.
+Regulatory concern (off-label claims, misleading content)? → compliance-officer + legal-advisor. Within 24 hours.
+Content liability risk (potential lawsuit)? → legal-advisor + compliance-officer. Within 48 hours.
+Systematic misinformation campaign detected? → content-policy-manager + crisis-response-manager. Within 24 hours.
+```
+
+### Decision Gates
+
+- **Evidence quality gate:** Every treatment claim must cite GRADE-assessed evidence (High/Moderate/Low/Very Low). Claims supported only by Low or Very Low evidence require explicit disclaimer: "Limited evidence supports this claim — talk to your doctor."
+- **Regulatory review gate:** Any content making therapeutic claims about prescription drugs, medical devices, or biologic products requires regulatory review before publication. No exceptions.
+- **Clinical accuracy sign-off:** All patient-facing health content requires sign-off from a qualified clinical reviewer before publication. Content without sign-off is held from publication.
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->

@@ -18,12 +18,13 @@ output:
   path_hint: "./"
 chain:
   consumes_from:
-    - recruiting
     - hr-manager
+    - recruiting
     - legal-advisor
   feeds_into:
-    - ceo-strategist
     - hr-manager
+    - recruiting
+    - engineering-manager
 ---
 
 # People Operations & Employee Experience
@@ -41,6 +42,9 @@ What are you trying to do?
 ├── Run an engagement survey → Go to "Phase 5: Employee Engagement & Retention"
 ├── Handle an offboarding / exit → Jump to "Phase 6: Offboarding & Compliance"
 ├── Choose or implement an HRIS → Go to "HRIS Implementation" under Best Practices
+├── Need compliance / legal review of policy → Invoke `legal-advisor` skill
+├── Need performance management cycle → Invoke `hr-manager` skill
+├── Need engineering team onboarding → Invoke `engineering-manager` skill
 └── Don't know where to start? → Start at "Phase 1: Onboarding Program Design"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -274,11 +278,12 @@ python3 scripts/retention_risk.py --high-performers-only --output json
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
-| **Recruiting** | New hire starts, onboarding feedback loops, comp band misalignment with market | Signed offer details, candidate experience feedback from new hires, comp bands that are losing candidates |
-| **HR Manager** | Performance cycles, PIP status, retention risks, org design changes, compliance program rollouts | Cycle timelines, calibration results, high-risk retention flags, FLSA audit findings |
+| **Recruiting** | New hire starts, onboarding feedback loops, comp band misalignment with market | Signed offer details, candidate experience feedback from new hires, comp bands that are losing candidates. **Decision gate:** Is offer acceptance rate > 60%? → comp bands competitive. **Artifact:** offer acceptance rate dashboard + candidate experience NPS. |
+| **HR Manager** | Performance cycles, PIP status, retention risks, org design changes, compliance program rollouts | Cycle timelines, calibration results, high-risk retention flags, FLSA audit findings. **Decision gate:** Are calibration sessions completed before comp decisions? → fair process. **Artifact:** calibration session summary + promotion approval list. |
 | **Legal Advisor** | Offer letter updates, employment law changes, compliance audit findings, offboarding terminations | Policy language review, state law change alerts, I-9 audit results, separation agreement templates |
 | **CEO Strategist** | Comp philosophy approval, workforce planning input, engagement survey results, culture program ROI | Annual comp review packet, eNPS trends, retention analytics, program budget requests |
 | **Finance (Corporate Finance)** | Comp band cost modeling, headcount budget vs actual, benefits cost projections | Band impact analysis, headcount reconciliation, benefits renewal data |
+| **Engineering Manager** | Team-level onboarding, performance review participation, retention risks, leveling decisions | Team structure context, skill gap analysis, promotion readiness assessments. **Decision gate:** Is manager-to-IC ratio within target range? → team scalable. **Artifact:** team health dashboard + promotion pipeline. |
 
 ### Cross-Skill Integration Chains
 <!-- STANDARD: 3min — actual command sequences these skills execute together -->

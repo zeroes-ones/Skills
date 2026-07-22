@@ -1,17 +1,32 @@
 ---
 name: security-reviewer
-description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API security, dependency and container security, IaC and mobile security, CVSS-aligned severity grading, and structured review reports.
+description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API security, dependency and container
+  security, IaC and mobile security, CVSS-aligned severity grading, and structured review reports.
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - security-reviewer
+- security-reviewer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - backend-developer
+  - devops-engineer
+  - firmware-developer
+  - fullstack-developer
+  - mobile-developer
+  - qa-engineer
+  - security-engineer
+  feeds_into:
+  - backend-developer
+  - code-reviewer
+  - incident-responder
+  - qa-engineer
 ---
 # Security Reviewer
 
@@ -30,6 +45,11 @@ What are you trying to do?
 ├── API security review (rate limiting, CORS, auth, mass assignment) → Jump to "API Security Review"
 ├── Cloud/IaC security review → Go to "Core Workflow > Phase 3" and "Infrastructure as Code Security"
 ├── Mobile security review (secure storage, cert pinning, obfuscation) → Go to "Mobile Security Review"
+├── Need security architecture and threat model → Invoke security-engineer skill instead
+├── Need backend security implementation → Invoke backend-developer skill instead
+├── Need code review (general, not security-specific) → Invoke code-reviewer skill instead
+├── Need DevOps security (containers, IaC) → Invoke devops-engineer skill instead
+├── Need incident response for active breach → Invoke incident-responder skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — define scope, identify threat actors, then follow STRIDE
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -561,26 +581,24 @@ Every finding must follow this structured format:
 - **Know thy threat model**: A startup MVP has a different threat model than a bank. Calibrate review depth and severity to the actual risk.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Security reviewers do not operate in isolation. Vulnerabilities span backend, frontend, infrastructure, and mobile — coordination with domain experts is essential for accurate severity assessment, effective remediation, and organization-wide security posture improvement.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `security-engineer` | Threat model, security architecture, trust boundaries, defense-in-depth strategy | Before reviewing code; ensures review aligns with organizational security posture |
+| `backend-developer` | API implementation, auth code, database queries, dependency inventory, data classification | When PR is submitted for security review; understanding implementation is prerequisite |
+| `devops-engineer` | IaC (Terraform/Pulumi), container configs, CI/CD pipeline, secrets management, IAM policies | When infrastructure changes are submitted; infrastructure misconfiguration is a top attack vector |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | API security, auth implementation, database queries | Vulnerability location with line numbers, proposed fix code, context on exploitation path |
-| **Frontend Developer** | XSS, CSRF, CSP, client-side storage, auth token handling | Input/output context, CSP configuration, secure cookie attributes, content sanitization approach |
-| **Mobile Developer** | Certificate pinning, secure storage, code obfuscation, biometric auth | Secure storage patterns (Keychain/Keystore), pinning implementation, root/jailbreak detection bypasses |
-| **DevOps Engineer** | Container hardening, IaC audit, CI/CD security, secrets management | Non-root user, read-only fs, pinned base images, least-privilege IAM, secret scanning in pipeline |
-| **Incident Responder** | Active exploitation, zero-day disclosure, breach containment | IoCs identified, CVSS vector, affected components, mitigation priority, detection rules to add |
-| **Compliance Officer** | PII exposure, regulatory impact, audit evidence | Affected data classifications, regulatory frameworks triggered (GDPR, HIPAA, PCI DSS), notification timelines |
-| **System Architect** | Architectural security concerns, trust boundaries, data flow risks | Threat model findings, trust boundary violations, defense-in-depth gaps requiring architectural changes |
-| **Code Reviewer** | Pre-merge security review, security-sensitive PRs | Security findings for joint severity assessment, patterns to add to code review checklist |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `code-reviewer` | Security findings for joint severity assessment, patterns to add to code review checklist | Code reviewers merge without security expertise — vulnerabilities reach production |
+| `backend-developer` | Vulnerability location with line numbers, proposed fix code, exploitation path context | Developer can't fix vulnerabilities without actionable guidance from security review |
+| `qa-engineer` | Auth test scenarios, input validation edge cases, security test cases derived from findings | QA can't write targeted security regression tests without security context |
+| `incident-responder` | IoCs identified, CVSS vector, affected components, mitigation priority, detection rules to add | Incident response delayed — missing critical threat intelligence from code analysis |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | Critical vulnerability found in production | Incident Responder, DevOps Lead, CTO | Incident response activation; may require hotfix or rollback |
 | Data breach confirmed (PII, PHI, financial data) | Compliance Officer, Legal Advisor, CISO | Regulatory notification clock starts; evidence preservation required |
 | Vulnerability pattern found across 5+ services | System Architect, Engineering Manager | Systemic issue — root cause may be architectural or framework-level |

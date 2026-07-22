@@ -1,29 +1,42 @@
 ---
 name: marketing-manager
-description: Product marketing, positioning, messaging, competitive analysis, launch management, buyer persona development, sales enablement (battle cards, pitch decks), analyst relations (Gartner, Forrester), pricing & packaging strategy, campaign briefs, brand-to-demand connection.
+description: Product marketing, positioning, messaging, competitive analysis, launch management, buyer persona development, sales enablement (battle cards, pitch decks), analyst relations (Gartner, Forrester),
+  pricing & packaging strategy, campaign briefs, brand-to-demand connection.
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - marketing-manager
-  - product-marketing
-  - pmm
+- marketing-manager
+- product-marketing
+- pmm
 token_budget: 3900
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - product-manager
-    - business-strategist
+  - bizdev-manager
+  - business-strategist
+  - content-strategist
+  - demand-generation
+  - devrel-advocate
+  - growth-engineer
+  - partnerships-manager
+  - product-marketing-manager
+  - product-strategist
+  - revops-manager
+  - seo-specialist
   feeds_into:
-    - demand-generation
-    - content-strategist
-    - sales-engineer
+  - bizdev-manager
+  - brand-guidelines
+  - demand-generation
+  - product-marketing-manager
+  - revops-manager
+  - sales-engineer
   alternatives:
-    - growth-engineer
+  - growth-engineer
 ---
 # Marketing Manager (Product Marketing Manager / PMM)
 
@@ -42,6 +55,11 @@ What are you trying to do?
 ├── Set pricing & packaging → Go to "Decision Trees > Pricing & Packaging Strategy"
 ├── Manage analyst relations → Jump to "Core Workflow > Phase 5: Analyst Relations"
 ├── Write a campaign brief → Go to "Core Workflow > Phase 4: Campaign Brief"
+├── Need campaign execution across paid channels → Invoke `demand-generation` skill
+├── Need partnership deal structure / JBP → Invoke `bizdev-manager` skill
+├── Need product roadmap for launch timing → Invoke `product-strategist` skill
+├── Need content assets for campaigns → Invoke `content-strategist` skill
+├── Need product-level launch execution → Invoke `product-marketing-manager` skill
 └── Not sure where to start? → Start at "Core Workflow > Phase 1"
 ```
 
@@ -220,12 +238,15 @@ Analyst relations (AR) is a long game, not a deal-sprint. Strategy: (1) Identify
 |-----------------|------|-------------------|
 | **Product Manager** | Feature launches, roadmap alignment, competitive gaps | Product capabilities, roadmap timeline, beta customer access, feature priorities |
 | **Business Strategist** | Market entry, pricing strategy, GTM planning | TAM/SAM/SOM data, business model, revenue targets, market segmentation |
-| **Demand Generation** | Campaign execution, paid media, lead gen programs | Campaign briefs, target audience, messaging, asset requirements, MQL targets |
-| **Content Strategist** | Content marketing assets, blog, ebooks, webinars | Messaging framework, buyer personas, campaign themes, SEO keywords |
-| **Sales Engineer** | Battle cards, demo narratives, competitive positioning | Win/loss data, technical differentiators, customer evidence, objection patterns |
+| **Demand Generation** | Campaign execution, paid media, lead gen programs | Campaign briefs, target audience, messaging, asset requirements, MQL targets. **Decision gate:** Does campaign messaging pass logo-swap test? → launch ready. **Artifact:** campaign brief with positioning framework. |
+| **Content Strategist** | Content marketing assets, blog, ebooks, webinars | Messaging framework, buyer personas, campaign themes, SEO keywords. **Decision gate:** Does content map to a specific buyer journey stage? → publish. **Artifact:** content calendar with persona-to-asset mapping. |
+| **Sales Engineer** | Battle cards, demo narratives, competitive positioning | Win/loss data, technical differentiators, customer evidence, objection patterns. **Decision gate:** Is battle card updated within 2 weeks of competitor launch? → sales-ready. **Artifact:** battle card + demo narrative script. |
 | **UX Researcher** | Persona research, messaging validation, buyer behavior | Research findings, persona insights, buyer journey mapping |
 | **CEO Strategist** | Company positioning, major launches, pricing changes | Strategic narrative, investor messaging, company-level positioning |
 | **Growth Engineer** | Messaging A/B tests, landing page CRO, conversion optimization | Variant messaging, hypothesis, experiment results, conversion data |
+| **BizDev Manager** | Co-marketing agreements, partner GTM campaigns | Partner positioning, co-branding guidelines, joint campaign briefs. **Decision gate:** Is partner brand compatible (no conflicting positioning)? → co-market. **Artifact:** co-marketing agreement + joint campaign plan. |
+| **Product Strategist** | Product vision, market category definition, competitive landscape | Category-level positioning, buy-vs-build analysis, market timing. **Decision gate:** Is the product in an existing category or creating a new one? → positioning strategy diverges. **Artifact:** category analysis + positioning recommendation. |
+| **Product Marketing Manager** | Product-level launch execution, feature-level messaging | Feature briefs, launch checklists, sales enablement for specific products. **Decision gate:** Is product-level messaging derivative of company positioning? → aligned. **Artifact:** product launch kit (messaging, battle cards, demo assets). |
 
 ### Communication Triggers — When to Proactively Notify
 

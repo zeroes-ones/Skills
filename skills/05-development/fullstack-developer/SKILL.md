@@ -12,6 +12,16 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from:
+    - backend-developer
+    - frontend-developer
+    - api-designer
+    - database-designer
+  feeds_into:
+    - devops-engineer
+    - qa-engineer
+    - security-reviewer
 ---
 # Fullstack Developer
 
@@ -29,6 +39,13 @@ What are you trying to do?
 ├── Implement authentication (NextAuth/Clerk/Lucia) → Go to "references/auth-patterns.md"
 ├── Set up a monorepo → Jump to "Decision Trees > Monorepo vs Polyrepo"
 ├── Deploy a full-stack app → Go to "Core Workflow > Phase 5 (Deployment)"
+├── Need deep frontend patterns → Invoke frontend-developer skill instead
+├── Need deep backend patterns → Invoke backend-developer skill instead
+├── Need API contract design → Invoke api-designer skill instead
+├── Need database schema design → Invoke database-designer skill instead
+├── Need security review → Invoke security-reviewer skill instead
+├── Need DevOps/deploy pipeline → Invoke devops-engineer skill instead
+├── Need QA test strategy → Invoke qa-engineer skill instead
 └── Don't know where to start? → Describe the feature in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -236,29 +253,28 @@ Debugging issues that cross the frontend-backend boundary
 - **Security mindset**: Validate on both client (UX) and server (security). Never trust client input. Sanitize user-generated content. CSP headers, CSRF tokens.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Fullstack developers own features end-to-end — database to UI. This breadth means they coordinate with nearly every role: backend for API design, frontend for UX patterns, DevOps for deployment, and security for auth hardening.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `backend-developer` | API implementation, type definitions, validation schemas, middleware behavior | Before wiring frontend to backend; ensures data contract alignment |
+| `frontend-developer` | Component APIs, design token alignment, state management conventions, UI patterns | Before building UI that consumes the full-stack; avoids duplication |
+| `api-designer` | OpenAPI 3.1 spec, auth scheme, error codes, pagination conventions | Before integrating any API; contract-first approach |
+| `database-designer` | ERD, schema DDL, indexing strategy, migration scripts, query performance baselines | Before implementing data access layer; schema must exist first |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Shared API ownership, separate backend services | API contract boundaries, service ownership, middleware compatibility |
-| **Frontend Developer** | UI patterns, component library usage | Shared component API, design token alignment, state management conventions |
-| **Database Designer** | Schema changes, migration strategy | Migration scripts, index recommendations, query performance expectations |
-| **Security Engineer** | Auth flows spanning client-server | Session management approach (JWT vs cookies), CSRF protection, input validation strategy |
-| **DevOps Engineer** | Deployment pipeline, environment config | Full-stack build steps, environment variables, database migration in CI/CD |
-| **QA Engineer** | E2E test scenarios, integration testing | Critical user paths, test data seeding, API mocking strategy for error states |
-| **Observability Engineer** | Distributed tracing, error tracking | Correlation ID propagation (frontend → API → DB), structured log format, RUM integration |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | Full-stack build steps, environment variables, database migration in CI/CD, deploy configuration | DevOps can't build CI/CD pipeline without understanding the full stack |
+| `qa-engineer` | Critical user paths end-to-end, test data seeding, API mocking strategy for error states | QA can't design integration tests without full-stack context |
+| `security-reviewer` | Auth flows spanning client-server, session management approach, CSRF protection, input validation strategy | Security can't review auth without understanding client-to-server flow |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | Database schema change requiring migration | Backend, DevOps, QA | Deployment sequencing, test environment reset, rollback plan |
 | Auth flow redesign (new provider, session change) | Security Engineer, Frontend | Security review, cross-client impact assessment |
 | Monorepo structure change | All developers in repo | Build pipeline impact, import path changes, local dev setup |
-| Shared package breaking change | Backend, Frontend, Mobile (if consumers) | Version bump coordination, migration guide |
+| Shared package breaking change | Backend, Frontend, Mobile | Version bump coordination, migration guide |
 | Deployment blocking issue | DevOps | Rollback decision, hotfix path |
 
 ### Escalation Path
@@ -269,9 +285,6 @@ Auth vulnerability discovered? → Security Engineer → CTO Advisor
 Cross-service integration broken? → Backend Developer → System Architect
 Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 ```
-
-
-**What good looks like:** Feature works end-to-end: user clicks button → API call → database write → UI updates. TypeScript types shared between frontend and backend with zero contract drift. CI pipeline runs full-stack tests in under 10 minutes.
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 

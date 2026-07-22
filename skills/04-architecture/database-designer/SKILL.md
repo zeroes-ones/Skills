@@ -1,17 +1,32 @@
 ---
 name: database-designer
-description: "Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization."
+description: 'Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database
+  design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization.'
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - database-designer
+- database-designer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - api-designer
+  - backend-developer
+  - idea-to-spec
+  - system-architect
+  feeds_into:
+  - api-designer
+  - backend-developer
+  - data-engineer
+  - database-reliability-engineer
+  - fullstack-developer
+  - migration-architect
+  - performance-engineer
 ---
 # Database Designer
 
@@ -28,6 +43,11 @@ What are you trying to do?
 ├── Choose between relational, document, or graph → Start at "Decision Trees > SQL vs NoSQL" then "Data Modeling Patterns"
 ├── Optimize a slow query → Go to "references/query-optimization-guide.md"
 ├── Model time-series or event data → Jump to "Data Modeling > Time-Series & Event Sourcing"
+├── Need the overall system architecture first → Invoke system-architect skill instead
+├── Need API design that this schema supports → Invoke api-designer skill instead
+├── Need backend implementation using this schema → Invoke backend-developer skill instead
+├── Need to build data pipelines (ETL/ELT) → Invoke data-engineer skill instead
+├── Need database reliability and operations → Invoke database-reliability-engineer skill instead
 └── Don't know where to start? → Describe your data and access patterns and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -256,34 +276,19 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `database-selection` | New project, scaling event | This file — When Postgres is All You Need |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Database design touches every layer of the stack. A schema mistake cascades into application bugs, performance incidents, and migration pain — coordination prevents this.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Bounded context map, data ownership boundaries, multi-tenancy model, scaling strategy | Before designing the logical data model; ensures schema aligns with service topology |
+| `api-designer` | Access patterns (read/write ratios), query patterns, expected QPS, pagination strategy | Before designing tables and indexes; query patterns drive schema design |
+| `backend-developer` | ORM/framework constraints, connection pooling requirements, transaction boundary needs | Before finalizing schema for ORM compatibility and query construction patterns |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **System Architect** | New service data needs, CQRS/event sourcing, multi-tenancy model | Data model, access patterns, consistency requirements, read/write ratios, scaling strategy |
-| **API Designer** | API endpoints that query or mutate data, N+1 risks, response shape | Query patterns, expected QPS, pagination strategy, field-level access, response size budgets |
-| **Backend Developer** | ORM usage, query construction, migration tooling, connection management | Schema design, migration scripts, query review, connection pool settings, transaction boundaries |
-| **Performance Engineer** | Slow queries, index optimization, connection pool sizing, read replica routing | Query execution plans, hot queries, workload patterns (OLTP/OLAP), cache hit rates |
-| **DevOps / Platform Engineer** | Database provisioning, backup/recovery, DR planning, monitoring | Instance sizing, HA configuration, backup schedule, RPO/RTO, monitoring thresholds |
-| **Security Engineer** | Data classification, encryption (at rest, in transit), PII handling, audit logging | Sensitive data identification, encryption strategy, column-level access, data retention policy |
-| **Data Engineer / Analytics** | ETL/ELT pipelines, data warehouse, BI integration, CDC | Read replica access, change data capture, schema compatibility, impact of schema changes on pipelines |
-| **Migration Architect** | Database migration (expand-contract, dual-write, backfill) | Schema evolution plan, data migration scripts, consistency verification, rollback strategy |
-| **Chaos Engineer** | Database failure injection (primary failure, replica lag, connection exhaustion) | Failure modes, recovery procedures, blast radius, steady-state metrics |
-
-### Communication Triggers — When to Proactively Notify
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Schema migration planned (new table, column change, index change) | Backend Developers, API Designer, Data Engineer | Impact on queries, API responses, ETL pipelines; migration strategy (online, maintenance window) |
-| Query performance degradation (p95 > 2x baseline, new sequential scan on large table) | Performance Engineer, Backend Lead, System Architect | Root cause (missing index, stats stale, data volume), fix priority, query rewrite or new index |
-| Database approaching capacity (storage >70%, connections >70%, replication lag growing) | DevOps, System Architect, Performance Engineer | Scaling strategy: vertical, read replicas, sharding, archiving |
-| Breaking schema change required (column rename, type change, table restructure) | All consuming services, API Designer, Data Engineer | Expand-contract migration plan, compatibility window, deprecation timeline |
-| Data corruption or integrity issue detected | Security Engineer, DevOps, All consuming services | Severity assessment, point-in-time recovery, affected rows/tables, root cause |
-| New data classification (PII, PCI, HIPAA compliance requirement) | Security Engineer, DevOps, Legal | Encryption, access control, audit logging, retention policy, data residency |
-| Database technology evaluation (considering new DB for specific workload) | System Architect, DevOps, Performance Engineer | Evaluation criteria, benchmark results, migration complexity, operational readiness |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `backend-developer` | ERD, schema DDL, indexing strategy, migration scripts (up + down), query performance baselines | Backend can't implement data access layer without schema — blocked development |
+| `data-engineer` | Read replica access patterns, CDC configuration, schema compatibility contract, data freshness SLAs | ETL pipelines break on schema drift; BI reports go stale |
+| `database-reliability-engineer` | Instance sizing requirements, connection pool settings, backup/RPO-RTO targets, HA topology | Database may be provisioned incorrectly — performance incidents in production |
+| `api-designer` | Query complexity feedback, N+1 risk flags, response shape constraints from data model | API endpoints may be designed that the database can't support efficiently |
 
 ### Escalation Path
 

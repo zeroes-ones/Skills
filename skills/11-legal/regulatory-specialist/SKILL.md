@@ -4,14 +4,23 @@ description: FDA 21 CFR Part 11, ISO 13485, MDR, HIPAA compliance, GxP validatio
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - regulatory-specialist
+- regulatory-specialist
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - compliance-officer
+  - legal-advisor
+  feeds_into:
+  - ai-safety-health-reviewer
+  - clinical-informatics-specialist
+  - compliance-officer
+  - content-policy-manager
 ---
 # Regulatory Specialist
 
@@ -47,6 +56,11 @@ What are you trying to do?
 │   └── Determining regulatory pathway → Start at "Decision Trees > SaMD Classification"
 ├── Quality management systems
 │   └── QMS design or audit prep → Go to "Sub-Skills > QMS Implementation"
+├── Cross-skill routing
+│   ├── Privacy/patient data compliance → Route to `gdpr-privacy`
+│   ├── Contract/regulatory interpretation → Route to `legal-advisor`
+│   ├── General compliance program → Route to `compliance-officer`
+│   └── Clinical workflow integration → Route to `clinical-informatics-specialist`
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -326,6 +340,28 @@ Do not read the entire skill. Follow the route above and read only the sections 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Regulatory compliance in healthcare, finance, and safety-critical domains requires deep cross-functional coordination. Engineering, quality, and legal all own pieces of the compliance puzzle.
+
+### Decision Gates & Artifacts
+
+| Decision Gate | Trigger | Artifact / Deliverable |
+|---------------|---------|------------------------|
+| SaMD classification determined | New medical device software product or feature | Classification memo (Class I/II/III or MDR Class I/IIa/IIb/III) + regulatory pathway decision |
+| 510(k) substantial equivalence established | Premarket submission preparation | Predicate device analysis + substantial equivalence comparison table |
+| QMS validation gate passed | System change or initial deployment | IQ/OQ/PQ validation protocols + traceability matrix + validation summary report |
+| HIPAA business associate determination made | Entity handling PHI | BAA determination + signed Business Associate Agreement if applicable |
+| Data integrity ALCOA+ verified | Audit trail or electronic record system audit | Data integrity assessment + ALCOA+ conformance report |
+| Regulatory submission ready | 510(k), PMA, or CE marking technical file compiled | Submission package + regulatory review checklist + eCopy/STeP validation |
+| Adverse event reportable | Device malfunction, serious injury, or death | MDR vigilance report within 15-30 day deadline + corrective action plan if needed |
+
+### Route to Other Skills
+
+| Request Pattern | Route To | Why |
+|-----------------|----------|-----|
+| Contract review, regulatory interpretation, enforcement response | `legal-advisor` | Legal analysis of regulations, enforcement risk, and contract terms |
+| Patient data privacy, GDPR-HIPAA intersection, data subject rights | `gdpr-privacy` | Privacy-specific compliance for health data and cross-border transfers |
+| Cross-domain compliance programs, audit readiness, regulatory filings | `compliance-officer` | Program-level governance spanning multiple regulatory frameworks |
+| Clinical workflow integration, EHR interoperability, clinical decision support | `clinical-informatics-specialist` | Clinical domain expertise for SaMD intended use and workflow validation |
+| Content moderation for health claims, medical device marketing | `content-policy-manager` | Platform policies for health-related content and medical claims |
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|

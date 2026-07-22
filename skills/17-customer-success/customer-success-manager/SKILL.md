@@ -24,7 +24,8 @@ chain:
   feeds_into:
     - account-manager
     - product-manager
-    - customer-support-engineer
+    - growth-engineer
+    - revops-manager
 ---
 # Customer Success Manager
 
@@ -42,6 +43,9 @@ What are you trying to do?
 ├── Launch a Voice of Customer (VoC) program → Go to "Core Workflow > Phase 6"
 ├── Define success metrics (NRR, GRR, health scores) → Start at "Decision Trees > Metric Selection"
 ├── Not sure? → Start at "Ground Rules" then "When to Use"
+├── Need account plan / renewal strategy → Invoke `account-manager` skill
+├── Need expansion / growth engineering → Invoke `growth-engineer` skill
+├── Need revenue analytics / NRR dashboard → Invoke `revops-manager` skill
 └── Customer wants to leave → Jump to "Core Workflow > Phase 4: Churn Intervention" immediately
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -262,13 +266,14 @@ Build systematic feedback collection: **NPS surveys** — quarterly, transaction
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Sales Engineer** | Handoff from pre-sale to post-sale | Technical environment details, promised capabilities, implementation requirements, customer success criteria from the sales cycle |
-| **Account Manager** | Renewal timeline, expansion opportunities, QBRs | Health score, adoption data, churn risk, expansion signals. Joint QBRs. Align on renewal strategy. |
-| **Product Manager** | Feature gaps causing churn, VoC insights, roadmap requests | Top churn reasons by revenue impact, top feature requests ranked by ACV at risk, adoption blockers. Quarterly churn post-mortem. |
+| **Account Manager** | Renewal timeline, expansion opportunities, QBRs | Health score, adoption data, churn risk, expansion signals. Joint QBRs. Align on renewal strategy. **Decision gate:** Is health score > 70 and adoption > 60%? → expansion viable. **Artifact:** joint QBR deck with health + renewal alignment. |
+| **Product Manager** | Feature gaps causing churn, VoC insights, roadmap requests | Top churn reasons by revenue impact, top feature requests ranked by ACV at risk, adoption blockers. Quarterly churn post-mortem. **Decision gate:** Does churn root cause point to product gap (not service/support)? → roadmap input. **Artifact:** churn post-mortem report + VoC-ranked feature requests. |
 | **Customer Support Engineer** | Support ticket patterns, bug escalation, knowledge gaps | Account context for escalated tickets, customer sentiment, pattern identification across accounts. Flag repeat issues. |
 | **CEO Strategist** | Strategic accounts (>$100K ACV) at risk, systemic churn issues | Churn trend analysis, retention investment case, NRR trajectory vs board targets |
 | **UX Researcher** | Onboarding friction, feature adoption barriers, VoC deep dives | Customer cohorts for research recruitment, adoption data by workflow, specific pain point hypotheses |
-| **Growth Engineer** | Product-led growth signals, usage-based expansion triggers | Usage data patterns, feature adoption funnels, self-serve upgrade path optimization |
+| **Growth Engineer** | Product-led growth signals, usage-based expansion triggers | Usage data patterns, feature adoption funnels, self-serve upgrade path optimization. **Decision gate:** Is usage pattern indicating expansion readiness (3+ power users, >80% feature adoption)? → expansion qualified. **Artifact:** expansion signal report + usage-to-revenue correlation. |
 | **Legal Advisor** | Save offer terms, contract amendments for at-risk accounts | Proposed discount structures, contract extension language, SLA modifications |
+| **RevOps Manager** | NRR tracking, churn analytics, health score integration with pipeline | Churn rate by segment, NRR trends, health score correlation with renewal outcomes. **Decision gate:** Is NRR > 110%? → customer success is a growth engine. **Artifact:** NRR dashboard + health-score-to-renewal correlation analysis. |
 
 ### Communication Triggers — When to Proactively Notify
 

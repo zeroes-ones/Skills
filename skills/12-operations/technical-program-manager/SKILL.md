@@ -1,17 +1,29 @@
 ---
 name: technical-program-manager
-description: "Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS: technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]"
+description: 'Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk
+  management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS:
+  technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]'
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - technical-program-manager
+- technical-program-manager
 token_budget: 3285
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - engineering-manager
+  - project-manager
+  - scrum-master
+  - system-architect
+  feeds_into:
+  - director-engineering
+  - project-manager
+  - vp-engineering
 ---
 # Technical Program Manager
 
@@ -28,6 +40,12 @@ What are you trying to do?
 ├── Executive reporting → Jump to "Stakeholder Communication" under Sub-Skills
 ├── Resource planning across programs → Go to "Risk & Change Management" under Sub-Skills
 ├── Managing program-level risk → Jump to "Risk & Change Management" under Sub-Skills
+├── Single-project planning with WBS, Gantt? → Route to `project-manager`
+├── Team-level sprint execution needed? → Route to `scrum-master`
+├── Deep architecture decision needed? → Route to `system-architect`
+├── Resource allocation across teams? → Route to `engineering-manager`
+├── Coordinated multi-service release? → Route to `release-manager`
+├── Cross-team API contract definition? → Route to `api-designer`
 └── Don't know where to start? → Start at "Program Scoping"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -142,6 +160,16 @@ IS A MIGRATION OR DEPRECATION INVOLVED?
 <!-- QUICK: 30s -- table of who to talk to when -->
 The TPM is the central coordination point for multi-team technical programs. Unlike the PM (who coordinates within a project), the TPM coordinates *across* projects, teams, and sometimes organizations.
 
+### Decision Gates & Artifacts
+
+- **Program Charter Approval Gate**: Program charter (problem statement, success criteria, scope boundaries, timeline estimate, resource ask) must be signed by sponsor before work begins. Output: signed charter document.
+- **ADR/RFC Review Gate**: Architecture Decision Records and RFCs circulate for 1-2 weeks of feedback. CTO or `system-architect` approval required for cross-cutting architectural decisions. Output: approved ADR with decision, rationale, and consequences.
+- **Milestone Go/No-Go Gate**: Each program milestone has entry/exit criteria. Milestone review with sponsor determines go (proceed), no-go (stop), or conditional-go (proceed with specific remediations). Output: milestone review decision with action items.
+- **Dependency Health Gate**: Weekly dependency review. Any dependency slipped >3 days triggers escalation. Dependency risk score aggregated into program health dashboard. Output: dependency status matrix with owner, date, buffer remaining.
+- **Risk Score Escalation Gate**: Risk moving from Medium → High (probability × impact crosses threshold) triggers immediate sponsor notification and mitigation activation. Output: updated risk register with mitigation plan and contingency resources.
+- **Change Control Gate**: Program scope, date, or resource change requires impact analysis → options (cut scope, add resources, push date) → sponsor decision. Output: change request log with approved path.
+- **Program Closure Gate**: All success criteria met, migrations complete, old systems decommissioned, knowledge transferred to owning teams. Output: closure checklist, postmortem, and metrics retrospective.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **System Architect** | Architecture decisions, cross-team API design, technical feasibility | ADRs, architecture options, trade-off analysis, scalability constraints |
@@ -185,6 +213,18 @@ The TPM is the central coordination point for multi-team technical programs. Unl
 | Regulatory/compliance deadline at risk | **Legal Advisor** + Regulatory Specialist + Sponsor | Regulatory exposure; external notification requirement |
 | Team conflict affecting delivery despite mediation attempts | **Engineering Managers** + HR + Sponsor | Team composition change or mediation beyond TPM scope |
 | Security vulnerability discovered mid-program affecting architecture | **Security Engineer** + CTO Advisor + All Team Leads | May require architecture change; full impact assessment |
+
+### Route to Other Skills
+
+| If the Request Involves | Route To | Rationale |
+|--------------------------|-----------|-----------|
+| Single-project planning with WBS, Gantt charts, RAID log | `project-manager` | PM owns single-project scope; TPM handles multi-team scope |
+| Team-level sprint execution and agile ceremonies | `scrum-master` | SM facilitates team process; TPM coordinates across teams |
+| Architecture decisions requiring deep domain expertise | `system-architect` | Architect owns technical design decisions; TPM facilitates the ADR process |
+| Resource allocation and engineering capacity planning | `engineering-manager` | Engineering managers control team composition and allocation |
+| Coordinated release across multiple services | `release-manager` | Release logistics and deployment sequencing |
+| Cross-team API contract definition | `api-designer` | API contracts need formal specification before teams implement |
+| Executive strategy and portfolio-level prioritization | `vp-engineering` or `director-engineering` | Strategic decisions beyond program scope |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

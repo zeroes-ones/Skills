@@ -20,13 +20,13 @@ output:
   path_hint: "./"
 chain:
   consumes_from:
-    - product-strategist
     - marketing-manager
-    - business-strategist
+    - product-manager
+    - brand-guidelines
   feeds_into:
+    - marketing-manager
     - sales-engineer
-    - demand-generation
-    - content-strategist
+    - ux-writer
 ---
 # Product Marketing Manager (Health Tech PMM)
 
@@ -226,29 +226,29 @@ Know the market better than anyone else.
 
 Product marketing is the connective tissue between product, sales, and market. Know when to coordinate:
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Product Strategist** | Launch planning, market entry, pricing | Product vision, roadmap timing, strategic priorities, market sizing |
-| **Marketing Manager** | Campaign planning, brand alignment | Positioning framework, messaging hierarchy, campaign briefs, brand guidelines |
-| **Business Strategist** | Market entry, partnership strategy, pricing | TAM/SAM/SOM, unit economics, channel strategy, partnership rationale |
-| **Sales Engineer** | Battle cards, demos, objection handling | Product capabilities, technical differentiation, demo scripts, competitive differentiators |
-| **Demand Generation** | Campaign execution, lead nurturing | Target personas, key messages, content assets, campaign themes, conversion goals |
-| **Content Strategist** | Content marketing, thought leadership | Messaging architecture, proof points, customer stories, content calendar inputs |
-| **CEO Strategist** | Company narrative, market positioning | Corporate strategy, fundraising narrative, board presentation support |
-| **Product Manager** | Feature launches, roadmap communication | Feature value props, release timing, beta program opportunities, customer feedback |
-| **UX Researcher** | Persona development, message testing | Segment insights, pain points, journey maps, message comprehension results |
+| Coordinate With | Decision Gate | Artifacts to Share |
+|-----------------|---------------|---------------------|
+| `marketing-manager` | Campaign planning needs positioning framework and messaging hierarchy | Positioning framework, messaging hierarchy, campaign briefs, brand alignment check |
+| `product-manager` | Feature launch timing, roadmap communication, beta program opportunities | Feature value props, release timing, beta program invitations, customer feedback loops |
+| `brand-guidelines` | New messaging architecture or campaign visuals need brand alignment review | Messaging architecture, proof points, visual asset requests, brand voice alignment |
+| `sales-engineer` | Battle cards, demos, objection handling — competitive intelligence needs technical validation | Product capabilities, technical differentiation, demo scripts, competitive differentiators |
+| `ux-writer` | Product copy needs voice/tone alignment with marketing messaging | Messaging architecture, key messages by audience, terminology preferences |
+| `ux-researcher` | Persona development, message testing, segment insight validation | Segment insights, pain points, journey maps, message comprehension results |
+| `ceo-strategist` | Company narrative, market positioning, fundraising narrative support | Corporate strategy alignment, fundraising narrative, board presentation support |
+| `demand-generation` | Campaign execution needs target personas and content assets | Target personas, key messages, content assets, campaign themes, conversion goals |
+| `content-strategist` | Content marketing and thought leadership calendar alignment | Messaging architecture, proof points, customer stories, content calendar inputs |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Competitor launches directly competing feature | Product Strategist, Sales Engineer, CEO Strategist | Strategic response, sales enablement update |
-| Win/loss trend shift (>10% change) | Product Manager, Business Strategist, Sales Engineer | Product gaps or messaging failures |
-| Analyst report mentions us (positive or negative) | CEO Strategist, Marketing Manager, Product Strategist | Market perception impact |
-| Major customer win or loss | Sales Engineer, CEO Strategist, Product Strategist | Proof point or churn signal |
+| Competitor launches directly competing feature | `marketing-manager`, `sales-engineer`, `ceo-strategist` | Strategic response, sales enablement update |
+| Win/loss trend shift (>10% change) | `product-manager`, `sales-engineer` | Product gaps or messaging failures |
+| Analyst report mentions us (positive or negative) | `ceo-strategist`, `marketing-manager` | Market perception impact |
+| Major customer win or loss | `sales-engineer`, `ceo-strategist`, `marketing-manager` | Proof point or churn signal |
 | Launch readiness gate (2 weeks before) | All cross-functional leads | Go/no-go decision |
-| New clinical evidence published | Content Strategist, Sales Engineer, Demand Generation | Messaging refresh, content creation |
-| Regulatory clearance received | CEO Strategist, Marketing Manager, Legal Advisor | Claims expansion, launch acceleration |
+| New clinical evidence published | `content-strategist`, `sales-engineer`, `demand-generation` | Messaging refresh, content creation |
+| Regulatory clearance received | `ceo-strategist`, `marketing-manager`, `legal-advisor` | Claims expansion, launch acceleration |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

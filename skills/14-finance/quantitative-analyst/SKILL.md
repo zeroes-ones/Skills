@@ -20,8 +20,11 @@ chain:
   consumes_from:
     - market-data-engineer
     - data-scientist
+    - ml-ai-engineer
   feeds_into:
     - algorithmic-trader
+    - data-scientist
+    - ml-ai-engineer
   alternatives:
     - ml-ai-engineer
 ---
@@ -45,6 +48,8 @@ What are you trying to do?
 ├── Analyze volatility smile/skew for market sentiment → Jump to "Decision Trees" → Skew Interpretation
 ├── Need raw options data (quotes, chains, greeks) → Invoke market-data-engineer skill first
 ├── Need ML model for signal classification → Invoke ml-ai-engineer as alternative
+├── Need algorithmic trade execution from signals → Invoke `algorithmic-trader` skill
+├── Need statistical validation / backtesting of signals → Invoke `data-scientist` skill
 └── Don't know where to start? → Start at "Ground Rules" — read before anything else
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -489,6 +494,8 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 | **Algorithmic Trader** | Delivering structured trade signals for execution; entry trigger refinement | Signal JSON per Phase 5 schema. Entry trigger conditions, stop-loss/take-profit levels, position sizing guidance. Feedback loop: which signals executed, fills achieved, P&L outcomes. |
 | **Data Scientist** | Statistical validation of signal performance; backtesting UOA signal efficacy; calibration of confidence levels | Historical signal dataset for backtesting. Request: win-rate analysis by signal strength, DTE bucket performance, false-positive rate around events. Receive: calibrated confidence thresholds, feature importance for signal classification. |
 | **ML/AI Engineer** | Advanced signal classification (ML-based instead of rules-based); pattern recognition in options flow; anomaly detection models | Feature-engineered UOA dataset. Alternative to rules-based signal matrix when enough labeled data exists. ML model for trade classification (sweep vs block vs noise), sentiment scoring from options flow, predictive signal fusion. |
+| **Data Scientist** | Statistical validation of signal performance; backtesting UOA signal efficacy; calibration of confidence levels | Historical signal dataset for backtesting. **Decision gate:** Is win-rate > 50% on 30-day rolling window? → signals are production-grade. Request: win-rate analysis by signal strength, DTE bucket performance, false-positive rate around events. **Artifact:** calibrated confidence thresholds + feature importance report. |
+| **ML/AI Engineer** | ML-based signal classification; pattern recognition in options flow; anomaly detection models | Feature-engineered UOA dataset. **Decision gate:** Does labeled dataset have > 10K examples? → ML approach viable. Alternative to rules-based signal matrix. **Artifact:** trained model + classification accuracy report. |
 | **Business Strategist** | Macro context for sector rotation signals; strategic positioning guidance | Sector-level UOA summaries (net call/put premium by sector, week-over-week changes). Strategic questions: "Which sectors are seeing unusual accumulation via options?" |
 | **Compliance Officer** | Regulatory review of signal generation methodology; audit trail | Full signal generation pipeline documentation. Trade rationale for every signal. Model risk management documentation if ML-based classification is used. |
 

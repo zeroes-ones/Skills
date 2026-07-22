@@ -1,32 +1,38 @@
 ---
 name: accountant
-description: Accounting & bookkeeping for startups — chart of accounts, ASC 606 revenue recognition, month-end close, payroll accounting, equity accounting (ASC 718, 409A), AP/AR, sales tax compliance, audit preparation, and accounting tech stack. Use when setting up accounting for a startup, closing the books, or preparing for an audit.
+description: Accounting & bookkeeping for startups — chart of accounts, ASC 606 revenue recognition, month-end close, payroll accounting, equity accounting (ASC 718, 409A), AP/AR, sales tax compliance,
+  audit preparation, and accounting tech stack. Use when setting up accounting for a startup, closing the books, or preparing for an audit.
 author: Sandeep Kumar Penchala
 type: corporate-finance
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - accounting
-  - bookkeeping
-  - asc-606
-  - asc-718
-  - month-end-close
-  - audit
-  - payroll
-  - corporate-finance
+- accounting
+- bookkeeping
+- asc-606
+- asc-718
+- month-end-close
+- audit
+- payroll
+- corporate-finance
 token_budget: 3510
 output:
-  type: "spreadsheet"
-  path_hint: "accounting/"
+  type: spreadsheet
+  path_hint: accounting/
 chain:
   consumes_from:
-    - fp-and-a-analyst
-    - legal-advisor
+  - compliance-officer
+  - fp-and-a-analyst
+  - legal-advisor
+  - treasury-manager
   feeds_into:
-    - fp-and-a-analyst
-    - treasury-manager
-    - compliance-officer
+  - board-manager
+  - ceo-strategist
+  - fp-and-a-analyst
+  - hr-manager
+  - investor-relations
+  - treasury-manager
 ---
 
 # Accountant — Startup Accounting & Bookkeeping
@@ -54,6 +60,11 @@ What are you trying to do?
 ├── Handle sales tax → Jump to "Decision Trees > Sales Tax Nexus"
 ├── Prepare for an audit → Go to "Core Workflow > Phase 5: Audit Preparation"
 ├── Choose accounting software → Jump to "Decision Trees > Accounting Tech Stack"
+├── Need financial planning/forecasting? → Invoke `fp-and-a-analyst` for budgets, models, and board financials
+├── Need cash management or banking? → Invoke `treasury-manager` for cash flow, venture debt, and fraud prevention
+├── Need legal/tax advice on revenue recognition? → Invoke `legal-advisor` for contract review and ASC 606 determination
+├── Need compliance/regulatory guidance? → Invoke `compliance-officer` for tax filings and regulatory changes
+├── Preparing investor financials? → Invoke `investor-relations` to package GAAP financials for investors
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Accounting Setup"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -260,6 +271,16 @@ What's your stage and complexity?
 - **Monthly:** Close checklist execution; draft P&L to fp-and-a-analyst by Day 5; final by Day 10
 - **Quarterly:** Sales tax nexus review; 409A refresh trigger check; board financial package
 - **Annually:** Audit prep (PBC list), 1099 filing, tax return support, insurance renewal
+
+**Decision Gates & Handoff Artifacts:**
+- **Close completeness gate:** All 8 reconciliations (bank, credit card, payroll, AP, AR, deferred revenue, fixed assets, equity) complete before P&L draft is shared with `fp-and-a-analyst`. Incomplete reconciliation = stale forecast = wrong board materials.
+- **Revenue recognition gate:** Every new contract runs through ASC 606 checklist (license vs service, performance obligations, point-in-time vs over-time recognition) at signing — not at close. Artifact: Signed ASC 606 determination memo per contract.
+- **SBC valuation gate:** 409A must be current (within 12 months, or within 90 days of material event). Expired 409A = all option grants at risk of IRS challenge. Artifact: Current 409A report on file.
+- **Sales tax nexus gate:** Monthly nexus threshold review across all states with customers. Crossing economic threshold ($100K or 200 transactions) triggers immediate registration. Artifact: Nexus tracker with state-by-state thresholds and current sales.
+- **Audit readiness gate:** All PBC (Provided By Client) schedules prepared and organized before auditor arrival. Disorganized PBC = 2x audit fees. Artifact: PBC index with folder structure matching auditor request list.
+- **Handoff to `fp-and-a-analyst`:** Closed books with variance commentary by Day 5; final P&L/BS/CF by Day 10. Artifact: Month-end close package with reconciliation proofs.
+- **Handoff to `treasury-manager`:** Daily cash reconciliation; weekly AP aging; monthly debt schedule. Artifact: Cash position summary with all bank account balances.
+- **Handoff to `investor-relations`:** Quarterly GAAP financials with ARR bridge, NRR calculation, and LTV/CAC. Artifact: Investor-grade financial package with methodology appendix.
 
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->

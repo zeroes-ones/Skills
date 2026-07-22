@@ -1,17 +1,33 @@
 ---
 name: api-designer
-description: "REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination, SDK."
+description: 'REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST,
+  GraphQL, gRPC, versioning, rate limiting, pagination, SDK.'
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - api-designer
+- api-designer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - backend-developer
+  - database-designer
+  - idea-to-spec
+  - system-architect
+  feeds_into:
+  - backend-developer
+  - database-designer
+  - documentation-engineer
+  - frontend-developer
+  - fullstack-developer
+  - mobile-developer
+  - qa-engineer
+  - technical-writer
 ---
 # API Designer
 
@@ -29,7 +45,14 @@ What are you trying to do?
 ├── Document an existing API → Jump to "Core Workflow > Phase 3 (Documentation & DX)"
 ├── Set up rate limiting or authentication → Go to "Best Practices > Security & Rate Limiting"
 ├── Generate SDKs or Postman collections → Go to "references/openapi-generator-guide.md"
-└── Don't know where to start? → Describe the API you need and I'll route you
+├── Need backend implementation of this API → Invoke backend-developer skill instead
+├── Need frontend to consume this API → Invoke frontend-developer skill instead
+├── Need fullstack feature delivery → Invoke fullstack-developer skill instead
+├── Need mobile client consuming this API → Invoke mobile-developer skill instead
+├── Need to design the overall system → Invoke system-architect skill instead
+├── Need database schema for this API → Invoke database-designer skill instead
+├── Need security review of this API → Invoke security-reviewer skill instead
+└── Not sure where to start? → Describe the API you need and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -221,34 +244,20 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `api-testing` | Contract testing, integration | `references/` (create as needed) |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-API design is a social contract. The spec is the agreement, but coordination ensures that agreement holds — across teams, across services, and over time as the API evolves.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Bounded context map, service topology, non-functional requirements (latency/throughput/availability), API principles and versioning strategy | Before defining service boundaries or choosing REST/GraphQL/gRPC |
+| `database-designer` | ERD, schema design, access patterns, consistency vs. availability tradeoffs, query complexity estimates | Before designing endpoints that map to new data models; N+1 risk assessment |
+| `backend-developer` | Implementation feasibility feedback, framework constraints, performance benchmarks for proposed query patterns | Before finalizing resource shapes that backend must implement |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **System Architect** | New service boundaries, API style selection (REST/GraphQL/gRPC), cross-service contracts | Bounded contexts, communication patterns, API principles, versioning strategy |
-| **Database Designer** | API endpoints that map to new data models, query complexity, N+1 risks | Access patterns, expected query volume, data shape, consistency vs. availability tradeoffs |
-| **Frontend Developer** | API contract design, response shape, error format, pagination | Client needs (data requirements, latency tolerance, offline support), BFF patterns, GraphQL fragments |
-| **Mobile Developer** | API design for mobile (bandwidth, battery, intermittent connectivity) | Response size optimization, partial responses, delta updates, push notification integration |
-| **Security Engineer** | AuthN/AuthZ, rate limiting, data exposure, API threat surface | OAuth2/OIDC flow design, scope model, rate limit tiers, PII handling, audit logging |
-| **QA / Test Engineer** | Contract testing, integration test design, API test automation | OpenAPI spec as test source of truth, expected behaviors, error scenarios, edge cases |
-| **Documentation Engineer** | API reference generation, interactive explorer, developer portal | OpenAPI spec (source of truth), authentication setup guides, code samples, SDK generation |
-| **DevOps / Platform Engineer** | API gateway configuration, deployment, monitoring, rate limiting at edge | API routing, WAF rules, DDoS protection, API key management, observability requirements |
-| **Product Manager** | API-first features, public API launch, partner integration | API as product: developer experience, pricing tiers, SLA, deprecation policy |
-
-### Communication Triggers — When to Proactively Notify
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Breaking API change proposed | All API consumers (internal + external), Product Manager, Documentation Engineer | Deprecation timeline, migration guide, versioning decision (new version vs. sunset) |
-| New API endpoint or resource added | Documentation Engineer, Frontend/Mobile, QA | SDK regeneration, client implementation, contract test updates, docs update |
-| API security vulnerability discovered (OWASP API Top 10) | Security Engineer, DevOps, All consumers | Severity assessment, mitigation timeline, communication plan |
-| Rate limit or quota change | DevOps, Product Manager, External developer relations | Developer communication, billing implications, migration window |
-| Auth model change (new scope, new grant type, new identity provider) | Security Engineer, Frontend/Mobile, External consumers | Implementation guide, migration instructions, deprecation warning |
-| API performance degradation (p95 latency > 2x baseline) | System Architect, Database Designer, Performance Engineer | Root cause analysis, query optimization, caching strategy, architecture review |
-| API version approaching EOL (end of life) | All consumers, Product Manager, Documentation Engineer | Sunet timeline, migration support, redirect/alias plan |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `backend-developer` | OpenAPI 3.1 spec, auth scheme, rate limits, error codes, pagination conventions | Backend can't implement without contract — blocked sprints |
+| `frontend-developer` | Same API contract for client generation, BFF patterns, type-safe SDK | Frontend builds against wrong shapes — costly rework |
+| `fullstack-developer` | API contract, endpoint specs, error models for full-stack integration | Fullstack features blocked on contract ambiguity |
+| `mobile-developer` | API contract optimized for mobile (response size budgets, delta updates, partial responses) | Mobile integration builds against stale or bloated contracts |
+| `qa-engineer` | OpenAPI spec as test source of truth, expected error scenarios, edge cases | QA can't author contract tests without the contract |
 
 ### Escalation Path
 

@@ -12,6 +12,9 @@ token_budget: 2010
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["system-architect", "database-designer", "devops-engineer"]
+  feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer"]
 ---
 # Migration Architect
 
@@ -29,6 +32,10 @@ What are you trying to do?
 ├── Design a rollback strategy → Go to "Rollback Strategy" section in Core Workflow
 ├── Stakeholder communication during migration → Jump to "Stakeholder Management" under references/
 ├── Migration testing → Go to "Migration Testing" under Sub-Skills
+├── Need architecture assessment first → Route to `system-architect`
+├── Need schema design or index strategy → Route to `database-designer`
+├── Need deployment orchestration → Route to `devops-engineer`
+├── Need database reliability (replication, failover) → Route to `database-reliability-engineer`
 └── Don't know where to start? → Start at "Database Schema Migration"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -305,6 +312,14 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 <!-- QUICK: 30s -- table of who to talk to when -->
 Migration architecture is inherently cross-functional — it spans databases, application code, infrastructure, and QA. A migration without coordination is a production incident waiting to happen.
 
+### Decision Gates & Artifacts
+
+- **Gate 1 — Architecture Assessed:** Migration requires system architecture assessment and dependency mapping from `system-architect`. Artifact: architecture dependency graph.
+- **Gate 2 — Schema Designed:** Database migrations require schema design, index strategy, and DDL review from `database-designer`. Artifact: DDL-reviewed migration scripts with Up/Down.
+- **Gate 3 — Deployment Orchestrated:** Zero-downtime deployment requires blue-green orchestration and backup verification from `devops-engineer`. Artifact: deployment runbook with rollback commands.
+- **Gate 4 — Reliability Ensured:** Replication, failover, and backup integrity validated by `database-reliability-engineer` before cutover. Artifact: replication lag and failover test report.
+- **Artifact:** Migration runbook with per-phase rollback plan, data integrity reconciliation report, migration retrospective document.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Backend Developers** | Schema changes, data access layer changes, API versioning | Migration sequence, dual-write requirements, backward compatibility rules |
@@ -340,6 +355,16 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Rollback fails during attempted execution | **CTO Advisor** + DevOps Lead + DBA | Critical incident; restore from backup may be only option |
 | Migration cost/time exceeds original estimate by >100% | **CTO Advisor** + Project Manager + Stakeholders | Re-baseline; build vs buy vs maintain re-evaluation |
 | Compliance/regulatory issue discovered in migrated data | **Legal Advisor** + Security Reviewer + Regulatory Specialist | Regulatory exposure; may require data remediation or disclosure |
+
+### Route to Other Skills
+
+| If the Request Is About | Route To |
+|--------------------------|----------|
+| Architecture assessment, service boundaries, dependency mapping | `system-architect` |
+| Schema design, index strategy, DDL review, query migration | `database-designer` |
+| Deployment orchestration, blue-green coordination, backup verification | `devops-engineer` |
+| Database replication, failover testing, backup integrity | `database-reliability-engineer` |
+| Data access layer changes, API versioning, dual-write implementation | `backend-developer` |
 
 ## Production Checklist
 

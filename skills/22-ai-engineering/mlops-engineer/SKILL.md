@@ -19,6 +19,17 @@ token_budget: 5000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from:
+    - ml-ai-engineer
+    - devops-engineer
+    - data-engineer
+    - llm-engineer
+  feeds_into:
+    - llm-engineer
+    - ai-safety-engineer
+    - ml-ai-engineer
+    - observability-engineer
 ---
 # MLOps Engineer
 
@@ -53,6 +64,31 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: MLOps bridges model development and production operations — coordinate on infrastructure, data, and serving -->
+
+| Upstream Skill | What You Receive | Decision Gate |
+|---|---|---|
+| `ml-ai-engineer` | Model artifacts, training code, evaluation metrics, feature engineering logic | Validate model is production-ready before deploying; gate on reproducibility checks |
+| `devops-engineer` | Infrastructure provisioning, Kubernetes clusters, CI/CD pipelines, networking and security | Align on infrastructure requirements before model deployment; coordinate autoscaling policies |
+| `data-engineer` | Data pipelines, feature computation jobs, data warehouse schemas, data freshness SLAs | Ensure feature pipeline latency meets serving SLAs before productionizing |
+| `llm-engineer` | LLM serving requirements (latency targets, throughput, GPU type), prompt pipeline specs | Right-size GPU infrastructure for LLM inference; validate streaming performance |
+
+| Downstream Skill | What You Provide | Artifacts |
+|---|---|---|
+| `llm-engineer` | Model serving endpoints, GPU-optimized inference, autoscaling configs, latency dashboards | Serving URLs, GPU allocation specs, scaling policies, performance benchmarks |
+| `ai-safety-engineer` | Model monitoring data (drift metrics, performance degradation, data quality alerts) | Drift dashboards, model performance reports, data quality incident logs |
+| `ml-ai-engineer` | Production performance feedback, retraining triggers, A/B test results, infrastructure constraints | Retraining recommendations, production metric dashboards, infrastructure capacity reports |
+| `observability-engineer` | Model-specific metrics (inference latency, prediction distribution, feature drift), alerting rules | Model health dashboards, drift alert configurations, SLA monitoring |
+
+**Coordination cadence:**
+- **Pre-deployment:** Infrastructure review with `devops-engineer` on GPU provisioning and networking
+- **Daily:** Monitoring sync — review drift alerts and model performance dashboards
+- **Weekly:** Sync with `llm-engineer` on serving performance and cost optimization
+- **Bi-weekly:** Retraining review with `ml-ai-engineer` on model refresh candidates
+- **Monthly:** Capacity planning with `data-engineer` and `devops-engineer` on growth projections
 
 ## Core Workflow
 

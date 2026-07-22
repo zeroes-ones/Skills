@@ -1,17 +1,29 @@
 ---
 name: platform-engineer
-description: Internal Developer Platform (IDP) design, golden paths, Backstage, self-service infrastructure, developer portals, scaffolding, developer experience (DX), platform as product. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: Internal Developer Platform (IDP) design, golden paths, Backstage, self-service infrastructure, developer portals, scaffolding, developer experience (DX), platform as product. Works with Claude
+  Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - platform-engineer
+- platform-engineer
 token_budget: 3525
+chain:
+  consumes_from:
+  - cloud-architect
+  - devops-engineer
+  - docker-kubernetes
+  - observability-engineer
+  feeds_into:
+  - backend-developer
+  - devops-engineer
+  - frontend-developer
+  - observability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Platform Engineer / Developer Experience (DX)
 
@@ -34,6 +46,10 @@ What are you trying to do?
 ├── Build self-service infrastructure → Go to "Sub-Skills > self-service-infrastructure" and "Core Workflow > Phase 4"
 ├── Design a developer portal → Jump to "Core Workflow > Phase 3" (Developer Portal)
 ├── Set up scaffolding / project templates → Go to "Sub-Skills > scaffolding-toolchains"
+├── Need infrastructure building blocks → Invoke `devops-engineer` skill instead
+├── Need container orchestration → Invoke `docker-kubernetes` skill instead
+├── Need cloud architecture guidance → Invoke `cloud-architect` skill instead
+├── Need observability for platform → Invoke `observability-engineer` skill instead
 └── Not sure where to start? → "Decision Trees > Platform Maturity Assessment" — understand current state before building
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -193,28 +209,19 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
    - Output: Deprecation tracker with migration status per team.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When | What to Share/Ask |
-|---|---|---|
-| **DevOps Engineer** | Infrastructure module design, CI/CD template creation | Golden path requirements, module API contracts, pipeline template needs |
-| **Cloud Architect** | Landing zone integration, network topology for platform | Platform requirements for account isolation, VPC design, IAM guardrails |
-| **CI/CD Builder** | Pipeline template design, reusable workflow authoring | Developer UX expectations, caching patterns, quality gate standards |
-| **SRE** | Platform SLA definition, observability integration, incident response | Platform reliability targets, SLO definitions, on-call rotation design |
-| **Security Engineer** | Policy guardrails, secret management, compliance automation | Least-privilege templates, vulnerability scanning in golden paths, audit requirements |
-| **Backend Developer** | Design-partner feedback, template validation, friction discovery | Developer journey pain points, template usability feedback, feature requests |
-| **Frontend Developer** | Portal UX design, scaffolding tooling, developer CLI | Portal usability, CLI ergonomics, onboarding experience feedback |
-| **Technical Writer** | Golden path documentation, runbooks, portal content | Documentation structure, runbook templates, onboarding guide content |
-| **Release Manager** | Deployment window coordination, feature flag integration | Platform deploy schedule, environment promotion workflow |
-| **FinOps Engineer** | Cost allocation tags, ephemeral environment budgets, RI coverage | Resource tagging in templates, cost visibility for self-service resources |
 
-### Escalation Path
-```
-Platform adoption blocked by team resistance? → Engineering Manager → CTO
-Platform outage blocking all deploys? → SRE Incident Commander → CTO
-Security finding in golden path template? → Security Engineer → Compliance Officer
-Platform cost exceeding budget? → FinOps Engineer → CTO
-Architecture deadlock on platform direction? → Cloud Architect → CTO Advisor
-```
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `devops-engineer` | Infrastructure building blocks, IaC modules, cluster templates, CI/CD pipeline design | Before building golden paths or self-service infrastructure APIs |
+| `docker-kubernetes` | Containerized workloads deployable via golden paths, Helm chart standards, ingress patterns | Before designing deployment workflows or container defaults |
+| `cloud-architect` | Landing zone integration, network topology, IAM guardrails for self-service | Before enforcing cloud governance in platform templates |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `backend-developer` | Golden path templates, self-service infrastructure, scaffolding tooling, developer CLI | Developers can't provision services — productivity blocked |
+| `frontend-developer` | Portal UX, developer CLI ergonomics, onboarding experience, preview environments | Frontend teams can't self-serve — deployment friction |
+| `devops-engineer` | Platform APIs, module contracts, golden path requirements, pipeline template needs | Infrastructure teams build without platform guidance — fragmentation risk |
+| `observability-engineer` | Standard observability integration across all services, self-service dashboards | No consistent monitoring — every service reinvents observability |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

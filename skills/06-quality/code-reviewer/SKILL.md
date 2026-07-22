@@ -1,17 +1,29 @@
 ---
 name: code-reviewer
-description: "Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review, review code, CR, pull request review, review this."
+description: 'Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review,
+  review code, CR, pull request review, review this.'
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - code-reviewer
+- code-reviewer
 token_budget: 3000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - backend-developer
+  - frontend-developer
+  - qa-engineer
+  - security-reviewer
+  - staff-engineer
+  feeds_into:
+  - backend-developer
+  - frontend-developer
+  - qa-engineer
 ---
 # Code Reviewer
 
@@ -29,6 +41,10 @@ What are you trying to do?
 ├── Performance review (queries, memory, latency) → Go to "Sub-Skills > performance-review" then "Six-Dimension Review Framework > Performance"
 ├── Architecture review (new module, refactor, >200 lines) → Start at "Core Workflow > Phase 2", then "Decision Trees > Review Depth Decision"
 ├── Accessibility review → Go to "Six-Dimension Review Framework > Code Quality" and check for ARIA, keyboard, semantic HTML
+├── Need deep security audit → Invoke security-reviewer skill instead
+├── Need backend implementation review → Invoke backend-developer skill instead
+├── Need frontend implementation review → Invoke frontend-developer skill instead
+├── Need QA test strategy → Invoke qa-engineer skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" (Context Gathering) — understand intent first
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -182,26 +198,23 @@ Change type?
 - **Automate what can be automated**: Linting, formatting, type checking, security scanning — leave human review for logic, design, and architecture.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Code reviewers are the last line of defense before changes reach production. They must coordinate with authors, security specialists, QA engineers, and platform teams to ensure comprehensive review coverage.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `backend-developer` | PR with API changes, data access logic, auth implementation, query changes | When PR is submitted; code review is the last line of defense |
+| `frontend-developer` | PR with UI components, client-side state, accessibility, bundle impact | When PR is submitted; ensures UI quality, accessibility, and performance |
+| `security-reviewer` | Security findings for joint severity assessment, patterns to add to code review checklist | When PR touches auth/payment/data paths; delegate deep security review |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Security Engineer** | Auth changes, PII handling, crypto usage | Confirm security review completed; share findings for joint assessment of Critical/High items |
-| **Security Reviewer** | Pre-merge security audit | Share PR context, architecture notes; delegate deep security review for auth/payment/data code |
-| **QA Engineer** | Test coverage gaps, edge cases | Flag insufficient test coverage; ask QA to design additional test scenarios for complex changes |
-| **Backend/Frontend Developer** | As PR author | Provide actionable feedback with line references; discuss architectural concerns synchronously |
-| **Database Designer** | Schema migrations, query changes | Review migration safety (locking, backfill, rollback), query performance, index usage |
-| **Observability Engineer** | New metrics, logging, alerts | Verify instrumentation follows standards; log levels appropriate; PII not logged |
-| **DevOps Engineer** | Infrastructure-as-code changes, CI/CD config | Review Terraform/Pulumi changes for security, cost, and reliability implications |
-| **System Architect** | Architectural concerns, tech debt | Escalate patterns that deviate from architecture; flag accumulating tech debt |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `backend-developer` | Actionable feedback with line references, architectural concerns, test coverage gaps, design pattern suggestions | PR stuck in review — #1 bottleneck in development velocity |
+| `frontend-developer` | Same review feedback with accessibility, performance, and bundle size focus | Frontend PRs merge with regressions — UX degradation |
+| `qa-engineer` | Flagged test coverage gaps, edge cases found during review, security-sensitive code areas | QA can't target testing effectively — gaps in test coverage |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | Critical security vulnerability found | Security Engineer, PR author | Immediate fix; may block deploy |
 | Architectural deviation detected | System Architect | Decide: approve exception or redesign |
 | Repeated pattern of same issue across PRs | Engineering Manager | Systemic problem — needs tooling, lint rule, or training |

@@ -1,33 +1,38 @@
 ---
 name: crisis-response-manager
-description: >-
-  Adverse event (AE) reporting to FDA MedWatch, EudraVigilance, and manufacturer systems with 24-hour/7-day/15-day timelines. Suicide prevention escalation using Columbia-Suicide Severity Rating Scale (C-SSRS) with warm handoff to crisis lines. Public health emergency response for disease outbreak alerts and recall notifications in patient communities. Safety incident taxonomy with severity levels S1-S5, response SLAs, and escalation matrix. Crisis communication templates for patient notification, regulatory disclosure, and internal communications. Pharmacovigilance signal detection in community data with automated AE mention detection. Mental health crisis protocols for self-harm or harm-to-others indicators. Medical device adverse event reporting (MDR) for connected devices. Post-crisis review with root cause analysis, timeline reconstruction, and corrective action plans. Triggered by adverse event, crisis, pharmacovigilance, suicide prevention, safety incident, recall, medical device report, public health emergency.
+description: Adverse event (AE) reporting to FDA MedWatch, EudraVigilance, and manufacturer systems with 24-hour/7-day/15-day timelines. Suicide prevention escalation using Columbia-Suicide Severity Rating
+  Scale (C-SSRS) with warm handoff to crisis lines. Public health emergency response for disease outbreak alerts and recall notifications in patient communities. Safety incident taxonomy with severity levels
+  S1-S5, response SLAs, and escalation matrix. Crisis communication templates for patient notification, regulatory disclosure, and internal communications. Pharmacovigilance signal detection in community
+  data with automated AE mention detection. Mental health crisis protocols for self-harm or harm-to-others indicators. Medical device adverse event reporting (MDR) for connected devices. Post-crisis review
+  with root cause analysis, timeline reconstruction, and corrective action plans. Triggered by adverse event, crisis, pharmacovigilance, suicide prevention, safety incident, recall, medical device report,
+  public health emergency.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - crisis-response
-  - adverse-event-reporting
-  - pharmacovigilance
-  - suicide-prevention
-  - patient-safety
-  - medical-misinformation
-  - health-emergency
+- crisis-response
+- adverse-event-reporting
+- pharmacovigilance
+- suicide-prevention
+- patient-safety
+- medical-misinformation
+- health-emergency
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - regulatory-specialist
-    - legal-advisor
-    - incident-responder
+  - community-operations-manager
+  - content-policy-manager
+  - legal-advisor
+  - trust-safety-engineer
   feeds_into:
-    - community-operations-manager
-    - ceo-strategist
-    - compliance-officer
+  - community-operations-manager
+  - content-policy-manager
+  - incident-responder
 ---
 # Crisis Response Manager
 
@@ -45,6 +50,10 @@ What are you trying to do?
 ├── Manage a product recall or public health alert → Go to "Core Workflow > Phase 2 (Public Health Emergency Response)"
 ├── Report a medical device adverse event (MDR) → Jump to "Core Workflow > Phase 1 (MDR reporting)"
 ├── Conduct a post-crisis review → Go to "Best Practices > Post-Crisis Review"
+├── Need community operations coordination for patient communication? → Invoke `community-operations-manager` for patient notification and community recovery
+├── Need content policy enforcement during crisis? → Invoke `content-policy-manager` for misinformation containment and policy updates
+├── Need legal review of crisis communications or regulatory disclosures? → Invoke `legal-advisor` for liability assessment and regulatory review
+├── Need incident response for data breach involving PHI? → Invoke `incident-responder` for forensic investigation and containment
 └── Active crisis in progress? → Start at "Decision Trees > Crisis Activation" then follow escalation matrix
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -201,6 +210,25 @@ S2 — Severe (hospitalization, significant disability)? → VP-level + Legal + 
 Regulatory inspection or enforcement action? → CEO + Legal + Health Compliance + Compliance Officer. Within 2 hours.
 Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not respond before coordination.
 ```
+
+### Regulatory Handoffs & Clinical Validation Gates
+
+| Handoff Trigger | Route To | Protocol | Regulatory Timeline |
+|----------------|----------|----------|---------------------|
+| Serious, unexpected adverse event (SAE) — death or life-threatening | `compliance-officer` → FDA MedWatch | Report with available information → Continue investigation in parallel → Submit follow-up report when complete | **7 calendar days** |
+| Serious, unexpected adverse event (SAE) — non-life-threatening | `compliance-officer` → FDA MedWatch | Report with available information → Continue investigation → Submit follow-up | **15 calendar days** |
+| Medical device adverse event — death or serious injury | `compliance-officer` → FDA MDR | Submit MDR report → Manufacturer notification → Device investigation | **30 calendar days** |
+| Suicide risk post with plan or intent detected | Clinical lead (immediately) → crisis line warm handoff | C-SSRS assessment by trained human → Stay with patient until connected → Document handoff | **Within 5 minutes** |
+| Product recall or safety alert received from manufacturer or FDA | `ceo-strategist` → `legal-advisor` → `community-operations-manager` | Assess recall scope → Plan patient notification → Draft regulatory response → Coordinate media strategy | Within 24 hours of receipt |
+| Validated safety signal (new or changed risk) | `compliance-officer` → `legal-advisor` → `ceo-strategist` | Signal validation → Labeling update assessment → Regulatory submission → Patient/HCP communication | Per regulatory requirement |
+| Crisis communication released without Legal/Regulatory approval | `legal-advisor` → `compliance-officer` → `ceo-strategist` | Damage assessment → Corrective communication → Regulatory notification (if applicable) → Process review | Within 24 hours |
+
+**Patient Safety Validation Gates:**
+- **AE reportability gate:** Every potential AE must be triaged within 24 hours of ANY employee awareness. Clock starts at awareness, not at investigation conclusion. Missed timeline = FDA 483/Warning Letter. Artifact: AE triage form with reportability determination.
+- **Suicide risk escalation gate:** No automated-only response to suicidal ideation. Trained human must assess using C-SSRS and perform warm handoff. Cold referral ("here's a number") is insufficient. Artifact: C-SSRS assessment documentation with handoff confirmation.
+- **Crisis communication approval gate:** All external crisis communications (patient notification, regulatory disclosure, press statement) must receive Legal AND Regulatory approval before release. No exceptions for "minor" communications. Artifact: Communication approval form with sign-offs.
+- **Post-crisis review gate:** Every S1-S3 incident requires blameless post-crisis review within 2 weeks. Must include: root cause analysis, timeline reconstruction, what worked, what didn't, corrective actions with owners and deadlines. Artifact: Post-crisis review report with CAPA assignments.
+- **Evidence preservation gate:** Never delete or modify crisis-related content. Archive with timestamp and reason. Destroyed evidence = regulatory violation. Artifact: Content preservation log with chain of custody.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

@@ -1,18 +1,38 @@
 ---
 name: vp-engineering
-description: >-
-  VP of Engineering executive leadership covering engineering strategy, organizational architecture, executive team participation, engineering culture at scale, board communication, DORA metrics, budget and headcount planning, M&A technical due diligence, and engineering brand building.
+description: VP of Engineering executive leadership covering engineering strategy, organizational architecture, executive team participation, engineering culture at scale, board communication, DORA metrics,
+  budget and headcount planning, M&A technical due diligence, and engineering brand building.
 author: Sandeep Kumar Penchala
 type: engineering-leadership
 status: stable
 version: 1.0.0
 updated: 2026-07-22
-tags: [vp-engineering, engineering-leadership, engineering-strategy, organizational-design, executive-leadership, engineering-culture, board-communication, dora-metrics]
+tags:
+- vp-engineering
+- engineering-leadership
+- engineering-strategy
+- organizational-design
+- executive-leadership
+- engineering-culture
+- board-communication
+- dora-metrics
 token_budget: 3780
-output: {type: code, path_hint: "./"}
+output:
+  type: code
+  path_hint: ./
 chain:
-  consumes_from: [director-engineering, staff-engineer, cto-advisor, ceo-strategist, fp-and-a-analyst, recruiting, hr-manager]
-  feeds_into: [board-manager, investor-relations, ceo-strategist]
+  consumes_from:
+  - ceo-strategist
+  - cto-advisor
+  - director-engineering
+  - finops-engineer
+  - fp-and-a-analyst
+  - hr-manager
+  - technical-program-manager
+  feeds_into:
+  - ceo-strategist
+  - cto-advisor
+  - director-engineering
 ---
 
 # VP of Engineering
@@ -154,6 +174,25 @@ Culture is what you tolerate, what you celebrate, and what you model. At VP leve
 **Output:** Engineering values doc, career ladder, compensation bands, DEI dashboard, engineering brand calendar.
 
 ## Cross-Skill Coordination
+
+<!-- STRATEGIC PLANNING: VP-level coordination drives org design, investment strategy, and executive alignment -->
+
+| Decision Gate | Invoke | Strategic Handoff Artifacts | Cadence |
+|---------------|--------|----------------------------|---------|
+| Company strategy shifts → engineering must realign | `ceo-strategist` | Engineering strategy memo, capacity reallocation plan, risk assessment for strategy pivot | Quarterly + on strategy change |
+| Technology vision, platform bets, build-vs-buy at company scale | `cto-advisor` | Technology radar, platform strategy doc, board-facing technology narrative | Monthly; quarterly board prep |
+| Strategy cascading to execution — directors translate VP decisions into team plans | `director-engineering` | Org design model, team charter updates, resource allocation decisions, EM development plans | Weekly 1:1 |
+| Budget cycle, headcount planning, cost optimization across org | `fp-and-a-analyst` | Engineering P&L model, headcount scenario plans, vendor TCO analysis, investment tier proposals | Monthly; quarterly budget review |
+| Comp philosophy, performance framework, employee relations at director+ level | `hr-manager` | Compensation bands, performance calibration data, engagement trends, succession depth charts | Monthly; quarterly review cycles |
+| Director+ hiring, employer brand strategy, engineering talent market analysis | `recruiting` | Pipeline health dashboards, comp benchmarks, employer brand strategy, time-to-fill by level | Bi-weekly |
+| Cross-org delivery, multi-team dependencies, strategic initiative tracking | `technical-program-manager` | Strategic program dashboards, org-wide dependency maps, executive RAID logs | Bi-weekly; weekly during execution |
+| Board meeting prep, investor presentations, governance compliance | `board-manager` | Board deck with engineering sections, investor Q&A prep, governance documentation | Quarterly + board cycle |
+| Fundraising narrative, investor updates, due diligence | `investor-relations` | Engineering growth story, team metrics, technical differentiation narrative, due diligence data room | Per fundraising round |
+
+**Org design governance:**
+- **Reorg threshold:** Any change affecting 2+ directors must be reviewed by `ceo-strategist` and `cto-advisor` before execution. VP owns the decision; directors execute.
+- **Architecture governance escalation:** When `director-engineering` and `cto-advisor` disagree on platform investment, VP arbitrates within 1 week.
+- **Strategic planning cascade:** CEO strategy → VP engineering strategy memo (within 2 weeks) → director team OKRs (within 1 week) → EM sprint plans. VP reviews cascade completeness quarterly.
 
 | When | Invoke | Communication Trigger |
 |------|--------|----------------------|

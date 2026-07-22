@@ -1,17 +1,39 @@
 ---
 name: system-architect
-description: "System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Triggered by system design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning."
+description: System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Triggered by system
+  design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning.
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - system-architect
+- system-architect
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - cto-advisor
+  - product-manager
+  - security-engineer
+  - staff-engineer
+  feeds_into:
+  - algorithmic-trader
+  - api-designer
+  - backend-developer
+  - cloud-architect
+  - cto-advisor
+  - database-designer
+  - devops-engineer
+  - hardware-architect
+  - idea-to-spec
+  - migration-architect
+  - networking-engineer
+  - security-engineer
+  - staff-engineer
+  - technical-program-manager
 ---
 # System Architect
 
@@ -36,6 +58,12 @@ What are you trying to do?
 │   ├── System under load → Go to "Scale Depth" section
 │   ├── Refactoring legacy → Jump to references/complexity-cost-model.md
 │   └── Capacity planning → Jump to "Core Workflow > Phase 5"
+├── Need technology strategy and build-vs-buy → Invoke cto-advisor skill instead
+├── Need product requirements and roadmap → Invoke product-manager skill instead
+├── Need deep security architecture → Invoke security-engineer skill instead
+├── Need API contract design → Invoke api-designer skill instead
+├── Need database schema design → Invoke database-designer skill instead
+├── Need network topology design → Invoke networking-engineer skill instead
 └── Don't know where to start? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -242,34 +270,31 @@ When this skill is invoked, drill into these specialized areas as needed:
 6. Plan for resilience: circuit breakers, retries (with exponential backoff + jitter), bulkheads, timeouts, graceful degradation, chaos engineering.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-System architecture is the skeleton everything hangs on. Decisions ripple across every team — coordination isn't optional, it's the job.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cto-advisor` | Technology strategy, build-vs-buy decisions, budget constraints, organizational context | Before making irreversible architectural decisions (language, database, monolith vs microservices) |
+| `product-manager` | Product requirements, feature roadmap, user personas, NFRs (latency/availability/throughput) | Before translating product needs into architecture; ensures business alignment |
+| `security-engineer` | Threat model, compliance requirements (SOC2/HIPAA/GDPR), trust boundaries, encryption standards | Before designing data flows, IAM, or service communication patterns |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CTO Advisor** | Technology strategy, major architectural decisions, build-vs-buy | Architecture options with tradeoff analysis, technical risk assessment, cost projections |
-| **API Designer** | Service boundaries, API contracts, communication patterns | Bounded contexts, API principles (REST/GraphQL/gRPC), versioning strategy, error handling standards |
-| **Database Designer** | Data architecture, persistence layer, caching strategy | Data model, access patterns, consistency requirements, read/write ratios, multi-tenancy model |
-| **Security Engineer** | Threat modeling, auth architecture, compliance (SOC2, HIPAA, GDPR) | Architecture diagrams, data flow, trust boundaries, encryption requirements, IAM design |
-| **DevOps / Platform Engineer** | Infrastructure design, CI/CD, observability, deployment strategy | Architecture requirements (compute, networking, storage), scaling patterns, monitoring needs |
-| **Performance Engineer** | Scalability modeling, bottleneck analysis, capacity planning | Traffic projections, latency budgets, throughput requirements, architecture choices that affect perf |
-| **Frontend Lead / Mobile Lead** | Client architecture, BFF pattern, API contract, real-time requirements | BFF design, GraphQL schema, WebSocket/SSE architecture, offline support, client-side caching |
-| **Product Manager** | Feasibility assessment, technical constraints, build-vs-buy | What's architecturally possible, complexity cost, options with tradeoffs in business terms |
-| **Chaos Engineer** | Resilience design, failure mode analysis, blast radius containment | Architecture weak points, dependency graph, failure modes, steady-state definition |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `api-designer` | Bounded context map, API principles, versioning strategy, communication patterns (REST/GraphQL/gRPC) | API design proceeds without bounded context clarity — cross-service contract conflicts |
+| `database-designer` | Data ownership boundaries, multi-tenancy model, consistency requirements, scaling strategy | Database schema designed without service topology alignment — costly refactors |
+| `networking-engineer` | Service topology, communication patterns, latency budgets, capacity projections | Network topology built without understanding service dependencies — security and latency issues |
+| `backend-developer` | Service boundaries, technology stack decisions, inter-service contracts, deployment topology | Backend implemented against wrong service boundaries — architectural drift |
+| `devops-engineer` | Infrastructure requirements (compute/networking/storage), scaling patterns, observability needs | Infrastructure provisioned without understanding architecture — over/under-provisioning |
+| `cto-advisor` | Architecture options with tradeoff analysis, technical risk assessment, cost projections | CTO makes strategic decisions without architectural feasibility input |
 
-### Communication Triggers — When to Proactively Notify
+### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
-| ADR (Architecture Decision Record) published | All engineering leads, CTO, Product | Key decisions affecting API surface, data model, infrastructure, or developer workflows |
-| New service or bounded context identified | API Designer, Database Designer, DevOps | API contract, database design, infrastructure provisioning, CI/CD pipeline |
-| Technology stack change (new language, framework, database, message broker) | CTO, All engineering leads, DevOps, Security | Skill requirements, migration plan, operational readiness, security review |
-| Architecture review finds scalability ceiling (e.g., DB at 70% capacity) | CTO, DevOps, Performance Engineer | Capacity planning, scaling strategy, timeline before ceiling hit |
-| Build-vs-buy decision needed (e.g., auth service, search, payments) | CTO, Product, Finance, Security | Options analysis, TCO (3yr), integration complexity, compliance implications |
-| Cross-cutting concern discovered (auth, logging, monitoring, error handling) | All service teams, API Designer | Standardization needed — centralize or federate, pattern documentation |
-| Production incident with architectural root cause | CTO, DevOps, affected teams, Chaos Engineer | Postmortem, architectural fix priority, resilience pattern addition |
+|---|---|---|
+| ADR (Architecture Decision Record) published | All engineering leads, CTO, Product | Key decisions affecting API, data, infrastructure, or developer workflows |
+| New service or bounded context identified | API Designer, Database Designer, DevOps | API contract, database, infrastructure, CI/CD pipeline provisioning needed |
+| Technology stack change | CTO, All engineering leads, DevOps, Security | Skill requirements, migration plan, operational readiness, security review |
+| Architecture review finds scalability ceiling | CTO, DevOps, Performance Engineer | Capacity planning, scaling strategy, timeline before ceiling hit |
+| Build-vs-buy decision needed | CTO, Product, Finance, Security | Options analysis, TCO (3yr), integration complexity, compliance implications |
 
 ### Escalation Path
 

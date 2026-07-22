@@ -17,10 +17,11 @@ output:
 chain:
   consumes_from:
     - bizdev-manager
+    - legal-advisor
     - product-manager
   feeds_into:
+    - bizdev-manager
     - sales-engineer
-    - customer-success-manager
     - marketing-manager
   alternatives:
     - account-manager
@@ -43,6 +44,9 @@ What are you trying to do?
 ├── Run a partner QBR → Jump to "Core Workflow > Phase 6"
 ├── Resolve a channel conflict → Go to "Decision Trees > Channel Conflict Resolution"
 ├── Measure ecosystem health → Jump to "Decision Trees > Ecosystem Health Scoring"
+├── Need deal structure / term sheet drafting → Invoke `bizdev-manager` skill
+├── Need legal review of partner agreement → Invoke `legal-advisor` skill
+├── Need product integration scope / roadmap → Invoke `product-manager` skill
 └── Not sure where to start? → Start at "Core Workflow > Phase 1"
 ```
 
@@ -276,13 +280,14 @@ Quarterly Business Review with strategic partners. Structured agenda (60-90 minu
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
-| **BizDev Manager** | New partner handoff, deal structure questions, JBP updates | Signed agreement, deal economics, JBP, partner contact, strategic context |
-| **Product Manager** | Product roadmap for partner enablement, integration capabilities, partner feedback | Feature requests from partners, integration gaps, competitive partner feedback |
-| **Sales Engineer** | Partner training, co-sell deal support, technical enablement | Training curriculum needs, deal-level technical support, partner capability gaps |
+| **BizDev Manager** | New partner handoff, deal structure questions, JBP updates | Signed agreement, deal economics, JBP, partner contact, strategic context. **Decision gate:** Is JBP signed with revenue targets and QBR cadence? → partner activated. **Artifact:** partner activation checklist + 90-day onboarding plan. |
+| **Product Manager** | Product roadmap for partner enablement, integration capabilities, partner feedback | Feature requests from partners, integration gaps, competitive partner feedback. **Decision gate:** Does integration gap affect > 3 partners? → roadmap escalation. **Artifact:** partner feature request backlog + impact analysis. |
+| **Sales Engineer** | Partner training, co-sell deal support, technical enablement | Training curriculum needs, deal-level technical support, partner capability gaps. **Decision gate:** Has partner completed certification? → ready for co-sell. **Artifact:** partner certification report + deal support playbook. |
 | **Customer Success Manager** | Partner-sourced customer onboarding, retention, expansion | Customer handoff, implementation plan, renewal risk, expansion opportunities |
-| **Marketing Manager** | Co-marketing execution, MDF allocation, partner content | Co-marketing plans, content assets, MDF proposals, campaign results |
+| **Marketing Manager** | Co-marketing execution, MDF allocation, partner content | Co-marketing plans, content assets, MDF proposals, campaign results. **Decision gate:** Is MDF spend ROI > 3:1? → continue program. **Artifact:** MDF proposal with success metrics. |
 | **Account Manager** | Co-sell deals, account mapping, conflict resolution | Target accounts, deal status, partner engagement rules, conflict cases |
-| **Legal Advisor** | Partner agreement amendments, compliance issues, conflict with legal implications | Agreement changes, breach concerns, partner disputes requiring legal input |
+| **Legal Advisor** | Partner agreement amendments, compliance issues, conflict with legal implications | Agreement changes, breach concerns, partner disputes requiring legal input. **Decision gate:** Does issue expose > $100K liability? → legal review required before response. **Artifact:** legal review memo with risk assessment. |
+| **BizDev Manager** | Deal structure feedback, partner program economics, strategic partner retention | Partner performance data, competitive program benchmarking, ecosystem health scores. **Decision gate:** Is partner NPS > 50? → ecosystem healthy. **Artifact:** ecosystem health dashboard + program improvement recommendations. |
 
 ### Communication Triggers — When to Proactively Notify
 

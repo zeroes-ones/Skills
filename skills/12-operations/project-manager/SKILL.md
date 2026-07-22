@@ -1,17 +1,29 @@
 ---
 name: project-manager
-description: Technical project management specialist. Project planning (WBS, Gantt charts), risk management (RAID logs), stakeholder communication, resource allocation, budget tracking, milestone management, status reporting, and project postmortems. PMBOK and agile-hybrid methodologies.
+description: Technical project management specialist. Project planning (WBS, Gantt charts), risk management (RAID logs), stakeholder communication, resource allocation, budget tracking, milestone management,
+  status reporting, and project postmortems. PMBOK and agile-hybrid methodologies.
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - project-manager
+- project-manager
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - engineering-manager
+  - product-manager
+  - release-manager
+  - scrum-master
+  - technical-program-manager
+  feeds_into:
+  - release-manager
+  - scrum-master
+  - technical-program-manager
 ---
 # Technical Project Manager
 
@@ -28,6 +40,11 @@ What are you trying to do?
 ├── Budget tracking → Jump to "Earned Value Management (EVM)" under Sub-Skills
 ├── Milestone management & status reporting → Go to "Project Recovery" and "Stakeholder Communication"
 ├── Running a postmortem → Jump to "Postmortem" section in Core Workflow
+├── Need agile team execution and sprint coaching? → Route to `scrum-master`
+├── Multi-team program with cross-team dependencies? → Route to `technical-program-manager`
+├── Feature scope definition and roadmap? → Route to `product-manager`
+├── Engineering capacity or architecture decision? → Route to `engineering-manager`
+├── Deployment coordination needed? → Route to `release-manager`
 └── Don't know where to start? → Start at "Project Planning & Scheduling"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -253,6 +270,15 @@ These rules apply to *every* response this skill produces.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Project management is the hub — coordinating product, engineering, design, QA, DevOps, stakeholders, and business. The PM doesn't do the work; the PM ensures the right people talk to each other at the right time.
 
+### Decision Gates & Artifacts
+
+- **Phase-Gate Review**: Each project phase (Initiation, Planning, Execution, Closure) requires a go/no-go decision from the sponsor or steering committee. Output: signed phase-gate approval with action items.
+- **Risk Threshold Gate**: Any risk escalating from Medium to High (probability × impact > 15 on 5×5 matrix) triggers immediate stakeholder notification and mitigation activation. Output: updated risk register with mitigation owner and deadline.
+- **Budget Variance Gate**: Burn rate exceeding plan by >15% triggers escalation to sponsor and finance for corrective action or re-baseline. Output: variance report with root cause and options.
+- **Schedule Variance Gate**: SPI < 0.85 is RED — requires root cause analysis, recovery plan, and sponsor escalation. SPI 0.85-0.95 is AMBER — course-correct now. Output: schedule health report with recovery actions.
+- **Change Control Gate**: Any scope, date, or resource change requires impact analysis → options (cut scope, add resources, push date) → sponsor decision. Output: approved change request log.
+- **Project Closure Gate**: All deliverables accepted, contracts closed, resources released, lessons learned documented. Output: closure checklist signed and postmortem report.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Product Strategist** | Roadmap, scope changes, prioritization | Feature priorities, MVP scope, trade-off decisions, stakeholder expectations |
@@ -289,6 +315,18 @@ Project management is the hub — coordinating product, engineering, design, QA,
 | Vendor breach of contract or non-delivery | **Legal Advisor** + Procurement + Sponsor | Contractual remedy; may require legal action |
 | Regulatory/compliance deadline at risk of being missed | **Legal Advisor** + Regulatory Specialist + Sponsor | Regulatory exposure; may require external notification |
 | >20% budget or schedule overrun without recovery path | **Sponsor** + Portfolio Governance + Finance | Re-baseline or termination decision; executive approval required |
+
+### Route to Other Skills
+
+| If the Request Involves | Route To | Rationale |
+|--------------------------|-----------|-----------|
+| Agile team execution, sprint ceremonies, team coaching | `scrum-master` | Scrum-master owns the *how* — facilitation, coaching, impediment removal |
+| Multi-team program with cross-team dependencies | `technical-program-manager` | TPM coordinates across teams; PM manages within a single project |
+| Feature scope definition, roadmap, and user stories | `product-manager` | Product owns the *what* and *why*; PM owns the *when* and *how* |
+| Engineering capacity, architecture decisions, tech debt | `engineering-manager` | Resource allocation and technical strategy decisions |
+| Deployment coordination and release readiness | `release-manager` | Release logistics across environments and teams |
+| Vendor contract, procurement, or external delivery | `vendor-manager` or `legal-advisor` | Contractual obligations and external dependency management |
+| Budget governance and portfolio prioritization | `vp-engineering` or `director-engineering` | Executive decision on cross-project resource allocation |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

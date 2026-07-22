@@ -1,25 +1,39 @@
 ---
 name: llm-engineer
-description: >-
-  LLM/AI engineering covering RAG pipeline design (chunking strategies, embedding models, vector databases), prompt engineering at scale (templates, versioning, few-shot selection, chain-of-thought, system prompt governance), model evaluation frameworks (LLM-as-judge, hallucination detection, RAGAS), latency/cost optimization (streaming, token budgeting, semantic caching, distillation), function calling and tool use (OpenAI structured output, tool selection), guardrails (NeMo, PII detection, toxicity filtering), multi-agent architectures, and fine-tuning strategy (LoRA/QLoRA, data preparation). Triggered by LLM, RAG, prompt engineering, embeddings, vector database, function calling, AI engineering, LLM evaluation, hallucination detection, fine-tuning.
+description: LLM/AI engineering covering RAG pipeline design (chunking strategies, embedding models, vector databases), prompt engineering at scale (templates, versioning, few-shot selection, chain-of-thought,
+  system prompt governance), model evaluation frameworks (LLM-as-judge, hallucination detection, RAGAS), latency/cost optimization (streaming, token budgeting, semantic caching, distillation), function
+  calling and tool use (OpenAI structured output, tool selection), guardrails (NeMo, PII detection, toxicity filtering), multi-agent architectures, and fine-tuning strategy (LoRA/QLoRA, data preparation).
+  Triggered by LLM, RAG, prompt engineering, embeddings, vector database, function calling, AI engineering, LLM evaluation, hallucination detection, fine-tuning.
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - llm
-  - rag
-  - prompt-engineering
-  - embeddings
-  - vector-database
-  - function-calling
-  - model-evaluation
-  - hallucination-detection
+- llm
+- rag
+- prompt-engineering
+- embeddings
+- vector-database
+- function-calling
+- model-evaluation
+- hallucination-detection
 token_budget: 5000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - ai-safety-engineer
+  - backend-developer
+  - ml-ai-engineer
+  - mlops-engineer
+  feeds_into:
+  - ai-safety-engineer
+  - ai-safety-health-reviewer
+  - frontend-developer
+  - mlops-engineer
+  - product-manager
 ---
 # LLM & AI Engineer
 
@@ -53,6 +67,31 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: LLM engineering depends on upstream infrastructure and feeds into downstream safety, product, and UX -->
+
+| Upstream Skill | What You Receive | Decision Gate |
+|---|---|---|
+| `mlops-engineer` | Model serving infrastructure (vLLM/Triton), GPU optimization, deployment pipelines, monitoring dashboards | Validate latency/cost at target throughput before committing to architecture |
+| `ml-ai-engineer` | Model selection guidance, training data, fine-tuning strategies, embedding model benchmarks | Align on model capabilities vs requirements; avoid over-engineering for simple tasks |
+| `backend-developer` | API design patterns, service architecture, database schemas, authentication/authorization | Integrate LLM calls into service boundaries; define error handling and retry contracts |
+| `ai-safety-engineer` | Safety evaluation criteria, guardrail specs, red-teaming findings, bias audit results | Gate deployment on safety evaluation pass; integrate guardrails into output pipeline |
+
+| Downstream Skill | What You Provide | Artifacts |
+|---|---|---|
+| `ai-safety-health-reviewer` | LLM pipeline architecture, prompt templates, RAG retrieval patterns, evaluation results | Prompt catalog with safety annotations, RAG retrieval quality reports, hallucination rate dashboards |
+| `mlops-engineer` | Model serving requirements (latency SLAs, throughput targets, GPU needs), monitoring metrics | Serving configs, monitoring metric definitions, cost-per-request estimates |
+| `product-manager` | Feature feasibility assessments, latency/cost trade-offs, capability demonstrations | Prototype demos, cost-per-feature estimates, latency UX impact analysis |
+| `frontend-developer` | Streaming response contracts, function call schemas, error states, loading patterns | API contracts, streaming event types, tool use response schemas, typing indicators |
+
+**Coordination cadence:**
+- **Pre-implementation:** Architecture review with `mlops-engineer` on serving feasibility
+- **Weekly:** Sync with `backend-developer` on API contract changes and integration issues
+- **Per deployment:** Safety gate with `ai-safety-engineer` — no model change skips evaluation
+- **Bi-weekly:** Review with `product-manager` on feature readiness and cost projections
+- **Monthly:** Cross-functional review with all downstream consumers on pipeline health
 
 ## Core Workflow
 

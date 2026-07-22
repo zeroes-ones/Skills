@@ -1,17 +1,31 @@
 ---
 name: devrel-advocate
-description: "Developer relations strategy, community building, content creation (blogs/tutorials/videos/talks), sample apps, conference speaking, hackathon design, developer onboarding (TTC), developer NPS, champion programs, and API evangelism. Trigger: DevRel, developer relations, developer advocate, developer evangelism, community building, developer community, open source community, API evangelist, technical community manager. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
+description: 'Developer relations strategy, community building, content creation (blogs/tutorials/videos/talks), sample apps, conference speaking, hackathon design, developer onboarding (TTC), developer
+  NPS, champion programs, and API evangelism. Trigger: DevRel, developer relations, developer advocate, developer evangelism, community building, developer community, open source community, API evangelist,
+  technical community manager. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.'
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - devrel-advocate
+- devrel-advocate
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - backend-developer
+  - content-strategist
+  - documentation-engineer
+  - frontend-developer
+  - technical-writer
+  feeds_into:
+  - content-strategist
+  - documentation-engineer
+  - growth-engineer
+  - marketing-manager
 ---
 # Developer Relations / Developer Advocate
 
@@ -36,6 +50,9 @@ What are you trying to do?
 │   └── Planning a developer event → Go to "Sub-Skills > hackathon-design"
 ├── Developer feedback loops
 │   └── Systematizing dev input to product → Go to "Sub-Skills > developer-feedback-loop"
+├── Cross-skill: Align content calendar with `content-strategist` → Open that skill
+├── Cross-skill: Coordinate onboarding experiments with `growth-engineer` → Open that skill
+├── Cross-skill: Sync developer content SEO with `seo-specialist` → Open that skill
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -243,6 +260,23 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
+
+### Decision Gates & Artifacts
+
+| Gate | Condition | Action |
+|------|-----------|--------|
+| DevRel ↔ Content | Blog post, tutorial, or educational content series planned | Coordinate with `content-strategist`; align editorial calendar and SEO keywords |
+| DevRel ↔ Growth | Developer onboarding optimization or TTC changes | Involve `growth-engineer`; share dNPS data and signup funnel metrics |
+| DevRel ↔ Product | Developer feedback prioritization or feature requests | Coordinate with `product-manager`; share structured feedback with user counts |
+| DevRel ↔ SEO | Developer docs discoverability or content SEO | Sync with `seo-specialist`; align on developer keyword strategy |
+| DevRel ↔ Engineering | Sample app broken or SDK feature request | Involve `backend-developer` or `frontend-developer`; share reproduction steps |
+
+**Artifacts shared across skills:**
+- Developer content calendar (shared with `content-strategist`, `seo-specialist`)
+- Sample app repositories (shared with `backend-developer`, `frontend-developer`)
+- Developer feedback reports (shared with `product-manager`, `backend-developer`)
+- dNPS survey results and TTC benchmarks (shared with `product-manager`, `growth-engineer`)
+
 | Coordinate With | When (Trigger) | What Info Flows |
 |---|---|---|
 | **Product Manager** | Feature prioritization, developer feedback | Developer pain points, feature requests with user count, competitive gaps |
@@ -270,6 +304,13 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 | Sample app broken due to API change | API Designer, Backend Developer | Developer trust at risk; fix immediately |
 | Conference CFP accepted (major event) | Content Strategist, Marketing | Amplify; prepare talk + booth + side events |
 | Community growth stalls (<5% month-over-month for 3 months) | Product Manager, Growth Engineer | Growth program audit; channel diversification |
+
+### Route to Other Skills
+
+- **`content-strategist`** — When producing developer blog posts, tutorials, or educational content series that need editorial alignment
+- **`growth-engineer`** — When optimizing developer onboarding flows, signup experiments, or TTC metrics
+- **`seo-specialist`** — When optimizing developer docs for search or developer content SEO strategy
+- **`backend-developer` / `frontend-developer`** — When sample app maintenance or SDK development needs engineering support
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

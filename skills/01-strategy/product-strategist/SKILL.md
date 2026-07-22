@@ -1,17 +1,30 @@
 ---
 name: product-strategist
-description: "Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led growth, JTBD, North Star metric, product roadmap."
+description: 'Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product
+  operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led
+  growth, JTBD, North Star metric, product roadmap.'
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - product-strategist
+- product-strategist
+chain:
+  consumes_from:
+  - business-strategist
+  - data-scientist
+  - ux-researcher
+  feeds_into:
+  - brand-guidelines
+  - ceo-strategist
+  - fp-and-a-analyst
+  - marketing-manager
+  - product-manager
 token_budget: 2715
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Product Strategist
 
@@ -32,6 +45,10 @@ What are you trying to do?
 ├── Choose GTM model → Jump to "Decision Trees > Go-to-Market Model Selection"
 ├── Drive growth & retention → Go to "Core Workflow > Phase 4: Growth & Optimization"
 ├── Scale product operations → Go to "Scale Depth"
+├── Need business model or GTM strategy? → `business-strategist`
+├── Need user research or persona development? → `ux-researcher`
+├── Need feature specs or PRD writing? → `product-manager`
+├── Need company vision or board-level decisions? → `ceo-strategist`
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Discovery & Validation"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -128,32 +145,29 @@ Average deal size (ACV)?
 <!-- QUICK: 30s -- table of who to talk to when -->
 Product strategy sits at the intersection of business, design, engineering, and operations. Know when to coordinate:
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CEO Strategist** | Fundraising, pivot decisions, org changes | Product roadmap implications, resource needs, revenue projections |
-| **CTO Advisor** | Build vs buy, tech debt vs features | Technical feasibility, engineering capacity, architecture constraints |
-| **Business Strategist** | Market entry, pricing, GTM | TAM/SAM/SOM, unit economics, channel strategy |
-| **UX Researcher** | Discovery, usability testing | Problem hypotheses, user segments, research questions |
-| **UI/UX Designer** | Feature design, prototypes | User stories, acceptance criteria, design constraints |
-| **System Architect** | Scalability planning, new services | Growth projections, traffic estimates, data volume forecasts |
-| **Frontend/Backend Dev** | Feature estimation, trade-offs | Prioritized backlog, acceptance criteria, technical constraints |
-| **QA Engineer** | Acceptance criteria, test planning | User scenarios, edge cases, expected behavior |
-| **Growth Engineer** | Experimentation, A/B tests | Hypothesis design, success metrics, experiment scope |
-| **Legal Advisor** | Terms, privacy, compliance | Data collection purposes, consent requirements, regulatory constraints |
-| **Security Reviewer** | Data handling, auth flows | PII classification, access patterns, threat surfaces from new features |
-| **Project Manager** | Roadmap, capacity, dependencies | Priorities, timeline estimates, cross-team dependencies |
-| **Data/Analytics** | Metrics, tracking, dashboards | What to measure, event taxonomy, reporting needs |
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `business-strategist` | TAM/SAM/SOM analysis, GTM strategy, pricing model options, unit economics baseline | During product discovery; before roadmap finalization |
+| `ceo-strategist` | Vision, fundraising status, board priorities, strategic direction, resource constraints | Before any major product pivot; quarterly strategic review |
+| `ux-researcher` | User personas, journey maps, usability findings, behavioral insights, pain point evidence | During product discovery; before feature prioritization |
+| `data-scientist` | Retention cohorts, funnel analytics, A/B test results, user segmentation, LTV projections | During feature prioritization; before pricing strategy decisions |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ceo-strategist` | Product vision, PMF signal, competitive landscape, roadmap, OKRs, growth model | CEO lacks product context for board meetings and fundraising |
+| `product-manager` | Prioritized features with RICE scores, success metrics, user segments, competitive positioning | PM writes PRDs without strategic context — backlog disconnected from business goals |
+| `marketing-manager` | ICP definition, positioning framework, competitive differentiation, pricing value metrics | Marketing campaigns target wrong segments with wrong messaging |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Pivot decision | CEO Strategist, CTO Advisor, Project Manager | Resourcing, timeline, technical replanning |
-| PMF signal (positive or negative) | CEO Strategist, Board | Fundraising strategy, burn rate decisions |
-| Pricing change | Business Strategist, Growth Engineer, Legal | Revenue model, experiment design, terms update |
-| Major scope change | Project Manager, Engineering leads | Sprint replanning, capacity reallocation |
-| Competitive threat | CEO Strategist, Business Strategist | Strategic response, positioning adjustment |
-| OKR at risk | CEO Strategist, CTO Advisor | Expectation management, resource reallocation |
+| Pivot decision | `ceo-strategist`, `cto-advisor`, `product-manager` | Resourcing, timeline, technical replanning |
+| PMF signal (positive or negative) | `ceo-strategist`, `board-manager` | Fundraising strategy, burn rate decisions |
+| Pricing change | `business-strategist`, `growth-engineer`, `legal-advisor` | Revenue model, experiment design, terms update |
+| Major scope change | `product-manager`, `engineering-manager` | Sprint replanning, capacity reallocation |
+| Competitive threat | `ceo-strategist`, `business-strategist` | Strategic response, positioning adjustment |
+| OKR at risk | `ceo-strategist`, `cto-advisor` | Expectation management, resource reallocation |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

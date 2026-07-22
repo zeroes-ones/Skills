@@ -1,17 +1,28 @@
 ---
 name: documentation-engineer
-description: Docs-as-code (Docusaurus vs Nextra vs Mintlify vs GitBook), API documentation (OpenAPI, GraphQL, gRPC), information architecture, content quality automation (Vale, broken links), versioning, i18n, analytics, onboarding docs, ADRs, runbooks.
+description: Docs-as-code (Docusaurus vs Nextra vs Mintlify vs GitBook), API documentation (OpenAPI, GraphQL, gRPC), information architecture, content quality automation (Vale, broken links), versioning,
+  i18n, analytics, onboarding docs, ADRs, runbooks.
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - documentation-engineer
+- documentation-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - api-designer
+  - devrel-advocate
+  - hardware-architect
+  - technical-writer
+  feeds_into:
+  - backend-developer
+  - devrel-advocate
+  - technical-writer
 ---
 # Documentation Engineer
 
@@ -57,6 +68,10 @@ What are you trying to do?
 ├── Set up documentation versioning → Jump to "Documentation Versioning" under Sub-Skills
 ├── Configure i18n for docs → Go to "references/i18n-guide.md"
 ├── Set up documentation analytics → Jump to "Documentation Analytics" under Sub-Skills
+├── Need content written first → Route to `technical-writer`
+├── Need API specs or code annotations → Route to `backend-developer`
+├── Need developer content strategy → Route to `devrel-advocate`
+├── Need docs site UI design → Route to `frontend-developer`
 └── Don't know where to start? → Start at "Docs-as-Code Infrastructure"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -784,6 +799,14 @@ Full templates are available in the `assets/` directory:
 <!-- QUICK: 30s -- table of who to talk to when -->
 Documentation engineering bridges engineering, product, support, and DevRel. The docs platform serves everyone — coordination prevents it from serving no one well.
 
+### Decision Gates & Artifacts
+
+- **Gate 1 — Content Exists:** Docs-as-code infrastructure requires content authored by `technical-writer` before pipelines can process it. Artifact: content inventory with Diátaxis categorization.
+- **Gate 2 — API Specs Validated:** API reference generation depends on OpenAPI/GraphQL specs provided by `api-designer`. Artifact: Spectral-linted API spec passing CI.
+- **Gate 3 — Audience Strategy Defined:** SEO, search, and analytics configuration aligned with developer outreach strategy from `devrel-advocate`. Artifact: docs analytics strategy document.
+- **Gate 4 — Platform Hosted:** Docs site CI/CD and hosting require infrastructure provisioned by `backend-developer`. Artifact: deploy pipeline with preview environments.
+- **Artifact:** Docs health audit report (broken links, freshness, coverage), SSG selection rationale, information architecture map.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Technical Writer(s)** | Docs authoring experience, content structure, publishing workflow | CMS/platform requirements, authoring friction, editorial workflow needs |
@@ -821,6 +844,16 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Migration from current docs platform to new platform proposed | **CTO Advisor** + All Writers + DevRel | 3-6 month migration; content, SEO, and workflow impact assessment needed |
 | Docs CI/CD pipeline broken for >24 hours preventing any docs updates | **CTO Advisor** + DevOps Lead | Production incident; emergency fix or manual deploy required |
 | Decision to deprecate docs-as-code in favor of SaaS platform (or vice versa) | **CTO Advisor** + All Writers + DevRel | Strategic tooling decision; workflow and culture impact |
+
+### Route to Other Skills
+
+| If the Request Is About | Route To |
+|--------------------------|----------|
+| Content authoring, style guides, editorial workflow | `technical-writer` |
+| API spec quality, code annotation, SDK documentation generation | `backend-developer` |
+| Developer content strategy, community docs, tutorials | `devrel-advocate` |
+| Docs site UI design, component library, search UX | `frontend-developer` |
+| CI/CD pipeline, hosting infrastructure, preview environments | `devops-engineer` |
 
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->

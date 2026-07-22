@@ -1,17 +1,28 @@
 ---
 name: accessibility-auditor
-description: WCAG 2.2 compliance auditing across automated and manual testing, screen reader workflows, semantic HTML validation, focus management, accessible forms, legal landscape (ADA, Section 508, EN 301 549), and remediation prioritization.
+description: WCAG 2.2 compliance auditing across automated and manual testing, screen reader workflows, semantic HTML validation, focus management, accessible forms, legal landscape (ADA, Section 508, EN
+  301 549), and remediation prioritization.
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - accessibility-auditor
+- accessibility-auditor
+chain:
+  consumes_from:
+  - accessibility-testing
+  - frontend-developer
+  - ui-ux-designer
+  feeds_into:
+  - accessibility-testing
+  - frontend-developer
+  - legal-advisor
+  - qa-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Accessibility Auditor
 
@@ -26,6 +37,10 @@ What are you trying to do?
 ├── Semantic HTML review (landmarks, headings, forms) → Jump to "references/accessibility-auditor.md"
 ├── Legal compliance check (ADA, Section 508, EN 301 549) → Go to "references/accessibility-auditor.md"
 ├── Remediation planning (prioritize fixes by impact) → Jump to "references/accessibility-auditor.md"
+├── Need component specifications or design tokens? → `ui-ux-designer`
+├── Need accessible implementation with ARIA patterns? → `frontend-developer`
+├── Need legal compliance review (ADA, Section 508)? → `legal-advisor`
+├── Need brand color contrast or typography validation? → `brand-guidelines`
 └── Don't know where to start? → Run automated audit first, then manual testing
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -750,42 +765,39 @@ Use severity-based triage — prioritize by user impact, not by WCAG level:
 <!-- QUICK: 30s -- table of who to talk to when -->
 Accessibility is not a QA gate at the end — it's a design constraint from day one. Coordination with design, engineering, and legal ensures accessibility is built in, not bolted on.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `ui-ux-designer` | Component specs with interaction states, design tokens (color, spacing, typography), Figma frames with focus order annotations | During design review; before component handoff to engineering |
+| `frontend-developer` | Implemented components with ARIA patterns, semantic HTML structure, keyboard navigation behavior, live region updates | During code audit; before PR merge for accessibility-critical features |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **UI/UX Designer** | Design review, component design, interaction patterns | Accessibility violations, WCAG requirements, design alternatives, focus order, color contrast |
-| **Frontend Developer** | Implementation review, component audit, fix verification | Specific violations with code-level fixes, ARIA patterns, semantic HTML guidance, keyboard navigation |
-| **QA Engineer** | Test planning, automated testing setup, regression testing | Accessibility test cases, axe-core/lighthouse integration, test scripts, severity classification |
-| **Legal Advisor** | Compliance risk, lawsuit threat, VPAT/ACR preparation | WCAG conformance status, known issues, remediation timeline, legal exposure |
-| **Brand Guidelines** | Color palette, typography, motion design | Contrast ratio requirements, font size minimums, prefers-reduced-motion compliance |
-| **UX Researcher** | Inclusive research, usability testing with disabled users | Recruitment requirements, assistive technology testing, accessibility-specific research questions |
-| **Product Manager** | Remediation prioritization, roadmap allocation, compliance deadlines | Issue severity, user impact, fix effort estimates, compliance risk |
-| **Content Designer / Tech Writer** | Documentation, alt text, link text, heading structure | Content accessibility, reading level, descriptive link text, heading hierarchy |
-| **Backend Developer** | API error messages, form validation, server-rendered content | Error message clarity, validation feedback, accessible dynamic content updates |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `frontend-developer` | WCAG violation report with code-level fix guidance, ARIA pattern recommendations, semantic HTML corrections, focus management remediation | Inaccessible code ships to production — legal exposure and user exclusion |
+| `qa-engineer` | Accessibility test cases, axe-core/Lighthouse CI integration config, screen reader test scripts, severity classification rubric | Accessibility regressions go undetected — bugs accumulate |
+| `legal-advisor` | WCAG conformance status report, VPAT/ACR draft, known issues register, remediation timeline, legal exposure assessment | Compliance deadline missed — ADA/508 demand letters or lawsuits |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Blocker-level accessibility issue found in production | Product Manager, Frontend Lead, Legal | Hotfix prioritization, legal exposure assessment, customer communication if warranted |
-| ADA/508 demand letter or lawsuit received | Legal, CEO, Product Manager, CTO | Immediate legal response, remediation acceleration, PR strategy |
-| Design system component fails WCAG AA | UI/UX Designer, Frontend Lead | Component redesign, downstream impact assessment, fix timeline |
-| Accessibility score drops below CI threshold | Frontend Lead, QA, Product Manager | Build blocked, root cause identification, fix assignment |
-| New feature ships without accessibility review | Product Manager, Frontend Lead, Legal (if regulated) | Retroactive audit, remediation ticket, process improvement |
-| VPAT/ACR requested by enterprise customer | Legal, Product Manager, Sales | Conformance documentation, known issues disclosure, remediation commitments |
+| Blocker-level accessibility issue found in production | `product-manager`, `frontend-developer`, `legal-advisor` | Hotfix prioritization, legal exposure assessment, customer communication if warranted |
+| ADA/508 demand letter or lawsuit received | `legal-advisor`, `ceo-strategist`, `product-manager`, `cto-advisor` | Immediate legal response, remediation acceleration, PR strategy |
+| Design system component fails WCAG AA | `ui-ux-designer`, `frontend-developer` | Component redesign, downstream impact assessment, fix timeline |
+| Accessibility score drops below CI threshold | `frontend-developer`, `qa-engineer`, `product-manager` | Build blocked, root cause identification, fix assignment |
+| New feature ships without accessibility review | `product-manager`, `frontend-developer`, `legal-advisor` (if regulated) | Retroactive audit, remediation ticket, process improvement |
+| VPAT/ACR requested by enterprise customer | `legal-advisor`, `product-manager` | Conformance documentation, known issues disclosure, remediation commitments |
 
 ### Escalation Path
 
 ```
 Legal/regulatory risk (lawsuit filed, demand letter, DOJ investigation)
-  └── Legal + CEO + Product Manager + CTO. External counsel engaged. All-hands remediation.
+  └── `legal-advisor` + `ceo-strategist` + `product-manager` + `cto-advisor`. External counsel engaged. All-hands remediation.
 
 Systemic accessibility failure (core user journey completely inaccessible)
-  └── Product Manager + CTO + UI/UX Designer. Remediation sprint. Feature flagged or rolled back.
+  └── `product-manager` + `cto-advisor` + `ui-ux-designer`. Remediation sprint. Feature flagged or rolled back.
 
 Design system violation (shared component fails audit, affects all products)
-  └── UI/UX Designer + Frontend Lead. Fix component, propagate to all consumers.
+  └── `ui-ux-designer` + `frontend-developer`. Fix component, propagate to all consumers.
 ```
 
 ## Best Practices

@@ -1,17 +1,29 @@
 ---
 name: release-manager
-description: Release management, release train, deployment calendar, go/no-go, release coordination, version management, launch readiness, rollback, canary deployment, feature flags. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: Release management, release train, deployment calendar, go/no-go, release coordination, version management, launch readiness, rollback, canary deployment, feature flags. Works with Claude Code,
+  Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - release-manager
+- release-manager
 token_budget: 4000
+chain:
+  consumes_from:
+  - ci-cd-builder
+  - devops-engineer
+  - project-manager
+  - qa-engineer
+  - site-reliability-engineer
+  feeds_into:
+  - devops-engineer
+  - project-manager
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Release Manager
 
@@ -35,6 +47,10 @@ What are you trying to do?
 ├── Plan a rollback → Go to "Core Workflow > Phase 4" (Rollback Planning) and "Best Practices > Rollback"
 ├── Set up a canary deployment → Jump to "Decision Trees > Deployment Strategy Selection" and "Core Workflow > Phase 2"
 ├── Manage feature flags for release → Go to "Sub-Skills > feature-flag-management"
+├── Need CI/CD pipeline setup → Invoke `ci-cd-builder` skill instead
+├── Need quality assurance → Invoke `qa-engineer` skill instead
+├── Need infrastructure automation → Invoke `devops-engineer` skill instead
+├── Need production monitoring → Invoke `site-reliability-engineer` skill instead
 └── Not sure where to start? → "Decision Trees > Release Strategy" — match your release frequency to team maturity
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -232,28 +248,18 @@ Critical bug found in production:
    - Output: Release archive for audit and future reference.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When | What to Share/Ask |
-|---|---|---|
-| **CI/CD Builder** | Pipeline design, deployment automation, rollback automation | Release workflow requirements, canary/blue-green configuration, gating criteria |
-| **SRE** | Error budget integration, incident response during deploy, post-deploy verification | Release risk assessment, error budget status, deploy freeze requests |
-| **QA Engineer** | Test planning, regression suite execution, go/no-go testing criteria | Release scope, test results, quality sign-off requirements |
-| **Product Manager** | Release scope definition, feature priority, stakeholder communication | Feature readiness, dark launch plans, customer communication |
-| **Backend/Frontend Developers** | Feature completion, merge coordination, bug fixes | Code freeze timeline, cherry-pick requests, merge conflict resolution |
-| **Security Engineer** | Security scan results, CVE remediation, compliance verification | Security clearance for release, vulnerability status, compliance gate results |
-| **DevOps Engineer** | Infrastructure changes in release, database migrations, environment readiness | Infrastructure change risk, migration rollback plan, environment availability |
-| **Platform Engineer** | Golden path integration, self-service release dashboard, template compliance | Release workflow in platform, dashboard requirements, release health metrics |
-| **Support/Customer Success** | Release briefing, known issues, customer communication templates | Release summary, expected impact, support escalation path for release issues |
-| **Marketing** | Public release announcement, feature highlights, changelog publication | Release notes, feature highlights, timing coordination for external communication |
 
-### Escalation Path
-```
-Go/No-Go deadlock (cannot reach consensus)? → CTO decides
-SEV1 during deployment? → SRE Incident Commander → Rollback → CTO notified
-Release repeatedly NO-GO (3+ times)? → CTO + Product (scope renegotiation)
-Cross-team dependency blocking release? → Engineering Manager → CTO
-Customer-impacting regression found post-release? → SRE → Rollback → Postmortem
-```
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `ci-cd-builder` | Build artifacts, deployment pipeline, quality gate results, canary/blue-green configuration | Before planning a release train or scheduling deployments |
+| `qa-engineer` | Test results, regression suite coverage, go/no-go testing criteria, quality sign-off | Before go/no-go decision or release candidate promotion |
+| `devops-engineer` | Infrastructure change risk assessment, migration rollback plan, environment availability status | Before coordinating infrastructure changes in a release window |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | Release plan, deployment coordination, environment promotion workflow | Deployment orchestration stalls — releases pile up |
+| `site-reliability-engineer` | Error budget status, deploy risk assessment, rollback decision criteria, canary rollout gating | SRE can't gate risky deploys — reliability compromised |
+| `project-manager` | Release scope, feature readiness, deployment calendar, stakeholder communication | Project timelines disconnected from release reality — expectations mismanaged |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

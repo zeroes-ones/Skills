@@ -1,44 +1,48 @@
 ---
 name: revops-manager
-description: >-
-  Revenue Operations leadership — pipeline analytics with funnel stage conversion rates, velocity metrics, pipeline coverage ratios, cohort analysis, and forecasting models
-  CRM strategy for HubSpot/Salesforce architecture including custom objects for health-tech (patient accounts, provider accounts, pharma partners), automation rules, and data hygiene
-  territory planning with account segmentation (geographic, therapeutic area, HCP vs patient), territory assignment logic, capacity planning, and quota setting
-  attribution modeling with first-touch, last-touch, multi-touch, and custom weighting for health-tech buying cycles covering marketing-sourced vs sales-sourced pipeline
-  compensation design including commission structures, SPIFF programs, accelerator tiers, clawback policies, and plan modeling and rollouts
-  tech stack integration with CRM to marketing automation to customer success platform to billing, data flow mapping, and integration health monitoring
-  revenue forecasting across weekly, monthly, and quarterly cadences with pipeline inspection, commit vs best-case methodology, risk flagging, and forecast accuracy tracking
-  deal desk operations covering quoting process, discount approval workflows, contract review routing, and non-standard terms escalation
-  revenue analytics including ARR and MRR tracking, NRR and GRR, LTV:CAC by segment, logo vs expansion split, and churn and contraction analysis
-  sales process optimization with stage definition, exit criteria, deal inspection, and win/loss analysis integration.
-  Use when designing revenue operations strategy, building forecasting models, optimizing CRM architecture, designing compensation plans, or standing up a deal desk function.
+description: Revenue Operations leadership — pipeline analytics with funnel stage conversion rates, velocity metrics, pipeline coverage ratios, cohort analysis, and forecasting models CRM strategy for HubSpot/Salesforce
+  architecture including custom objects for health-tech (patient accounts, provider accounts, pharma partners), automation rules, and data hygiene territory planning with account segmentation (geographic,
+  therapeutic area, HCP vs patient), territory assignment logic, capacity planning, and quota setting attribution modeling with first-touch, last-touch, multi-touch, and custom weighting for health-tech
+  buying cycles covering marketing-sourced vs sales-sourced pipeline compensation design including commission structures, SPIFF programs, accelerator tiers, clawback policies, and plan modeling and rollouts
+  tech stack integration with CRM to marketing automation to customer success platform to billing, data flow mapping, and integration health monitoring revenue forecasting across weekly, monthly, and quarterly
+  cadences with pipeline inspection, commit vs best-case methodology, risk flagging, and forecast accuracy tracking deal desk operations covering quoting process, discount approval workflows, contract review
+  routing, and non-standard terms escalation revenue analytics including ARR and MRR tracking, NRR and GRR, LTV:CAC by segment, logo vs expansion split, and churn and contraction analysis sales process
+  optimization with stage definition, exit criteria, deal inspection, and win/loss analysis integration. Use when designing revenue operations strategy, building forecasting models, optimizing CRM architecture,
+  designing compensation plans, or standing up a deal desk function.
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - revops
-  - revenue-operations
-  - pipeline-analytics
-  - crm-strategy
-  - attribution-modeling
-  - compensation-design
-  - forecasting
-  - sales-operations
+- revops
+- revenue-operations
+- pipeline-analytics
+- crm-strategy
+- attribution-modeling
+- compensation-design
+- forecasting
+- sales-operations
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - sales-engineer
-    - customer-success-manager
-    - fp-and-a-analyst
+  - account-manager
+  - analytics-engineer
+  - business-intelligence-engineer
+  - customer-success-manager
+  - demand-generation
+  - fp-and-a-analyst
+  - growth-engineer
+  - marketing-manager
+  - sales-engineer
   feeds_into:
-    - ceo-strategist
-    - marketing-manager
-    - business-strategist
+  - fp-and-a-analyst
+  - growth-engineer
+  - marketing-manager
+  - sales-engineer
 ---
 # RevOps Manager (Revenue Operations)
 
@@ -60,6 +64,10 @@ What are you trying to do?
 |-- Run revenue analytics (ARR/NRR/LTV) -> Jump to "Core Workflow > Phase 4: Revenue Analytics"
 |-- Diagnose a forecast miss -> Go to "Error Decoder"
 |-- Audit CRM data hygiene -> Jump to "Best Practices > Data Quality"
+|-- Need demand gen campaign performance data -> Invoke `demand-generation` skill
+|-- Need sales cycle / demo conversion data -> Invoke `sales-engineer` skill
+|-- Need financial model / budget projections -> Invoke `fp-and-a-analyst` skill
+|-- Need growth experiments / CRO data -> Invoke `growth-engineer` skill
 ```
 
 ## Ground Rules -- Read Before Anything Else
@@ -332,14 +340,16 @@ Which integration is suspect?
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
-| **Sales Engineer** | Demo-to-close conversion rate declining, technical win rate trending down, PoC success criteria not aligning with close outcomes | Pipeline analytics by stage, win/loss patterns, demo environment stability impact on close rates |
+| **Sales Engineer** | Demo-to-close conversion rate declining, technical win rate trending down, PoC success criteria not aligning with close outcomes | Pipeline analytics by stage, win/loss patterns, demo environment stability impact on close rates. **Decision gate:** Is technical win rate > 40%? → sales process healthy. **Artifact:** technical win/loss analysis by deal stage. |
+| **Marketing Manager** | Attribution debate, campaign ROI measurement, lead scoring model design, ABM program measurement | Attribution model outputs by campaign, pipeline sourced vs influenced splits, conversion rates by lead source. **Decision gate:** Is attribution model locked for 12 months? → report consistently. **Artifact:** attribution model documentation + quarterly report. |
 | **Customer Success Manager** | NRR declining, churn rate increasing, expansion pipeline not materializing, handoff friction from sales to CS | Account health scores, churn reason codes, expansion opportunity identification, onboarding completion rates |
-| **FP&A Analyst** | Building annual operating plan, quota setting, comp plan cost modeling, board reporting package | Revenue forecast data, pipeline coverage ratios, comp plan cost projections, ARR bridge analysis |
+| **FP&A Analyst** | Building annual operating plan, quota setting, comp plan cost modeling, board reporting package | Revenue forecast data, pipeline coverage ratios, comp plan cost projections, ARR bridge analysis. **Decision gate:** Is forecast accuracy > 80% for 2+ months? → board deck ready. **Artifact:** quarterly board package with forecast accuracy metrics. |
 | **CEO Strategist** | Quarterly board deck preparation, annual planning, strategic initiative ROI analysis, M&A integration planning | Forecast accuracy data, NRR/GRR trends, LTV:CAC by segment, pipeline coverage trends, territory performance |
-| **Marketing Manager** | Attribution debate, campaign ROI measurement, lead scoring model design, ABM program measurement | Attribution model outputs by campaign, pipeline sourced vs influenced splits, conversion rates by lead source |
 | **Business Strategist** | Market entry modeling, new product line revenue projections, pricing strategy impact analysis, competitive displacement tracking | TAM analysis inputs, win/loss data by competitor, pricing elasticity data from deal desk, segment profitability |
 | **BizDev Manager** | Channel partnership revenue tracking, co-sell pipeline attribution, partner-sourced vs partner-influenced measurement | Partner pipeline data, channel commission structures, co-sell deal registration tracking |
-| **Demand Generation** | Pipeline coverage gaps, lead quality trends, conversion rate drops at MQL-to-SQL, campaign budget allocation | Conversion rates by channel and campaign, pipeline coverage waterfall, lead scoring effectiveness |
+| **Demand Generation** | Pipeline coverage gaps, lead quality trends, conversion rate drops at MQL-to-SQL, campaign budget allocation | Conversion rates by channel and campaign, pipeline coverage waterfall, lead scoring effectiveness. **Decision gate:** Is pipeline coverage > 3x for next quarter? → demand gen pacing healthy. **Artifact:** pipeline coverage waterfall report. |
+| **Analytics Engineer** | Data pipeline for attribution, CRM data quality, dashboard refreshes | Event taxonomy, data freshness requirements, attribution data model. **Decision gate:** Is CRM-to-billing ARR variance < 2%? → single source of truth. **Artifact:** data quality dashboard + pipeline health report. |
+| **Growth Engineer** | CRO experiment impact on pipeline, A/B test results affecting conversion rates, PLG signals | Experiment results, conversion rate changes, PLG funnel data. **Decision gate:** Did experiment produce statistically significant pipeline lift? → scale. **Artifact:** experiment results with pipeline impact analysis. |
 
 ### Communication Triggers -- When to Proactively Notify
 

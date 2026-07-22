@@ -1,33 +1,41 @@
 ---
 name: patient-health-educator
-description: Health education content design for patient communities — instructional design for health literacy (plain language, teach-back method), treatment adherence programs, injection training content, condition-specific education (hemophilia, rare diseases), behavior change frameworks (COM-B, Health Belief Model), patient onboarding flows, health literacy assessment, and outcome measurement. Use when creating patient-facing health education content, designing adherence programs, or building patient onboarding experiences.
+description: Health education content design for patient communities — instructional design for health literacy (plain language, teach-back method), treatment adherence programs, injection training content,
+  condition-specific education (hemophilia, rare diseases), behavior change frameworks (COM-B, Health Belief Model), patient onboarding flows, health literacy assessment, and outcome measurement. Use when
+  creating patient-facing health education content, designing adherence programs, or building patient onboarding experiences.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - patient-education
-  - health-literacy
-  - instructional-design
-  - treatment-adherence
-  - behavior-change
-  - hemophilia
-  - rare-disease
+- patient-education
+- health-literacy
+- instructional-design
+- treatment-adherence
+- behavior-change
+- hemophilia
+- rare-disease
 token_budget: 3500
 output:
-  type: "document"
-  path_hint: "education/"
+  type: document
+  path_hint: education/
 chain:
   consumes_from:
-    - clinical-informatics-specialist
-    - ux-researcher
+  - clinical-informatics-specialist
+  - content-policy-manager
+  - data-scientist
+  - medical-content-reviewer
+  - medical-illustrator
+  - patient-experience-researcher
+  - ux-researcher
+  - ux-writer
   feeds_into:
-    - content-strategist
-    - ux-writer
-    - medical-content-reviewer
+  - community-operations-manager
+  - medical-illustrator
+  - ux-writer
   alternatives:
-    - content-strategist
+  - content-strategist
 ---
 # Patient Health Educator
 
@@ -43,7 +51,13 @@ What are you trying to do?
 ├── WRITE health-literate content for the app → Go to "Best Practices" then "What Good Looks Like"
 ├── IMPROVE patient onboarding → Jump to "Decision Trees > Onboarding Flow Design"
 ├── MEASURE education outcomes → Go to "Core Workflow" — Phase 4 (Outcome Measurement)
-├── Need clinical accuracy review → Invoke medical-content-reviewer skill after this
+├── Need clinical accuracy review → Invoke `medical-content-reviewer` skill after this
+├── Need clinical terminology, PRO measures, or EHR data context? → Invoke `clinical-informatics-specialist` for coded references and care pathway alignment
+├── Need patient research insights for content design? → Invoke `patient-experience-researcher` for patient journey mapping and health literacy validation
+├── Need UX writing for health-literate microcopy? → Invoke `ux-writer` for plain language adaptation and content voice
+├── Need medical illustrations or anatomical diagrams? → Invoke `medical-illustrator` for clinically accurate visual content
+├── Need community-based education program distribution? → Invoke `community-operations-manager` for peer education and community engagement
+├── Need education outcomes analytics? → Invoke `data-scientist` for behavior change measurement and content effectiveness modeling
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -70,6 +84,48 @@ These rules apply to *every* response this skill produces. Patient education is 
 - Designing patient onboarding flows that set expectations and build health literacy from day one
 - Writing content for parents/caregivers of children with bleeding disorders
 - Creating culturally competent health education for diverse patient populations
+
+## Cross-Skill Coordination
+<!-- QUICK: 30s — table of who to talk to when -->
+Patient health education bridges clinical content, instructional design, and patient experience. Every piece of educational content must be clinically accurate, health-literate, and behaviorally effective. Coordination ensures content is medically sound, readable, and drives real behavior change.
+
+### Coordinate With
+
+| Coordinate With | When | What to Share/Ask | Clinical Validation Gate |
+|-----------------|------|-------------------|--------------------------|
+| **Medical Content Reviewer** | Before publishing any patient-facing education content | Education content drafts, clinical claims, treatment instructions | Gate: All patient education content must pass clinical accuracy review. Artifact: Clinical accuracy sign-off with cited evidence. |
+| **Clinical Informatics Specialist** | Content requiring terminology mapping, EHR integration, PRO data reference | Clinical terminology (SNOMED, LOINC), PRO instrument references, care pathway alignment | Gate: All coded clinical references mapped to validated ValueSets. |
+| **UX Researcher** | Content usability testing, health literacy validation, patient comprehension assessment | Education module prototypes, readability scores, comprehension test results | Gate: Content must score ≤8th-grade reading level (SMOG/Flesch-Kincaid) AND pass comprehension testing with ≥80% of target patients. |
+| **Data Scientist** | Education outcome measurement, behavior change analytics, content effectiveness modeling | Engagement metrics, completion rates, health outcome correlation data | Gate: Education programs must demonstrate measurable behavior change within 90 days of launch. Artifact: Outcomes dashboard. |
+| **UX Writer** | Content voice and tone, plain language adaptation, microcopy for education flows | Health-literate content drafts, plain language guidelines, interaction copy | Gate: All content reviewed for health literacy before UX implementation. |
+| **Medical Illustrator** | Visual content for education modules, anatomical diagrams, procedure illustrations | Visual content briefs, anatomical accuracy requirements, procedure step visualization | Gate: All medical illustrations reviewed for anatomical accuracy by clinical reviewer. |
+| **Community Operations Manager** | Community-based education programs, peer education content, patient ambassador training | Community education content, peer education guidelines, ambassador training materials | Gate: Peer education content must not constitute medical advice without clinical sign-off. |
+
+### Regulatory Handoffs & Patient Safety Protocols
+
+| Handoff Trigger | Route To | Protocol | Safety Gate |
+|----------------|----------|----------|-------------|
+| Education content teaches self-administration of medication | `medical-content-reviewer` → `compliance-officer` | Content review → Clinical accuracy check → Regulatory review if drug/device → Include emergency warning signs | Every self-administration module must include emergency warning signs and emergency contact information. |
+| Education module includes treatment decision support | `medical-content-reviewer` → `legal-advisor` | Content review → Liability assessment → Disclaimer review → Decision aid validation | Treatment decision aids must include: "This is not medical advice. Talk to your doctor before changing treatment." |
+| Patient reports adverse event in education feedback | `crisis-response-manager` | Flag feedback → Do NOT delete → Document timestamp and content → Transfer to crisis response | Within 1 hour of detection. |
+| Education content found to contain outdated clinical guideline | `medical-content-reviewer` → `clinical-informatics-specialist` | Flag content → Halt distribution → Update to current guideline → Notify patients who received outdated content | Within 48 hours of discovery. |
+| Content readability exceeds 8th-grade level post-launch | `ux-researcher` → `ux-writer` | Audit content → Rewrite to target level → Re-test comprehension → Redeploy | Before next content release cycle. |
+
+### Escalation Path
+
+```
+Patient safety concern in education feedback? → medical-content-reviewer → crisis-response-manager. Within 1 hour.
+Clinical inaccuracy discovered in published content? → medical-content-reviewer → compliance-officer. Content correction within 48 hours.
+Education program shows no behavior change at 90 days? → data-scientist → ux-researcher. Program redesign within 30 days.
+Regulatory concern about education content? → compliance-officer + legal-advisor. Within 24 hours.
+```
+
+### Decision Gates
+
+- **Health literacy gate:** Every patient-facing content piece must score ≤8th-grade reading level (SMOG or Flesch-Kincaid). Content failing this gate is held from publication until rewritten.
+- **Clinical accuracy gate:** All treatment instructions, medication information, and procedure descriptions must pass clinical accuracy review with cited evidence before publication.
+- **"When to call your doctor" gate:** Every education module must include specific warning signs and emergency contact information relevant to the topic. Missing this section blocks publication.
+- **Behavior change validation gate:** Education programs must demonstrate measurable behavior change (adherence improvement, knowledge gain, skill acquisition) within 90 days. Programs not meeting targets trigger redesign.
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->

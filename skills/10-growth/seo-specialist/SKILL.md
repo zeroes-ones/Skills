@@ -12,6 +12,9 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["content-strategist", "frontend-developer", "analytics-engineer"]
+  feeds_into: ["content-strategist", "growth-engineer", "marketing-manager"]
 ---
 # SEO Specialist
 
@@ -44,6 +47,10 @@ What are you trying to do?
 │   └── Authority gap vs competitors → Jump to "Core Workflow > Phase 7"
 ├── Rank tracking & monitoring
 │   └── Proactive alerting setup → Go to "Core Workflow > Phase 8"
+├── Cross-skill: Align keyword strategy with `content-strategist` → Open that skill
+├── Cross-skill: Coordinate structured data implementation with `frontend-developer` → Open that skill
+├── Cross-skill: Sync SEO-safe experiment rules with `growth-engineer` → Open that skill
+├── Cross-skill: Review campaign page SEO with `marketing-manager` → Open that skill
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -783,6 +790,22 @@ Debugging in PageSpeed Insights:
 <!-- QUICK: 30s -- table of who to talk to when -->
 SEO touches content, engineering, marketing, and design. Rankings degrade when any of these operate in isolation.
 
+### Decision Gates & Artifacts
+
+| Gate | Condition | Action |
+|------|-----------|--------|
+| SEO ↔ Content | Keyword targeting strategy or content gap analysis | Coordinate with `content-strategist`; share keyword research and SERP intent data |
+| SEO ↔ Frontend | Core Web Vitals regression, structured data, or JS rendering | Involve `frontend-developer`; share CWVs scores, schema specs, and rendering audit results |
+| SEO ↔ Growth | A/B test SEO safety review or landing page experiment | Sync with `growth-engineer`; agree on canonical rules and noindex directives for test pages |
+| SEO ↔ Marketing | Campaign landing pages or paid/organic cannibalization risk | Coordinate with `marketing-manager`; review keyword overlap and landing page SEO requirements |
+| SEO ↔ Analytics | GSC data integration or organic traffic anomaly detection | Involve `analytics-engineer`; share API access and anomaly thresholds |
+
+**Artifacts shared across skills:**
+- Keyword research document (shared with `content-strategist`, `marketing-manager`)
+- Technical SEO audit report (shared with `frontend-developer`, `growth-engineer`)
+- Structured data specification (shared with `frontend-developer`)
+- Ranking and traffic dashboard (shared with `content-strategist`, `marketing-manager`, `analytics-engineer`)
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Content Strategist** | Content planning, keyword strategy | Keyword targets, content gaps, SERP intent analysis |
@@ -816,6 +839,13 @@ SEO touches content, engineering, marketing, and design. Rankings degrade when a
 | Site migration (domain change) with traffic at risk | **CTO Advisor** + Project Manager | Cross-team coordination; executive visibility needed |
 | SEO recommendations blocked by engineering for >2 sprints | **CTO Advisor** or VP Product | SEO debt compounds; needs prioritization authority |
 | Paid and organic cannibalizing >30% overlap | **Marketing Lead** + Growth Engineer | Budget waste; needs channel alignment |
+
+### Route to Other Skills
+
+- **`content-strategist`** — When keyword research, topic clusters, or content gap analysis needs to feed into content planning
+- **`frontend-developer`** — When Core Web Vitals fixes, structured data markup, or JS rendering changes are needed
+- **`growth-engineer`** — When A/B tests need SEO safety review, canonical rules, or noindex coordination
+- **`marketing-manager`** — When paid and organic search strategies need alignment or campaign landing page SEO
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

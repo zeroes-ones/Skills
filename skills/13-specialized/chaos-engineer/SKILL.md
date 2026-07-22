@@ -12,6 +12,9 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["devops-engineer", "site-reliability-engineer", "observability-engineer"]
+  feeds_into: ["site-reliability-engineer", "incident-responder", "devops-engineer"]
 ---
 # Chaos Engineer
 
@@ -55,6 +58,10 @@ What are you trying to do?
 ├── Verify steady state hypothesis → Go to "Steady State Hypothesis Design" under Sub-Skills
 ├── Plan and run a GameDay → Jump to "GameDay Facilitation" then "references/game-day-playbook.md"
 ├── Validate resilience patterns → Go to "Resilience Pattern Validation" under Sub-Skills
+├── Need SLOs or error budgets defined first → Route to `site-reliability-engineer`
+├── Need infrastructure for experiment execution → Route to `devops-engineer`
+├── Need observability dashboards before experimenting → Route to `observability-engineer`
+├── Need incident response playbook validation → Route to `incident-responder`
 └── Don't know where to start? → Start at "Steady State Hypothesis Design"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -494,6 +501,14 @@ Before running ANY experiment, verify: you can detect the failure you're about t
 <!-- QUICK: 30s -- table of who to talk to when -->
 Chaos engineering is inherently cross-team — you break things that other teams built and own. Without coordination, chaos experiments are indistinguishable from attacks or accidents.
 
+### Decision Gates & Artifacts
+
+- **Gate 1 — Observability Verified:** Chaos experiments require existing dashboards and alerts from `observability-engineer`. Without them, experiments are just breaking things. Artifact: observability health check report.
+- **Gate 2 — SLOs Defined:** Steady state hypotheses depend on SLO definitions and error budgets established by `site-reliability-engineer`. Artifact: SLO threshold document per service.
+- **Gate 3 — Infrastructure Ready:** Experiment execution environments and blast radius controls depend on infrastructure provisioned by `devops-engineer`. Artifact: environment readiness checklist.
+- **Gate 4 — Runbook Validated:** Incident response playbooks validated in coordination with `incident-responder` before production experiments. Artifact: signed-off runbook validation report.
+- **Artifact:** GameDay report (findings, action items, owners), resilience score per service, blast radius containment verification.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **DevOps / SRE** | Experiment execution, blast radius control, monitoring during experiments | Experiment schedule, injection method, abort conditions, observability dashboard |
@@ -540,6 +555,16 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Performance fix didn't help | Wrong bottleneck identified | Profile before optimizing. Use flame graphs, not guesses. Measure p50/p95/p99 before and after every change. |
 | Documentation already obsolete by publish | Docs separate from code | Move docs into the codebase. Auto-generate API reference from OpenAPI/TypeScript types. Review docs in the same PR as code changes. |
 | Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. |
+
+### Route to Other Skills
+
+| If the Request Is About | Route To |
+|--------------------------|----------|
+| Defining SLOs, error budgets, or monitoring dashboards | `site-reliability-engineer` |
+| Incident detection, response playbook validation, on-call coordination | `incident-responder` |
+| Infrastructure provisioning, deployment orchestration, environment management | `devops-engineer` |
+| Dashboard tuning, alert configuration, anomaly detection | `observability-engineer` |
+| Resilience architecture, circuit breaker design, service dependency mapping | `system-architect` |
 
 
 ## Production Checklist

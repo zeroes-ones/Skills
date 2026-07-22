@@ -1,17 +1,30 @@
 ---
 name: cto-advisor
-description: Technology strategy, engineering org design, architecture governance, technical due diligence, innovation management, and vendor evaluation. Triggered by CTO, technology strategy, build vs buy, tech debt, architecture review, team topologies, due diligence, vendor selection.
+description: Technology strategy, engineering org design, architecture governance, technical due diligence, innovation management, and vendor evaluation. Triggered by CTO, technology strategy, build vs
+  buy, tech debt, architecture review, team topologies, due diligence, vendor selection.
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - cto-advisor
+- cto-advisor
+chain:
+  consumes_from:
+  - director-engineering
+  - engineering-manager
+  - security-engineer
+  - system-architect
+  - vp-engineering
+  feeds_into:
+  - ceo-strategist
+  - director-engineering
+  - system-architect
+  - vp-engineering
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # CTO Advisor
 
@@ -33,6 +46,10 @@ What are you trying to do?
 ├── Evaluate a vendor → Jump to "Decision Trees > Vendor Selection" + "Phase 6: Vendor Evaluation"
 ├── Run technical due diligence → Go to "Core Workflow > Phase 4: Technical Due Diligence"
 ├── Manage innovation → Jump to "Core Workflow > Phase 5: Innovation Management"
+├── Need system architecture or detailed design? → `system-architect`
+├── Need engineering team management or hiring? → `engineering-manager`
+├── Need security review or threat modeling? → `security-engineer`
+├── Need company vision or fundraising strategy? → `ceo-strategist`
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Technology Strategy"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -526,44 +543,44 @@ When this skill is invoked, drill into these specialized areas as needed:
 <!-- QUICK: 30s -- table of who to talk to when -->
 The CTO bridges business strategy and technical execution. A CTO who doesn't coordinate with product builds systems nobody wants; one who doesn't coordinate with the CEO builds systems the company can't afford.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `ceo-strategist` | Strategic vision, budget constraints, fundraising status, org design parameters, hiring budget | Before annual tech strategy planning; during build-vs-buy decisions >$100K |
+| `system-architect` | Architecture decision records (ADRs), system design proposals, tech stack evaluations, scalability assessments | During architecture review board meetings; before approving new platform choices |
+| `engineering-manager` | Team velocity data, tech debt backlog, hiring pipeline status, capacity allocation, skill gap analysis | During quarterly engineering planning; before team restructuring |
+| `security-engineer` | Threat models, vulnerability reports, SOC 2/ISO progress, incident postmortems, security roadmap | During security incident response; before customer security review commitments |
+| `vp-engineering` | Cross-team dependencies, engineering OKRs, resource conflicts, delivery risk flags | During portfolio-level prioritization; before major resource reallocation |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CEO Strategist** | Fundraising, strategic pivots, hiring plan, major build vs buy decisions | Engineering capacity, technical feasibility of business goals, cost of delaying tech investment |
-| **System Architect** | New system design, scaling events, architecture review, tech stack decisions | Business constraints (timeline, budget, team size), non-functional requirements, future growth projections |
-| **Security Reviewer** | SOC 2/ISO prep, security incident, vendor selection, customer security reviews | Risk appetite, compliance deadlines, customer contractual obligations |
-| **DevOps Engineer** | CI/CD strategy, infrastructure decisions, incident response, cost optimization | Deployment frequency targets, reliability SLOs, infrastructure budget, cloud vendor strategy |
-| **Product Strategist** | Roadmap trade-offs, build vs buy, technical feasibility of features | Engineering capacity, technical debt level, architecture constraints |
-| **Database Designer** | Schema design, data architecture, database selection, migration planning | Data growth projections, query patterns from product, compliance requirements |
-| **Engineering Leads** | Hiring, team structure, tech debt prioritization, architecture decisions | Org changes, strategic direction, budget constraints, cross-team dependencies |
-| **Data/Analytics** | Data infrastructure, analytics tooling, ML/AI strategy | Business questions to answer, data quality requirements, privacy constraints |
-| **Finance / CFO** | Infrastructure budget, headcount planning, vendor contracts, build vs buy ROI | Cloud costs, headcount costs, vendor TCO, engineering productivity metrics |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ceo-strategist` | Technical feasibility assessment, engineering capacity forecast, cost of delay for tech investments, build-vs-buy recommendations | CEO commits to impossible timelines or overinvests in wrong technology |
+| `vp-engineering` | Technology strategy, architecture governance framework, innovation budget, vendor evaluation results | Engineering teams operate without strategic direction — misaligned investments |
+| `director-engineering` | Architecture principles, tech radar (Adopt/Trial/Assess/Hold), tech debt prioritization framework, RFC process design | Teams make inconsistent technology choices — fragmentation and duplicated effort |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Architecture change affecting 3+ services | System Architect, Engineering Leads, DevOps | Cascade analysis, migration plan, deployment coordination |
-| Security incident | CEO, Security Reviewer, DevOps, Legal | Incident response, disclosure obligations, root cause timeline |
-| Cloud cost spike (>50% week-over-week) | Finance, DevOps, CEO | Cost root cause, remediation plan, budget impact |
-| Key technical hire accepted/rejected | CEO, Engineering Leads, Head of People | Team velocity impact, backup hiring plan |
-| Major vendor contract decision (>$50K/yr) | Finance, CEO, DevOps (if infra) | TCO analysis, negotiation strategy, migration cost |
-| Production outage > 1 hour | CEO, Product Strategist, DevOps, Engineering Leads | Customer impact, root cause, remediation timeline, postmortem schedule |
-| Tech due diligence requested (investor/customer) | CEO, Engineering Leads, Security Reviewer | Documentation prep, architecture review, security posture summary |
-| Build vs buy decision with >$100K implication | CEO, Finance, Product Strategist | TCO model, strategic implications, timeline trade-offs |
+| Architecture change affecting 3+ services | `system-architect`, `engineering-manager`, `vp-engineering` | Cascade analysis, migration plan, deployment coordination |
+| Security incident | `ceo-strategist`, `security-engineer`, `vp-engineering`, `legal-advisor` | Incident response, disclosure obligations, root cause timeline |
+| Cloud cost spike (>50% week-over-week) | `fp-and-a-analyst`, `vp-engineering`, `ceo-strategist` | Cost root cause, remediation plan, budget impact |
+| Key technical hire accepted/rejected | `ceo-strategist`, `engineering-manager`, `hr-manager` | Team velocity impact, backup hiring plan |
+| Major vendor contract decision (>$50K/yr) | `fp-and-a-analyst`, `ceo-strategist`, `vp-engineering` | TCO analysis, negotiation strategy, migration cost |
+| Production outage > 1 hour | `ceo-strategist`, `product-strategist`, `vp-engineering`, `engineering-manager` | Customer impact, root cause, remediation timeline, postmortem schedule |
+| Tech due diligence requested (investor/customer) | `ceo-strategist`, `engineering-manager`, `security-engineer` | Documentation prep, architecture review, security posture summary |
+| Build vs buy decision with >$100K implication | `ceo-strategist`, `fp-and-a-analyst`, `product-strategist` | TCO model, strategic implications, timeline trade-offs |
 
 ### Escalation Path
 
 ```
 Existential technical risk (data loss, security breach, extended outage)
-  └── CTO + CEO + Legal. Incident commander appointed. All-hands if >4 hours.
+  └── `cto-advisor` + `ceo-strategist` + `legal-advisor`. Incident commander appointed. All-hands if >4 hours.
 
 Strategic technical decision (architecture platform choice, major build vs buy)
-  └── CTO + System Architect + Engineering Leads. CEO informed. Decision within 2 weeks.
+  └── `cto-advisor` + `system-architect` + `engineering-manager`. `ceo-strategist` informed. Decision within 2 weeks.
 
 Tactical technical decision (tooling, framework version, CI pipeline change)
-  └── Engineering Lead handles. CTO informed via weekly 1:1. No escalation needed.
+  └── `engineering-manager` handles. `cto-advisor` informed via weekly 1:1. No escalation needed.
 ```
 
 ## Best Practices

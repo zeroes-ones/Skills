@@ -1,32 +1,37 @@
 ---
 name: community-operations-manager
-description: >-
-  Patient ambassador and peer mentorship program design with matching, training, boundaries, and compensation. Community health metrics including engagement rate, response rate, sentiment analysis, and clinical outcome correlations. Patient events such as virtual roundtables, in-person HTC events, conference meetups, and webinar programs. Community growth strategy via organic growth, clinical referral partnerships, and advocacy organization relationships. Moderation escalation partnership with trust-safety-engineer and content-policy-manager. Patient privacy in communities with HIPAA implications in community settings. Community segmentation by condition subtype, treatment regimen, age cohort, and caregiver vs patient roles. Gamification and recognition including top contributor programs, expert patient badges, and clinical advisory roles. Cultural competency for non-English communities, cultural attitudes toward treatment, and faith-based considerations. Triggered by patient community, peer mentorship, community operations, patient engagement, health community, support groups.
+description: Patient ambassador and peer mentorship program design with matching, training, boundaries, and compensation. Community health metrics including engagement rate, response rate, sentiment analysis,
+  and clinical outcome correlations. Patient events such as virtual roundtables, in-person HTC events, conference meetups, and webinar programs. Community growth strategy via organic growth, clinical referral
+  partnerships, and advocacy organization relationships. Moderation escalation partnership with trust-safety-engineer and content-policy-manager. Patient privacy in communities with HIPAA implications in
+  community settings. Community segmentation by condition subtype, treatment regimen, age cohort, and caregiver vs patient roles. Gamification and recognition including top contributor programs, expert
+  patient badges, and clinical advisory roles. Cultural competency for non-English communities, cultural attitudes toward treatment, and faith-based considerations. Triggered by patient community, peer
+  mentorship, community operations, patient engagement, health community, support groups.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - patient-community
-  - peer-mentorship
-  - community-operations
-  - patient-engagement
-  - health-community
-  - support-groups
+- patient-community
+- peer-mentorship
+- community-operations
+- patient-engagement
+- health-community
+- support-groups
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - customer-success-manager
-    - content-policy-manager
-    - crisis-response-manager
+  - content-policy-manager
+  - crisis-response-manager
+  - patient-health-educator
+  - trust-safety-engineer
   feeds_into:
-    - product-strategist
-    - marketing-manager
-    - clinical-informatics-specialist
+  - content-policy-manager
+  - crisis-response-manager
+  - patient-experience-researcher
 ---
 # Community Operations Manager
 
@@ -44,6 +49,10 @@ What are you trying to do?
 ├── Handle moderation escalation → Go to "Best Practices > Moderation Partnership"
 ├── Design a gamification or recognition program → Jump to "Best Practices > Gamification & Recognition"
 ├── Address cultural competency gaps → Go to "Best Practices > Cultural Competency"
+├── Managing a crisis or safety incident in the community? → Invoke `crisis-response-manager` immediately for AE reporting and safety protocols
+├── Need content policy or moderation guidance? → Invoke `content-policy-manager` for community guidelines and escalation rules
+├── Need trust and safety infrastructure? → Invoke `trust-safety-engineer` for abuse detection and platform safety
+├── Need patient experience research for community insights? → Invoke `patient-experience-researcher` for patient journey mapping and community-based recruitment
 └── Don't know where to start? → Describe your community (size, condition, maturity) and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -190,6 +199,24 @@ Community data breach (member PII exposed)? → Security Engineer + Health Compl
 Widespread community dissatisfaction (coordinated member exodus)? → Product Strategist + Customer Success Manager. Within 24 hours.
 Advocacy partnership at risk (contract dispute, reputational issue)? → Marketing Manager + Legal Advisor + CEO Strategist. Within 48 hours.
 ```
+
+### Regulatory Handoffs & Patient Safety Protocols
+
+| Handoff Trigger | Route To | Protocol | Safety Timeline |
+|----------------|----------|----------|-----------------|
+| Community member posts suicidal ideation with plan or intent | `crisis-response-manager` (immediately) | Do NOT respond with automated message → Flag content → Human assessment using C-SSRS → Warm handoff to crisis service → Document | Within 5 minutes |
+| Potential adverse event detected in community post (drug side effect, device malfunction) | `crisis-response-manager` → `compliance-officer` | Flag post → Do NOT delete → Document timestamp → Transfer for AE triage → Preserve content for regulatory record | Within 1 hour |
+| Community member publicly shares identifiable PHI (name + diagnosis + location) | `content-policy-manager` → `compliance-officer` | Assess content → Contact member privately (if safe) → Offer to edit/remove → Document action with rationale | Within 2 hours |
+| Coordinated misinformation campaign targeting patient community | `content-policy-manager` → `crisis-response-manager` | Identify pattern → Assess clinical risk → Policy enforcement → Community communication → Escalate if safety risk | Within 4 hours |
+| Peer mentor reports burnout or boundary violation by mentee | Clinical lead (if clinical mentor), mentorship program lead | Provide mentor support → Review boundaries → Adjust mentee assignment → Document incident | Within 24 hours |
+| Community engagement drops >20% month-over-month | `product-strategist` → `patient-experience-researcher` | Root cause analysis → Member interviews → Sentiment analysis → Corrective action plan | Within 1 week |
+
+**Patient Safety Gates:**
+- **Peer mentor matching gate:** Mentor-mentee matching must consider: condition subtype, treatment regimen, age cohort, language, and mentorship boundaries. Unmatched pair = potential harm. Artifact: Mentor matching criteria document with bias assessment.
+- **Community content escalation gate:** Any post mentioning self-harm, suicidal ideation, adverse events, abuse, or medical emergencies must be escalated to human review within 5 minutes. No automated-only response. Artifact: Escalation log with timestamp and resolution.
+- **Patient privacy gate:** No identifiable health data exposed without explicit consent. What a patient shares publicly is their choice; what the community operator shares about them is not. Artifact: Privacy impact assessment for community features.
+- **Cultural competency gate:** Non-English communities require dedicated moderators from those communities. Translated content ≠ culturally competent content. Artifact: Cultural competency assessment per language/region.
+- **Ambassador compensation gate:** Peer mentors compensated at fair market rates (honoraria, stipends, conference sponsorship). Uncompensated mentorship = exploitation. Artifact: Ambassador compensation policy with rate schedule.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

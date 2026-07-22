@@ -20,10 +20,11 @@ chain:
   consumes_from:
     - data-engineer
     - database-reliability-engineer
+    - backend-developer
   feeds_into:
+    - algorithmic-trader
     - quantitative-analyst
     - data-scientist
-    - backend-developer
   alternatives:
     - data-engineer
 ---
@@ -46,6 +47,8 @@ What are you trying to do?
 ├── Need general ETL patterns (not market-data-specific) → Invoke data-engineer skill instead
 ├── Need TimescaleDB/ClickHouse operations tuning → Invoke database-reliability-engineer skill instead
 ├── Need options pricing models or Greeks analysis → Invoke quantitative-analyst skill instead
+├── Need algorithmic trading strategy execution → Invoke `algorithmic-trader` skill
+├── Need backend pipeline infrastructure / API layer → Invoke `backend-developer` skill
 └── Not sure? → Describe your market data problem and I will route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -866,6 +869,8 @@ python run_backtest.py --strategy covered_call --start 2020-01-01 --end 2024-06-
 | **devops-engineer** | Kafka cluster deployment, stream processor containerization, CI/CD for pipeline code | Resource requirements (CPU/memory for Faust workers, Kafka broker sizing), deployment frequency, rollback procedures |
 | **security-engineer** | API key rotation, financial data access controls, PII in trade data | Vendor API key inventory, data classification (market data = confidential, trade data with client IDs = restricted), encryption requirements for data at rest |
 | **finops-engineer** | API cost monitoring, S3 storage cost optimization, Kafka cluster cost allocation | Per-vendor daily spend, S3 storage by tier (hot/warm/cold), data transfer costs, cost per query metrics |
+| **algorithmic-trader** | Live trading execution, order management, broker connectivity | Data freshness for trade signals — stale data means bad entries. **Decision gate:** Is pipeline latency < 500ms? → live trading OK. **Artifact:** data freshness SLA report per venue. |
+| **backend-developer** | API gateway, query service, caching layer for data access | API design for data consumption patterns. **Decision gate:** Can query serve 100 concurrent requests at < 3s p99? → API is production-ready. **Artifact:** load test report + API schema docs. |
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s — table of who to talk to when -->

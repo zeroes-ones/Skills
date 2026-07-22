@@ -1,30 +1,47 @@
 ---
 name: content-policy-manager
-description: >-
-  Content policy and medical misinformation management for health platforms — medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures, anti-vaccine, with severity tiers from life-threatening to low-quality), community guidelines creation (what is/isn't allowed with examples, rationale, cultural adaptations, plain-language versions), policy enforcement framework (first offense warning + education, second offense temporary suspension, third offense permanent removal, emergency bypass for imminent harm), escalation framework (clinical review pathway, legal review triggers, public health authority notification), regulatory and liability considerations (FDA social media guidance, HIPAA implications, Section 230, platform liability for medical content), policy-in-practice loop (quarterly policy review, community feedback integration, emerging misinformation pattern updates), medical expert review board (clinical advisory panel establishment, policy review cadence, expert dispute resolution), and transparency reporting (takedown statistics, appeal rates, policy change log, public-facing transparency reports). Triggered by content policy, medical misinformation, community guidelines, health content moderation, policy enforcement, FDA social media, content governance.
+description: Content policy and medical misinformation management for health platforms — medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures, anti-vaccine,
+  with severity tiers from life-threatening to low-quality), community guidelines creation (what is/isn't allowed with examples, rationale, cultural adaptations, plain-language versions), policy enforcement
+  framework (first offense warning + education, second offense temporary suspension, third offense permanent removal, emergency bypass for imminent harm), escalation framework (clinical review pathway,
+  legal review triggers, public health authority notification), regulatory and liability considerations (FDA social media guidance, HIPAA implications, Section 230, platform liability for medical content),
+  policy-in-practice loop (quarterly policy review, community feedback integration, emerging misinformation pattern updates), medical expert review board (clinical advisory panel establishment, policy review
+  cadence, expert dispute resolution), and transparency reporting (takedown statistics, appeal rates, policy change log, public-facing transparency reports). Triggered by content policy, medical misinformation,
+  community guidelines, health content moderation, policy enforcement, FDA social media, content governance.
 author: Sandeep Kumar Penchala
 type: governance
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - content-policy
-  - medical-misinformation
-  - community-guidelines
-  - health-content-moderation
-  - policy-enforcement
-  - fda-social-media
+- content-policy
+- medical-misinformation
+- community-guidelines
+- health-content-moderation
+- policy-enforcement
+- fda-social-media
 token_budget: 8000
 dependencies:
   tools: []
   packages: []
   permissions: []
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
-  consumes_from: ["compliance-officer", "legal-advisor", "regulatory-specialist"]
-  feeds_into: ["trust-safety-engineer", "community-operations-manager", "crisis-response-manager"]
+  consumes_from:
+  - ai-safety-health-reviewer
+  - community-operations-manager
+  - compliance-officer
+  - crisis-response-manager
+  - legal-advisor
+  - medical-content-reviewer
+  - regulatory-specialist
+  - trust-safety-engineer
+  feeds_into:
+  - community-operations-manager
+  - crisis-response-manager
+  - patient-health-educator
+  - trust-safety-engineer
 ---
 
 # Content Policy Manager / Medical Misinformation Officer
@@ -424,6 +441,19 @@ Q1 Review Cycle:
 
 <!-- NEIGHBORS: Skills this policy manager works with — coordinate early, not after a crisis -->
 
+### Decision Gates
+
+| When faced with this decision... | Invoke | Key Artifact |
+|---|---|---|
+| New regulation requires policy update | `compliance-officer` + `legal-advisor` | Regulatory impact memo, revised enforcement tier definitions |
+| Detection system reports new abuse pattern | `trust-safety-engineer` | False positive/negative analysis, automation feasibility assessment |
+| Moderators report policy ambiguity in the field | `community-operations-manager` | Policy-in-practice review, edge case catalog, revised playbook draft |
+| Crisis event needs emergency content rules | `crisis-response-manager` | Emergency bypass definition, post-crisis policy review framework |
+| Policy involves clinical accuracy determinations | `medical-content-reviewer` | Evidence standard memo, expert panel recommendation |
+| Policy design needs enforcement workflow definition | `trust-safety-engineer` | Enforcement matrix, severity tier definitions, detection rules |
+
+### Upstream (What You Consume)
+
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `compliance-officer` | Regulatory framework interpretation, enforcement posture guidance | During policy creation, quarterly review, and any policy response to new regulation |
@@ -434,19 +464,21 @@ Q1 Review Cycle:
 | `crisis-response-manager` | Emergency override triggers, imminent harm escalation criteria | Jointly define emergency bypass rules and post-crisis policy review |
 | `medical-content-reviewer` | Clinical review criteria, evidence standards, expert panel recommendations | Any policy involving clinical accuracy determinations |
 
-| Downstream Skill | What You Provide | Impact of Delay |
+### Downstream (What You Feed)
+
+| Downstream Skill | What You Provide | Decision Gate / Impact of Delay |
 |---|---|---|
-| `trust-safety-engineer` | Policy rules for automated detection systems, severity tier definitions, enforcement matrices | Automation cannot ship without policy definitions — blocks detection pipeline |
-| `community-operations-manager` | Moderator playbooks, appeal criteria, edge case guidance | Moderators enforce undefined policies inconsistently — high appeal rate |
-| `crisis-response-manager` | Imminent harm definitions, emergency removal criteria | Without clear policy, crisis response is either over-broad or paralyzed |
-| `patient-health-educator` | Approved health claim language, acceptable evidence standards for educational content | Educational content may contradict enforcement — erodes platform credibility |
+| `trust-safety-engineer` | Policy rules for automated detection systems, severity tier definitions, enforcement matrices | **Gate:** Automation cannot ship without policy definitions — blocks detection pipeline |
+| `community-operations-manager` | Moderator playbooks, appeal criteria, edge case guidance | **Gate:** Moderators enforce undefined policies inconsistently — high appeal rate |
+| `crisis-response-manager` | Imminent harm definitions, emergency removal criteria | **Gate:** Without clear policy, crisis response is either over-broad or paralyzed |
+| `patient-health-educator` | Approved health claim language, acceptable evidence standards for educational content | **Gate:** Educational content may contradict enforcement — erodes platform credibility |
 
 **Coordination cadence:**
-- **Weekly:** Sync with trust-safety-engineer on detection performance and policy gaps
-- **Bi-weekly:** Policy-in-practice review with community-operations-manager
-- **Monthly:** Regulatory alignment check with compliance-officer and regulatory-specialist
-- **Quarterly:** Full policy review with legal-advisor, medical-content-reviewer, and all downstream consumers
-- **Emergency:** Crisis-response-manager and legal-advisor within 1 hour of imminent harm detection
+- **Weekly:** Sync with `trust-safety-engineer` on detection performance and policy gaps
+- **Bi-weekly:** Policy-in-practice review with `community-operations-manager`
+- **Monthly:** Regulatory alignment check with `compliance-officer` and `regulatory-specialist`
+- **Quarterly:** Full policy review with `legal-advisor`, `medical-content-reviewer`, and all downstream consumers
+- **Emergency:** `crisis-response-manager` and `legal-advisor` within 1 hour of imminent harm detection
 
 ## Best Practices
 

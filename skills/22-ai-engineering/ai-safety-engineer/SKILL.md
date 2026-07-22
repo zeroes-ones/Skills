@@ -19,11 +19,14 @@ output:
   path_hint: "safety/"
 chain:
   consumes_from:
+    - ai-safety-health-reviewer
+    - mlops-engineer
+    - compliance-officer
     - llm-engineer
   feeds_into:
-    - compliance-officer
-    - product-manager
+    - llm-engineer
     - medical-content-reviewer
+    - product-manager
   alternatives:
     - security-engineer
 ---
@@ -45,6 +48,30 @@ What are you trying to do?
 └── Not sure where to start? → Start at "Ground Rules" then "When to Use"
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Skills this AI safety engineer coordinates with — safety decisions cascade across teams -->
+
+| Upstream Skill | What You Receive | Decision Gate |
+|---|---|---|
+| `ai-safety-health-reviewer` | Clinical safety review findings, medical hallucination audit results, FDA AI/ML regulatory assessments | Incorporate medical safety findings into guardrail thresholds before deployment |
+| `mlops-engineer` | Model serving infrastructure, monitoring dashboards, drift detection pipelines, A/B testing framework | Wire safety eval to model deployment gates; gate deployment on safety pass |
+| `compliance-officer` | HIPAA compliance requirements for AI features, regulatory filing guidance, audit scope definition | Validate guardrail architecture against regulatory requirements before launch |
+| `llm-engineer` | LLM pipeline architecture (RAG design, prompt templates, function calling patterns), model evaluation results | Review prompt guardrails and output filtering for safety gaps before production |
+
+| Downstream Skill | What You Provide | Artifacts |
+|---|---|---|
+| `llm-engineer` | Safety evaluation results, guardrail architecture specs, red-teaming findings, bias audit reports | Guardrail config (NeMo/input-output filters), safety test suites, red-team playbooks |
+| `medical-content-reviewer` | AI output safety classifications, hallucination detection results, content safety tiers | Safety-tagged content samples, hallucination rate dashboards, false positive/negative rates |
+| `product-manager` | AI feature safety assessments, risk-tier classifications, launch readiness evaluations | Safety scorecards, risk matrices, go/no-go recommendations for AI features |
+
+**Coordination cadence:**
+- **Pre-deployment:** Safety evaluation gates — no AI feature ships without passing safety suite
+- **Weekly:** Sync with `llm-engineer` on prompt changes and new model behavior
+- **Bi-weekly:** Review with `medical-content-reviewer` on clinical accuracy of AI outputs
+- **Monthly:** Regulatory alignment with `compliance-officer` on evolving FDA/EU AI Act requirements
+- **Per red-team cycle:** Findings handoff to `ai-safety-health-reviewer` for clinical validation of edge cases
 
 ## Ground Rules — Read Before Anything Else
 <!-- QUICK: 30s -->

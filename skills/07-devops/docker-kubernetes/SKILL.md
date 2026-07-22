@@ -1,17 +1,30 @@
 ---
 name: docker-kubernetes
-description: Dockerfile optimization, docker-compose, Kubernetes manifests, Helm charts, service mesh, pod security, and ingress design. Triggered by docker, kubernetes, k8s, helm, container, service mesh, ingress, pod, deployment.
+description: Dockerfile optimization, docker-compose, Kubernetes manifests, Helm charts, service mesh, pod security, and ingress design. Triggered by docker, kubernetes, k8s, helm, container, service mesh,
+  ingress, pod, deployment.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - docker-kubernetes
+- docker-kubernetes
 token_budget: 4000
+chain:
+  consumes_from:
+  - backend-developer
+  - ci-cd-builder
+  - cloud-architect
+  - devops-engineer
+  - networking-engineer
+  feeds_into:
+  - devops-engineer
+  - observability-engineer
+  - platform-engineer
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Docker & Kubernetes Engineer
 
@@ -32,6 +45,10 @@ What are you trying to do?
 ├── Harden pod security (securityContext, PSP/PSA, network policies) → Go to "Core Workflow > Phase 4" (Security Hardening)
 ├── Configure ingress (cert-manager, external-dns, multiple controllers) → Jump to "Decision Trees > Ingress Architecture"
 ├── Set up service mesh (Istio, Linkerd, Cilium) → Go to "Sub-Skills > service-mesh-integration"
+├── Need cluster provisioning → Invoke `devops-engineer` skill instead
+├── Need observability for containers → Invoke `observability-engineer` skill instead
+├── Need platform developer experience → Invoke `platform-engineer` skill instead
+├── Need reliability for container workloads → Invoke `site-reliability-engineer` skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — describe your workload
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -242,39 +259,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `ingress-traffic-management` | Configuring cert-manager, external-dns, multiple ingress controllers, and load balancing |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Docker/Kubernetes specialists build the container platform that every service runs on. They coordinate with developers for application packaging, DevOps for cluster operations, security for pod hardening, and observability for runtime visibility.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `devops-engineer` | Cluster API access, Helm repository management, GitOps integration, node configuration | Before deploying workloads or configuring Helm charts |
+| `cloud-architect` | Instance type selection, VPC CNI configuration, service mesh architecture, cluster autoscaling parameters | Before designing node groups or cluster networking |
+| `backend-developer` | Multi-stage build patterns, base image requirements, resource requests/limits, health check design | Before writing Dockerfiles or defining resource specs |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Dockerfile creation, resource requirements | Multi-stage build patterns, base image selection, resource requests/limits guidance, health check design |
-| **Frontend Developer** | Static asset serving, SSR containerization | Nginx config for SPA routing, SSR Node.js container sizing, CDN integration |
-| **DevOps Engineer** | Cluster provisioning, Helm deployments | Cluster API access, Helm repository management, GitOps integration (ArgoCD/Flux) |
-| **Security Engineer** | Pod security, network policies, image scanning | PodSecurityStandards enforcement, NetworkPolicy design, image CVE triage, non-root user requirements |
-| **Cloud Architect** | Node groups, cluster networking, service mesh | Instance type selection, VPC CNI configuration, service mesh (Istio/Linkerd) architecture, cluster autoscaling |
-| **Observability Engineer** | Container metrics, log collection | Prometheus pod monitors, Fluentd/Fluent Bit config, OpenTelemetry sidecar injection, Grafana dashboards |
-| **CI/CD Builder** | Image build pipeline, registry integration | Kaniko/Buildah in CI, image signing (Cosign), registry cleanup policies, tag immutability |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Base image CVE discovered (Critical/High) | Security Engineer, All service owners | Rebuild all affected images; coordinate deployment |
-| Cluster upgrade planned (Kubernetes version bump) | DevOps, All service owners | API deprecation check; schedule maintenance window; verify compatibility |
-| Node pool scaling event or capacity issue | Cloud Architect, DevOps | May need instance type changes or cluster autoscaler tuning |
-| Service mesh misconfiguration (mTLS broken, routing error) | DevOps, Affected service teams | Debug traffic flow; potential partial outage |
-| Ingress certificate expiring within 7 days | DevOps, Service owners | Renew certificate; verify cert-manager automation working |
-
-### Escalation Path
-
-```
-Cluster-wide outage? → Cloud Architect → DevOps Engineer → Incident Responder
-Security policy violation (privileged pod)? → Security Engineer → Compliance Officer
-Image registry unavailable? → Cloud Architect → DevOps Engineer
-Persistent node failures? → Cloud Architect (cloud provider escalation)
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | Cluster configuration, Helm chart standards, ingress/egress rules, pod security policies | Infrastructure teams can't deploy to Kubernetes — platform blocked |
+| `site-reliability-engineer` | Container reliability patterns, health probe configuration, resource limit enforcement | SRE can't guarantee container uptime — reliability targets at risk |
+| `platform-engineer` | Containerized workloads and Helm charts deployable via platform golden paths | Developer self-service stuck — no deployable artifacts |
+| `observability-engineer` | Container metrics, PodMonitors, OpenTelemetry sidecar injection, Fluent Bit config | Can't observe container workloads — blind spots in monitoring |
 
 
 **What good looks like:** Docker image builds in under 5 minutes and is under 200MB. Kubernetes manifests pass `kubeval` validation. Pod startup time < 10 seconds. Liveness and readiness probes configured on every deployment. Resource requests and limits set on every container.

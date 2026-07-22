@@ -4,14 +4,23 @@ description: Sprint planning, daily standups, retrospectives, backlog refinement
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - scrum-master
+- scrum-master
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - engineering-manager
+  - product-manager
+  - project-manager
+  feeds_into:
+  - engineering-manager
+  - project-manager
+  - technical-program-manager
 ---
 # Scrum Master
 
@@ -28,6 +37,11 @@ What are you trying to do?
 ├── Velocity tracking & burndown charts → Jump to "Agile Metrics & Diagnostics" under Sub-Skills
 ├── Team health check → Go to "Team Health & Psychological Safety" under Sub-Skills
 ├── Removing impediments → Jump to "Impediment Removal" under Sub-Skills
+├── Need project planning with WBS, Gantt, RAID? → Route to `project-manager`
+├── Multi-team program coordination needed? → Route to `technical-program-manager`
+├── Backlog prioritization and stakeholder alignment? → Route to `product-manager`
+├── Engineering capacity or technical debt strategy? → Route to `engineering-manager`
+├── Definition of Done enforcement? → Route to `qa-engineer`
 └── Don't know where to start? → Start at "Sprint Facilitation"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -348,6 +362,15 @@ python3 scripts/sprint_health.py --team backend --compare-sprint 14 --output jso
 <!-- QUICK: 30s -- table of who to talk to when -->
 The Scrum Master is a servant-leader who enables the team, removes impediments, and facilitates agile ceremonies. Coordination is about protecting the team while keeping stakeholders informed.
 
+### Decision Gates & Artifacts
+
+- **Sprint Planning Readiness Gate**: Backlog refined (top 2-3 sprints at task level), Definition of Ready met for all PBIs, team capacity calculated, sprint goal drafted. Output: sprint backlog with committed PBIs and task breakdown.
+- **Definition of Done (DoD) Gate**: No PBI marked "Done" without meeting all DoD criteria (code reviewed, tested, deployed, documented, accepted). Output: working increment that passes all quality gates.
+- **Retrospective Action Tracking Gate**: Every retro produces 1-3 improvement experiments with owners and deadlines. Action items not completed within 2 sprints trigger escalation. Output: tracked action item board with completion status.
+- **Impediment Escalation Gate**: Impediment not resolved within 24 hours escalates to `engineering-manager` or `project-manager`. Organizational blockers escalate to leadership with quantified business impact data. Output: impediment log with resolution time tracked.
+- **Velocity Health Gate**: Velocity drops >30% for 2 consecutive sprints triggers root cause investigation with `product-manager`, `engineering-manager`, and `project-manager`. Output: sprint health diagnostic report.
+- **Team Health Gate**: Health check metric collected each sprint. Two consecutive declines trigger intervention with `engineering-manager` and HR/People Ops. Output: team health trend report with intervention plan.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Product Owner / Product Strategist** | Backlog refinement, sprint planning, stakeholder alignment | Sprint goals, backlog health, velocity trends, value delivery metrics |
@@ -382,6 +405,18 @@ The Scrum Master is a servant-leader who enables the team, removes impediments, 
 | Organizational impediment blocking team (budget, procurement, policy) | **CTO Advisor** or VP Engineering + Project Manager | Authority beyond team level; systemic blocker |
 | Agile transformation resistance from senior leadership | **Agile Coach** (external) + CTO Advisor | Cultural change requires executive sponsorship |
 | Team consistently over-committing and burning out (utilization >110% for 4+ sprints) | **Engineering Lead** + HR + Project Manager | Sustainability crisis; capacity protection needed |
+
+### Route to Other Skills
+
+| If the Request Involves | Route To | Rationale |
+|--------------------------|-----------|-----------|
+| Project planning with WBS, Gantt charts, RAID logs | `project-manager` | PM handles the *what and when* — scope, timeline, budget, risks |
+| Multi-team program coordination and consolidated timelines | `technical-program-manager` | TPM coordinates across teams; SM serves one team |
+| Product backlog prioritization and stakeholder alignment | `product-manager` | Product owns backlog ordering and value delivery |
+| Engineering capacity planning and technical debt strategy | `engineering-manager` | Resource allocation and engineering practices decisions |
+| Definition of Done enforcement and quality metrics | `qa-engineer` | QA validates sprint output against DoD criteria |
+| Organizational impediment (procurement, policy, budget) | `cto-advisor` or `vp-engineering` | Authority beyond team level; systemic blocker |
+| Agile transformation resistance from leadership | `agile-coach` (external) + `cto-advisor` | Cultural change requires executive sponsorship |
 
 ## Scale Depth
 

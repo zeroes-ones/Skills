@@ -19,6 +19,17 @@ token_budget: 5000
 output:
   type: "document"
   path_hint: "./"
+chain:
+  consumes_from:
+    - data-engineer
+    - analytics-engineer
+    - data-scientist
+  feeds_into:
+    - analytics-engineer
+    - data-scientist
+    - growth-engineer
+    - revops-manager
+    - fp-and-a-analyst
 ---
 # Business Intelligence Engineer
 
@@ -52,6 +63,30 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: BI sits at the intersection of data pipelines, analytics, and business decision-making -->
+
+| Upstream Skill | What You Receive | Decision Gate |
+|---|---|---|
+| `data-engineer` | Raw data pipelines, data warehouse schemas, ETL/ELT job outputs, data freshness SLAs | Validate that BI data sources meet freshness and quality requirements before dashboarding |
+| `analytics-engineer` | dbt models, transformed datasets, data marts, testing and documentation | Incorporate curated datasets into semantic layer; flag gaps in transformation coverage |
+| `data-scientist` | Statistical models, predictive outputs, segmentation results, A/B test conclusions | Integrate model outputs into BI dashboards; validate model metrics are business-ready |
+
+| Downstream Skill | What You Provide | Artifacts |
+|---|---|---|
+| `analytics-engineer` | Semantic layer definitions (MetricFlow, LookML), metric governance rules, data modeling requirements | Metric definitions, dimension tables, SCD type specifications |
+| `data-scientist` | Curated datasets, metric definitions, self-serve exploration paths, business context for modeling | Semantic layer explores, governed datasets, business metric documentation |
+| `growth-engineer` | Product analytics dashboards, user behavior metrics, conversion funnels, retention cohort analyses | Funnel dashboards, activation metrics, retention reports |
+| `revops-manager` | Revenue dashboards, pipeline analytics, sales performance metrics, customer health scores | Revenue reporting, pipeline health dashboards, win/loss analytics |
+| `fp-and-a-analyst` | Financial metrics, ARR/NRR dashboards, LTV/CAC analyses, budget vs actuals reporting | Board-ready metric reports, investor KPI dashboards, scenario models |
+
+**Coordination cadence:**
+- **Daily:** Data freshness monitoring with `data-engineer` — flag stale data before dashboards refresh
+- **Weekly:** Sync with `analytics-engineer` on new dbt models and metric changes
+- **Bi-weekly:** Review with `fp-and-a-analyst` on investor reporting accuracy
+- **Monthly:** Alignment with `revops-manager` and `growth-engineer` on evolving business metric needs
 
 ## Core Workflow
 

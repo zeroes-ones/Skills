@@ -1,17 +1,28 @@
 ---
 name: brand-guidelines
-description: Brand architecture, identity system design, logo system, color palette with accessibility validation, typography hierarchy, iconography, imagery, motion design, brand-in-product expression, and brand governance.
+description: Brand architecture, identity system design, logo system, color palette with accessibility validation, typography hierarchy, iconography, imagery, motion design, brand-in-product expression,
+  and brand governance.
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - brand-guidelines
+- brand-guidelines
+chain:
+  consumes_from:
+  - marketing-manager
+  - medical-illustrator
+  - product-strategist
+  feeds_into:
+  - frontend-developer
+  - product-marketing-manager
+  - ui-ux-designer
+  - ux-writer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Brand Guidelines
 
@@ -27,6 +38,10 @@ What are you trying to do?
 ├── Typography hierarchy and fallback stacks → Jump to "references/brand-guidelines.md"
 ├── Iconography and imagery standards → Go to "references/brand-guidelines.md"
 ├── Brand governance and asset management → Jump to "references/brand-guidelines.md"
+├── Need product-market positioning or competitive landscape? → `product-strategist`
+├── Need design system tokens or component library? → `ui-ux-designer`
+├── Need marketing campaign assets or demand generation? → `marketing-manager`
+├── Need color contrast or typography accessibility validation? → `accessibility-auditor`
 └── Don't know where to start? → Start at Brand Architecture to determine your model, then build from there
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -726,43 +741,41 @@ Always reference the latest version. Archive, never delete old versions.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Brand guidelines are useless if nobody uses them. Coordination with design, engineering, and marketing ensures the brand is applied consistently — not just in Figma, but in production code, marketing materials, and partner content.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `product-strategist` | Market positioning, audience definition, competitive landscape, brand differentiation strategy | Before brand architecture design; during brand refresh |
+| `marketing-manager` | ICP definition, messaging framework, campaign channel strategy, demand gen requirements | During brand identity creation; before asset template design |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **UI/UX Designer** | Component design, design system creation, product UI | Design tokens (colors, spacing, typography, motion), component theming, dark mode variants |
-| **Frontend Developer** | Design token implementation, component library, CSS architecture | Token export format (JSON, CSS custom properties), naming conventions, breakpoints, implementation constraints |
-| **Marketing Lead** | Campaign assets, website, social media, events | Brand assets (logos, fonts, colors), templates, tone of voice, usage guidelines |
-| **Accessibility Auditor** | Color palette validation, typography review, motion compliance | Contrast ratios, font size minimums, prefers-reduced-motion, focus indicators |
-| **Documentation Engineer** | Brand docs site, design system documentation | Brand story, visual examples, usage guides, changelog format |
-| **Content Designer / Tech Writer** | Tone of voice, messaging, content style guide | Brand voice attributes, messaging frameworks, terminology guidelines |
-| **Growth Engineer** | Landing pages, email templates, A/B test variants | Brand-compliant templates, asset optimization, performance constraints |
-| **Sales / Partnerships** | Sales decks, co-branded materials, partner kits | Approved assets, co-branding rules, logo usage, partner templates |
-| **Product Manager** | Feature branding, product naming, in-product messaging | Naming conventions, brand hierarchy, tone consistency, visual alignment |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ui-ux-designer` | Design tokens (color, typography, spacing, motion), component theming guidance, dark mode palette, icon family specs | Design system uses inconsistent or inaccessible tokens — fragmented product experience |
+| `frontend-developer` | Token export format (CSS custom properties), naming conventions, breakpoint system, brand asset CDN paths | Hardcoded brand values proliferate — brand drift across codebase |
+| `ux-writer` | Voice and tone guidelines, messaging frameworks, terminology standards, content style rules | Inconsistent product copy — brand voice feels disjointed |
+| `product-marketing-manager` | Brand architecture model, visual asset library (logos, colors, fonts, templates), co-branding rules, usage guidelines | Marketing campaigns deviate from brand — diluted market presence |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Rebrand or major brand refresh | All functional leads, Marketing, CEO | Coordinated rollout across all touchpoints, asset migration, external communications |
-| Design token breaking change | UI/UX Designer, Frontend Lead | Component regression risk, migration plan, deprecation timeline |
-| New sub-brand or product brand created | Product Manager, Marketing, Sales | Brand architecture update, naming guidelines, visual system extension |
-| Brand violation in production (logo, color, typography) | Frontend Lead, Product Manager, Marketing | Fix prioritization, root cause (missing token, hardcoded value), prevention |
-| Accessibility issue found in brand elements | Accessibility Auditor, UI/UX Designer | Contrast adjustment, typography change, motion compliance fix |
-| Brand asset request from external partner | Legal, Partnerships, Marketing | Usage approval, co-branding rules, license terms |
+| Rebrand or major brand refresh | `product-strategist`, `marketing-manager`, `ceo-strategist` | Coordinated rollout across all touchpoints, asset migration, external communications |
+| Design token breaking change | `ui-ux-designer`, `frontend-developer` | Component regression risk, migration plan, deprecation timeline |
+| New sub-brand or product brand created | `product-manager`, `marketing-manager`, `product-strategist` | Brand architecture update, naming guidelines, visual system extension |
+| Brand violation in production (logo, color, typography) | `frontend-developer`, `product-manager`, `marketing-manager` | Fix prioritization, root cause (missing token, hardcoded value), prevention |
+| Accessibility issue found in brand elements | `accessibility-auditor`, `ui-ux-designer` | Contrast adjustment, typography change, motion compliance fix |
+| Brand asset request from external partner | `legal-advisor`, `marketing-manager` | Usage approval, co-branding rules, license terms |
 | Brand guideline version published | All consumers (via changelog + notification) | What changed, what's deprecated, migration guide, effective date |
 
 ### Escalation Path
 
 ```
 Brand integrity at risk (unauthorized sub-brand, major public misuse, trademark violation)
-  └── Brand Lead + Legal + Marketing Lead + CEO. Cease-and-desist if external. Fix within 24 hours if internal.
+  └── `brand-guidelines` + `legal-advisor` + `marketing-manager` + `ceo-strategist`. Cease-and-desist if external. Fix within 24 hours if internal.
 
 Design system conflict (brand token change breaks 10+ components)
-  └── UI/UX Designer + Frontend Lead + Brand Lead. Impact assessment, migration plan, staged rollout.
+  └── `ui-ux-designer` + `frontend-developer` + `brand-guidelines`. Impact assessment, migration plan, staged rollout.
 
 Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one location)
-  └── Direct fix by team that owns the asset. Brand Lead informed. No escalation needed.
+  └── Direct fix by team that owns the asset. `brand-guidelines` informed. No escalation needed.
 ```
 
 ## Best Practices

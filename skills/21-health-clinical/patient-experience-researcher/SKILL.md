@@ -21,12 +21,12 @@ output:
 chain:
   consumes_from:
     - ux-researcher
-    - accessibility-auditor
-    - compliance-officer
-  feeds_into:
-    - ui-ux-designer
-    - product-strategist
+    - community-operations-manager
     - clinical-informatics-specialist
+  feeds_into:
+    - product-manager
+    - clinical-informatics-specialist
+    - patient-health-educator
 ---
 # Patient Experience Researcher
 
@@ -44,6 +44,10 @@ What are you trying to do?
 ├── Recruit underserved or diverse patient populations → Go to "Best Practices > Diverse Recruitment"
 ├── Run a diary study for chronic condition management → Jump to "Core Workflow > Phase 4 (Diary & Longitudinal Studies)"
 ├── Set up a patient advisory board for co-design → Go to "Best Practices > Patient Advisory Boards"
+├── Need clinical terminology, PROM implementation, or FHIR expertise? → Invoke `clinical-informatics-specialist` for PRO data standards and EHR integration
+├── Creating patient education content from research findings? → Invoke `patient-health-educator` for health-literate education design
+├── Need community-based participant recruitment? → Invoke `community-operations-manager` for patient community access and engagement
+├── Need product management alignment on research priorities? → Invoke `product-manager` for roadmap implications of patient research findings
 └── Don't know where to start? → Describe your research question and patient population and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -202,6 +206,25 @@ Patient safety concern (adverse event, suicidal ideation, abuse)? → Clinical l
 Privacy breach (identifiable patient data exposed)? → Health Compliance + Security Engineer + Legal Advisor. Breach notification timeline assessment.
 IRB disapproves or suspends study? → Health Compliance + Product Strategist. Protocol revision. Stakeholder communication.
 ```
+
+### Regulatory Handoffs & Clinical Validation Gates
+
+| Handoff Trigger | Route To | Protocol | Regulatory Timeline |
+|----------------|----------|----------|---------------------|
+| New research study protocol ready for IRB submission | `compliance-officer` → IRB | Submit protocol + consent forms + recruitment materials → Address IRB feedback → Obtain approval before any participant contact | IRB approval required BEFORE any research activity |
+| Research reveals patient safety concern (adverse event, suicidal ideation, abuse) | Clinical lead → `compliance-officer` → `legal-advisor` → IRB | Document finding → Mandatory reporting → IRB notification → Participant follow-up if needed | Within 24 hours of discovery |
+| Privacy breach — identifiable patient data exposed | `compliance-officer` → `security-engineer` → `legal-advisor` | Contain breach → Assess scope → Determine notification obligation → Notify affected participants → IRB notification | Breach notification timeline per HIPAA (within 60 days) |
+| IRB disapproves or suspends study | `compliance-officer` → `product-strategist` | Address IRB concerns → Revise protocol → Resubmit → Stakeholder communication | Per IRB response timeline |
+| PROM instrument change required (not validated in target population) | `clinical-informatics-specialist` → `compliance-officer` | Identify alternative validated instrument → Protocol amendment → IRB approval for change → Update data collection | Before next data collection cycle |
+| Research uncovers systematic health inequity | `product-strategist` → `compliance-officer` → CEO (if strategic) | Document disparity → Health equity assessment → Product roadmap implications → Potential regulatory interest | Within 2 weeks of finding |
+
+**Clinical Validation Gates:**
+- **IRB determination gate:** Every research activity involving patient health data must receive IRB determination (exempt, expedited, full board, or not human subjects research) BEFORE any participant contact. Assuming "just UX research" when health data is involved = regulatory violation. Artifact: IRB determination letter or exemption documentation.
+- **Informed consent gate:** Consent forms must score ≤8th-grade reading level (SMOG or Flesch-Kincaid), be available in all participant languages, and include all required elements (purpose, procedures, risks, benefits, alternatives, confidentiality, voluntary nature). Invalid consent = invalid research. Artifact: Readability-scored consent form with IRB approval stamp.
+- **PROM validation gate:** Any patient-reported outcome measure must be validated for the target population (condition, age range, language, literacy level) before deployment. Unvalidated PROM = unreliable clinical data. Artifact: PROM validation evidence package.
+- **Recruitment equity gate:** Recruitment strategy must demonstrate reach to underserved populations. "Professional patients" (highly engaged, non-representative) skew results. Artifact: Recruitment diversity plan with quotas for underrepresented segments.
+- **Compensation fairness gate:** Patient compensation must be fair but not coercive. For 60-minute interview, $50-75 typical. IRB scrutinizes amounts that could induce risk-ignoring behavior. Artifact: Compensation rationale documented in IRB submission.
+- **Results return gate:** Every participant must receive a 1-page plain-language summary of findings. Patients who give time deserve to know what was learned. Artifact: Participant summary document with readability score.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

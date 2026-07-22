@@ -42,6 +42,11 @@ What do you need?
 ├── Automate translation quality checks → Jump to "Core Workflow > Phase 4"
 ├── Optimize MT costs → Go to "Decision Trees > Cost Optimization"
 ├── Integrate with a TMS (Lokalise/Phrase/Crowdin) → Jump to "Core Workflow > Phase 3"
+├── Need i18n architecture and pipeline → Invoke localization-engineer skill instead
+├── Need frontend string extraction → Invoke frontend-developer skill instead
+├── Need mobile string extraction → Invoke mobile-developer skill instead
+├── Need QA for translation quality → Invoke qa-engineer skill instead
+├── Need CI/CD integration for localization → Invoke ci-cd-builder skill instead
 └── String extraction from codebase → Go to "Core Workflow > Phase 1"
 ```
 
@@ -142,15 +147,27 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 
 ## Cross-Skill Coordination
 
-| Skill | When to Coordinate | What to Share |
-|-------|-------------------|--------------|
-| **localization-engineer** | i18n architecture, locale detection, RTL layout | String extraction config, TM schema, locale list |
-| **frontend-developer** | String extraction from React/Next.js, key implementation | i18next config, namespace strategy, key conventions |
-| **mobile-developer** | String extraction from React Native/Flutter, app store localization | Platform-specific locale files, App Store/Play Store metadata |
-| **qa-engineer** | Pseudolocalization testing, translation quality gates | LQA score thresholds, test locale builds |
-| **ci-cd-builder** | Continuous localization pipeline, automated PRs from TMS | Webhook config, pipeline triggers, quality gate scripts |
-| **technical-writer** | Documentation translation, help center localization | Glossary for technical terms, style guide for each locale |
-| **seo-specialist** | hreflang tags, localized SEO metadata | Translated meta descriptions, localized URLs |
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `localization-engineer` | i18n architecture, locale detection, RTL layout, locale-aware formatting, ICU MessageFormat patterns | Before configuring TMS; ensures translation pipeline matches engineering architecture |
+| `frontend-developer` | String extraction from React/Next.js, i18next config, namespace strategy, key conventions | Before pushing source strings to TMS; ensures keys follow project conventions |
+| `mobile-developer` | Platform-specific locale files, App Store/Play Store metadata, mobile formatting constraints | Before translating mobile strings; platform conventions differ |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `localization-engineer` | TM schema, locale list, TMS API integration, quality gate scripts, translated locale files | i18n pipeline can't auto-sync without TMS configuration |
+| `qa-engineer` | LQA score thresholds, test locale builds, pseudolocalization configuration, quality gate results | QA can't validate translations without quality automation |
+| `ci-cd-builder` | Webhook config, pipeline triggers, quality gate scripts, automated PR configuration | CI/CD can't automate localization pipeline without integration specs |
+
+### Communication Triggers
+
+| Trigger | Notify | Why |
+|---|---|---|
+| TMS integration broken / translations stopped syncing | localization-engineer, ci-cd-builder | Translations frozen; manual fallback needed |
+| Translation coverage drops below 95% | qa-engineer, localization-engineer | Release blocker — halt deploy until fixed |
+| MT cost spikes 3x budget | frontend-developer (source owner) | Audit source strings; reduce unnecessary re-translation |
+| New locale added to TMS | localization-engineer, qa-engineer | Configure locale detection, test infrastructure, CI pipeline |
+| Quality gate blocking: LQA score < 80 | qa-engineer, localization-engineer | Investigate MT engine quality or TM degradation |
 
 ## What Good Looks Like
 
