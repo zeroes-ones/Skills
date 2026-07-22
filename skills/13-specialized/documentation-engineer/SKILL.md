@@ -908,6 +908,10 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Small → Medium | >50 docs pages, users asking for versioned docs | Add CI/CD quality gates, multi-version setup, auto-generated API refs |
 | Medium → Enterprise | >500 docs pages, non-English user base >10% | Dedicated docs team, i18n pipeline, docs-as-product KPIs, ownership model |
 
+## What Good Looks Like
+
+> When documentation engineering is fully realized, the docs site builds, tests, and deploys through the same CI/CD pipeline as the product, broken links are caught before merge not after publish, style guide violations are enforced automatically so writers focus on content not formatting, search relevance is measured and tuned, freshness automation flags stale pages before users encounter them, and time-to-first-success for new users is under 5 minutes — docs are treated as a product with the same rigor as the software they describe.
+
 ## Cost-Effective Decision Table
 
 | Decision | Free/Cheap Option | Paid Upgrade | When to Upgrade |

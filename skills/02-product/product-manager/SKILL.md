@@ -218,6 +218,11 @@ Common chains:
 | PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. |
 
 
+## What Good Looks Like
+
+> You've just completed the product management exercise. Your PRD fits under 10 pages and the executive summary tells a VP everything they need in three sentences. Every user story has measurable acceptance criteria — nobody in engineering has to ask "how do I know when this is done." RICE scores are computed with documented inputs, and the team reviewed them together, surfacing hidden assumptions before they became implementation dead ends. Your roadmap uses Now/Next/Later and describes problems, not solutions — engineering owns the how. The launch plan includes a rollout strategy with feature flags and rollback criteria, and the post-launch dashboard is live before the first user sees the feature.
+
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[S1]**  PRD approved by engineering lead, design lead, and primary stakeholder

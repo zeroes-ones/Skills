@@ -923,6 +923,16 @@ $ psql -c "SELECT COUNT(*), SUM(premium) FROM options_flow
  184723 | 4521000.50
 ```
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single data source, batch ETL, CSV/Parquet files | Get usable data, learn the domain | Manual downloads and cron jobs; one asset class; local storage |
+| **Startup** | Real-time streaming, multiple venues, automated pipeline | Reliable data flow, reduce latency | WebSocket feeds replace batch; data lands in DB within seconds |
+| **Scale-up** | Tick-level data, multi-asset coverage, data quality SLAs | Breadth and depth of coverage | Every tick captured; options flow + equities + futures; data quality monitoring |
+| **Enterprise** | Petabyte-scale data lake, regulatory reporting, data marketplace | Institutional-grade infrastructure | SEC CAT/Reg NMS compliance; historical replay; internal data products sold to clients |
+
 ## References
 <!-- QUICK: 30s — links to deeper reading and reference documentation -->
 

@@ -258,6 +258,10 @@ Common chains:
 - **Chain**: observability-engineer → site-reliability-engineer → incident-responder — Observability data feeds error budgets; incidents are managed with established processes
 - **Chain**: devops-engineer → site-reliability-engineer → chaos-engineer — Infrastructure is deployed; SRE validates reliability; chaos experiments test resilience under failure
 
+## What Good Looks Like
+
+> Every service has defined SLIs, SLOs, and error budgets that are reviewed quarterly with stakeholders. Error budget burn triggers automated policy actions — deployments freeze, reliability work gets prioritized, and the team aligns before the budget is exhausted. Incident retrospectives are blameless and produce actionable follow-ups completed within two weeks. The system meets its availability targets while the team maintains a sustainable operational load: on-call shifts are quiet, toil is under 50% of the team's time, and every repeated incident drives a permanent fix rather than a workaround.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

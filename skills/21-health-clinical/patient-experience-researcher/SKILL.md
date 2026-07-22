@@ -266,6 +266,10 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 - **Small → Medium**: Multi-language patient population. PROM program launched. Longitudinal research needed. >10K patients.
 - **Medium → Enterprise**: Global patient population. Regulatory-grade research for FDA submissions. >100K patients.
 
+## What Good Looks Like
+
+Research findings directly shape product decisions. Patient voices are present in every sprint review. Research operations scale without sacrificing participant care. Pharma partners cite your patient insights in their regulatory submissions. The research team is as diverse as the patient population.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **ux-researcher** — for general research methodology, interview techniques, and synthesis frameworks

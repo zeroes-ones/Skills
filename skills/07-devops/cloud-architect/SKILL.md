@@ -358,6 +358,10 @@ Cross-cloud migration decision? → CTO Advisor → CEO Strategist
 | `File exists` | Output file already exists | Use `--force` flag or specify different output path |
 
 
+## What Good Looks Like
+
+> Architecture decisions are documented as ADRs with clear trade-off analysis, and every decision traces back to a business requirement. Infrastructure is defined as code, environments are identical, and disaster recovery is tested quarterly. Costs are predictable and within budget. The system scales automatically under load and degrades gracefully under failure — no single component failure takes down the user experience. The architecture diagram matches reality, and any engineer can reason about the system by reading the ADRs and looking at the IaC.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[S1]**  Multi-account/multi-project isolation with separate production and non-production environments

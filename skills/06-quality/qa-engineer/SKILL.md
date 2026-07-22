@@ -322,6 +322,10 @@ Common chains:
 - **Chain**: backend-developer → qa-engineer → release-manager — Tests validate feature correctness; release manager uses results for go/no-go
 - **Chain**: code-reviewer → qa-engineer → site-reliability-engineer — Review findings inform test focus; SRE uses reliability test results for error budgets
 
+## What Good Looks Like
+
+> A comprehensive test strategy catches 95% of regressions before production, with fast unit and integration tests in CI and targeted E2E tests covering critical user journeys. Test data is realistic and isolated, and flaky tests stay below 1%. QA reports surface clear, reproducible bug reports with severity, impact, and reproduction steps. The team ships with confidence because the test pyramid is balanced, quality gates are meaningful, and every failure in production traces back to a missing test that gets added before the next release.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

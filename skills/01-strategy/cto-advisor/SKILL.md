@@ -616,6 +616,11 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 | Co-founder conflict | Roles, equity, or vision disagreement | Written founder agreement with vesting, roles, decision rights, and exit terms |
 
 
+## What Good Looks Like
+
+> You've just completed the CTO advisory exercise. Your technology radar is current and every team knows which technologies are Adopt, Trial, Assess, or Hold — nobody is stealth-adopting MongoDB "because the tutorial used it." Your build-vs-buy decisions include 5-year TCO comparisons, not just license costs. Technical debt is quantified as principal × interest rate, and the CFO understands why "refactoring the auth layer" has a positive ROI. Your engineering org uses stream-aligned teams with clear ownership boundaries, and Conway's Law is working for you rather than against you. The RFC process catches architecture mistakes before they cost sprints, not after.
+
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[S1]**  Build-vs-buy evaluations documented with 5-year TCO comparison for all major infrastructure/procurement decisions

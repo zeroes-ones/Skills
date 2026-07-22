@@ -600,6 +600,10 @@ Self-hosting only wins when:
 | `File exists` | Output file already exists | Use `--force` flag or specify different output path |
 
 
+## What Good Looks Like
+
+> Infrastructure is fully codified, versioned, and reproducible — nothing is created by hand and nothing drifts. Deployments are zero-downtime with automated rollback on health check failure. Secrets are never in plaintext, never in environment variables, and always retrieved at runtime from a secrets manager. Monitoring, alerting, and logging are standardized across every service. The developer experience from commit to production is seamless: a single command provisions, deploys, and verifies. Mean time to recovery is measured in minutes, not hours, because every failure has a runbook.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### IaC & State

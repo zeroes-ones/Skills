@@ -355,7 +355,7 @@ dvc repro  # runs pipeline stages and caches intermediate results
 - **Speculative decoding**: small draft model generates candidates, large model verifies; 2–3× throughput
 - **Prompt caching (Anthropic)**: cache long prompts; 90% cost reduction on cache hits
 
-## Cross-skills Integration
+## Cross-Skill Integration
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -372,6 +372,67 @@ Common chains:
 - **Chain**: llm-engineer → mlops-engineer → devops-engineer — LLM pipeline defined; MLOps deploys with GPU optimization; DevOps provisions infrastructure
 - **Chain**: ci-cd-builder → mlops-engineer → data-engineer — CI/CD automates ML pipeline stages; MLOps integrates model-specific gates; data engineer builds feature pipelines
 
+## Decision Trees
+<!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
+
+### Model Retrain Trigger: Schedule vs Drift vs Performance Degradation
+<!-- Decision tree for choosing the right retraining trigger strategy -->
+
+```
+START: Determine when and why to retrain a production model
+  │
+  ├─ Is the model's performance directly measurable in production within 24 hours (labels available, ground truth observable)?
+  │    ├─ YES → PERFORMANCE-BASED trigger. Retrain when accuracy/precision/recall drops below threshold.
+  │    └─ NO → Continue
+  │
+  ├─ Does the input data distribution shift seasonally, cyclically, or due to external factors (market conditions, user behavior changes, new product features)?
+  │    ├─ YES → DRIFT-BASED trigger. Retrain when PSI/KS statistic exceeds threshold on feature distributions.
+  │    └─ NO → Continue
+  │
+  ├─ Is there a regulatory or compliance requirement for periodic retraining (FDA, fair lending, model risk management)?
+  │    ├─ YES → SCHEDULE-BASED trigger (with performance/drift as additional triggers). Regulatory minimum frequency.
+  │    └─ NO → Continue
+  │
+  ├─ Is the model a low-risk, slowly-changing problem where manual retraining every 1-3 months has been sufficient?
+  │    ├─ YES → SCHEDULE-BASED (monthly/quarterly) with drift monitoring as a safety net. Don't over-engineer.
+  │    └─ NO → Continue
+  │
+  └─ Do you have both observable labels AND feature drift monitoring?
+       ├─ YES → HYBRID. Performance degradation triggers immediate retrain. Drift triggers investigation. Schedule is fallback.
+       └─ NO → Start with schedule, add drift monitoring, graduate to performance-based when labels are available.
+```
+
+### Feature Store vs Feature Pipeline
+<!-- Decision tree for choosing between a managed feature store and ad-hoc feature pipelines -->
+
+```
+START: You need to serve features for model training and inference
+  │
+  ├─ Are the same features used by more than one model, team, or use case?
+  │    ├─ YES → FEATURE STORE. Shared features need point-in-time correctness and a registry.
+  │    └─ NO → Continue
+  │
+  ├─ Do you need point-in-time correct historical feature values for training (e.g., "what was the user's 30-day transaction count as of March 15, not today")?
+  │    ├─ YES → FEATURE STORE. Feature pipelines without point-in-time logic create training-serving skew.
+  │    └─ NO → Continue
+  │
+  ├─ Is online inference latency requirement <10ms and you need pre-computed features at request time?
+  │    ├─ YES → FEATURE STORE with online serving layer. Computing features at request time will violate latency SLA.
+  │    └─ NO → Continue
+  │
+  ├─ Are you building a single model, with ≤5 features, from a single data source, in a prototype phase?
+  │    ├─ YES → FEATURE PIPELINE. Simple ETL into training data. Don't introduce feature store overhead for a prototype.
+  │    └─ NO → Continue
+  │
+  ├─ Is feature engineering logic complex (windowed aggregations, multi-source joins, entity embeddings) and must be identical between training and serving?
+  │    ├─ YES → FEATURE STORE. Duplicating complex logic in training and serving code guarantees divergence.
+  │    └─ NO → Continue
+  │
+  └─ Are you serving <100 QPS with batch inference (not real-time)?
+       ├─ YES → FEATURE PIPELINE with batch feature computation. Feature store online serving is overkill for batch.
+       └─ NO → FEATURE STORE. At production scale, the governance, reuse, and consistency benefits justify the infrastructure cost.
+```
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -386,6 +447,25 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `ml-ci-cd` | Building CI/CD pipelines with model validation gates, canary deployments, and rollback |
 | `gpu-infrastructure` | Optimizing GPU utilization with mixed precision, model parallelism, and autoscaling |
 | `data-versioning` | Versioning training data with DVC or lakeFS for reproducible ML pipelines |
+
+## Best Practices
+<!-- QUICK: 60s -- non-obvious practitioner wisdom -->
+
+1. **Design the feature store for point-in-time correctness from day one**: The most common source of training-serving skew is using "current" feature values when training on historical labels. If you train a churn model on January data but join with customer features as they exist in July, you're training on the future. Feast/Tecton point-in-time joins ensure training data reflects the world as it was when the label was generated. Validate with a simple test: train on historical data, then check if feature values match what would have been served at that time.
+
+2. **Treat the model registry as the single source of truth, not a nice-to-have**: Every model in production must have a registry entry with stage (staging/production/archived), owner, training data version, evaluation metrics, and approval trail. The registry answers "which model version is serving right now?" in an incident — a question that should never require searching through Kubernetes configs or Slack threads. Automate stage transitions: a model graduates from staging to production only through the CI/CD pipeline, never manually.
+
+3. **Design A/B testing infrastructure to measure business outcomes, not just model metrics**: A model with 2% higher AUC that reduces user engagement by 5% is a worse model. A/B tests must track guardrail metrics (latency, error rate, cost per prediction) alongside business KPIs. Pre-register success criteria before the test starts. Run tests long enough to reach statistical significance — a 2-hour A/B test on a model serving 10 QPS proves nothing.
+
+4. **Shadow-deploy new models for a full business cycle before cutting over traffic**: Run the candidate model in shadow mode (log predictions without serving them) for at least one full business cycle (week/month/quarter depending on domain). Compare shadow predictions against production predictions on the same traffic. Look for: prediction distribution shifts, unexpected edge case behavior, latency differences, and cost differences. A model that looks great in offline evaluation can behave very differently on production traffic patterns.
+
+5. **Build data validation as a pipeline stage, not a monitoring afterthought**: Validate training data before it reaches the model — schema checks (expected columns and types), range checks (values within expected bounds), freshness checks (data not stale), and distribution checks (no sudden shifts). Use Great Expectations or TFDV with automated blocking: if validation fails, the pipeline stops. A model trained on corrupted data is worse than no model at all.
+
+6. **Version models, data, AND code together for full reproducibility**: A model artifact without the training data version and the training code version is not reproducible. Use DVC or lakeFS to version training data. Use MLflow or W&B to version model artifacts. Use git to version training code. Store the triplet (data hash, code commit, model version) in the model registry. When debugging a production issue, you should be able to exactly reproduce the model that's serving.
+
+7. **Monitor for training-serving skew with statistical tests, not eyeballing**: Compute PSI (Population Stability Index) or KS statistic between training data distribution and production feature distribution. Set automated thresholds (PSI > 0.2 triggers alert). Monitor per-feature, not just aggregate. A model can look fine on aggregate metrics while one critical feature has silently drifted. Run these checks on every prediction log batch, not weekly.
+
+8. **Optimize inference costs as aggressively as you optimize model accuracy**: A 0.5% accuracy improvement that triples inference cost is rarely worth it. Use mixed precision (FP16/INT8), model compilation (TensorRT/ONNX), dynamic batching, and spot instances for batch inference. Profile per-model cost and set budgets. Implement model right-sizing: serve simple models on CPU, complex models on GPU. Track cost-per-prediction as a production metric alongside latency and accuracy.
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -414,6 +494,39 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Small → Medium**: >10 models in production. Serving >1K QPS. SLA breach from drift. Enterprise customer requiring model governance.
 - **Medium → Enterprise**: Regulatory compliance required. >100 models. Serving >10K QPS. Multi-team ML platform.
 
+## Error Decoder
+<!-- QUICK: 60s -- symptom, root cause, fix, and lesson for real-world failures -->
+
+### War Story 1: Training-Serving Skew Caused Silent Model Degradation
+- **Symptom**: Fraud detection model's precision dropped from 87% to 62% over 8 weeks. The operations team noticed when the manual review queue tripled in size. The model was still serving predictions with high confidence — it was just confidently wrong. $340K in fraudulent transactions were approved during the degradation window.
+- **Root cause**: A data pipeline change modified how `transaction_amount` was normalized in production (changed from min-max to z-score normalization). The training pipeline still used min-max normalization. The model was receiving features on a completely different scale, but the prediction API returned the same confidence scores because the model architecture had no mechanism to detect out-of-distribution inputs.
+- **Fix**: Added feature distribution comparison between training and serving (KS test per feature, hourly). Implemented schema validation in the serving pipeline that compares incoming feature statistics to training baseline. Added a "prediction confidence" calibration layer that reduces confidence for features outside training distribution. Created a feature transformation registry where all normalization logic is defined once and used by both training and serving.
+- **Lesson**: **Training-serving skew is the most dangerous ML failure mode because it's silent.** The model doesn't crash, doesn't throw errors, and continues producing predictions with the same confidence scores. The only signal is degraded business outcomes, which can take weeks to detect. Statistical distribution monitoring is not optional.
+
+### War Story 2: Feature Store Outage Cascaded to All Downstream Models
+- **Symptom**: Feature store (Feast online serving) experienced a Redis cluster failure. Within 60 seconds, 23 production models were unable to retrieve features at inference time. Models began serving default values (zeros) for missing features. A pricing model recommended $0.00 for 1,400 transactions before the circuit breaker fired. Total revenue impact: $47K in underpriced transactions.
+- **Root cause**: Models treated feature store unavailability identically to "feature value is zero." No distinction between "feature is legitimately zero" and "feature store timed out." Circuit breakers were per-model, not correlated across the feature store dependency — each model independently detected its own "degradation" without recognizing the shared root cause. The feature store was a single point of failure for the entire ML platform.
+- **Fix**: Implemented feature-level sentinel values: when feature store is unavailable, serve `NaN` not `0.0`. Models explicitly check for missing features and either refuse to predict (safety-critical) or use a fallback model trained without those features. Deployed cross-model circuit breaker: if >3 models detect feature retrieval failures within 30 seconds, all models using that feature store enter degraded mode simultaneously. Added feature store read-replica with automatic failover. Implemented local feature cache with 5-minute TTL as a buffer against transient outages.
+- **Lesson**: **A centralized feature store is a centralized failure domain.** Every model that depends on the feature store must handle its unavailability gracefully — and the handling must be coordinated across models, not siloed. Sentinel values that mean "I don't know" are safer than default values that mean "assume zero."
+
+### War Story 3: Retrained Model Was Worse but Nobody Noticed for 3 Weeks
+- **Symptom**: Recommendation model was retrained on a weekly schedule. The week-27 retrain produced a model with 11% lower click-through rate than the week-26 model. The degradation was discovered during a monthly business review when the product manager asked "why did recommendations engagement dip in early July?" The worse model had been serving for 3 weeks.
+- **Root cause**: Automated retraining pipeline checked that the new model "trained successfully" (no errors) but did not compare its performance against the currently-serving model. The pipeline replaced the production model because the new model's offline AUC was above a static threshold — but below the incumbent model's offline AUC. No A/B test or canary deployment. No automated rollback on metric degradation.
+- **Fix**: Added champion/challenger comparison in the retraining pipeline: new model must outperform the currently-serving model on evaluation metrics (not just clear a static threshold). Implemented canary deployment: new model serves 5% of traffic for 24 hours while monitoring business metrics. Automated rollback if canary model underperforms champion by >2% on any guardrail metric. Added "time since last model update" to the monitoring dashboard so stale-model alerts fire even if retraining pipeline is "succeeding."
+- **Lesson**: **A retraining pipeline that replaces models without comparing them to the incumbent is an automated downgrade pipeline.** "Successfully trained" ≠ "better than current." Canary deployment with business metric validation is the only way to prevent automated quality regression.
+
+### War Story 4: GPU Utilization at 12% With $28K Monthly Bill
+- **Symptom**: Inference serving ran on 4× p3.2xlarge instances (single GPU each) at a cost of ~$28K/month. GPU utilization averaged 12%. Load testing showed the service could handle peak traffic on 2 instances, but autoscaling was configured based on CPU utilization (which never exceeded 25%) rather than GPU utilization or request queue depth.
+- **Root cause**: Autoscaling metric (CPU) was not the bottleneck metric (GPU memory bandwidth and request latency). The model used FP32 precision by default with no mixed-precision optimization. Dynamic batching was disabled (each request processed independently). Instances were provisioned for peak capacity 24/7 with no scheduled downscaling during off-peak hours (midnight-6am traffic was 8% of peak).
+- **Fix**: Changed autoscaling to track GPU utilization, request queue depth, and P99 latency. Enabled FP16 mixed precision (40% throughput improvement, no accuracy loss). Enabled dynamic batching with 10ms max batch delay. Implemented scheduled downscaling to 1 instance during off-peak hours. Switched to spot instances for non-production inference. Migrated to p3.2xlarge → g5.xlarge (better price-performance for the model size). New monthly cost: $8K. Same latency, same accuracy.
+- **Lesson**: **GPU infrastructure costs are dominated by what you don't measure.** CPU-based autoscaling for GPU workloads is like monitoring tire pressure to decide when to refuel. GPU utilization, batch efficiency, and inference-specific metrics must drive infrastructure decisions. Every dollar spent on unused GPU capacity is a dollar that could fund more model iterations.
+
+### War Story 5: Data Validation Pipeline That Passed Everything and Still Produced Garbage
+- **Symptom**: All data validation checks passed. Schema was correct. Column types matched. Value ranges were within bounds. The model trained successfully and was deployed. Two days later, users reported nonsensical recommendations. Investigation revealed the training data had correct schema and ranges but the `product_category` column values were silently remapped: "electronics" → 1, "books" → 2 became "electronics" → 2, "books" → 1 due to a dictionary key ordering bug in a Python 3.6 → 3.10 migration.
+- **Root cause**: Data validation checked types (int), ranges (1-50 valid), and null rate (0%) — all passed. No semantic validation: checking that the distribution of categories matched the expected distribution. No check that label values still mapped to the same meaning. The validation pipeline validated syntax, not semantics.
+- **Fix**: Added distributional validation: compare categorical column value frequencies against a known-good baseline. Added semantic consistency checks: verify that label encoding produces the same mapping as the previous training run. Implemented a "smoke test" where a small set of known inputs must produce expected predictions before the model is promoted. Added data profiling snapshots to the model registry for comparison across training runs.
+- **Lesson**: **Schema validation catches syntax errors. Distributional validation catches semantic errors.** A pipeline that validates that columns exist and have the right types will happily pass data where all categories are swapped. Semantic drift is harder to detect than schema drift — and much more dangerous.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[MO1]**  Deployment: model served with appropriate framework (Triton/vLLM/Ray Serve/FastAPI), autoscaling configured, health checks passing
@@ -430,6 +543,11 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - [ ] **[MO12]**  Documentation: deployment runbook, monitoring dashboard URL, on-call rotation, incident response procedure
 - [ ] **[MO13]**  SLA: latency p99 within target, availability >99.9% (single region) or >99.95% (multi-region), error rate <0.1%
 - [ ] **[MO14]**  Model cards: every production model has intended use, limitations, performance characteristics, and fairness considerations documented
+
+## What Good Looks Like
+<!-- QUICK: 30s -- aspirational north star for this skill -->
+
+> MLOps is not about deploying models — it's about building the confidence that every model in production is performing as intended, every minute of every day, and that when it's not, the system knows before the business does. **What good looks like**: model deployments are automated, gated, and reversible in under 5 minutes; training-serving skew is detected within hours, not weeks; feature stores serve point-in-time correct values and survive partial infrastructure failures gracefully; retraining pipelines only replace models that are provably better than the incumbent; GPU infrastructure is right-sized to actual demand with cost attribution per model; every model in production has a documented owner, a rollback plan, and a monitored SLA; and when someone asks "is the model still working?", the answer is a dashboard URL, not a Slack thread of guesses. A platform that can deploy 100 models but can't prove any of them are working correctly is a deployment pipeline, not an MLOps practice.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

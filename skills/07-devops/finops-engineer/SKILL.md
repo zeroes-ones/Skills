@@ -290,6 +290,10 @@ Common chains:
 - **Chain**: cloud-architect → finops-engineer → devops-engineer — Architecture cost estimates are validated; optimization recommendations are implemented via IaC
 - **Chain**: platform-engineer → finops-engineer → cto-advisor — Platform usage costs are analyzed; CTO receives cost-to-value analysis for strategic decisions
 
+## What Good Looks Like
+
+> Every cloud resource is tagged for cost allocation, and spending is visible per team, service, and environment within 24 hours. Commitment discounts cover at least 80% of predictable workloads, and idle or over-provisioned resources are automatically identified and right-sized weekly. Cloud spend grows linearly with business metrics — not exponentially with headcount. Anomalies trigger alerts within hours, not days, with a root cause and remediation recommendation attached. Finance and engineering speak the same language because cost data is embedded in the tools engineers already use.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

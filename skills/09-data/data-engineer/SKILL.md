@@ -495,6 +495,10 @@ Data mesh with federated governance, domain-owned data products. Multiple data e
 | Small → Medium | Data freshness SLAs < 1 hour or >50 source tables | Introduce streaming (Kafka); add data quality framework (Great Expectations) |
 | Medium → Enterprise | 5+ autonomous domain teams with conflicting data needs | Adopt data mesh; implement data contracts; federate governance |
 
+## What Good Looks Like
+
+> Raw data lands in the lake within minutes of generation, idempotent pipelines produce identical results on every re-run, and downstream consumers never wonder whether the data is stale. Schema changes propagate through the medallion architecture without breaking a single dashboard, and data quality checks block bad records before they reach the gold layer. The data catalog is complete and searchable, lineage is automatic, and a new analyst can find and trust the right dataset within their first hour on the job.
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Idempotency first** — Every pipeline must produce identical output on re-run. Use MERGE, never bare INSERT.
