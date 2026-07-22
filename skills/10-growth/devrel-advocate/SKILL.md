@@ -1,6 +1,6 @@
 ---
 name: devrel-advocate
-description: Developer relations strategy, community building, content creation (blogs/tutorials/videos/talks), sample apps, conference speaking, hackathon design, developer onboarding (TTC), developer NPS, champion programs, and API evangelism. Trigger: DevRel, developer relations, developer advocate, developer evangelism, community building, developer community, open source community, API evangelist, technical community manager. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: "Developer relations strategy, community building, content creation (blogs/tutorials/videos/talks), sample apps, conference speaking, hackathon design, developer onboarding (TTC), developer NPS, champion programs, and API evangelism. Trigger: DevRel, developer relations, developer advocate, developer evangelism, community building, developer community, open source community, API evangelist, technical community manager. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
 author: Sandeep Kumar Penchala
 type: growth
 status: stable

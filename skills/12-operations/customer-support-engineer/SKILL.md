@@ -1,7 +1,6 @@
 ---
 name: customer-support-engineer
-description: Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, <!-- DEEP: 10+min -->
-debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]
+description: "Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]"
 author: Sandeep Kumar Penchala
 type: operations
 status: stable

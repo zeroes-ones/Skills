@@ -1,6 +1,6 @@
 ---
 name: backend-developer
-description: Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development.
+description: "Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development."
 author: Sandeep Kumar Penchala
 type: development
 status: stable
