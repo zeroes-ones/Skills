@@ -358,18 +358,26 @@ POST /rpc  { "method": "createOrder", "params": {...}, "id": 1 }
 | `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
 
 
-## Production Checklist
+## Production Readiness Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
-- [ ] **[S2]**  Error responses follow RFC 7807 Problem Details across all endpoints
-- [ ] **[S3]**  Pagination strategy defined (cursor-based for lists > 1000 items)
-- [ ] **[S4]**  Authentication (JWT/OAuth2/API Key) and authorization (RBAC/ABAC) defined per endpoint
-- [ ] **[S5]**  Rate limiting configured with tiered quotas and appropriate headers
-- [ ] **[S6]**  Idempotency key support for all mutating endpoints
-- [ ] **[S7]**  API versioning and deprecation policy documented and communicated
-- [ ] **[S8]**  SDKs generated and published for target languages (TypeScript, Python, Go at minimum)
-- [ ] **[S9]**  Interactive documentation (Swagger UI/Scalar/Redoc) deployed
-- [ ] **[S10]**  Health check endpoint (`GET /health`, `GET /health/ready`) implemented
+- [ ] **[API1]**  OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
+- [ ] **[API2]**  Error responses follow RFC 7807 Problem Details across all endpoints
+- [ ] **[API3]**  Pagination strategy defined (cursor-based for lists > 1000 items)
+- [ ] **[API4]**  Authentication (JWT/OAuth2/API Key) and authorization (RBAC/ABAC) defined per endpoint
+- [ ] **[API5]**  Rate limiting configured with tiered quotas and appropriate headers
+- [ ] **[API6]**  Idempotency key support for all mutating endpoints
+- [ ] **[API7]**  API versioning and deprecation policy documented and communicated
+- [ ] **[API8]**  SDKs generated and published for target languages (TypeScript, Python, Go at minimum)
+- [ ] **[API9]**  Interactive documentation (Swagger UI/Scalar/Redoc) deployed
+- [ ] **[API10]**  Health check endpoint (`GET /health`, `GET /health/ready`) implemented
+- [ ] **[API11]**  Bulk operation endpoints use 202 Accepted with status tracking where synchronous 200 is insufficient
+- [ ] **[API12]**  Webhook/event subscription design documented with retry and signing strategy
+- [ ] **[API13]**  API observability dashboards deployed (latency percentiles, error rates by endpoint, consumer usage)
+- [ ] **[API14]**  Consumer-facing changelog maintained with deprecation timelines and migration guides
+
+## What Good Looks Like
+
+> API consumers integrate in hours, not weeks. The specification is the source of truth — nothing ships that isn't documented. Breaking changes are rare and always communicated 6+ months ahead. SDKs in every target language stay in sync with the spec. Error messages tell consumers exactly what to fix. Your API feels like a product, not an afterthought.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

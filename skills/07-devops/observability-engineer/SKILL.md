@@ -616,6 +616,10 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 | Canary deploy shows no metric difference between old and new | Metric cardinality too low to distinguish versions — all metrics tagged with `service` but not `version` or `deploy_id` | Tag every metric with `version`, `deploy_id`, `canary_group` (control/treatment). Compare p50/p95/p99 and error rate between control and treatment. Minimum 2 minutes of canary data before comparing statistical significance. |
 
 
+## What Good Looks Like
+
+> Every service emits structured logs, distributed traces, and meaningful metrics — the three pillars are unified by a single trace ID end to end. Dashboards answer the golden signals for every service: latency, traffic, errors, and saturation. Alerts fire on symptoms, not causes, and every alert links to a runbook with a documented response procedure. On-call engineers can triage any incident within five minutes using observability data alone. No alert fires without a documented response, and the team never gets paged for the same issue twice because every incident drives a dashboard or alert improvement.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Instrumentation

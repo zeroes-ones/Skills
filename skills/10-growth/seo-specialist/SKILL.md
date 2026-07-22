@@ -838,6 +838,9 @@ SEO team (2-3+) with specialists per pillar. Enterprise tools: BrightEdge, Condu
 | Small → Medium | >100K indexed pages, multi-language, or organic >$500K/month revenue | Add enterprise crawler; implement log analysis; build SEO team |
 | Medium → Enterprise | >1M indexed pages, programmatic SEO, news/publisher, or multi-brand | Enterprise platform (Botify/BrightEdge); edge SEO; dedicated technical SEO role |
 
+## What Good Looks Like
+
+> Organic traffic compounds predictably because every new page targets a validated keyword gap in a mapped topic cluster, and pillar pages earn backlinks without outreach because they are the definitive resource on the topic. Technical audits run on a schedule and surface regressions in Core Web Vitals, crawl budget, or structured data before they impact rankings. When Google rolls out a core update, the team has already diagnosed the impact within 48 hours because ranking and traffic anomaly detection is automated — and the answer is rarely a guess.
 
 ### Cross-skills Integration
 ```mermaid

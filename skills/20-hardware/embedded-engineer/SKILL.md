@@ -344,6 +344,16 @@ Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA /
 - HIL rig runs 1000 randomized fault-injection cycles with zero unexpected resets, zero manual intervention.
 - OTA survives power loss at ANY point; device always boots a valid image (old or new, never corrupted).
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Arduino/Raspberry Pi prototyping, breadboard designs | Prove the concept works | Off-the-shelf dev boards; jumper wires; no PCB; firmware is a single loop |
+| **Startup** | Custom PCB design, firmware on bare metal/RTOS, first enclosure | Build a shippable product | Custom 2/4-layer PCB; FreeRTOS/Zephyr; 3D-printed enclosure; first production run |
+| **Scale-up** | Production hardware, DFM/DFT, regulatory pre-compliance, OTA updates | Manufacture at scale, pass certification | 6+ layer PCB; DFM optimized; EMC pre-compliance; automated testing jigs; OTA firmware |
+| **Enterprise** | Certified multi-SKU product line, global manufacturing, reliability engineering | Multi-product platform, zero-field-failure | UL/CE/FCC certified; multi-source BOM; HALT testing; field failure < 0.1%; multi-generational roadmap |
+
 ## References
 <!-- QUICK: 30s — links to deeper reading -->
 - `references/mcu-selection-guide.md` — Detailed comparison: STM32G0/G4/F4/H7, nRF52/53/54, ESP32-C3/S3, RP2040/RP2350, i.MX RT, STM32MP with BOM pricing, power numbers, ecosystem maturity

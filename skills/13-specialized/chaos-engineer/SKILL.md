@@ -671,6 +671,10 @@ python3 scripts/verify_steady_state.py \
 
 **Principle:** `resilience_check.py` inspects K8s/consul config, outputs JSON with binary readiness. Agent follows decision tree to exactly one gap. Experiment runs via `kubectl apply`. Steady state verification is exit-code-based.
 
+## What Good Looks Like
+
+The system fails gracefully. Chaos experiments run in production without customer impact. Every team knows their blast radius and practices recovery regularly. When real incidents happen, they're boring — because the team has already practiced the response.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Principles of Chaos Engineering](https://principlesofchaos.org/)

@@ -23,7 +23,7 @@ Every skill in this repository must be a skill you'd want to use yourself:
 
 ```
 skill-name/
-├── SKILL.md              # Instructions (~150-250 lines, dense, actionable)
+├── SKILL.md              # Instructions (~250-550 lines, ~3000-4000 token budget, dense, actionable)
 ├── scripts/              # Deterministic tools (Python/bash)
 │   └── analyze.py
 ├── references/           # Deep knowledge loaded as needed
@@ -146,14 +146,18 @@ skill-a-command && skill-b-command
 
 ### 6. Token Budget in Frontmatter
 ```yaml
-dependencies:
-  token_budget: 2500  # estimated tokens this skill consumes
+token_budget: 3500  # estimated tokens this skill consumes (~250-550 lines)
 ```
 
-### 7. Standard Number References in Checklist
+### 7. Domain-Specific Checklist Reference IDs
 ```markdown
-- [ ] Standard 1: API documented with OpenAPI 3.1 — [see Standard 1](#standards)
+## Production Readiness Checklist
+- [ ] **[API1]** OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
+- [ ] **[API2]** Error responses follow RFC 7807 Problem Details across all endpoints
+...
+- [ ] **[API14]** Consumer-facing changelog maintained with deprecation timelines
 ```
+IDs use domain prefixes (API, EM, DE, VP, SE, etc.) for traceability across skills.
 
 ### 8. Before/After Code in Footguns
 ```markdown

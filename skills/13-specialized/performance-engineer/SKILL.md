@@ -829,6 +829,10 @@ Performance is not a solo activity — it requires instrumentation from develope
 | Small → Medium | >10 services, P95 regression caught late | APM on all services, k6 in CI, SLOs with alerts, formal perf budget |
 | Medium → Enterprise | >50 services, perf issues cause revenue loss | Geo-distributed load testing, continuous profiling, business-level SLOs |
 
+## What Good Looks Like
+
+> When performance engineering is embedded in the development lifecycle, every PR includes a 60-second benchmark that gates on regression, SLOs are defined with burn-rate alerts that wake someone up before users notice, the top five database queries are indexed and profiled, caching covers the hot data with >80% hit rate, P95 latency is tracked per endpoint and trending down sprint over sprint, and the team optimizes from data not intuition — performance is a habit, not a fire drill.
+
 ## Cost-Effective Decision Table
 
 | Decision | Free/Cheap Option | Paid Upgrade | When to Upgrade |

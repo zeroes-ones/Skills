@@ -238,6 +238,10 @@ Common chains:
 - **Chain**: project-manager → technical-program-manager → scrum-master — Individual project plans are integrated into a multi-team program; scrum masters drive sprint-level execution.
 - **Chain**: ceo-strategist → technical-program-manager → release-manager — Strategic initiative gets program-level orchestration; release manager coordinates the launch.
 
+## What Good Looks Like
+
+> When technical program management is done right, cross-team dependencies are mapped and tracked so that no team is blocked waiting on another, architectural decisions are documented as ADRs with clear rationale and trade-offs, executive stakeholders receive concise reports that surface the decisions they need to make, technical risks are identified and mitigated before they threaten the timeline, and multiple engineering teams move in concert toward a shared milestone — the program runs so smoothly that the TPM's orchestration is nearly invisible.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

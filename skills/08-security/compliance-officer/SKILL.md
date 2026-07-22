@@ -175,6 +175,10 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | Small → Medium | First major audit with external auditor; multiple frameworks overlap |
 | Medium → Enterprise | IPO prep, FedRAMP, or operating in 5+ regulated jurisdictions |
 
+## What Good Looks Like
+
+> Compliance is a seamless operating rhythm, not a pre-audit fire drill. Every control has automated evidence collection running on a cadence, every policy is versioned and acknowledged, and the unified control framework maps one internal control to five regulatory requirements without duplication. Auditors receive organized evidence packages within hours, not weeks, and the organization passes surveillance audits with zero major findings because compliance is continuously verified, not annually assembled. The GRC program is so well-instrumented that a new framework can be scoped and gap-assessed in under a week.
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Compliance officers translate regulatory requirements into actionable controls. They coordinate with security for implementation, engineering for evidence, legal for interpretation, and executives for risk acceptance.

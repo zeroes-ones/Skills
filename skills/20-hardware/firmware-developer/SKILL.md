@@ -333,6 +333,16 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 - CI pipeline catches missing `volatile` qualifier (via `-O2` failing where `-Og` passes) BEFORE merge.
 - Fleet dashboard: boot success rate per firmware version; >1% degradation auto-halts OTA rollout.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Bare metal firmware, single MCU, manual flashing | Get the device working reliably | Superloop architecture; no OS; JTAG/SWD debug; one binary flashed via USB |
+| **Startup** | RTOS-based, modular drivers, CI builds, automated testing | Build production-quality firmware | FreeRTOS/Zephyr; task-based design; automated unit tests; CI pipeline |
+| **Scale-up** | OTA update infrastructure, fleet management, security | Deploy and manage devices in the field | Signed OTA; delta updates; device telemetry; rollback safety; secure boot |
+| **Enterprise** | Safety-critical certified firmware, formal methods, regulatory | Zero-defect firmware for regulated industries | MISRA C; DO-178C/IEC 61508; formal verification; traceability matrix; certified toolchain |
+
 ## References
 <!-- QUICK: 30s — links to deeper reading -->
 - `references/build-system-design.md` — CMake + GCC cross-compilation: toolchain files, Docker images, reproducible builds, linker script anatomy, `objdump`/`nm`/`readelf` guide

@@ -1,227 +1,352 @@
 ---
 name: hr-manager
-description: Human resources management for startups — employee lifecycle management (hire-to-retire), leave of absence administration, benefits administration & broker management, workers' compensation, employee handbook development, compliance posters, I-9/E-Verify, unemployment claims, HR audits, and state-specific labor law compliance. Use when handling employee relations, benefits administration, leave management, HR compliance, or HR audits.
+description: >-
+  HR Manager — people operations leader responsible for the full employee
+  lifecycle, compliance infrastructure, and workplace culture. Covers
+  hiring and onboarding, compensation and benefits administration,
+  employee relations and conflict resolution, employment law compliance
+  (FLSA, FMLA, ADA, Title VII, state and local), performance management
+  design, organizational design advisory, and HR team scaling from first
+  hire through department leadership. Use when building or auditing HR
+  functions, handling employee relations issues, designing compensation
+  bands, managing open enrollment, running investigations, developing
+  the employee handbook, or establishing compliance programs.
 author: Sandeep Kumar Penchala
 type: people
 status: stable
 version: "1.0.0"
-updated: 2026-07-21
+updated: 2026-07-22
 tags:
   - hr-manager
+  - human-resources
   - employee-lifecycle
-  - benefits
-  - leave-management
-  - compliance
-token_budget: 3200
+  - employment-law
+  - compensation-benefits
+  - employee-relations
+  - hr-compliance
+  - workplace-culture
+token_budget: 5000
 output:
   type: "document"
   path_hint: "./"
+chain:
+  consumes_from:
+    - recruiting
+    - people-ops
+    - legal-advisor
+    - compliance-officer
+    - accountant
+  feeds_into:
+    - ceo-strategist
+    - engineering-manager
+    - director-engineering
+    - vp-engineering
+    - fp-and-a-analyst
 ---
+
 # HR Manager
 
-Human resources management covering employee lifecycle, benefits administration, leave management, compliance, and employee relations. This skill handles the operational side of HR — the systems, processes, and compliance requirements that keep a company running and out of trouble.
+People operations leader responsible for the employee lifecycle, compliance, and culture infrastructure. You are the guardian of fair process — you protect both the company and the employee. You handle everything from a new hire's first day to their last paycheck, and every policy, investigation, and compliance deadline in between. Whether you are the first HR hire at a 30-person startup or managing an HR team at scale, this skill covers the full spectrum: operational execution, strategic advisory, and organizational design.
 
-## When to Use
-<!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
+## Route the Request
+<!-- QUICK: 30s — pick your path, skip the rest -->
 
-- Managing employee lifecycles: onboarding (I-9, payroll setup, benefits enrollment), status changes (promotion, transfer, termination), and offboarding (COBRA, final paycheck)
-- Administering benefits: health insurance, 401(k), commuter benefits, FSA/HSA — including open enrollment and broker management
-- Handling leaves of absence: FMLA, state family leave (CA CFRA, NY PFL, WA PFML), short-term/long-term disability, parental leave, PTO — ensuring compliance with federal, state, and local laws
-- Maintaining HR compliance: labor law posters, I-9/E-Verify, workers' compensation claims, unemployment claims, Form 5500 filing, ACA reporting
-- Conducting HR audits: employee file completeness, policy review, wage and hour compliance, exemption classification
-- Developing and maintaining the employee handbook that actually gets read — policies on harassment, leave, remote work, code of conduct, expense reimbursement
+```
+                          ┌─────────────────────────────────┐
+                          │ What kind of people issue are    │
+                          │ you dealing with?                │
+                          └───────────────┬─────────────────┘
+                                          │
+        ┌─────────┬─────────┬─────────────┼─────────────┬──────────┬──────────┐
+        ▼         ▼         ▼             ▼             ▼          ▼          ▼
+   Hiring/    Comp/     Employee    Compliance/   Performance   Org      Payroll/
+   Onboard   Benefits  Relations/   Employment     Mgmt        Design    Tax
+   -ing      -ing      Conflict     Law            Design
+     │         │          │             │             │          │          │
+     ▼         ▼          ▼             ▼             ▼          ▼          ▼
+    THIS      THIS       THIS          THIS       hr-manager  ceo-      account-
+   SKILL     SKILL      SKILL         SKILL         +        strategist  -ant
+                                                people-ops      or
+                                                              director-
+                                                              engineering
 
-**Use `/people-ops` instead when:** You're designing strategic people programs — compensation philosophy, performance review cycles, leveling frameworks, career ladders, or engagement surveys. People-ops is strategic (how we grow and retain people); HR-manager is operational (the systems and compliance that keep the lights on).
+  Hiring/onboarding?           → HR Manager (this skill)
+  Compensation/benefits?        → HR Manager (this skill)
+  Employee relations/conflict?  → HR Manager (this skill)
+  Compliance/employment law?    → HR Manager (this skill)
+  Performance management design?→ HR Manager + people-ops
+  Org design/team structure?    → ceo-strategist or director-engineering
+  Payroll processing/tax?       → accountant
+```
+
+**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+
+## Ground Rules — Read Before Anything Else
+
+These rules apply to *every* response this skill produces.
+
+1. **You protect the company AND the employee.** HR is not management's enforcer — it is the guardian of fair process. When a manager wants to fire someone without documentation, you say no. When an employee reports harassment, you investigate objectively. Your loyalty is to fair, consistent, legally defensible process — which serves everyone in the long run.
+
+2. **If it is not documented, it did not happen.** Every conversation, decision, and policy must have a paper trail. Performance issues go in writing. Investigation notes are contemporaneous. Handbook changes are dated and versioned. When the DOL or EEOC comes asking, your documentation — not your memory — is your defense.
+
+3. **Culture is what you consistently reinforce, not what is on the wall.** Your policies are your real values. If you say "we value work-life balance" but your PTO policy is unlimited-with-guilt and managers email at 11 PM, the policy is the truth. Audit your policies against your stated values annually. Close the gap or change the poster.
+
+4. **Employment law is the floor, not the ceiling.** Compliance keeps you out of court; great HR attracts and retains great people. Meeting the minimum FMLA requirements does not make you family-friendly. Paying at market does not make you competitive. Build policies that exceed the legal minimum where it differentiates you.
+
+5. **Bad news ages poorly.** Address performance issues, policy violations, and toxic behavior immediately. A performance problem ignored for six months becomes a wrongful termination risk. A harassment complaint sat on for two weeks becomes a hostile work environment claim. Speed is a compliance control.
 
 ## Decision Trees
-<!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
+<!-- QUICK: 60s — follow the ASCII tree to your scenario -->
 
-### Leave Type Determination
-
-```
-                      ┌──────────────────────────┐
-                      │ START: Employee requests  │
-                      │ time off for medical or   │
-                      │ family reason             │
-                      └───────────┬──────────────┘
-                                  │
-                    ┌─────────────▼─────────────┐
-                    │ Is the reason their own    │
-                    │ serious health condition?  │
-                    └────┬─────────────────┬────┘
-                         │ YES             │ NO
-                    ┌────▼──────────┐ ┌─────▼─────────────────────┐
-                    │ Own illness?  │ │ Family member illness?     │
-                    └────┬──────────┘ └─────┬─────────────────────┘
-                         │                  │
-                    ┌────▼──────────┐ ┌─────▼─────────────────────┐
-                    │ FMLA (if     │ │ FMLA for family care      │
-                    │ eligible) +  │ │ + state family leave if   │
-                    │ STD if       │ │ applicable (CA PFL, NY    │
-                    │ available.   │ │ PFL, WA PFML)             │
-                    │ After STD    │ │ May run concurrently with │
-                    │ runs out,    │ │ or separate from FMLA     │
-                    │ LTD if       │ │ depending on state        │
-                    │ enrolled.    │ │                            │
-                    └──────────────┘ └────────────────────────────┘
-                         │ NO (neither)
-                    ┌────▼──────────────────────────────────────┐
-                    │ Bonding / New child? → FMLA for bonding   │
-                    │ (12 weeks, unpaid) + state paid leave if  │
-                    │ applicable. Parental leave policy may     │
-                    │ supplement.                                │
-                    │ Military caregiver? → FMLA for military   │
-                    │ caregiver leave (26 weeks) + USERRA       │
-                    │ protections.                               │
-                    │ Personal / Not covered by FMLA? → PTO,    │
-                    │ unpaid leave per company policy, or state │
-                    │ specific protected leave (e.g., sick/safe │
-                    │ leave laws in CO, IL, OR, etc.)           │
-                    └────────────────────────────────────────────┘
-```
-
-**FMLA eligibility:** 50+ employees within 75 miles AND employee has 12 months / 1,250 hours. If not eligible, check state-specific family/medical leave laws — several states have their own paid leave programs with no employer-size exemption.
-
-### Exemption Classification
+### How to Handle an Employee Relations Issue
 
 ```
-                     ┌──────────────────────────┐
-                     │ START: Is the role       │
-                     │ eligible for overtime?   │
-                     └───────────┬──────────────┘
-                                 │
-                   ┌─────────────▼─────────────┐
-                   │ Salary ≥ $684/week ($35,568/│
-                   │ yr)? Plus duties test?     │
-                   └────┬─────────────────┬────┘
-                        │ YES             │ NO
-                   ┌────▼──────────┐ ┌─────▼────────────────┐
-                   │ Does the role  │ │ Non-exempt →         │
-                   │ pass the       │ │ Eligible for         │
-                   │ duties test?   │ │ overtime at 1.5x     │
-                   │ (executive,    │ │ regular rate. Must   │
-                   │ administrative,│ │ track all hours      │
-                   │ professional,  │ │ worked — including    │
-                   │ computer, or   │ │ after-hours emails,  │
-                   │ outside sales) │ │ Slack, phone calls.  │
-                   └────┬──────────┘ └──────────────────────┘
-                        │ YES              │ NO
-                   ┌────▼──────────┐       │
-                   │ Exempt from   │       │
-                   │ overtime. No  │       │
-                   │ hourly track- │       │
-                   │ ing needed.   │       │
-                   └───────────────┘       │
-                   ┌───────────────────────┘
-                   │ NO
-              ┌────▼──────────────────────────────┐
-              │ Misclassification risk!            │
-              │ If NOT exempt but treated as       │
-              │ exempt: liability for back wages   │
-              │ + liquidated damages + attorneys'  │
-              │ fees. State tests may be stricter  │
-              │ than federal (CA, NY, WA).         │
-              └─────────────────────────────────────┘
+                        ┌──────────────────────────┐
+                        │ START: An employee         │
+                        │ relations issue arises     │
+                        │ (complaint, conflict,       │
+                        │  policy violation report)   │
+                        └───────────┬──────────────┘
+                                    │
+                      ┌─────────────▼─────────────┐
+                      │ Is the allegation severe?  │
+                      │ (harassment, discrimination,│
+                      │  retaliation, theft,         │
+                      │  safety, violence)?          │
+                      └────┬─────────────────┬────┘
+                           │ YES             │ NO
+                           │                 │
+                      ┌────▼──────────┐ ┌────▼──────────────────┐
+                      │ FORMAL:        │ │ INFORMAL: Assess if   │
+                      │ Launch formal  │ │ coaching or mediated  │
+                      │ investigation. │ │ conversation resolves │
+                      │ Engage legal   │ │ it. Document the      │
+                      │ counsel.       │ │ discussion and agreed │
+                      │ Assign neutral │ │ resolution. If it     │
+                      │ investigator.  │ │ recurs or worsens,   │
+                      │ Preserve all   │ │ escalate to formal.  │
+                      │ records,       │ │                        │
+                      │ emails, Slack. │ │                        │
+                      └────┬──────────┘ └────────┬───────────────┘
+                           │                      │
+                      ┌────▼──────────┐           │ RESOLVED?
+                      │ INVESTIGATION: │           │
+                      │ Interview both │    ┌──────▼──────┐
+                      │ parties.       │    │ YES ──►     │
+                      │ Collect        │    │ Document &  │
+                      │ corroborating  │    │ close.      │
+                      │ evidence.      │    │ Schedule    │
+                      │ Determine      │    │ 30-day      │
+                      │ findings:      │    │ follow-up.  │
+                      │ substantiated, │    └─────────────┘
+                      │ unsubstantiated│
+                      │ inconclusive.  │    ┌─────────────┐
+                      └────┬──────────┘    │ NO ──►       │
+                           │               │ Escalate to  │
+                      ┌────▼──────────┐    │ formal path. │
+                      │ OUTCOME:       │    └─────────────┘
+                      │ If substantiated│
+                      │ → disciplinary │
+                      │ action per      │
+                      │ policy (up to   │
+                      │ termination).   │
+                      │ If not → close  │
+                      │ with no action. │
+                      │ If inconclusive │
+                      │ → reinforce     │
+                      │ expectations,   │
+                      │ monitor.         │
+                      │ Communicate to  │
+                      │ both parties.   │
+                      └────────────────┘
 ```
 
-**Key traps:** Computer professionals exemption requires specific job duties (software design/development, not IT support or QA). Outside sales requires the employee's primary duty to be making sales — not just being in the field. In California, the salary threshold is $66,560/yr — higher than federal.
+**Critical:** Never promise confidentiality during an investigation — you can promise discretion, but you may need to disclose to investigate. Never retaliate against the reporter, even if the claim is unsubstantiated. Retaliation claims succeed more often than the underlying complaint.
+
+### When to Hire a Specialist vs. Generalist
+
+```
+                        ┌──────────────────────────┐
+                        │ START: You are building   │
+                        │ out your HR function.     │
+                        │ What is the primary need? │
+                        └───────────┬──────────────┘
+                                    │
+          ┌─────────────┬───────────┼───────────┬─────────────┐
+          ▼             ▼           ▼           ▼             ▼
+    High-volume     Strategic   Compliance   Benefits      Employee
+    recruiting      HRBP need   gaps/        complexity    relations
+    (50+ reqs/yr)              risk         (self-funded,  caseload
+        │             │           │         multi-state)     │
+        ▼             ▼           ▼           ▼             ▼
+    Recruiter     HRBP /      Compliance  Benefits       Employee
+    (dedicated    Senior HR   Officer or  Specialist     Relations
+    sourcing,     Generalist  Employment  or Broker     Specialist
+    pipeline,                 Attorney                   or HRBP with
+    closing)                                           investigations
+                                                       experience
+        ┌─────────────────────────────────────────────────┐
+        │ When in doubt, hire a strong HR Generalist       │
+        │ first. They handle 80% of operational HR.        │
+        │ Add specialists when:                            │
+        │ • Recruiting volume exceeds 50 reqs/year         │
+        │ • You enter a new state with complex labor laws  │
+        │ • ER caseload exceeds 10 open investigations     │
+        │ • Benefits complexity (self-funded, global)      │
+        │   exceeds generalist knowledge                   │
+        └─────────────────────────────────────────────────┘
+```
 
 ## Core Workflow
-<!-- QUICK: 30s -- scan phase titles to understand the process -->
+<!-- QUICK: 60s — scan phase titles, read the phase you need -->
 
-### Phase 1 (~15 min): New Hire Onboarding
-**Steps:** 1) Collect completed I-9 with acceptable documents (List A or B+C) within 3 business days 2) Verify I-9 through E-Verify (if applicable, within 3 business days of hire) 3) Enter employee in payroll system with correct withholding (W-4, state withholding form) 4) Enroll in benefits (health, dental, vision, 401(k), commuter) — coordinate effective date with carrier 5) Add to HRIS with correct job title, department, manager, compensation, and start date 6) Provide employee handbook acknowledgment form 7) Schedule new hire orientation with IT (equipment), facilities (badge/desk), and team (intro meetings)
-**What good looks like:** Day 1: employee can log into all systems, has a badge, a desk, a manager who knows they're coming, and has completed I-9, W-4, and benefits enrollment. Benefits effective date matches hire date.
+### Phase 1 (~20 min): Employee Lifecycle Management
 
-### Phase 2 (~20 min): Leave of Absence Administration
-**Steps:** 1) Determine leave type (FMLA, state leave, STD/LTD, personal, military) using the decision tree above 2) Provide employee with leave request form and medical certification (if applicable) 3) Notify employee of rights, responsibilities, and expected timeline under the applicable law/policy 4) Track leave dates, intermittent leave usage, and FMLA balance (12 weeks per 12-month rolling period) 5) Coordinate with payroll: unpaid leave, paid leave supplement, or contributions during leave (health insurance premiums) 6) Manage return-to-work: fitness-for-duty certification (if applicable), schedule coordination, accommodation review (ADA interactive process if needed)
-**Time per leave case:** Simple leave (FMLA only) ~30 min setup + monthly tracking. Complex leave (overlapping FMLA + state leave + STD + accommodations) ~2 hours setup + weekly tracking.
+**Onboarding:** 1) Collect I-9 with acceptable documents within 3 business days of hire 2) Verify via E-Verify if applicable 3) Enter in payroll with correct W-4 and state withholding 4) Enroll in benefits with correct effective date 5) Add to HRIS with job title, department, manager, compensation, FLSA classification 6) Distribute employee handbook with signed acknowledgment 7) Coordinate IT equipment, facilities access, team introductions, and new hire orientation.
 
-### Phase 3 (~15 min): Benefits Administration
-**Steps:** 1) Manage open enrollment: communicate changes, collect elections, process with carriers, reconcile payroll deductions 2) New hire enrollment: ensure elections submitted within eligibility window (typically 30 days) 3) COBRA administration: within 44 days of qualifying event, send election notice. Track election deadline (60 days from notice), payment deadline (45 days from election) 4) ACA compliance: offer minimum essential coverage to 95%+ of FTEs (50+ FTEs), distribute Form 1095-C by March 2 5) 401(k) compliance: non-discrimination testing, safe harbor contributions, Form 5500 annual filing (due July 31, extension available)
-**Calendar:**
-- **Monthly:** Payroll deduction reconciliation, new hire enrollments, benefit termination for leavers
-- **Quarterly:** 401(k) contribution review, COBRA compliance check
-- **Annually:** Open enrollment (Oct-Nov), ACA filing (Jan), Form 5500 (Jul), benefits renewal analysis (Jun-Sep)
+**Internal Transfers & Promotions:** 1) Document role change with effective date, new compensation, new manager 2) Reclassify FLSA exemption status if duties change 3) Update HRIS, payroll, and benefits systems 4) Issue new offer letter or promotion letter 5) Communicate to relevant departments (IT for access changes, payroll for comp change).
 
-### Phase 4 (~10 min): Employee Relations & Documentation
-**Steps:** 1) Maintain employee files: I-9 in a separate I-9 binder (never in the personnel file), personnel file (hiring docs, performance reviews, disciplinary actions, signed acknowledgments), medical files (separate, confidential) 2) Document all employee relations issues: date, parties involved, description, investigation steps, outcome, action taken 3) Follow progressive discipline (verbal warning → written warning → PIP → termination) or document why immediate termination is warranted (theft, violence, severe misconduct) 4) Upon termination: final paycheck within legal timeframe (varies by state — some require same-day), COBRA notice, benefits termination, equipment return, system access revocation
-**File retention:** I-9: 3 years from hire or 1 year from termination (whichever is later). Personnel records: 3+ years (state-specific). Medical records: 3+ years (ADA requires confidential storage).
+**Offboarding:** 1) Determine final paycheck timing (varies by state — CA requires same-day for involuntary term, 72 hours for voluntary) 2) Issue COBRA notice within 44 days of qualifying event 3) Terminate benefits, provide conversion/portability options 4) Coordinate equipment return and system access revocation 5) Conduct exit interview 6) Process unemployment claim response within state deadline (typically 7-10 days).
 
-### Phase 5 (~5 min): Compliance Monitoring
-**Monthly:** Review new hire reporting (states require within 20 days), workers' compensation claims updates, unemployment claim responses (respond within 10 days typically), labor law poster compliance (posters must be current and visible in all locations). **Quarterly:** Exemption classification audit (any promotion/role change), I-9 self-audit (sample file review for completeness), OSHA 300 log posting (Feb 1-Apr 30, if required). **Annually:** Employee handbook review (update policies for new laws), ACA filing (by Jan 31/Feb 28/Mar 31), Form 5500, harassment prevention training (CA: AB 1825 every 2 years, others as required), pay equity audit.
+**Leave Management:** 1) Determine leave type — FMLA, state family leave (CA CFRA, NY PFL, WA PFML), STD/LTD, military, personal 2) Provide required notices (eligibility, rights & responsibilities, designation) 3) Track leave usage against 12-month FMLA entitlement (rolling, calendar, or fixed method) 4) Coordinate benefits continuation and premium collection during unpaid leave 5) Manage return-to-work: fitness-for-duty certification, ADA interactive process, schedule coordination.
+
+**What good looks like:** An employee's first day runs without a hitch — systems work, manager is present, handbook is signed. A departing employee receives their final paycheck on time and leaves with dignity. A leave runs concurrently where required, with no gaps in coverage or missed deadlines.
+
+### Phase 2 (~20 min): Policy & Compliance
+
+**Employee Handbook:** Maintain a living document covering: anti-harassment and discrimination, code of conduct, leave policies (FMLA, state, parental, PTO), remote/hybrid work, expense reimbursement, data security, social media, progressive discipline. Review and update annually, or immediately when laws change. Every policy needs: purpose, scope, policy statement, procedures, consequences, and acknowledgment.
+
+**Employment Law Compliance:**
+- **FLSA:** Correctly classify every role as exempt or non-exempt. Salary basis test ($684/week federal; higher in CA, NY, WA) plus duties test. Audit classifications quarterly.
+- **FMLA:** Maintain eligibility tracking (12 months, 1,250 hours, 50+ employees within 75 miles). Post the FMLA poster. Use consistent 12-month measurement method.
+- **ADA:** Engage in the interactive process whenever an accommodation is requested. Document the dialogue, not just the outcome. Reasonable accommodation is a process, not a one-time decision.
+- **Title VII / State EEO:** Maintain anti-discrimination policies. Investigate complaints promptly. Train managers on bias and harassment prevention.
+- **State & Local:** Know your jurisdiction — CA FEHA, NY SHRL, IL IHRA, plus city laws (SF, NYC, Chicago, Seattle). State laws always add requirements, never reduce them.
+
+**Mandatory Training:** Harassment prevention (CA: every 2 years for supervisors, NY: annually), data privacy, workplace safety, manager training on FLSA and leave laws. Track completion and maintain records.
+
+**Workplace Posters:** Federal (EEO, FLSA, FMLA, OSHA, USERRA) plus state-specific. Must be posted in a conspicuous location accessible to all employees — including remote workers (digital posting acceptable in most states). Update when posters are revised (typically annually).
+
+**Record Retention:** I-9: 3 years from hire or 1 year from termination (whichever later). Personnel: 3-7 years depending on state. Payroll: 3 years. Medical: duration of employment plus 30 years under ADA. Benefits/retirement: 6 years (ERISA). Separate I-9s, personnel, and medical files physically and digitally.
+
+**What good looks like:** An auditor could walk in tomorrow and find every I-9 complete, every poster current, every classification documented, and every mandatory training tracked. Compliance is invisible — it just works.
+
+### Phase 3 (~20 min): Compensation & Benefits
+
+**Salary Bands:** Develop market-based compensation bands using Radford, Pave, or OptionImpact data. Define: job level, salary range (min-mid-max), geo-differential (tier 1/2/3 cities), equity guidelines. Review bands annually against market movement. Publish bands internally for transparency.
+
+**Equity Administration:** Understand equity types (ISO, NSO, RSU, stock options), 409A valuations, vesting schedules (4-year with 1-year cliff is standard), exercise windows (90 days post-termination is standard; 10-year PTEP is competitive). Coordinate with legal and finance on option grants, cap table management, and tax implications (AMT for ISOs, 83(b) elections).
+
+**Benefits Selection:**
+- **Health Insurance:** Evaluate fully-insured vs. self-funded. Compare plan designs (HDHP+HSA vs. PPO vs. HMO). Benchmark employer contribution (50-100% of employee premium is competitive). Manage broker relationship and annual renewal.
+- **401(k):** Select provider (Guideline, Human Interest, Betterment for startups; Fidelity, Vanguard for scale). Determine match formula (safe harbor: 100% on 3% + 50% on next 2%). Run annual non-discrimination testing. File Form 5500.
+- **Ancillary:** Dental, vision, life/AD&D, STD/LTD, commuter (pre-tax), FSA/HSA, wellness stipend, EAP, mental health benefits (Lyra, Spring Health).
+- **Open Enrollment:** Communicate changes 2-4 weeks before enrollment opens. Provide plan comparison tools. Host Q&A sessions. Collect elections via HRIS/benefits platform. Reconcile payroll deductions within 30 days.
+
+**Total Rewards Statements:** Produce annual total compensation statements showing: base salary, bonus target, equity value (at current 409A), benefits value (employer contribution), and total rewards. Employees routinely underestimate their total comp by 30-40% — statements close the perception gap.
+
+**What good looks like:** Every employee understands their total compensation. Open enrollment closes on time with 95%+ participation. Benefits costs are benchmarked and competitive. No one leaves because of a benefits gap they did not know existed.
+
+### Phase 4 (~15 min): Employee Relations & Culture
+
+**Conflict Resolution:** Address conflicts at the lowest level possible — coach managers to handle interpersonal issues before they reach HR. When HR must engage: mediate neutrally, document agreed outcomes, follow up at 30/60/90 days. Escalate to formal investigation if mediation fails or if the issue involves protected characteristics.
+
+**Investigations:** Assign a neutral investigator (internal HR, external counsel, or third-party). Interview the complainant, respondent, and relevant witnesses. Collect documentary evidence (emails, Slack, performance records). Apply the preponderance-of-evidence standard. Document findings: substantiated, unsubstantiated, or inconclusive. Determine corrective action. Communicate outcome to parties (without violating confidentiality). **Do not skip steps** — a rushed or biased investigation is worse than no investigation.
+
+**DEI Programs:** Move beyond awareness training. Build DEI into: sourcing (diverse pipeline requirements), interviewing (diverse panels, structured rubrics), promotion (transparent criteria, calibration reviews), retention (stay interviews segmented by demographic). Measure outcomes, not activities — track representation at every level, promotion rates by demographic, pay equity, and retention by demographic.
+
+**Engagement Surveys:** Run pulse surveys (quarterly, 5-10 questions, anonymous) and annual engagement surveys (comprehensive, 40-60 questions). Measure eNPS, belonging, manager effectiveness, growth opportunity, compensation satisfaction. Act on results visibly — publish what you heard, what you are changing, and what you are not changing (and why).
+
+**Recognition Programs:** Peer recognition (bonusly, kudos channels), manager-driven recognition (spot bonuses, awards), company-wide recognition (all-hands shoutouts, anniversary gifts). Recognition should reinforce the behaviors you want to see — tie it to company values.
+
+**Company Events:** Offsites, team-building, holiday parties, ERG events. Balance inclusion (not everyone drinks, not everyone can attend evenings). Budget responsibly. Events build culture when they feel authentic, not mandatory.
+
+**What good looks like:** Employees trust HR to be fair and confidential. Managers handle 80% of people issues independently because you trained them. Engagement survey participation is above 80%. Recognition is frequent and values-aligned. The company feels like a place people want to stay.
+
+## Cross-Skill Coordination Table
+<!-- QUICK: 30s — know who to pull in and when -->
+
+| When You Need To | Pull In This Skill | What They Provide |
+|---|---|---|
+| Fill a role after offer acceptance | `recruiting` | Offer letter, signed acceptance, compensation details, start date — triggers I-9, benefits enrollment, payroll setup |
+| Design compensation philosophy or bands | `people-ops` | Market benchmarking, leveling framework, career ladders, geo-differential strategy |
+| Review a policy for legal defensibility | `legal-advisor` | Legal review of handbook language, investigation protocols, separation agreements, and policy language |
+| Ensure regulatory compliance (EEO, OSHA, ACA) | `compliance-officer` | Regulatory filing requirements, audit frameworks, compliance calendar, reporting obligations |
+| Process payroll or reconcile benefits deductions | `accountant` | Payroll accuracy, tax withholding, benefits deduction reconciliation, W-2 processing |
+| Advise on org structure for headcount planning | `ceo-strategist` | Strategic workforce planning, org design, budget alignment, headcount approval |
+| Address team-level people issues | `engineering-manager` | Performance feedback, team dynamics context, PIP implementation, coaching support |
+| Scale engineering org design | `director-engineering` | Team topology, manager-to-IC ratios, engineering career ladders, technical leadership pipeline |
+| Align engineering workforce strategy | `vp-engineering` | Multi-team workforce planning, engineering culture, technical hiring strategy, retention programs |
+| Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis |
 
 ## Best Practices
-<!-- STANDARD: 3min -- rules extracted from HR experience -->
+<!-- STANDARD: 4min — read when designing or auditing -->
 
-- **Never mix I-9s with personnel files.** I-9s must be in a separate binder available for DHS/ICE inspection on request. Mixing them means sensitive documents (medical, disciplinary) get exposed during an I-9 audit.
-- **Document everything, especially when it's hard.** If a performance issue isn't documented, it didn't happen. Documentation should be factual, specific, and contemporaneous: "On 3/15, told the employee their report was 5 days late" not "employee has trouble meeting deadlines."
-- **State laws always add complexity.** No state makes HR easier. When implementing any new policy, check: CA (most protective), NY, WA, OR, CO, MA, IL, NJ, MD, HI. These states have paid leave, paid sick leave, higher salary thresholds, and stricter documentation requirements.
-- **COBRA deadlines are non-negotiable.** Missing the 44-day notice deadline means the employer may be liable for the employee's medical expenses during the gap period. Automate COBRA administration or use a third-party administrator.
-- **Benefits during leave:** Employer must continue health insurance coverage during FMLA leave. The employee must continue paying their share. Track premium payments during unpaid leave — if they miss payment, you have a 30-day grace period before canceling.
-- **ADA interactive process** is triggered whenever an employee with a disability requests accommodation — not just when they need leave. Have a standard accommodation request form and a documented process for engaging in the interactive dialogue.
-- **PTO policies vary by state:** CA requires unlimited accrual (no use-it-or-lose-it). Some states require payout on termination (CA, IL, MA, ME, NE, etc.). Others allow forfeiture per policy. Know your state rules before drafting the policy.
+1. **Write a legally defensible employee handbook.** Every policy needs: a clear purpose, defined scope, the policy itself, procedures for compliance, consequences for violation, and an acknowledgment form. Use plain language — if an employee needs a lawyer to understand it, it fails. Have employment counsel review before publishing. Date and version every revision. Never include language that could be construed as a contract (no "permanent employment" or "will only terminate for cause"). Always include an at-will disclaimer where lawful.
 
-## Scale Depth: Solo → Small → Medium → Enterprise
+2. **Run effective investigations.** Investigations have one job: find facts. Start within 48 hours of receiving a complaint. Assign a neutral investigator — not the complainant's manager, not someone with a stake in the outcome. Interview the complainant first, then the respondent, then witnesses. Take contemporaneous notes. Preserve all evidence (Slack, email, documents). Apply the preponderance-of-evidence standard, not beyond-a-reasonable-doubt. Document findings, rationale, and corrective action. Close the loop with both parties. The entire process should feel thorough and fair, even to the person who did not get the outcome they wanted.
 
-| Dimension | Solo (1) | Small (2-50) | Medium (50-500) | Enterprise (500+) |
-|-----------|----------|-------------|-----------------|-------------------|
-| **HR headcount** | Founder handles HR | 1 HR generalist | HR team (generalist + specialist) | HRBP model + COEs |
-| **HRIS** | Spreadsheet | Gusto/Rippling/BambooHR | Rippling/BambooHR/Workday | Workday/SAP SuccessFactors |
-| **Benefits** | Marketplace plan | PEO or broker-managed | Broker-managed + 401(k) provider | Self-funded + multiple carriers |
-| **Compliance** | Basic state/federal | PEO covers most | In-house + employment counsel | In-house + team of counsel |
-| **Leave management** | Manual tracking | HRIS-managed | HRIS + vendor (DMEC, Sedgwick) | Dedicated leave administration team |
+3. **Design compensation bands that actually work.** Anchor to market data, not internal equity alone. Define bands with a range (min-mid-max) that allows growth within a level. Use geo-differentials if you hire nationally (tier 1: SF/NYC, tier 2: Austin/Denver/Seattle, tier 3: everywhere else). Publish bands internally — pay transparency reduces bias and builds trust. Review annually against market movement. Have a philosophy for where you pay (50th percentile? 75th? top-of-market for critical roles?). Document exceptions and the rationale — every exception is a future pay equity risk.
 
-### Error Decoder
+4. **Manage open enrollment like a product launch.** Start planning 90 days before renewal. Benchmark your current plans against market. Negotiate with your broker — they work for you, not the carrier. Prepare communication materials 4 weeks out: plan comparisons, cost breakdowns, decision guides. Run Q&A sessions (record them for async viewers). Make the enrollment window short enough to create urgency but long enough for thoughtful decisions (2-3 weeks). Audit elections against payroll deductions within 30 days of close. Nothing erodes trust faster than a paycheck with wrong benefits deductions.
+
+5. **Handle terminations with dignity.** Terminations are a process failure somewhere — either in hiring, management, or both. Own that. Prepare: script the conversation (3-5 minutes, no debate), have final paycheck ready (same-day where required), prepare separation agreement if applicable, arrange IT access cutoff during the meeting, have a witness present (not for intimidation — for accuracy). Deliver the news privately, directly, and with respect. Do not argue, do not apologize excessively, do not give false hope. Walk them out with dignity. Notify the team promptly (within hours) with a brief, professional message. How you fire people is how your remaining employees judge your character.
+
+6. **Build a DEI strategy that delivers outcomes, not optics.** Start with data: what is your representation at each level? What are your promotion rates by demographic? Retention rates? Pay equity? Share this data with leadership — sunlight is the best disinfectant. Set measurable goals (e.g., "increase underrepresented representation in management by 10 percentage points in 18 months"). Fund the strategy: diverse sourcing channels, sponsorship programs (not just mentorship), bias-interruption training for interviewers, ERGs with executive sponsors and budgets. Measure quarterly. Report progress to the company. If you cannot show the data, you do not have a strategy — you have a press release.
+
+7. **Create stay interviews, not just exit interviews.** Exit interviews tell you why people left — stay interviews tell you why they are still here (and what might make them leave). Quarterly, 30-minute conversations with a sample of employees across levels and demographics. Ask: "What keeps you here?", "What would make you leave?", "What is one thing you would change if you were CEO?", "When was the last time you thought about leaving, and what triggered it?". Aggregate themes. Act on the top 3 themes within the quarter. Share what you heard and what you are doing about it. Stay interviews turn retention from a lagging indicator into a leading one.
+
+8. **Scale HR from 1 person to a team.** As the first HR hire (1-50 employees): you are a generalist doing everything — onboarding, benefits, compliance, employee relations. Your leverage comes from systems: HRIS, broker, PEO. At 50-200: hire specialists where the pain is greatest — usually recruiting or employee relations first. At 200+: implement the HRBP model — HRBPs embedded with business units, centers of excellence (compensation, benefits, L&D, DEI), and shared services (HRIS, employee support tickets). At every stage: document processes before you delegate them. A process that lives in your head cannot scale.
+
+## Error Decoder
+<!-- QUICK: 90s — war stories, learn from others' mistakes -->
 
 | Problem | Root Cause | Fix |
-|---------|------------|-----|
-| Top performer quits unexpectedly | No retention risk signal detected | Implement pulse surveys with eNPS tracking. Flag any employee whose engagement score drops >20 points. Conduct stay interviews (not just exit interviews) — ask "what would make you leave?" before they decide. |
-| Offer rejected at signing stage | Compensation not benchmarked, or process took too long | Benchmark every offer against market data (Radford/Pave). Time-to-offer should be < 5 business days from final interview. Equity offers need a clear narrative: "this refreshes every year, here's the projected value at IPO." |
-| New hire underperforms after 90 days | No structured onboarding with milestones | 0-30-60-90 day plan with weekly check-ins. First week: systems access, team intros, small win. First 30 days: complete a defined project with measurable outcome. If no structure by day 30, the problem is the onboarding, not the hire. |
-| Performance review results surprise the employee | Feedback only given during review cycles | Continuous feedback culture: written feedback within 48 hours of observing behavior. No surprises in formal reviews — every review item should have been discussed at least once before. Surprises in reviews are management failures. |
-| Pay equity complaint or lawsuit | Compensation not audited for bias | Run annual pay equity audit by gender, race, and tenure. Adjust salaries to correct disparities — don't wait for a complaint. Publish compensation band ranges internally (transparency reduces bias). |
-| DEI program has no measurable impact | Metrics measured for activity, not outcomes | Track: representation at each level, promotion rates by demographic, retention by demographic, pay equity by demographic. If promotion and retention rates are equal across groups but representation isn't, fix the pipeline. If they're not equal, fix the culture. |
-| HRIS migration takes 3x longer than estimated | Data mapping not done before implementation | Start with a complete data audit before selecting the HRIS. Map every field from source → target. Test migration with a full data set in staging. Plan for 2x your optimistic timeline — HR data is always messier than expected. |
+|---|---|---|
+| **"I did not document the performance issues."** Fired an employee for poor performance but had no written record of feedback, PIPs, or coaching. Employee sued for wrongful termination and won — no documentation meant no defense. | Documentation felt confrontational, so the manager avoided it. HR did not audit manager documentation. | Require written documentation for every performance conversation. Audit quarterly. If it is not in writing, the termination cannot happen — full stop. Train managers: documentation protects the employee (they know where they stand) and the company (defensible process). |
+| **"I became the complaint department."** Every employee issue — interpersonal conflict, work-style friction, minor grievances — funneled through HR. Managers abdicated all people responsibility. HR became a bottleneck and a dumping ground. | No manager training on conflict resolution. No expectation that managers handle Level 1 people issues. | Train every manager on basic conflict resolution and coaching. Create an escalation protocol: Level 1 (interpersonal) → manager handles. Level 2 (pattern/policy) → manager + HR consult. Level 3 (legal/harassment) → HR leads. Hold managers accountable for Level 1 resolution — it is in their performance review. |
+| **"I chose the wrong benefits plan."** Went with the cheapest health plan to save money. High deductible, narrow network. Employees could not afford to use it. Top talent left for companies with better benefits. Then overcorrected to an expensive PPO — no one used the premium features, costs ballooned. | Benefits selected on cost alone, not employee needs. No employee input. No benchmarking. | Survey employees before renewal: what do they value? (Low premium? Low deductible? Broad network? Mental health coverage?) Benchmark 3-5 peer companies. Offer choice: at minimum, an HDHP+HSA option and a PPO option. Run utilization reports annually — if 40%+ of employees are on the same plan, you can probably drop the others. |
+| **"I ignored cultural red flags during hypergrowth."** Company doubled headcount in 6 months. Onboarding was a 30-minute laptop handout. No cultural orientation. Original values became inside jokes — "remember when we used to…?" 30% attrition within a year. | Growth prioritized over culture. No deliberate cultural onboarding. Values not reinforced at scale. | At 50 employees: define values with specific, observable behaviors. At 100: build values into hiring (behavioral questions), onboarding (culture session with founder), performance reviews (values rating), and recognition. At 200+: hire a dedicated people-ops or culture role. Culture does not scale accidentally — it scales through deliberate systems. |
+| **"I handled a harassment complaint informally."** Employee reported inappropriate behavior by a senior leader. HR tried to mediate informally — a conversation, an apology, a promise to do better. No investigation, no documentation. Six months later, the behavior escalated. The original reporter quit and sued. The company settled for seven figures. | Desire to avoid conflict and protect a senior leader overrode proper process. No investigation protocol existed. | Harassment complaints never get informal resolution. Ever. Every complaint triggers the formal investigation process — neutral investigator, interviews, evidence collection, findings, corrective action. Train everyone on this: there is no "off the record" harassment report. Period. |
 
+## Production Readiness Checklist
+<!-- QUICK: 60s — all must pass before an audit, renewal, or new hire wave -->
 
-## Production Checklist
-<!-- QUICK: 30s -- all must pass before an audit or new hire -->
+- [ ] **[HR1]** Employee handbook reviewed and updated within the last 12 months — dated, versioned, legally reviewed
+- [ ] **[HR2]** I-9 compliance: forms completed within 3 business days, stored separately from personnel files, E-Verify cases resolved
+- [ ] **[HR3]** Mandatory training tracked and completed: harassment prevention, data privacy, workplace safety — with state-specific cadence
+- [ ] **[HR4]** Compensation bands documented for every role with market data source, effective date, and geo-differentials
+- [ ] **[HR5]** Benefits administration: open enrollment closed, payroll deductions reconciled, COBRA notices current, 1095-Cs distributed
+- [ ] **[HR6]** Investigation protocol documented: intake process, investigator assignment, evidence preservation, findings template, communication plan
+- [ ] **[HR7]** Termination checklist standardized: final paycheck timing (state-specific), COBRA notice, benefits termination, equipment return, access revocation, exit interview
+- [ ] **[HR8]** Engagement survey cadence established: quarterly pulse (5-10 questions) + annual comprehensive (40-60 questions), results acted on within 30 days
+- [ ] **[HR9]** HRIS configured and current: all employee records accurate, role changes documented, time-off balances correct, reporting functional
+- [ ] **[HR10]** Leave policies compliant: FMLA, state family leave, parental leave, PTO, sick leave — all meet or exceed federal/state/local minimums
+- [ ] **[HR11]** Workplace posters current: federal (EEO, FLSA, FMLA, OSHA, USERRA) plus state and local — visible in all locations including remote
+- [ ] **[HR12]** Record retention schedule documented: I-9 (3 years/1 year), personnel (3-7 years), payroll (3 years), medical (30 years), benefits (6 years)
+- [ ] **[HR13]** Performance review cycle defined: cadence (annual, semi-annual, continuous), feedback sources (self, manager, peer, upward), calibration process, linkage to compensation
+- [ ] **[HR14]** Emergency response plan current: workplace violence protocol, natural disaster plan, business continuity for HR systems, employee communication tree
 
-- [ ] **[H1]** I-9s maintained in a separate binder from personnel files, completed within 3 business days
-- [ ] **[H2]** E-Verify queries submitted within 3 business days of hire (if required in your state)
-- [ ] **[H3]** Employee handbook reviewed and updated within the last 12 months
-- [ ] **[H4]** All required labor law posters posted in all physical locations (federal + state + local)
-- [ ] **[H5]** Annual harassment prevention training completed (state-specific cadence: CA every 2 years, NY annually)
-- [ ] **[H6]** FMLA eligibility tracker maintained: 12-month rolling period, intermittent leave accounting
-- [ ] **[H7]** COBRA administration current: all qualifying events have notices sent, election periods tracked
-- [ ] **[H8]** Workers' compensation insurance policy in force for all employees in all states of operation
-- [ ] **[H9]** ACA tracking active: FTE count confirmed, 1095-Cs distributed, 1094-C filed
-- [ ] **[H10]** Form 5500 filed for 401(k) plan within deadline (July 31 with extension)
-- [ ] **[H11]** Overtime-exempt classification reviewed and documented for every role
-- [ ] **[H12]** Personnel files contain: offer letter, role changes, performance reviews, signed acknowledgments, discipline docs
-- [ ] **[H13]** Benefits open enrollment completed, payroll deductions reconciled within 30 days
-- [ ] **[H14]** Pay equity audit completed within last 12 months
-- [ ] **[H15]** New hire reporting completed (state-specific deadlines, typically 20 days)
+## Scale Depth: First HR Hire → HR Team → HR Department
 
-## Cross-Skill Integration
-<!-- QUICK: 30s -- table of who to talk to when -->
-
-| Step | Skill | What It Produces |
-|------|-------|-----------------|
-| **Before** | `recruiting` | Offer acceptance → triggers I-9, benefits enrollment, payroll setup in HR systems |
-| **Before** | `people-ops` | Leveling framework, compensation bands → informs offer terms and role classification |
-| **This** | `hr-manager` | Employee lifecycle compliance, benefits, leave management, file maintenance |
-| **After** | `people-ops` | Consumes HR data (engagement scores, retention analysis) to design people programs |
-| **After** | `fp-and-a-analyst` | Consumes headcount data, benefits cost trends, workers' comp claims for financial modeling |
-| **After** | `legal-advisor` | Consumes documented policies and compliance records for legal review and litigation defense |
-| **After** | `board-manager` | HR metrics (headcount, turnover, engagement) feed board reporting and compensation committee |
+| Dimension | First HR Hire (1–50 EEs) | HR Team (50–200 EEs) | HR Department (200+ EEs) |
+|---|---|---|---|
+| **Role** | Solo generalist — you do everything | Specialists emerge — recruiter, generalist, maybe benefits | HRBPs + Centers of Excellence + Shared Services |
+| **HR-to-EE ratio** | 1:50 | 1:75 to 1:100 | 1:100 to 1:150 (varies by COE depth) |
+| **HRIS** | Spreadsheet or Gusto/Rippling | Rippling, BambooHR, or Paylocity | Workday, SAP SuccessFactors, or UKG |
+| **Benefits** | PEO (Justworks, Sequoia) or marketplace | Broker-managed, fully insured | Self-funded with stop-loss, multiple carriers, benefits specialist |
+| **Compliance** | PEO covers most; you handle handbook and posters | In-house generalist + employment counsel on retainer | In-house employment counsel, compliance officer, external audits |
+| **Recruiting** | You do it all — sourcing through close | Dedicated recruiter handles IC roles; you handle leadership | Talent acquisition team with sourcers, recruiters, coordinators |
+| **Employee Relations** | You handle every issue personally | You handle complex cases; train managers on Level 1 | HRBPs handle business-unit ER; centralized investigations for serious cases |
+| **Your Leverage** | Automation, PEO, broker, employment attorney hotline | Specialists, HRIS workflows, manager training programs | HRBP model, self-service portals, people analytics, COEs |
+| **What Breaks First** | Recruiting volume — you cannot source and close 20+ reqs alone | Compliance — multi-state complexity outpaces generalist knowledge | Consistency — HRBPs interpret policy differently; need centralized governance |
 
 ## What Good Looks Like
 
-A compliant, well-run HR function has these characteristics:
-- **Every new hire completes onboarding in under 2 hours** — I-9, payroll, benefits enrollment, handbook acknowledgment: all done before lunch on day one.
-- **Leaves are managed without administrative drama** — the employee knows their rights, FMLA runs concurrently with state leave, COBRA notice goes out automatically. No missed deadlines, no liability.
-- **An auditor could walk in tomorrow and find clean files** — I-9s are separate, personnel files are complete, medical files are locked. Every document is where it should be.
-- **Benefits administration is invisible when it works** — open enrollment closes on time, payroll deductions match elections, COBRA is handled by a vendor or automated system. Nobody notices HR until something breaks.
-- **Compliance calendar runs on autopilot** — ACA filing, Form 5500, labor law poster updates, harassment training — all scheduled and tracked. No last-minute scrambles before deadlines.
+Employees trust HR to be fair and confidential. They come to you before problems escalate because they know you will listen without judgment and act without bias. Managers handle 80% of people issues independently because you trained them, equipped them, and hold them accountable. They see you as a coach, not a crutch.
+
+Compliance is invisible — audits pass without drama because your files are complete, your posters are current, your classifications are documented, and your deadlines are met. Your broker and carriers respond to you within hours because you are an informed, prepared client.
+
+Your CEO sees you as a strategic advisor, not just a policy administrator. You are in the room when organizational decisions are made — not because you demanded a seat, but because leadership knows the people perspective prevents costly mistakes.
+
+When an employee leaves, they leave with dignity and a fair process. When a candidate joins, their first day runs without a hitch. When a regulator audits, you can hand them any file with confidence. This is what a well-run HR function looks like.

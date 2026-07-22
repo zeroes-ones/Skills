@@ -478,7 +478,7 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 - [ ] **[Q14]** Risk warnings attached: position size vs market cap, IV crush risk, earnings proximity, sector headwinds
 - [ ] **[Q15]** Signal batch deduplicated, ranked, formatted as JSON per algorithmic-trader schema
 
-## Cross-skills Integration
+## Cross-Skill Coordination
 <!-- STANDARD: 3min — how this skill chains with others in the finance domain and beyond -->
 
 ### Coordinate With

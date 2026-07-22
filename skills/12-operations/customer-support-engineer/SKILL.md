@@ -246,6 +246,10 @@ Common chains:
 - **Chain**: incident-responder → customer-support-engineer → qa-engineer — Incident investigation hands off to support for customer-facing resolution; fixes flow to QA for verification.
 - **Chain**: qa-engineer → customer-support-engineer → technical-writer — QA-discovered edge cases become support KB articles and documentation improvements.
 
+## What Good Looks Like
+
+> When customer support engineering operates at its best, every inbound ticket is triaged and routed within minutes, root causes are identified through systematic reproduction rather than guesswork, knowledge base articles preempt the next 10 tickets on the same topic, customer-reported bugs flow into the engineering backlog with complete reproduction steps, and support becomes a strategic feedback loop that makes the product better with every interaction.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

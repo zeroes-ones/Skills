@@ -309,6 +309,16 @@ Positioning passes the logo-swap test — no competitor can say the same thing. 
 - [ ] **[S14]** Launch post-mortem completed within 2 weeks of every Tier 1 or Tier 2 launch
 - [ ] **[S15]** Sales enablement asset usage tracked monthly — unused assets retired or rebuilt
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder does marketing — content, social, website | Build the brand from zero, find PMF messaging | No dedicated marketer; scrappy experiments; founder is the voice |
+| **Startup** | Generalist marketer covers all channels, first campaigns | Establish marketing function, build pipeline | One person does content, email, social, events, and product marketing |
+| **Scale-up** | Specialist team (content, demand gen, product marketing, brand) | Deepen each function, build scalable programs | Each channel has a dedicated owner; marketing ops formalized |
+| **Enterprise** | CMO + departments, multi-region, brand governance | Category leadership, global consistency | Marketing org of 50+; brand guidelines enforced globally; $5M+ budgets |
+
 ## References
 
 - **product-manager** — for feature roadmap, capabilities, beta access, and competitive feature gaps

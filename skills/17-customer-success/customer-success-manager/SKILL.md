@@ -303,6 +303,16 @@ Common chains:
 
 A new CSM joining the team can run their first QBR within 2 weeks using the templates and health score data. A customer at risk is flagged automatically within 7 days of signal decline and assigned an intervention playbook.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Reactive support — respond when customers complain | Don't lose customers to bad experience | No CS function; support tickets handled by whoever is available |
+| **Startup** | Proactive CS, onboarding calls, health scoring basics | Prevent churn before it happens | First CS hire; onboarding process; basic health scores; QBRs for top accounts |
+| **Scale-up** | Digital-touch (automated) + high-touch (enterprise) segments | Scale CS efficiently across segments | Tech-touch for SMB (in-app, email automation); high-touch for enterprise; CS ops |
+| **Enterprise** | CS platform org (onboarding, adoption, advocacy, renewals) | Customer outcomes as a growth engine | CS is a revenue function; customer marketing; advocacy programs; NRR is a company KPI |
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **references/health-score-models.md** — Detailed health score formulas by industry (SaaS, fintech, healthcare), calibration methodology, and tool-specific implementation guides (Gainsight, ChurnZero, Vitally, Totango)

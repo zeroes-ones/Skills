@@ -312,6 +312,9 @@ Content department (10+): specialists per channel, content ops manager, managing
 | Small → Medium | >4 posts/week, 3+ content channels active, or content ROI > $50K/month | Build in-house team; implement CMS workflows; add attribution model |
 | Medium → Enterprise | Multi-language needs, >10 content creators, or content influences >$1M pipeline/month | Dedicate content ops; invest in AI tools; build content supply chain |
 
+## What Good Looks Like
+
+> Every piece of content maps to a documented stage of the customer journey, a target keyword cluster, and a measurable conversion goal — no one publishes because "we haven't posted this week." The editorial calendar runs three months ahead, aligned with product launches and campaigns, and the content supply chain moves a brief from request to publish without bottlenecking on a single reviewer. Organic traffic compounds month over month because pillar pages earn backlinks naturally, and content ROI is reported in pipeline dollars, not pageviews.
 
 ### Cross-skills Integration
 ```mermaid

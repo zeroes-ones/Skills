@@ -312,6 +312,10 @@ Regulatory notification required? → Compliance Officer → Legal → CEO
 | **Small → Medium** | > 2 SEV1s per quarter. Customers notice downtime before you do. > 10K users. | Formal severity classification, dedicated incident tooling, game day program, error budgets. |
 | **Medium → Enterprise** | Multiple business units with independent services. Regulatory compliance (GDPR, PCI DSS). Public incident covered by media. | Dedicated SRE/IR team, chaos engineering, automated remediation, regulatory notification pipeline. |
 
+## What Good Looks Like
+
+> An incident is declared, the on-call responder acknowledges within 90 seconds, and the incident commander opens a structured war room with pre-built communication channels within three minutes. Runbooks fire automatically based on alert signatures, status pages update without human intervention, and customer-facing messaging goes out within fifteen minutes of confirmed impact. The postmortem is blameless, published within 48 hours, and every action item is tracked to completion. Mean time to detect keeps dropping quarter over quarter because the monitoring surface grows faster than the alert noise.
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Blameless culture is non-negotiable**: focus on systems and processes, not individuals. "You didn't cause this; the system allowed it to happen."

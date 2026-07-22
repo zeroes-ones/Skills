@@ -200,9 +200,17 @@ These rules apply to *every* response this skill produces. Medical content revie
 | **After** | `legal-advisor` | Disclaimer language, AE reporting obligations, liability review → legal sign-off |
 | **After** | `product-manager` | Clinical accuracy findings → informs feature decisions (e.g., community Q&A redesign) |
 
-## What Good Looks Like
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
 
-Effective medical content review protects patients and the company:
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single reviewer checks all content manually | Accuracy above all — don't publish bad info | One clinician reviews everything; manual checklist; no tooling |
+| **Startup** | Review team + style guide, basic content management | Scale review throughput, build consistency | Multiple reviewers; documented guidelines; editorial calendar; version control |
+| **Scale-up** | Specialized reviewers by content type, automated checks | Deep expertise, automated first-pass screening | Cardiology reviewer vs. endocrinology reviewer; automated fact-checking; AE signal detection |
+| **Enterprise** | Clinical review board, regulatory-grade process, published content governance | Institutional credibility, regulatory defense | Medical director + review board; SOPs for every content type; FDA/EMA-compliant process; content audit trail |
+
+## What Good Looks Like
 - **Every piece of health content published in the app has been clinically reviewed** with documented source citations. A user reading "Factor VIII prophylaxis reduces bleeds by 87%" sees a footnote linking to the clinical trial. No unverified claims exist in the app.
 - **A community post claiming "essential oils cured my hemophilia" is detected and removed within 3 minutes** — the misinformation detection rules catch it, a reviewer confirms it's Level 1 dangerous content, and the user who posted it receives a private message explaining why and offering verified information.
 - **A concerning pattern of patients reporting similar side effects triggers a safety signal investigation.** The AE log reveals 8 reports of the same issue in 2 months. The clinical team investigates and contacts the manufacturer. Patients are not harmed because the signal was detected early.

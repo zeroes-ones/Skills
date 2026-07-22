@@ -350,6 +350,10 @@ Run skills in the order shown:
 # Chain B: product-manager → gdpr-privacy → security-engineer
 ```
 
+## What Good Looks Like
+
+> When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede every high-risk processing activity, breach notification procedures trigger within 72 hours, and privacy-by-design principles govern every product decision — not as a checkbox exercise but as a competitive trust advantage.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

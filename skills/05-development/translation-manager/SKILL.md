@@ -156,6 +156,16 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 
 **What good looks like:** A developer merges a PR with a new feature. Within 30 minutes, source strings are extracted, pushed to TMS, machine-translated for 12 locales, quality-checked automatically, and a PR opens with translated JSON files. The QA team tests the pseudolocalized build and finds zero layout bugs before any real translation costs are incurred. TM leverage is 78% — new strings reuse existing translations where possible. MT quality scores average 93/100 across all locales. Total human intervention: zero. Total time from code merge to translated build: under 2 hours.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single developer, manual uploads to DeepL/Google Translate | Get translations done fast, learn the basics | No pipeline — copy-paste strings, translate, paste back |
+| **Startup** | CI/CD automated pipeline, one TMS integration | Automate the repetitive, establish TM | Strings flow from code to TMS and back without manual steps |
+| **Scale-up** | Multi-engine routing, TMS API mastery, cost optimization | Optimize quality-per-dollar across 20+ locales | Route strings to best MT engine by domain; TM is a strategic asset |
+| **Enterprise** | Continuous localization platform, no-touch pipeline | Zero human intervention for 95% of strings | Self-healing pipeline: TM + MT + automated QA with < 5% post-edit rate |
+
 ## References
 
 - Translation Memory Best Practices: references/tm-strategy.md

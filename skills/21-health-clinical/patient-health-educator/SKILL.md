@@ -213,9 +213,17 @@ Content is for which audience?
 | **After** | `ux-writer` | Patient-facing copy in app (notifications, tooltips, consent language) that matches tone with education content |
 | **After** | `data-scientist` | Education outcome data (adherence, knowledge retention, behavior change) → program effectiveness analysis |
 
-## What Good Looks Like
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
 
-Well-designed patient education transforms patient outcomes:
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single educator creates all patient content | Get accurate, helpful content to patients | One person writes and reviews everything; basic reading-level checks |
+| **Startup** | Content team creates multi-format education (text, video, interactive) | Build a comprehensive education library | Team of educators; video + text + quizzes; condition-specific modules |
+| **Scale-up** | Multi-condition platform, personalized learning paths, outcomes tracking | Educate diverse patient populations at scale | Content for 10+ conditions; adaptive learning paths; adherence and outcome measurement |
+| **Enterprise** | Accredited education platform, clinical integration, research partnerships | Become a trusted source, drive measurable health outcomes | CME/CE accreditation; EHR integration; published outcomes research; patient registry linkage |
+
+## What Good Looks Like
 - **A newly diagnosed patient completes the onboarding module** and can correctly explain what hemophilia is, what a bleed feels like, and when to call their doctor. They're connected to a peer mentor within the app.
 - **Adherence improves from 45% to 78% over 12 weeks** after the right barrier is diagnosed and the right intervention deployed. Patients report feeling "more in control" of their condition.
 - **A teenager transitioning from pediatric to adult care** finds the app's content for "self-managing your hemophilia" and feels confident doing their first independent infusion without a parent present.
