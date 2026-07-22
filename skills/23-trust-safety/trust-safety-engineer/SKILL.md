@@ -657,3 +657,10 @@ See Phase 7 — Evidence Preservation for the forensic workflow.
 
 Automated flagging, bulk actions, review queues, moderator safety.
 See Phase 8 — Moderation Tooling for the tooling and wellness framework.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **content-policy-manager, security-engineer, ml-ai-engineer** and others — for upstream design decisions, specifications, and architectural context that inform Trust & safety infrastructure — abuse detection, account integrity, harm prevention systems
+- **content-policy-manager, community-operations-manager, crisis-response-manager** and others — downstream skills that consume outputs from this skill for implementation and execution

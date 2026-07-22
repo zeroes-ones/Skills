@@ -630,3 +630,10 @@ Board composition, policy review cadence, dispute resolution, board operations. 
 ### transparency-reporting
 
 Takedown statistics, appeal statistics, policy change log, public-facing reports. See Phase 8.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **ai-safety-health-reviewer, community-operations-manager, compliance-officer** and others — for upstream design decisions, specifications, and architectural context that inform Content policy definition, enforcement frameworks, and moderation guidelines
+- **community-operations-manager, crisis-response-manager, patient-health-educator** and others — downstream skills that consume outputs from this skill for implementation and execution

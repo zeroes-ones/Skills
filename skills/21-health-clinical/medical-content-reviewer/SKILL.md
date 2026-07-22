@@ -286,3 +286,10 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 - **A community post claiming "essential oils cured my hemophilia" is detected and removed within 3 minutes** — the misinformation detection rules catch it, a reviewer confirms it's Level 1 dangerous content, and the user who posted it receives a private message explaining why and offering verified information.
 - **A concerning pattern of patients reporting similar side effects triggers a safety signal investigation.** The AE log reveals 8 reports of the same issue in 2 months. The clinical team investigates and contacts the manufacturer. Patients are not harmed because the signal was detected early.
 - **The app's health content passes a legal audit** with no liability gaps. Disclaimers are present where they should be. AI-generated content is clearly labeled. The adverse event reporting workflow is documented and followed. The company is protected against claims of practicing medicine without a license.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **ai-safety-engineer, clinical-informatics-specialist, compliance-officer** and others — for upstream design decisions, specifications, and architectural context that inform Medical content accuracy review and clinical validation
+- **ai-safety-health-reviewer, content-policy-manager, medical-illustrator** and others — downstream skills that consume outputs from this skill for implementation and execution

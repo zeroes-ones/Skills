@@ -405,3 +405,10 @@ Your team is where internal transfers want to go. People hear about your team's 
 Your director trusts you with hard problems. When something critical and ambiguous lands, you get the call. Not because you code fast, but because you'll figure out the right approach, align the team, communicate clearly, and deliver predictably.
 
 You sleep well. Not because there are no problems — there are always problems. But because you've built the relationships, systems, and practices to handle them. You know what to do when a key engineer resigns, a critical date slips, or a team conflict erupts. The playbook exists, and you've practiced it.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **director-engineering, hr-manager, people-ops** and others — for upstream design decisions, specifications, and architectural context that inform Engineering manager — team leadership, 1:1s, performance management, delivery
+- **backend-developer, cto-advisor, director-engineering** and others — downstream skills that consume outputs from this skill for implementation and execution

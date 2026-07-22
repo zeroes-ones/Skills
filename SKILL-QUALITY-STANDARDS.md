@@ -166,6 +166,26 @@ IDs use domain prefixes (API, EM, DE, VP, SE, etc.) for traceability across skil
 | Issue | ```broken code``` | ```fixed code``` |
 ```
 
+### 9. Proactive Triggers
+```markdown
+## Proactive Triggers
+<!-- STANDARD: 2min — surface these WITHOUT being asked -->
+
+- **Trigger condition** → What to flag. Why it matters before being asked. 🔴
+- **Another trigger** → Description of what to surface proactively. 🟡
+- **Warning sign** → Context on why this matters for downstream quality. 🟠
+```
+
+### 10. Anti-Patterns Table
+```markdown
+## Anti-Patterns
+<!-- STANDARD: 2min -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| What NOT to do — with concrete example | The correct approach — with concrete example |
+```
+
 ---
 
 ## SKILL.md Quality Checklist (10/10)
@@ -184,8 +204,10 @@ Every SKILL.md must pass ALL of these gates:
 - [ ] `## Error Decoder` — At least 3 common errors mapped to root causes and fixes
 - [ ] `## Production Checklist` — 12+ items, each referencing a numbered standard
 - [ ] `## Cross-Skill Coordination` — Upstream/downstream tables with backtick-wrapped skill slugs, decision gates, and specific artifacts. Chain symmetry verified.
+- [ ] `## Proactive Triggers` — 5–8 proactive callouts with severity indicators (🔴🟡🟠) for issues to surface without being asked
+- [ ] `## Anti-Patterns` — Explicit ❌/✅ table with 5–8 patterns of what NOT to do and the correct alternative
 - [ ] `## What Good Looks Like` — Concrete description of success output
-- [ ] `## References` — Lists all references/ and assets/ files with descriptions
+- [ ] `## References` — Lists downstream skills to coordinate with (chain-based); also lists any references/ and assets/ files with descriptions
 
 ### Content Quality
 - [ ] No filler paragraphs — every sentence carries information

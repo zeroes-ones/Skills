@@ -266,3 +266,10 @@ These rules apply to *every* response this skill produces. AI safety in health i
 - **A red-teaming session finds a novel prompt injection that bypasses input guardrails.** The output guardrail catches the generated response and blocks it before it reaches the user. The fix is deployed within 24 hours. The safety score doesn't drop.
 - **The safety dashboard shows 2.3% guardrail trigger rate** with a clear breakdown: 1.2% off-topic medical queries, 0.6% PII detected, 0.3% prompt injection attempts, 0.2% harmful intent. Trends are flat. The team knows their system is working.
 - **A regulator asks for safety documentation.** The team provides: safety test set with version history, red-teaming report, guardrail architecture diagram, production monitoring dashboard, and bias evaluation results. The regulator is satisfied.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **ai-safety-health-reviewer, mlops-engineer, compliance-officer** and others — for upstream design decisions, specifications, and architectural context that inform AI safety engineering, model evaluation, guardrails, and adversarial testing
+- **llm-engineer, medical-content-reviewer, product-manager** and others — downstream skills that consume outputs from this skill for implementation and execution
