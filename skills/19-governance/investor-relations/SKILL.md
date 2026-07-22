@@ -387,6 +387,16 @@ Common chains:
 
 A fundraise that goes from first meeting to term sheet in 6 weeks, diligence to close in 4 weeks. The data room has zero follow-up requests because everything was there on day one. The pitch deck gets partner-level meetings within 1 week of warm intro. Investor updates go out on the 5th of every month — investors reply "great update" or offer specific help. Cap table is audited and reconciled. Term sheet comparison matrix is one page with the winner highlighted — the founder can explain why in one sentence. Down-round scenarios are modeled and stress-tested. Customer references are pre-briefed and enthusiastic. The wire hits on schedule. There is a Plan B investor in the wings throughout.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Angel investor email updates, ad-hoc communication | Keep early backers informed | Monthly email with highlights; no formal process; personal relationship |
+| **Startup** | VC reporting, quarterly investor letters, data room maintenance | Institutional-grade communication, fundraise readiness | Structured updates with metrics; data room always current; cap table clean |
+| **Scale-up** | Institutional investors, board prep, fundraising execution | Manage multi-investor base, execute growth rounds | Multiple VC funds; LP-level reporting; Series C+ execution; secondary transactions |
+| **Enterprise** | Public company IR, earnings calls, analyst days, shareholder communications | Market confidence, fair disclosure, shareholder value | IR officer; quarterly earnings; Reg FD compliance; analyst coverage; proxy season |
+
 ## References
 <!-- QUICK: 30s — links to deeper reading -->
 

@@ -718,6 +718,9 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 - **Small → Medium**: 3+ frontend developers. Performance or accessibility becomes a user-reported issue. >10K users.
 - **Medium → Enterprise**: 5+ frontend teams. Multi-brand or international. >100K users.
 
+## What Good Looks Like
+
+> Every page loads with a Lighthouse score of 95+, Core Web Vitals all green, and a JavaScript bundle under 150KB gzipped per route. The UI is fully keyboard-navigable, screen-reader-friendly, and WCAG 2.2 AA compliant. Components render correctly across loading, empty, error, and edge-case states — users never see a blank screen or an unhandled spinner. State lives where it belongs: server state in TanStack Query, URL state in search params, and form state in React Hook Form. Design tokens are the single source of truth — no hardcoded colors, no magic spacing values. Every interaction feels instant, deliberate, and polished from first paint to final interaction.
 
 ### Cross-skills Integration
 

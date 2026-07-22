@@ -421,6 +421,16 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 - [ ] **[RO13]** Non-standard deal log reviewed monthly -- volume trending under 20% of total deals; discount depth within policy
 - [ ] **[RO14]** Quota fairness analysis completed within 30 days of plan launch -- territory variance under 20% for same-tier reps
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Spreadsheet + basic CRM, manual reporting | Track deals, survive | Founder updates a pipe spreadsheet; no automation; gut-feel forecasting |
+| **Startup** | First RevOps hire, CRM administration, basic dashboards | Clean data, reliable reporting | CRM is source of truth; dashboards for leadership; sales process defined |
+| **Scale-up** | Dedicated RevOps team, full tech stack, forecasting | Optimize the revenue engine | HubSpot/Salesforce mastery; territory design; comp plans; attribution |
+| **Enterprise** | RevOps platform org (systems, analytics, enablement, strategy) | Revenue as a science | Multi-product, multi-geo; AI forecasting; revenue platform architecture |
+
 ## References
 
 - `references/crm-architecture-guide.md` -- Custom object design patterns, automation rule frameworks, data hygiene standards

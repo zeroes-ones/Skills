@@ -350,6 +350,9 @@ Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 —
 - **Small → Medium**: >10K users. Read replica needed. Replication lag causing data inconsistencies. Connection pool exhaustion.
 - **Medium → Enterprise**: >1M users. Compliance requirements (SOC 2, HIPAA). Multiple teams with shared database dependencies. Single instance cannot scale vertically.
 
+## What Good Looks Like
+
+> Failover completes in under 30 seconds with zero data loss, and the application retries transparently without a single user seeing an error. PITR restores to any second in the last 30 days, tested monthly. Query performance regressions are caught in CI before they reach production, slow queries surface in dashboards with actionable EXPLAIN plans, and connection pools never exhaust because capacity planning runs ahead of traffic. Every database is provisioned via Terraform with backups, monitoring, and HA configured by default — no snowflake instances exist.
 
 ### Cross-skills Integration
 ```bash

@@ -336,6 +336,16 @@ Demo opens in 5 seconds, environment is at latest version, first screen maps to 
 - [ ] **[S13]** Product gap log maintained — every gap identified during sales cycle logged with revenue impact estimate
 - [ ] **[S14]** Pre-demo "what to expect" email sent 24 hours before every scheduled demo
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder demos the product, answers technical questions | Close first deals, learn objections | Founder is the SE; no demo environment; every call is a learning opportunity |
+| **Startup** | 1-2 SEs support all deals, build demo environments | Scale founder's technical selling ability | Dedicated SEs; reusable demo environments; first battle cards |
+| **Scale-up** | SE team organized by vertical/region, PoC management | Deep vertical expertise, win competitive deals | Vertical-specialized SEs; structured PoC process; RFx response team |
+| **Enterprise** | Global SE organization, SE leadership, solution architect tiers | Support enterprise sales at scale, technical GTM | SE Directors; solution architects for strategic deals; SE career ladder; demo platform |
+
 ## References
 
 - **product-manager** — for feature roadmap, product gap escalation, and competitive positioning input

@@ -417,6 +417,10 @@ Common chains:
 - **Chain**: project-manager → scrum-master → backend-developer — Project plan broken into sprints; the team delivers working increments.
 - **Chain**: product-manager → scrum-master → qa-engineer — Backlog priorities become sprint goals; QA validates the sprint output.
 
+## What Good Looks Like
+
+> When scrum mastery is at its peak, sprint goals are clear and the team delivers a working increment every sprint, retrospectives produce actionable improvements that are implemented in the next sprint, the backlog is refined so that the top items are always ready for execution, impediments are removed before the team feels the friction, velocity is predictable within a range, and the team's morale and autonomy grow quarter over quarter — the scrum master's success is measured by how little the team needs them.
+
 ## Sub-Skills
 
 | Sub-Skill | When to Use | Context |

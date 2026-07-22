@@ -307,7 +307,7 @@ The regulatory line between informational content and CDS software:
 - **Post-launch**: monthly red team with 100 new prompts; after any model update, full re-test
 - **Incident-driven**: if any safety incident occurs, run targeted red team on that failure mode within 48 hours
 
-## Cross-skills Integration
+## Cross-Skill Integration
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -324,6 +324,55 @@ Common chains:
 - **Chain**: regulatory-specialist → ai-safety-health-reviewer → legal-advisor — HIPAA framework informs safety evaluation scope; legal reviews FDA pathway and liability exposure
 - **Chain**: security-reviewer → ai-safety-health-reviewer → compliance-officer — Security assessment feeds into safety review; compliance officer tracks regulatory obligations
 
+## Decision Trees
+<!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
+
+### When to Escalate a Model Output Concern
+<!-- Decision tree for determining escalation path based on output severity and context -->
+
+```
+START: AI model generates health-related output
+  │
+  ├─ Does the output contain a treatment recommendation?
+  │    ├─ YES → ESCALATE to clinical advisor immediately. Do not surface to user.
+  │    └─ NO → Continue
+  │
+  ├─ Does the output mention a specific medication, dosage, or drug interaction?
+  │    ├─ YES → FLAG for pharmacist review. Surface only after clinical verification.
+  │    └─ NO → Continue
+  │
+  ├─ Does the output suggest a diagnosis or prognosis for an individual?
+  │    ├─ YES → ESCALATE to medical director. Block output.
+  │    └─ NO → Continue
+  │
+  ├─ Does the output reference a clinical trial, study, or statistic?
+  │    ├─ YES → Verify against source. If hallucinated → INCIDENT. Log and block.
+  │    └─ NO → Continue
+  │
+  ├─ Does the output contain suicidal ideation, self-harm, or crisis language?
+  │    ├─ YES → CRISIS PROTOCOL. Replace output with crisis resources (988 Lifeline).
+  │    └─ NO → Continue
+  │
+  ├─ Does the output reference a discontinued or off-label treatment?
+  │    ├─ YES → FLAG. Suppress and notify medical review board.
+  │    └─ NO → Continue
+  │
+  └─ Does the output target pediatric, adolescent, or vulnerable populations?
+       ├─ YES → Route through pediatric/adolescent guardrails. Extra review.
+       └─ NO → Standard safety review → APPROVE with disclaimer
+```
+
+### Severity Triage for Health AI Outputs
+<!-- Severity classification matrix for evaluating medical AI outputs in a patient community -->
+
+| Severity | Criteria | Response | Example |
+|----------|----------|----------|---------|
+| **Critical (P0)** | Output could cause immediate physical harm, death, or severe psychological distress | 24/7 incident response: block output, notify clinical safety officer, trigger crisis protocol, file FDA report if cleared device | Model recommends lethal dosage; misses suicidal ideation; suggests contraindicated drug combination |
+| **High (P1)** | Output could cause delayed harm, misdiagnosis, or inappropriate self-treatment | Block output, escalate to clinical advisor within 1 hour, root cause analysis, retrain content filter | Model invents a clinical trial and encourages enrollment; recommends unproven supplement protocol |
+| **Medium (P2)** | Output contains medically inaccurate but not immediately dangerous information | Flag for review within 24 hours, add to false-claim database, schedule content filter update | Model misstates disease prevalence; exaggerates drug efficacy; outdated guideline referenced |
+| **Low (P3)** | Output is technically correct but poorly contextualized, ambiguous, or missing nuance | Log for quality improvement, review during weekly safety meeting, update prompt templates | Model omits relevant contraindications; provides correct info without appropriate caveats; tone inappropriate for clinical context |
+| **Informational (P4)** | Output is safe and accurate but missing optimal formatting or disclaimers | Automated correction via template, track in periodic content audit | Missing disclaimer on educational content; formatting deviates from style guide |
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -337,6 +386,25 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `medical-content-filtering` | Designing allowed/disallowed content categories, disclaimer strategy, and edge case handling |
 | `health-ai-red-teaming` | Adversarial prompt design, clinical edge case generation, and doctor-shopping detection |
 | `ai-explainability-medical` | SHAP/LIME interpretation, chain-of-thought audit for medical reasoning, and clinician-facing explanations |
+
+## Best Practices
+<!-- QUICK: 60s -- non-obvious practitioner wisdom -->
+
+1. **Red-team for medical scenarios systematically**: Design adversarial prompts that simulate drug-seeking behavior, symptom exaggeration (doctor-shopping), contraindication probing, pediatric dosing requests, and off-label use inquiries. Red-team before every major release and after any fine-tuning. Track red-team pass rates as a release gate.
+
+2. **Tier disclaimers by content risk level — never use boilerplate**: Educational content ("Talk to your doctor") vs. symptom information ("This is not a diagnosis — see a healthcare provider if symptoms persist") vs. treatment-adjacent content ("Do not change medications based on this information — consult your prescribing physician immediately"). Disclaimers must reflect actual regulatory status (investigational vs. cleared device).
+
+3. **Calibrate confidence thresholds per medical domain**: A 90% confidence score for dermatology image classification means something very different than 90% for mental health triage. Set domain-specific confidence thresholds informed by clinical risk. Below-threshold outputs route to human review or are suppressed. Never surface raw confidence to patients.
+
+4. **Design for differential diagnosis risk explicitly**: Health AI outputs — even educational ones — can anchor patients on a specific diagnosis, delaying appropriate care. Structure outputs to present multiple possibilities, emphasize uncertainty, and direct to in-person evaluation rather than implying a definitive answer.
+
+5. **Implement pediatric and adolescent guardrails as a separate layer**: Children and adolescents have distinct safety profiles — age-appropriate language, parental consent considerations, mandatory escalation for eating disorders/self-harm, and different crisis resources (e.g., Trevor Project for LGBTQ+ youth). These guardrails must be applied before adult-oriented safety checks.
+
+6. **Deploy emergency keyword detection with zero false-negative tolerance**: Keywords indicating suicidal ideation, self-harm, violence, or acute medical emergencies (chest pain, stroke symptoms, anaphylaxis) must trigger immediate crisis protocol regardless of context. The cost of a false positive (showing crisis resources unnecessarily) is orders of magnitude lower than a false negative.
+
+7. **Detect medical hallucinations with retrieval verification, not just confidence scores**: LLMs can confidently fabricate drug names, clinical trial results, and guideline citations. Implement NLI-based hallucination detection that cross-references every factual medical claim against a trusted knowledge base (DrugBank, UpToDate, PubMed). Flag claims that cannot be verified — don't just flag low-confidence outputs.
+
+8. **Version-lock clinical knowledge bases and audit update cadence**: Medical knowledge evolves rapidly — guidelines change, drugs are recalled, trials are retracted. The KB version used for verification must be tracked alongside every safety decision. Set maximum staleness SLAs (e.g., KB frozen for >90 days triggers automatic review). Document which KB version was active for every safety incident.
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -365,6 +433,39 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Small → Medium**: FDA pre-submission meeting scheduled. >10K users. Healthcare enterprise customer requiring clinical validation.
 - **Medium → Enterprise**: FDA clearance obtained. >1M users. Integration with clinical workflows.
 
+## Error Decoder
+<!-- QUICK: 60s -- symptom, root cause, fix, and lesson for real-world failures -->
+
+### War Story 1: The Discontinued Treatment Recommendation
+- **Symptom**: Health AI chatbot recommended a migraine medication that had been voluntarily withdrawn from market 18 months prior. Patient filled the old prescription they had at home and experienced a known adverse reaction.
+- **Root cause**: Clinical knowledge base was 22 months stale. No automated KB freshness monitoring. Content verification pipeline only checked for drug existence, not current FDA status.
+- **Fix**: Implemented weekly KB sync with FDA drug database and DailyMed. Added drug status field to verification pipeline (active/recalled/discontinued/black-box-warning). Automated alert when KB staleness exceeds 14 days.
+- **Lesson**: **Clinical KB freshness is a safety-critical function, not a maintenance task.** A hallucination detector can confirm a drug "exists" in the KB while missing that it was recalled. Status metadata must be part of the verification contract.
+
+### War Story 2: The Hallucinated Clinical Trial
+- **Symptom**: Cancer patient received AI-generated response citing a "promising Phase III clinical trial at MD Anderson" for their rare cancer subtype. Patient contacted MD Anderson, who confirmed the trial did not exist. Patient experienced severe emotional distress and delayed standard-of-care treatment while searching for the trial.
+- **Root cause**: LLM generated a plausible-sounding trial name, institution, and outcome. Retrieval pipeline returned zero relevant documents, but the model was not conditioned to refuse answering when retrieval confidence was low. No NLI verification step for clinical claims.
+- **Fix**: Added NLI-based fact verification for all clinical claims (trial names, institutions, outcome statistics). When retrieval confidence is below threshold or verification fails, model responds with "I cannot find verified information about that" rather than generating. Built a blocklist of known-hallucinated trial names.
+- **Lesson**: **"I don't know" is the safest medical output when retrieval is uncertain.** The cost of refusing to answer is a frustrated user; the cost of a hallucinated clinical trial can be delayed treatment and eroded trust in healthcare institutions.
+
+### War Story 3: Missed Suicidal Ideation in Patient Post
+- **Symptom**: Patient posted in a health community forum: "I'm just so tired of fighting this. Sometimes I wonder if anyone would even notice if I stopped taking everything." The AI responded with medication adherence encouragement. A community moderator caught the post 4 hours later and triggered crisis intervention.
+- **Root cause**: Emergency keyword detection was literal-match only ("suicide," "kill myself," "end it all"). The model failed on indirect, figurative, and euphemistic expressions of suicidal ideation. Content classifier was not trained on crisis-language variants.
+- **Fix**: Deployed a specialized crisis intent classifier trained on clinical datasets including indirect suicidal language. Added semantic similarity matching against known crisis phrases. Implemented mandatory escalation for any output where crisis classifier score exceeds threshold, regardless of keyword match. Added human-in-the-loop review for borderline cases.
+- **Lesson**: **Literal keyword matching fails exactly when it matters most.** People in crisis rarely use clinical terminology. The safety system must understand "I'm tired of fighting" as potential suicidal ideation, not just "I want to kill myself."
+
+### War Story 4: Pediatric Dosage Extrapolation
+- **Symptom**: Parent asked health AI about fever management for their 3-year-old. Model extrapolated adult acetaminophen dosing guidelines proportionally by weight, recommending a dose 40% above the pediatric maximum. Parent administered before their pediatrician caught the error at a follow-up call.
+- **Root cause**: Model lacked pediatric-specific content filtering. Adult guidelines were in the retrieval corpus but pediatric dosing tables were not. Model reasoned by weight-based proportion — a mathematically logical but clinically dangerous extrapolation.
+- **Fix**: Added mandatory pediatric/adolescent content gate: any query involving patients under 18 routes through pediatric-specific models with age-banded dosing tables. Blocked all weight-based extrapolation logic. Added "consult your pediatrician" as mandatory language for all pediatric outputs.
+- **Lesson**: **Models will reason dangerously across contexts unless explicitly blocked.** Weight-based proportion is mathematically correct and clinically wrong for pediatrics because drug metabolism doesn't scale linearly. Domain-specific guardrails must preempt cross-domain reasoning.
+
+### War Story 5: Confidence Calibration Failure in Dermatology
+- **Symptom**: AI dermatology tool classified a lesion as "benign nevus — 94% confidence." Patient skipped their scheduled dermatologist appointment. The lesion was later diagnosed as early-stage melanoma by a different provider 8 months later. The "94% confidence" gave false reassurance.
+- **Root cause**: Model was calibrated on a dataset where 85% of images were benign, creating a calibration bias. 94% confidence reflected the model's certainty that the image looked like typical benign training examples, not certainty that it was actually benign. Confidence score was presented without calibration context.
+- **Fix**: Recalibrated using Platt scaling on a balanced dataset. Added "confidence interval" (not just point confidence) to outputs. Implemented a rule: any lesion classified below 99.5% confidence triggers "show this to a dermatologist" recommendation. Added dataset composition transparency to model card.
+- **Lesson**: **Confidence scores are not probabilities, and presenting them as such causes harm.** A 94% confidence score on a 85%-benign training set means something very different in deployment. Calibration must account for base rates, and thresholds must be set with asymmetric costs (missing melanoma is far worse than unnecessary biopsy).
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[AS1]**  Medical hallucination detection active: drug interaction verification, treatment recommendation cross-reference, dosage fabrication prevention
@@ -381,6 +482,11 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - [ ] **[AS12]**  Explainability implemented: SHAP/LIME for flagged outputs, chain-of-thought audit trail, clinician-facing explanation interface
 - [ ] **[AS13]**  Continuous monitoring: hallucination rate tracked over time, bias metrics monitored, safety incident dashboard maintained
 - [ ] **[AS14]**  Documentation: FDA submission package (if applicable), clinical validation report, bias audit report, model card with medical context, safety case
+
+## What Good Looks Like
+<!-- QUICK: 30s -- aspirational north star for this skill -->
+
+> AI safety in health is not about preventing every possible harm — it's about building systems where patients are never worse off for having interacted with the AI. A health AI that erodes trust in medicine, delays appropriate care, or creates false reassurance is failing even if it never causes direct physical harm. **What good looks like**: every health AI output is verified against current clinical knowledge, every output carries appropriate uncertainty communication, every vulnerable population has dedicated guardrails, every safety incident is treated as a system failure (not a user error), and every patient — regardless of language, literacy, or socioeconomic status — receives equally safe and trustworthy information. The goal is not a perfect system; it is a system that earns and maintains the trust patients place in it, and that trust is verified by transparent, published safety metrics rather than assumed.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

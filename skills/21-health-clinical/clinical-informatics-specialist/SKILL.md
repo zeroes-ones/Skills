@@ -256,6 +256,10 @@ Patient consent system failure (consent not enforced)? → Security Engineer →
 - **Small → Medium**: Multi-EHR integration. TEFCA connection. Pharma partnership requiring RWE. >10K patients.
 - **Medium → Enterprise**: National-scale data exchange. FDA RWE submission. Genomic data integration. >100K patients.
 
+## What Good Looks Like
+
+Clinical data flows seamlessly between EHRs, patient apps, and pharma partners. FHIR APIs are the backbone — not afterthoughts. Clinicians trust the data because mappings are validated and provenance is traceable. Real-world evidence pipelines generate insights without manual data wrangling.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **api-designer** — for FHIR API design patterns, OAuth2/OIDC, and API versioning

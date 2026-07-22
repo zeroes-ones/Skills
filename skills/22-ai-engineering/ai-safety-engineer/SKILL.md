@@ -202,9 +202,17 @@ These rules apply to *every* response this skill produces. AI safety in health i
 | **After** | `product-manager` | Safety findings, launch readiness assessment → informed go/no-go decision |
 | **After** | `medical-content-reviewer` | AI response accuracy issues, hallucination patterns → feeds content quality improvement |
 
-## What Good Looks Like
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
 
-AI safety that protects patients without killing the product experience:
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Manual review of AI outputs, ad-hoc safety checks | Don't ship dangerous outputs | Developer spot-checks responses; no formal safety process; gut-feel judgments |
+| **Startup** | Automated guardrails (input/output), safety test suite, red-teaming | Build safety into the product, catch regressions | Content filters + prompt injection detection; automated test suite; periodic red-teaming |
+| **Scale-up** | Safety platform (real-time monitoring, bias detection, incident response) | Proactive safety, systematic risk management | Real-time guardrail dashboard; bias evaluation pipeline; incident response playbook; safety SLAs |
+| **Enterprise** | Dedicated safety org, compliance framework, external audits | Enterprise trust, regulatory readiness | Safety VP + team; NIST AI RMF alignment; third-party audits; safety case documentation; EU AI Act compliance |
+
+## What Good Looks Like
 - **The AI gracefully refuses to answer a question outside its scope** — when a user asks "Should I take more factor?" the AI says "I can't give medical advice. This is a question for your hematologist. Here's a list of questions you might want to ask them." The patient isn't left frustrated.
 - **A red-teaming session finds a novel prompt injection that bypasses input guardrails.** The output guardrail catches the generated response and blocks it before it reaches the user. The fix is deployed within 24 hours. The safety score doesn't drop.
 - **The safety dashboard shows 2.3% guardrail trigger rate** with a clear breakdown: 1.2% off-topic medical queries, 0.6% PII detected, 0.3% prompt injection attempts, 0.2% harmful intent. Trends are flat. The team knows their system is working.

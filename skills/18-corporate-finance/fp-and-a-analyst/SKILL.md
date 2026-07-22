@@ -239,6 +239,34 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 | Series C | $25-100M | 73-82% | 60-90% | 45-70% | 0.5-1.2x |
 | Pre-IPO | $100M+ | 75-85% | 50-75% | 50%+ | <0.8x |
 
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Skills this FP&A analyst works with — the model is the central nervous system of the company -->
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `accountant` | Closed books, actuals by department, ARR schedule, cash flow statement | Monthly close — Day 5 draft, Day 10 final; every model refresh must reconcile to last closed period |
+| `treasury-manager` | Actual cash position, 13-week cash flow, debt covenants, FX exposure | Weekly — update model cash forecast with actuals; monthly covenant compliance check |
+| `ceo-strategist` | Fundraising strategy, board communication priorities, strategic initiatives for modeling | Pre-fundraising — build operating model; quarterly — board deck financial section |
+| `recruiting` | Hiring plan with start dates, salary bands, equity guidelines | Monthly headcount forecast update; every hire changes the model burn rate |
+| `revops-manager` | Pipeline data, quota attainment, ARR forecast by segment | Monthly revenue forecast sync; quarterly territory planning model |
+| `product-strategist` | New product launch timeline, expected ARPU, adoption curve | Pre-launch — revenue scenario modeling; quarterly — actuals vs adoption assumptions |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ceo-strategist` | Operating model, scenario analysis, board financials, valuation model | CEO presents to investors without current model = credibility loss |
+| `board-manager` | Financial package: P&L forecast, cash runway, ARR bridge, headcount plan, burn multiple | Board governance requires financial visibility — stale data erodes board confidence |
+| `investor-relations` | Quarterly earnings/update model, guidance ranges, KPI dashboard | Investors make allocation decisions on your guidance — errors = trust loss |
+| `treasury-manager` | Cash forecast (annual + 13-week), fundraising timeline, expense run rate | Treasury manages daily cash based on your forecast — wrong = overdraft or missed opportunity |
+| `department-heads` (via `engineering-manager`, `marketing-manager`, `sales-engineer`) | Department budget vs actual, hiring plan model, ROI analysis for spend requests | Business decisions stall without financial approval framework |
+
+**Coordination cadence:**
+- **Weekly:** Cash forecast update with treasury-manager; actuals check against model
+- **Monthly:** Close reconciliation with accountant; budget vs actual variance report to department heads
+- **Quarterly:** Re-forecast with all upstream inputs; board financial package; investor update draft
+- **Pre-Fundraising:** Full operating model rebuild with CEO input; scenario analysis (bull/base/bear)
+- **Annually:** Annual budget with bottoms-up department builds; compensation benchmarking; pricing model review
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error is a model failure that burned real cash -->
@@ -287,6 +315,16 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 ## What Good Looks Like
 
 The financial model opens in Excel/Google Sheets. Changing the "Hiring Start Date" for sales from Jan to March shifts all downstream revenue, opex, and cash balances automatically. The board summary tab shows: ARR growth rate (30%+), NRR (110%+), gross margin (78%), burn multiple (1.2x), runway (21 months), Rule of 40 (45%) — each with a green/yellow/red indicator vs. benchmark. The fundraise tab shows dilution waterfall: founders 47%, employees 18%, Seed 20%, Series A 15% after Series B. No #REF! errors. No hard-coded numbers in formula cells. A new hire starting Monday can update actuals within 15 minutes.
+
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder's spreadsheet model, gut-feel planning | Know burn rate, don't run out of cash | Single-tab model; monthly cash check; no formal FP&A |
+| **Startup** | First FP&A hire, 3-statement model, board reporting | Professionalize planning, earn investor confidence | Dedicated FP&A; budget vs. actuals; SaaS metrics; board deck |
+| **Scale-up** | FP&A team, departmental budgeting, scenario modeling | Strategic resource allocation, performance management | Business partners embedded in depts; headcount planning; M&A modeling |
+| **Enterprise** | Strategic finance org, IR support, long-range planning | Capital allocation, shareholder value | FP&A VP; 5-year strategic plan; earnings guidance; capital markets support |
 
 ## References
 <!-- QUICK: 30s — deeper reading and templates -->

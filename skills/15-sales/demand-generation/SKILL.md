@@ -360,6 +360,16 @@ Every paid channel has a documented CAC and LTV:CAC ratio >3:1. MQL→SQL conver
 - [ ] **[S14]** Lead lifecycle stages defined and automated: Visitor → Lead → MQL → SQL → Opportunity → Customer
 - [ ] **[S15]** Marketing ops platform data backup verified and GDPR/CAN-SPAM compliance confirmed
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder content + LinkedIn posts, organic outreach | Build awareness, get first leads | Founder is the brand; no budget; content and hustle |
+| **Startup** | Paid ads (Google/LinkedIn), email sequences, landing pages | Generate pipeline predictably, prove CAC | First paid channels; basic nurture sequences; lead scoring starts |
+| **Scale-up** | Multi-channel ABM, marketing ops stack, attribution | Target ICP precisely, optimize funnel | Account-based plays; HubSpot/Marketo; multi-touch attribution; SDR team |
+| **Enterprise** | Global demand gen team, multi-region campaigns, brand + demand | Scale pipeline globally, build category | Regional teams; $1M+ campaign budgets; brand awareness + demand capture |
+
 ## References
 
 - **marketing-manager** — for campaign briefs, positioning, personas, messaging, and competitive intel

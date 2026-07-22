@@ -325,6 +325,10 @@ Common chains:
 | Brand team rejects visual style | Doesn't match brand guidelines, wrong tone | Review brand guide, create style tile aligned to brand before full illustration |
 | Translation workflow breaks illustrations | Text baked into raster images, no label layer separation | Export text as separate layer, use SVG with text elements, provide translation keys |
 
+## What Good Looks Like
+
+> When medical illustration is done at its best, every clinical diagram cites a verifiable anatomical reference and has passed clinical review, patients with no medical training achieve >80% comprehension on the first viewing, color palettes are tested and safe for all forms of color vision deficiency, alt text and high-contrast alternatives make every visual fully accessible, regulatory submissions include illustrations that clarify rather than confuse, and the illustration library is versioned, cataloged, and localizable — visuals build trust, not liability.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 

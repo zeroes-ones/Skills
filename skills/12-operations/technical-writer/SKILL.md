@@ -375,6 +375,10 @@ Common chains:
 - **Chain**: backend-developer → technical-writer → documentation-engineer — API code becomes polished documentation; docs engineer integrates it into the site and CI pipeline.
 - **Chain**: qa-engineer → technical-writer → devrel-advocate — QA-discovered edge cases inform runbooks and troubleshooting guides; devrel uses them for developer outreach.
 
+## What Good Looks Like
+
+> When technical writing is applied perfectly, API references are generated from specs so they never go stale, READMEs enable a new developer to make their first commit in under 10 minutes, runbooks are tested by actually running them in a sandbox, onboarding guides reduce time-to-productivity from weeks to days, and every document answers "what is this, why should I care, and how do I get started" before the reader has to ask — documentation becomes a product feature, not an afterthought.
+
 ## Sub-Skills
 
 | Sub-Skill | When to Use | Context |

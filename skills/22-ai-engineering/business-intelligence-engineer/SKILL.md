@@ -459,7 +459,7 @@ models:
 - **Retention**: auto-delete exports older than N days (configurable per tenant)
 - **Encryption**: exports encrypted at rest; download links expire; watermark PDFs with "CONFIDENTIAL — [Tenant Name] — [Date]"
 
-## Cross-skills Integration
+## Cross-Skill Integration
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -476,6 +476,71 @@ Common chains:
 - **Chain**: fp-and-a-analyst → business-intelligence-engineer → board-manager — Financial model defines key metrics; BI implements dashboards and reports for board presentation
 - **Chain**: business-intelligence-engineer → investor-relations — BI provides verified metrics for investor reporting, due diligence, and fundraising materials
 
+## Decision Trees
+<!-- QUICK: 60s -- flowchart-style logic for fork-in-the-road decisions -->
+
+### Self-Serve vs Curated Dashboards
+<!-- Decision tree for choosing between governed self-serve exploration and curated, locked-down dashboards -->
+
+```
+START: Stakeholder requests new dashboard or data access
+  │
+  ├─ Is the audience the board of directors, investors, or external partners?
+  │    ├─ YES → CURATED. Locked dashboard with approved metric definitions. No self-serve.
+  │    └─ NO → Continue
+  │
+  ├─ Does the data contain PHI, individually identifiable financial data, or material non-public information?
+  │    ├─ YES → CURATED. Row-level security, audit trail, export restrictions.
+  │    └─ NO → Continue
+  │
+  ├─ Is the metric definition stable, well-documented, and governed in the semantic layer?
+  │    ├─ NO → CURATED. Do not expose ungoverned metrics in self-serve. Define first, then expose.
+  │    └─ YES → Continue
+  │
+  ├─ Does the stakeholder have data literacy to interpret metrics correctly (understands rate vs count, MoM vs YoY, statistical significance)?
+  │    ├─ NO → CURATED with narrative. Provide interpreted report rather than raw exploration.
+  │    └─ YES → Continue
+  │
+  ├─ Is the stakeholder a power analyst who needs ad-hoc drill-down, cohort building, or cross-domain joins?
+  │    ├─ YES → SELF-SERVE (exploratory tier). Label as "exploratory — not board-reviewed." Creator attribution visible.
+  │    └─ NO → SELF-SERVE (governed tier). Curated dataset. Locked metric tiles. Pre-built drill paths.
+  │
+  └─ FINAL GATE: Will a wrong number from this dashboard reach investors, regulators, or patients?
+       ├─ YES → Require peer review and stakeholder sign-off before self-serve access.
+       └─ NO → SELF-SERVE with freshness SLA label and "last reviewed" timestamp.
+```
+
+### When to Build a Semantic Layer vs Direct Queries
+<!-- Decision tree for choosing between a governed semantic layer and direct database queries -->
+
+```
+START: Need to expose data for reporting or analysis
+  │
+  ├─ Will this metric be used by more than one person, team, or dashboard?
+  │    ├─ YES → SEMANTIC LAYER. Define once, use everywhere.
+  │    └─ NO → Continue
+  │
+  ├─ Is the metric business-critical (ARR, NRR, churn, gross margin, patient outcomes)?
+  │    ├─ YES → SEMANTIC LAYER. Must have single authoritative definition with governance.
+  │    └─ NO → Continue
+  │
+  ├─ Does the metric require calculation logic beyond simple aggregations (e.g., LTV/CAC, magic number, risk-adjusted outcomes)?
+  │    ├─ YES → SEMANTIC LAYER. Complex logic should be versioned, tested, and governed.
+  │    └─ NO → Continue
+  │
+  ├─ Is this a one-off analysis with a shelf life of <1 week (ad-hoc board question, urgent investor request)?
+  │    ├─ YES → DIRECT QUERY with documentation. Promote to semantic layer if the question recurs.
+  │    └─ NO → Continue
+  │
+  ├─ Are you exploring a new data source where metric definitions are still being iterated?
+  │    ├─ YES → DIRECT QUERY in exploratory tier. Formalize when definitions stabilize.
+  │    └─ NO → SEMANTIC LAYER.
+  │
+  └─ Does the query need to join across domains that have separate semantic layers?
+       ├─ YES → SEMANTIC LAYER federation or cross-domain model. Do not bypass governance for cross-domain joins.
+       └─ NO → SEMANTIC LAYER.
+```
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -490,6 +555,25 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `star-schema-modeling` | Designing fact/dimension schemas with SCD strategies and snapshot patterns |
 | `dbt-pipelines` | Building dbt transformations with incremental strategies, testing, and freshness SLAs |
 | `embedded-analytics` | Implementing customer-facing dashboards, white-label reporting, and export compliance |
+
+## Best Practices
+<!-- QUICK: 60s -- non-obvious practitioner wisdom -->
+
+1. **Design the semantic layer for governance, not just convenience**: Every metric in the semantic layer should have exactly one definition, one owner, and one review date. MetricFlow/LookML files should be in version control with the same rigor as production code. Treat metric definition changes with the same review process as API contract changes — they affect every downstream consumer.
+
+2. **Optimize queries at the aggregation layer, not the visualization layer**: Dashboard slowness usually traces to unoptimized SQL in the semantic layer, not the BI tool. Pre-aggregate large fact tables at the granularity stakeholders actually query (daily, not per-transaction). Use incremental materialization with unique keys. Profile every metric's query performance before exposing it in a dashboard.
+
+3. **Design dashboards for scan time, not build time**: An executive should be able to understand the key takeaway from a dashboard in under 10 seconds. Put the most important metric top-left. Use sparklines for trends, not full time-series. Color-code: green for on-track, red for off-track, grey for "not applicable this period." Remove anything that doesn't answer a specific business question.
+
+4. **Model data for self-serve success, not just analyst convenience**: Self-serve fails when users need to understand 17 joins to answer a simple question. Build wide, denormalized exploration tables with clear column names, descriptions, and relationships. Pre-join common paths. Document every column with a plain-English description and example value. If a business user can't understand the schema in 5 minutes, it's not self-serve ready.
+
+5. **Standardize the stakeholder intake process with a brief, not a meeting**: Require every dashboard request to specify: the business question, the decision it informs, the audience, the refresh cadence needed, and how the stakeholder will know the dashboard is working. This brief becomes the acceptance criteria. Reject requests that say "I'll know it when I see it."
+
+6. **Govern metric definitions with a decision log, not tribal knowledge**: When two teams disagree on how ARR or NRR is calculated, the tiebreaker must be a written decision with a rationale, not the loudest voice in the room. Maintain a metric decision log (what was decided, why, when, by whom). When the metric is inevitably questioned again, point to the log — don't re-litigate.
+
+7. **Define data freshness SLAs per domain, not globally**: Clinical outcomes data may need <1 hour freshness. Board metrics may tolerate 24 hours. Exploratory sandboxes may tolerate 1 week. Each domain gets an SLA, and dashboards prominently display the last refresh timestamp. Stakeholders should never wonder "is this data from today or last quarter?"
+
+8. **Design embedded analytics as a product, not a feature**: Customer-facing analytics need SSO, row-level security, rate limiting, white-labeling, export compliance, and SLA-backed availability. Plan for tenant isolation from day one — a slow query from one customer's dashboard should never degrade another customer's experience. Pre-compute tenant-specific aggregates. Monitor per-tenant performance and set usage quotas.
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -518,6 +602,39 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Small → Medium**: CEO presents wrong number to investors. Pharma partner requires de-identified population analytics. >50 dashboard viewers.
 - **Medium → Enterprise**: IPO or late-stage fundraising requires auditable metrics. Multiple external partners requiring embedded analytics. SOC 2/HIPAA certification required.
 
+## Error Decoder
+<!-- QUICK: 60s -- symptom, root cause, fix, and lesson for real-world failures -->
+
+### War Story 1: The Divergent Metric Definitions
+- **Symptom**: CEO presented $42M ARR to the board. CFO's system showed $38M. The $4M gap was discovered during the board meeting. Investor confidence was shaken, and the board requested a full audit of all reported metrics.
+- **Root cause**: Marketing defined ARR as "contracted annual recurring revenue including signed-but-not-yet-live contracts." Finance defined ARR as "recognized revenue under ASC 606 from active subscriptions only." Both teams had dashboards showing "ARR" with no definition documentation. No semantic layer enforced a single definition.
+- **Fix**: Established single authoritative ARR definition in the semantic layer (dbt MetricFlow) with Finance as the owner. Deprecated all other ARR definitions. Added metric definition to every dashboard title bar. Implemented automated reconciliation checks between source systems and reported ARR. Published a metric dictionary with definitions, owners, and calculation methodology.
+- **Lesson**: **If two teams can produce different numbers for the same metric, you don't have a metric — you have an argument waiting to happen.** The semantic layer is not a technical convenience; it's a governance mechanism that prevents board-level embarrassment.
+
+### War Story 2: The Dashboard That Became Unusable
+- **Symptom**: Executive dashboard took 45 seconds to load. Executives stopped checking it. Important metric degradations went unnoticed for 6 weeks. A critical churn spike was detected only when customer success manually flagged an unusual number of cancellation calls.
+- **Root cause**: Dashboard queried raw transaction-level fact tables (200M+ rows) on every load. No pre-aggregation. No incremental materialization. dbt model was a full-refresh on every run. BI tool was rendering 14 heavy charts on a single page with no progressive loading.
+- **Fix**: Built daily-aggregated summary tables with incremental materialization. Pre-computed top-10 visualizations as materialized views. Implemented progressive loading (render KPIs first, then trend charts, then drill tables). Added load time monitoring with P95 <3 seconds SLA. Published a dashboard performance scorecard.
+- **Lesson**: **Dashboard performance is a business metric, not an engineering nice-to-have.** A dashboard that takes 45 seconds to load is viewed 0 times per week. The most beautifully designed dashboard in the world is worthless if nobody waits for it to render.
+
+### War Story 3: Self-Serve Turned Into Data Chaos
+- **Symptom**: BI team proudly announced "everyone has self-serve access!" Six months later, the sales leader was presenting a churn analysis to the board using a query that had an incorrect join, reporting churn at 2.1% when actual churn was 7.8%. The error was caught when a board member asked why churn didn't reconcile with the NRR trend on the same slide.
+- **Root cause**: Self-serve was enabled without governance tiers. Users could join any tables, create any metrics, and export any results. No "exploratory" label to distinguish user-created analyses from governed dashboards. No peer review or certification process for analyses used in board materials.
+- **Fix**: Implemented governed self-serve tiers: Board dashboards (locked, certified, peer-reviewed), Operational dashboards (managed by domain owners, freshness-verified), Exploratory (user-created, labeled with creator and date, "not board-reviewed" watermark). Added a certification workflow: any analysis used in board or investor materials must be peer-reviewed and certified.
+- **Lesson**: **Self-serve without governance tiers is not empowerment — it's distributing the ability to make mistakes at scale.** The label "exploratory" is the cheapest safety net in BI: it tells the reader "this was built by a human, not certified, verify before you present it."
+
+### War Story 4: The Freshness SLA That Nobody Monitored
+- **Symptom**: Clinical operations team made a staffing decision based on a patient volume dashboard. What they didn't know: the ETL pipeline had been silently failing for 11 days, and the dashboard was showing stale data. They overstaffed by 30% based on volumes from two weeks ago, costing $180K in unnecessary float pool nurses.
+- **Root cause**: dbt source freshness was configured but alerts went to a Slack channel nobody monitored. The dashboard displayed "Last updated: [timestamp]" in small grey text at the bottom. No freshness SLA was defined per domain. No automated action on freshness breach (dashboard should have shown a stale-data warning).
+- **Fix**: Defined per-domain SLAs (clinical ops: 4 hours, finance: 24 hours, exploratory: 7 days). Dashboards now prominently display a freshness banner: green "Data as of [time]" for within-SLA, yellow "Data is [X hours] old — last refresh [time]" for approaching SLA, red "⚠ STALE DATA — not refreshed in [X hours]" for SLA breach. Automated PagerDuty alert on freshness SLA breach for board/operational dashboards.
+- **Lesson**: **A freshness SLA without an alert that reaches a human who can act on it is a documentation artifact, not a reliability mechanism.** The dashboard is lying to its users every second it displays stale data without a warning.
+
+### War Story 5: The Embedded Analytics Multi-Tenant Meltdown
+- **Symptom**: Pharma partner's embedded analytics dashboard timed out during their quarterly business review with their own board. The timeout was caused by another partner running a complex cohort analysis simultaneously. Both partners complained about "unreliable analytics" and one threatened contract cancellation.
+- **Root cause**: Embedded analytics shared a single query engine across all tenants with no resource isolation. A heavy query from Partner A saturated the query pool. No per-tenant rate limiting, query timeout, or concurrency control. Pre-aggregations were global, not tenant-specific.
+- **Fix**: Implemented tenant-isolated query pools with per-tenant concurrency limits. Added per-tenant query timeouts (30 seconds for interactive, 5 minutes for exports). Pre-computed tenant-specific aggregates nightly. Added query cost attribution per tenant. Published per-tenant performance SLAs with uptime and latency commitments.
+- **Lesson**: **In embedded analytics, your biggest customer's experience is only as good as your noisiest tenant's worst query.** Tenant isolation is not optional when contracts have SLA clauses. One partner's "quick analysis" can become another partner's contract termination.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[BI1]**  Semantic layer: every metric has one authoritative definition in dbt MetricFlow, LookML, or equivalent; no duplicate or conflicting definitions
@@ -534,6 +651,11 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - [ ] **[BI12]**  Data export compliance: all exports logged (who, what, when, format); PHI never in raw exports; retention policy enforced
 - [ ] **[BI13]**  Documentation: data dictionary published, metric definitions accessible, dashboard inventory maintained, lineage tracked
 - [ ] **[BI14]**  Reconciliation: board metrics reconciled against source systems monthly; discrepancies investigated and documented
+
+## What Good Looks Like
+<!-- QUICK: 30s -- aspirational north star for this skill -->
+
+> Business intelligence is not about building dashboards — it's about building a shared understanding of reality that the entire organization can trust and act on. **What good looks like**: every metric has exactly one definition that is discoverable, documented, and governed; every dashboard tells a clear story in under 10 seconds; every stakeholder — from the board to the front-line manager — trusts that the numbers they see are accurate, timely, and reconciled; analysts spend their time answering "why" questions, not "what is this number" questions; and when someone asks "where did this number come from?", the answer is a documented lineage trace, not a Slack thread of guesses. A BI practice that requires constant manual reconciliation, generates conflicting numbers, or produces dashboards nobody checks is failing, regardless of how many dashboards it has shipped.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

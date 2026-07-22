@@ -320,6 +320,16 @@ Common chains:
 
 A board meeting where strategic discussion consumes >50% of time. Directors arrive having read the pre-reads — the first question isn't "What's our burn rate?" but "What assumptions did you make in the hiring plan, and what would cause them to break?" Minutes are filed within 5 business days. Every director completed their D&O questionnaire. The board evaluation showed 4.2+/5 effectiveness. The CEO knows exactly which director to call for an intro to a key hire candidate. The lead independent director has the emergency succession plan in their desk drawer — literally and digitally.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | No formal board, founder makes all decisions | Move fast, no governance overhead | No board meetings; no fiduciary oversight; decisions are unilateral |
+| **Startup** | 2-3 member board (founders + lead investor), quarterly meetings | Basic oversight, investor alignment | First formal board; quarterly cadence; deck + financials; investor updates |
+| **Scale-up** | Independent directors added, committees formed, formal governance | Strategic governance, prepare for growth | Audit & comp committees; independent voice; board evaluation; succession planning |
+| **Enterprise** | Public company board, Sarbanes-Oxley, shareholder engagement | Regulatory compliance, shareholder accountability | Independent chair; SEC filings; proxy statements; shareholder meetings; activist defense |
+
 ## References
 <!-- QUICK: 30s — links to deeper reading -->
 

@@ -255,6 +255,10 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 - **Small → Medium**: >1K members. Multiple segments with different needs. Clinical partners asking for referral program. >3 languages represented.
 - **Medium → Enterprise**: >10K members. Multi-country presence. Payer or pharma partnership interest. Published community health research.
 
+## What Good Looks Like
+
+The community feels alive and safe. Members support each other without staff intervention 80% of the time. Ambassador programs run themselves. Events calendar is full and attended. Community health metrics trend upward. Pharma partners see the community as a model of patient engagement.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **customer-success-manager** — for patient satisfaction measurement, churn prediction, and feedback aggregation

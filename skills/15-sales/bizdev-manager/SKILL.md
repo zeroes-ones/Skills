@@ -356,6 +356,16 @@ Partner pipeline scored with SIMCA framework — only 12+ scoring partners progr
 - [ ] **[S14]** Partner ecosystem map maintained — who partners with whom, gaps in coverage, competitive overlaps
 - [ ] **[S15]** Offboarding process for non-performing partners — dormant partners inactive >12 months removed from program
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder-led partnerships, ad-hoc deals | Land first partners, validate channel | CEO does BD; handshake deals; no formal program |
+| **Startup** | First BD hire builds repeatable process, partner pipeline | Establish partner motion, first integration partnerships | Dedicated BD person; structured outreach; first tech partnerships live |
+| **Scale-up** | Partner program with tiers, incentives, co-marketing | Scale through partners, build ecosystem playbook | Formal partner tiers (Silver/Gold/Platinum); partner portal; MDF budget |
+| **Enterprise** | Channel ecosystem, global alliances, strategic partnerships | Market expansion through partners, enterprise deals | Global partner org; SI/GSI relationships; OEM/reseller channels; partner-sourced > 30% of revenue |
+
 ## References
 
 - **business-strategist** — for market analysis, GTM strategy, TAM/SAM/SOM, and segment prioritization

@@ -29,6 +29,34 @@ chain:
 
 Hardware architecture and electronic system-level design — from SoC selection through PCB stackup to compliance testing. Covers the critical architectural decisions that determine a product's cost, performance, power consumption, and time-to-market.
 
+## Route the Request
+<!-- QUICK: 30s -- ASCII decision tree to determine which skill handles the request -->
+
+```
+Request involves hardware design?
+├── PCB layout, system architecture, SoC selection, memory/power/bus design
+│   └── → Use hardware-architect (this skill)
+├── Firmware running on an already-selected MCU — device drivers, RTOS, peripheral config
+│   └── → Use embedded-engineer
+├── Low-level device driver implementation, bootloader, HAL
+│   └── → Use firmware-developer
+├── Mechanical enclosure, thermal simulation (CFD), industrial design
+│   └── → Mechanical engineer (not in library — consider general engineering guidance)
+├── Electrical system design — schematics, component selection, power distribution
+│   └── → Electrical engineer (not in library — consider general engineering guidance)
+└── Unclear / need help routing
+    └── → Default to hardware-architect and re-route if it's pure firmware
+```
+
+## Ground Rules (5)
+<!-- MANDATORY: Read before executing any task -->
+
+1. **Design for manufacturing from day one** — a beautiful prototype that can't be produced is art, not engineering.
+2. **BOM cost is a design constraint, not an afterthought** — every component decision impacts unit economics at scale.
+3. **Thermal design is electrical design** — heat kills electronics. Thermal budget is as critical as power budget.
+4. **Regulatory certification (FCC, CE, UL) adds 3-6 months** — plan for it from the start, not as a post-design checkbox.
+5. **Every connector, every component, every trace needs a reason to exist** — if you can't justify it, remove it.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -198,6 +226,14 @@ Hardware architecture and electronic system-level design — from SoC selection 
 | **After** | `performance-engineer` | Hardware performance targets (clock speed, memory bandwidth, power budget) → performance baseline |
 | **After** | `documentation-engineer` | Hardware architecture document, memory map, power tree → forms the hardware section of the product documentation |
 | **After** | `qa-engineer` | Test requirements (thermal testing, EMC pre-compliance, HALT) → test plan input |
+
+## Scale Depth: Solo → Startup → Scale-up → Enterprise
+<!-- QUICK: 30s -- how complexity increases with team/organization size -->
+
+- **Solo**: Breadboard/Arduino prototyping, development kits, hobbyist PCB tools (KiCad/EAGLE), single/dual-layer designs, manual assembly.
+- **Startup**: Custom PCB design, professional EDA tools (Altium/OrCAD), 4–6 layer boards, contract manufacturing, basic EMC pre-compliance.
+- **Scale-up**: DFM optimization, full compliance certification (FCC/CE/UL), multi-board systems, signal integrity simulation, thermal modeling, BOM cost engineering.
+- **Enterprise**: Multi-product platform architecture, silicon validation, global regulatory (FCC/CE/ISED/CCC), high-speed design (DDR5/PCIe Gen5), automated test infrastructure, supply chain resilience.
 
 ## What Good Looks Like
 

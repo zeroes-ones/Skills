@@ -266,6 +266,10 @@ Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not
 - **Small → Medium**: FDA-registered product. EU market entry (requires QPPV). >10K patients. First S1 incident.
 - **Medium → Enterprise**: Multiple products in multiple markets. FDA inspection or Warning Letter. >100K patients. Public company or IPO track.
 
+## What Good Looks Like
+
+When a crisis hits, the response is swift, coordinated, and compassionate. Adverse events are reported within regulatory timelines. The team knows exactly who does what. Post-crisis reviews lead to concrete improvements. Patients feel protected, not policed.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **regulatory-specialist** — for AE reportability determination, regulatory timelines, and HIPAA in crisis contexts

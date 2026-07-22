@@ -63,6 +63,71 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Decision Trees
+
+### Medical Misinformation Severity Triage
+
+```
+Does the content contain a medical claim?
+
+├── YES → Is the claim life-threatening if followed?
+│   ├── YES → Tier 1 — Life-Threatening
+│   │   Examples: "Stop your insulin — this diet cures diabetes"
+│   │            "Chemotherapy is poison — refuse all treatment"
+│   │   Action: Immediate removal + permanent suspension + report to authorities
+│   │
+│   ├── NO → Is the claim potentially harmful?
+│   │   ├── YES → Tier 2 — Potentially Harmful
+│   │   │   Examples: "Vaccines are more dangerous than the disease"
+│   │   │            Unsubstantiated claims about serious medication interactions
+│   │   │   Action: Removal + final warning or temporary suspension
+│   │   │
+│   │   └── NO → Is the claim factually inaccurate but low direct harm?
+│   │       ├── YES → Tier 3 — Misleading
+│   │       │   Examples: Overstating benefits of a benign supplement
+│   │       │            Misrepresenting correlation as causation
+│   │       │   Action: Context label + link to authoritative source
+│   │       │
+│   │       └── NO → Tier 4 — Low-Quality
+│   │           Examples: "I heard vitamin C prevents colds — not sure if it's true"
+│   │                    Personal anecdotes presented as general advice
+│   │           Action: Reduced visibility in feeds, no punitive action
+│   │
+│   └── Is the claim from a credentialed medical professional?
+│       ├── If YES and outside their specialty → escalate to clinical review
+│       └── If NO and potentially harmful → proceed with enforcement action
+│
+└── NO → Is this a personal health narrative (survivor speech)?
+    ├── YES → Protected. Do not remove. May apply context label if needed.
+    └── NO → Non-medical content. Apply standard community guidelines.
+```
+
+### When to Escalate
+
+```
+Decision: Who should handle this content decision?
+
+├── Involves nuanced medical judgment?
+│   ├── Examples: distinguishing evidence-based off-label use from dangerous experimentation
+│   └── → Escalate to Clinical Review (24h standard / 4h urgent SLA)
+
+├── Involves potential legal liability?
+│   ├── Defamation of named healthcare provider
+│   ├── Copyright claims on medical content
+│   ├── FDA drug promotion violations
+│   ├── Content involving named minors (COPPA/HIPAA)
+│   └── → Escalate to Legal Review
+
+├── Involves coordinated public health threat?
+│   ├── Organized anti-vaccination campaigns
+│   ├── Promotion of treatments for reportable diseases outside approved channels
+│   ├── Threats to healthcare facilities or providers
+│   └── → Notify Public Health Authority (CDC/WHO/local health department)
+
+└── Can be decided with existing policy?
+    └── → Content policy team decides. Document rationale in enforcement log.
+```
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -355,6 +420,98 @@ Q1 Review Cycle:
 - Historical comparison: trends over time (at least 4 quarters)
 - Available in all supported platform languages
 
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Skills this policy manager works with — coordinate early, not after a crisis -->
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `compliance-officer` | Regulatory framework interpretation, enforcement posture guidance | During policy creation, quarterly review, and any policy response to new regulation |
+| `legal-advisor` | Section 230 analysis, liability exposure assessment, DMCA/takedown obligations | Before launching any new enforcement tier, before public transparency reports |
+| `regulatory-specialist` | FDA social media guidance updates, FTC endorsement rules, state-level health claim regulations | Monthly sync; immediately when FDA/regulatory guidance changes |
+| `trust-safety-engineer` | Detection system capabilities/limitations, false positive/negative rates, automation feasibility | When designing enforcement workflows — must align policy with technical reality |
+| `community-operations-manager` | Moderator feedback on policy usability, appeal patterns, edge cases found in practice | Bi-weekly policy-in-practice review; before any policy change goes live |
+| `crisis-response-manager` | Emergency override triggers, imminent harm escalation criteria | Jointly define emergency bypass rules and post-crisis policy review |
+| `medical-content-reviewer` | Clinical review criteria, evidence standards, expert panel recommendations | Any policy involving clinical accuracy determinations |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `trust-safety-engineer` | Policy rules for automated detection systems, severity tier definitions, enforcement matrices | Automation cannot ship without policy definitions — blocks detection pipeline |
+| `community-operations-manager` | Moderator playbooks, appeal criteria, edge case guidance | Moderators enforce undefined policies inconsistently — high appeal rate |
+| `crisis-response-manager` | Imminent harm definitions, emergency removal criteria | Without clear policy, crisis response is either over-broad or paralyzed |
+| `patient-health-educator` | Approved health claim language, acceptable evidence standards for educational content | Educational content may contradict enforcement — erodes platform credibility |
+
+**Coordination cadence:**
+- **Weekly:** Sync with trust-safety-engineer on detection performance and policy gaps
+- **Bi-weekly:** Policy-in-practice review with community-operations-manager
+- **Monthly:** Regulatory alignment check with compliance-officer and regulatory-specialist
+- **Quarterly:** Full policy review with legal-advisor, medical-content-reviewer, and all downstream consumers
+- **Emergency:** Crisis-response-manager and legal-advisor within 1 hour of imminent harm detection
+
+## Best Practices
+
+<!-- NON-NEGOTIABLES: These apply to every response — no exceptions, no shortcuts -->
+
+1. **Taxonomy first, enforcement second.** Never write enforcement rules before defining what you're enforcing against. A clear medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures, anti-vaccine) with severity tiers is the foundation every policy decision rests on. Without it, enforcement is arbitrary.
+
+2. **Examples are policy.** Community guidelines without concrete examples of what IS and IS NOT allowed are unenforceable. Every rule needs at least two examples: one that is just barely allowed (the boundary case) and one that is just barely not allowed. Moderators enforce examples, not abstractions.
+
+3. **Severity tiers must map to potential harm, not offensiveness.** Life-threatening misinformation (discontinue insulin for cinnamon cure) requires immediate removal. Low-quality health claims (kale helps digestion) may require a label, not removal. Calibrate every tier to the worst plausible outcome if the content is believed and acted upon.
+
+4. **Escalation pathways must exist before they're needed.** Define clinical review pathways, legal review triggers, and public health authority notification procedures in advance. When a post threatens self-harm or describes an adverse event from a regulated product, the window for action is minutes, not days. Pre-documented escalation prevents decision paralysis.
+
+5. **Transparency reporting is a regulatory asset, not a PR exercise.** Public-facing reports with takedown statistics, appeal rates, and policy change logs demonstrate good-faith moderation to regulators. Courts and agencies look for evidence of consistent, principled enforcement — publish it proactively.
+
+6. **Survivor speech protection must be explicit in policy language.** Patients discussing their own lived experience with treatments — positive or negative — are engaging in protected health discourse. The policy must explicitly distinguish between "I experienced X" (personal narrative) and "X works for Y condition" (treatment claim). When in doubt, protect the narrative and flag the claim for clinical review.
+
+7. **Policy review cycles must outpace misinformation evolution.** Medical misinformation mutates faster than quarterly review cycles. Build a rapid-response mechanism: when a new misinformation pattern emerges (e.g., a novel conspiracy theory about a newly approved drug), the policy team must be able to deploy interim guidance within 48 hours, not wait for the next quarterly review.
+
+8. **Never make clinical determinations without clinical input.** Content policy managers are not clinicians. A policy that classifies specific treatments as "misinformation" or "evidence-based" without medical expert review is practicing medicine without a license. Maintain a medical expert review board with defined review cadences and dispute resolution processes.
+
+## Error Decoder
+
+<!-- WAR STORIES: Content policy decisions that went wrong — learn from these -->
+
+### War Story 1 — The Treatment Success Story That Was Actually Misinformation
+
+A well-intentioned user posted a detailed account of how they "cured Stage 4 pancreatic cancer in 3 months" using a specific herbal protocol. The post was heartwarming, well-written, and generated thousands of supportive comments. The platform initially left it up because "survivor speech is protected."
+
+**What went wrong:** Investigation revealed the user had never been diagnosed with cancer — their account was fabricated to promote a supplement company they owned. The herbal protocol they promoted was hepatotoxic at the doses described. Three users later reported discontinuing chemotherapy to follow the protocol.
+
+**Lesson:** Survivor speech protection requires verification of survivorship. A post that claims a specific medical outcome AND recommends specific actions should be reviewed by clinical experts even if framed as personal narrative. The boundary between survivor speech and treatment promotion is not always clear in the first read.
+
+### War Story 2 — Policy Too Strict (Legitimate Patient Discussions Removed)
+
+A health platform implemented an aggressive keyword filter: any mention of "cure" + "cancer" was auto-flagged for removal. Within the first month, thousands of posts were removed — including posts from cancer patients discussing "what a cure would mean to me," threads about "my doctor says I'm cured" (remission announcements), and support group discussions about "hoping for a cure."
+
+**What went wrong:** The keyword filter had no context awareness. "Cure" in a patient support context is fundamentally different from "cure" in a treatment claim context. The platform's own patient community felt silenced and policed.
+
+**Lesson:** Keyword-based moderation without context analysis will always over-remove. Every auto-removal rule needs a precision metric, not just a recall metric. Run new filters in shadow mode for at least 2 weeks and measure the false positive rate on real content before enabling enforcement.
+
+### War Story 3 — Cultural Differences in Health Beliefs
+
+A platform with a global user base flagged traditional medicine discussions from South Asian and African communities as "medical misinformation." Posts about Ayurvedic dietary practices, traditional bone-setting, and herbal remedies used for generations were removed under the same rules that targeted anti-vaccine conspiracy theories.
+
+**What went wrong:** The policy team was predominantly Western and clinically trained. They equated "not evidence-based by Western RCT standards" with "misinformation." This created a perception that the platform was culturally biased and disregarded traditional health systems that millions of people rely on.
+
+**Lesson:** Global content policies need cultural competency review. Distinguish between "unproven by Western medical standards" and "actively harmful." Traditional practices with a long history of safe use should be treated differently from novel conspiracy theories. Include cultural anthropologists or traditional medicine experts in the expert review board.
+
+### War Story 4 — Regulatory Gap (Content in a Language No One on Staff Read)
+
+A health platform expanded to a new market and auto-translated its community guidelines but didn't hire moderators fluent in the local language. For six months, a network of accounts posted fraudulent cancer treatment ads in the local language — targeting vulnerable patients with "guaranteed cure" clinics that were actually exploiting patients for money.
+
+**What went wrong:** The platform assumed machine translation of guidelines was sufficient. The abuse was reported by a local journalist, not detected by the platform. The regulatory authority in that country opened an investigation into the platform's content moderation practices.
+
+**Lesson:** Language coverage in guidelines does not equal language coverage in enforcement. Every supported language needs at least one human moderator who is a native speaker. Machine translation of reported content is a triage tool, not an enforcement tool.
+
+### War Story 5 — Transparency Report Backfired
+
+A platform published its first transparency report showing that 0.3% of content was removed for misinformation. The report was intended to show responsible moderation. Instead, journalists calculated that 0.3% of 10 million monthly posts = 30,000 removed posts and ran stories about "massive censorship on health platform."
+
+**What went wrong:** The report provided raw numbers without context: how many removals were reversed on appeal, what percentage were automated vs. human-reviewed, how many were for dangerous content (Tier 1) vs. low-quality (Tier 4). The lack of context allowed the narrative to be controlled by the platform's critics.
+
+**Lesson:** Transparency reports need narrative framing. Provide breakdowns by severity tier, appeal rates, and overturn rates. Show the "why" behind the numbers. A transparency report that only shows takedown counts is ammunition for bad-faith critics. Include the stories of what the platform prevented.
+
 ## Production Readiness Checklist
 
 <!-- CHECKLIST: CP1-CP14 reference IDs for Content Policy production readiness -->
@@ -373,6 +530,63 @@ Q1 Review Cycle:
 - **CP12** — Expert dispute resolution process documented and tested with mock scenarios
 - **CP13** — Transparency reporting pipeline built: data collection automated, first report drafted and reviewed
 - **CP14** — Policy change log maintained with all changes since policy inception; public version published
+
+## Scale Depth
+
+<!-- SCALE: How content policy management evolves as the platform grows -->
+
+### Solo Community (1 moderator, < 1,000 users)
+- One person writes policies, enforces them, and handles appeals
+- Policy is a single document (Google Doc or Notion page)
+- "Escalation" means asking the founder or a clinician friend
+- Transparency reporting: a monthly forum post with basic stats
+- Expert review: informal — one or two clinicians who review borderline cases as a favor
+- **Key risk:** Policy knowledge lives in one person's head. If they leave, institutional knowledge is zero.
+
+### Growing Platform (2-5 moderators, 1,000-100,000 users)
+- Dedicated content policy manager role separates policy creation from enforcement
+- Policy document with version control and change log
+- Formal escalation pathways: named clinical and legal contacts with documented SLAs
+- Basic enforcement tooling: flagging, queues, template messaging
+- Quarterly policy review cycle begins (lightweight — 2-hour meeting)
+- Transparency reporting: quarterly blog post with basic metrics
+- Expert review board: 3 clinicians on retainer, monthly case review
+- **Key risk:** Volume outpaces manual review. First automation decisions will set precedent.
+
+### Enterprise Health Community (Trust & Safety team, 100,000-10M users)
+- Dedicated content policy team (policy manager + policy analysts)
+- Multi-language policy versions with cultural adaptation
+- Full progressive enforcement ladder with automated workflows
+- Clinical review panel: 5+ specialists with monthly case review and published opinions
+- Legal review: established relationship with healthcare regulatory counsel
+- Transparency reporting: quarterly interactive dashboard + downloadable data
+- Community advisory council operational with rotating membership
+- Cross-platform misinformation intelligence sharing
+- **Key risk:** Policy complexity creates inconsistency. Different moderators apply the same policy differently.
+
+### Multi-Platform Health Network (Trust org, 10M+ users)
+- Policy governance board: policy, legal, clinical, product, and executive stakeholders
+- AI-assisted policy enforcement with human-in-the-loop for borderline cases
+- Real-time misinformation detection with cross-platform pattern sharing
+- Global expert review board: 10+ members across geographies and specialties
+- Regulatory affairs team dedicated to monitoring emerging legislation worldwide
+- Transparency center: dedicated public website with real-time data, academic partnerships, external audits
+- Policy sandbox: test policy changes against historical content before deployment
+- **Key risk:** Regulatory fragmentation. A policy that satisfies the EU DSA may conflict with US Section 230 interpretation. Need jurisdiction-specific policy overlays.
+
+## What Good Looks Like
+
+<!-- OUTCOME: The north star for content policy management in health platforms -->
+
+- **Users trust the platform because medical information is accurate.** When a user reads health content, they can see clear signals about what is evidence-based, what is personal experience, and what has been flagged as potentially misleading. Trust is built through transparency, not through hiding moderation decisions.
+
+- **Moderators act with confidence because policies are clear.** Every content decision has a policy citation with rationale. Moderators don't have to guess whether something is removable — the taxonomy, severity tiers, and examples give them a defensible framework. When they're unsure, they have a documented escalation path to clinical review, not a Slack message to their manager.
+
+- **Regulators see proactive content governance, not reactive cleanup.** The platform's transparency reports, policy review cycles, and expert board demonstrate that content safety is a designed feature, not an afterthought. When a regulator asks "what are you doing about medical misinformation?", the answer is a structured program with measurable outcomes, not a press release.
+
+- **The expert review board is a strategic asset, not a liability shield.** Clinical experts are engaged in policy design, not just case review. Their published opinions become resources for the broader health information ecosystem. Other platforms reference your content policy framework as best practice.
+
+- **Community members feel protected, not censored.** Users understand why content was removed because the guidelines are clear and the enforcement is transparent. Survivors of serious illness feel safe sharing their lived experiences because the policy explicitly protects survivor speech. The platform is known as a place where health conversations are both open and safe.
 
 ## Sub-Skills
 

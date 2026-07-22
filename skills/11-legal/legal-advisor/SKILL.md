@@ -366,6 +366,10 @@ Run skills in the order shown:
 # Chain B: ceo-strategist → legal-advisor → regulatory-specialist
 ```
 
+## What Good Looks Like
+
+> When legal advisory is applied perfectly, contracts are negotiated with precision using playbook-driven redlines that close in days not weeks, open source licenses are cataloged with zero copyleft surprises in shipping code, IP portfolios are strategically filed to create durable competitive moats, every partnership agreement protects the company's core assets while enabling commercial velocity, and the legal function is seen by the business as an enabler, not a gatekeeper.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

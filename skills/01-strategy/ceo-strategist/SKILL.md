@@ -302,6 +302,11 @@ Functional level (tactical: org change, process issue, vendor decision)
 | Co-founder conflict | Roles, equity, or vision disagreement | Written founder agreement with vesting, roles, decision rights, and exit terms |
 
 
+## What Good Looks Like
+
+> You've just completed the CEO strategy exercise. Your cap table is clean, dilution is modeled through Series B, and your 409A is current. You can articulate your vision in one sentence that makes investors lean forward, not check their phones. Your fundraising pipeline has 30+ warm-intro targets ranked by thesis fit, and your data room answers every question before it's asked. The org chart doesn't just solve today's problems — it's designed for the company you'll be in 18 months. Your co-founders have signed agreements covering vesting, IP, decision rights, and the hard conversation you hope you never have.
+
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[S1]**  Cap table modeled with dilution at each round (use Carta/Pulley)

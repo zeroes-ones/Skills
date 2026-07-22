@@ -182,6 +182,10 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | Small → Medium | SOC 2/ISO 27001 certification; dedicated security hire justified |
 | Medium → Enterprise | IPO prep, operating critical infrastructure, or regulatory mandate (FedRAMP, PCI-DSS Level 1) |
 
+## What Good Looks Like
+
+> Every pull request runs SAST, SCA, and container scanning in CI, and critical findings block merge without exception. Secrets never touch plaintext — pre-commit hooks catch them, Vault issues dynamic credentials that auto-expire, and rotation is fully automated. The threat model is a living document reviewed every quarter, and new features ship with abuse cases already mitigated. The SIEM surfaces actionable signals, not noise, and the mean time to remediate a critical CVE is under 24 hours. Security is embedded in the engineering workflow, not bolted on at release time.
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Security engineers protect the entire organization — they must coordinate with every development team, DevOps for infrastructure hardening, compliance for regulatory alignment, and incident responders for threat containment.

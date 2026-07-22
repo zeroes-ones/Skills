@@ -386,6 +386,10 @@ Cache hit rate < 50%? → Remove the cache. It's adding latency.
 | `414 URI Too Long` | Request URI exceeds server limit | Use POST for data-heavy requests; paginate `?filter=` params |
 
 
+## What Good Looks Like
+
+> Every stakeholder — from the junior developer to the CTO — can look at the C4 diagrams and understand how the system fits together without asking "what does this arrow mean?" Architecture Decision Records capture the context, options considered, and trade-offs for every key decision, so the rationale behind choosing event sourcing over CRUD is still crystal clear two years and three team rotations later. Non-functional requirements are expressed as measurable SLOs, not vague adjectives: 99.95% availability with p99 latency under 200ms for the checkout path, backed by production telemetry that proves compliance. The failure mode analysis has been walked through with the whole team, and when the payment gateway actually went down during Black Friday, the circuit breaker opened in under 100ms, the dead-letter queue absorbed every message, and zero orders were lost — exactly as the runbook said.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 - [ ] **[S1]**  C4 Context and Container diagrams created and reviewed

@@ -343,6 +343,16 @@ Common chains:
 
 A new AM joining the team can take over an existing account within 1 week — the account plan, value log, and stakeholder map tell them everything they need to know. A renewal can be forecasted 90 days out with >80% accuracy by an AM who has never met the customer, based on health score, adoption data, and relationship audit.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Founder handles renewals and upsells personally | Keep customers, don't churn | No dedicated AM; relationship is founder-to-buyer; ad-hoc check-ins |
+| **Startup** | First AM hire manages all accounts, builds playbooks | Systematize retention, identify expansion | Dedicated AM; QBR cadence starts; renewal process defined |
+| **Scale-up** | Named account model, tiered coverage, expansion targets | Grow accounts strategically, protect revenue base | Strategic vs. Commercial tiers; account plans; whitespace analysis; NRR tracked |
+| **Enterprise** | Global account management, key account programs, executive sponsorship | Enterprise land-and-expand, multi-year deals | Global AM team; executive sponsor program; multi-product expansion; $1M+ account plans |
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **references/account-plan-templates.md** — Full account plan templates by tier (Strategic, Enterprise, Commercial, SMB), stakeholder mapping worksheets, whitespace analysis frameworks
