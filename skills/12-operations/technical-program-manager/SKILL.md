@@ -1,6 +1,6 @@
 ---
 name: technical-program-manager
-description: Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS: technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]
+description: "Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS: technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]"
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
