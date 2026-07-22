@@ -1,7 +1,9 @@
 ---
 name: mobile-developer
-description: 'Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app
-  store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android.'
+description: 'Cross-platform mobile development with React Native and Flutter, navigation
+  patterns, state management, offline-first architecture, push notifications, platform-specific
+  patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation,
+  offline-first, push notifications, app store, iOS, Android.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -19,6 +21,7 @@ chain:
   - api-designer
   - backend-developer
   - localization-engineer
+  - tdd-guide
   - ui-ux-designer
   feeds_into:
   - localization-engineer

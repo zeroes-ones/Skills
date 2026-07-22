@@ -1,7 +1,9 @@
 ---
 name: ci-cd-builder
-description: GitHub Actions, pipeline design patterns, build optimization, artifact management, quality gates, deployment strategies, SLSA supply chain security, DORA metrics, and release management. Triggered
-  by CI/CD, pipeline, GitHub Actions, GitLab CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
+description: GitHub Actions, pipeline design patterns, build optimization, artifact
+  management, quality gates, deployment strategies, SLSA supply chain security, DORA
+  metrics, and release management. Triggered by CI/CD, pipeline, GitHub Actions, GitLab
+  CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
@@ -12,6 +14,7 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - api-test-suite-builder
   - backend-developer
   - devops-engineer
   - monorepo-manager

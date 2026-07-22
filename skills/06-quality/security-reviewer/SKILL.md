@@ -1,7 +1,9 @@
 ---
 name: security-reviewer
-description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API security, dependency and container
-  security, IaC and mobile security, CVSS-aligned severity grading, and structured review reports.
+description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language
+  patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API
+  security, dependency and container security, IaC and mobile security, CVSS-aligned
+  severity grading, and structured review reports.
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
@@ -23,6 +25,7 @@ chain:
   - qa-engineer
   - security-engineer
   feeds_into:
+  - api-test-suite-builder
   - backend-developer
   - code-reviewer
   - incident-responder

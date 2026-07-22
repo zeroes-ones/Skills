@@ -1,6 +1,6 @@
 # Cross-Skill Coordination Matrix
 
-> **Generated from actual YAML `chain:` data across 101 skills, 25 domains.**
+> **Generated from actual YAML `chain:` data across 103 skills, 25 domains.**
 > **Last updated:** 2026-07-22
 
 Every skill declares its `consumes_from` (upstream dependencies) and `feeds_into` (downstream consumers).
@@ -221,7 +221,7 @@ When an agent invokes a skill:
 
 ## Chain Statistics
 
-- **101 skills** across **25 domains**
+- **103 skills** across **25 domains**
 - **1032 total chain edges** (516 consumes_from + 516 feeds_into)
 - **5.1 avg consumes_from per skill**
 - **5.1 avg feeds_into per skill**

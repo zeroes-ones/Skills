@@ -1,7 +1,9 @@
 ---
 name: frontend-developer
-description: 'React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger:
-  frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility.'
+description: 'React, Next.js, and Vue frontend development with TypeScript, Tailwind
+  CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization,
+  accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript,
+  Tailwind, SSR, SSG, Core Web Vitals, accessibility.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -28,6 +30,7 @@ chain:
   - monorepo-manager
   - platform-engineer
   - staff-engineer
+  - tdd-guide
   - ui-ux-designer
   - ux-researcher
   - ux-writer
@@ -40,6 +43,7 @@ chain:
   - localization-engineer
   - qa-engineer
   - seo-specialist
+  - tdd-guide
   - translation-manager
 ---
 # Frontend Developer
