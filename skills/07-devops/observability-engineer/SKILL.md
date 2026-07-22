@@ -603,13 +603,17 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 - **Medium → Enterprise**: 10+ services with SLO commitments. Multi-team on-call. Compliance requires audit trails.
 
 
-### Error Decoder
+### Error Decoder### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Dashboard shows no data during incident | Dashboard queries against a different data source or time range than the alert that fired | Dashboard must share the same Prometheus/OTEL data source as the alert. Every dashboard panel should have a link to the alert that would fire if this metric goes bad. Test dashboard with actual incident data in post-mortems. |
+| Alert fires every night at 3 AM, no one investigates | Threshold doesn't account for known maintenance windows | Add alert annotations for known maintenance windows (deploy window, batch jobs, backup window). Use mute timings or alert inhibition rules. If a team acknowledges the same alert 3 times without action, escalate to the manager. |
+| Distributed trace shows 5-second gap between services | No instrumentation on the message queue consumer — time is 'black holed' between publish and process | Instrument the queue consumer with start/end spans around dequeue → process → acknowledge. Add messaging system span (broker latency, queue depth). The gap is invisible without instrumentation at every async boundary. |
+| Memory leak undetected for 3 weeks | Container restarts reset the metric counter — Go/Java heap graphs show 'sawtooth' pattern that looks normal | Track rate of change (derivative) of memory usage per deploy. Alert on container restart frequency — restarts hide leaks. Use GAUGE metrics (current heap usage) not COUNTER (cumulative). p99 latency creep is often the first sign of a memory leak — monitor it. |
+| Pager fatigue — team silenced the critical alert channel | Too many low-severity alerts on the same channel as SEV1 alerts | Route alerts by severity: SEV1 (page), SEV2 (Slack notify), SEV3 (dashboard badge), SEV4 (weekly digest). No alert should fire more than once per 30 minutes per service. Maximum 5 pages per on-call per shift — if exceeded, review alert thresholds. |
+| 'No data' metric causes false-positive auto-scaling | Missing data is treated as 0 by Prometheus, triggering scale-down during a deployment | Always use `default` or `absent()` handling for scaling metrics. Missing data !== 0. Use `avg_over_time(metric[5m])` to smooth deployment gaps. Alert on 'no metrics received' as a separate data freshness check, not a scaling signal. |
+| Canary deploy shows no metric difference between old and new | Metric cardinality too low to distinguish versions — all metrics tagged with `service` but not `version` or `deploy_id` | Tag every metric with `version`, `deploy_id`, `canary_group` (control/treatment). Compare p50/p95/p99 and error rate between control and treatment. Minimum 2 minutes of canary data before comparing statistical significance. |
 
 
 ## Production Checklist

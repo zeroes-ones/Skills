@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - data-scientist
-token_budget: 3975
+token_budget: 4500
 output:
   type: "code"
   path_hint: "./"

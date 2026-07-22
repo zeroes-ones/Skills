@@ -285,8 +285,7 @@ Architecture guidance, review, or approval for team-level design
 ```
 
 
-**What good looks like:** C4 model diagrams (Context → Container → Component) documented and reviewed. ADRs for the last 5 major decisions with alternatives considered. Architecture sketch that a new team member can understand in 10 minutes.
-
+**What good looks like:** Architecture Review Board signs off with zero unresolved critical findings. C4 diagrams (Context → Container → Component → Code) are accurate and up-to-date — a new team member traces the system's data flow from ingress to persistence in under 10 minutes. ADRs for the last 5 major decisions are written, reviewed, and merged. The architecture sketch passes the 'explain to a new hire in 5 minutes' test.
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Evolvable architecture**: Start with modular monolith; extract microservices only when bounded contexts are clear and independent scaling is needed.

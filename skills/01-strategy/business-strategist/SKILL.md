@@ -254,8 +254,7 @@ Healthy: SOM > $100M with clear path to $1B TAM.
 ```
 
 
-**What good looks like:** Business model canvas with validated assumptions (10+ customer interviews). Unit economics show LTV/CAC > 3 at scale. Market sizing narrows to a specific beachhead segment you could name in one sentence.
-
+**What good looks like:** Business model canvas with 10+ customer interviews validating each assumption — you know which bets are confirmed and which are still risky. Unit economics show LTV/CAC > 3 at scale with a clear path to get there. Beachhead segment identified where you can own 30%+ of a $20M+ TAM within 18 months. The strategy document is 3 pages, not 30.
 ## Financial Modeling Best Practices
 
 - Bottom-up > top-down: build from unit assumptions, not market percentages

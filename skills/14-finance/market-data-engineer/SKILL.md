@@ -738,6 +738,20 @@ ORDER BY volume_diff DESC;
 | **`ValueError: Missing required field: ticker` in stream processor** | WebSocket feed dropped a malformed message or vendor changed API schema without notice. Partial JSON object missing critical fields arrives on Kafka topic. | Message goes to DLQ topic automatically (see Phase 2 stream processor code). Review DLQ daily: `kafka-console-consumer --topic options.flow.dlq --from-beginning --max-messages 10`. If schema change: update Faust model, restart consumer group from last committed offset. If transient: replay DLQ messages to raw topic once vendor feed stabilizes. |
 | **Parquet export row count mismatch: source has 2.3M rows, Parquet has 1.1M** | Silent data loss in export — most commonly from date parsing bugs where `YYYYMMDD` is misinterpreted (DD and MM swapped when DD ≤ 12), or timezone truncation dropping the first/last hours of a trading day. | Run diagnostic: `SELECT trade_timestamp::date, COUNT(*) FROM options_flow WHERE trade_timestamp::date = 'DATE' GROUP BY 1;` — if any date shows < 100 rows for AAPL, that day's data is corrupted. Fix: always use ISO 8601 (`YYYY-MM-DD`), store all timestamps in UTC with explicit timezone (`TIMESTAMPTZ`), and add `assert min_date == expected_date` after every export. |
 
+
+### Error Decoder
+
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. |
+| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. |
+| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. |
+| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. |
+| Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). |
+| Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. |
+| Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. |
+
+
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail items. All must pass before go-live. -->
 

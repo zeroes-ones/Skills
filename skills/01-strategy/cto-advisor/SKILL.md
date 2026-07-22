@@ -199,7 +199,7 @@ Can this be a competitive differentiator?
 ```
 
 
-**What good looks like:** Technology radar document with every major dependency categorized (Adopt/Trial/Assess/Hold). Build-vs-buy evaluation compares 3 options with 5-year TCO. Architecture decision records exist for the last 5 major decisions.
+**What good looks like:** Technology radar document published and reviewed with the engineering team — every major dependency has a clear Adopt/Trial/Assess/Hold rating with written rationale. The last 3 build-vs-buy decisions are documented with 5-year TCO, alternatives considered, and accepted tradeoffs. A new CTO can read the radar and understand why every technology choice was made within an afternoon.
 
 **Build-vs-buy cost comparison (5-year TCO):**
 

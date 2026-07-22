@@ -1,6 +1,6 @@
 ---
 name: database-designer
-description: Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization.
+description: "Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization."
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
@@ -299,8 +299,7 @@ Routine schema change (new column, index addition, non-breaking type change)
 ```
 
 
-**What good looks like:** ERD covering all entities with relationships and cardinalities. Indexing strategy covers the top 10 query patterns. Migration script with rollback for each change. Query plan analysis shows sequential scans eliminated for the critical path.
-
+**What good looks like:** ERD covers all entities with named relationships and cardinalities. The 10 most expensive query patterns each have an EXPLAIN plan showing sequential scans eliminated by the chosen index strategy. Migration scripts have both up and down paths tested in CI. The schema survives a production load test at 2x peak QPS without connection pool exhaustion or lock contention.
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Model for access patterns, not for "purity"**: Denormalize when read performance matters more than write simplicity.
