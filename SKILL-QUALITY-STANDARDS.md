@@ -151,7 +151,7 @@ token_budget: 3500  # estimated tokens this skill consumes (~250-550 lines)
 
 ### 7. Domain-Specific Checklist Reference IDs
 ```markdown
-## Production Readiness Checklist
+## Production Checklist
 - [ ] **[API1]** OpenAPI 3.1 specification complete with all paths, schemas, and security schemes
 - [ ] **[API2]** Error responses follow RFC 7807 Problem Details across all endpoints
 ...
