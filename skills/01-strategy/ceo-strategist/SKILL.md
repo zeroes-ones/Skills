@@ -1,17 +1,39 @@
 ---
 name: ceo-strategist
-description: CEO field manual covering vision, fundraising, board management, competitive strategy, org design, OKRs, crisis management, executive hiring, M&A, metrics dashboards, and personal effectiveness. Use when making company-defining decisions, raising capital, designing organizations, navigating crises, or scaling from seed to enterprise.
+description: CEO field manual covering vision, fundraising, board management, competitive strategy, org design, OKRs, crisis management, executive hiring, M&A, metrics dashboards, and personal effectiveness.
+  Use when making company-defining decisions, raising capital, designing organizations, navigating crises, or scaling from seed to enterprise.
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ceo-strategist
+- ceo-strategist
+chain:
+  consumes_from:
+  - accountant
+  - bizdev-manager
+  - board-manager
+  - business-strategist
+  - cto-advisor
+  - fp-and-a-analyst
+  - hr-manager
+  - investor-relations
+  - legal-advisor
+  - product-strategist
+  - treasury-manager
+  - vp-engineering
+  feeds_into:
+  - board-manager
+  - fp-and-a-analyst
+  - hr-manager
+  - investor-relations
+  - treasury-manager
+  - vp-engineering
 token_budget: 3285
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # CEO Strategist — The Operator's Field Manual
 
@@ -43,6 +65,10 @@ What are you trying to do?
 ├── Evaluate M&A → Go to "Sub-Skills" (mergers-and-acquisitions, buy-side-diligence)
 ├── Plan equity & cap table → Jump to "Equity & Cap Table"
 ├── Compete effectively → Go to "Core Workflow > Phase 1" + "Cross-Skill Coordination"
+├── Need business model design or GTM strategy? → `business-strategist`
+├── Need product strategy or roadmap planning? → `product-strategist`
+├── Need technology strategy or build-vs-buy analysis? → `cto-advisor`
+├── Need board governance or investor updates? → `board-manager`
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Strategic Alignment and Vision"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -206,33 +232,34 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 <!-- QUICK: 30s -- table of who to talk to when -->
 The CEO sits at the center of all strategic decisions. Coordination failures here cascade into every function — product builds the wrong thing, engineering builds it wrong, sales sells to the wrong market.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `business-strategist` | Financial model, GTM strategy, market sizing (TAM/SAM/SOM), unit economics, pricing model | During fundraising preparation; before board meetings; during annual strategic planning |
+| `cto-advisor` | Technology strategy memo, build-vs-buy analysis, engineering capacity assessment, technical debt report | Before major build-vs-buy decisions; during engineering org restructuring |
+| `product-strategist` | Product vision, PMF assessment, OKR draft, competitive analysis, roadmap scenario | Before quarterly OKR planning; during pivot evaluation |
+| `fp-and-a-analyst` | Cash runway projections, burn rate analysis, revenue forecast, scenario models | Before fundraising; monthly finance review; during budget allocation |
+| `board-manager` | Board deck feedback, investor sentiment signals, governance recommendations, prep notes | Before quarterly board meetings; during governance restructuring |
+| `legal-advisor` | Term sheet analysis, IP strategy, regulatory exposure assessment, co-founder agreement review | Before fundraising close; during M&A evaluation; when regulatory threat emerges |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CTO Advisor** | Build vs buy, tech strategy, architecture decisions, hiring plan | Engineering capacity, technical feasibility, cost of technical debt |
-| **Product Strategist** | Product roadmap, PMF assessment, pivot decisions | Market signals, resource constraints, strategic trade-offs |
-| **Business Strategist** | Fundraising, market entry, pricing, GTM | Unit economics, TAM/SAM/SOM, revenue projections, cash runway |
-| **Legal Advisor** | Fundraising (term sheets, SAFE/equity), IP strategy, compliance, co-founder agreements | Deal terms, regulatory exposure, data privacy obligations |
-| **Board/Investors** | Quarterly board meetings, fundraising updates, major pivots | Financials, KPIs, risks, capital allocation, hiring progress |
-| **VP Sales / CRO** | Revenue targets, GTM strategy, compensation, territory design | Quota attainment, pipeline health, win/loss analysis, pricing feedback |
-| **Head of People / HR** | Culture, hiring plan, org design, compensation philosophy | Burnout signals, retention risks, diversity metrics, leadership gaps |
-| **Finance / CFO** | Budgeting, runway management, financial modeling, fundraise preparation | Burn rate, cash out date, revenue forecast, headcount plan |
-| **Marketing Lead** | Brand positioning, launch strategy, demand gen | ICP definition, messaging, channel performance, competitive positioning |
-| **Operations** | Process scaling, vendor management, facilities, compliance | Operational bottlenecks, cost drivers, automation opportunities |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `board-manager` | Strategic vision, financial summary, KPI dashboard, capital allocation plan, risk register | Board meets without context — wasted meetings, eroded investor confidence |
+| `investor-relations` | Fundraising narrative, cap table, growth metrics, milestone roadmap, use-of-funds plan | Investors receive incomplete story — fundraising round delayed or undersubscribed |
+| `vp-engineering` | Org design parameters, hiring budget, strategic priorities, technical investment thesis | Engineering builds without strategic context — misaligned architecture and resourcing |
+| `hr-manager` | Culture vision, org chart, compensation philosophy, diversity targets, leadership gaps | Hiring and retention policies disconnect from company direction — talent churn |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Fundraising round opening | CTO Advisor, Business Strategist, Legal Advisor, Finance | Due diligence prep, data room, financial modeling, term sheet negotiation |
-| Pivot decision | CTO Advisor, Product Strategist, Board | Architecture replanning, roadmap overhaul, investor communication |
-| Co-founder departure/conflict | Legal Advisor, Board, Head of People | Equity implications, leadership gap, team morale, retention risk |
-| Cash running below 6 months runway | Finance, Board, CTO Advisor | Emergency fundraising, cost cutting, hiring freeze decisions |
-| Major customer loss (>10% revenue) | VP Sales, Product Strategist, Board | Churn analysis, product gaps, competitive threat response |
-| Acquisition offer received | Legal Advisor, Board, CTO Advisor, Finance | Due diligence, valuation, integration feasibility, cap table analysis |
-| Regulatory/legal threat | Legal Advisor, Board, All functional leads | Risk assessment, PR strategy, operational changes, board communication |
-| Key hire (VP-level) accepted/rejected | All functional leads, Board | Org chart changes, onboarding plan, backup strategy |
+| Fundraising round opening | `cto-advisor`, `business-strategist`, `legal-advisor`, `fp-and-a-analyst` | Due diligence prep, data room, financial modeling, term sheet negotiation |
+| Pivot decision | `cto-advisor`, `product-strategist`, `board-manager` | Architecture replanning, roadmap overhaul, investor communication |
+| Co-founder departure/conflict | `legal-advisor`, `board-manager`, `hr-manager` | Equity implications, leadership gap, team morale, retention risk |
+| Cash running below 6 months runway | `fp-and-a-analyst`, `board-manager`, `cto-advisor` | Emergency fundraising, cost cutting, hiring freeze decisions |
+| Major customer loss (>10% revenue) | `product-strategist`, `board-manager` | Churn analysis, product gaps, competitive threat response |
+| Acquisition offer received | `legal-advisor`, `board-manager`, `cto-advisor`, `fp-and-a-analyst` | Due diligence, valuation, integration feasibility, cap table analysis |
+| Regulatory/legal threat | `legal-advisor`, `board-manager` | Risk assessment, PR strategy, operational changes, board communication |
+| Key hire (VP-level) accepted/rejected | `vp-engineering`, `hr-manager`, `board-manager` | Org chart changes, onboarding plan, backup strategy |
 
 ### Escalation Path
 
@@ -241,10 +268,10 @@ Board level (existential risk: runway < 3mo, lawsuit, co-founder exit, acquisiti
   └── CEO handles directly. No delegation. Board convened within 48 hours.
 
 Executive level (strategic: pivot, fundraising, major customer loss)
-  └── CEO + relevant C-level (CTO, CFO, CRO). Decision within 1 week. Board informed.
+  └── `ceo-strategist` + relevant C-level (`cto-advisor`, `fp-and-a-analyst`). Decision within 1 week. Board informed.
 
 Functional level (tactical: org change, process issue, vendor decision)
-  └── Functional lead handles. CEO informed via weekly sync. No escalation needed.
+  └── Functional lead handles. `ceo-strategist` informed via weekly sync. No escalation needed.
 ```
 
 ## Best Practices

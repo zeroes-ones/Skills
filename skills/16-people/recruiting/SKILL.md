@@ -1,27 +1,34 @@
 ---
 name: recruiting
-description: "Technical & executive recruiting: job description writing (outcomes-based), sourcing (Boolean, GitHub, LinkedIn Recruiter, referrals), structured interview design (rubric scoring, panel calibration), offer construction & negotiation (equity: ISO/NSO/RSU, 409A, cliff vs graded vesting), closing strategies, recruiting metrics, employer branding, diversity sourcing. Use when hiring technical or executive roles, building a recruiting function, or optimizing hiring throughput."
+description: 'Technical & executive recruiting: job description writing (outcomes-based), sourcing (Boolean, GitHub, LinkedIn Recruiter, referrals), structured interview design (rubric scoring, panel calibration),
+  offer construction & negotiation (equity: ISO/NSO/RSU, 409A, cliff vs graded vesting), closing strategies, recruiting metrics, employer branding, diversity sourcing. Use when hiring technical or executive
+  roles, building a recruiting function, or optimizing hiring throughput.'
 author: Sandeep Kumar Penchala
 type: people
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - recruiting
-  - talent-acquisition
-  - technical-hiring
-  - executive-recruiting
+- recruiting
+- talent-acquisition
+- technical-hiring
+- executive-recruiting
 token_budget: 3500
 output:
-  type: "markdown"
-  path_hint: "./"
+  type: markdown
+  path_hint: ./
 chain:
   consumes_from:
-    - ceo-strategist
-    - hr-manager
+  - director-engineering
+  - engineering-manager
+  - hr-manager
+  - people-ops
   feeds_into:
-    - people-ops
-    - hr-manager
+  - director-engineering
+  - engineering-manager
+  - fp-and-a-analyst
+  - hr-manager
+  - people-ops
 ---
 
 # Technical & Executive Recruiting
@@ -39,6 +46,9 @@ What are you trying to do?
 ├── Close a candidate who has competing offers → Go to "Closing Strategies" under Best Practices
 ├── Set up recruiting metrics/dashboard → Jump to "Phase 5: Metrics & Optimization"
 ├── Fix diversity pipeline → Go to "Diversity Sourcing" under Best Practices
+├── Need headcount approval / workforce plan → Invoke `hr-manager` skill
+├── Need engineering team role requirements → Invoke `engineering-manager` or `director-engineering` skill
+├── Need onboarding after offer acceptance → Invoke `people-ops` skill
 └── Don't know where to start? → Start at "Phase 1: Role Definition & JD Writing"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -272,9 +282,11 @@ python3 scripts/pipeline_health.py --ats greenhouse --output json
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **CEO Strategist** | Executive hiring, headcount approval, comp above band, hiring plan for new initiatives | Role criticality, budget impact, executive candidate profiles, offer terms needing CEO sign-off |
-| **HR Manager** | Headcount planning, comp band design, diversity targets, hiring process changes, recruiting tool procurement | Quarterly hiring plan, band compliance, source-of-hire ratios, pipeline diversity, offer acceptance trends |
+| **HR Manager** | Headcount planning, comp band design, diversity targets, hiring process changes, recruiting tool procurement | Quarterly hiring plan, band compliance, source-of-hire ratios, pipeline diversity, offer acceptance trends. **Decision gate:** Is role unfilled for > 60 days with qualified pipeline? → root cause investigation. **Artifact:** hiring plan + quarterly pipeline health report. |
 | **People Ops** | Onboarding handoff for signed candidates, comp philosophy alignment, employer branding content, referral program administration | Signed offer details, start date, pre-boarding materials, referral payouts, candidate experience survey results |
 | **Legal Advisor** | Offer letter templates, equity grant documentation, immigration/visa sponsorship, employment law compliance | Offer letter language, equity plan documents, visa transfer requirements, non-compete enforceability by state |
+| **Engineering Manager** | Role requirements, technical interview design, panel calibration, hiring manager accountability | Technical skill requirements, team composition gaps, interview scorecard design. **Decision gate:** Is panel calibrated (inter-rater reliability > 0.7)? → interviews valid. **Artifact:** interview scorecard + calibration results. |
+| **Director Engineering** | Engineering org hiring strategy, senior+ IC pipeline, tech leadership recruiting | Org-level headcount plan, technical leadership gaps, director+ candidate profiles. **Decision gate:** Is pipeline diverse (underrepresented > 30% at top of funnel)? → sourcing strategy effective. **Artifact:** pipeline diversity report + executive hiring dashboard. |
 
 ### Cross-Skill Integration Chains
 <!-- STANDARD: 3min — actual command sequences these skills execute together -->

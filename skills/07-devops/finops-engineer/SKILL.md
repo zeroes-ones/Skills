@@ -9,6 +9,15 @@ updated: 2026-07-21
 tags:
   - finops-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+    - cloud-architect
+    - devops-engineer
+    - fp-and-a-analyst
+  feeds_into:
+    - cloud-architect
+    - vp-engineering
+    - fp-and-a-analyst
 output:
   type: "code"
   path_hint: "./"
@@ -35,6 +44,9 @@ What are you trying to do?
 ├── Reduce cloud waste (orphaned resources, idle LBs, old snapshots) → Jump to "Core Workflow > Phase 2" (Waste Reduction)
 ├── Set up budgeting and governance → Jump to "Core Workflow > Phase 3" (Budgeting & Governance)
 ├── Implement showback/chargeback → Go to "Best Practices > Cost Allocation & Showback/Chargeback"
+├── Need cloud architecture guidance → Invoke `cloud-architect` skill instead
+├── Need infrastructure automation → Invoke `devops-engineer` skill instead
+├── Need financial planning → Invoke `fp-and-a-analyst` skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — start with visibility: you can't optimize what you can't measure
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -224,28 +236,18 @@ Cluster cost attack surface:
    - Output: Carbon optimization playbook integrated into standard FinOps practices.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When | What to Share/Ask |
-|---|---|---|
-| **Cloud Architect** | Architecture decisions impacting cost, multi-cloud strategy, landing zone design | Cost implications of architecture choices, tagging requirements, commitment discount strategy |
-| **DevOps Engineer** | Infrastructure provisioning, autoscaling configuration, resource lifecycle automation | Right-sizing recommendations, idle resource identification, cost guardrail implementation |
-| **SRE** | Error budget integration, reliability vs. cost trade-offs, spot instance reliability | Spot adoption risk assessment, over-provisioning for reliability vs. cost efficiency balance |
-| **Platform Engineer** | Golden path cost defaults, self-service cost visibility, tagging enforcement in templates | Cost-optimized defaults in templates, cost dashboard integration in portal, budget enforcement |
-| **Backend/Frontend Developers** | Application-level cost optimization, caching strategies, data transfer patterns | Code-level cost drivers (N+1 queries, oversized payloads), cost awareness training |
-| **Data Engineer** | Data storage optimization, pipeline cost management, query optimization | Storage tiering recommendations, data retention policies, costly query patterns |
-| **Kubernetes Specialist** | Cluster cost optimization, node right-sizing, spot adoption, bin packing | K8s cost allocation, resource request optimization, autoscaler configuration |
-| **Engineering Manager** | Team budget accountability, cost awareness culture, optimization prioritization | Team-level cost reports, optimization opportunity backlog, cost KPIs |
-| **Finance/Business** | Budget planning, commitment purchases, cloud provider negotiations | Cost forecasts, commitment purchase ROI, provider discount programs, unit economics |
-| **Security Engineer** | Security tooling costs, compliance-related infrastructure, logging costs | Security service cost optimization (GuardDuty, WAF, log storage tiering) |
 
-### Escalation Path
-```
-Cost anomaly > 50% of monthly forecast? → FinOps Lead → Engineering Manager → CTO
-Commitment purchase > $50K/year? → FinOps Lead → Finance → CTO
-Cost optimization blocked by team resistance? → Engineering Manager → CTO
-Budget overrun > 20% for 2 consecutive months? → FinOps Lead → Finance → CTO
-Cloud provider negotiation needed? → FinOps Lead → Finance → CTO (exec sponsor)
-```
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cloud-architect` | Architecture decisions with cost implications, multi-cloud strategy, landing zone design, tagging requirements | Before analyzing costs or recommending commitment discounts |
+| `devops-engineer` | Infrastructure provisioning details, autoscaling configuration, resource lifecycle automation | Before identifying idle resources or recommending right-sizing |
+| `fp-and-a-analyst` | Budget forecasts, financial models, unit economics targets, commitment purchase approvals | Before making RI/SP purchase recommendations or setting budget thresholds |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `cloud-architect` | Cost implications of architecture choices, commitment discount strategy, resource optimization recommendations | Architecture decisions made blind to cost — overspend risk |
+| `vp-engineering` | Cost anomaly alerts, optimization opportunity backlog, team-level cost KPIs | Engineering budget overrun with no visibility — financial risk |
+| `fp-and-a-analyst` | Cost forecasts, commitment purchase ROI, provider discount analysis, unit economics data | Financial planning can't model cloud spend accurately — budget surprises |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

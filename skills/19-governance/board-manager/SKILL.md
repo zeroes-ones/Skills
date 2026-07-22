@@ -1,30 +1,36 @@
 ---
 name: board-manager
-description: Board management and corporate governance for founders and executives. Covers board composition, meeting cadence, committee structure, fiduciary duties, D&O questionnaires, board evaluations, compensation, shareholder communications, minute-taking, and post-Series A governance evolution. Use when preparing for board meetings, recruiting directors, structuring committees, or navigating governance crises.
+description: Board management and corporate governance for founders and executives. Covers board composition, meeting cadence, committee structure, fiduciary duties, D&O questionnaires, board evaluations,
+  compensation, shareholder communications, minute-taking, and post-Series A governance evolution. Use when preparing for board meetings, recruiting directors, structuring committees, or navigating governance
+  crises.
 author: Sandeep Kumar Penchala
 type: governance
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - board-governance
-  - fiduciary-duties
-  - board-meetings
-  - committee-structure
-  - shareholder-communications
-  - corporate-governance
+- board-governance
+- fiduciary-duties
+- board-meetings
+- committee-structure
+- shareholder-communications
+- corporate-governance
 token_budget: 3480
 output:
-  type: "document"
-  path_hint: "./board-manager/"
+  type: document
+  path_hint: ./board-manager/
 chain:
   consumes_from:
-    - ceo-strategist
-    - fp-and-a-analyst
-    - legal-advisor
+  - accountant
+  - ceo-strategist
+  - fp-and-a-analyst
+  - investor-relations
+  - legal-advisor
+  - treasury-manager
   feeds_into:
-    - investor-relations
-    - ceo-strategist
+  - ceo-strategist
+  - investor-relations
+  - legal-advisor
 ---
 # Board Manager — The Governance Operating System
 
@@ -51,6 +57,10 @@ What are you trying to do?
 ├── Set board compensation → Jump to "Best Practices" item 7
 ├── Manage shareholder communications → Go to "Core Workflow > Phase 3"
 ├── Evolve governance post-Series A → Jump to "Decision Trees > Post-Series A Governance Evolution"
+├── Need corporate strategy alignment? → Invoke `ceo-strategist` for board deck priorities and strategic narrative
+├── Need financial models for the board package? → Invoke `fp-and-a-analyst` for P&L, cash runway, and ARR bridge
+├── Need legal review of resolutions or fiduciary duties? → Invoke `legal-advisor` for committee charters and D&O guidance
+├── Need investor communications or fundraising governance? → Invoke `investor-relations` for shareholder reporting requirements
 └── Don't know where to start? → Run "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above.
@@ -73,6 +83,33 @@ Do not read the entire skill. Follow the route above.
 - You're pre-revenue with no board (use `ceo-strategist` — this is premature governance overhead)
 - You need legal advice on fiduciary breach (use `legal-advisor` — this skill informs, doesn't replace counsel)
 - You're modeling how dilution impacts board dynamics (use `fp-and-a-analyst` for cap table work, then come back)
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Board governance connects financial reporting, legal compliance, and investor communications -->
+
+| Upstream Skill | What You Receive | Decision Gate / Artifact |
+|---|---|---|
+| `ceo-strategist` | Board deck outline, strategic priorities, fundraising status | Gate: CEO must sign off on board package 7 days before meeting. Artifact: Board deck v1 with CEO commentary. |
+| `fp-and-a-analyst` | Financial package: P&L forecast, cash runway, ARR bridge, headcount plan, burn multiple | Gate: Financials must reconcile to last closed period within 5%. Artifact: Board financial appendix with variance commentary. |
+| `legal-advisor` | Fiduciary duty guidance, D&O questionnaire templates, committee charter drafts | Gate: Legal review of all board resolutions before circulation. Artifact: Board consent drafts with legal sign-off. |
+| `investor-relations` | Investor sentiment, fundraising progress, shareholder communications calendar | Gate: IR must flag any investor concerns before board meeting. Artifact: Investor feedback summary for board discussion. |
+
+| Downstream Skill | What You Provide | Decision Gate / Artifact |
+|---|---|---|
+| `ceo-strategist` | Board-approved strategic direction, committee mandates, governance calendar | Gate: Board minutes finalized within 5 business days. Artifact: Signed board resolutions and committee charters. |
+| `investor-relations` | Board-approved fundraising authorization, investor communication guidelines | Gate: Board must approve any material shareholder communication. Artifact: Board resolution authorizing fundraising or secondary transaction. |
+| `legal-advisor` | Governance questions, fiduciary duty scenarios, conflict-of-interest disclosures | Gate: Board must review and approve any related-party transaction. Artifact: Board minutes documenting fiduciary review and approval. |
+
+**Decision Gates:**
+- **Board package completeness:** All 7 sections (financials, KPIs, strategic updates, people, governance, risk, consent agenda) present 7 days before meeting — missing sections trigger reschedule.
+- **Fiduciary duty review:** Every board decision must pass: (1) duty of care — informed decision, (2) duty of loyalty — no conflicts, (3) business judgment rule — rational basis. Documented in minutes.
+- **Committee charter threshold:** Series B+ must have audit committee. Post-Series C must have compensation committee. IPO-ready must have nominating/governance committee. Non-compliance is a fiduciary breach.
+
+**Coordination cadence:**
+- **Quarterly:** Board meeting preparation (4-week cycle: pre-reads → meeting → minutes → follow-up)
+- **Annually:** D&O questionnaire cycle; board self-evaluation; committee charter review
+- **Event-driven:** Governance crisis activation (24-hour board notification requirement for S1 incidents)
 
 ## Decision Trees
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->

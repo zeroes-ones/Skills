@@ -1,31 +1,37 @@
 ---
 name: investor-relations
-description: Investor relations and fundraising operations for founders and CFOs. Covers investor CRM management, fundraising process, data room preparation, pitch deck creation, due diligence, cap table modeling, annual meetings, shareholder reporting, secondary transactions, and IR during crises. Use when raising capital, managing investor communications, or navigating down rounds and tender offers.
+description: Investor relations and fundraising operations for founders and CFOs. Covers investor CRM management, fundraising process, data room preparation, pitch deck creation, due diligence, cap table
+  modeling, annual meetings, shareholder reporting, secondary transactions, and IR during crises. Use when raising capital, managing investor communications, or navigating down rounds and tender offers.
 author: Sandeep Kumar Penchala
 type: governance
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - investor-relations
-  - fundraising
-  - cap-table-management
-  - pitch-deck
-  - data-room
-  - shareholder-reporting
-  - secondary-transactions
+- investor-relations
+- fundraising
+- cap-table-management
+- pitch-deck
+- data-room
+- shareholder-reporting
+- secondary-transactions
 token_budget: 3490
 output:
-  type: "document"
-  path_hint: "./investor-relations/"
+  type: document
+  path_hint: ./investor-relations/
 chain:
   consumes_from:
-    - board-manager
-    - ceo-strategist
-    - fp-and-a-analyst
+  - accountant
+  - board-manager
+  - ceo-strategist
+  - fp-and-a-analyst
+  - legal-advisor
+  - treasury-manager
   feeds_into:
-    - legal-advisor
-    - ceo-strategist
+  - board-manager
+  - ceo-strategist
+  - fp-and-a-analyst
+  - treasury-manager
 ---
 # Investor Relations — The Fundraising Operating System
 
@@ -54,6 +60,10 @@ What are you trying to do?
 ├── Send an investor update → Go to "Core Workflow > Phase 5: Investor Communications"
 ├── Run a secondary transaction → Jump to "Decision Trees > Secondary Transaction Types"
 ├── Handle a down round → Go to "Error Decoder" — last row, then "Crisis IR Playbook"
+├── Need fundraising strategy and narrative? → Invoke `ceo-strategist` for strategic positioning and investor targeting
+├── Need the underlying financial model? → Invoke `fp-and-a-analyst` for operating model; return here to package for investors
+├── Need legal review of term sheets or securities compliance? → Invoke `legal-advisor` for contract review and disclosure requirements
+├── Need board authorization for fundraising? → Invoke `board-manager` for board resolution and governance requirements
 └── Don't know where to start? → Run "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above.
@@ -77,6 +87,35 @@ Do not read the entire skill. Follow the route above.
 - You're pre-revenue and raising from friends & family (use `ceo-strategist` — this is institutional fundraising infrastructure)
 - You need legal review of a term sheet (use `legal-advisor` — this skill helps you compare terms, not negotiate them)
 - You're building the underlying financial model (use `fp-and-a-analyst` for the model; come here to package it for investors)
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: IR connects fundraising strategy, financial reporting, and board governance -->
+
+| Upstream Skill | What You Receive | Decision Gate / Artifact |
+|---|---|---|
+| `ceo-strategist` | Fundraising strategy, narrative positioning, target investor list | Gate: CEO must approve investor targeting before outreach begins. Artifact: Fundraising strategy memo with target raise amount, valuation range, and timeline. |
+| `fp-and-a-analyst` | Operating model, SaaS metrics dashboard, scenario analysis, valuation model | Gate: Model must reproduce last 12 months of actuals within 5%. Artifact: Investor-ready financial model with bull/base/bear scenarios. |
+| `board-manager` | Board-approved fundraising authorization, investor communication guidelines, governance requirements | Gate: Board must approve any new fundraising round or material secondary. Artifact: Board resolution authorizing fundraising. |
+| `legal-advisor` | Term sheet review, securities law compliance, investor agreement drafting | Gate: Every investor communication must pass legal review before sending. Artifact: Legal-reviewed term sheet comparison and disclosure schedule. |
+
+| Downstream Skill | What You Provide | Decision Gate / Artifact |
+|---|---|---|
+| `board-manager` | Fundraising progress, term sheet comparison, cap table scenarios | Gate: Board must be updated on fundraising status within 48 hours of material development. Artifact: Fundraising status dashboard with pipeline stage and term sheet summary. |
+| `ceo-strategist` | Investor pipeline status, diligence findings, competitive fundraising intelligence | Gate: CEO must be briefed before any partner meeting. Artifact: Investor briefing memo with background, thesis fit, and potential concerns. |
+| `fp-and-a-analyst` | Investor feedback on model assumptions, market comps, valuation benchmarks | Gate: Model assumptions must be updated after each investor meeting that surfaces new data. Artifact: Model assumption changelog with investor source attribution. |
+
+**Decision Gates:**
+- **Data room readiness:** All 14 folders complete and organized before sharing with first investor. Incomplete data room = 2-4 week fundraise delay.
+- **Term sheet comparison:** Every term sheet evaluated against: (1) valuation vs market comps, (2) liquidation preference structure, (3) board seat provisions, (4) protective provisions, (5) option pool requirements. No term sheet signed without full comparison.
+- **Investor update discipline:** Monthly updates sent by 5th business day. Silence >30 days = investor assumption of crisis. Every update must include: key metrics, good news, bad news, asks, and cash runway.
+
+**Coordination cadence:**
+- **Weekly:** Pipeline review with CEO; investor meeting prep and debrief
+- **Monthly:** Investor update drafting and distribution
+- **Quarterly:** Board meeting IR section; shareholder reporting
+- **Fundraising:** Daily pipeline tracking; weekly strategy sync with CEO and legal
+- **Crisis:** Immediate notification protocol — board and major investors within 24 hours
 
 ## Decision Trees
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->

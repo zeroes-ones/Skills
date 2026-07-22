@@ -1,17 +1,30 @@
 ---
 name: ml-ai-engineer
-description: ML lifecycle, model selection, training, MLOps, RAG, LLM patterns, model serving, evaluation, monitoring, and responsible AI. Triggered by ML, machine learning, deep learning, LLM, RAG, embeddings, fine-tuning, MLOps, model, AI safety.
+description: ML lifecycle, model selection, training, MLOps, RAG, LLM patterns, model serving, evaluation, monitoring, and responsible AI. Triggered by ML, machine learning, deep learning, LLM, RAG, embeddings,
+  fine-tuning, MLOps, model, AI safety.
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ml-ai-engineer
+- ml-ai-engineer
 token_budget: 5000
+chain:
+  consumes_from:
+  - data-engineer
+  - data-scientist
+  - mlops-engineer
+  - quantitative-analyst
+  feeds_into:
+  - data-scientist
+  - llm-engineer
+  - mlops-engineer
+  - quantitative-analyst
+  - trust-safety-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # ML & AI Engineer
 
@@ -41,6 +54,10 @@ What are you trying to do?
 ├── Fine-tune an existing model (LoRA, QLoRA) → Jump to "Core Workflow" — Phase 2 (Fine-tuning)
 ├── Need data pipelines for training data → Invoke data-engineer skill instead
 ├── Need to deploy LLM with safety guardrails → Jump to "Best Practices" — responsible AI
+├── Need training data pipelines → Invoke `data-engineer` skill instead
+├── Need statistical analysis → Invoke `data-scientist` skill instead
+├── Need MLOps infrastructure → Invoke `mlops-engineer` skill instead
+├── Need LLM-specific patterns → Invoke `llm-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -617,42 +634,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `responsible-ai` | Bias detection, fairness metrics, explainability (SHAP/LIME), model cards, and safety guardrails |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-ML/AI engineers build models that depend on data pipelines, deploy to production infrastructure, and serve predictions that drive product features. They coordinate with data engineers, backend developers, DevOps, and product to deliver ML systems end-to-end.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `data-engineer` | Feature computation schedules, historical backfill requirements, data quality expectations, schema contracts | Before building training pipelines or feature engineering workflows |
+| `data-scientist` | Feature engineering insights, model evaluation metrics, training data quality assessment, statistical validation methods | Before selecting model architecture or designing evaluation harness |
+| `mlops-engineer` | Model registry integration, CI/CD pipeline for ML, deployment infrastructure, monitoring stack | Before deploying models to production or setting up drift monitoring |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Data Engineer** | Training data pipelines, feature store population | Feature computation schedules, historical backfill requirements, data quality expectations, schema contracts |
-| **Analytics Engineer** | Label creation, evaluation metrics, model performance dashboards | Label definitions in dbt, model performance tracking tables, A/B test metric integration |
-| **Backend Developer** | Model serving integration, API design | Model serving API contract (REST/gRPC), latency requirements, batching support, feature vector format |
-| **DevOps Engineer** | Model deployment infrastructure, CI/CD | GPU/CPU resource requirements, container image build, model registry integration, canary/rollback strategy |
-| **Cloud Architect** | GPU instance provisioning, cost optimization | Spot instance strategy for training, serving infra right-sizing, multi-region model serving for latency |
-| **Security Engineer** | Model security, adversarial robustness | Prompt injection prevention (LLM), adversarial input detection, model access control, PII in training data |
-| **Observability Engineer** | Model monitoring, drift detection | Prediction distribution metrics, feature drift monitoring, model performance dashboards, alert thresholds |
-| **Product Strategist** | ML feature scoping, success metrics, launch criteria | Business metric to model metric mapping, launch bar definition, user impact assessment, rollout strategy |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Training data pipeline broken or delayed | Data Engineer, Product Strategist | Training schedule impact; model staleness risk |
-| Model performance degradation detected (drift) | Observability Engineer, Backend Developer, Product | Root cause investigation; potential model rollback |
-| New model version ready for deployment | Backend Developer, DevOps, Product | Shadow/canary deployment coordination; A/B test setup |
-| GPU/cluster provisioning issue blocking training | DevOps, Cloud Architect | Resource allocation; cost approval for spot/preemptible fallback |
-| LLM prompt injection vulnerability discovered | Security Engineer, Backend Developer | Immediate guardrail implementation; input sanitization; model access review |
-| Fairness/bias issue detected in production predictions | Product Strategist, Security Engineer, Compliance Officer | Model rollback; bias audit; potential regulatory implications |
-
-### Escalation Path
-
-```
-Model causing production incident (wrong predictions, system crash)? → Backend Developer → Incident Responder
-Training infrastructure unavailable? → DevOps Engineer → Cloud Architect
-Bias/fairness violation in production? → Security Engineer → Compliance Officer → Legal
-Model performance below launch bar (3+ iterations)? → Product Strategist → CTO Advisor (build vs buy review)
-Cost overrun (GPU training 3x budget)? → Cloud Architect → CTO Advisor
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `data-scientist` | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds | Scientists can't productionize research — models stay in notebooks |
+| `mlops-engineer` | Model serving API contract, GPU/CPU resource requirements, canary deployment strategy, drift detection rules | MLOps can't deploy models — no serving infrastructure configured |
+| `llm-engineer` | RAG architecture patterns, embedding pipelines, prompt engineering frameworks, model evaluation harness | LLM applications lack foundation — hallucination and quality risks |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

@@ -20,6 +20,18 @@ token_budget: 5000
 output:
   type: "document"
   path_hint: "./"
+chain:
+  consumes_from:
+    - clinical-informatics-specialist
+    - llm-engineer
+    - medical-content-reviewer
+    - compliance-officer
+    - regulatory-specialist
+  feeds_into:
+    - ai-safety-engineer
+    - legal-advisor
+    - content-policy-manager
+    - product-manager
 ---
 # AI Safety & Health AI Reviewer
 
@@ -53,6 +65,32 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Health AI safety review bridges clinical, regulatory, and engineering — coordinate before assumptions become risks -->
+
+| Upstream Skill | What You Receive | Decision Gate |
+|---|---|---|
+| `clinical-informatics-specialist` | Clinical data models, FHIR/HL7 schemas, medical terminology standards, clinical workflow context | Validate AI output against clinical knowledge representation before safety sign-off |
+| `llm-engineer` | LLM pipeline architecture, prompt templates, model evaluation results, RAG retrieval patterns | Review prompt safety and retrieval quality; flag hallucination-prone patterns |
+| `medical-content-reviewer` | Clinical accuracy assessments, evidence standards, content policy classifications | Incorporate clinical review findings into safety evaluation criteria |
+| `compliance-officer` | HIPAA compliance requirements for AI, FDA SaMD classification guidance, EU AI Act risk tiers | Determine regulatory pathway for AI features based on safety evaluation |
+| `regulatory-specialist` | FDA AI/ML framework updates, PCCP requirements, 510(k) vs De Novo guidance, SaMD classification | Map AI feature risk profile to appropriate regulatory pathway |
+
+| Downstream Skill | What You Provide | Artifacts |
+|---|---|---|
+| `ai-safety-engineer` | Clinical safety evaluation criteria, medical hallucination benchmarks, health-specific red-team scenarios | Medical safety test suites, clinical accuracy thresholds, hallucination detection heuristics |
+| `legal-advisor` | AI liability risk assessments, regulatory gap analyses, adverse event reporting triggers | Safety incident classification, liability exposure memos, FDA reporting readiness |
+| `content-policy-manager` | AI output safety tiers, medical misinformation risk classifications, harmful content detection criteria | Safety-tiered content policies, clinical accuracy requirements for AI-generated content |
+| `product-manager` | AI feature safety ratings, clinical risk assessments, go/no-go recommendations for health AI | Health AI safety scorecards, risk-benefit analyses, launch condition documentation |
+
+**Coordination cadence:**
+- **Pre-evaluation:** Align with `clinical-informatics-specialist` on clinical benchmarks and ground truth sources
+- **Weekly:** Sync with `llm-engineer` on model updates and new prompt patterns
+- **Bi-weekly:** Clinical review with `medical-content-reviewer` on AI output accuracy trends
+- **Monthly:** Regulatory alignment with `compliance-officer` and `regulatory-specialist`
+- **Per red-team cycle:** Safety findings handoff to `ai-safety-engineer` for guardrail implementation
 
 ## Core Workflow
 

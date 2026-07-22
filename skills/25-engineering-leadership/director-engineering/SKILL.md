@@ -1,42 +1,39 @@
 ---
 name: director-engineering
-description: >-
-  Director of Engineering: org design, team topology, strategy translation,
-  managing managers, cross-functional leadership, budget planning, EM
-  development, and scaling engineering organizations for 20-50 engineers.
-  Triggered by org design, team structure, reorg, capacity planning, budget,
-  engineering strategy, cross-team delivery, managing managers, succession
-  planning, executive communication.
+description: 'Director of Engineering: org design, team topology, strategy translation, managing managers, cross-functional leadership, budget planning, EM development, and scaling engineering organizations
+  for 20-50 engineers. Triggered by org design, team structure, reorg, capacity planning, budget, engineering strategy, cross-team delivery, managing managers, succession planning, executive communication.'
 author: Sandeep Kumar Penchala
 type: leadership
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-22
 chain:
   consumes_from:
-    - engineering-manager
-    - staff-engineer
-    - cto-advisor
-    - ceo-strategist
-    - fp-and-a-analyst
-    - product-manager
+  - cto-advisor
+  - engineering-manager
+  - hr-manager
+  - product-manager
+  - recruiting
+  - technical-program-manager
+  - vp-engineering
   feeds_into:
-    - vp-engineering
-    - board-manager
-    - investor-relations
+  - cto-advisor
+  - engineering-manager
+  - recruiting
+  - vp-engineering
 tags:
-  - director-engineering
-  - org-design
-  - team-topology
-  - strategy-translation
-  - managing-managers
-  - cross-functional-leadership
-  - budget-planning
-  - engineering-culture
+- director-engineering
+- org-design
+- team-topology
+- strategy-translation
+- managing-managers
+- cross-functional-leadership
+- budget-planning
+- engineering-culture
 token_budget: 5000
 output:
-  type: "document"
-  path_hint: "./"
+  type: document
+  path_hint: ./
 ---
 
 # Director of Engineering
@@ -254,6 +251,24 @@ rate instead of story points.
 **Outputs:** Quarterly strategy memo, stakeholder map, triad operating rhythm.
 
 ## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Director-level decisions cascade across org boundaries — coordinate on design, not just execution -->
+
+| Skill | Decision Gate | Strategic Handoff Artifacts |
+|---|---|---|
+| `vp-engineering` | Multi-org strategy, major investments, reorgs across director boundaries — alignment needed before committing resources | Strategic alignment memo, resource advocacy brief, org-wide capacity model |
+| `engineering-manager` | Team execution, IC performance, hiring pipeline, delivery tracking — escalate systemic patterns, not individual issues | Team health scorecards, risk registers, succession bench, delivery trend data |
+| `cto-advisor` | Build vs buy at org scale, technology bets, due diligence for platform decisions — architecture governance gate | Trade-off framing documents, technology radar updates, build-vs-buy recommendation memos |
+| `hr-manager` | Performance management framework, compensation calibration, employee relations for EM+ level | Calibration data, PIP documentation, engagement survey analysis by team |
+| `product-manager` | Roadmap negotiation, customer discovery, prioritization — capacity reality must drive roadmap commits | Capacity model, negotiated roadmap, feature-vs-investment allocation |
+| `technical-program-manager` | Cross-team delivery, dependency tracking, org-wide timelines — dependency maps drive org design decisions | Dependency maps, RAID logs, delivery status dashboards, cross-team risk registers |
+| `recruiting` | EM+ hiring pipeline, offer strategy, employer brand — pipeline health feeds org design capacity planning | Pipeline metrics, comp benchmarks, process quality audits, time-to-fill by level |
+
+**Org design handoff protocol:**
+- **Quarterly reorg assessment:** Every quarter, review coordination cost data with `vp-engineering` — if 3+ teams touch most features, org boundaries need redesign
+- **Architecture governance:** `cto-advisor` + `staff-engineer` review all cross-team RFCs; director ensures team charters reflect architectural boundaries
+- **Strategic planning cadence:** Quarterly strategy memo to `vp-engineering` → cascaded to `engineering-manager` → reflected in team OKRs within 2 weeks
+- **Succession planning:** `hr-manager` reviews bench strength quarterly; director owns EM succession with ready-now names for every EM role
 
 | Skill | When to Involve | What You Need |
 |---|---|---|

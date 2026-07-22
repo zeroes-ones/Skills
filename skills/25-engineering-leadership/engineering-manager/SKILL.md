@@ -1,37 +1,44 @@
 ---
 name: engineering-manager
-description: >-
-  First-line people management for engineering teams of 5-10 engineers. Covers 1:1 cadence and career conversations, delivery accountability and sprint management, performance management including continuous feedback and underperformer remediation, team building through hiring and onboarding, engineering culture and psychological safety, stakeholder communication and managing up, capacity planning and resource negotiation. The EM is the linchpin between individual contributors and organizational leadership — not a tech lead, not an architect. Use when managing a team of engineers, running 1:1s, handling performance issues, building hiring pipelines, or establishing team culture.
+description: First-line people management for engineering teams of 5-10 engineers. Covers 1:1 cadence and career conversations, delivery accountability and sprint management, performance management including
+  continuous feedback and underperformer remediation, team building through hiring and onboarding, engineering culture and psychological safety, stakeholder communication and managing up, capacity planning
+  and resource negotiation. The EM is the linchpin between individual contributors and organizational leadership — not a tech lead, not an architect. Use when managing a team of engineers, running 1:1s,
+  handling performance issues, building hiring pipelines, or establishing team culture.
 author: Sandeep Kumar Penchala
 type: engineering-leadership
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-22
 tags:
-  - engineering-manager
-  - people-management
-  - team-leadership
-  - performance-management
-  - hiring
-  - career-growth
-  - 1-on-1s
-  - team-building
+- engineering-manager
+- people-management
+- team-leadership
+- performance-management
+- hiring
+- career-growth
+- 1-on-1s
+- team-building
 token_budget: 5000
 output:
-  type: "markdown"
-  path_hint: "./"
+  type: markdown
+  path_hint: ./
 chain:
   consumes_from:
-    - recruiting
-    - people-ops
-    - scrum-master
-    - staff-engineer
-    - hr-manager
+  - director-engineering
+  - hr-manager
+  - people-ops
+  - product-manager
+  - recruiting
+  - scrum-master
   feeds_into:
-    - director-engineering
-    - vp-engineering
-    - cto-advisor
-    - technical-program-manager
+  - backend-developer
+  - cto-advisor
+  - director-engineering
+  - project-manager
+  - recruiting
+  - scrum-master
+  - staff-engineer
+  - technical-program-manager
 ---
 
 # Engineering Manager
@@ -256,6 +263,24 @@ Performance management is a continuous loop, not an annual event. The annual rev
 - The top reason engineers leave: they stop growing. Growth conversations aren't annual — they're woven into 1:1s
 
 ## Cross-Skill Coordination
+
+<!-- ORG DESIGN: EM is the first organizational lever — coordination decisions shape team topology and architecture governance -->
+
+| Role | Decision Gate | What You Provide / Receive | Interaction Cadence |
+|------|---------------|---------------------------|---------------------|
+| `director-engineering` | Org-level strategy, escalations, resource requests — escalate systemic blockers, not individual issues | Receive: Strategic direction, air cover, budget, headcount. Provide: Early risk warnings, team performance data, clear asks | Weekly 1:1 |
+| `product-manager` | Roadmap trade-offs, feature feasibility, customer discovery — capacity reality drives prioritization | Receive: Customer needs, roadmap priorities. Provide: Team capacity, technical constraints, delivery estimates | Bi-weekly; weekly during planning |
+| `scrum-master` | Sprint execution, retro facilitation, velocity anomalies — process health drives team topology feedback | Receive: Ceremony facilitation, impediment tracking. Provide: Team context on blockers, priority clarity | Weekly (sprint rituals) |
+| `hr-manager` | PIPs, terminations, harassment/ethics, ADA accommodations, compensation calibration | Receive: Process guidance, legal compliance, documentation standards. Provide: Early heads-up, complete documentation | As needed; bi-weekly during active cases |
+| `recruiting` | Opening reqs, sourcing strategy, interview design, closing/offer — hiring pipeline feeds team design | Receive: Structured loops, calibrated panels. Provide: Clear hiring bar, timely feedback, team narrative | Weekly during active hiring |
+| `staff-engineer` | Architecture governance, tech debt prioritization, technical mentorship — staff engineers own cross-team design | Receive: Technical direction, design reviews. Provide: Business context, resource constraints | Weekly 1:1 |
+| `cto-advisor` | Build-vs-buy decisions, technology strategy, architecture governance for team scope | Receive: Strategic guidance, architecture governance. Provide: Team capabilities, delivery forecasts | Monthly; quarterly strategy reviews |
+| `backend-developer` | Service implementation, API design, system architecture — IC delivery handoff for team execution | Receive: Implementation output. Provide: Sprint priorities, design constraints, career growth | Daily (standups); weekly 1:1 |
+
+**Org design handoff protocol:**
+- **Team topology feedback:** If cross-team coordination is the #1 delivery blocker, flag to `director-engineering` — this is an org design signal, not a process problem
+- **Architecture governance:** Escalate architecture decisions with cross-team impact to `staff-engineer` and `cto-advisor`; never let ICs make system-boundary decisions in isolation
+- **Strategic planning cascade:** Receive director strategy memo → translate to team OKRs within 1 week → socialize with `product-manager` and `staff-engineer`
 
 | Role | When to Involve | What You Need From Them | What They Need From You | Interaction Cadence |
 |------|----------------|------------------------|------------------------|---------------------|

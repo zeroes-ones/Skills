@@ -1,17 +1,52 @@
 ---
 name: devops-engineer
-description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns, secret management, service mesh, progressive delivery, cost optimization, and disaster recovery. Triggered by terraform, pulumi, ansible, infrastructure, platform, deployment, blue-green, canary, secrets, service mesh, DR, FinOps.
+description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns, secret management, service mesh, progressive delivery, cost optimization, and disaster recovery. Triggered by terraform,
+  pulumi, ansible, infrastructure, platform, deployment, blue-green, canary, secrets, service mesh, DR, FinOps.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - devops-engineer
+- devops-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+  - backend-developer
+  - chaos-engineer
+  - ci-cd-builder
+  - cloud-architect
+  - database-reliability-engineer
+  - docker-kubernetes
+  - fullstack-developer
+  - incident-responder
+  - migration-architect
+  - networking-engineer
+  - observability-engineer
+  - performance-engineer
+  - platform-engineer
+  - qa-engineer
+  - release-manager
+  - security-engineer
+  - system-architect
+  feeds_into:
+  - chaos-engineer
+  - ci-cd-builder
+  - database-reliability-engineer
+  - docker-kubernetes
+  - finops-engineer
+  - migration-architect
+  - mlops-engineer
+  - monorepo-manager
+  - observability-engineer
+  - platform-engineer
+  - release-manager
+  - security-engineer
+  - security-reviewer
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # DevOps Engineer
 
@@ -26,8 +61,12 @@ mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flag
 ```
 What are you trying to do?
 ├── Write infrastructure as code (Terraform/Pulumi) → Jump to "Core Workflow" — Phase 1 (IaC)
-├── Set up CI/CD or deployment pipelines → Invoke ci-cd-builder skill instead
+├── Set up CI/CD or deployment pipelines → Invoke `ci-cd-builder` skill instead
 ├── Configure secrets management (Vault, SOPS) → Jump to "Core Workflow" — Phase 3 (Secrets)
+├── Manage Kubernetes or container infrastructure → Invoke `docker-kubernetes` skill instead
+├── Set up release management → Invoke `release-manager` skill instead
+├── Need reliability and SLO framework → Invoke `site-reliability-engineer` skill instead
+├── Build an internal developer platform → Invoke `platform-engineer` skill instead
 ├── Set up monitoring and observability → Jump to "Core Workflow" — Phase 5 (Observability)
 ├── Plan a deployment strategy (canary, blue-green) → Go to "Decision Trees" — Deployment Strategy
 ├── Design cloud infrastructure → Invoke cloud-architect skill instead
@@ -463,41 +502,22 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `progressive-delivery` | Safe deployment patterns: canary, blue-green, feature flags, and automated rollback |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-DevOps engineers sit at the intersection of development, operations, and security. They provision the infrastructure, automate the pipelines, and manage the secrets that every other role depends on. Proactive coordination prevents deployment failures and security incidents.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cloud-architect` | Landing zone architecture, networking design, IAM role specifications, cost models | Before provisioning infrastructure or selecting cloud services |
+| `system-architect` | Service topology, deployment architecture, non-functional requirements | Before designing infrastructure topology or deployment patterns |
+| `backend-developer` | Container resource limits, health check endpoints, migration scripts, environment variables | Before configuring service deployments or resource allocations |
+| `security-engineer` | Vault/Secrets Manager architecture, security group design, Pod Security Standards, audit logging requirements | Before implementing secrets management or network policies |
+| `ci-cd-builder` | Deploy step design, environment promotion gates, rollback automation, artifact storage | Before integrating infrastructure with deployment pipelines |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Service deployment, resource requirements | Container resource limits, health check endpoints, migration scripts, environment variables |
-| **Frontend Developer** | CDN config, static asset deployment, SSR hosting | Cache headers, edge function deployment, environment-specific API URLs, build environment |
-| **Cloud Architect** | Infrastructure design, cost optimization, multi-account | Landing zone compliance, networking requirements, IAM role design, service selection trade-offs |
-| **CI/CD Builder** | Pipeline integration, deploy orchestration | Deploy step design, environment promotion gates, rollback automation, artifact storage |
-| **Security Engineer** | Secrets management, network policies, compliance | Vault/Secrets Manager integration, security group design, Pod Security Standards, audit logging |
-| **Observability Engineer** | Monitoring infrastructure, logging pipeline | Prometheus/Grafana deployment, log aggregation endpoints, alert routing to on-call, trace sampling |
-| **Docker/Kubernetes Specialist** | Container orchestration, service mesh | Cluster configuration, Helm chart standards, ingress/egress rules, pod security policies |
-| **Incident Responder** | Infrastructure-related incidents, DR activation | Runbook automation, access for investigation, infrastructure rollback procedures |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Infrastructure change requiring Terraform apply | Cloud Architect, Affected teams | Review plan; coordinate maintenance window if disruptive |
-| Secret rotation (database password, API key) | All consumers of the secret | Update references; verify applications restart with new credentials |
-| Production deploy blocked (infra issue) | CI/CD Builder, Affected team lead | Joint triage; rollback or fix-forward decision |
-| Drift detected in production infrastructure | Cloud Architect, Security Engineer | Investigate root cause; auto-remediate or manual fix |
-| Cost anomaly alert (50%+ spike) | Cloud Architect, Finance | Immediate investigation; potential resource runaway or cryptomining |
-| Major incident declared (SEV1 on infra) | Incident Responder, All engineering | War room activation; serve as Operations Lead |
-
-### Escalation Path
-
-```
-Infrastructure outage? → Cloud Architect → Incident Responder (if SEV1) → CTO
-Security control failure? → Security Engineer → Compliance Officer
-Cost overrun? → Cloud Architect (FinOps) → CTO Advisor
-CI/CD pipeline broken? → CI/CD Builder
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `ci-cd-builder` | Infrastructure deployment specs, environment configs, Terraform apply orchestration | CI/CD can't deploy — pipelines blocked |
+| `docker-kubernetes` | Cluster provisioning, Helm repo management, GitOps integration, node configuration | Containers have nowhere to run — platform unavailable |
+| `release-manager` | Infrastructure change risk assessment, migration rollback plan, environment availability | Releases can't proceed without environment readiness |
+| `site-reliability-engineer` | Alerting setup, runbook automation, deploy pipeline integration, error budget checks | SRE can't measure or enforce reliability without infrastructure integration |
+| `platform-engineer` | Infrastructure building blocks, IaC modules, cluster templates for golden paths | Platform has no foundation — developers can't self-serve |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

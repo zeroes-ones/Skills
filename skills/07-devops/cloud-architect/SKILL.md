@@ -1,17 +1,32 @@
 ---
 name: cloud-architect
-description: AWS, Azure, GCP architecture design, landing zones, multi-cloud strategy, cost optimization, IAM, networking, and serverless. Triggered by cloud, AWS, Azure, GCP, architecture, landing zone, multi-cloud, serverless, IAM, Well-Architected.
+description: AWS, Azure, GCP architecture design, landing zones, multi-cloud strategy, cost optimization, IAM, networking, and serverless. Triggered by cloud, AWS, Azure, GCP, architecture, landing zone,
+  multi-cloud, serverless, IAM, Well-Architected.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - cloud-architect
+- cloud-architect
 token_budget: 4000
+chain:
+  consumes_from:
+  - finops-engineer
+  - networking-engineer
+  - security-engineer
+  - system-architect
+  feeds_into:
+  - devops-engineer
+  - docker-kubernetes
+  - finops-engineer
+  - networking-engineer
+  - platform-engineer
+  - security-engineer
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Cloud Architect
 
@@ -28,6 +43,11 @@ What are you trying to do?
 ├── Optimize cloud costs (FinOps, right-sizing) → Go to "Multi-Cloud vs Single-Cloud Cost" and "Serverless Cost Traps"
 ├── Set up multi-region or HA architecture → Jump to "Core Workflow" — Phase 3 (Resilience & DR)
 ├── Review existing architecture (Well-Architected) → Jump to "Is This Overkill? Checklist" then "Production Checklist"
+├── Need infrastructure automation → Invoke `devops-engineer` skill instead
+├── Need container orchestration → Invoke `docker-kubernetes` skill instead
+├── Need reliability engineering → Invoke `site-reliability-engineer` skill instead
+├── Need internal developer platform → Invoke `platform-engineer` skill instead
+└── Not sure? → Start with the WAFR question checklist in Core Workflow Phase 1
 ├── Need CI/CD for cloud deployments → Invoke ci-cd-builder skill instead
 ├── Need security controls or IAM deep-dive → Invoke security-engineer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
@@ -239,43 +259,20 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `serverless-architecture` | Designing event-driven systems with Lambda, Cloud Run, or Azure Functions — cold starts, scaling, costs | This file — Serverless Cost Traps |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Cloud architects design the foundational infrastructure that all services run on. They coordinate with every engineering team for workload placement, DevOps for implementation, security for hardening, and finance for cost governance.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System topology, service boundaries, integration patterns, non-functional requirements | Before designing cloud landing zones or selecting managed services |
+| `networking-engineer` | Network topology, CIDR allocation, connectivity requirements, latency budgets | Before designing VPCs, subnets, or hybrid connectivity |
+| `security-engineer` | IAM least-privilege models, encryption standards, compliance control mappings | Before designing IAM policies, KMS key hierarchies, or security groups |
+| `finops-engineer` | Cost allocation tags, budget thresholds, commitment discount analysis, unit economics | Before provisioning resources or committing to reserved instances |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **DevOps Engineer** | Infrastructure provisioning, IaC implementation | Architecture diagrams, Terraform module design, landing zone requirements, deployment pipeline integration |
-| **Backend Developer** | Service deployment, managed service selection | Workload characteristics (CPU/memory/I/O profile), managed vs self-managed trade-off analysis, latency budgets |
-| **Security Engineer** | IAM design, network security, encryption, compliance | Least-privilege IAM roles, VPC security group design, KMS key policies, compliance control mapping to cloud services |
-| **Docker/Kubernetes Specialist** | Cluster architecture, node management, service mesh | EKS/GKE/AKS configuration, node group design, cluster autoscaler, CNI plugin selection |
-| **Data Engineer** | Data storage architecture, analytics infrastructure | RDS vs Redshift vs Snowflake trade-offs, Spark on EMR vs Glue vs Databricks, streaming (Kinesis vs MSK) |
-| **Observability Engineer** | Cloud-native monitoring, logging infrastructure | CloudWatch/Cloud Monitoring setup, centralized logging architecture, cost monitoring dashboards |
-| **CI/CD Builder** | Cloud auth for pipelines, deployment integration | OIDC provider setup, IAM roles for GitHub Actions/GitLab CI, artifact storage (ECR, Artifact Registry) |
-| **Compliance Officer** | Data residency, compliance certification scope | Region restrictions, encryption requirements, audit trail completeness, compliance evidence from cloud APIs |
-| **Finance/Business** | Cloud budget, FinOps, commitment discounts | Cost allocation tags, RI/SP recommendations, budget alert thresholds, monthly cloud spend review |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| New AWS/GCP/Azure service being evaluated for production | DevOps, Security Engineer, Affected teams | Security review, cost modeling, operational readiness assessment |
-| Cloud provider outage or degradation | DevOps, Incident Responder, All service owners | Impact assessment; failover activation if multi-region |
-| Architecture decision record (ADR) proposed | All engineering stakeholders | Review and comment before acceptance |
-| Cost anomaly >50% of monthly forecast | DevOps, Finance, Affected team | Immediate investigation; resource cleanup or budget increase |
-| Security finding from cloud posture management (AWS Config, Security Command Center) | Security Engineer, DevOps | Remediation; may indicate misconfiguration or compromise |
-| RI/SP commitment decision (>$10K/yr) | Finance, CTO | Purchase approval; budget allocation |
-
-### Escalation Path
-
-```
-Cloud provider outage affecting production? → DevOps → Incident Responder → CTO
-Security control failure (open S3 bucket, public RDS)? → Security Engineer → Compliance Officer
-Cost overrun threatening budget? → Finance → CTO
-Architecture decision deadlock? → CTO Advisor
-Cross-cloud migration decision? → CTO Advisor → CEO Strategist
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | Landing zone architecture, Terraform module design, IAM role specifications | Infrastructure provisioning blocked — nothing can be deployed |
+| `docker-kubernetes` | Node group design, cluster networking, service mesh architecture, autoscaling config | Cluster architecture decisions stall — containers can't launch |
+| `site-reliability-engineer` | Multi-region HA design, failover architecture, RPO/RTO targets, capacity forecasts | Reliability targets can't be met without resilient infrastructure |
+| `platform-engineer` | Landing zone integration, network topology, IAM guardrails for self-service | Platform can't enforce cloud governance — shadow IT risk |
 
 
 **What good looks like:** Architecture diagram with all services, data flows, and network boundaries. Multi-region failover tested and documented. Cost projection within 10% of actual for 3 consecutive months. Every service has SLO with error budget.

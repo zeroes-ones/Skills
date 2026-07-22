@@ -1,29 +1,46 @@
 ---
 name: embedded-engineer
-description: "Embedded systems engineering: MCU/MPU selection (ARM Cortex-M/R/A, RISC-V, ESP32, nRF, STM32), RTOS configuration (FreeRTOS, Zephyr, ThreadX), peripheral interfaces (SPI, I2C, UART, CAN, USB), memory-constrained patterns, power management, bootloader design, HIL testing, real-time constraints, and safety-critical design. Trigger: MCU, RTOS, bare-metal, SPI, I2C, FreeRTOS, Zephyr, bootloader, JTAG, SWD, watchdog, BSP, power profile."
+description: 'Embedded systems engineering: MCU/MPU selection (ARM Cortex-M/R/A, RISC-V, ESP32, nRF, STM32), RTOS configuration (FreeRTOS, Zephyr, ThreadX), peripheral interfaces (SPI, I2C, UART, CAN, USB),
+  memory-constrained patterns, power management, bootloader design, HIL testing, real-time constraints, and safety-critical design. Trigger: MCU, RTOS, bare-metal, SPI, I2C, FreeRTOS, Zephyr, bootloader,
+  JTAG, SWD, watchdog, BSP, power profile.'
 author: Sandeep Kumar Penchala
 type: hardware
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - embedded-engineer
-  - hardware
-  - mcu
-  - rtos
-  - firmware
+- embedded-engineer
+- hardware
+- mcu
+- rtos
+- firmware
 token_budget: 3500
 dependencies:
-  tools: [arm-none-eabi-gcc, cmake, openocd, logic-analyzer, power-profiler]
-  packages: [python3, pyserial]
+  tools:
+  - arm-none-eabi-gcc
+  - cmake
+  - openocd
+  - logic-analyzer
+  - power-profiler
+  packages:
+  - python3
+  - pyserial
   permissions: []
 output:
-  type: "code+config"
-  path_hint: "firmware/"
+  type: code+config
+  path_hint: firmware/
 chain:
-  consumes_from: ["hardware-architect", "system-architect"]
-  feeds_into: ["firmware-developer", "qa-engineer", "security-engineer"]
-  alternatives: ["firmware-developer"]
+  consumes_from:
+  - backend-developer
+  - firmware-developer
+  - hardware-architect
+  feeds_into:
+  - firmware-developer
+  - hardware-architect
+  - performance-engineer
+  - qa-engineer
+  alternatives:
+  - firmware-developer
 ---
 # Embedded Engineer
 
@@ -50,6 +67,12 @@ What are you trying to do?
 │   ├── Hardware-in-the-loop setup → "Core Workflow" Phase 4
 │   ├── JTAG/SWD debugging → references/debugging-toolchain.md
 │   └── Field failure analysis → "Error Decoder"
+├── CROSS-SKILL ROUTING
+│   ├── Need hardware architecture decisions (SoC, PCB, power tree)? → Invoke `hardware-architect`
+│   ├── Need firmware/BSP/bootloader/OTA implementation? → Invoke `firmware-developer`
+│   ├── Need backend/cloud integration? → Invoke `backend-developer`
+│   ├── Need QA/HIL testing infrastructure? → Invoke `qa-engineer`
+│   └── Need performance/power optimization? → Invoke `performance-engineer`
 └── Not sure? → Describe the board, power budget, and real-time requirements
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -333,6 +356,17 @@ Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA /
 # Architecture → Embedded bring-up → Firmware → QA
 /hardware-architect && /embedded-engineer && /firmware-developer && /qa-engineer
 ```
+
+**Decision Gates & Handoff Artifacts:**
+- **Silicon selection gate:** MCU/MPU selection must pass: (1) peripheral count check (all required interfaces available simultaneously), (2) power budget fit (<80% of PMIC capacity), (3) flash/RAM headroom >30%, (4) lifecycle guarantee (not NRND/EOL). Artifact: MCU selection matrix with scored criteria.
+- **Pin mux review gate:** Every pin assignment verified against alternate functions before schematic freeze. Pin conflict = PCB respin. Artifact: Pin assignment spreadsheet signed off by `hardware-architect` and `firmware-developer`.
+- **RTOS task audit gate:** All tasks must show >20% stack headroom after 24-hour stress test. Zero priority inversions. Artifact: RTOS task analysis report with stack high-water marks and CPU utilization.
+- **Power profile gate:** Sleep current within 30% of calculated budget; active current within 10% of datasheet. Exceeding = leakage or misconfiguration. Artifact: Power profiler trace with annotated power states.
+- **Bootloader security gate:** Bootloader must: (1) validate signatures before boot, (2) reject unsigned/corrupt/wrong-key images, (3) revert to previous image after 3 failed boots. All verified on hardware. Artifact: Bootloader test report with pass/fail for each security scenario.
+- **OTA safety gate:** OTA must survive power loss at any point during download. Device always boots valid image (old or new, never corrupted). Brick rate >0.1% = halt rollout. Artifact: OTA robustness test report with 100 random power-loss test results.
+- **Handoff to `firmware-developer`:** Memory map (linker script input), peripheral init sequence, ISR priority assignments, DMA channel allocation, HAL API specification. Artifact: BSP handoff package with all register-level documentation.
+- **Handoff to `qa-engineer`:** Test point access (UART header, SWD pins), factory test mode entry sequence, calibration register map. Artifact: HIL test specification with pass/fail thresholds.
+- **Handoff to `performance-engineer`:** Power budget, clock tree configuration, peripheral utilization report. Artifact: Power and performance baseline report.
 
 ## What Good Looks Like
 <!-- DEEP: 10+min — concrete success criteria for every phase -->

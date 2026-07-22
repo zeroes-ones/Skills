@@ -1,17 +1,30 @@
 ---
 name: idea-to-spec
-description: "Transform raw product ideas into structured PRDs, data models, API contracts, screen definitions, and work items. Use when converting napkin sketches, feature requests, or brainstorming notes into actionable engineering specs. Triggered by spec this out, write a PRD from this idea, formalize this feature, idea to spec."
+description: Transform raw product ideas into structured PRDs, data models, API contracts, screen definitions, and work items. Use when converting napkin sketches, feature requests, or brainstorming notes
+  into actionable engineering specs. Triggered by spec this out, write a PRD from this idea, formalize this feature, idea to spec.
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - idea-to-spec
+- idea-to-spec
+chain:
+  consumes_from:
+  - product-manager
+  - system-architect
+  - ui-ux-designer
+  - ux-researcher
+  feeds_into:
+  - api-designer
+  - backend-developer
+  - database-designer
+  - frontend-developer
+  - qa-engineer
 token_budget: 2190
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Idea to Spec
 
@@ -27,6 +40,10 @@ What are you trying to do?
 ├── Screen inventory and interaction definitions → Jump to "Core Workflow > Phase 4"
 ├── User story mapping and work breakdown → Go to "Core Workflow > Phase 5"
 ├── Stakeholder asks for a formal spec before sprint planning → Jump to "Decision Trees > Spec Depth Decision"
+├── Need feature prioritization or backlog grooming? → `product-manager`
+├── Need user research or persona validation? → `ux-researcher`
+├── Need system architecture design or service boundaries? → `system-architect`
+├── Need UI components or design handoff? → `ui-ux-designer`
 └── Don't know where to start? → Start at Phase 1 (Discovery & Scoping)
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -98,42 +115,41 @@ Slice the spec into vertically deliverable user stories. Each story must be inde
 <!-- QUICK: 30s -- table of who to talk to when -->
 Converting an idea into a spec is inherently collaborative — it synthesizes product intent, design thinking, and engineering reality. A spec written in isolation produces three things: rework, frustration, and missed deadlines.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `product-manager` | Prioritized backlog, RICE scores, user stories, success metrics, stakeholder constraints | During feature kickoff; before scope trade-off decisions |
+| `ux-researcher` | User personas, journey maps, research findings, mental models, task flows, pain point evidence | Before writing acceptance criteria; when user flow ambiguity exists |
+| `system-architect` | Architecture constraints, service boundaries, API conventions, data flow direction, performance budgets | When designing new services or cross-service features; before API contract design |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Product Manager / Product Strategist** | Feature kickoff, scope trade-offs, priority conflicts | PRD, success metrics, user segments, MVP scope, stakeholder constraints |
-| **UX Researcher** | User flow ambiguity, persona questions, edge case discovery | Research findings, user behavior data, usability test results, accessibility requirements |
-| **System Architect** | New service, cross-service feature, data model changes | Architecture constraints, service boundaries, API contracts, data flow direction |
-| **API Designer** | New endpoints, endpoint changes, API contract design | Request/response schemas, error codes, idempotency requirements, pagination needs |
-| **Frontend Developer** | Screen design, component requirements, state management | Screen states (loading/empty/error/edge), interaction patterns, accessibility specs |
-| **Backend Developer** | Data model, business logic, integration points | Domain rules, validation rules, error handling strategy, performance requirements |
-| **QA Engineer** | Acceptance criteria refinement, test planning | Test scenarios, edge cases, expected vs actual behavior, regression risk areas |
-| **Security Reviewer** | Auth flows, data handling, payment features, PII exposure | Data classification, threat surfaces, auth requirements, compliance constraints |
-| **Database Designer** | New entities, schema changes, query patterns | Access patterns, data volume projections, consistency requirements |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `api-designer` | Endpoint inventory, request/response schemas, error codes, idempotency requirements, pagination needs | API contracts are inconsistent — integration bugs and rework |
+| `frontend-developer` | Screen inventory with loading/empty/error/edge states, interaction specs, accessibility requirements | Devs discover edge cases mid-sprint — missed deadlines |
+| `backend-developer` | Domain model, data dictionary, business rules, validation logic, performance requirements | Business logic gaps found during implementation — sprints slip |
+| `database-designer` | Entity relationship diagram, access patterns, data volume projections, consistency requirements | Schema must be reworked after implementation — data migrations cascade |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Scope change after spec approved | Product Manager, Engineering Lead, QA | Sprint replanning, capacity reallocation, timeline impact |
-| API contract change during spec | API Designer, Frontend Dev, Backend Dev, QA | Contract versioning, mock updates, test case changes |
-| New dependency discovered (external service, data pipeline) | System Architect, Backend Dev, Product Manager | Integration complexity, timeline risk, architectural review |
-| Ambiguity in acceptance criteria flagged by QA | Product Manager, Engineering Lead | Clarification needed before implementation proceeds |
-| Cross-team dependency identified late | Product Manager, System Architect, impacted teams | Dependency sequencing, parallelization opportunities, blocker resolution |
-| Performance requirement exceeds known system capacity | System Architect, Backend Dev, Performance Engineer | Architecture review, caching strategy, load testing plan |
+| Scope change after spec approved | `product-manager`, `engineering-manager`, `qa-engineer` | Sprint replanning, capacity reallocation, timeline impact |
+| API contract change during spec | `api-designer`, `frontend-developer`, `backend-developer`, `qa-engineer` | Contract versioning, mock updates, test case changes |
+| New dependency discovered (external service, data pipeline) | `system-architect`, `backend-developer`, `product-manager` | Integration complexity, timeline risk, architectural review |
+| Ambiguity in acceptance criteria flagged by QA | `product-manager`, `engineering-manager` | Clarification needed before implementation proceeds |
+| Cross-team dependency identified late | `product-manager`, `system-architect` | Dependency sequencing, parallelization opportunities, blocker resolution |
+| Performance requirement exceeds known system capacity | `system-architect`, `backend-developer` | Architecture review, caching strategy, load testing plan |
 
 ### Escalation Path
 
 ```
 Spec blocked (unresolved ambiguity, missing stakeholder, scope conflict)
-  └── Product Manager + Engineering Lead. Resolution within 24 hours or escalation to CTO.
+  └── `product-manager` + `engineering-manager`. Resolution within 24 hours or escalation to `cto-advisor`.
 
 Architecture conflict (spec requires pattern that violates architecture principles)
-  └── System Architect + CTO Advisor. Decision documented as ADR. Spec updated or exception granted.
+  └── `system-architect` + `cto-advisor`. Decision documented as ADR. Spec updated or exception granted.
 
 Cross-team dependency deadlock (two teams block each other)
-  └── Product Manager + Engineering Leads of both teams. CTO breaks ties if unresolved in 48 hours.
+  └── `product-manager` + engineering leads of both teams. `cto-advisor` breaks ties if unresolved in 48 hours.
 ```
 
 ## Best Practices

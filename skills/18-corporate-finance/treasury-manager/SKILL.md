@@ -21,13 +21,17 @@ output:
   path_hint: "treasury/"
 chain:
   consumes_from:
-    - ceo-strategist
-    - fp-and-a-analyst
-    - legal-advisor
-  feeds_into:
     - fp-and-a-analyst
     - accountant
+    - ceo-strategist
+    - legal-advisor
+    - investor-relations
+  feeds_into:
+    - accountant
+    - fp-and-a-analyst
+    - ceo-strategist
     - board-manager
+    - investor-relations
 ---
 
 # Treasury Manager — Startup Cash & Risk Operations
@@ -56,6 +60,11 @@ What are you trying to do?
 ├── Buy insurance → Go to "Decision Trees > Insurance Coverage"
 ├── Manage the cap table → Jump to "Cap Table Operations"
 ├── Survive a cash crunch → Go to "Core Workflow > Phase 5: Liquidity Crisis"
+├── Need bookkeeping or month-end close? → Invoke `accountant` for reconciliations, AP/AR, and financial statements
+├── Need financial models or forecasting? → Invoke `fp-and-a-analyst` for operating models and scenario planning
+├── Need board governance or reporting? → Invoke `board-manager` for board package cash section and fiduciary oversight
+├── Need legal review of debt facilities? → Invoke `legal-advisor` for contract review and covenant negotiation
+├── Preparing for investor updates? → Invoke `investor-relations` for cash narrative and capital efficiency metrics
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Daily Cash Operations"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -253,6 +262,18 @@ For startups with multi-currency operations (international customers, overseas t
 - **Quarterly:** Banking relationship review; KYC refresh; insurance policy audit; 409A trigger check
 - **Pre-Fundraising:** Bank partner selection for incoming wire; fraud prevention briefing for team
 - **Emergency:** Bank freeze — contact relationship manager within 1 hour; wire fraud — bank fraud department within 30 minutes
+
+**Decision Gates & Handoff Artifacts:**
+- **Cash visibility gate:** All bank accounts reconciled daily. Any unreconciled balance >$5K flagged for immediate investigation. Artifact: Daily cash position dashboard with all account balances and FDIC/SIPC coverage status.
+- **Fraud prevention gate:** Every payment >threshold ($10K seed, $50K growth) requires dual approval. No exceptions for "CEO is traveling." Artifact: Dual-approval log with timestamps and approver identities.
+- **Banking concentration gate:** Cash must be split across ≥2 banking relationships. Single-bank concentration = SVB-level risk. Artifact: Banking relationship summary with account types, balances, and FDIC coverage.
+- **Venture debt covenant gate:** Actual cash must be ≥2x covenant minimum. Covenant breach = lender control. Report potential breaches 30 days BEFORE they occur. Artifact: Covenant compliance tracker with headroom calculation.
+- **Wire verification gate:** Never change vendor banking details based on email alone. Call vendor at independently verified number. 48-hour cooling period before new account goes active. Artifact: Vendor bank change verification form with verbal confirmation record.
+- **Insurance coverage gate:** Annual policy review with broker confirming top 5 risks are covered in writing. Broker's oral assurance is not binding. Artifact: Insurance coverage confirmation email from broker listing key coverages and exclusions.
+- **Handoff to `accountant`:** Daily bank statements, wire confirmations, investment account statements, debt schedule. Artifact: Cash proof package with all supporting documents for month-end close.
+- **Handoff to `fp-and-a-analyst`:** Actual cash position, bank balances by account, debt covenant status, FX rates. Artifact: Weekly cash actuals update for model refresh.
+- **Handoff to `board-manager`:** Cash position summary, runway calculation, covenant compliance status. Artifact: Board cash appendix with trend charts and commentary.
+- **Handoff to `investor-relations`:** Cash balance, cash burn trend, months of runway, capital efficiency metrics. Artifact: Investor cash summary slide with forward-looking guidance.
 
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->

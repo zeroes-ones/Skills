@@ -1,17 +1,30 @@
 ---
 name: mobile-developer
-description: "Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android."
+description: 'Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app
+  store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - mobile-developer
+- mobile-developer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - accessibility-testing
+  - api-designer
+  - backend-developer
+  - localization-engineer
+  - ui-ux-designer
+  feeds_into:
+  - localization-engineer
+  - qa-engineer
+  - security-reviewer
+  - translation-manager
 ---
 # Mobile Developer
 
@@ -29,6 +42,12 @@ What are you trying to do?
 ├── Optimize performance (60fps, cold start, memory) → Jump to "Core Workflow > Phase 5 (Performance)"
 ├── Submit to App Store or Google Play → Go to "Production Checklist > App Store Submission"
 ├── Cross-platform from scratch (React Native/Flutter) → Start at "Decision Trees" then follow Core Workflow
+├── Need API contract for mobile → Invoke api-designer skill instead
+├── Need backend API for mobile → Invoke backend-developer skill instead
+├── Need mobile UI/UX design → Invoke ui-ux-designer skill instead
+├── Need security review of mobile → Invoke security-reviewer skill instead
+├── Need QA for mobile testing → Invoke qa-engineer skill instead
+├── Need localization for mobile → Invoke localization-engineer skill instead
 └── Don't know where to start? → Describe your app idea and platform targets and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -540,30 +559,27 @@ Tag release → Production build → Store submission
 - Performance regression: measure cold start time and scroll FPS in CI. Fail the build if cold start exceeds 2s or average scroll FPS drops below 58.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Mobile development spans platform-specific concerns, API consumption, push infrastructure, and app store compliance. Coordination with backend, design, security, and release management is continuous.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `api-designer` | OpenAPI 3.1 spec optimized for mobile (response size budgets, delta updates, partial responses), auth scheme | Before building API-consuming screens; contract-first approach |
+| `ui-ux-designer` | iOS HIG vs Material Design 3 guidance, screen mockups, gesture design, platform-specific interaction patterns | Before implementing UI; platform convention compliance |
+| `backend-developer` | API implementation with mobile-specific concerns, push notification payloads, batch endpoints | Before integrating with backend; ensures mobile-specific optimizations exist |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | API contract design, push notification payloads | Latency constraints on mobile networks, batch endpoints to reduce round trips, payload size limits (4KB APNs) |
-| **Frontend Developer** | Cross-platform consistency, shared design tokens | Responsive-to-mobile design mapping, shared component patterns, navigation parity |
-| **UI/UX Designer** | Platform conventions, gesture design | iOS HIG vs Material Design 3 differences, safe area requirements, platform-specific interaction patterns |
-| **Security Engineer** | Certificate pinning, secure storage, auth | Biometric auth implementation, Keychain/Keystore patterns, token refresh on mobile, jailbreak/root detection |
-| **DevOps Engineer** | CI/CD for app stores, OTA updates | Code signing automation, TestFlight/Internal Testing setup, build matrix (iOS + Android), environment configs |
-| **QA Engineer** | Device matrix testing, E2E automation | Device coverage plan (low-end + high-end), Maestro/Detox configuration, offline/connectivity test scenarios |
-| **Observability Engineer** | Crash reporting, performance monitoring | Crashlytics/Sentry integration, cold start timing, network error tracking, ANR detection thresholds |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `qa-engineer` | Device coverage plan (low-end + high-end), Maestro/Detox configuration, offline/connectivity test scenarios | QA can't test without the mobile build and test harness |
+| `security-reviewer` | Biometric auth implementation, Keychain/Keystore patterns, certificate pinning, jailbreak/root detection | Security review can't assess mobile-specific threats without implementation |
+| `localization-engineer` | Platform-specific locale files, App Store/Play Store metadata, mobile formatting constraints | Localization pipeline can't process mobile strings in isolation |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | API version deprecation announced | Backend Developer | Retire old API surface; update mobile client with migration window |
 | New push notification type added | Backend, Product Strategist | Payload design, deep-link routing, opt-in/opt-out UX |
 | App Store review rejection | DevOps, Legal Advisor | Policy compliance fix, resubmission timeline |
 | New permission required (camera, location, health) | Security Engineer, UI/UX Designer | Permission rationale dialog, denial handling, privacy review |
-| Binary size exceeds App Store limit | Backend (if shared code), DevOps | Asset optimization, code splitting, on-demand resources |
 | Critical crash rate spike (>1% sessions) | QA Engineer, Observability | Immediate investigation, potential hotfix release |
 
 ### Escalation Path

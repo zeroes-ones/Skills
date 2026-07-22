@@ -1,17 +1,46 @@
 ---
 name: frontend-developer
-description: "React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility."
+description: 'React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger:
+  frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - frontend-developer
+- frontend-developer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - accessibility-auditor
+  - accessibility-testing
+  - algorithmic-trader
+  - api-designer
+  - backend-developer
+  - brand-guidelines
+  - code-reviewer
+  - idea-to-spec
+  - llm-engineer
+  - localization-engineer
+  - monorepo-manager
+  - platform-engineer
+  - staff-engineer
+  - ui-ux-designer
+  - ux-researcher
+  - ux-writer
+  feeds_into:
+  - accessibility-auditor
+  - code-reviewer
+  - devrel-advocate
+  - fullstack-developer
+  - growth-engineer
+  - localization-engineer
+  - qa-engineer
+  - seo-specialist
+  - translation-manager
 ---
 # Frontend Developer
 
@@ -28,6 +57,12 @@ What are you trying to do?
 ├── Debug a rendering issue or fix a bug → Jump to "Production Checklist" — verify patterns, then Phase 4
 ├── Designing the UI or UX → Invoke ui-ux-designer skill instead
 ├── Need a backend API → Invoke backend-developer skill instead
+├── Need API contract design → Invoke api-designer skill instead
+├── Need fullstack feature delivery → Invoke fullstack-developer skill instead
+├── Need accessibility audit → Invoke accessibility-auditor skill instead
+├── Need SEO optimization → Invoke seo-specialist skill instead
+├── Need code review → Invoke code-reviewer skill instead
+├── Need localization/i18n → Invoke localization-engineer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -654,32 +689,30 @@ test('shows loading skeleton while fetching', async () => {
 - Use `page.route()` to mock API responses when testing error states (network failure, server error) — don't depend on real server errors.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Frontends consume APIs, render designs, and deliver user experiences — coordination with backend, design, and platform teams is continuous. Poor coordination manifests as mismatched contracts, broken UIs, and missed performance targets.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `api-designer` | OpenAPI 3.1 spec, type-safe SDK, error response formats, pagination conventions | Before building any API-consuming component; ensures contract alignment |
+| `ui-ux-designer` | Design system, wireframes, mockups, interaction patterns, responsive breakpoints | Before implementing any UI component; design-to-code handoff |
+| `backend-developer` | API implementation, type definitions, validation schemas, auth token patterns | Before integrating with backend APIs; ensures data shapes match |
+| `ux-researcher` | User personas, accessibility requirements, behavior flows, usability test results | Before making UX decisions that impact diverse user groups |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | API contract creation/changes | OpenAPI spec review, field shape expectations, error response formats, pagination conventions |
-| **Fullstack Developer** | Shared monorepo, Next.js/Remix features | Component APIs, server action signatures, shared type packages, middleware behavior |
-| **Mobile Developer** | Cross-platform consistency | Design token alignment, navigation patterns, shared user flows, responsive breakpoint mapping |
-| **UI/UX Designer** | Design handoff, feasibility review | Component complexity estimates, animation feasibility, responsive behavior, accessibility requirements |
-| **QA Engineer** | E2E test scenarios, visual regression | Test IDs (data-testid), critical user paths, edge case states (loading, error, empty), accessibility test cases |
-| **Observability Engineer** | Core Web Vitals, RUM setup | Custom metrics, performance budgets, trace context propagation, error boundary telemetry |
-| **Security Reviewer** | CSP headers, XSS prevention, auth flows | Content-Security-Policy requirements, sanitization approach, token storage patterns, CSRF protection |
-| **DevOps Engineer** | Build/deploy pipeline, CDN config | Static asset caching headers, environment variable needs, SSR server sizing, edge function limits |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `fullstack-developer` | Component APIs, server action signatures, shared type packages, middleware behavior | Fullstack can't wire frontend to backend without component contracts |
+| `qa-engineer` | Test IDs (data-testid), critical user paths, edge case states (loading/error/empty), accessibility test cases | QA can't author E2E tests without UI implementation |
+| `accessibility-auditor` | WCAG 2.2 AA implementation, semantic HTML, ARIA labels, keyboard navigation, focus management | Auditor can only report issues without source to verify fixes |
+| `seo-specialist` | SSR/SSG strategy, meta tags, structured data, hreflang implementation, Core Web Vitals | SEO recommendations can't be implemented without frontend capability |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | API contract breaking change needed | Backend, Fullstack, Mobile | Coordinate deprecation timeline; version API or migrate consumers |
-| New third-party script/service added | Security Reviewer, Observability | CSP update, performance impact assessment, PII exposure review |
 | Design system token change | UI/UX Designer, Mobile | Consistent visual language across platforms |
 | Core Web Vitals regression detected | Observability, Backend (if API latency is cause) | Joint investigation — is it frontend bundle, API response, or rendering? |
-| New route requiring SSR/SSG decision | Backend, DevOps | Deploy configuration, cache strategy, CDN rules |
 | Bundle size spike (>20%) | All developers | Identify cause — unoptimized dependency, duplicate import, missing tree shaking |
+| New third-party script/service added | Security Reviewer, Observability | CSP update, performance impact assessment, PII exposure review |
 
 ### Escalation Path
 

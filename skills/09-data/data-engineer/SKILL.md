@@ -1,17 +1,32 @@
 ---
 name: data-engineer
-description: ETL/ELT pipelines, data architecture (medallion/data mesh/lakehouse), data modeling (star/snowflake/data vault), dbt/Airflow/Spark/Kafka, data quality (Great Expectations/WAP), data governance, streaming (Kafka/Flink), and performance optimization. Triggered by ETL, data warehouse, Spark, Airflow, Kafka, data pipeline, data modeling, data quality, CDC, data mesh.
+description: ETL/ELT pipelines, data architecture (medallion/data mesh/lakehouse), data modeling (star/snowflake/data vault), dbt/Airflow/Spark/Kafka, data quality (Great Expectations/WAP), data governance,
+  streaming (Kafka/Flink), and performance optimization. Triggered by ETL, data warehouse, Spark, Airflow, Kafka, data pipeline, data modeling, data quality, CDC, data mesh.
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - data-engineer
+- data-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+  - backend-developer
+  - clinical-informatics-specialist
+  - database-designer
+  - database-reliability-engineer
+  feeds_into:
+  - analytics-engineer
+  - business-intelligence-engineer
+  - data-scientist
+  - database-reliability-engineer
+  - market-data-engineer
+  - ml-ai-engineer
+  - mlops-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Data Engineer
 
@@ -44,6 +59,10 @@ What are you trying to do?
 ├── Optimize query performance → Jump to "Best Practices" — partitioning, clustering, materialized views
 ├── Need ML models on this data → Invoke ml-ai-engineer skill instead
 ├── Need analytics or dashboards → Invoke data-analyst skill instead
+├── Need analytics and metrics → Invoke `analytics-engineer` skill instead
+├── Need statistical modeling → Invoke `data-scientist` skill instead
+├── Need ML feature pipelines → Invoke `ml-ai-engineer` skill instead
+├── Need database reliability → Invoke `database-reliability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -439,40 +458,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `data-governance` | Cataloging with DataHub/Amundsen, lineage tracking, PII handling, and retention policies |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Data engineers build the pipelines that feed analytics, ML, and product decisions. They coordinate with backend developers for data production, analytics engineers for transformation, ML engineers for feature stores, and DevOps for pipeline reliability.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `backend-developer` | Event payload schemas, data freshness expectations, CDC configuration, API rate limits | Before designing ingestion pipelines or CDC connectors |
+| `database-designer` | Schema designs, normalization decisions, SCD requirements, access patterns | Before building data models or transformation pipelines |
+| `database-reliability-engineer` | Replication slot management, WAL disk usage, query impact analysis, read replica availability | Before configuring CDC or connecting to production replicas |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Event schema design, CDC setup, webhook data sources | Event payload schemas, data freshness expectations, database change capture configuration, API rate limits |
-| **Analytics Engineer** | Data model design, dbt transformation handoff | Raw data schemas, freshness SLAs, data dictionary, PII classification per column, partitioning strategy |
-| **ML/AI Engineer** | Feature store population, training data pipelines | Feature computation schedules, point-in-time correctness requirements, historical backfill capabilities, embedding storage |
-| **DevOps Engineer** | Pipeline infrastructure, Airflow/Dagster deployment | Compute requirements (Spark clusters, K8s pods), secret management for data source connections, monitoring and alerting setup |
-| **Observability Engineer** | Pipeline monitoring, data quality alerting | Pipeline metrics (lag, row count, freshness), data quality check results, cost metrics for warehouse/Spark |
-| **Security Engineer** | Data access controls, PII handling | Column-level access policies, encryption requirements, data masking for non-production, audit logging for data access |
-| **Compliance Officer** | Data retention, right-to-deletion, cross-border transfers | Retention policy implementation, DSAR automation (data subject access), data residency enforcement, GDPR Article 30 records |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Source schema change (new/removed column, type change) | Analytics Engineer, ML Engineer | Update downstream models; prevent pipeline breakage |
-| Pipeline failure (data not delivered within SLA) | Analytics Engineer, ML Engineer, Observability | SLA breach; downstream dashboards/training jobs stale |
-| PII discovered in non-PII-designated column | Security Engineer, Compliance Officer | Data classification update; access control review; potential breach assessment |
-| Data quality check failure (null rate spike, row count anomaly) | Backend Developer (if source issue), Analytics Engineer | <!-- DEEP: 10+min -->
-Root cause: source data bug or pipeline regression? |
-| Major backfill required (>7 days of historical data) | Analytics Engineer, ML Engineer, DevOps | Compute cost estimate; coordination on backfill window |
-
-### Escalation Path
-
-```
-Data pipeline down (production)? → DevOps Engineer → Incident Responder (if SEV2+)
-PII exposure in data pipeline? → Security Engineer → Compliance Officer
-Cross-team schema conflict? → System Architect → Data governance council
-Pipeline cost overrun? → Cloud Architect (FinOps) → CTO Advisor
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `analytics-engineer` | Raw data schemas, freshness SLAs, data dictionary, PII classification, partitioning strategy | Analytics can't build models — dashboards show stale data |
+| `data-scientist` | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks | Scientists can't access reliable data — experiments invalid |
+| `ml-ai-engineer` | Feature computation schedules, point-in-time correctness, historical backfill, embedding storage | ML models can't train — feature pipelines empty |
+| `business-intelligence-engineer` | Clean data warehouse tables, query performance optimization, data catalog with lineage | BI reports can't run — business decisions on hold |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

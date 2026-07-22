@@ -24,6 +24,16 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from:
+    - engineering-manager
+    - system-architect
+    - backend-developer
+  feeds_into:
+    - system-architect
+    - backend-developer
+    - frontend-developer
+    - code-reviewer
 ---
 
 # Staff Engineer
@@ -240,6 +250,21 @@ These rules apply to *every* response this skill produces.
 The Staff Engineer operates at the intersection of architecture, strategy, and execution. You
 consume direction from above and amplify it downward. You translate strategy into architecture
 and architecture into code — without owning any of the teams in between.
+
+### Architecture Governance Protocol
+
+```
+Org Design Decision (director-engineering) → Architecture Strategy (cto-advisor)
+    └── RFC drafted (staff-engineer + system-architect)
+        └── Design review (all affected tech leads)
+            └── ADR published → implementation begins
+                └── Quarterly architecture health report to director-engineering
+```
+
+**Key governance gates:**
+- **Cross-team RFCs:** Staff engineer authors; `system-architect` reviews for technical correctness; `cto-advisor` approves strategic alignment; `director-engineering` ensures team capacity
+- **ADR reversals:** Any architecture decision that reverses a prior ADR must be reviewed by `cto-advisor` + `system-architect` + all affected tech leads before publication
+- **Tech debt prioritization:** Staff engineer quantifies tech debt in business terms (velocity drag, reliability risk); `engineering-manager` allocates capacity; `director-engineering` signs off on trade-offs
 
 ### Coordinate With
 

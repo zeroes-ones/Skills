@@ -1,17 +1,30 @@
 ---
 name: localization-engineer
-description: "i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
+description: 'i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration
+  (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation.
+  Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - localization-engineer
+- localization-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - frontend-developer
+  - mobile-developer
+  - translation-manager
+  - ux-writer
+  feeds_into:
+  - frontend-developer
+  - mobile-developer
+  - qa-engineer
+  - translation-manager
 ---
 # Localization / i18n-L10n Engineer
 
@@ -28,6 +41,11 @@ What are you trying to do?
 ├── Format dates, numbers, currencies per locale → Go to "references/icu-messageformat-guide.md"
 ├── Set up pseudolocalization testing in CI → Jump to "Core Workflow > Phase 4 (Pseudolocalization)"
 ├── Design locale detection (URL/subdomain/Accept-Language) → Go to "Decision Trees > Locale Detection Strategy"
+├── Need string translation management → Invoke translation-manager skill instead
+├── Need frontend i18n integration → Invoke frontend-developer skill instead
+├── Need mobile i18n integration → Invoke mobile-developer skill instead
+├── Need QA for locale testing → Invoke qa-engineer skill instead
+├── Need accessibility in multiple languages → Invoke accessibility-testing skill instead
 └── Don't know where to start? → Describe your app, target languages, and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -233,21 +251,18 @@ LOCALE DETECTION — How should we decide which language to show?
    - **Output**: Coverage dashboard. CI gate on coverage threshold.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When (Trigger) | What Info Flows |
+
+| Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
-| **Frontend Developer** | Component development, CSS architecture | i18n wrapper usage, RTL CSS patterns, locale-aware component API |
-| **Backend Developer** | API responses that contain user-facing text | Locale parameter in API, server-side formatting, error message externalization |
-| **Fullstack Developer** | SSR i18n, locale routing, cookie handling | Locale detection strategy, SSR-safe i18n initialization, hreflang tags |
-| **UI/UX Designer** | RTL mockups, layout with longer text, cultural imagery | RTL-flipped designs, text expansion allowances (30-50%), culturally appropriate icons/imagery |
-| **QA Engineer** | Locale testing, visual regression, pseudo-locale QA | Testing matrix (locales × devices × pages), visual diff baseline, pseudo-locale build |
-| **Content Strategist** | Marketing copy, tone of voice across locales | Transcreation guidelines (not literal translation), cultural sensitivity review, locale-specific campaigns |
-| **DevOps/CI-CD Builder** | Continuous localization pipeline | CI job for push/pull to TMS, deployment of locale files, cache invalidation for new translations |
-| **Accessibility Auditor** | Screen reader text, ARIA labels across languages | Translated ARIA attributes, RTL screen reader behavior, language attribute correctness |
-| **SEO Specialist** | hreflang implementation, localized SEO | hreflang tag accuracy, localized keyword strategy, duplicate content across locales |
-| **Legal Advisor / Compliance Officer** | Language requirements by jurisdiction | Quebec (French mandatory), EU (all official languages), Switzerland (DE/FR/IT), India (22 official languages) |
-| **Product Manager** | Locale launch prioritization | Market sizing per locale, translation cost estimates, locale launch calendar |
-| **Performance Engineer** | Lazy-loading translations, bundle size impact | Code-split by locale, measure translation bundle size, tree-shake unused translations |
+| `frontend-developer` | i18n wrapper usage, RTL CSS patterns, locale-aware component API, string extraction implementation | Before integrating i18n into components; ensures RTL readiness and proper key usage |
+| `mobile-developer` | Platform-specific locale files, App Store/Play Store metadata requirements, mobile formatting constraints | Before implementing mobile i18n; platform conventions differ |
+| `translation-manager` | String extraction config, TM schema, locale list, TMS API integration, glossary/termbase | Before setting up translation pipeline; ensures extraction format matches TMS expectations |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `qa-engineer` | Testing matrix (locales × devices × pages), visual diff baseline, pseudo-locale build | QA can't test localization without locale infrastructure |
+| `frontend-developer` | i18n library configuration, locale detection, RTL layout patterns, locale-aware component API | Frontend builds hardcoded strings — expensive retrofit |
+| `mobile-developer` | Mobile i18n framework setup, platform-specific locale files, offline translation support | Mobile ships single-language app — blocks international markets |
 
 ### Communication Triggers
 
@@ -259,7 +274,6 @@ LOCALE DETECTION — How should we decide which language to show?
 | Pseudo-localization CI job finds new hardcoded strings | Frontend Developer responsible for PR | Fix before merge; i18n regression |
 | RTL layout breaks on new feature | Frontend Developer, UI/UX Designer | Visual regression; fix or feature flag before release |
 | Legal requirement for a language not yet supported | Legal Advisor, Product Manager | Compliance gap; prioritize or document risk acceptance |
-| Translation memory shows 40%+ overlap with existing content | Content Strategist, TMS admin | Reuse existing translations; reduce cost and turnaround |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

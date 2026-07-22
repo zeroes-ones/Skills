@@ -1,31 +1,44 @@
 ---
 name: fp-and-a-analyst
-description: Financial planning & analysis for startups — 3-statement models, SaaS metrics, budgeting, variance analysis, scenario planning, fundraising modeling, board financials, unit economics, and headcount planning. Use when building financial models, preparing board decks, evaluating fundraising scenarios, or diagnosing SaaS metric health.
+description: Financial planning & analysis for startups — 3-statement models, SaaS metrics, budgeting, variance analysis, scenario planning, fundraising modeling, board financials, unit economics, and headcount
+  planning. Use when building financial models, preparing board decks, evaluating fundraising scenarios, or diagnosing SaaS metric health.
 author: Sandeep Kumar Penchala
 type: corporate-finance
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - fp-and-a
-  - financial-modeling
-  - saas-metrics
-  - budgeting
-  - fundraising
-  - corporate-finance
+- fp-and-a
+- financial-modeling
+- saas-metrics
+- budgeting
+- fundraising
+- corporate-finance
 token_budget: 3420
 output:
-  type: "spreadsheet"
-  path_hint: "models/"
+  type: spreadsheet
+  path_hint: models/
 chain:
   consumes_from:
-    - ceo-strategist
-    - business-strategist
-    - accountant
+  - accountant
+  - business-intelligence-engineer
+  - ceo-strategist
+  - finops-engineer
+  - hr-manager
+  - investor-relations
+  - product-strategist
+  - recruiting
+  - revops-manager
+  - treasury-manager
   feeds_into:
-    - ceo-strategist
-    - board-manager
-    - investor-relations
+  - accountant
+  - board-manager
+  - ceo-strategist
+  - finops-engineer
+  - investor-relations
+  - revops-manager
+  - treasury-manager
+  - vp-engineering
 ---
 
 # FP&A Analyst — The Startup Finance Engine
@@ -59,6 +72,11 @@ What are you trying to do?
 ├── Run scenarios → Go to "Core Workflow > Phase 4: Scenario Planning"
 ├── Model headcount → Jump to "Core Workflow > Phase 2: Headcount & OpEx"
 ├── Model a fundraise → Go to "Fundraising Modeling"
+├── Need actuals/closed books for your model? → Invoke `accountant` for GAAP financials and reconciliation
+├── Need cash position or runway data? → Invoke `treasury-manager` for actual cash balances and debt covenants
+├── Need investor materials packaged? → Invoke `investor-relations` for pitch deck and data room financials
+├── Preparing for a board meeting? → Invoke `board-manager` for board package structure and governance requirements
+├── Need engineering headcount planning? → Invoke `vp-engineering` for hiring plan and team structure input
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Model Architecture"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -266,6 +284,17 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 - **Quarterly:** Re-forecast with all upstream inputs; board financial package; investor update draft
 - **Pre-Fundraising:** Full operating model rebuild with CEO input; scenario analysis (bull/base/bear)
 - **Annually:** Annual budget with bottoms-up department builds; compensation benchmarking; pricing model review
+
+**Decision Gates & Handoff Artifacts:**
+- **Model integrity gate:** Every model must reproduce last 12 months of actuals within 5% before it can be used for forecasting. Artifact: Model-vs-actuals reconciliation sheet with variance explanations.
+- **Top-down/bottom-up reconciliation gate:** TAM-based revenue forecast must reconcile with bottoms-up (reps × quota × attainment) within 10%. Gap >10% = assumption error. Artifact: Reconciliation bridge document.
+- **Scenario plausibility gate:** Every scenario must name the specific conditions under which it materializes (e.g., "conversion improves from 3% to 5% due to new onboarding flow"). "Everything goes perfectly" is not a scenario. Artifact: Scenario assumption document with named drivers.
+- **Cash runway gate:** 13-week cash forecast must show runway ≥12 months in base case, ≥6 months in bear case. Shorter runway triggers fundraising preparation. Artifact: Cash runway tracker updated every Friday.
+- **Board package gate:** Financial appendix must include: P&L forecast, cash runway, ARR bridge, headcount plan, burn multiple, and variance commentary. Package delivered 7 days before board meeting. Artifact: Board financial appendix with CEO-reviewed commentary.
+- **Handoff to `ceo-strategist`:** Operating model with bull/base/bear scenarios; valuation model; strategic initiative ROI analysis. Artifact: CEO briefing deck with key assumptions highlighted.
+- **Handoff to `board-manager`:** Board financial package with all required sections and variance analysis. Artifact: Board-ready financial appendix in board template format.
+- **Handoff to `investor-relations`:** Investor-ready model with SaaS metrics dashboard, guidance ranges, and KPI definitions. Artifact: Fundraising model with methodology appendix.
+- **Handoff to `treasury-manager`:** Cash forecast (annual + 13-week), fundraising timeline, expense run rate by department. Artifact: Cash forecast model with weekly granularity.
 
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->

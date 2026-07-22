@@ -4,14 +4,24 @@ description: API documentation (OpenAPI), architecture decision records, READMEs
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - technical-writer
+- technical-writer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - api-designer
+  - backend-developer
+  - documentation-engineer
+  - product-manager
+  feeds_into:
+  - devrel-advocate
+  - documentation-engineer
+  - ux-writer
 ---
 # Technical Writer
 
@@ -29,6 +39,12 @@ What are you trying to do?
 ├── Maintaining a changelog → Go to "Changelogs & Release Notes" under Sub-Skills
 ├── Organizing a knowledge base → Jump to "Documentation Information Architecture" under Sub-Skills
 ├── Setting up a docs site structure → Go to "Docs-as-Code Pipeline" under Sub-Skills
+├── Need docs platform, CI/CD, or build tooling? → Route to `documentation-engineer`
+├── Developer tutorials and community content? → Route to `devrel-advocate`
+├── API implementations and code samples? → Route to `backend-developer`
+├── OpenAPI spec and API contract design? → Route to `api-designer`
+├── UI text and in-product microcopy? → Route to `ux-writer`
+├── Feature launch context and user personas? → Route to `product-manager`
 └── Don't know where to start? → Start at "API Reference Documentation"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -305,6 +321,15 @@ debugging guide, performance tuning.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Technical writing serves developers, product teams, support, and users. Docs degrade when writers are isolated from the people building and using the product.
 
+### Decision Gates & Artifacts
+
+- **Content Accuracy Verification Gate**: Every procedure and code sample must be tested by a naive user before publishing. API examples must be runnable with complete imports and dependencies. Output: verified documentation with test evidence.
+- **Style Guide Compliance Gate**: All docs must pass Vale or textlint linting in CI. Consistent terminology, voice, and formatting across all documentation surfaces. Output: linting-passed documentation.
+- **README Quality Gate**: Every repository README must answer "What is this?", "Why does it exist?", and "How do I get started?" in under 30 seconds. Must include: one-liner install command, basic usage example, contributing link, license. Output: quality-gate-passed README.
+- **Publishing Approval Gate**: Public-facing docs require stakeholder sign-off from `product-manager` for feature accuracy, `security-reviewer` for sensitive content, and `devrel-advocate` for community-facing content. Output: approved documentation for publish.
+- **Freshness Gate**: Docs not updated in >6 months flagged for review. Stale docs archived or updated. Content audit runs quarterly. Output: freshness report with stale page list and action plan.
+- **OpenAPI Spec Quality Gate**: Every endpoint in the spec must have summary, description, request example, response example, and error responses. Spec validated in CI. Output: validated OpenAPI 3.x specification.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Product Strategist** | Feature launches, product roadmap, user personas | Feature specs, target audience, release timeline, key messaging |
@@ -340,6 +365,18 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 | Stakeholders want to deprecate public docs in favor of gated/internal-only | **DevRel** + Product Strategist + CEO Strategist | Developer trust and SEO impact; strategic decision |
 | Docs platform migration required (tooling EOL, scaling limits) | **Documentation Engineer** + CTO Advisor | Platform decision; migration cost and timeline |
 | Legal or compliance issue in published docs | **Legal Advisor** + Security Reviewer | Regulatory exposure; content takedown or revision |
+
+### Route to Other Skills
+
+| If the Request Involves | Route To | Rationale |
+|--------------------------|-----------|-----------|
+| Docs platform, CI/CD pipeline, and build tooling | `documentation-engineer` | Platform engineering for the docs site and automation |
+| Developer tutorials, quickstarts, and community content | `devrel-advocate` | Developer-facing content with community engagement goals |
+| API implementations and code samples | `backend-developer` | Working code that docs describe; accuracy verification |
+| OpenAPI spec creation and API contract design | `api-designer` | Source-of-truth API specifications that drive documentation |
+| UI text, error messages, and in-product microcopy | `ux-writer` | Terminology consistency across product and documentation |
+| Feature launches and user persona context | `product-manager` | Target audience, release timeline, and key messaging for documentation |
+| SEO and discoverability for public-facing docs | `seo-specialist` | Content hierarchy, meta descriptions, and crawlability |
 
 ## Scale Depth
 

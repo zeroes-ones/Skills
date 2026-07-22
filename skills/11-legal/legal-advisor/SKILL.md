@@ -1,17 +1,40 @@
 ---
 name: legal-advisor
-description: Contract review framework, corporate structure decision matrix, IP protection strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source license compliance, fundraising term sheets (SAFE/convertible note/Series Seed), employment law (contractor vs employee, equity), data processing agreements, and ToS/Privacy Policy generation.
+description: Contract review framework, corporate structure decision matrix, IP protection strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source license compliance,
+  fundraising term sheets (SAFE/convertible note/Series Seed), employment law (contractor vs employee, equity), data processing agreements, and ToS/Privacy Policy generation.
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - legal-advisor
+- legal-advisor
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - accessibility-auditor
+  - ai-safety-health-reviewer
+  - board-manager
+  - privacy-engineer
+  feeds_into:
+  - accountant
+  - bizdev-manager
+  - board-manager
+  - ceo-strategist
+  - compliance-officer
+  - content-policy-manager
+  - crisis-response-manager
+  - gdpr-privacy
+  - hr-manager
+  - investor-relations
+  - medical-content-reviewer
+  - partnerships-manager
+  - people-ops
+  - regulatory-specialist
+  - treasury-manager
 ---
 # Legal Advisor
 
@@ -46,6 +69,13 @@ What are you trying to do?
 │   └── New or updated legal docs → Jump to "Sub-Skills > SaaS Legal Foundations"
 ├── Data Processing Agreements (DPAs)
 │   └── Vendor processing personal data → Go to "Sub-Skills > Data Processing Agreements"
+├── Cross-skill routing
+│   ├── DPA or privacy policy drafting → Route to `gdpr-privacy`
+│   ├── FDA/HIPAA/healthcare regulation → Route to `regulatory-specialist`
+│   ├── Fundraising/M&A strategy → Route to `ceo-strategist`
+│   ├── General regulatory compliance → Route to `compliance-officer`
+│   ├── Content moderation/policy → Route to `content-policy-manager`
+│   └── Partnership deal structuring → Route to `bizdev-manager`
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -294,6 +324,29 @@ Do not read the entire skill. Follow the route above and read only the sections 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Legal advice touches every function. Missed coordination creates liability; over-lawyering blocks velocity. Balance is structural.
+
+### Decision Gates & Artifacts
+
+| Decision Gate | Trigger | Artifact / Deliverable |
+|---------------|---------|------------------------|
+| Contract liability cap acceptable | Vendor/partner agreement with liability clause >2x ACV | Risk assessment memo + board approval if material |
+| Open-source license compatible | New third-party dependency with copyleft license (GPL, AGPL) | License compatibility matrix + legal sign-off before integration |
+| IP assignment verified | New hire, contractor, or acquisition | Signed IP assignment agreement + chain-of-title documentation |
+| Fundraising term sheet reviewed | SAFE, convertible note, or Series Seed offer received | Term sheet redline + cap table impact analysis |
+| Trademark cleared | New product/brand name proposed | Trademark clearance search + availability opinion |
+| DMCA process triggered | Takedown notice or counter-notice received | Takedown/counter-notice within statutory deadline + repeat infringer policy check |
+| Corporate structure decision made | New entity, subsidiary, or international expansion | Entity formation documents + tax/liability analysis |
+
+### Route to Other Skills
+
+| Request Pattern | Route To | Why |
+|-----------------|----------|-----|
+| DPA, privacy policy, or cookie consent drafting | `gdpr-privacy` | Specialized privacy compliance knowledge beyond general legal |
+| FDA, HIPAA, or medical device regulation | `regulatory-specialist` | Industry-specific regulatory frameworks for healthcare/life sciences |
+| Fundraising strategy, M&A, board governance | `ceo-strategist` | Business-level deal strategy, cap table, and fiduciary duty |
+| General regulatory filing, audit prep, compliance programs | `compliance-officer` | Cross-domain regulatory compliance program management |
+| Content moderation, platform policy, user-generated content rules | `content-policy-manager` | Platform-specific content governance and moderation frameworks |
+| Business development deals, partnership structuring | `bizdev-manager` | Commercial terms, partnership economics, go-to-market strategy |
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|

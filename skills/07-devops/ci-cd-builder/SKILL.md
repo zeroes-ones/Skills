@@ -1,17 +1,33 @@
 ---
 name: ci-cd-builder
-description: GitHub Actions, pipeline design patterns, build optimization, artifact management, quality gates, deployment strategies, SLSA supply chain security, DORA metrics, and release management. Triggered by CI/CD, pipeline, GitHub Actions, GitLab CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
+description: GitHub Actions, pipeline design patterns, build optimization, artifact management, quality gates, deployment strategies, SLSA supply chain security, DORA metrics, and release management. Triggered
+  by CI/CD, pipeline, GitHub Actions, GitLab CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ci-cd-builder
+- ci-cd-builder
 token_budget: 4000
+chain:
+  consumes_from:
+  - backend-developer
+  - devops-engineer
+  - monorepo-manager
+  - qa-engineer
+  - security-engineer
+  - translation-manager
+  feeds_into:
+  - accessibility-testing
+  - devops-engineer
+  - docker-kubernetes
+  - monorepo-manager
+  - qa-engineer
+  - release-manager
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # CI/CD Pipeline Builder
 
@@ -31,7 +47,10 @@ What are you trying to do?
 ├── Set up deployments (rolling, blue-green, canary) → Jump to "Core Workflow" — Phase 3 (Deployment)
 ├── Add security scanning (SAST, SCA, secrets) to pipeline → Jump to "Core Workflow" — Phase 4 (Security Gates)
 ├── Debug a failing pipeline → Go to "Decision Trees" — then "Production Checklist"
-├── Need infrastructure provisioning → Invoke devops-engineer skill instead
+├── Need infrastructure provisioning → Invoke `devops-engineer` skill instead
+├── Need release management → Invoke `release-manager` skill instead
+├── Need container orchestration → Invoke `docker-kubernetes` skill instead
+├── Need quality engineering → Invoke `qa-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -679,41 +698,20 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `release-management` | Versioning, semantic release, conventional commits, and automated changelog generation |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-CI/CD builders automate the path from commit to production. They coordinate with every development team consuming the pipeline, security for scanning integration, DevOps for infrastructure deployment, and QA for quality gates.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `backend-developer` | Build commands, test runners, artifact paths, environment variables | Before designing build stages or configuring test integration |
+| `devops-engineer` | Terraform modules, infrastructure deployment specs, environment promotion workflows | Before designing deploy stages or environment management |
+| `qa-engineer` | Test parallelization strategy, coverage thresholds, quality gate criteria | Before configuring test stages or quality gates |
+| `security-engineer` | OIDC setup for cloud auth, secret injection patterns, signed commit verification | Before integrating secrets or cloud authentication into pipelines |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Build configuration, test integration | Build commands, test runners, artifact paths, environment variables needed at build time |
-| **Frontend Developer** | Bundle optimization, static asset deployment | Build output structure, CDN invalidation needs, SSR build requirements, preview deployments |
-| **Mobile Developer** | App store build pipeline, code signing | iOS code signing automation, Android keystore management, TestFlight/Play Store upload steps |
-| **DevOps Engineer** | Infrastructure deployment, environment management | Terraform apply orchestration, Kubernetes deploy steps, environment promotion workflow, rollback strategy |
-| **QA Engineer** | Test stage integration, quality gates | Test parallelization, flaky test quarantine, coverage report parsing, performance test thresholds |
-| **Security Reviewer** | SAST/SCA/DAST integration | Scanner CI configuration, vulnerability threshold (fail on Critical/High), dependency audit automation |
-| **Security Engineer** | Secrets management in pipelines | OIDC setup for cloud auth, secret injection patterns, signed commit verification |
-| **Observability Engineer** | Deploy markers, canary analysis | Deploy event annotation in monitoring, canary metric comparison, automated rollback triggers |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Pipeline consistently failing (3+ consecutive runs) | Affected team lead, DevOps | Investigation; may block all deploys |
-| Build time exceeds 15 minutes | Development team, DevOps | Optimization required; developer productivity impact |
-| Security scan finds Critical vulnerability | Security Reviewer, PR author | Block merge; remediation required |
-| Deployment rollback triggered | DevOps, Affected team | Root cause investigation; verify rollback success |
-| CI runner capacity exhausted (queued builds) | DevOps, All teams | Provision additional runners; prioritize builds |
-| New pipeline stage or workflow added | All consumers of the pipeline | Documentation update; local validation (`act`) instructions |
-
-### Escalation Path
-
-```
-Pipeline outage blocking all deploys? → DevOps Engineer → Cloud Architect
-Security scan bypass detected? → Security Engineer → Compliance Officer
-Deploy to production failing repeatedly? → DevOps Engineer → Incident Responder (if user impact)
-CI cost 2x above budget? → Cloud Architect (FinOps) → CTO Advisor
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | CI/CD pipeline for automated deploy, container registry, environment configs | Infrastructure changes can't ship — velocity zero |
+| `release-manager` | Build artifacts, deployment pipeline, quality gate results | Release train stalls — no artifacts to promote |
+| `qa-engineer` | Test integration stages, coverage reports, flaky test quarantine | QA can't validate builds — quality gates block everything |
+| `docker-kubernetes` | Image build pipeline, registry integration, image signing | Containers can't be built or scanned — deploy blocked |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

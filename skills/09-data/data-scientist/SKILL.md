@@ -1,17 +1,34 @@
 ---
 name: data-scientist
-description: Scientific method applied to data — hypothesis testing, A/B testing, causal inference, predictive modeling, EDA, time series analysis, statistical modeling, and experiment design. Triggered by data science, statistical analysis, hypothesis testing, experimentation, A/B test, causal inference, predictive modeling, EDA, statistical modeling, time series.
+description: Scientific method applied to data — hypothesis testing, A/B testing, causal inference, predictive modeling, EDA, time series analysis, statistical modeling, and experiment design. Triggered
+  by data science, statistical analysis, hypothesis testing, experimentation, A/B test, causal inference, predictive modeling, EDA, statistical modeling, time series.
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - data-scientist
+- data-scientist
 token_budget: 4500
+chain:
+  consumes_from:
+  - analytics-engineer
+  - business-intelligence-engineer
+  - data-engineer
+  - market-data-engineer
+  - ml-ai-engineer
+  - quantitative-analyst
+  feeds_into:
+  - analytics-engineer
+  - business-intelligence-engineer
+  - growth-engineer
+  - ml-ai-engineer
+  - patient-health-educator
+  - product-strategist
+  - quantitative-analyst
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Data Scientist
 
@@ -35,6 +52,10 @@ What are you trying to do?
 ├── Time series forecasting → Go to "Sub-Skills > time-series-forecasting"
 ├── Interpret a model → Jump to "Sub-Skills > model-interpretability"
 ├── Need data to analyze first → Invoke data-engineer skill instead
+├── Need data pipelines → Invoke `data-engineer` skill instead
+├── Need analytics and metrics → Invoke `analytics-engineer` skill instead
+├── Need ML model productionization → Invoke `ml-ai-engineer` skill instead
+├── Need growth experiments → Invoke `growth-engineer` skill instead
 └── Don't know where to start? → Start at "Best Practices" — frame before you analyze
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -225,42 +246,19 @@ What question are you answering?
     - Input: all analysis outputs. Output: 1-2 page memo + appendix with technical details
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Data scientists translate raw data into business decisions. They coordinate downstream (with ML engineers
-for model productionization) and upstream (with data engineers for pipeline reliability). They also
-coordinate cross-functionally (with product managers on experiment design, with business strategists on
-strategic insights).
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `data-engineer` | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks | Before designing experiments or analysis that depend on data availability |
+| `analytics-engineer` | Metric calculation logic, experiment metric implementation, curated analysis datasets | Before defining experiment metrics or building analysis models |
+| `ml-ai-engineer` | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds | Before productionizing statistical models or integrating ML predictions |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Data Engineer** | Data availability, pipeline freshness, new data sources | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks |
-| **Analytics Engineer** | Metric definitions, curated datasets, dbt model design | Metric calculation logic, experiment metric implementation, data model for analysis datasets |
-| **ML/AI Engineer** | Model productionization, feature store population, online serving | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds |
-| **Product Manager** | Experiment design, hypothesis prioritization, result interpretation | Experiment proposal (hypothesis, MDE, duration), results brief, recommendation with tradeoffs |
-| **Business Strategist** | Strategic questions (market sizing, segmentation), long-term trends | Strategic analysis outputs, market opportunity sizing, customer segmentation frameworks |
-| **UX Researcher** | Qualitative + quantitative triangulation, survey design | Share quantitative findings for qualitative probing; receive user behavior hypotheses to test quantitatively |
-| **Growth Engineer** | A/B test instrumentation, growth experiment design | Experiment tracking setup, metric calculation in growth tools, statistical significance implementation |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Experiment result is statistically and practically significant | Product Manager, Growth Engineer | Decision to ship/hold; update roadmap |
-| Data quality issue discovered during EDA | Data Engineer, Analytics Engineer | Fix pipeline or update quality checks; may invalidate prior analyses |
-| Model shows significant bias (demographic disparity) | Product Manager, Compliance Officer | Ethical review; may require model adjustment or decommission |
-| Analysis requires data not currently collected | Data Engineer, Product Manager | Instrumentation request; cost/effort tradeoff |
-| SRM detected in running experiment | Product Manager, Growth Engineer | Bug in randomization; experiment validity compromised |
-
-### Escalation Path
-
-```
-Experiment with revenue risk? → Product Manager → Product Strategist → CEO
-Model with fairness/ethical concern? → Compliance Officer → Legal Advisor
-Data pipeline blocking analysis? → Data Engineer → DevOps Engineer
-Analysis contradicting company strategy? → Business Strategist → CEO Strategist
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `product-strategist` | Experiment results with confidence intervals, effect sizes, trade-off analysis | Product decisions lack evidence — roadmap driven by intuition |
+| `growth-engineer` | Experiment tracking setup, metric calculation, statistical significance implementation, SRM checks | Growth experiments can't measure impact — invalid results |
+| `ml-ai-engineer` | Feature engineering insights, model evaluation metrics, training data quality assessment | ML models built on poor features — garbage in, garbage out |
+| `analytics-engineer` | Metric definitions, experiment frameworks, statistical function specifications | Analytics can't build trusted metrics — dashboards unreliable |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

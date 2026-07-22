@@ -1,17 +1,34 @@
 ---
 name: site-reliability-engineer
-description: SRE, site reliability, error budget, toil reduction, SLI, SLO, SLA, incident management, capacity planning, chaos engineering, reliability engineering. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: SRE, site reliability, error budget, toil reduction, SLI, SLO, SLA, incident management, capacity planning, chaos engineering, reliability engineering. Works with Claude Code, Copilot CLI,
+  Cursor, OpenClaw, Gemini CLI.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - site-reliability-engineer
+- site-reliability-engineer
 token_budget: 3555
+chain:
+  consumes_from:
+  - chaos-engineer
+  - cloud-architect
+  - database-reliability-engineer
+  - devops-engineer
+  - docker-kubernetes
+  - networking-engineer
+  - observability-engineer
+  - performance-engineer
+  - release-manager
+  feeds_into:
+  - chaos-engineer
+  - incident-responder
+  - observability-engineer
+  - release-manager
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Site Reliability Engineer (SRE)
 
@@ -32,6 +49,10 @@ What are you trying to do?
 ├── Set up incident management / on-call → Jump to "Core Workflow > Phase 4" (Incident Management)
 ├── Capacity planning (when will we hit scaling limits?) → Jump to "Core Workflow > Phase 5" (Capacity Planning)
 ├── Run a chaos engineering experiment (GameDay) → Go to "Sub-Skills > chaos-engineering"
+├── Need observability instrumentation → Invoke `observability-engineer` skill instead
+├── Need incident response procedures → Invoke `incident-responder` skill instead
+├── Need release coordination → Invoke `release-manager` skill instead
+├── Need infrastructure automation → Invoke `devops-engineer` skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — you can't manage reliability you haven't measured
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -192,28 +213,18 @@ Is the incident user-visible?
    - Output: Capacity planning review dashboard.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When | What to Share/Ask |
-|---|---|---|
-| **DevOps Engineer** | Alerting setup, runbook automation, deploy pipeline integration | SLO definitions, error budget check integration, incident response automation |
-| **Cloud Architect** | Multi-region HA design, failover architecture, capacity planning | Reliability requirements (RPO/RTO), capacity forecasts, resilience pattern selection |
-| **Observability Engineer** | SLI instrumentation, dashboard design, alerting configuration | SLI/SLO definitions, burn rate alert formulas, synthetic monitoring requirements |
-| **Incident Responder** | SEV1/SEV2 incidents, postmortems, on-call handoff | Incident severity classification, communication templates, postmortem ownership |
-| **Security Engineer** | Security incident coordination, vulnerability remediation SLAs | Security-related SLOs, incident response for breaches, compliance evidence |
-| **Release Manager** | Deploy freeze decisions, canary rollout gating, progressive delivery | Error budget status, deploy risk assessment, rollback decision criteria |
-| **Chaos Engineer** | Experiment design, blast radius control, weakness remediation | Reliability weaknesses, experiment results, resilience improvement backlog |
-| **Platform Engineer** | Platform SLA definition, golden path reliability, self-service SLO dashboards | Platform reliability targets, developer-facing SLI dashboards, toil in platform workflows |
-| **Backend Developer** | Service SLO negotiation, toil identification, postmortem participation | SLO targets for their services, toil they experience, postmortem action items |
-| **CTO/Engineering Manager** | Error budget policy approval, SRE staffing, reliability vs. velocity trade-offs | Error budget status, toil budget, reliability investment recommendations |
 
-### Escalation Path
-```
-Error budget 80% depleted in first week → SRE Lead → CTO (deploy freeze recommended)
-SEV1 incident unresolved after 1 hour → Incident Commander → CTO → CEO
-SLO consistently missed (3+ months) → SRE Lead → Product Owner → CTO (reliability investment needed)
-Toil exceeds 50% of SRE time → SRE Lead → Engineering Manager (staffing or scope change)
-Capacity shortage predicted < 30 days out → SRE Lead → Cloud Architect → CTO (procurement urgency)
-```
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `devops-engineer` | Alerting setup, runbook automation, deploy pipeline integration, error budget check infrastructure | Before defining SLO enforcement mechanisms or automating reliability gates |
+| `observability-engineer` | SLI instrumentation, dashboards, burn rate alerts, synthetic monitoring | Before setting error budget thresholds or configuring alert policies |
+| `cloud-architect` | Multi-region HA design, failover architecture, RPO/RTO targets, capacity forecasts | Before designing resilience patterns or capacity planning models |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `observability-engineer` | SLO definitions, burn rate alert formulas, error budget policy, alert severity calibration | Observability can't build meaningful alerts — everything becomes noise |
+| `incident-responder` | Incident severity classification, communication templates, postmortem ownership, runbook procedures | Incidents have no structured response — chaos during outages |
+| `release-manager` | Error budget status, deploy freeze recommendations, canary rollout gating, deploy risk assessment | Risky releases ship without guardrails — production instability |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

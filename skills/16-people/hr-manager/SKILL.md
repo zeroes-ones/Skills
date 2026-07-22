@@ -1,47 +1,43 @@
 ---
 name: hr-manager
-description: >-
-  HR Manager — people operations leader responsible for the full employee
-  lifecycle, compliance infrastructure, and workplace culture. Covers
-  hiring and onboarding, compensation and benefits administration,
-  employee relations and conflict resolution, employment law compliance
-  (FLSA, FMLA, ADA, Title VII, state and local), performance management
-  design, organizational design advisory, and HR team scaling from first
-  hire through department leadership. Use when building or auditing HR
-  functions, handling employee relations issues, designing compensation
-  bands, managing open enrollment, running investigations, developing
-  the employee handbook, or establishing compliance programs.
+description: HR Manager — people operations leader responsible for the full employee lifecycle, compliance infrastructure, and workplace culture. Covers hiring and onboarding, compensation and benefits
+  administration, employee relations and conflict resolution, employment law compliance (FLSA, FMLA, ADA, Title VII, state and local), performance management design, organizational design advisory, and
+  HR team scaling from first hire through department leadership. Use when building or auditing HR functions, handling employee relations issues, designing compensation bands, managing open enrollment, running
+  investigations, developing the employee handbook, or establishing compliance programs.
 author: Sandeep Kumar Penchala
 type: people
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-22
 tags:
-  - hr-manager
-  - human-resources
-  - employee-lifecycle
-  - employment-law
-  - compensation-benefits
-  - employee-relations
-  - hr-compliance
-  - workplace-culture
+- hr-manager
+- human-resources
+- employee-lifecycle
+- employment-law
+- compensation-benefits
+- employee-relations
+- hr-compliance
+- workplace-culture
 token_budget: 5000
 output:
-  type: "document"
-  path_hint: "./"
+  type: document
+  path_hint: ./
 chain:
   consumes_from:
-    - recruiting
-    - people-ops
-    - legal-advisor
-    - compliance-officer
-    - accountant
+  - accountant
+  - ceo-strategist
+  - compliance-officer
+  - legal-advisor
+  - people-ops
+  - recruiting
   feeds_into:
-    - ceo-strategist
-    - engineering-manager
-    - director-engineering
-    - vp-engineering
-    - fp-and-a-analyst
+  - ceo-strategist
+  - director-engineering
+  - engineering-manager
+  - fp-and-a-analyst
+  - people-ops
+  - recruiting
+  - vp-engineering
 ---
 
 # HR Manager
@@ -77,6 +73,11 @@ People operations leader responsible for the employee lifecycle, compliance, and
   Performance management design?→ HR Manager + people-ops
   Org design/team structure?    → ceo-strategist or director-engineering
   Payroll processing/tax?       → accountant
+
+  Need to fill an open role?      → Invoke `recruiting` skill
+  Need comp bands / leveling?     → Invoke `people-ops` skill
+  Need workforce budget modeling? → Invoke `fp-and-a-analyst` skill
+  Need engineering team structure?→ Invoke `engineering-manager`, `director-engineering`, or `vp-engineering`
 ```
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -269,15 +270,15 @@ These rules apply to *every* response this skill produces.
 | When You Need To | Pull In This Skill | What They Provide |
 |---|---|---|
 | Fill a role after offer acceptance | `recruiting` | Offer letter, signed acceptance, compensation details, start date — triggers I-9, benefits enrollment, payroll setup |
-| Design compensation philosophy or bands | `people-ops` | Market benchmarking, leveling framework, career ladders, geo-differential strategy |
-| Review a policy for legal defensibility | `legal-advisor` | Legal review of handbook language, investigation protocols, separation agreements, and policy language |
+| Design compensation philosophy or bands | `people-ops` | Market benchmarking, leveling framework, career ladders, geo-differential strategy. **Decision gate:** Are bands within ±10% of market median? → competitive. **Artifact:** compensation band document with market data sources. |
+| Review a policy for legal defensibility | `legal-advisor` | Legal review of handbook language, investigation protocols, separation agreements, and policy language. **Decision gate:** Has employment counsel reviewed in last 12 months? → compliant. **Artifact:** legal review sign-off + policy version history. |
 | Ensure regulatory compliance (EEO, OSHA, ACA) | `compliance-officer` | Regulatory filing requirements, audit frameworks, compliance calendar, reporting obligations |
 | Process payroll or reconcile benefits deductions | `accountant` | Payroll accuracy, tax withholding, benefits deduction reconciliation, W-2 processing |
-| Advise on org structure for headcount planning | `ceo-strategist` | Strategic workforce planning, org design, budget alignment, headcount approval |
-| Address team-level people issues | `engineering-manager` | Performance feedback, team dynamics context, PIP implementation, coaching support |
+| Advise on org structure for headcount planning | `ceo-strategist` | Strategic workforce planning, org design, budget alignment, headcount approval. **Decision gate:** Does headcount request align to approved workforce plan? → proceed. **Artifact:** workforce plan + headcount approval memo. |
+| Address team-level people issues | `engineering-manager` | Performance feedback, team dynamics context, PIP implementation, coaching support. **Decision gate:** Has manager documented performance issues in writing? → PIP defensible. **Artifact:** performance documentation + PIP plan. |
 | Scale engineering org design | `director-engineering` | Team topology, manager-to-IC ratios, engineering career ladders, technical leadership pipeline |
 | Align engineering workforce strategy | `vp-engineering` | Multi-team workforce planning, engineering culture, technical hiring strategy, retention programs |
-| Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis |
+| Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis. **Decision gate:** Is budget variance < 5% from plan? → on track. **Artifact:** headcount cost model + variance analysis. |
 
 ## Best Practices
 <!-- STANDARD: 4min — read when designing or auditing -->

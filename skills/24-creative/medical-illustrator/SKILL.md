@@ -1,33 +1,40 @@
 ---
 name: medical-illustrator
-description: >-
-  Medical illustration and visual design for digital health products — clinical diagram design covering clotting cascade, mechanism of action, disease progression, and anatomical illustrations with strict anatomical accuracy requirements; patient education visuals including injection site guides, infusion process illustrations, joint health and bleed location diagrams, and treatment comparison infographics; visual health literacy with universal design symbols, visual-first explanations that reduce text dependency, and iconography for health concepts; regulatory illustration standards covering FDA labeling requirements for patient-facing visuals, required disclaimers on clinical diagrams, and substantiation requirements; motion design for health including animated mechanism of action, treatment process animations, and micro-interactions for health education apps; visual design for medical accuracy with anatomical reference checking, clinical review workflows, versioning for updates, and citation/traceability; accessibility in medical illustration with color-blind safe palettes, alt text for complex diagrams, tactile graphics, and high-contrast versions; visual brand for health including compassionate visual language, trust-building imagery, diverse patient representation, and stereotype avoidance. Use when creating clinical diagrams, patient education visuals, anatomical illustrations, animated mechanism-of-action videos, or building a visual design system for regulated health products.
+description: Medical illustration and visual design for digital health products — clinical diagram design covering clotting cascade, mechanism of action, disease progression, and anatomical illustrations
+  with strict anatomical accuracy requirements; patient education visuals including injection site guides, infusion process illustrations, joint health and bleed location diagrams, and treatment comparison
+  infographics; visual health literacy with universal design symbols, visual-first explanations that reduce text dependency, and iconography for health concepts; regulatory illustration standards covering
+  FDA labeling requirements for patient-facing visuals, required disclaimers on clinical diagrams, and substantiation requirements; motion design for health including animated mechanism of action, treatment
+  process animations, and micro-interactions for health education apps; visual design for medical accuracy with anatomical reference checking, clinical review workflows, versioning for updates, and citation/traceability;
+  accessibility in medical illustration with color-blind safe palettes, alt text for complex diagrams, tactile graphics, and high-contrast versions; visual brand for health including compassionate visual
+  language, trust-building imagery, diverse patient representation, and stereotype avoidance. Use when creating clinical diagrams, patient education visuals, anatomical illustrations, animated mechanism-of-action
+  videos, or building a visual design system for regulated health products.
 author: Sandeep Kumar Penchala
 type: creative
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - medical-illustration
-  - patient-education
-  - clinical-diagrams
-  - health-visualization
-  - anatomical-illustration
-  - motion-design
-  - visual-health-literacy
+- medical-illustration
+- patient-education
+- clinical-diagrams
+- health-visualization
+- anatomical-illustration
+- motion-design
+- visual-health-literacy
 token_budget: 3800
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - brand-guidelines
-    - ui-ux-designer
-    - clinical-informatics-specialist
+  - medical-content-reviewer
+  - patient-health-educator
+  - ui-ux-designer
+  - ux-writer
   feeds_into:
-    - ux-writer
-    - frontend-developer
-    - content-strategist
+  - brand-guidelines
+  - patient-health-educator
+  - ux-writer
 ---
 # Medical Illustrator / Visual Designer (Health Tech)
 
@@ -199,29 +206,29 @@ Build a visual identity that builds trust, not just looks good.
 
 Medical illustration bridges clinical accuracy, design, content, and development. Know when to coordinate:
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Brand Guidelines** | Visual style, color palette, photography direction | Brand colors (check against color-blind safety), illustration style guide, photo guidelines |
-| **UI/UX Designer** | In-app illustration integration, component specs | Illustration sizes, responsive breakpoints, interaction contexts, color harmonization |
-| **Clinical Informatics Specialist** | Anatomical accuracy, clinical review | Reference verification, nomenclature, staging classifications, clinical workflow context |
-| **UX Writer** | Alt text, labels, callouts, disclaimers | Illustration context for copy, character limits for callouts, required disclaimer text |
-| **Frontend Developer** | SVG/animation implementation, responsive delivery | SVG optimization, animation specs (duration, easing), responsive breakpoints, lazy loading |
-| **Content Strategist** | Visual content calendar, asset reuse | Illustration catalog, reuse guidelines, version status, localization requirements |
-| **Regulatory Specialist** | FDA/EMA labeling requirements, disclaimer compliance | Regulatory submission illustration requirements, claim substantiation, IFU standards |
-| **Accessibility Auditor** | Color contrast, alt text, screen reader compatibility | Color palette testing, alt text review, motion safety, tactile graphic specs |
-| **UX Researcher** | Symbol comprehension testing, visual preference studies | Test stimuli, comprehension questions, participant demographics for visual testing |
+| Coordinate With | Decision Gate | Artifacts to Share |
+|-----------------|---------------|---------------------|
+| `patient-health-educator` | Health literacy level of target audience requires visual simplification; educator confirms comprehension goals | Reading-level targets, concept explanation briefs, known comprehension barriers |
+| `ui-ux-designer` | In-app illustration integration — component specs, responsive breakpoints, interaction context | Illustration sizes, responsive breakpoints, color harmonization specs |
+| `medical-content-reviewer` | Anatomical accuracy sign-off required before publication; flagged `[PENDING CLINICAL REVIEW]` until approved | Reference verification reports, nomenclature validation, staging classification checks |
+| `ux-writer` | Alt text, labels, callouts, disclaimers needed for illustration context | Illustration context for copy, character limits for callouts, required disclaimer text |
+| `brand-guidelines` | New illustration style proposed; verify against brand color palette and style guide | Brand colors (check against color-blind safety), illustration style guide |
+| `frontend-developer` | SVG/animation implementation, responsive delivery, lazy loading strategy | SVG optimization, animation specs (duration, easing), responsive breakpoints |
+| `regulatory-specialist` | FDA/EMA labeling requirements for patient-facing illustrations | Regulatory submission illustration requirements, claim substantiation, IFU standards |
+| `accessibility-auditor` | Color contrast fails audit or motion triggers photosensitive concern | Color palette testing, alt text review, motion safety, tactile graphic specs |
+| `ux-researcher` | Symbol comprehension testing or visual preference study needed | Test stimuli, comprehension questions, participant demographics for visual testing |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Clinical reviewer flags anatomical error | Clinical Informatics Specialist, Content Strategist | Correction required before publication; all downstream assets affected |
-| New anatomical reference edition published | Clinical Informatics Specialist | Illustration catalog may need updates |
-| Regulatory illustration guidance updated | Regulatory Specialist, UX Writer | New disclaimer or labeling requirements |
-| Color palette fails accessibility audit | Brand Guidelines, UI/UX Designer, Accessibility Auditor | Palette change impacts entire visual system |
-| New illustration style needed (new product line) | Brand Guidelines, Content Strategist, UI/UX Designer | Style guide extension, asset planning |
-| Patient comprehension test shows visual confusion | UX Researcher, UX Writer, Clinical Informatics Specialist | Redesign required, may affect clinical safety |
-| Animation triggers photosensitive concern | Accessibility Auditor, Frontend Developer, UX Researcher | Rate limiting, reduced motion alternative required |
+| Clinical reviewer flags anatomical error | `clinical-informatics-specialist`, `content-strategist` | Correction required before publication; all downstream assets affected |
+| New anatomical reference edition published | `clinical-informatics-specialist` | Illustration catalog may need updates |
+| Regulatory illustration guidance updated | `regulatory-specialist`, `ux-writer` | New disclaimer or labeling requirements |
+| Color palette fails accessibility audit | `brand-guidelines`, `ui-ux-designer`, `accessibility-auditor` | Palette change impacts entire visual system |
+| New illustration style needed (new product line) | `brand-guidelines`, `content-strategist`, `ui-ux-designer` | Style guide extension, asset planning |
+| Patient comprehension test shows visual confusion | `ux-researcher`, `ux-writer`, `clinical-informatics-specialist` | Redesign required, may affect clinical safety |
+| Animation triggers photosensitive concern | `accessibility-auditor`, `frontend-developer`, `ux-researcher` | Rate limiting, reduced motion alternative required |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

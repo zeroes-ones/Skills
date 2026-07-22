@@ -1,17 +1,52 @@
 ---
 name: product-manager
-description: "Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning, backlog grooming, and strategic product decisions. Triggered by write a PRD, prioritize features, build a roadmap, define user stories, RICE score this, stakeholder update."
+description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning,
+  backlog grooming, and strategic product decisions. Triggered by write a PRD, prioritize features, build a roadmap, define user stories, RICE score this, stakeholder update.
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - product-manager
+- product-manager
+chain:
+  consumes_from:
+  - account-manager
+  - ai-safety-engineer
+  - ai-safety-health-reviewer
+  - analytics-engineer
+  - bizdev-manager
+  - clinical-informatics-specialist
+  - customer-success-manager
+  - customer-support-engineer
+  - growth-engineer
+  - llm-engineer
+  - patient-experience-researcher
+  - product-strategist
+  - sales-engineer
+  - ux-researcher
+  feeds_into:
+  - content-strategist
+  - customer-success-manager
+  - customer-support-engineer
+  - director-engineering
+  - engineering-manager
+  - idea-to-spec
+  - partnerships-manager
+  - product-marketing-manager
+  - project-manager
+  - qa-engineer
+  - sales-engineer
+  - scrum-master
+  - system-architect
+  - technical-writer
+  - ui-ux-designer
+  - ux-researcher
+  - ux-writer
 token_budget: 2430
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Product Manager
 
@@ -26,7 +61,11 @@ What are you trying to do?
 ├── Build or update a product roadmap → Jump to "Core Workflow" — Phase 4 (Roadmap & Communication)
 ├── Write user stories with acceptance criteria → Jump to "Core Workflow" — Phase 2
 ├── Communicate with stakeholders or resolve conflicts → Go to "Cross-Skill Coordination"
-├── Raw concept or idea with no spec yet → Invoke idea-to-spec skill instead
+├── Raw concept or idea with no spec yet → `idea-to-spec`
+├── Need market sizing or competitive analysis? → `product-strategist`
+├── Need user research or persona development? → `ux-researcher`
+├── Need design system or component specs? → `ui-ux-designer`
+├── Need sprint execution or delivery tracking? → `engineering-manager`
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -100,45 +139,42 @@ Attend standups to unblock the team on requirements ambiguity. Triage incoming b
 <!-- QUICK: 30s -- table of who to talk to when -->
 Product management is a multiplier role — you don't build, design, or sell, but your coordination (or lack thereof) determines whether those functions produce value or waste.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `product-strategist` | Product vision, PMF assessment, competitive landscape, pricing strategy, OKRs, roadmap direction | Before quarterly planning; during pivot evaluation; before feature discovery |
+| `ux-researcher` | User personas, journey maps, usability findings, behavioral insights, research-backed design recommendations | During problem discovery; before writing acceptance criteria |
+| `data-analyst-or-engineer` | Retention cohorts, funnel analytics, feature adoption metrics, user segmentation, A/B test results | During RICE scoring; before roadmap commitments |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **CEO Strategist** | Pivot decisions, resource allocation, strategic trade-offs | Product roadmap implications, market signals, competitive threats |
-| **CTO Advisor** | Build vs buy, tech debt prioritization, architecture decisions | Technical feasibility, engineering capacity, cost of delay for tech investments |
-| **UX Researcher** | Discovery, usability testing, persona validation | Problem hypotheses, target segments, research questions, success criteria |
-| **Idea to Spec** | Feature definition, requirement translation | PRD, user stories, acceptance criteria, edge case identification |
-| **UI/UX Designer** | Feature design, prototypes, design system usage | User stories, acceptance criteria, design constraints, accessibility requirements |
-| **Frontend Developer** | Feature estimation, implementation, UX fidelity | Prioritized backlog, acceptance criteria, design specs, interaction requirements |
-| **Backend Developer** | Feature estimation, API design, data model changes | API contracts, data requirements, performance expectations, error handling |
-| **QA Engineer** | Acceptance criteria, test planning, bug triage | User scenarios, edge cases, severity definitions, expected behavior |
-| **Growth Engineer** | Experimentation, A/B testing, PLG funnel optimization | Hypotheses, success metrics, experiment scope, statistical significance thresholds |
-| **Data/Analytics** | Metrics definition, tracking, dashboards, product analytics | What to measure, event taxonomy, reporting cadence, success criteria |
-| **Sales / Customer Success** | Feature requests, customer feedback, competitive intel | Feature gaps, win/loss reasons, churn signals, customer pain points |
-| **Project Manager / Scrum Master** | Sprint planning, capacity, dependencies, delivery tracking | Priorities, timeline estimates, cross-team dependencies, blockers |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `idea-to-spec` | Prioritized features with RICE scores, user stories, acceptance criteria, success metrics, stakeholder constraints | Engineering builds wrong features — wasted sprints |
+| `engineering-manager` | Sprint-ready backlog, technical constraints, timeline expectations, cross-team dependencies | Team velocity drops, deadlines slip, capacity sits idle |
+| `qa-engineer` | Acceptance criteria in GIVEN/WHEN/THEN, edge cases, severity definitions, expected behavior | Bugs missed in QA — regressions reach production |
+| `scrum-master` | Prioritized backlog, sprint goals, capacity context, blocker identification | Sprints start without clear goals — wasted planning cycles |
+| `ui-ux-designer` | User stories with context, design constraints, accessibility requirements, success metrics | Designs don't reflect user needs — redesign cycles |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Major scope change mid-sprint | Engineering Lead, QA, Project Manager | Sprint replanning, capacity reallocation, timeline communication |
-| Pivot signal from PMF data | CEO, CTO, UX Researcher | Strategic replanning, research deep-dive, roadmap overhaul |
-| Competitive launch with >50% feature parity | CEO, CTO, Sales, Marketing | Competitive response, roadmap reprioritization, positioning update |
-| Customer churn spike (>10% monthly) | CEO, Sales/Customer Success, Growth | Churn root cause, feature gap analysis, retention intervention |
-| OKR at risk (red status at mid-quarter) | CEO, CTO, Project Manager | Expectation management, resource reallocation, scope negotiation |
-| Critical production bug discovered | Engineering Lead, QA, Customer Success | Impact assessment, hotfix prioritization, customer communication |
+| Major scope change mid-sprint | `engineering-manager`, `qa-engineer`, `scrum-master` | Sprint replanning, capacity reallocation, timeline communication |
+| Pivot signal from PMF data | `ceo-strategist`, `cto-advisor`, `ux-researcher` | Strategic replanning, research deep-dive, roadmap overhaul |
+| Competitive launch with >50% feature parity | `ceo-strategist`, `cto-advisor`, `product-strategist` | Competitive response, roadmap reprioritization, positioning update |
+| Customer churn spike (>10% monthly) | `ceo-strategist`, `product-strategist` | Churn root cause, feature gap analysis, retention intervention |
+| OKR at risk (red status at mid-quarter) | `ceo-strategist`, `cto-advisor`, `scrum-master` | Expectation management, resource reallocation, scope negotiation |
+| Critical production bug discovered | `engineering-manager`, `qa-engineer` | Impact assessment, hotfix prioritization, customer communication |
 
 ### Escalation Path
 
 ```
 Strategic product conflict (CEO wants X, CTO says impossible, customer demands Y)
-  └── CEO + CTO + Product Manager. ADR or decision memo within 1 week.
+  └── `ceo-strategist` + `cto-advisor` + `product-manager`. ADR or decision memo within 1 week.
 
 Delivery risk (team velocity drop >40%, key engineer departure, critical blocker)
-  └── Engineering Lead + CTO + Product Manager. Replan or descope within 48 hours.
+  └── `engineering-manager` + `cto-advisor` + `product-manager`. Replan or descope within 48 hours.
 
 Customer escalation (enterprise customer threatening churn over missing feature)
-  └── Sales/Customer Success + Product Manager + CEO if >10% revenue at risk.
+  └── `product-manager` + `ceo-strategist` if >10% revenue at risk.
 ```
 
 ## Best Practices

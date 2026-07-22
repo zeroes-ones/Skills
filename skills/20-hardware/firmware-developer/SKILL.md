@@ -1,29 +1,47 @@
 ---
 name: firmware-developer
-description: "Firmware development & low-level software: boot flow design (ROM→bootloader→kernel→app), device drivers (DMA, interrupt handlers, MMIO), BSP creation, build systems (CMake+GCC/LLVM, linker scripts), OTA infrastructure (delta updates, rollback, signing), HAL design, secure element integration, factory test firmware, firmware CI/CD, and field debugging. Trigger: firmware, bootloader, BSP, HAL, OTA, linker script, toolchain, cross-compile, DFU, secure element."
+description: 'Firmware development & low-level software: boot flow design (ROM→bootloader→kernel→app), device drivers (DMA, interrupt handlers, MMIO), BSP creation, build systems (CMake+GCC/LLVM, linker
+  scripts), OTA infrastructure (delta updates, rollback, signing), HAL design, secure element integration, factory test firmware, firmware CI/CD, and field debugging. Trigger: firmware, bootloader, BSP,
+  HAL, OTA, linker script, toolchain, cross-compile, DFU, secure element.'
 author: Sandeep Kumar Penchala
 type: hardware
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - firmware-developer
-  - hardware
-  - bootloader
-  - ota
-  - hal
+- firmware-developer
+- hardware
+- bootloader
+- ota
+- hal
 token_budget: 3500
 dependencies:
-  tools: [arm-none-eabi-gcc, cmake, docker, openocd, pyocd]
-  packages: [python3, pyserial, imgtool]
+  tools:
+  - arm-none-eabi-gcc
+  - cmake
+  - docker
+  - openocd
+  - pyocd
+  packages:
+  - python3
+  - pyserial
+  - imgtool
   permissions: []
 output:
-  type: "binary+config"
-  path_hint: "firmware/build/"
+  type: binary+config
+  path_hint: firmware/build/
 chain:
-  consumes_from: ["embedded-engineer", "hardware-architect"]
-  feeds_into: ["qa-engineer", "devops-engineer", "security-engineer"]
-  alternatives: ["embedded-engineer"]
+  consumes_from:
+  - embedded-engineer
+  - hardware-architect
+  - security-engineer
+  feeds_into:
+  - embedded-engineer
+  - hardware-architect
+  - qa-engineer
+  - security-reviewer
+  alternatives:
+  - embedded-engineer
 ---
 # Firmware Developer
 
@@ -53,6 +71,12 @@ What are you trying to do?
 │   ├── Firmware CI/CD pipeline → "Core Workflow" Phase 6
 │   ├── Field crash dump analysis → "Error Decoder"
 │   └── Remote log retrieval → references/field-debugging.md
+├── CROSS-SKILL ROUTING
+│   ├── Need embedded MCU/peripheral/RTOS work? → Invoke `embedded-engineer`
+│   ├── Need hardware architecture decisions? → Invoke `hardware-architect`
+│   ├── Need security review of bootloader/OTA? → Invoke `security-reviewer`
+│   ├── Need QA/HIL testing infrastructure? → Invoke `qa-engineer`
+│   └── Need security architecture (secure boot, key management)? → Invoke `security-engineer`
 └── Not sure? → Describe the MCU, RTOS, and connectivity requirements
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -321,6 +345,18 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 # Embedded bring-up → Firmware → QA → DevOps
 /embedded-engineer && /firmware-developer && /qa-engineer && /devops-engineer
 ```
+
+**Decision Gates & Handoff Artifacts:**
+- **Build reproducibility gate:** Same commit must produce bit-identical `.bin` on CI and developer machine. `sha256sum firmware.bin` must match. Non-reproducible = cannot ship. Artifact: Build reproducibility verification log.
+- **Driver stress test gate:** Every driver passes 10K-iteration stress: SPI at max clock, I2C with bus resets, UART at 1M baud with 1M chars, DMA with buffer wrap — zero timeouts. Artifact: Driver stress test report with per-driver results.
+- **Memory map review gate:** Linker script must be reviewed by `hardware-architect` before production build. Flash/RAM section collisions = bricked device. Artifact: Memory map document with section sizes and alignment.
+- **OTA integrity gate:** Signed image validation must pass: (1) signature verification, (2) version check (no downgrade attacks), (3) hardware compatibility check. Artifact: OTA security test report.
+- **Factory firmware gate:** Factory test completes <60s, outputs pass/fail with measured values, operator interprets without engineering knowledge. Artifact: Factory test specification with pass/fail thresholds per test.
+- **CI/CD quality gate:** CI must catch: missing `volatile`, uninitialized variables, stack overflow patterns, and signed/unsigned mismatches BEFORE merge. Artifact: CI pipeline configuration with mandatory checks.
+- **Fleet health gate:** Boot success rate per firmware version; >1% degradation auto-halts OTA rollout. Artifact: Fleet health dashboard with per-version metrics.
+- **Handoff to `embedded-engineer`:** BSP implementation, HAL API, peripheral drivers, bootloader integration. Artifact: Firmware binary with version manifest and release notes.
+- **Handoff to `qa-engineer`:** Factory test firmware, HIL test scenarios, OTA test plans, regression test list. Artifact: QA test package with test firmware and test specifications.
+- **Handoff to `security-reviewer`:** Secure boot implementation, OTA signing pipeline, key management architecture. Artifact: Security architecture document with threat model.
 
 ## What Good Looks Like
 <!-- DEEP: 10+min — concrete success criteria -->

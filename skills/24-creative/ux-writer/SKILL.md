@@ -1,33 +1,44 @@
 ---
 name: ux-writer
-description: >-
-  UX writing and content design for digital health products — product copy design for onboarding flows, empty states, loading states, error messages, and success confirmations; medical disclaimer language with regulatory requirements, placement patterns (inline, modal, footer), and when-to-show logic; informed consent UX with granular consent options, withdrawal pathways, and health literacy-adjusted reading levels; plain-language health messaging at ≤8th grade reading level with visual reinforcement and localization strategies; error message design for health contexts with clinical data preservation assurances; voice and tone systems spanning compassionate, professional, and encouraging registers for sensitive health topics; content design systems with reusable patterns, content tokens, and localization-ready string design; microcopy A/B testing, comprehension testing, and trust impact analysis; content accessibility including screen reader content, alt text for medical diagrams, and plain-language alternatives for complex terms. Use when writing product copy for health tech, designing medical disclaimers, crafting consent language, optimizing microcopy for health literacy, or building a content design system for regulated digital health products.
+description: UX writing and content design for digital health products — product copy design for onboarding flows, empty states, loading states, error messages, and success confirmations; medical disclaimer
+  language with regulatory requirements, placement patterns (inline, modal, footer), and when-to-show logic; informed consent UX with granular consent options, withdrawal pathways, and health literacy-adjusted
+  reading levels; plain-language health messaging at ≤8th grade reading level with visual reinforcement and localization strategies; error message design for health contexts with clinical data preservation
+  assurances; voice and tone systems spanning compassionate, professional, and encouraging registers for sensitive health topics; content design systems with reusable patterns, content tokens, and localization-ready
+  string design; microcopy A/B testing, comprehension testing, and trust impact analysis; content accessibility including screen reader content, alt text for medical diagrams, and plain-language alternatives
+  for complex terms. Use when writing product copy for health tech, designing medical disclaimers, crafting consent language, optimizing microcopy for health literacy, or building a content design system
+  for regulated digital health products.
 author: Sandeep Kumar Penchala
 type: creative
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ux-writing
-  - content-design
-  - health-literacy
-  - medical-disclaimers
-  - microcopy
-  - consent-language
-  - product-copy
+- ux-writing
+- content-design
+- health-literacy
+- medical-disclaimers
+- microcopy
+- consent-language
+- product-copy
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - ui-ux-designer
-    - brand-guidelines
-    - accessibility-auditor
+  - brand-guidelines
+  - medical-illustrator
+  - patient-health-educator
+  - product-manager
+  - product-marketing-manager
+  - technical-writer
+  - ui-ux-designer
   feeds_into:
-    - frontend-developer
-    - translation-manager
-    - localization-engineer
+  - content-strategist
+  - frontend-developer
+  - localization-engineer
+  - medical-illustrator
+  - patient-health-educator
 ---
 # UX Writer / Content Designer (Health Tech)
 
@@ -231,31 +242,32 @@ Ensure content is accessible to all users.
 
 UX writing sits at the intersection of design, clinical, regulatory, and engineering. Know when to coordinate:
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **UI/UX Designer** | Screen design, component specs | Content requirements (char limits, truncation rules), content-first wireframes |
-| **Brand Guidelines** | Voice/tone definition, style guide | Brand voice attributes, terminology preferences, naming conventions |
-| **Accessibility Auditor** | Screen reader compatibility, alt text | Content for aria-labels, complex diagram descriptions, reading order review |
-| **Frontend Developer** | String implementation, i18n setup | ICU MessageFormat strings, translator comments, key naming conventions |
-| **Translation Manager** | Localization prep, glossary | Source strings with context, termbase entries, locale-specific constraints |
-| **Localization Engineer** | String extraction, pseudo-localization | Key structure, pluralization rules, expansion buffer requirements |
-| **Clinical Informatics Specialist** | Medical accuracy, terminology | Clinical term approval, reading level simplification check, drug name validation |
-| **Regulatory Specialist** | Disclaimer language, consent text | FDA/EMA requirements, HIPAA consent rules, state-specific telehealth laws |
-| **Legal Advisor** | Disclaimer review, terms of use | Legal sufficiency of disclaimers, liability language, jurisdiction-specific requirements |
-| **UX Researcher** | Comprehension testing, trust studies | Test stimuli (copy variants), hypothesis for A/B tests, participant screeners |
-| **QA Engineer** | Copy validation, string testing | Copy test cases, truncation scenarios, character limit violations |
+| Coordinate With | Decision Gate | Artifacts to Share |
+|-----------------|---------------|---------------------|
+| `ui-ux-designer` | Screen design needs content-first wireframes; copy length exceeds component constraints | Content requirements (char limits, truncation rules), content-first wireframes |
+| `technical-writer` | Medical terminology needs plain-language translation; documentation standards affect UX copy | Terminology glossary, plain-language alternatives, documentation style guide |
+| `product-manager` | Feature scope affects copy volume; new flows need content design before implementation | Content requirements, flow diagrams, feature briefs for copy scoping |
+| `brand-guidelines` | Voice/tone definition, style guide alignment, terminology preferences | Brand voice attributes, terminology preferences, naming conventions |
+| `frontend-developer` | String implementation, i18n setup, ICU MessageFormat strings | ICU MessageFormat strings, translator comments, key naming conventions |
+| `localization-engineer` | String extraction, pseudo-localization, expansion buffer requirements | Key structure, pluralization rules, expansion buffer requirements |
+| `patient-health-educator` | Patient-facing copy needs health literacy validation (≤8th grade reading level) | Copy drafts for comprehension testing, reading-level scores, simplification requests |
+| `medical-illustrator` | Illustrations need alt text, labels, and callouts in product copy | Illustration context, character limits for callouts, visual description for screen readers |
+| `clinical-informatics-specialist` | Medical accuracy, terminology validation, drug name verification | Clinical term approval, reading level simplification check, drug name validation |
+| `regulatory-specialist` | Disclaimer language, consent text need FDA/EMA/HIPAA compliance review | FDA/EMA requirements, HIPAA consent rules, state-specific telehealth laws |
+| `legal-advisor` | Disclaimer review, terms of use, liability language | Legal sufficiency of disclaimers, liability language, jurisdiction-specific requirements |
+| `ux-researcher` | Comprehension testing, trust studies, A/B test hypothesis validation | Test stimuli (copy variants), hypothesis for A/B tests, participant screeners |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Medical disclaimer draft complete | Regulatory Specialist, Legal Advisor | Legal and regulatory review required before publishing |
-| Consent language changes | Legal Advisor, Regulatory Specialist, UX Researcher | Legal compliance + user comprehension impact |
-| Voice/tone system defined | Brand Guidelines, UI/UX Designer, Content Strategist | Cross-channel consistency, design alignment |
-| String freeze for translation | Translation Manager, Localization Engineer, Frontend Developer | Pipeline kickoff, key extraction, pseudo-localization |
-| Microcopy test results (significant) | UX Researcher, Product Manager, UI/UX Designer | May trigger design changes, flow redesign |
-| Reading level regression detected | Clinical Informatics Specialist, UX Researcher | Patient comprehension at risk |
-| New regulatory requirement discovered | Regulatory Specialist, Legal Advisor, UI/UX Designer | May require flow redesign, new disclaimers |
+| Medical disclaimer draft complete | `regulatory-specialist`, `legal-advisor` | Legal and regulatory review required before publishing |
+| Consent language changes | `legal-advisor`, `regulatory-specialist`, `ux-researcher` | Legal compliance + user comprehension impact |
+| Voice/tone system defined | `brand-guidelines`, `ui-ux-designer`, `content-strategist` | Cross-channel consistency, design alignment |
+| String freeze for translation | `localization-engineer`, `frontend-developer` | Pipeline kickoff, key extraction, pseudo-localization |
+| Microcopy test results (significant) | `ux-researcher`, `product-manager`, `ui-ux-designer` | May trigger design changes, flow redesign |
+| Reading level regression detected | `clinical-informatics-specialist`, `ux-researcher` | Patient comprehension at risk |
+| New regulatory requirement discovered | `regulatory-specialist`, `legal-advisor`, `ui-ux-designer` | May require flow redesign, new disclaimers |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

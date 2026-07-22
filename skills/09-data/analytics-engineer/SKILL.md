@@ -1,17 +1,31 @@
 ---
 name: analytics-engineer
-description: dbt patterns, metric layers, BI architecture, data modeling for analytics, A/B testing and experimentation, SQL optimization, data visualization, and self-service analytics (Looker/Metabase/Lightdash). Triggered by analytics, dbt, Looker, Metabase, A/B test, metric layer, event tracking, SQL optimization, dashboard.
+description: dbt patterns, metric layers, BI architecture, data modeling for analytics, A/B testing and experimentation, SQL optimization, data visualization, and self-service analytics (Looker/Metabase/Lightdash).
+  Triggered by analytics, dbt, Looker, Metabase, A/B test, metric layer, event tracking, SQL optimization, dashboard.
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - analytics-engineer
+- analytics-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+  - business-intelligence-engineer
+  - data-engineer
+  - data-scientist
+  feeds_into:
+  - business-intelligence-engineer
+  - data-scientist
+  - demand-generation
+  - growth-engineer
+  - product-manager
+  - revops-manager
+  - seo-specialist
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Analytics Engineer
 
@@ -33,8 +47,10 @@ What are you trying to do?
 ├── Design an A/B test → Go to "Sub-Skills > A/B Test Design & Analysis"
 ├── Optimize slow SQL → Jump to "Sub-Skills > SQL Performance Tuning"
 ├── Create a data visualization → Go to "Sub-Skills > Data Storytelling"
-├── Need raw data pipelines first → Invoke data-engineer skill instead
-├── Need statistical modeling → Invoke data-scientist skill instead
+├── Need raw data pipelines first → Invoke `data-engineer` skill instead
+├── Need statistical modeling → Invoke `data-scientist` skill instead
+├── Need growth experiments → Invoke `growth-engineer` skill instead
+├── Need product metrics → Invoke `product-manager` skill instead
 └── Don't know where to start? → Start at "Core Workflow > Phase 1 (Data Modeling Foundation)"
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -585,39 +601,19 @@ These rules apply to *every* response this skill produces.
 - **Document metric definitions** — "Is 'active user' someone who opened the app or made a purchase?" Put the answer in the dashboard description.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Analytics engineers build the metrics layer that drives business decisions. They coordinate with data engineers for raw data, product for metric definitions, ML engineers for feature data, and business stakeholders for reporting needs.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `data-engineer` | Raw data schemas, freshness SLAs, data dictionary, PII classification, partitioning strategy | Before building dbt models or defining metric sources |
+| `data-scientist` | Metric calculation logic, experiment metric implementation, analysis dataset requirements | Before designing metric layers or experiment tracking tables |
+| `business-intelligence-engineer` | BI tool configuration, dashboard requirements, self-service access patterns | Before building semantic layers or certified datasets |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Data Engineer** | Raw data ingestion, pipeline health, schema changes | Source schema expectations, freshness SLAs, data quality issues, backfill requests, CDC event formats |
-| **Product Strategist** | Metric definitions, North Star metric, experiment design | Metric taxonomy, event tracking specification, A/B test metric framework, dashboard requirements |
-| **ML/AI Engineer** | Feature data, training datasets, model evaluation metrics | Feature computation in dbt, labeled dataset creation, model performance dashboards, prediction monitoring queries |
-| **Backend Developer** | Event tracking implementation, API data sources | Event schema design, tracking SDK instrumentation, API response data shape for analytics ingestion |
-| **Growth Engineer** | Experimentation metrics, activation tracking | A/B test metric definitions, statistical analysis queries, activation funnel instrumentation, cohort definitions |
-| **Business Strategist** | Business KPIs, board reporting, investor metrics | Revenue definitions, CAC/LTV calculations, market segmentation queries, ARR/MRR reporting |
-| **Data Governance** | Metric certification, data catalog, access controls | Metric documentation in catalog, certified vs experimental metric tagging, PII access policy for analytics data |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Source data schema change (breaking) | Data Engineer | Update staging models; fix dbt transforms |
-| Metric definition change (e.g., "active user" redefined) | Product Strategist, Business Strategist, Growth Engineer | All dashboards and experiments using old definition need update |
-| Data quality test failure in production dbt run | Data Engineer, Affected stakeholders | Root cause investigation; downstream impact assessment |
-| New tracking event proposed | Product Strategist, Backend Developer | Schema review; instrumentation effort estimation |
-| Dashboard data stale (>24 hours) | Data Engineer | Pipeline health check; SLA breach |
-
-### Escalation Path
-
-```
-Data pipeline broken (upstream)? → Data Engineer → DevOps Engineer
-Metric disagreement across teams? → Product Strategist → Data governance council
-Dashboard showing materially incorrect data? → Data Engineer → Affected stakeholders (immediate notification)
-PII exposed in analytics layer? → Security Engineer → Compliance Officer
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `data-scientist` | Curated analysis datasets, experiment metric implementation, statistical function integration in dbt | Data scientists work with raw unmodeled data — analysis velocity plummets |
+| `product-manager` | Metric taxonomy, event tracking specification, A/B test metric framework, dashboard requirements | Product decisions made without reliable metrics — strategy guesswork |
+| `growth-engineer` | A/B test metric definitions, statistical analysis queries, activation funnel instrumentation, cohort definitions | Growth experiments have no measurement framework — can't validate impact |
+| `revops-manager` | Revenue definitions, CAC/LTV calculations, ARR/MRR reporting, customer segmentation queries | Revenue operations fly blind — forecasting and planning impossible |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

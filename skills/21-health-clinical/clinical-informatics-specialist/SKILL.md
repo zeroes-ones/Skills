@@ -1,34 +1,41 @@
 ---
 name: clinical-informatics-specialist
-description: >-
-  FHIR (HL7) standards R4/R5 with resource types, profiles, extensions, and operations. EHR integration patterns for Epic/MyChart, Cerner, Argonaut, USCDI, and SMART on FHIR. Health data exchange via HIE networks, TEFCA, Direct Secure Messaging, XDR/XDM. Hemophilia Treatment Center (HTC) data exchange workflows for rare disease registries. Patient-reported outcome (PRO) data standards including PROMIS, PRO-CTCAE, and electronic PRO (ePRO). Clinical terminology with SNOMED CT, LOINC, ICD-10-CM, RxNorm, MedDRA. Data mapping pipelines from source systems to FHIR resources to internal data models. Consent management for patient data sharing with granular HIE consent. Real-world evidence (RWE) data pipelines for pharma partnerships. Triggered by FHIR, HL7, EHR integration, health data exchange, clinical terminology, PRO, HTC, RWE, consent management.
+description: FHIR (HL7) standards R4/R5 with resource types, profiles, extensions, and operations. EHR integration patterns for Epic/MyChart, Cerner, Argonaut, USCDI, and SMART on FHIR. Health data exchange
+  via HIE networks, TEFCA, Direct Secure Messaging, XDR/XDM. Hemophilia Treatment Center (HTC) data exchange workflows for rare disease registries. Patient-reported outcome (PRO) data standards including
+  PROMIS, PRO-CTCAE, and electronic PRO (ePRO). Clinical terminology with SNOMED CT, LOINC, ICD-10-CM, RxNorm, MedDRA. Data mapping pipelines from source systems to FHIR resources to internal data models.
+  Consent management for patient data sharing with granular HIE consent. Real-world evidence (RWE) data pipelines for pharma partnerships. Triggered by FHIR, HL7, EHR integration, health data exchange,
+  clinical terminology, PRO, HTC, RWE, consent management.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - clinical-informatics
-  - fhir
-  - hl7
-  - ehr
-  - healthcare-interoperability
-  - hemophilia
-  - patient-reported-outcomes
-  - real-world-evidence
+- clinical-informatics
+- fhir
+- hl7
+- ehr
+- healthcare-interoperability
+- hemophilia
+- patient-reported-outcomes
+- real-world-evidence
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - compliance-officer
-    - api-designer
-    - database-designer
+  - backend-developer
+  - compliance-officer
+  - patient-experience-researcher
+  - regulatory-specialist
   feeds_into:
-    - data-engineer
-    - analytics-engineer
-    - security-engineer
+  - ai-safety-health-reviewer
+  - data-engineer
+  - medical-content-reviewer
+  - patient-experience-researcher
+  - patient-health-educator
+  - product-manager
 ---
 # Clinical Informatics Specialist
 
@@ -45,7 +52,12 @@ What are you trying to do?
 ├── Map clinical terminology (SNOMED, LOINC, ICD-10) → Go to "Core Workflow > Phase 3 (Terminology Mapping)"
 ├── Design consent management flows → Jump to "Core Workflow > Phase 4 (Consent & Governance)"
 ├── Build an RWE pipeline for pharma → Go to "Best Practices > Real-World Evidence Pipelines"
-├── Need HIPAA compliance or regulatory guidance → Invoke compliance-officer skill instead
+├── Need HIPAA compliance or regulatory guidance → Invoke `compliance-officer` skill instead
+├── Need medical content clinical accuracy review? → Invoke `medical-content-reviewer` for evidence-based content validation
+├── Need patient experience research or PROM validation? → Invoke `patient-experience-researcher` for patient journey mapping and PRO instrument selection
+├── Need regulatory/safety review of clinical data flows? → Invoke `regulatory-specialist` for FDA/EU regulatory pathway guidance
+├── Need AI safety validation for health content? → Invoke `ai-safety-health-reviewer` for clinical AI guardrail testing
+├── Need backend integration for FHIR server? → Invoke `backend-developer` for FHIR API implementation
 └── Don't know where to start? → Describe the clinical data source and target system and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -191,6 +203,24 @@ Interoperability failure (data exchange down > SLA)? → Data Engineer → Syste
 Clinical terminology mapping error (wrong code → wrong decision support)? → Clinical lead → Health Compliance
 Patient consent system failure (consent not enforced)? → Security Engineer → Health Compliance → Legal Advisor
 ```
+
+### Regulatory Handoffs & Clinical Validation Gates
+
+| Handoff Trigger | Route To | Protocol | Regulatory Timeline |
+|----------------|----------|----------|---------------------|
+| New FHIR profile created for clinical data exchange | `compliance-officer` → `security-engineer` | Profile validation → HIPAA minimum necessary review → Data use purpose alignment → Consent mapping | Before profile deployment to production |
+| Terminology mapping error discovered (wrong code → wrong clinical decision) | `medical-content-reviewer` → clinical lead | Quarantine affected data → Correct mapping → Re-validate downstream systems → Notify impacted analytics | Within 24 hours of discovery |
+| EHR integration endpoint returns PHI without proper authorization | `security-engineer` → `compliance-officer` → `legal-advisor` | Halt data flow → Audit access logs → Patient notification assessment → Corrective action | Within 4 hours |
+| Consent framework update required (new regulation, policy change) | `compliance-officer` → `legal-advisor` | Review regulatory requirement → Update Consent resource definitions → Re-validate existing consents → Deploy | Per regulatory deadline |
+| PRO instrument changed (new version, updated scoring algorithm) | `patient-experience-researcher` → `data-engineer` | Validate new scoring → Update pipeline → Backfill historical scores → Notify analytics consumers | Before next data collection cycle |
+| Real-world evidence (RWE) data sharing with pharma partner | `compliance-officer` → `legal-advisor` | De-identification verification → Data use agreement review → Patient consent scope validation → Audit trail setup | Before first data transfer |
+
+**Clinical Validation Gates:**
+- **FHIR profile validation gate:** Every FHIR StructureDefinition must pass FHIR validator before any integration code is written. Validated profile catches 80% of interoperability issues at design time. Artifact: FHIR validation report.
+- **Terminology code accuracy gate:** All SNOMED CT, LOINC, ICD-10-CM codes validated against ValueSet authority for the target use case. "Close enough" code = clinical decision support failure. Artifact: Terminology mapping validation report.
+- **Consent enforcement gate:** Every data exchange must trace to a valid, unexpired Consent resource with matching purpose-of-use and data scope. Missing consent = HIPAA violation. Artifact: Consent validation log per data exchange.
+- **PRO instrument validation gate:** PRO instrument must be validated for target population (condition, age, language, literacy level). Unvalidated instrument = unreliable data. Artifact: PRO validation evidence summary.
+- **De-identification verification gate:** Expert Determination or Safe Harbor verification before any data leaves the clinical environment. Re-identification risk must be certified as "very small." Artifact: De-identification certification.
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

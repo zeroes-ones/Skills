@@ -1,17 +1,44 @@
 ---
 name: qa-engineer
-description: "Test pyramid strategy, unit/integration/e2e testing with Playwright and Cypress, API testing, performance testing with k6, test automation frameworks, coverage goals, and quality metrics. Trigger: QA, quality assurance, testing, test strategy, Playwright, Cypress, k6, test automation, coverage."
+description: 'Test pyramid strategy, unit/integration/e2e testing with Playwright and Cypress, API testing, performance testing with k6, test automation frameworks, coverage goals, and quality metrics.
+  Trigger: QA, quality assurance, testing, test strategy, Playwright, Cypress, k6, test automation, coverage.'
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - qa-engineer
+- qa-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - accessibility-auditor
+  - accessibility-testing
+  - api-designer
+  - backend-developer
+  - ci-cd-builder
+  - code-reviewer
+  - customer-support-engineer
+  - embedded-engineer
+  - firmware-developer
+  - frontend-developer
+  - fullstack-developer
+  - idea-to-spec
+  - localization-engineer
+  - mobile-developer
+  - product-manager
+  - security-reviewer
+  - translation-manager
+  feeds_into:
+  - accessibility-testing
+  - ci-cd-builder
+  - code-reviewer
+  - devops-engineer
+  - release-manager
+  - security-reviewer
 ---
 # QA Engineer
 
@@ -29,6 +56,12 @@ What are you trying to do?
 ├── Manual testing session → Jump to "Core Workflow > Phase 3" (Manual Testing), then "Best Practices > Manual Testing Anti-Patterns"
 ├── Performance/load testing → Go to "Sub-Skills > performance-k6" and "Core Workflow > Phase 2"
 ├── Security testing → Go to "Security Test Patterns" — invoke security-reviewer for deep audits
+├── Need product requirements → Invoke product-manager skill instead
+├── Need backend test strategy → Invoke backend-developer skill instead
+├── Need frontend test strategy → Invoke frontend-developer skill instead
+├── Need code review → Invoke code-reviewer skill instead
+├── Need release management → Invoke release-manager skill instead
+├── Need DevOps to fix test infrastructure → Invoke devops-engineer skill instead
 └── Not sure where to start? → "Core Workflow > Phase 0" (Triage) — describe what you're testing
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -242,26 +275,25 @@ Debugging flaky tests and improving test stability
 - **Tagging**: Tag tests by type (`@smoke`, `@regression`, `@slow`, `@flaky`) for selective execution in CI.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-QA engineers bridge development, operations, and product — ensuring quality is built in, not inspected after. Coordination with developers, security, DevOps, and product is essential for shift-left quality.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `product-manager` | Acceptance criteria, user scenarios, edge cases, expected behavior for quality assessment | Before writing test cases; ensures tests reflect actual requirements |
+| `backend-developer` | API contract (OpenAPI spec), test data requirements, mock service endpoints, error response scenarios | Before designing API/integration tests |
+| `frontend-developer` | Test IDs (data-testid), critical user flows, loading/error/empty states, accessibility requirements | Before authoring E2E or component tests |
+| `idea-to-spec` | Feature specifications, acceptance criteria, user stories, non-functional requirements | Before writing test plans; ensures test coverage aligns with specs |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | API testing, integration test design | API contract (OpenAPI spec), test data requirements, mock service endpoints, error response scenarios |
-| **Frontend Developer** | E2E test authoring, visual regression | Test IDs (data-testid), critical user flows, loading/error/empty states, accessibility requirements |
-| **Mobile Developer** | Device matrix, platform-specific testing | Device coverage plan, Maestro/Detox configuration, offline scenarios, platform permission test cases |
-| **Security Reviewer** | Security test cases, penetration testing | Share auth test scenarios, input validation edge cases; receive security findings for test case creation |
-| **DevOps Engineer** | CI test integration, test environments | Test environment provisioning, test database seeding, CI pipeline test stage configuration |
-| **CI/CD Builder** | Quality gates, test stage design | Coverage thresholds, flaky test quarantine, test parallelization, artifact management for test reports |
-| **Observability Engineer** | Performance testing, SLI validation | k6/Artillery script review, response time thresholds, error rate validation against SLOs |
-| **Product Strategist** | Acceptance criteria, user scenarios | Clarify expected behavior, edge cases, and user impact; report quality trends for roadmap input |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `code-reviewer` | Flagged test coverage gaps, edge cases, additional test scenarios for complex changes | Code reviewer can't assess test quality without QA input |
+| `security-reviewer` | Auth test scenarios, input validation edge cases, security test results | Security review lacks test coverage evidence — gaps in vulnerability detection |
+| `release-manager` | Release readiness assessment, test pass/fail report, known issues list, risk assessment | Release manager can't make go/no-go decision without quality signal |
+| `devops-engineer` | Test environment requirements, test database seeding, CI pipeline test stage configuration | DevOps can't provision test infra without QA requirements |
 
 ### Communication Triggers
 
 | Trigger | Notify | Why |
-|---------|--------|-----|
+|---|---|---|
 | Test coverage drops below threshold | Development team lead | Root cause investigation; coverage must be restored before next deploy |
 | Flaky test rate exceeds 2% | Development team, DevOps | Quarantine flaky tests; investigate root cause; CI reliability at risk |
 | Critical bug found in staging | Product Strategist, Development lead | Go/no-go decision for release; risk assessment |

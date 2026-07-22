@@ -1,17 +1,36 @@
 ---
 name: observability-engineer
-description: Metrics, logs, traces integration, SLO/SLI/error budget framework, Prometheus/Grafana/Loki/Tempo, OpenTelemetry, dashboard design (USE/RED/golden signals), alert design, and incident response. Triggered by observability, monitoring, prometheus, grafana, SLO, alert, dashboard, golden signals, tracing, opentelemetry.
+description: Metrics, logs, traces integration, SLO/SLI/error budget framework, Prometheus/Grafana/Loki/Tempo, OpenTelemetry, dashboard design (USE/RED/golden signals), alert design, and incident response.
+  Triggered by observability, monitoring, prometheus, grafana, SLO, alert, dashboard, golden signals, tracing, opentelemetry.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - observability-engineer
+- observability-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+  - algorithmic-trader
+  - backend-developer
+  - devops-engineer
+  - docker-kubernetes
+  - mlops-engineer
+  - platform-engineer
+  - site-reliability-engineer
+  feeds_into:
+  - algorithmic-trader
+  - chaos-engineer
+  - customer-support-engineer
+  - devops-engineer
+  - incident-responder
+  - performance-engineer
+  - platform-engineer
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Observability Engineer
 
@@ -31,6 +50,10 @@ What are you trying to do?
 ├── Design a dashboard (RED/USE/Golden Signals) → Go to "Core Workflow > Phase 4" (Dashboards) and "Best Practices > Dashboard Design"
 ├── Configure alerts (SLO-based, multi-window burn rate) → Jump to "Core Workflow > Phase 5" (Alerting) and "Best Practices > Alert Design"
 ├── Define SLOs and error budgets → Go to "Decision Trees > SLO Definition" and "Core Workflow > Phase 5"
+├── Need infrastructure for monitoring → Invoke `devops-engineer` skill instead
+├── Need reliability and SLO framework → Invoke `site-reliability-engineer` skill instead
+├── Need incident response integration → Invoke `incident-responder` skill instead
+├── Need platform observability → Invoke `platform-engineer` skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — instrumentation comes first; you can't observe what you don't measure
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -528,39 +551,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `metrics-collection` | Prometheus metrics design, cardinality management, recording rules, and long-term storage |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Observability engineers make systems understandable. They instrument services, build dashboards, configure alerts, and define SLOs — coordinating with every service owner, SRE, and incident responder in the organization.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `devops-engineer` | Prometheus/Thanos deployment, Grafana provisioning, Alertmanager config, PagerDuty integration | Before deploying monitoring infrastructure or configuring alert routing |
+| `site-reliability-engineer` | SLI/SLO definitions, burn rate alert formulas, synthetic monitoring requirements | Before designing dashboards or configuring alert thresholds |
+| `backend-developer` | RED metrics implementation, structured logging format, trace context propagation, custom business metrics | Before instrumenting services or defining metric taxonomy |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Service instrumentation, metric design | RED metrics implementation, structured logging format, trace context propagation, custom business metrics |
-| **Frontend Developer** | RUM setup, Core Web Vitals tracking | Web Vitals instrumentation, error boundary telemetry, user journey tracing, session replay config |
-| **DevOps Engineer** | Monitoring infrastructure deployment, alert routing | Prometheus/Thanos deployment, Grafana provisioning, Alertmanager config, PagerDuty integration |
-| **SRE / Incident Responder** | Alert design, SLO enforcement, incident response | Alert severity calibration, burn rate thresholds, error budget policy, on-call runbook links in alerts |
-| **Security Engineer** | Audit logging, anomaly detection | Audit log collection, SIEM integration, anomaly detection rules, PII redaction in logs |
-| **Data Engineer** | Data pipeline observability, cost monitoring | Pipeline metrics (lag, freshness, row counts), warehouse query performance, Spark cluster metrics |
-| **Cloud Architect** | Cloud-native observability (CloudWatch, Cloud Monitoring) | AWS/GCP/Azure native monitoring integration, cost allocation for observability data, log storage tiering |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Error budget burn rate exceeds threshold (fast burn) | Service owner, Incident Responder | Potential SEV2/SEV1; may need immediate mitigation |
-| New service deployed without instrumentation | Service owner, DevOps | Add RED metrics, structured logging, and tracing before production traffic |
-| Alert storm (>5 alerts in 5 minutes) | Incident Responder, DevOps | Investigate root cause; may need alert correlation/suppression |
-| Observability cost spike (log volume 2x, metric cardinality explosion) | Service owner, Cloud Architect | Identify source; add sampling, cardinality limits, or log filtering |
-| Dashboard showing stale data (>1 hour) | DevOps | Data pipeline health check; Prometheus/Thanos/Loki storage investigation |
-
-### Escalation Path
-
-```
-SLO breach (error budget exhausted)? → Service owner → Incident Responder → CTO Advisor
-Observability infrastructure down? → DevOps Engineer → Cloud Architect
-Alerting not firing during incident? → Incident Responder (immediate fix)
-Cardinality explosion degrading Prometheus? → DevOps Engineer → Cloud Architect (infra scale)
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `site-reliability-engineer` | Metrics dashboards, burn rate alerts, SLO instrumentation, alert severity calibration | SRE can't enforce error budgets — reliability at risk |
+| `devops-engineer` | Monitoring infrastructure deployment specs, log aggregation endpoints, alert routing configuration | Infrastructure teams blind to system health — ops risk |
+| `incident-responder` | Alert correlation signals, dashboard links, anomaly detection, metric trends | Incident responders can't diagnose issues — MTTR skyrockets |
+| `platform-engineer` | Standard observability across all services, self-service dashboards, alert templates | Platform can't provide observability — developer experience degraded |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

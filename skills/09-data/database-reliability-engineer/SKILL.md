@@ -1,17 +1,30 @@
 ---
 name: database-reliability-engineer
-description: Database reliability architecture (HA, DR, RPO/RTO), replication and sharding strategies, query optimization, index strategy, connection pooling, backup/recovery, migration with zero downtime, multi-tenant design, and database fleet management. Triggered by DBRE, database reliability, database operations, database scaling, query optimization, sharding, replication, database HA, database DR, database backup.
+description: Database reliability architecture (HA, DR, RPO/RTO), replication and sharding strategies, query optimization, index strategy, connection pooling, backup/recovery, migration with zero downtime,
+  multi-tenant design, and database fleet management. Triggered by DBRE, database reliability, database operations, database scaling, query optimization, sharding, replication, database HA, database DR,
+  database backup.
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - database-reliability-engineer
+- database-reliability-engineer
 token_budget: 4000
+chain:
+  consumes_from:
+  - data-engineer
+  - database-designer
+  - devops-engineer
+  - migration-architect
+  feeds_into:
+  - data-engineer
+  - devops-engineer
+  - market-data-engineer
+  - site-reliability-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Database Reliability Engineer (DBRE)
 
@@ -37,6 +50,10 @@ What are you trying to do?
 ├── Zero-downtime migration → Jump to "Sub-Skills > migration-strategy"
 ├── Need schema design → Invoke database-designer skill instead
 ├── Need infrastructure monitoring → Invoke site-reliability-engineer skill instead
+├── Need schema design → Invoke `database-designer` skill instead
+├── Need infrastructure provisioning → Invoke `devops-engineer` skill instead
+├── Need data pipelines → Invoke `data-engineer` skill instead
+├── Need reliability framework → Invoke `site-reliability-engineer` skill instead
 └── Don't know where to start? → Start at "Decision Trees" for RPO/RTO-based architecture selection
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -278,46 +295,18 @@ Recovery requirements?
     - Anti-pattern: SSH into production to run ad-hoc queries. Use read replicas or staging.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-DBREs sit at the intersection of infrastructure, application, and data. Schema changes break applications,
-replication lag breaks dashboards, and connection exhaustion causes outages. Coordination prevents these.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `database-designer` | Schema designs, normalization decisions, access patterns, query frequency, expected data volume, SCD requirements | Before planning replication topology, sharding, or index strategy |
+| `devops-engineer` | Instance sizing, replication topology, backup retention, monitoring thresholds, Terraform/Pulumi configs | Before provisioning database infrastructure or configuring backups |
+| `data-engineer` | ETL/ELT pipeline impact, CDC setup, read replica access patterns, WAL generation rate | Before connecting pipelines to production databases |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Backend Developer** | Schema migrations, query patterns, N+1 queries, connection management | Migration safety review, query optimization recommendations, connection pool sizing, ORM configuration |
-| **Database Designer** | Schema design decisions, normalization tradeoffs, index strategy | Access patterns, query frequency, expected data volume, SCD requirements |
-| **DevOps Engineer** | Infrastructure provisioning, backup scheduling, monitoring setup | Instance sizing, replication topology, backup retention, monitoring thresholds, Terraform/Pulumi configs |
-| **Observability Engineer** | Database monitoring, alerting rules, SLO dashboards | Connection metrics, query performance metrics, replication lag, deadlock counts, storage forecasts |
-| **Data Engineer** | ETL/ELT pipeline impact, CDC setup, read replica access | Replication slot management, WAL disk usage from stuck replication slots, query impact on primary performance |
-| **Security Engineer** | Encryption, access control, audit logging, PII handling | Encryption at rest/transit configuration, IAM integration, audit logging requirements, column-level access |
-| **Incident Responder** | Database outages, replication failures, data corruption | Runbooks, escalation procedures, rollback procedures, failover decision trees |
-| **Chaos Engineer** | Database failure injection, failover testing, connection exhaustion | Failure mode documentation, steady-state metrics, blast radius definition, recovery procedures |
-| **Cost Optimization (FinOps)** | Instance right-sizing, reserved instances, storage tiering | Utilization metrics, growth forecasts, managed vs self-hosted cost comparisons |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Schema migration that locks table for > 1s | Backend Developer, DevOps Engineer | Potential production impact; schedule during low-traffic window |
-| Replication lag > 10s or growing | Backend Developer, Data Engineer, Observability | Read replicas serving stale data; CI/CD pipeline may need pausing |
-| Connection pool > 80% capacity | Backend Developer, DevOps Engineer | Imminent connection exhaustion; scale pool or add instances |
-| Storage > 75% or < 7 days remaining | DevOps Engineer, Data Engineer | Provision additional storage or archive data before outage |
-| Backup failure (any) | DevOps Engineer, Incident Responder (if consecutive) | Backup gap extends RPO; investigate immediately |
-| Deadlock rate spike | Backend Developer | Application transaction design issue; update ordering problem |
-| Vacuum wraparound approaching (PostgreSQL) | DevOps Engineer | Critical — database will shut down if not resolved; escalate immediately |
-
-### Escalation Path
-
-```
-Database down / unreachable? → DevOps Engineer → Incident Responder (SEV1)
-Replication completely broken? → DevOps Engineer → Incident Responder (SEV2)
-Data corruption detected? → DevOps Engineer → Incident Responder → Security Engineer (if malicious)
-Performance degradation affecting users? → Backend Developer → Observability → Incident Responder
-Cost anomaly (5x normal spend)? → FinOps → Cloud Architect → CTO Advisor
-Vacuum wraparound imminent? → DevOps Engineer → Incident Responder (SEV1 — database will shut down)
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `data-engineer` | Replication slot management, WAL disk usage monitoring, query impact on primary, read replica health | Data pipelines consume stale data or overload primary — pipeline failures cascade |
+| `devops-engineer` | Database provisioning specs, backup verification, monitoring alerts, failover runbooks | Infrastructure teams can't manage databases — reliability gaps |
+| `site-reliability-engineer` | Database SLO definitions, failover procedures, capacity forecasts, runbooks for database incidents | SRE can't enforce database reliability — outages unmanaged |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

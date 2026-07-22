@@ -12,6 +12,9 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["devops-engineer", "ci-cd-builder", "backend-developer"]
+  feeds_into: ["ci-cd-builder", "backend-developer", "frontend-developer"]
 ---
 # Monorepo Manager
 
@@ -28,6 +31,10 @@ What are you trying to do?
 ├── Optimize CI/CD for monorepo → Jump to "CI/CD for Monorepos" under Sub-Skills
 ├── Set up versioning strategy → Go to "Versioning & Release" under Sub-Skills
 ├── Migrate from polyrepo → Jump to "Polyrepo Migration" under references/
+├── Need CI/CD pipeline setup first → Route to `ci-cd-builder`
+├── Need backend service structure defined → Route to `backend-developer`
+├── Need frontend architecture decided → Route to `frontend-developer`
+├── Need infrastructure provisioning → Route to `devops-engineer`
 └── Don't know where to start? → Start at "Workspace Configuration"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -538,6 +545,14 @@ module.exports = {
 <!-- QUICK: 30s -- table of who to talk to when -->
 Monorepo management touches every development team. A monorepo tooling change affects everyone's daily workflow — coordination isn't optional.
 
+### Decision Gates & Artifacts
+
+- **Gate 1 — Infrastructure Ready:** Monorepo tooling requires CI/CD infrastructure and caching layers provisioned by `devops-engineer`. Artifact: infrastructure readiness checklist.
+- **Gate 2 — CI/CD Pipeline Defined:** Build orchestration depends on pipeline configuration from `ci-cd-builder`. Artifact: turbo.json or nx.json with task pipelines.
+- **Gate 3 — Project Structures Defined:** Workspace configuration requires backend and frontend project structures from `backend-developer` and `frontend-developer`. Artifact: workspace boundary map.
+- **Gate 4 — Dependency Governance Enforced:** Package boundaries and dependency rules validated across all consumer teams. Artifact: dependency graph audit with zero circular deps.
+- **Artifact:** Monorepo tooling selection rationale, workspace configuration (pnpm-workspace.yaml, turbo.json), dependency graph visualization.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **All Frontend Teams** | Shared package updates, workspace changes, build config | Package version bumps, breaking changes in shared libs, workspace dependency rules |
@@ -584,6 +599,16 @@ Monorepo management touches every development team. A monorepo tooling change af
 | Performance fix didn't help | Wrong bottleneck identified | Profile before optimizing. Use flame graphs, not guesses. Measure p50/p95/p99 before and after every change. |
 | Documentation already obsolete by publish | Docs separate from code | Move docs into the codebase. Auto-generate API reference from OpenAPI/TypeScript types. Review docs in the same PR as code changes. |
 | Migration takes 3x longer than estimated | Hidden dependencies not discovered in planning | Dependency audit before estimating. Count every: API contract, database view, ETL job, webhook consumer, reverse dependency. |
+
+### Route to Other Skills
+
+| If the Request Is About | Route To |
+|--------------------------|----------|
+| CI/CD pipeline setup, build caching, remote execution | `ci-cd-builder` |
+| Shared library APIs, schema evolution, contract testing | `backend-developer` |
+| Shared UI components, design system, workspace tooling | `frontend-developer` |
+| CI/CD infrastructure, deployment orchestration | `devops-engineer` |
+| Module boundaries, extraction candidates, dependency rules | `system-architect` |
 
 
 ## Production Checklist

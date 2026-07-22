@@ -4,14 +4,29 @@ description: A/B testing frameworks, conversion rate optimization, viral loops, 
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - growth-engineer
+- growth-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - analytics-engineer
+  - business-intelligence-engineer
+  - customer-success-manager
+  - data-scientist
+  - devrel-advocate
+  - frontend-developer
+  - revops-manager
+  - seo-specialist
+  feeds_into:
+  - demand-generation
+  - marketing-manager
+  - product-manager
+  - revops-manager
 ---
 # Growth Engineer
 
@@ -34,6 +49,10 @@ What are you trying to do?
 │   └── Modeling what-if scenarios → Go to "Sub-Skills > Growth Modeling"
 ├── Activation metrics & aha moments
 │   └── Defining and measuring activation → Jump to "Core Workflow > Phase 1"
+├── Cross-skill: Validate experiment data quality with `analytics-engineer` → Open that skill
+├── Cross-skill: Coordinate experiment variants with `frontend-developer` → Open that skill
+├── Cross-skill: Align growth strategy with `product-manager` roadmap → Open that skill
+├── Cross-skill: Sync experiment revenue impact with `revops-manager` → Open that skill
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -259,6 +278,22 @@ These rules apply to *every* response this skill produces.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Growth engineering intersects product, marketing, data, and engineering. Experiments fail when coordination breaks — wrong data, wrong audience, or wrong interpretation.
 
+### Decision Gates & Artifacts
+
+| Gate | Condition | Action |
+|------|-----------|--------|
+| Growth ↔ Data | Experiment tracking setup or data quality issue | Coordinate with `analytics-engineer` or `data-scientist`; share tracking plan and event taxonomy |
+| Growth ↔ Frontend | UI experiment, landing page variant, or feature flag | Involve `frontend-developer`; share variant specs and rendering requirements |
+| Growth ↔ Product | Growth experiment conflicts with roadmap or feature flags | Coordinate with `product-manager`; align experiment calendar with product milestones |
+| Growth ↔ Marketing | Campaign experiment or channel attribution test | Sync with `marketing-manager`; agree on audience targeting and attribution methodology |
+| Growth ↔ RevOps | Revenue-impacting experiment or pricing test | Involve `revops-manager`; share projected revenue impact and success criteria |
+
+**Artifacts shared across skills:**
+- Experiment hypothesis register (shared with `data-scientist`, `product-manager`)
+- Growth model spreadsheet (shared with `product-manager`, `revops-manager`, `marketing-manager`)
+- Feature flag configuration map (shared with `frontend-developer`)
+- Experiment results dashboard (shared with `data-scientist`, `analytics-engineer`, `marketing-manager`, `product-manager`)
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Product Strategist** | Hypothesis generation, roadmap alignment | Experiment backlog, growth model inputs, feature prioritization impact |
@@ -293,6 +328,13 @@ Growth engineering intersects product, marketing, data, and engineering. Experim
 | Data pipeline failure corrupting experiment results for >24 hours | **Data Lead** + CTO Advisor | Trust in experimentation system at risk |
 | Growth team blocked by engineering for >1 sprint without resolution | **CTO Advisor** or VP Engineering | Prioritization escalation; growth impact quantified |
 | Experiment suggests pricing change could increase revenue >20% | **Product Strategist** + CEO Strategist + Legal Advisor | Strategic pricing decision; legal and competitive review |
+
+### Route to Other Skills
+
+- **`analytics-engineer`** — When experiment tracking, event taxonomy, or data pipeline integration is needed
+- **`frontend-developer`** — When implementing UI variants, landing page experiments, or feature flags
+- **`product-manager`** — When growth experiments need product roadmap alignment or feature prioritization input
+- **`revops-manager`** — When experiments affect pricing, revenue models, or sales funnel metrics
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

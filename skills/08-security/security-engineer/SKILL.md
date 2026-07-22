@@ -1,17 +1,41 @@
 ---
 name: security-engineer
-description: Application security, penetration testing, IAM design, secrets management, API security, network security, zero trust, and security monitoring. Triggered by security, pentest, IAM, secrets, zero trust, vulnerability, threat model, API security.
+description: Application security, penetration testing, IAM design, secrets management, API security, network security, zero trust, and security monitoring. Triggered by security, pentest, IAM, secrets,
+  zero trust, vulnerability, threat model, API security.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - security-engineer
+- security-engineer
 token_budget: 2835
+chain:
+  consumes_from:
+  - cloud-architect
+  - compliance-officer
+  - devops-engineer
+  - gdpr-privacy
+  - incident-responder
+  - privacy-engineer
+  - system-architect
+  feeds_into:
+  - backend-developer
+  - ci-cd-builder
+  - cloud-architect
+  - compliance-officer
+  - cto-advisor
+  - devops-engineer
+  - firmware-developer
+  - incident-responder
+  - networking-engineer
+  - privacy-engineer
+  - security-reviewer
+  - system-architect
+  - trust-safety-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Security Engineer
 
@@ -28,8 +52,10 @@ What are you trying to do?
 ├── Set up secrets management (Vault, SOPS) → Jump to "Core Workflow" — Phase 4 (Secrets Management)
 ├── Implement zero trust architecture → Jump to "Core Workflow" — Phase 5 (Network Security & Zero Trust)
 ├── Respond to a vulnerability or security incident → Jump to "Core Workflow" — Phase 6 (Monitoring & Detection)
-├── Need compliance or regulatory guidance → Invoke compliance-officer skill instead
-├── Active breach in progress → Invoke incident-responder skill instead
+├── Need compliance or regulatory guidance → Invoke `compliance-officer` skill instead
+├── Active breach in progress → Invoke `incident-responder` skill instead
+├── Need cloud security architecture → Invoke `cloud-architect` skill instead
+├── Need infrastructure hardening → Invoke `devops-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -187,39 +213,20 @@ When this skill is invoked, the agent may need to drill into these specialized a
 > Every pull request runs SAST, SCA, and container scanning in CI, and critical findings block merge without exception. Secrets never touch plaintext — pre-commit hooks catch them, Vault issues dynamic credentials that auto-expire, and rotation is fully automated. The threat model is a living document reviewed every quarter, and new features ship with abuse cases already mitigated. The SIEM surfaces actionable signals, not noise, and the mean time to remediate a critical CVE is under 24 hours. Security is embedded in the engineering workflow, not bolted on at release time.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Security engineers protect the entire organization — they must coordinate with every development team, DevOps for infrastructure hardening, compliance for regulatory alignment, and incident responders for threat containment.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `compliance-officer` | Control requirements mapped to technical implementations, compliance evidence expectations, audit preparation support | Before implementing security controls that must satisfy regulatory frameworks |
+| `system-architect` | System topology, trust boundaries, data flow diagrams, component interactions | Before threat modeling or designing security architecture |
+| `cloud-architect` | KMS key policies, SCP design, CloudTrail/Audit Log configuration, WAF rules, DDoS protection | Before configuring cloud security posture or IAM policies |
+| `devops-engineer` | Vault/Secrets Manager architecture, security group/NetworkPolicy design, IAM least-privilege, container hardening | Before implementing secrets management or network security controls |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **All Developers** (Backend, Frontend, Mobile, Fullstack) | Auth design, data protection, dependency management | Security requirements per data classification, approved crypto libraries, secure coding patterns, dependency allowlists |
-| **Security Reviewer** | Pre-merge security audits, vulnerability triage | Review scope, risk appetite, findings that need architectural changes; escalate Critical findings for immediate action |
-| **DevOps Engineer** | Infrastructure security, secrets management, network policies | Vault/Secrets Manager architecture, security group/NetworkPolicy design, IAM least-privilege, container hardening |
-| **Cloud Architect** | Cloud security posture, IAM, encryption | KMS key policies, SCP design, CloudTrail/Audit Log configuration, WAF rules, DDoS protection |
-| **CI/CD Builder** | Pipeline security integration | SAST/SCA/DAST tool placement in pipeline, secret scanning, signed commits, SLSA provenance |
-| **Compliance Officer** | Control implementation, evidence collection | Technical control evidence, vulnerability management metrics, audit preparation support |
-| **Incident Responder** | Threat detection, incident response | Detection rules, SOAR playbooks, forensic tooling access, threat intelligence sharing |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| Critical CVE affecting production dependency | All service owners, DevOps, CI/CD Builder | Coordinated patching; assess exploitability and blast radius |
-| Security incident detected (breach, data leak, active attack) | Incident Responder, Compliance Officer, CTO | Immediate war room; legal notification assessment |
-| New security tool/control being deployed (WAF, IDS, DLP) | DevOps, Cloud Architect, All developers | Integration impact; potential false positives during tuning period |
-| Password/secret policy change | All developers, DevOps | Tooling update; CI secret scanning may flag newly non-compliant secrets |
-| Zero-day affecting a technology in our stack | All service owners, Incident Responder | Emergency assessment; mitigations while patch is unavailable |
-
-### Escalation Path
-
-```
-Active security breach? → Incident Responder (declare SEV1) → CISO → CTO
-Regulatory non-compliance? → Compliance Officer → Legal Advisor → CEO
-Critical vulnerability unpatched > SLA? → Service owner → Engineering Manager → CTO
-Security tool outage (WAF down, IDS offline)? → DevOps → Cloud Architect
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `security-reviewer` | Security requirements per data classification, approved crypto libraries, secure coding patterns, dependency allowlists | Code reviews miss security issues — vulnerabilities ship to production |
+| `backend-developer` | Auth design patterns, data protection requirements, secure coding guidance, dependency security policies | Developers implement insecure patterns — technical debt accumulates |
+| `incident-responder` | Detection rules, SOAR playbooks, forensic tooling access, threat intelligence sharing | Incident response has no detection capability — breaches go unnoticed |
+| `compliance-officer` | Technical control evidence, vulnerability management metrics, security monitoring coverage | Compliance audits fail without technical evidence — certification at risk |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

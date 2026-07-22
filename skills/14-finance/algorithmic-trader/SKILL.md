@@ -15,7 +15,10 @@ output:
 chain:
   consumes_from:
     - quantitative-analyst
+    - market-data-engineer
     - system-architect
+    - backend-developer
+    - observability-engineer
   feeds_into:
     - backend-developer
     - frontend-developer
@@ -51,6 +54,10 @@ What are you trying to do?
 ├── Design UOA-specific strategy → Jump to "Decision Trees > Entry Strategy Selection"
 ├── Need quantitative signal generation → Invoke quantitative-analyst skill instead
 ├── Need ML-based signal detection → Invoke ml-ai-engineer skill as alternative
+├── Need market data pipeline (options flow, tick storage) → Invoke `market-data-engineer` skill
+├── Need trading system architecture (event bus, failover) → Invoke `system-architect` skill
+├── Need order management system / broker API client → Invoke `backend-developer` skill
+├── Need trading dashboards / Prometheus alerting → Invoke `observability-engineer` skill
 └── Not sure? → Describe the trade or problem in plain language and I will route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -588,7 +595,10 @@ Validate strategies before risking capital. Learn from every trade — winners a
 | Skill | What It Provides | How This Skill Uses It |
 |-------|-----------------|----------------------|
 | **quantitative-analyst** | UOA signal JSON: ticker, direction, conviction, expected timeframe, flow metrics (premium, volume, OI change, IV percentile) | Phase 1: Parses signal envelope, validates freshness. Entry decisions are downstream of quant signal quality — garbage signals produce garbage trades regardless of execution quality. Feed signal metadata back to quant-analyst for model improvement. |
+| **market-data-engineer** | Clean options flow data, adjusted chains, corporate actions, real-time streaming via Kafka/Redpanda | Phase 1 Pre-flight: Validates that market data pipeline is healthy before consuming signals. **Decision gate:** Is data freshness < 60s? → proceed. Are corporate actions current? → proceed. Otherwise, halt and invoke `market-data-engineer`. **Artifact:** pipeline health check report. |
 | **system-architect** | Trading system topology: event bus design, database schema for time-series data, API gateway patterns, failover architecture | Phase 3-5: Execution engine design — how signals flow from quant pipeline → order management → broker API. System-architect defines the reliability patterns (circuit breakers, retry policies, idempotency) that prevent duplicate orders and missed exits. |
+| **backend-developer** | Order management system (OMS) API, idempotent order submission endpoints, position tracking service | Phase 3: Consumes order execution specs. **Decision gate:** Are idempotency keys implemented? → proceed. Is OMS circuit breaker tested? → proceed. **Artifact:** OMS integration test report. |
+| **observability-engineer** | Prometheus metrics definitions, Grafana dashboard templates, alerting rule thresholds | Phase 5-6: Consumes trading-specific metric requirements. **Decision gate:** Are slippage alerts firing at >50 bps? → calibrate. **Artifact:** trading dashboard JSON + alert config YAML. |
 
 ### Feeds Into
 

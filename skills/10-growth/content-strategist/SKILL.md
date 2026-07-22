@@ -4,14 +4,24 @@ description: Content planning, editorial calendars, content audits, content mark
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - content-strategist
+- content-strategist
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - devrel-advocate
+  - product-manager
+  - seo-specialist
+  - ux-writer
+  feeds_into:
+  - devrel-advocate
+  - marketing-manager
+  - seo-specialist
 ---
 # Content Strategist
 
@@ -36,6 +46,9 @@ What are you trying to do?
 │   └── Maximizing existing content ROI → Go to "Sub-Skills > Content Repurposing"
 ├── Tone of voice guidelines
 │   └── Inconsistent brand voice → Go to "Sub-Skills > Tone-of-Voice & Style Guidelines"
+├── Cross-skill: Coordinate content-keyword strategy with `seo-specialist` → Open that skill
+├── Cross-skill: Involve `devrel-advocate` for developer tutorials and technical content → Open that skill
+├── Cross-skill: Align campaign content with `marketing-manager` → Open that skill
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -257,6 +270,22 @@ These rules apply to *every* response this skill produces.
 <!-- QUICK: 30s -- table of who to talk to when -->
 Content strategy sits between marketing, product, SEO, and brand. Content produced in silos underperforms; coordination amplifies reach and relevance.
 
+### Decision Gates & Artifacts
+
+| Gate | Condition | Action |
+|------|-----------|--------|
+| Content ↔ SEO | Keyword strategy or topic cluster change | Loop in `seo-specialist`; share keyword targets and SERP intent analysis |
+| Content ↔ Product | Feature launch or messaging pivot | Coordinate with `product-manager`; align content calendar with roadmap |
+| Content ↔ DevRel | Developer-focused content or tutorial series | Involve `devrel-advocate`; co-author technical content with developer perspective |
+| Content ↔ Marketing | Campaign launch or lead magnet creation | Sync with `marketing-manager`; align content funnel to demand gen goals |
+| Content ↔ UX Writing | In-product copy or onboarding flow | Coordinate with `ux-writer`; maintain brand voice consistency across surfaces |
+
+**Artifacts shared across skills:**
+- Editorial calendar (shared with `marketing-manager`, `seo-specialist`, `devrel-advocate`)
+- Content brief templates (shared with `seo-specialist`, `ux-writer`)
+- Tone-of-voice guidelines (shared with `ux-writer`, `devrel-advocate`, `marketing-manager`)
+- Content performance dashboards (shared with `growth-engineer`, `marketing-manager`, `seo-specialist`)
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **SEO Specialist** | Keyword research, content planning, audits | Keyword targets, SERP intent, content gap analysis, cannibalization risks |
@@ -290,6 +319,13 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 | Brand reputation risk from published content | **Legal Advisor** + PR/Comms | Libel, trademark, or regulatory exposure |
 | Resource request denied for critical content hire | **CEO Strategist** or CMO | Content under-investment affects all growth channels |
 | Content team blocked by engineering (CMS, publishing, tooling) | **CTO Advisor** + Project Manager | Operational bottleneck; needs engineering prioritization |
+
+### Route to Other Skills
+
+- **`seo-specialist`** — When content needs keyword research, SERP analysis, topic cluster architecture, or SEO content briefs
+- **`product-manager`** — When content strategy needs product roadmap alignment, feature positioning, or competitive messaging
+- **`devrel-advocate`** — When creating developer tutorials, technical blog posts, or community-facing content
+- **`marketing-manager`** — When aligning content calendar with campaigns, demand gen, or multi-channel distribution
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

@@ -12,6 +12,9 @@ token_budget: 3420
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["backend-developer", "observability-engineer", "product-manager"]
+  feeds_into: ["product-manager", "qa-engineer", "account-manager"]
 ---
 # Customer Support Engineer
 
@@ -29,6 +32,11 @@ What are you trying to do?
 ├── Communicating with a customer → Jump to "Customer Communication" under Sub-Skills
 ├── Managing SLA compliance → Go to "SLA & Escalation Management" under Sub-Skills
 ├── Setting up support tooling → Go to "references/support-tooling.md"
+├── Need a code-level bug fix? → Route to `backend-developer` or `frontend-developer`
+├── Security vulnerability reported? → Route to `security-engineer`
+├── Feature request from multiple customers? → Route to `product-manager`
+├── Documentation gap found? → Route to `technical-writer`
+├── Service outage or data loss? → Route to `incident-responder`
 └── Don't know where to start? → Start at "Core Workflow > Phase 1: Triage"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -149,6 +157,14 @@ Debugging & Root Cause Analysis
 <!-- QUICK: 30s -- table of who to talk to when -->
 The Support Engineer is the frontline technical contact. Coordination flows in two directions: customer → engineering (bugs, feature requests, escalations) and engineering → customer (fixes, updates, proactive communication).
 
+### Decision Gates & Artifacts
+
+- **Triage Severity Gate**: Every incoming ticket must be classified as SEV1/SEV2/SEV3/SEV4 before routing. SEV1 requires immediate escalation to `incident-responder`. Output: categorized ticket with severity label.
+- **Escalation Readiness Gate**: Before escalating to engineering, the ticket must include reproduction steps, log evidence, impact assessment, and what's been tried. Output: escalation-ready bug report.
+- **KB Article Publishing Gate**: Article reviewed by at least one other support engineer for accuracy and clarity. Includes: customer-facing title, problem statement, solution steps, screenshots, applicable versions. Output: published KB article.
+- **Bug Report Quality Gate**: Bug report must pass the "engineering-ready" checklist: title (concise), severity, environment, reproduction steps (numbered), expected vs actual behavior, logs/screenshots, impact assessment. Output: bug ticket accepted by engineering.
+- **Customer Communication Gate**: Every customer-facing message requires empathy + solution + next steps. Never promise timelines you can't control. Output: ticket update with confirmed or expected resolution path.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **QA Engineer** | Reproducible bug found, test gaps identified, regression risk | Bug report with reproduction steps, test case suggestions, affected versions |
@@ -193,6 +209,19 @@ The Support Engineer is the frontline technical contact. Coordination flows in t
 | Customer reports regulatory violation (GDPR, HIPAA, PCI) | **Legal Advisor** + Compliance Officer + CTO Advisor | Legal exposure; regulated response timeline |
 | Support team overwhelmed (ticket backlog >2x normal, SLA breaches across board) | **Support Lead** + Operations + Engineering Manager | Staffing or process crisis; may need all-hands or engineering rotation |
 | Customer abusive or threatening toward support staff | **Support Lead** + Legal Advisor | Staff safety; may need to fire customer or restrict communication |
+
+### Route to Other Skills
+
+| If the Request Involves | Route To | Rationale |
+|--------------------------|-----------|-----------|
+| Code-level bug fix needed | `backend-developer` or `frontend-developer` | Support has identified root cause; engineering implements the fix |
+| Security vulnerability (exploit, data exposure, auth bypass) | `security-engineer` | Secure handling required; may trigger disclosure process |
+| Feature request trending across multiple customers | `product-manager` | Product prioritization and roadmap decisions |
+| Documentation gap causing repeated tickets | `technical-writer` | KB articles and docs need formal update |
+| SEV1/SEV2 service outage or data loss | `incident-responder` | Incident command protocol; customer communication coordination |
+| Customer health signal declining (CSAT, churn risk) | `account-manager` | Retention intervention; executive relationship management |
+| Regression bug (feature that worked now broken) | `qa-engineer` | Test gap identification; regression test suite update |
+| Monitoring gap (issue not caught by alerts) | `observability-engineer` | Dashboard, alert, or logging improvement needed |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

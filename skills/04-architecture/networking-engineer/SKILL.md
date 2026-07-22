@@ -12,6 +12,16 @@ token_budget: 4000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from:
+    - system-architect
+    - cloud-architect
+    - security-engineer
+  feeds_into:
+    - devops-engineer
+    - cloud-architect
+    - site-reliability-engineer
+    - docker-kubernetes
 ---
 # Networking Engineer
 
@@ -29,6 +39,12 @@ What are you trying to do?
 ├── Set up hybrid cloud connectivity (VPN/Direct Connect) → Jump to "references/hybrid-connectivity-guide.md"
 ├── Deploy a service mesh (Istio/Linkerd/Cilium) → Go to "references/service-mesh-patterns.md"
 ├── Design zero-trust architecture → Jump to "references/zero-trust-architecture.md"
+├── Need overall system architecture first → Invoke system-architect skill instead
+├── Need cloud infrastructure design → Invoke cloud-architect skill instead
+├── Need security posture review → Invoke security-engineer skill instead
+├── Need DevOps pipeline integration → Invoke devops-engineer skill instead
+├── Need container networking and service mesh → Invoke docker-kubernetes skill instead
+├── Need site reliability for network → Invoke site-reliability-engineer skill instead
 └── Don't know where to start? → Describe your infrastructure and requirements and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -257,19 +273,19 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
    - **Output**: IaC repository with network modules. CI pipeline for network changes.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-| Coordinate With | When (Trigger) | What Info Flows |
+
+| Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
-| **System Architect** | Initial network design, multi-region strategy | Network topology, latency requirements, security boundaries, capacity projections |
-| **Security Engineer** | Firewall rules, WAF, network segmentation | Security group design, NACL rules, WAF rule groups, threat model boundaries |
-| **Cloud Architect** | Cloud service selection, multi-cloud networking | VPC/network limits per cloud, managed service networking, cost optimization |
-| **DevOps Engineer** | CI/CD pipeline access, container networking | EKS/GKE node networking, service-to-service communication, CI runner access |
-| **Docker/Kubernetes Engineer** | Pod networking, ingress, service mesh | CNI plugin, NetworkPolicy, ingress controller, mTLS configuration |
-| **Database Designer** | Database network placement, replica traffic | Subnet placement (isolated), cross-region replication networking, latency requirements |
-| **Incident Responder** | Network-related incidents (DDoS, breach) | Flow logs, WAF logs, load balancer access logs, VPN/DX connection status |
-| **Compliance Officer** | Network compliance (PCI, HIPAA, SOC2) | Network segmentation evidence, encryption in transit, access controls, audit logs |
-| **Performance Engineer** | Latency optimization, cross-region performance | Inter-AZ latency, cross-region latency, CDN cache hit rate, load balancer latency |
-| **Cost Optimization** | NAT gateway, data transfer, VPC endpoints | NAT gateway costs, cross-AZ data transfer, inter-region data transfer, public IP costs |
+| `system-architect` | Service topology, communication patterns, latency budgets, capacity projections, security boundaries | Before designing VPC topology or choosing connectivity patterns |
+| `cloud-architect` | Cloud service selection, managed service networking limits, multi-cloud strategy, cost optimization targets | Before provisioning cloud networking resources or planning multi-cloud connectivity |
+| `security-engineer` | Threat model boundaries, encryption requirements, compliance segmentation (PCI/HIPAA/SOC2), zero-trust policy | Before designing security groups, NACLs, WAF rules, or network segmentation |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `devops-engineer` | VPC/subnet topology, CI runner network access, service-to-service communication paths, Kubernetes node networking | DevOps can't build CI/CD pipelines or provision compute without network pathing |
+| `cloud-architect` | Network architecture diagram, inter-region latency matrix, CDN edge strategy, DNS architecture | Cloud architecture decisions made without network feasibility — costly rework |
+| `site-reliability-engineer` | Network observability (flow logs, LB access logs), health check endpoints, failover paths, cross-AZ latency baselines | SRE can't define SLOs or design resilience without network topology |
+| `docker-kubernetes` | CNI plugin selection, NetworkPolicy design, ingress controller architecture, mTLS mesh configuration | Pod networking and service discovery can't be configured without network substrate |
 
 ### Communication Triggers
 
@@ -277,13 +293,10 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
 |---|---|---|
 | VPN tunnel down > 5 minutes | Incident Responder, System Architect | Hybrid connectivity broken; production impact possible |
 | DDoS attack detected (Shield Advanced alert) | Security Engineer, Incident Responder | Active attack; mitigation verification, communication |
-| Security group change opens restricted port to 0.0.0.0/0 | Security Engineer, System Architect | Security regression; immediate rollback |
-| NAT gateway IP exhaustion (ErrorPortAllocation alarm) | DevOps Engineer, System Architect | Egress bottleneck; scale NAT or add VPC endpoints |
-| Cross-AZ data transfer spiking (>200% baseline) | System Architect, Database Designer, Cost Optimization | Cost explosion; check for cross-AZ chatty services |
+| NAT gateway IP exhaustion | DevOps Engineer, System Architect | Egress bottleneck; scale NAT or add VPC endpoints |
 | Load balancer 5xx rate > 1% | DevOps Engineer, Backend Developer | Service health issue or backend overload |
 | CDN cache hit rate drop > 20% | Performance Engineer, Frontend Developer | Origin overload risk; cache behavior regression |
 | New VPC peering requested between prod and non-prod | Security Engineer, Compliance Officer | Blast radius increase; must justify and document |
-| Direct Connect BGP session flapping | Cloud Architect, Incident Responder | Hybrid connectivity instability; provider escalation |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->

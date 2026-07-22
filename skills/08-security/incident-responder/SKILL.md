@@ -1,17 +1,31 @@
 ---
 name: incident-responder
-description: Incident response plans, on-call procedures, postmortems, runbooks, escalation policies, communication templates, and blameless SRE culture. Triggered by incident, on-call, postmortem, runbook, escalation, SRE, blameless.
+description: Incident response plans, on-call procedures, postmortems, runbooks, escalation policies, communication templates, and blameless SRE culture. Triggered by incident, on-call, postmortem, runbook,
+  escalation, SRE, blameless.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - incident-responder
+- incident-responder
 token_budget: 4000
+chain:
+  consumes_from:
+  - chaos-engineer
+  - compliance-officer
+  - crisis-response-manager
+  - observability-engineer
+  - security-engineer
+  - security-reviewer
+  - site-reliability-engineer
+  feeds_into:
+  - compliance-officer
+  - devops-engineer
+  - security-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Incident Responder
 
@@ -30,8 +44,10 @@ What are you trying to do?
 ├── Set up on-call rotation → Go to "Core Workflow > Phase 1 (Prepare)"
 ├── Design escalation policy → Jump to "Core Workflow > Phase 1 (Prepare)"
 ├── Write incident communication template → Go to "Core Workflow > Phase 3 (Communication)"
-├── Need security-specific containment → Invoke security-engineer skill instead
-├── Need compliance reporting for breach → Invoke compliance-officer skill instead
+├── Need security-specific containment → Invoke `security-engineer` skill instead
+├── Need compliance reporting for breach → Invoke `compliance-officer` skill instead
+├── Need observability and alerting → Invoke `observability-engineer` skill instead
+├── Need reliability framework → Invoke `site-reliability-engineer` skill instead
 └── Don't know where to start? → Follow "Core Workflow" sequentially: Detect → Contain → Resolve → Learn
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -244,41 +260,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `tabletop-exercises` | Designing and facilitating incident scenarios, running game days, and after-action reviews |
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Incident responders must activate and coordinate a cross-functional war room. They direct developers to fix, DevOps to contain, security to investigate, communications to inform stakeholders, and leadership to manage external perception.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `observability-engineer` | Dashboard links, metric trends, anomaly detection signals, log query assistance, trace analysis | Before declaring incident severity or launching war room investigation |
+| `security-engineer` | Detection rule context, IoCs, forensic tooling access, containment recommendations, threat intelligence | Before classifying as security incident or engaging threat response |
+| `site-reliability-engineer` | Incident severity classification, communication templates, postmortem ownership, runbook procedures | Before activating incident command roles or escalating |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Security Engineer** | Security incidents, threat investigation | Detection rule context, IoCs, forensic tooling access, containment recommendations, threat intelligence |
-| **DevOps Engineer** | Infrastructure incidents, deployment failures | Recent deploy log, infrastructure change timeline, rollback capability assessment, access for investigation |
-| **Backend/Frontend Developer** | Service-specific incidents, code-level bugs | Service architecture context, recent code changes, known failure modes, SME expertise |
-| **Observability Engineer** | Alert correlation, metric investigation | Dashboard links, metric trends, anomaly detection signals, log query assistance, trace analysis |
-| **Compliance Officer** | Data breach, regulatory triggering events | Breach classification (PII/PHI exposure?), regulatory notification clock start, evidence preservation requirements |
-| **Legal Advisor** | Customer data exposure, liability assessment | Legal obligations, communication constraints, external statement review |
-| **Communications Lead (CL)** | All SEV1/SEV2 incidents | Status page updates, customer emails, internal stakeholder messages, media handling if applicable |
-| **CTO/VP Engineering** | Prolonged SEV1, major customer impact | Situation briefs, resource requests, escalation decisions, external communication approval |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| SEV1 declared | All roles above + affected teams | War room activation; assign IC, OL, CL, Scribe |
-| Incident not contained within 30 minutes | Engineering Manager | Escalation; additional resources may be needed |
-| Incident not contained within 2 hours | VP Engineering, CTO | Executive visibility; external communication decision |
-| Data breach confirmed (PII, PHI, financial data) | Compliance Officer, Legal Advisor | Regulatory clock starts; notification obligations assessed |
-| Media/social media attention on incident | Communications Lead, CTO, PR | Reputation management; prepared statement required |
-| Postmortem published | All involved teams + broader engineering | Organizational learning; action item assignment |
-
-### Escalation Path
-
-```
-SEV1 — No acknowledgement in 5 min? → Secondary on-call → EM → Director → VP → CTO
-Security breach confirmed? → CISO + CTO immediately
-Customer data exposed? → CISO + Legal + CTO immediately
-Regulatory notification required? → Compliance Officer → Legal → CEO
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `security-engineer` | Incident scope, affected systems, blast radius assessment, containment status | Security team operates blind — threat can spread unchecked |
+| `compliance-officer` | Breach classification, regulatory clock start time, evidence chain of custody | Regulatory notification deadlines missed — legal liability |
+| `devops-engineer` | Infrastructure incident context, recent deploy log, change timeline, rollback assessment | DevOps can't contain infrastructure failures — outage extends |
 
 
 **What good looks like:** Incident timeline documented with all decisions and actions. Root cause identified and confirmed. Containment completed within SLA (SEV1 < 1 hour). Post-mortem published within 48 hours with action items, owners, and due dates.

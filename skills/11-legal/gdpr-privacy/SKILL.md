@@ -12,6 +12,9 @@ token_budget: 8000
 output:
   type: "code"
   path_hint: "./"
+chain:
+  consumes_from: ["compliance-officer", "legal-advisor", "privacy-engineer"]
+  feeds_into: ["compliance-officer", "privacy-engineer", "security-engineer"]
 ---
 # GDPR & Privacy Compliance Specialist
 
@@ -45,6 +48,11 @@ What are you trying to do?
 │   └── Transferring data outside EU/EEA → Jump to "Sub-Skills > International Data Transfers" and "references > 8. International Transfers"
 ├── Privacy program management
 │   └── Building ROPA, policies, training → Go to "Core Workflow > Phase 1"
+├── Cross-skill routing
+│   ├── Privacy policy or DPA review → Route to `legal-advisor`
+│   ├── HIPAA or healthcare privacy → Route to `regulatory-specialist`
+│   ├── Breach response coordination → Route to `security-engineer`
+│   └── Enterprise privacy program governance → Route to `compliance-officer`
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -275,6 +283,27 @@ Do not read the entire skill. Follow the route above and read only the sections 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Privacy compliance is everyone's responsibility — not just legal. Engineering, product, security, and marketing decisions create the data flows that determine compliance.
+
+### Decision Gates & Artifacts
+
+| Decision Gate | Trigger | Artifact / Deliverable |
+|---------------|---------|------------------------|
+| DPIA required | New processing of high-risk personal data (Art. 35 GDPR) | Data Protection Impact Assessment report |
+| Consent mechanism valid | Cookie banner or preference center implemented | Consent audit log demonstrating freely given, specific, informed, unambiguous consent |
+| Cross-border transfer lawful | Data leaving EEA to non-adequate country | Transfer Impact Assessment + signed Standard Contractual Clauses (SCCs) |
+| Data subject request handleable | DSAR received from data subject | Identity verification + data extraction from all systems + response within 30 days |
+| Breach notifiable | Personal data breach causing risk to individuals | Breach notification to supervisory authority (72 hours) + affected data subjects if high risk |
+| Vendor passes privacy review | New vendor/tool processes personal data | Signed Data Processing Agreement (DPA) + vendor privacy assessment |
+
+### Route to Other Skills
+
+| Request Pattern | Route To | Why |
+|-----------------|----------|-----|
+| Draft/review privacy policy language or DPA terms | `legal-advisor` | Contract language, legal basis interpretation, enforceability |
+| HIPAA, COPPA, GLBA, or healthcare-specific privacy | `regulatory-specialist` | Sector-specific privacy frameworks beyond general GDPR/CCPA |
+| Security controls, encryption, access management | `security-engineer` | Technical safeguards for data protection (Art. 32 GDPR) |
+| Enterprise privacy program governance, board reporting | `compliance-officer` | Program-level governance, audit readiness, regulatory filing coordination |
+| Product feature data collection design | `privacy-engineer` | Privacy-by-design implementation, data minimization at architecture level |
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|

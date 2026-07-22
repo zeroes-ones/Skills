@@ -43,6 +43,11 @@ What do you need?
 ├── Catch a11y regressions on every PR → Jump to "Core Workflow > Phase 3"
 ├── Add a11y linting to IDE and pre-commit → Go to "Best Practices > Linting"
 ├── Build an accessibility monitoring dashboard → Jump to "Core Workflow > Phase 4"
+├── Need manual accessibility audit → Invoke accessibility-auditor skill instead
+├── Need QA test strategy including a11y → Invoke qa-engineer skill instead
+├── Need CI/CD pipeline integration → Invoke ci-cd-builder skill instead
+├── Need frontend a11y implementation → Invoke frontend-developer skill instead
+├── Need mobile a11y testing → Invoke mobile-developer skill instead
 └── Mobile accessibility testing → Go to "Decision Trees > Mobile A11y"
 ```
 
@@ -146,15 +151,35 @@ Configure periodic (daily) accessibility scans of key production pages using pa1
 
 ## Cross-Skill Coordination
 
-| Skill | When to Coordinate | What to Share |
-|-------|-------------------|--------------|
-| **accessibility-auditor** | WCAG criteria interpretation, manual audit findings to automate | Violation patterns, audit reports, WCAG rule mapping |
-| **qa-engineer** | Integration with test pyramid, test strategy, regression suites | Test framework config, Playwright/Cypress integration, test baselines |
-| **ci-cd-builder** | CI/CD quality gate configuration, blocking vs warning thresholds | Pipeline config, gate scripts, dashboard integration |
-| **frontend-developer** | Component-level a11y testing, lint rule configuration, snapshots | ESLint config, jest-axe setup, component test patterns |
-| **mobile-developer** | Mobile a11y testing (Espresso, XCUITest, RN accessibility props) | Platform-specific test setup, device testing matrix |
-| **ui-ux-designer** | Color contrast checks, focus ring visibility, design token compliance | Figma contrast plugin results, design system token file |
-| **legal-advisor** | ADA/Section 508/EN 301 549 compliance monitoring evidence | Automated compliance reports, monitoring dashboards |
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `accessibility-auditor` | WCAG criteria interpretation, manual audit findings, accessibility acceptance criteria, violation priority | Before configuring automated rules; ensures testing tool detects the right patterns |
+| `qa-engineer` | Test framework config, Playwright/Cypress integration, test baselines, regression suite structure | Before integrating a11y tests into the test pyramid |
+| `ci-cd-builder` | Pipeline config, quality gate scripts, dashboard integration, blocking vs warning thresholds | Before wiring accessibility checks into CI/CD |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `frontend-developer` | ESLint config (jsx-a11y), jest-axe setup, component test patterns, violation baselines per route | Developers ship inaccessible components — expensive retrofit, potential legal exposure |
+| `qa-engineer` | Accessibility test suite integration, pa11y-ci config, Lighthouse CI budget, violation regression baselines | QA can't include accessibility in regression testing — gaps in coverage |
+| `accessibility-auditor` | Automated violation reports, violation trend data, CI gate pass/fail history | Auditor can only do one-time manual audits — no continuous monitoring |
+| `mobile-developer` | Espresso AccessibilityChecks config, XCUITest a11y integration, mobile accessibility CI setup | Mobile ships with accessibility regressions — Play Store/App Store may reject |
+
+### Communication Triggers
+
+| Trigger | Notify | Why |
+|---|---|---|
+| Accessibility score drops >5 points in 24 hours | Accessibility Auditor, Frontend Developer | Investigate regression; may block release |
+| New critical (A) or serious (AA) violation found in CI | PR author, Accessibility Auditor | Fix before merge; zero-tolerance for new critical/AA |
+| Rule exclusion requested for a component | Accessibility Auditor | Justification review; may require VPAT update |
+| Production monitoring detects accessibility degradation | Accessibility Auditor, Frontend Developer | Immediate investigation; legal/compliance risk |
+
+### Escalation Path
+
+```
+Blocked by inaccessible third-party component? → Accessibility Auditor → Legal Advisor (VPAT review)
+ADA/Section 508 complaint received? → Legal Advisor → Compliance Officer → CTO
+Accessibility score < 70 on critical user flow? → Product Manager → CTO Advisor
+```
 
 ## What Good Looks Like
 

@@ -1,28 +1,37 @@
 ---
 name: sales-engineer
-description: Technical demos, proof-of-concept design, RFP responses, technical qualification with MEDDIC/BANT/SPICED frameworks, competitive positioning, objection handling, demo environment management, and technical win rate optimization. Use when preparing technical sales engagements.
+description: Technical demos, proof-of-concept design, RFP responses, technical qualification with MEDDIC/BANT/SPICED frameworks, competitive positioning, objection handling, demo environment management,
+  and technical win rate optimization. Use when preparing technical sales engagements.
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - sales-engineer
-  - solutions-engineer
-  - presales
+- sales-engineer
+- solutions-engineer
+- presales
 token_budget: 3800
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - product-manager
-    - backend-developer
+  - backend-developer
+  - bizdev-manager
+  - demand-generation
+  - marketing-manager
+  - partnerships-manager
+  - product-manager
+  - product-marketing-manager
+  - revops-manager
   feeds_into:
-    - account-manager
-    - customer-success-manager
+  - account-manager
+  - customer-success-manager
+  - product-manager
+  - revops-manager
   alternatives:
-    - bizdev-manager
+  - bizdev-manager
 ---
 # Sales Engineer (Solutions Engineer / Presales)
 
@@ -40,6 +49,10 @@ What are you trying to do?
 ├── Handle a competitive objection → Jump to "Decision Trees > Competitive Objection Handling"
 ├── Build or maintain a demo environment → Go to "Core Workflow > Phase 2: Demo Env Management"
 ├── Position against a competitor → Start at "Core Workflow > Phase 5"
+├── Need product roadmap / feature scoping → Invoke `product-manager` skill
+├── Need custom integration / API development → Invoke `backend-developer` skill
+├── Need deal structure / partnership model → Invoke `bizdev-manager` skill
+├── Need revenue analytics / pipeline metrics → Invoke `revops-manager` skill
 └── Not sure where to start? → Start at "Core Workflow > Phase 1: Discovery"
 ```
 
@@ -246,14 +259,16 @@ Track technical win rate = (deals where you were technical evaluator's choice) /
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
-| **Product Manager** | Feature gaps identified across 3+ deals, roadmap questions in RFPs, competitive positioning | Win/loss analysis with product gap patterns, roadmap timeline requests, competitive feature parity gaps |
+| **Product Manager** | Feature gaps identified across 3+ deals, roadmap questions in RFPs, competitive positioning | Win/loss analysis with product gap patterns, roadmap timeline requests, competitive feature parity gaps. **Decision gate:** Does product gap block > $500K pipeline? → roadmap escalation. **Artifact:** product gap impact report. |
 | **Backend Developer** | PoC requires custom integration, API limitations hit during demo, architecture deep-dive needed | Technical requirements, integration specs, API capability questions |
-| **Account Manager** | Deal stage advancement, AE alignment on discovery, qualification check | MEDDIC score, demo outcome, next steps, technical risk flags |
-| **Customer Success Manager** | Post-sale handoff, implementation expectations set during sales, PoC-to-production transition | Success criteria from PoC, promises made during demo, technical configuration details |
+| **Account Manager** | Deal stage advancement, AE alignment on discovery, qualification check | MEDDIC score, demo outcome, next steps, technical risk flags. **Decision gate:** Is MEDDIC "E" (Economic Buyer) score > 7? → deal qualified. **Artifact:** MEDDIC qualification sheet + demo outcome summary. |
+| **Customer Success Manager** | Post-sale handoff, implementation expectations set during sales, PoC-to-production transition | Success criteria from PoC, promises made during demo, technical configuration details. **Decision gate:** Are PoC success criteria documented and signed by both parties? → handoff ready. **Artifact:** technical handoff document + success criteria sign-off. |
 | **Business Strategist** | Market positioning changes, competitive landscape shifts, pricing objections | Competitor intelligence, win/loss trends, market messaging feedback |
 | **Security Engineer** | Security questionnaires in RFPs, prospect security reviews, compliance certification requests | SOC 2 reports, penetration test results, architecture diagrams for security review |
 | **Marketing Manager** | Battle card updates, case study requests from won deals, competitive messaging | Win stories, competitive positioning feedback, demo clips for sales enablement |
 | **Legal Advisor** | Contract technical schedules, SLA commitments in RFP, data processing terms | Technical scope of commitments, feasibility of SLA terms, data handling workflows |
+| **BizDev Manager** | Partner-sourced deals, channel co-sell opportunities, partner training needs | Partner deal registration, technical qualification for partner deals, partner capability gaps. **Decision gate:** Has partner completed technical certification? → co-sell enabled. **Artifact:** partner technical readiness scorecard. |
+| **RevOps Manager** | Pipeline analytics, deal velocity, win rate trends, forecast accuracy | Deal-level data, stage duration, technical win/loss reasons, conversion rates by source. **Decision gate:** Is deal velocity within 20% of historical average? → forecast reliable. **Artifact:** deal inspection report + velocity analysis. |
 
 ### Communication Triggers — When to Proactively Notify
 

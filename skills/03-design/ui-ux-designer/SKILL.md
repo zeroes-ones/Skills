@@ -1,18 +1,31 @@
 ---
 name: ui-ux-designer
-description: >-
-  Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: design system, component spec, design tokens, developer handoff, responsive design, interaction pattern, prototype this.
+description: 'Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for
+  design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: design system, component spec, design tokens, developer handoff, responsive design, interaction
+  pattern, prototype this.'
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ui-ux-designer
+- ui-ux-designer
+chain:
+  consumes_from:
+  - brand-guidelines
+  - product-manager
+  - ux-researcher
+  feeds_into:
+  - accessibility-auditor
+  - frontend-developer
+  - idea-to-spec
+  - medical-illustrator
+  - mobile-developer
+  - ux-writer
 token_budget: 2280
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # UI/UX Designer
 
@@ -27,7 +40,10 @@ What are you trying to do?
 ├── Visual design and component specification → Go to "Core Workflow > Phase 2"
 ├── Interaction design (animations, gestures, transitions) → Jump to "Core Workflow > Phase 4"
 ├── Prototyping for stakeholder review → Go to "Core Workflow > Phase 5"
-├── Usability testing with design validation → Invoke ux-researcher skill instead
+├── Need usability testing or user research? → `ux-researcher`
+├── Need brand identity or visual design tokens? → `brand-guidelines`
+├── Need accessibility audit or WCAG compliance? → `accessibility-auditor`
+├── Need feature specs or PRD writing? → `product-manager`
 └── Don't know where to start? → Start at Phase 1 (Design System Audit & Tokens)
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -102,43 +118,42 @@ Package the handoff with: Figma file with dev-mode annotations, token JSON expor
 <!-- QUICK: 30s -- table of who to talk to when -->
 UI/UX design is the bridge between strategy, product, and engineering. Designs that live only in Figma deliver zero value — coordination ensures designs ship to production intact.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `ux-researcher` | User personas, journey maps, usability findings with severity ratings, design recommendations traced to observed behavior | Before starting any design; before usability testing |
+| `brand-guidelines` | Design tokens (color, typography, spacing, motion), component theming guidance, dark mode palette, icon family, voice and tone | During visual design phase; before design token definition |
+| `product-manager` | Prioritized user stories with RICE scores, acceptance criteria, success metrics, design constraints, accessibility requirements | During feature kickoff; before scope and trade-off decisions |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **UX Researcher** | Before starting design, before usability testing | Research findings, user personas, journey maps, test protocols, usability test results |
-| **Product Manager** | Feature kickoff, scope definition, tradeoff decisions | Requirements, user stories, success metrics, priority, constraints (time, tech) |
-| **Frontend Developer** | Design handoff, component feasibility, implementation review | Design specs, tokens, interaction states, animation specs, gotchas; ask about technical constraints |
-| **Accessibility Auditor** | Component design review, color palette, interaction patterns | WCAG compliance check, contrast ratios, keyboard navigation, screen reader behavior |
-| **Brand Guidelines** | Visual design, design system tokens, component theming | Brand tokens, typography scale, color palette, iconography, tone of voice |
-| **Content Designer** | Copy placement, microcopy, error states, empty states | UI wireframes, character limits, content hierarchy, tone guidance |
-| **System Architect** | New component patterns, cross-cutting UX (auth, navigation, error handling) | UX requirements that affect architecture (SSR/CSR, real-time, offline), component boundaries |
-| **Performance Engineer** | Animation budgets, bundle size, Core Web Vitals targets | Motion design specs, LCP elements, CLS-sensitive layouts, font loading strategy |
-| **QA / Test Engineer** | Visual regression testing, interaction testing, accessibility testing | Design specs for test cases, expected behavior for all states (loading, empty, error, edge cases) |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `frontend-developer` | Component specs with all 7 states (default, hover, focus, active, disabled, loading, error), design tokens, interaction patterns, responsive breakpoints, ARIA annotations | Devs guess measurements and states — implementation drifts from design, QA churn |
+| `accessibility-auditor` | Component designs with contrast ratios, heading hierarchy, focus order, touch targets, motion specs | Accessibility issues caught in code instead of design — expensive rework |
+| `ux-writer` | UI wireframes with copy placement, character limits, content hierarchy, error/empty state contexts | Copy doesn't fit UI — last-minute content changes break layouts |
+| `idea-to-spec` | Screen inventory with defined states, interaction patterns, design constraints, accessibility requirements | Specs lack visual definition — engineering builds placeholder UI |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Design system breaking change (token rename, component API change) | Frontend Lead, All consuming teams | Migration plan, deprecation timeline, migration guide |
-| New component pattern that doesn't exist in design system | Frontend Lead, System Architect | Feasibility check, technical constraints, performance implications |
-| Accessibility regression in design (new color combination, interaction pattern) | Accessibility Auditor | Fix before handoff — cheaper than fixing in code |
-| Design handoff ready for engineering review | Frontend Lead, Product Manager | Schedule walkthrough, answer questions, clarify specs |
-| User research reveals design needs major rework | Product Manager, UX Researcher | Reprioritization, scope negotiation, timeline impact |
-| Brand update requires design system token refresh | Brand Guidelines, Frontend Lead | Token mapping exercise, visual regression test suite update |
-| Motion/animation spec exceeds performance budget | Performance Engineer, Frontend Lead | Simplify animation, use GPU-accelerated properties, prefer-reduced-motion alternative |
+| Design system breaking change (token rename, component API change) | `frontend-developer`, all consuming teams | Migration plan, deprecation timeline, migration guide |
+| New component pattern that doesn't exist in design system | `frontend-developer`, `system-architect` | Feasibility check, technical constraints, performance implications |
+| Accessibility regression in design (new color combination, interaction pattern) | `accessibility-auditor` | Fix before handoff — cheaper than fixing in code |
+| Design handoff ready for engineering review | `frontend-developer`, `product-manager` | Schedule walkthrough, answer questions, clarify specs |
+| User research reveals design needs major rework | `product-manager`, `ux-researcher` | Reprioritization, scope negotiation, timeline impact |
+| Brand update requires design system token refresh | `brand-guidelines`, `frontend-developer` | Token mapping exercise, visual regression test suite update |
+| Motion/animation spec exceeds performance budget | `frontend-developer` | Simplify animation, use GPU-accelerated properties, prefers-reduced-motion alternative |
 
 ### Escalation Path
 
 ```
 Design system conflict (two teams need incompatible versions of same component)
-  └── UI/UX Designer + Frontend Lead + System Architect. Component variant design, API extension or new component.
+  └── `ui-ux-designer` + `frontend-developer` + `system-architect`. Component variant design, API extension or new component.
 
 Irreconcilable UX vs. technical constraint (design requires capability that architecture can't support)
-  └── UI/UX Designer + System Architect + Product Manager. Explore alternatives, adjust scope, or invest in architecture.
+  └── `ui-ux-designer` + `system-architect` + `product-manager`. Explore alternatives, adjust scope, or invest in architecture.
 
 Minor design drift (spacing off by 2px, wrong shade in one state)
-  └── Frontend team fixes directly. UI/UX Designer informed via design review. No escalation needed.
+  └── `frontend-developer` fixes directly. `ui-ux-designer` informed via design review. No escalation needed.
 ```
 
 ## Best Practices

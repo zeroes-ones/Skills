@@ -1,17 +1,38 @@
 ---
 name: compliance-officer
-description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation, control mapping, evidence collection, and policy writing. Triggered by compliance, SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS, audit, GRC, policy, control.
+description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation, control mapping, evidence collection, and policy writing. Triggered by compliance, SOC2, ISO 27001, GDPR, HIPAA,
+  PCI-DSS, audit, GRC, policy, control.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - compliance-officer
+- compliance-officer
 token_budget: 2625
+chain:
+  consumes_from:
+  - gdpr-privacy
+  - incident-responder
+  - legal-advisor
+  - regulatory-specialist
+  - security-engineer
+  feeds_into:
+  - accountant
+  - ai-safety-engineer
+  - ai-safety-health-reviewer
+  - clinical-informatics-specialist
+  - content-policy-manager
+  - gdpr-privacy
+  - hr-manager
+  - incident-responder
+  - medical-content-reviewer
+  - privacy-engineer
+  - regulatory-specialist
+  - security-engineer
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # Compliance Officer
 
@@ -32,6 +53,10 @@ What are you trying to do?
 ├── Control mapping → Go to "Core Workflow > Phase 2 (Control Mapping and Gap Analysis)"
 ├── Evidence collection → Jump to "Core Workflow > Phase 4 (Evidence Collection)"
 ├── Policy writing → Go to "Core Workflow > Phase 3 (Policy Authoring)"
+├── Need security implementation → Invoke `security-engineer` skill instead
+├── Need incident response planning → Invoke `incident-responder` skill instead
+├── Need legal interpretation → Invoke `legal-advisor` skill instead
+├── Need regulatory filing guidance → Invoke `regulatory-specialist` skill instead
 └── Don't know where to start? → Start at "Decision Trees > Framework Selection"
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -180,40 +205,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 > Compliance is a seamless operating rhythm, not a pre-audit fire drill. Every control has automated evidence collection running on a cadence, every policy is versioned and acknowledged, and the unified control framework maps one internal control to five regulatory requirements without duplication. Auditors receive organized evidence packages within hours, not weeks, and the organization passes surveillance audits with zero major findings because compliance is continuously verified, not annually assembled. The GRC program is so well-instrumented that a new framework can be scoped and gap-assessed in under a week.
 
 ## Cross-Skill Coordination
-<!-- QUICK: 30s -- table of who to talk to when -->
-Compliance officers translate regulatory requirements into actionable controls. They coordinate with security for implementation, engineering for evidence, legal for interpretation, and executives for risk acceptance.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `legal-advisor` | DPA terms, SCCs for data transfers, breach notification requirements, regulatory filing deadlines | Before interpreting regulatory obligations or drafting compliance policies |
+| `security-engineer` | Technical control evidence, vulnerability management metrics, audit preparation support, control implementation status | Before mapping controls to frameworks or preparing audit evidence |
+| `regulatory-specialist` | Jurisdiction-specific regulatory requirements, filing procedures, regulator communication protocols | Before scoping frameworks or determining regulatory applicability |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Security Engineer** | Control implementation, technical safeguards | Control requirements mapped to specific technical implementations; evidence of control effectiveness |
-| **Security Reviewer** | Pre-audit security assessment, vulnerability management | Findings that map to compliance controls; remediation tracking for audit evidence |
-| **DevOps Engineer** | Infrastructure compliance, audit logging | CloudTrail/Audit Log configuration, encryption at rest verification, backup policy enforcement, access review automation |
-| **Cloud Architect** | Cloud compliance posture, data residency | Region restrictions, encryption key management, compliance certification scope (SOC 2, ISO 27001, FedRAMP) |
-| **Backend Developer** | Data handling, PII processing, DSAR implementation | Data classification guidance, privacy-by-design patterns, data subject access request (DSAR) automation |
-| **Legal Advisor** | Regulatory interpretation, contract review | DPA terms, SCCs for data transfers, breach notification requirements, regulatory filing deadlines |
-| **CEO/CTO Strategist** | Risk acceptance, compliance investment | Compliance roadmap costs, risk acceptance for non-critical findings, certification timeline commitments |
-| **Incident Responder** | Breach notification, forensic evidence | Notification clock (GDPR 72hr, HIPAA 60d), evidence preservation requirements, regulatory reporting triggers |
-
-### Communication Triggers
-
-| Trigger | Notify | Why |
-|---------|--------|-----|
-| New regulation applicable (e.g., EU AI Act, updated PCI DSS) | Legal Advisor, CTO, Affected teams | Gap analysis; implementation roadmap; potential certification timeline impact |
-| Control failure during audit | Security Engineer, DevOps, CTO | Immediate remediation; may delay certification |
-| Data breach involving PII/PHI | Legal Advisor, Incident Responder, CEO | Regulatory notification clock starts; legal assessment of obligations |
-| Vendor security assessment failed (critical vendor) | CTO, Legal, Affected teams | Vendor replacement or risk acceptance; contractual implications |
-| Certification expiring within 90 days | Security Engineer, CTO, External auditor | Schedule surveillance/renewal audit; confirm continuous monitoring evidence ready |
-
-### Escalation Path
-
-```
-Regulatory inquiry or investigation? → Legal Advisor → CEO
-Audit finding threatens certification? → CTO → CEO
-Data breach notification required? → Legal Advisor → Incident Responder → Board
-Control implementation blocked (technical)? → Security Engineer → CTO Advisor
-```
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `security-engineer` | Control requirements mapped to technical implementations, compliance evidence expectations, remediation priorities | Security teams build controls without compliance alignment — audit findings inevitable |
+| `incident-responder` | Breach classification criteria, regulatory notification clock triggers, evidence preservation requirements | Incident response misses regulatory deadlines — fines and penalties |
+| `gdpr-privacy` | Data subject rights requirements, DPIA triggers, cross-border transfer restrictions | GDPR compliance gaps — regulatory exposure |
+| `privacy-engineer` | Privacy-by-design requirements, data classification guidance, PII handling policies | Privacy controls not embedded in architecture — retrofitting costs |
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->

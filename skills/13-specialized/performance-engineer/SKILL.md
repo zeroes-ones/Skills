@@ -1,17 +1,29 @@
 ---
 name: performance-engineer
-description: Performance profiling (flame graphs, CPU/memory/I/O), load testing (k6/wrk/Artillery), frontend optimization (Core Web Vitals, bundle analysis), database optimization, caching strategies, performance budgets, SLOs.
+description: Performance profiling (flame graphs, CPU/memory/I/O), load testing (k6/wrk/Artillery), frontend optimization (Core Web Vitals, bundle analysis), database optimization, caching strategies, performance
+  budgets, SLOs.
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - performance-engineer
+- performance-engineer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
+chain:
+  consumes_from:
+  - backend-developer
+  - database-designer
+  - embedded-engineer
+  - observability-engineer
+  feeds_into:
+  - backend-developer
+  - devops-engineer
+  - hardware-architect
+  - site-reliability-engineer
 ---
 # Performance Engineer
 
@@ -56,6 +68,10 @@ What are you trying to do?
 ├── Design caching strategy → Jump to "Caching Strategy" under Sub-Skills
 ├── Set up performance budgets → Go to "Performance Budgets" under Sub-Skills
 ├── Define SLOs for performance → Jump to "Performance Budgets" and references/
+├── Need code-level profiling guidance → Route to `backend-developer`
+├── Need database schema or index review → Route to `database-designer`
+├── Need APM instrumentation or SLO dashboards → Route to `observability-engineer`
+├── Need CDN, caching, or auto-scaling setup → Route to `devops-engineer`
 └── Don't know where to start? → Start at "CPU & Memory Profiling"
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -710,6 +726,14 @@ If you can only optimize 50% of the execution time, the maximum speedup is 2x �
 <!-- QUICK: 30s -- table of who to talk to when -->
 Performance is not a solo activity — it requires instrumentation from developers, infrastructure from DevOps, data from DBAs, and prioritization from product. A performance engineer without coordination is optimizing in a vacuum.
 
+### Decision Gates & Artifacts
+
+- **Gate 1 — Application Built:** Performance profiling requires a running application provided by `backend-developer`. Artifact: deployable application with APM instrumentation.
+- **Gate 2 — Schema Optimized:** Database query optimization depends on schema design and index strategy from `database-designer`. Artifact: EXPLAIN ANALYZE output with index recommendations.
+- **Gate 3 — Observability Instrumented:** Bottleneck identification requires APM dashboards, distributed tracing, and SLO instrumentation from `observability-engineer`. Artifact: APM dashboard URL with baseline metrics.
+- **Gate 4 — Infrastructure Scaled:** Load testing and capacity planning require CDN, caching layers, and auto-scaling configured by `devops-engineer`. Artifact: infrastructure capacity report.
+- **Artifact:** Flame graph output, load test report (P50/P95/P99 comparison), performance budget CI configuration, capacity plan with headroom.
+
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
 | **Backend Developers** | Code-level profiling, query optimization, memory leaks | Flame graph results, hot path identification, N+1 query locations, memory allocation profiles |
@@ -744,6 +768,16 @@ Performance is not a solo activity — it requires instrumentation from develope
 | Performance optimization blocked by product for >2 sprints (P99 >1s on critical path) | **CTO Advisor** + Product Strategist | Technical debt vs feature decision; executive trade-off |
 | Architecture bottleneck requiring major refactor to resolve | **System Architect** + CTO Advisor | Multi-sprint investment; architecture decision required |
 | Infrastructure cost from performance-inefficient architecture >30% of cloud bill | **CTO Advisor** + CFO/Finance | Cost optimization business case; infrastructure re-architecture |
+
+### Route to Other Skills
+
+| If the Request Is About | Route To |
+|--------------------------|----------|
+| Code-level profiling, query optimization, memory management | `backend-developer` |
+| Schema design, index strategy, query plan analysis | `database-designer` |
+| APM instrumentation, SLO dashboards, anomaly detection | `observability-engineer` |
+| CDN, caching layers, auto-scaling, resource allocation | `devops-engineer` |
+| SLO enforcement, capacity planning, incident response for perf regressions | `site-reliability-engineer` |
 
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->

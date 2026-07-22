@@ -1,17 +1,29 @@
 ---
 name: ux-researcher
-description: "Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product decisions with user evidence. Triggered by create personas, journey map, usability test plan, research synthesis, competitive analysis, heuristic evaluation, user research."
+description: Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product
+  decisions with user evidence. Triggered by create personas, journey map, usability test plan, research synthesis, competitive analysis, heuristic evaluation, user research.
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - ux-researcher
+- ux-researcher
+chain:
+  consumes_from:
+  - product-manager
+  feeds_into:
+  - frontend-developer
+  - idea-to-spec
+  - patient-experience-researcher
+  - patient-health-educator
+  - product-manager
+  - product-strategist
+  - ui-ux-designer
 token_budget: 2400
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 ---
 # UX Researcher
 
@@ -26,7 +38,10 @@ What are you trying to do?
 ├── Run a survey or gather quantitative feedback → Go to "Decision Trees" — choose qual vs quant method
 ├── Perform competitive UX audit or benchmarking → Jump to "Sub-Skills" — competitive-ux-benchmarking
 ├── Synthesize scattered research into a findings report → Jump to "Core Workflow" — Phase 5 (Synthesis & Reporting)
-├── Need design recommendations from research → Invoke ui-ux-designer skill instead
+├── Need design recommendations from research → `ui-ux-designer`
+├── Need feature prioritization or roadmap planning? → `product-manager`
+├── Need product-market fit or competitive positioning? → `product-strategist`
+├── Need accessibility testing with disabled participants? → `accessibility-auditor`
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -102,42 +117,39 @@ Cluster observations into themes using affinity diagramming. For each theme: sta
 <!-- QUICK: 30s -- table of who to talk to when -->
 UX research findings are useless if they don't change what gets built. Coordination ensures insights flow from research into design, product, and engineering — not into a PDF that nobody reads.
 
-### Coordinate With
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `product-manager` | Research questions, target segments, success metrics, product hypotheses to test, prioritized learning needs | During study scoping; before recruiting participants |
 
-| Coordinate With | When | What to Share/Ask |
-|-----------------|------|-------------------|
-| **Product Strategist / Product Manager** | Study scoping, insight sharing, roadmap influence | Research questions, target segments, success metrics, product hypotheses to test |
-| **UI/UX Designer** | Design critique, prototype testing, interaction pattern research | Research findings, usability issues, design recommendations, participant feedback |
-| **Accessibility Auditor** | Inclusive research, accessibility testing, WCAG compliance | Participant diversity requirements, accessibility barriers found, assistive tech testing |
-| **Frontend Developer** | Implementation constraints, prototype fidelity, technical feasibility | Interaction patterns to test, technical constraints on prototypes, component feasibility |
-| **Growth Engineer** | A/B test design, funnel analysis, behavior research | Hypotheses to test, user segments, behavioral data, experiment results |
-| **Data/Analytics** | Quantitative context, behavioral data, segmentation | Analytics questions, data requirements, behavioral patterns, cohort definitions |
-| **Idea to Spec** | Feature definition, user story validation, acceptance criteria | User needs, mental models, task flows, pain points |
-| **Marketing** | Positioning research, messaging testing, persona development | Customer language, value perception, competitive alternatives, brand perception |
-| **Customer Success / Support** | Voice of customer, pain point discovery, churn research | Support ticket themes, churn signals, customer sentiment, feature requests |
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `product-strategist` | User personas with behavioral data, journey maps with emotion curves, unmet JTBD evidence, competitive UX benchmarks | Product strategy built on assumptions rather than evidence — wasted discovery cycles |
+| `idea-to-spec` | User needs, mental models, task flows, pain points with severity ratings, accessibility requirements | Specs miss critical user context — features built that users don't need |
+| `ui-ux-designer` | Usability test results with severity ratings (1-4), design recommendations traced to observed behavior, participant quotes with video timestamps | Designs repeat known usability mistakes — redesign cycles |
+| `product-manager` | Research synthesis report, evidence-based feature recommendations, user segment insights, behavioral patterns | PM prioritizes features without user evidence — backlog driven by loudest voice |
 
 ### Communication Triggers — When to Proactively Notify
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
-| Research reveals major usability barrier (severity 3-4) | Product Manager, UI/UX Designer, Engineering Lead | Fix prioritization, design sprint if needed, implementation timeline |
-| Research contradicts existing product assumptions | Product Manager, CEO (if strategic), CTO | Roadmap implications, strategy realignment, further research scoping |
-| Participant recruitment falling behind schedule | Product Manager, Project Manager | Timeline risk, recruitment strategy adjustment, incentive increase |
-| Research uncovers accessibility exclusion | Accessibility Auditor, Product Manager, Legal (if compliance risk) | Remediation priority, compliance exposure, inclusive design sprint |
-| Key insight ready for sharing (before final report) | Product Manager, UI/UX Designer, Engineering Lead | Early signal so teams can adjust before formal presentation |
-| Research reveals new user segment or JTBD | Product Strategist, Marketing, Growth | Market opportunity, persona development, GTM strategy input |
+| Research reveals major usability barrier (severity 3-4) | `product-manager`, `ui-ux-designer`, `engineering-manager` | Fix prioritization, design sprint if needed, implementation timeline |
+| Research contradicts existing product assumptions | `product-manager`, `ceo-strategist` (if strategic), `cto-advisor` | Roadmap implications, strategy realignment, further research scoping |
+| Participant recruitment falling behind schedule | `product-manager`, `scrum-master` | Timeline risk, recruitment strategy adjustment, incentive increase |
+| Research uncovers accessibility exclusion | `accessibility-auditor`, `product-manager`, `legal-advisor` (if compliance risk) | Remediation priority, compliance exposure, inclusive design sprint |
+| Key insight ready for sharing (before final report) | `product-manager`, `ui-ux-designer`, `engineering-manager` | Early signal so teams can adjust before formal presentation |
+| Research reveals new user segment or JTBD | `product-strategist`, `marketing-manager` | Market opportunity, persona development, GTM strategy input |
 
 ### Escalation Path
 
 ```
 Research reveals safety/ethical concern (user harm, discrimination, dark pattern)
-  └── Product Manager + Legal + CEO. Research paused until addressed.
+  └── `product-manager` + `legal-advisor` + `ceo-strategist`. Research paused until addressed.
 
 Research reveals product-market fit problem (systematic user rejection of core value)
-  └── CEO + Product Strategist. Strategic review triggered within 1 week.
+  └── `ceo-strategist` + `product-strategist`. Strategic review triggered within 1 week.
 
 Study blocked (legal/privacy concern, recruitment failure, tooling failure)
-  └── Product Manager. Alternative methodology or timeline adjustment within 3 days.
+  └── `product-manager`. Alternative methodology or timeline adjustment within 3 days.
 ```
 
 ## Best Practices
