@@ -1,6 +1,6 @@
 ---
 name: product-strategist
-description: Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led growth, JTBD, North Star metric, product roadmap.
+description: "Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led growth, JTBD, North Star metric, product roadmap."
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
@@ -72,8 +72,7 @@ Retention: 40%+ "very disappointed" without product? (Sean Ellis test)
 ```
 
 
-**What good looks like:** Product vision document with a clear 12-month roadmap. PMF assessment shows Sean Ellis score > 40%. Competitive analysis identifies 3 sustainable differentiators. Quarterly OKRs align across product, design, and engineering.
-
+**What good looks like:** Product vision document that the entire leadership team can state in one sentence — no ambiguity, no 5-paragraph preamble. Sean Ellis survey shows >40% 'very disappointed' score with statistical significance. Competitive analysis identifies exactly 3 defensible advantages with evidence. OKRs cascade cleanly from product strategy to quarterly engineering goals with measurable targets.
 ### Go-to-Market Model Selection
 
 ```

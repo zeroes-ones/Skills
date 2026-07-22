@@ -55,6 +55,9 @@ These rules apply to *every* response this skill produces. Security engineering 
 - Adopting zero trust architecture: micro-segmentation, continuous verification, device trust
 - Building a security monitoring and detection pipeline (SIEM, SOAR, threat intelligence feeds)
 
+- **Use `/security-reviewer` instead** when: You need a code-level security review of a PR, dependency audit on a specific change, or SAST finding triage. Security-engineer builds the security program; security-reviewer inspects individual changes against it.
+- **Use `/incident-responder` instead** when: A security incident is in progress or has just been detected — active containment, eradication, and recovery. Security-engineer builds preventive controls; incident-responder handles active breaches.
+
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Threat Modeling Depth

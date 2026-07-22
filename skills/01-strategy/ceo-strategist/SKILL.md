@@ -104,8 +104,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
 ```
 
 
-**What good looks like:** A written strategy document that a first-time reader can summarize in 2 sentences. Cap table projection shows 18-month runway with 3 funding scenarios. Team structure chart has names, roles, and reporting lines for the next 2 hires.
-
+**What good looks like:** An investor or new hire reads the strategy document and can explain the company's core thesis, target market, and 12-month priorities in under 60 seconds. Cap table is clean with 18-month runway across 3 funding scenarios. Every key role has a named owner and the next 2 hires are budgeted. Board meeting produces decisions, not debate.
 ### When NOT to Raise VC
 - [ ] TAM < $1B (VCs need massive outcomes to return their fund)
 - [ ] You want to run a lifestyle business ($1-5M ARR, profitable)

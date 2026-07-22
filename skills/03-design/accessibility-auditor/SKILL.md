@@ -228,7 +228,7 @@ for (const path of PAGES_TO_AUDIT) {
 ```
 
 
-**What good looks like:** Audit report with WCAG 2.2 AA violations ranked by severity. Each finding includes the failing element, the violation criteria, and a code-level fix. Zero critical or high violations in audit. Screen reader navigation test passes.
+**What good looks like:** Audit report with WCAG 2.2 AA violations ranked by severity (Critical/High/Medium/Low). Each finding contains: the failing element, the exact WCAG criteria violated, a code-level fix (not a principle — a specific change), and a screenshot showing the problem. Zero critical or high violations at launch. Screen reader navigation test passes on iOS VoiceOver and Android TalkBack.
 
 **CI Quality Gate:**
 ```yaml
@@ -836,6 +836,27 @@ Design system violation (shared component fails audit, affects all products)
 Common chains:
 - **Design to compliance**: ui-ux-designer → accessibility-auditor → frontend-developer — from visual design to accessible code
 - **Risk assessment**: qa-engineer → accessibility-auditor → legal-advisor — from bug reports to legal risk evaluation
+
+
+
+### Design-to-Code Handoff Chain
+```bash
+# Figma → Design tokens → Component → Implementation → Verify
+/ui-ux-designer && /frontend-developer && /qa-engineer
+# Every Figma frame has: spacing token, color token, typography token, breakpoint annotation.
+# Frontend devs should never guess measurements — if it's not in the handoff, it doesn't exist.
+
+# Brand → Design system → Component library → App
+/brand-guidelines && /ui-ux-designer && /frontend-developer
+# Brand tokens feed into the design system. Design system tokens are the single source of truth.
+# No hardcoded colors or spacing values — every pixel comes from a named token.
+
+# Accessibility → Design → Development → Audit
+/accessibility-auditor && /ui-ux-designer && /frontend-developer
+# Accessibility requirements are annotated on every Figma frame before handoff.
+# Color contrast, heading hierarchy, focus management, and touch targets are non-negotiable.
+# Auditor verifies post-implementation — not post-launch.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

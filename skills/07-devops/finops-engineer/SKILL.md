@@ -317,13 +317,17 @@ Common chains:
 - **GreenOps is the next frontier**: carbon-aware scheduling and region selection often align with cost optimization (low-carbon regions tend to be cheaper). Track carbon alongside cost.
 
 
-### Error Decoder
+### Error Decoder### Error Decoder
 
-| Error | Root Cause | Fix |
-|-------|------------|-----|
-| `Permission denied` | Missing file/system permissions | Use `chmod +x` or `sudo`; check user/group ownership |
-| `command not found` | Required tool not installed | Install with `apt install`, `brew install`, or `npm install -g` |
-| `File exists` | Output file already exists | Use `--force` flag or specify different output path |
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| Cloud bill doubled overnight | Data transfer costs spiked from a new feature that streams large assets without CDN | Route all static/large assets through CDN. Set budget alerts at 80%/100%/120%. Tag every resource and query by tag to find the culprit in under 5 minutes. |
+| Reserved instance shows no savings | RI purchased for a workload that stopped running or changed instance family | Reserve only for workloads with predictable, stable usage (24/7 services). Spot for batch jobs. Savings Plans cover instance family changes — prefer them over RIs for heterogeneous fleets. |
+| Cost anomaly alert fires weekly, team ignores it | Threshold set too tight (10%) for a variable workload | Set anomaly thresholds at 2 standard deviations from trailing 14-day average, not a flat percentage. Filter out known growth patterns (deployments, user growth). Escalate if alert is acknowledged but not investigated within 72 hours. |
+| Engineering team has no idea what their infrastructure costs | No per-team cost allocation or showback | Implement tag-based cost allocation. Every resource must have `Team`, `Environment`, `Service`, and `CostCenter` tags. Generate a weekly per-team cost report. Showback > chargeback — visibility first, accountability second. |
+| Cross-region data transfer is 40% of the bill | Services in different regions communicate synchronously without data sovereignty requirements | Colocate dependent services in the same region. Use async messaging (SQS/Kafka) for cross-region communication. If low latency is required, deploy replicas in the consuming region. |
+| GPU costs outrunning revenue 3:1 | ML training runs on on-demand GPUs with no spot instance fallback or checkpointing | Use spot instances with checkpointing for training — 70% cost reduction. Set max GPU budget per experiment. Preemptible TPUs for GCP users. Reserve only the minimum guaranteed capacity; burst into spot. |
+| Hundreds of 'orphan' storage volumes costing $5K/mo | EBS volumes/block storage never deleted when EC2 terminates | Enable 'Delete on termination' by default. Implement a 'leaked resource' Lambda that snapshots and deletes unattached volumes older than 7 days. Tag volumes with `CreatedBy` and `TTL` for automated cleanup. |
 
 
 ## Production Checklist

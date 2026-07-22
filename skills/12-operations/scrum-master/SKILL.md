@@ -53,6 +53,8 @@ These rules apply to *every* response this skill produces.
 - Scaling Scrum across multiple teams with LeSS, SAFe, or Nexus
 - Onboarding a team to Scrum from waterfall or ad-hoc processes
 - Improving Product Owner and Development Team collaboration on backlog health and refinement
+- **Use `/project-manager` instead** when: You need project planning with WBS, Gantt charts, RAID logs, budget tracking, stakeholder reporting, or a formal project charter. Project-manager handles the *what and when* — scope, timeline, budget, risks. Scrum-master handles the *how* — team process, coaching, impediment removal.
+- **Use `/technical-program-manager` instead** when: A program spans multiple scrum teams, has cross-team dependencies, and requires a consolidated timeline and risk register. TPM coordinates across teams; scrum-master serves one team.
 
 ## Decision Trees
 

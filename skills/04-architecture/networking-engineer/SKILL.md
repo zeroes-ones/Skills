@@ -1,6 +1,6 @@
 ---
 name: networking-engineer
-description: Cloud networking architecture (VPC/VNet/VCN), subnet/CIDR planning, DNS architecture, CDN strategy, load balancing (L4/L7), network security (security groups/NACLs/WAF/DDoS), hybrid/multi-cloud networking (VPN/Direct Connect/ExpressRoute), BGP routing, service mesh (sidecar/ambient/eBPF), API gateway/ingress, Zero Trust (ZTNA), and network observability. Trigger: networking, VPC, DNS, CDN, load balancer, BGP, network architecture, subnet, firewall, VPN, SDN, network security, network design, peering, transit gateway. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: "Cloud networking architecture (VPC/VNet/VCN), subnet/CIDR planning, DNS architecture, CDN strategy, load balancing (L4/L7), network security (security groups/NACLs/WAF/DDoS), hybrid/multi-cloud networking (VPN/Direct Connect/ExpressRoute), BGP routing, service mesh (sidecar/ambient/eBPF), API gateway/ingress, Zero Trust (ZTNA), and network observability. Trigger: networking, VPC, DNS, CDN, load balancer, BGP, network architecture, subnet, firewall, VPN, SDN, network security, network design, peering, transit gateway. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
@@ -162,10 +162,7 @@ HYBRID CONNECTIVITY — VPN or Direct Connect?
         Or Tailscale/ZeroTier (WireGuard-based, simpler, cheaper for <100 users).
         NEVER expose SSH/RDP to 0.0.0.0/0 — always behind VPN or SSM Session Manager.
 
-**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
-
-```
-
+**What good looks like:** Network topology diagram with VPCs, subnets, route tables, security groups, and load balancers — anyone on-call can find the ingress path from CDN to database in under 2 minutes. Zero-trust segmentation is documented and verified: no service can reach another service without explicit policy. p99 latency between colocated services < 5ms. DNS resolution < 50ms p99 from any region.
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Network Design & IP Planning

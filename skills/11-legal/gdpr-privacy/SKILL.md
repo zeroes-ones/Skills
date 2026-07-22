@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - gdpr-privacy
-token_budget: 4000
+token_budget: 8000
 output:
   type: "code"
   path_hint: "./"
@@ -50,6 +50,8 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## When to Use
+> **Token-saving rule:** The full GDPR skill covers 10+ areas (data inventory, consent, DPA, SAR, breach response, etc.). Load only the section relevant to your current task. If you need data inventory, skip consent law. Each section references the relevant GDPR articles — read the article reference, not the full GDPR text. A typical task requires ~1500 tokens, not the full 8000+.
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building products that collect/process EU resident personal data
 - Implementing consent management (cookie banners, preference centers)

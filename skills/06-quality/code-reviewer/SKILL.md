@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review, review code, CR, pull request review, review this.
+description: "Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review, review code, CR, pull request review, review this."
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
@@ -171,6 +171,9 @@ Change type?
 
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
+<!-- DEEP: 10+min -->
+> **War story:** A team reviewed a PR adding a new API endpoint. All 6 dimensions passed — correct logic, clean code, good tests, proper error handling. The reviewer skipped the dependency diff because "only one new import." That import was `pyjwt` (a third-party JWT library with a known CVE) instead of `PyJWT` (the maintained fork). The dependency was in production for 3 months before the security audit caught it. **Fix:** Never skip dependency review — verify every new import against the organization's approved list and SCA scan results.
+
 - **Be specific and actionable**: "This query could cause an N+1 problem" → "Use `.include('author')` on the Prisma query at line 47 to eager-load authors in one query."
 - **Explain the "why"**: Don't just say "use `useMemo`" — explain that the derived value recomputes on every render, causing downstream re-renders.
 - **Suggest, don't demand**: Use "Consider...", "What do you think about...", "Could we..." for non-critical items.
