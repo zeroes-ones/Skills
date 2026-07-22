@@ -437,3 +437,10 @@ You know you're succeeding as a Staff Engineer when:
   reviewed. Your frameworks, mentees, and documented patterns carry the load.
 - **You're working on the hardest problem in the org**, and when you describe it to engineers
   outside the company, they say "I wish someone would solve that at my company."
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **engineering-manager, system-architect, backend-developer** and others — for upstream design decisions, specifications, and architectural context that inform Staff-plus engineer — technical leadership, architecture decisions, mentoring, org-wide impact
+- **system-architect, backend-developer, frontend-developer** and others — downstream skills that consume outputs from this skill for implementation and execution

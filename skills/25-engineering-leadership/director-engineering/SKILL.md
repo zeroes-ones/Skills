@@ -418,3 +418,10 @@ time on future-state strategy, not firefighting — you built a system that hand
 the fires. In executive meetings, you're sought for business perspective, not
 asked to justify headcount. Your EMs say "working here made me a better leader"
 — and they mean it.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **cto-advisor, engineering-manager, hr-manager** and others — for upstream design decisions, specifications, and architectural context that inform Engineering director — multi-team strategy, organizational design, technical leadership
+- **cto-advisor, engineering-manager, recruiting** and others — downstream skills that consume outputs from this skill for implementation and execution

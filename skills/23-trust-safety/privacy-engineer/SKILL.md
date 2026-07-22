@@ -772,3 +772,10 @@ Safe Harbor method, expert determination, re-identification risk assessment, k-a
 ### cookie-consent
 
 GDPR cookie consent, CCPA opt-out, health data tracking restrictions. See Phase 9.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **gdpr-privacy, compliance-officer, security-engineer** and others — for upstream design decisions, specifications, and architectural context that inform Privacy engineering — data minimization, consent management, DSAR automation, audit logging
+- **security-engineer, backend-developer, gdpr-privacy** and others — downstream skills that consume outputs from this skill for implementation and execution

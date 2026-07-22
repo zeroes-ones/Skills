@@ -314,3 +314,10 @@ A well-designed hardware architecture is invisible when it's right — the produ
 - **EMC passes with margin on the first compliance test.** Pre-compliance caught the issues (bad clock routing, missing ferrites, poorly filtered I/O) before the expensive lab test.
 - **Memory map is stable from day one.** No firmware rewrites because the memory architecture changed. The map had headroom for growth.
 - **The hardware architecture document is the single source of truth.** A new engineer can read it and understand every decision: why this SoC, why this memory topology, why this regulator topology, why this stackup. The alternatives section explains what was rejected and why.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **system-architect, embedded-engineer, firmware-developer** and others — for upstream design decisions, specifications, and architectural context that inform Hardware architecture design and component specification
+- **embedded-engineer, firmware-developer, documentation-engineer** and others — downstream skills that consume outputs from this skill for implementation and execution
