@@ -8,7 +8,7 @@ version: "1.0.0"
 updated: 2026-07-21
 tags:
   - ml-ai-engineer
-token_budget: 4000
+token_budget: 5000
 output:
   type: "code"
   path_hint: "./"

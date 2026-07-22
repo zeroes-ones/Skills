@@ -1,6 +1,6 @@
 ---
 name: localization-engineer
-description: i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: "i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -120,10 +120,7 @@ LOCALE DETECTION — How should we decide which language to show?
     └── Always honor explicit user preference over any automatic detection.
         This is the ultimate source of truth.
 
-**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
-
-```
-
+**What good looks like:** The app renders correctly in all 10+ target locales including RTL languages (Arabic, Hebrew) without a single text truncation or layout break. String extraction covers 100% of user-facing text — verified by automated scan that compares source strings to translation files. Date, number, currency, and pluralization formatting matches every locale's expectations (d/m/y vs m/d/y, 1.000 vs 1,000). Translation files are complete, reviewed, and shipped in the same deploy as the code — no lag, no missing strings.
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): i18n Foundation — Externalize & Standardize

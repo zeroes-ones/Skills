@@ -547,6 +547,20 @@ Validate strategies before risking capital. Learn from every trade — winners a
 | **"Broker API returned 'order rejected — insufficient buying power'"** | Margin requirements not modeled. Options require 100% of purchase price in cash (no margin on long options). Reg T margin on equity is 50%, but portfolio margin is risk-based. | Model Reg T and portfolio margin requirements before submitting orders. For options: cash required = contracts × 100 × premium. For equity: verify (cash - existing_margin_used) >= order_value × margin_rate. Always leave 10% buffer. |
 | **"Trailing stop triggered — then stock rallied 15% the next day"** | Stop was too tight for the asset's normal volatility. ATR multiplier (2x) was not calibrated to the ticker's actual range. High-beta names need wider stops. | Compute ticker-specific ATR multiplier: `optimal_multiplier = 1.5 + (ticker_beta * 0.5)`. A beta 2.0 stock gets a 2.5x ATR stop, not 2x. Also check: was stop hit during first 30 minutes? Opening volatility whipsaws stops — delay stop activation for 30 min after open. |
 | **"Commission costs were 3x higher than modeled"** | Options commissions scale per contract. Multi-leg strategies (spreads) double the leg count. The model used single-leg commission assumption on a spread trade. | Multiply commissions by leg count: 2-leg spread = 2 × $0.65 = $1.30/contract each way. A 50-contract put spread costs $130 round trip. On a $3,000 position, that is 4.3%. Options strategies with >4 legs should use flat-rate brokers or be sized up to amortize costs. |
+
+### Error Decoder
+
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. |
+| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. |
+| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. |
+| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. |
+| Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). |
+| Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. |
+| Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. |
+
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass before live trading. -->
 
