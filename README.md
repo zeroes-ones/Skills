@@ -222,13 +222,13 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
    - Full YAML frontmatter with `name`, `description`, `author`, `type`, `version`, `updated`, `token_budget`, `output`, `chain`
    - `<!-- QUICK: 30s -->` markers for progressive disclosure
    - `## Route the Request` — ASCII decision tree routing to the right skill
-   - `## Ground Rules` — 5 domain-specific guardrails
+   - `## Ground Rules — Read Before Anything Else` — 5 domain-specific guardrails
    - `## Decision Trees` — at least 2 concrete decision frameworks
    - `## Core Workflow` — 4 phases with time estimates
    - `## Cross-Skill Coordination` — table of upstream/downstream skills with communication triggers
    - `## Best Practices` — 8 actionable practices with code/config examples
    - `## Error Decoder` — 5 war stories with symptom, root cause, fix, and lesson
-   - `## Production Readiness Checklist` — 14 items with domain-specific IDs (e.g., API1-API14, EM1-EM14)
+   - `## Production Checklist` — 14 items with domain-specific IDs (e.g., API1-API14, EM1-EM14)
    - `## Scale Depth` — Solo → Startup → Scale-up → Enterprise
    - `## What Good Looks Like` — aspirational outcome statement
    - Token budget declared in frontmatter (~3000-4000 target)

@@ -2,7 +2,7 @@
 
 > **Status:** Design Specification v2.0  
 > **Date:** 2026-07-21  
-> **Scope:** 56 skills across 13 domains — strategy, product, design, architecture, development, quality, devops, security, data, growth, legal, operations, specialized  
+> **Scope:** 101 skills across 25 domains — strategy, product, design, architecture, development, quality, devops, security, data, growth, legal, operations, specialized, finance, sales, people, customer-success, corporate-finance, governance, hardware, health-clinical, ai-engineering, trust-safety, creative, engineering-leadership  
 > **Goal:** One template to rule them all. Every skill feels like it belongs to the same system. A user can pick up any skill cold and know exactly where to find what they need.
 
 ---
@@ -17,7 +17,7 @@
 6. [Skill Archetypes & Adaptations](#6-skill-archetypes--adaptations)
 7. [Voice & Style Guide](#7-voice--style-guide)
 8. [Quality Standard — The Goldilocks Test](#8-quality-standard--the-goldilocks-test)
-9. [Migration Plan: All 56 Skills](#9-migration-plan-all-56-skills)
+9. [Migration Plan: Complete (101 Skills)](#9-migration-plan-complete-101-skills)
 10. [Skill Graph Visualized](#10-skill-graph-visualized)
 11. [Automation & Maintenance](#11-automation--maintenance)
 
@@ -575,7 +575,7 @@ The remaining 20% of content covers edge cases and niche scenarios.
 
 ---
 
-## 9. Migration Plan: Complete (56 Skills)
+## 9. Migration Plan: Complete (101 Skills)
 
 ### Phase 1: Template + Archetypes (Foundation)
 
