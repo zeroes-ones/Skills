@@ -1,27 +1,33 @@
 ---
 name: fullstack-developer
-description: "End-to-end feature delivery across frontend and backend, API consumption and design, database queries, authentication flows, monorepo patterns, deployment pipelines, and full-stack testing. Trigger: fullstack, full-stack, end-to-end, frontend-backend integration, monorepo, fullstack feature."
+description: 'End-to-end feature delivery across frontend and backend, API consumption
+  and design, database queries, authentication flows, monorepo patterns, deployment
+  pipelines, and full-stack testing. Trigger: fullstack, full-stack, end-to-end, frontend-backend
+  integration, monorepo, fullstack feature.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - fullstack-developer
+- fullstack-developer
 token_budget: 4000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - backend-developer
-    - frontend-developer
-    - api-designer
-    - database-designer
+  - api-designer
+  - backend-developer
+  - database-designer
+  - frontend-developer
+  - tdd-guide
   feeds_into:
-    - devops-engineer
-    - qa-engineer
-    - security-reviewer
+  - api-test-suite-builder
+  - devops-engineer
+  - qa-engineer
+  - security-reviewer
+  - tdd-guide
 ---
 # Fullstack Developer
 

@@ -1,7 +1,9 @@
 ---
 name: api-designer
-description: 'REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST,
-  GraphQL, gRPC, versioning, rate limiting, pagination, SDK.'
+description: 'REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies,
+  authentication, rate limiting, error handling, pagination, and SDK generation. Trigger:
+  API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination,
+  SDK.'
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
@@ -20,6 +22,7 @@ chain:
   - idea-to-spec
   - system-architect
   feeds_into:
+  - api-test-suite-builder
   - backend-developer
   - database-designer
   - documentation-engineer

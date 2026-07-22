@@ -1,7 +1,9 @@
 ---
 name: qa-engineer
-description: 'Test pyramid strategy, unit/integration/e2e testing with Playwright and Cypress, API testing, performance testing with k6, test automation frameworks, coverage goals, and quality metrics.
-  Trigger: QA, quality assurance, testing, test strategy, Playwright, Cypress, k6, test automation, coverage.'
+description: 'Test pyramid strategy, unit/integration/e2e testing with Playwright
+  and Cypress, API testing, performance testing with k6, test automation frameworks,
+  coverage goals, and quality metrics. Trigger: QA, quality assurance, testing, test
+  strategy, Playwright, Cypress, k6, test automation, coverage.'
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
@@ -18,6 +20,7 @@ chain:
   - accessibility-auditor
   - accessibility-testing
   - api-designer
+  - api-test-suite-builder
   - backend-developer
   - ci-cd-builder
   - code-reviewer
@@ -31,14 +34,17 @@ chain:
   - mobile-developer
   - product-manager
   - security-reviewer
+  - tdd-guide
   - translation-manager
   feeds_into:
   - accessibility-testing
+  - api-test-suite-builder
   - ci-cd-builder
   - code-reviewer
   - devops-engineer
   - release-manager
   - security-reviewer
+  - tdd-guide
 ---
 # QA Engineer
 

@@ -1,7 +1,9 @@
 ---
 name: backend-developer
-description: 'Multi-language backend development with Python/FastAPI, Node.js/Express, Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies, async task processing, structured
-  logging, and testing. Trigger: backend, FastAPI, Express, Go, JWT, OAuth, caching, async tasks, API development.'
+description: 'Multi-language backend development with Python/FastAPI, Node.js/Express,
+  Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies,
+  async task processing, structured logging, and testing. Trigger: backend, FastAPI,
+  Express, Go, JWT, OAuth, caching, async tasks, API development.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -31,9 +33,11 @@ chain:
   - security-reviewer
   - staff-engineer
   - system-architect
+  - tdd-guide
   feeds_into:
   - algorithmic-trader
   - api-designer
+  - api-test-suite-builder
   - ci-cd-builder
   - clinical-informatics-specialist
   - code-reviewer
@@ -57,6 +61,7 @@ chain:
   - sales-engineer
   - security-reviewer
   - staff-engineer
+  - tdd-guide
   - technical-writer
 ---
 # Backend Developer

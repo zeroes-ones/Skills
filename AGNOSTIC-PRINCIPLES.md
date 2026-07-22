@@ -89,7 +89,7 @@ chain:
 2. **Decision gates are universal** — "Before merging, verify API contract compatibility" applies to all industries
 3. **Artifacts are archetype-aware** — The artifact format may vary (FHIR resources vs. REST APIs), but the handoff pattern is the same
 4. **Coordinate at decision gates, not continuously** — The chain tells you WHEN to coordinate, not just WHO to talk to
-5. **Symmetry is verifiable** — Run `python3 -c "import yaml, glob; ..."` to confirm 0 asymmetries across all 101 skills
+5. **Symmetry is verifiable** — Run `python3 -c "import yaml, glob; ..."` to confirm 0 asymmetries across all 103 skills
 
 ## Project Archetype Coverage
 

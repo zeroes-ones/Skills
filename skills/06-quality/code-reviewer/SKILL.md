@@ -1,7 +1,8 @@
 ---
 name: code-reviewer
-description: 'Six-dimension code review covering security, performance, quality, error handling, testing, and documentation with severity grading and actionable, specific feedback. Trigger: code review,
-  review code, CR, pull request review, review this.'
+description: 'Six-dimension code review covering security, performance, quality, error
+  handling, testing, and documentation with severity grading and actionable, specific
+  feedback. Trigger: code review, review code, CR, pull request review, review this.'
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
@@ -15,15 +16,18 @@ output:
   path_hint: ./
 chain:
   consumes_from:
+  - api-test-suite-builder
   - backend-developer
   - frontend-developer
   - qa-engineer
   - security-reviewer
   - staff-engineer
+  - tdd-guide
   feeds_into:
   - backend-developer
   - frontend-developer
   - qa-engineer
+  - tdd-guide
 ---
 # Code Reviewer
 
