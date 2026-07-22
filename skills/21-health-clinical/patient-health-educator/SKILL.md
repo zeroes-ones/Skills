@@ -305,3 +305,10 @@ Content is for which audience?
 - **Adherence improves from 45% to 78% over 12 weeks** after the right barrier is diagnosed and the right intervention deployed. Patients report feeling "more in control" of their condition.
 - **A teenager transitioning from pediatric to adult care** finds the app's content for "self-managing your hemophilia" and feels confident doing their first independent infusion without a parent present.
 - **The education team iterates based on outcome data** — modules with low knowledge retention are redesigned every quarter. The adherence program is tested against a control group. Patient outcomes improve measurably over time.
+
+
+## References
+<!-- STANDARD: 3min -->
+
+- **clinical-informatics-specialist, content-policy-manager, data-scientist** and others — for upstream design decisions, specifications, and architectural context that inform Patient-facing health education materials and health literacy
+- **community-operations-manager, medical-illustrator, ux-writer** and others — downstream skills that consume outputs from this skill for implementation and execution
