@@ -1,6 +1,6 @@
 ---
 name: fullstack-developer
-description: End-to-end feature delivery across frontend and backend, API consumption and design, database queries, authentication flows, monorepo patterns, deployment pipelines, and full-stack testing. Trigger: fullstack, full-stack, end-to-end, frontend-backend integration, monorepo, fullstack feature.
+description: "End-to-end feature delivery across frontend and backend, API consumption and design, database queries, authentication flows, monorepo patterns, deployment pipelines, and full-stack testing. Trigger: fullstack, full-stack, end-to-end, frontend-backend integration, monorepo, fullstack feature."
 author: Sandeep Kumar Penchala
 type: development
 status: stable
