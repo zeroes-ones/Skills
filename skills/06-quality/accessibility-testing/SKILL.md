@@ -1,33 +1,42 @@
 ---
 name: accessibility-testing
-description: >-
-  Automated accessibility testing in CI/CD pipelines — axe-core integration (unit tests, e2e, component tests), pa11y and Lighthouse CI for page-level audits, HTML CodeSniffer for continuous scanning, automated screen reader testing patterns, visual regression testing for accessibility (color contrast diffs, focus ring visibility), accessibility linting (eslint-plugin-jsx-a11y, stylelint-a11y, Android Lint accessibility checks, SwiftLint a11y rules), CI/CD quality gates with WCAG 2.2 AA compliance thresholds, accessibility monitoring and regression detection, test strategy across the testing pyramid (static → unit → integration → e2e), and accessibility score dashboards. Use when implementing automated a11y testing, setting up CI/CD accessibility gates, or building an accessibility monitoring system.
+description: Automated accessibility testing in CI/CD pipelines — axe-core integration
+  (unit tests, e2e, component tests), pa11y and Lighthouse CI for page-level audits,
+  HTML CodeSniffer for continuous scanning, automated screen reader testing patterns,
+  visual regression testing for accessibility (color contrast diffs, focus ring visibility),
+  accessibility linting (eslint-plugin-jsx-a11y, stylelint-a11y, Android Lint accessibility
+  checks, SwiftLint a11y rules), CI/CD quality gates with WCAG 2.2 AA compliance thresholds,
+  accessibility monitoring and regression detection, test strategy across the testing
+  pyramid (static → unit → integration → e2e), and accessibility score dashboards.
+  Use when implementing automated a11y testing, setting up CI/CD accessibility gates,
+  or building an accessibility monitoring system.
 author: Sandeep Kumar Penchala
 type: quality
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2027-01-21
 tags:
-  - accessibility
-  - a11y
-  - testing
-  - ci-cd
-  - wcag
-  - automation
+- accessibility
+- a11y
+- testing
+- ci-cd
+- wcag
+- automation
 token_budget: 3500
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
   consumes_from:
-    - accessibility-auditor
-    - qa-engineer
-    - ci-cd-builder
+  - accessibility-auditor
+  - ci-cd-builder
+  - qa-engineer
+  - tdd-guide
   feeds_into:
-    - accessibility-auditor
-    - frontend-developer
-    - mobile-developer
-    - qa-engineer
+  - accessibility-auditor
+  - frontend-developer
+  - mobile-developer
+  - qa-engineer
 ---
 # Accessibility Testing
 
