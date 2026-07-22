@@ -1,6 +1,6 @@
 ---
 name: frontend-developer
-description: React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility.
+description: "React, Next.js, and Vue frontend development with TypeScript, Tailwind CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization, accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript, Tailwind, SSR, SSG, Core Web Vitals, accessibility."
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -198,7 +198,7 @@ Is SEO critical OR do you need server-side rendering?
 ```
 
 
-**What good looks like:** The output is production-ready. All validation checks pass. Expected file structure, naming conventions, and content requirements are met. You could hand this to a stakeholder without embarrassment.
+**What good looks like:** Storybook runs with every component rendering in light mode, dark mode, and all interactive states (hover, focus, active, disabled, loading, error). Lighthouse score ≥ 95 across Performance, Accessibility, Best Practices, and SEO. No console errors in production. The bundle ships under 200KB gzipped for initial load, and every page has a measured Core Web Vitals score from lab data before merge.
 
 **Framework comparison — hard numbers:**
 

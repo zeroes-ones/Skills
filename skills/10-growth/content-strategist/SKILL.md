@@ -419,8 +419,7 @@ Are you producing content in 1 format only (all blog posts)?
 ```
 
 
-**What good looks like:** Content calendar published for the next 30 days with topics, authors, and distribution channels. Topic cluster map covers all primary keywords. Every content piece has a CTA linked to a measurable outcome. Content audit completed within the last 90 days.
-
+**What good looks like:** A 30-day content calendar published with each piece assigned to a writer, a reviewer, and a distribution channel — not just topics, but drafts are due 5 days before publish for editorial review. Topic cluster model maps every primary keyword to a pillar page and 5-8 supporting articles; internal links connect them. Every content piece has a specific CTA tied to a tracked conversion goal (signup, demo request, PDF download). Content audit within the last 90 days shows what's performing, what's stale, and what needs updating — with a timeline for each action.
 ## When NOT to Use This Skill (Overkill)
 
 - **Product hasn't launched yet**: Content strategy before you know who your users are is writing blind. Wait until you have 50+ paying/users customers and can interview them.

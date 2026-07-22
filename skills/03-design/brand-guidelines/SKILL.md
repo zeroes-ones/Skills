@@ -206,8 +206,7 @@ Decision framework:
 ```
 
 
-**What good looks like:** Brand guidelines document covering logo usage, color palette (with accessibility contrast ratios), typography scale, tone of voice, and example applications. Design token file (JSON/TS) matches the guidelines exactly. Component library follows every rule in the guidelines.
-
+**What good looks like:** Brand guidelines document that a designer outside your company can pick up and produce an on-brand screen within an hour. Design token file (JSON/TS/CSS custom properties) matches the guidelines byte-for-byte — they're the same truth, not two documents that contradict each other. Every component pattern has examples of correct use, incorrect use, and edge cases.
 #### 1.2 Brand Strategy Foundation
 
 Before designing, document:
@@ -814,6 +813,27 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 Common chains:
 - **New brand**: product-strategist → brand-guidelines → ui-ux-designer — from market strategy to branded product UI
 - **Brand refresh**: ux-researcher → brand-guidelines → frontend-developer — from audience insights to implemented brand system
+
+
+
+### Design-to-Code Handoff Chain
+```bash
+# Figma → Design tokens → Component → Implementation → Verify
+/ui-ux-designer && /frontend-developer && /qa-engineer
+# Every Figma frame has: spacing token, color token, typography token, breakpoint annotation.
+# Frontend devs should never guess measurements — if it's not in the handoff, it doesn't exist.
+
+# Brand → Design system → Component library → App
+/brand-guidelines && /ui-ux-designer && /frontend-developer
+# Brand tokens feed into the design system. Design system tokens are the single source of truth.
+# No hardcoded colors or spacing values — every pixel comes from a named token.
+
+# Accessibility → Design → Development → Audit
+/accessibility-auditor && /ui-ux-designer && /frontend-developer
+# Accessibility requirements are annotated on every Figma frame before handoff.
+# Color contrast, heading hierarchy, focus management, and touch targets are non-negotiable.
+# Auditor verifies post-implementation — not post-launch.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->

@@ -1,6 +1,6 @@
 ---
 name: mobile-developer
-description: Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android.
+description: "Cross-platform mobile development with React Native and Flutter, navigation patterns, state management, offline-first architecture, push notifications, platform-specific patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation, offline-first, push notifications, app store, iOS, Android."
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -245,7 +245,7 @@ npx create-expo-app@latest --template tabs  # expo-router with tab navigation
   ```
 
 
-**What good looks like:** The output is production-ready. All validation checks pass. Expected file structure, naming conventions, and content requirements are met. You could hand this to a stakeholder without embarrassment.
+**What good looks like:** App builds and runs on both iOS and Android from a single codebase commit. All screens render correctly on the smallest and largest supported device sizes (iPhone SE to Pro Max, Pixel to Galaxy Ultra). No red boxes, crash logs, or ANR reports in the last 100 test sessions. App store review passes on first submission — no guideline violations. Launch-to-interaction time < 2s on a mid-range device (Pixel 6 / iPhone 12).
 
 **Flutter (using very_good_cli):**
 ```bash

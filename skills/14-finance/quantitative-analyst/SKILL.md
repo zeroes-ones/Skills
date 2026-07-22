@@ -446,6 +446,20 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 | **UOA signal on illiquid option chain** | Bid-ask spread > 35% of mid means the "trade price" is unreliable; a wide spread can make a mid-market fill appear ask-side or bid-side depending on where within the spread it executes | Reject any option where (ask-bid)/mid > 0.35 for mid-caps, > 0.25 for large-caps. For illiquid underlyings, require minimum 10 contracts volume before considering for UOA. |
 | **False positive UOA from dividend arbitrage** | Deep ITM calls with upcoming dividend produce synthetic dividend capture trades. Large premium, ask-side, ITM calls before ex-div are NOT directional bets | Check ex-dividend calendar. If DTE spans an ex-div date AND option is deep ITM (delta > 0.85) AND trade is ask-side call, flag as "DIVIDEND_CAPTURE" and exclude from directional signals. |
 
+
+### Error Decoder
+
+| Problem | Root Cause | Fix |
+|---------|------------|-----|
+| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. |
+| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. |
+| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. |
+| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. |
+| Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). |
+| Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. |
+| Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. |
+
+
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail items. All must pass before signal delivery. -->
 - [ ] **[Q1]**  Options chain data validated: stale quotes rejected (>60s old), bad print condition codes filtered, bid-ask spread sanity checked (<35% mid-cap, <25% large-cap)

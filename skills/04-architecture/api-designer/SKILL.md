@@ -1,6 +1,6 @@
 ---
 name: api-designer
-description: REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination, SDK.
+description: "REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies, authentication, rate limiting, error handling, pagination, and SDK generation. Trigger: API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination, SDK."
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
@@ -264,8 +264,7 @@ Minor API addition or non-breaking change
 ```
 
 
-**What good looks like:** OpenAPI 3.1 spec renders cleanly in Swagger UI. Every endpoint has request/response examples and error schemas. Pagination, sorting, and filtering are consistent across all resources. Breaking changes are versioned with a migration guide.
-
+**What good looks like:** OpenAPI 3.1 spec renders cleanly in Swagger UI with no validation warnings. Every endpoint has at least one request example, one response example, and all error schemas documented. A frontend developer can generate a type-safe client from the spec and start integrating without asking a single question about pagination, filtering, sorting, or error handling.
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Spec-first, not code-first**: OpenAPI spec is the source of truth; generate server stubs and client SDKs from it.

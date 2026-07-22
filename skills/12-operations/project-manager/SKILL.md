@@ -55,6 +55,8 @@ These rules apply to *every* response this skill produces.
 - Evaluating project health with objective metrics (EVM, SPI, CPI)
 - Resource conflicts across multiple projects
 - Need a communication plan (who gets what info, when, how)
+- **Use `/scrum-master` instead** when: The team needs coaching on agile practices, sprint ceremonies are dysfunctional, impediments need removal, or team health needs improvement. Scrum-master is about *how* the team works — facilitation, coaching, process improvement.
+- **Use `/technical-program-manager` instead** when: You need to coordinate across multiple teams, manage cross-team dependencies, drive a program with a fixed timeline and multiple workstreams. TPM handles scope that spans teams; PM handles scope within a single project.
 
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->

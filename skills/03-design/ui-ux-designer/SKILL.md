@@ -1,6 +1,7 @@
 ---
 name: ui-ux-designer
-description: Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: "design system", "component spec", "design tokens", "developer handoff", "responsive design", "interaction pattern", "prototype this".
+description: >-
+  Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: design system, component spec, design tokens, developer handoff, responsive design, interaction pattern, prototype this.
 author: Sandeep Kumar Penchala
 type: design
 status: stable
@@ -79,10 +80,7 @@ Target audience?
 ├── Desktop-first B2B SaaS → Design desktop first, ensure mobile works for critical flows
 └── Equal split → Design at the most constrained breakpoint first, then expand
 
-**What good looks like:** The output opens correctly in the target tool. All validations pass. No placeholder content remains.
-
-```
-
+**What good looks like:** Figma file with every screen annotated with design tokens (spacing, color, typography tokens, not hardcoded values), responsive breakpoints for mobile/tablet/desktop, dark mode variants, and developer notes for every interactive state (hover, focus, active, pressed, disabled, loading, error, empty). A frontend developer can open the file and start coding without asking a single clarifying question.
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Design System Audit & Tokens
@@ -192,6 +190,27 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 Common chains:
 - **Research to code**: ux-researcher → ui-ux-designer → frontend-developer — from user evidence to implemented design
 - **Brand to accessibility**: brand-guidelines → ui-ux-designer → accessibility-auditor — from brand identity to WCAG-compliant components
+
+
+
+### Design-to-Code Handoff Chain
+```bash
+# Figma → Design tokens → Component → Implementation → Verify
+/ui-ux-designer && /frontend-developer && /qa-engineer
+# Every Figma frame has: spacing token, color token, typography token, breakpoint annotation.
+# Frontend devs should never guess measurements — if it's not in the handoff, it doesn't exist.
+
+# Brand → Design system → Component library → App
+/brand-guidelines && /ui-ux-designer && /frontend-developer
+# Brand tokens feed into the design system. Design system tokens are the single source of truth.
+# No hardcoded colors or spacing values — every pixel comes from a named token.
+
+# Accessibility → Design → Development → Audit
+/accessibility-auditor && /ui-ux-designer && /frontend-developer
+# Accessibility requirements are annotated on every Figma frame before handoff.
+# Color contrast, heading hierarchy, focus management, and touch targets are non-negotiable.
+# Auditor verifies post-implementation — not post-launch.
+```
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
