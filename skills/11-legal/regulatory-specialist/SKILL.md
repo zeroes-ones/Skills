@@ -399,6 +399,10 @@ Run skills in the order shown:
 # Chain B: product-manager → regulatory-specialist → qa-engineer
 ```
 
+## What Good Looks Like
+
+> When regulatory strategy is executed flawlessly, product roadmaps account for regulatory pathways from ideation, submission packages are complete on first review with zero major deficiencies, multi-jurisdiction compliance is maintained through a single harmonized quality system, regulatory intelligence feeds product decisions before competitors react, and auditors and notified bodies remark on the maturity of the regulatory operation — turning compliance from a cost center into a market access accelerator.
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 | Sub-Skill | When to Use | Context |

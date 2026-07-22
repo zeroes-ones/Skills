@@ -233,6 +233,34 @@ What's your stage and complexity?
 - **1099s are January 31, not "whenever you get around to it."** Late filing penalty: $60/form (up to $630/year for small businesses). Intentional disregard: $630/form, no cap. The IRS does not accept "we were busy fundraising" as an excuse.
 - **Your auditor is not your accountant.** Auditors test what you've done. They do not prepare your financials, fix your reconciliations, or tell you what entries to make. Going into an audit with messy books costs 3-5x more in audit fees.
 
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Skills this accountant works with — financial data flows across the entire company -->
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `fp-and-a-analyst` | Budget, forecast, variance analysis requests | Monthly close — provide actuals for budget-to-actual comparison |
+| `treasury-manager` | Cash position, debt covenants, banking updates | Weekly cash reconciliation; monthly balance sheet tie-out |
+| `ceo-strategist` | Fundraising timeline, board deck requirements | Pre-fundraising — GAAP financials and cap table audit |
+| `board-manager` | Board meeting schedule, financial reporting requirements | 2 weeks before each board meeting — financial package prep |
+| `legal-advisor` | Contract review for ASC 606 implications, equity grant documentation | At contract signing — revenue recognition determination |
+| `compliance-officer` | Tax filing deadlines, regulatory changes (nexus, R&D credit) | Monthly — sales tax nexus review; quarterly — estimated tax payments |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `fp-and-a-analyst` | Closed books, actuals by department, ARR schedule, cash flow statement | Delayed close = delayed forecast refresh = stale board materials |
+| `treasury-manager` | Cash reconciliation, AP aging, AR aging, payroll register | Treasury can't manage cash without reconciled bank positions |
+| `ceo-strategist` | GAAP P&L, balance sheet, cash flow statement, cap table | Fundraising models are garbage without clean historicals |
+| `investor-relations` | Quarterly financial reports, SaaS metrics (ARR, NRR, LTV/CAC) | Investor updates without GAAP backing erode LP trust |
+| `board-manager` | Financial package: P&L, BS, CF, ARR bridge, burn multiple, runway | Board can't govern without financial visibility |
+
+**Coordination cadence:**
+- **Daily:** Scan bank feeds for unusual transactions
+- **Weekly:** AP run review with treasury-manager; payroll preview with people-ops
+- **Monthly:** Close checklist execution; draft P&L to fp-and-a-analyst by Day 5; final by Day 10
+- **Quarterly:** Sales tax nexus review; 409A refresh trigger check; board financial package
+- **Annually:** Audit prep (PBC list), 1099 filing, tax return support, insurance renewal
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error is a war story from real startup accounting failures -->
@@ -281,6 +309,16 @@ What's your stage and complexity?
 ## What Good Looks Like
 
 Month-end close is completed on business day 5. The financial package (P&L, balance sheet, cash flow, flux analysis, SaaS metrics) is distributed before 10 AM. Every reconciliation has a signed-off worksheet with book balance, statement balance, and reconciling items listed individually. An auditor's PBC request is fulfilled by sharing a single organized folder — no files are "being prepared." The deferred revenue waterfall reconciles to the trial balance to the penny. The equity rollforward matches Carta exactly. A new controller starting Monday could take over the close process without a single phone call because everything is documented, labeled, and organized.
+
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Outsourced bookkeeping, tax prep by CPA firm | Stay compliant, don't get fined | External bookkeeper does monthly recs; founder reviews P&L; minimal process |
+| **Startup** | First in-house accountant, QuickBooks/Xero, month-end close | Build internal capability, reliable financials | Dedicated accountant; close process defined; basic internal controls |
+| **Scale-up** | Finance team (staff accountant, AP/AR, payroll), ERP migration | Scale the function, prepare for audit | Segregation of duties; NetSuite/Intacct; formal close calendar; flux analysis |
+| **Enterprise** | Controller + audit committee, SOX/internal controls, GAAP expertise | Public-company readiness, audit defense | Controller org; external audit; SEC reporting readiness; ASC 606 mastery |
 
 ## References
 <!-- QUICK: 30s — deeper reading and templates -->

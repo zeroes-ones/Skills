@@ -395,6 +395,10 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Small → Medium | Database >50GB or >5 services | Online schema change tools, CDC for data migration, automated rollback testing |
 | Medium → Enterprise | Multi-region, >50 services, regulatory compliance | Blue-green deployments, automated drift detection, migration runbook with stakeholder comms |
 
+## What Good Looks Like
+
+> When migration architecture is executed flawlessly, every migration has a phased plan with rollback checkpoints at each phase, data integrity is verified with row counts, checksums, and business-level reconciliation before cutover, feature flags gate every new code path so rollback takes seconds not hours, replication lag is monitored and never exceeds thresholds, the pre-mortem's top three failure modes have automated triggers, and the cutover window is measured in minutes — the business continues operating without detecting the migration happened.
+
 ## Cost-Effective Decision Table
 
 | Decision | Free/Cheap Option | Paid Upgrade | When to Upgrade |

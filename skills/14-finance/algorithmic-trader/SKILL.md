@@ -580,7 +580,7 @@ Validate strategies before risking capital. Learn from every trade — winners a
 - [ ] **[P14]** Slippage model calibrated with live fill data: compare fill prices to mid-price at order time, track running average
 - [ ] **[P15]** Earnings blackout window active: reduce 50% if earnings within 48 hours, exit 100% if flat/losing
 - [ ] **[P16]** Black swan hedge active when VIX < 15: 1-2% NAV in OTM SPY puts, 30-45 DTE, 5% OTM
-## Cross-skills Integration
+## Cross-Skill Coordination
 <!-- QUICK: 30s -- real chains with upstream and downstream skills -->
 
 ### Consumes From
@@ -643,6 +643,16 @@ A production algorithmic trading system that executes this skill correctly has t
 - **The paper clone tracks within 2% of live.** If the paper account (same signals, same sizing, same timing, but fills at mid-price) diverges from live P&L by more than 2% over any rolling 20-trade window, an alert fires. Divergence means your slippage model is wrong or you are getting worse fills than expected — fix execution, not strategy.
 
 - **No single sector or factor can destroy the account.** The correlation matrix runs daily before market open. If any sector exceeds 30% of NAV, the smallest position in that sector is reduced or closed. Diversification is enforced by code, not discipline — discipline fails under stress; code does not.
+
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single strategy, manual execution via broker UI | Learn market mechanics, prove a thesis | Execute trades manually; no automation; spreadsheet-based tracking |
+| **Startup** | Automated trading bot, backtesting framework, paper trading | Build reliable automation, validate strategies | Code executes trades; backtesting catches bad strategies before real money |
+| **Scale-up** | Multi-strategy portfolio, risk management system, real-time monitoring | Diversify alpha, manage drawdowns | Portfolio-level risk controls; strategy correlation monitored; position sizing automated |
+| **Enterprise** | Market making, institutional execution, regulatory compliance | Scale AUM, minimize market impact | Colocation, smart order routing, SEC/FINRA compliance, institutional counterparties |
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

@@ -64,6 +64,97 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Decision Trees
+
+### Abuse Response: Automated Action vs Human Review vs Legal Escalation
+
+```
+Abuse detected (automated flag or user report) → Determine response path:
+
+├── Content category is CSAM or Violent Extremism?
+│   └── → AUTOMATED + LEGAL ESCALATION
+│       Immediate content removal + permanent account suspension.
+│       Freeze evidence (content snapshot + metadata + chain of custody).
+│       CSAM: File CyberTipline report with NCMEC within 24 hours.
+│       Violent extremism: Refer to law enforcement per jurisdictional protocol.
+│       No appeal on CSAM removal. No human review before action (speed critical).
+│
+├── Content category is Self-Harm (Tier 1 — Imminent)?
+│   └── → AUTOMATED CRISIS RESPONSE
+│       Content hidden (not deleted — may be needed for welfare check).
+│       Compassionate intervention message with crisis resources.
+│       Geo-route to local crisis line if available.
+│       Flag for human wellness check review within 15 minutes.
+│       Do NOT auto-ban — a banned user in crisis loses access to support resources.
+│
+├── Content category is Harassment, Hate Speech, or Threats?
+│   ├── ML confidence > 0.95 AND account has prior violations?
+│   │   └── → AUTOMATED ACTION (hide content + temporary suspension).
+│   │       Human review within 2 hours to confirm/override.
+│   │
+│   └── ML confidence < 0.95 OR first-time offender?
+│       └── → HUMAN REVIEW (2-hour SLA for P1 queue).
+│           Reviewer decides: remove, label, or dismiss.
+│
+├── Content category is Spam or Misinformation?
+│   ├── Spam with commercial intent?
+│   │   └── → AUTOMATED if confidence > 0.98 (spam is high-precision detectable).
+│   │       Otherwise human review.
+│   │
+│   └── Health misinformation?
+│       └── → HUMAN REVIEW ONLY.
+│           Medical misinformation requires clinical context — never auto-remove.
+│           Route to content-policy-manager for policy-based decision.
+│
+└── Content category is Ambiguous / Low Confidence?
+    └── → HUMAN REVIEW (24-hour SLA, P3 queue).
+        Do not take automated action on ambiguous content.
+        False positive cost (wrongly removed content) >> false negative cost (delayed removal).
+```
+
+### Account Integrity: Challenge vs Shadowban vs Hard Ban
+
+```
+Account flagged for suspicious activity → Determine integrity action:
+
+├── Signal: High bot/CAPTCHA score, but no content violation?
+│   └── → CHALLENGE
+│       Require phone verification or government ID to restore full access.
+│       Account remains visible, content stays up during challenge period (72 hours).
+│       If challenge not completed within 72 hours → restrict to read-only.
+│       Purpose: Distinguish bots from privacy-conscious legitimate users.
+│
+├── Signal: Suspected sockpuppet / ban evasion?
+│   └── → SHADOWBAN (silent restriction)
+│       Account appears normal to the user — they can post, comment, message.
+│       Their content is invisible to other users (not shown in feeds, not notified).
+│       Purpose: Prevent the user from realizing they're detected and creating a new account.
+│       Monitor for 7 days: if no coordinated abuse pattern → remove shadowban.
+│       If coordinated abuse confirmed → hard ban all linked accounts.
+│
+├── Signal: Account takeover (ATO) confirmed?
+│   └── → FREEZE + NOTIFY
+│       Freeze account: terminate all sessions, block password changes, block content actions.
+│       Notify original account owner via recovery email and SMS.
+│       Require identity re-verification to restore access (government ID + selfie match).
+│       Preserve all actions taken during takeover window for evidence.
+│       Purpose: Limit damage, restore legitimate owner, preserve forensic evidence.
+│
+├── Signal: CSAM upload or violent extremism content?
+│   └── → HARD BAN + LEGAL ESCALATION
+│       Immediate permanent suspension. No warning, no appeal (for CSAM).
+│       IP block, device fingerprint block, payment method block.
+│       Evidence preservation + law enforcement referral.
+│       Purpose: Zero tolerance for crimes against children or terrorism.
+│
+└── Signal: Harassment, hate, or coordinated abuse with prior warnings?
+    └── → HARD BAN (after human review)
+        Permanent suspension with detailed removal notice.
+        Appeal available (even hard bans should offer appeal for non-CSAM cases).
+        IP and device fingerprint added to blocklist for 90 days.
+        Purpose: Protect community from repeat abusers while preserving appeal rights.
+```
+
 ## When to Use
 
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -78,6 +169,32 @@ Do not read the entire skill. Follow the route above and read only the sections 
 - Threat modeling patient communities for unique abuse vectors
 - Implementing evidence preservation workflows (content freeze, chain of custody, legal hold)
 - Building moderation tooling with automated flagging, bulk actions, and reviewer safety
+
+## Cross-Skill Coordination
+
+<!-- CROSS-SKILL: Trust & Safety engineering consumes and feeds multiple disciplines — use this table to route cross-cutting work -->
+
+| Skill | Direction | When to Consume / Feed | Shared Artifacts |
+|-------|----------|------------------------|------------------|
+| **content-policy-manager** | Consume | Medical misinformation taxonomy, enforcement severity tiers, escalation criteria for clinical/legal review | Policy enforcement ladder, misinformation classification, escalation thresholds |
+| **content-policy-manager** | Feed | Abuse detection signals, emerging threat patterns, content removal statistics by policy category | Detection model outputs, flagged content reports, enforcement action logs |
+| **security-engineer** | Consume | Infrastructure security controls (DDoS protection, WAF rules, network segmentation), authentication and authorization architecture | WAF configurations, IAM policies, network security group rules |
+| **security-engineer** | Feed | Account takeover detection signals, credential stuffing indicators, botnet IP reputation data | ATO risk scores, compromised credential lists, bot detection rules |
+| **incident-responder** | Consume | Incident classification framework, severity definitions, notification and escalation runbooks | Incident response playbooks, on-call schedules, escalation matrices |
+| **incident-responder** | Feed | Trust & Safety incidents: CSAM detection, coordinated abuse campaigns, platform manipulation events | Incident reports, forensic evidence packages, containment action records |
+| **legal-advisor** | Consume | Content liability assessment, legal hold requirements, jurisdictional content restriction obligations | Legal hold notices, content removal orders, jurisdictional compliance requirements |
+| **legal-advisor** | Feed | Evidence preservation packages, chain-of-custody documentation, content moderation decision logs for legal defense | Evidence packages, moderation logs, user violation histories |
+| **community-operations-manager** | Consume | Moderator capacity and scheduling, review queue SLAs, community health metrics | Moderation schedules, SLA dashboards, community sentiment reports |
+| **community-operations-manager** | Feed | Automated flagging accuracy metrics, moderation tooling UX feedback, moderator wellness data | False positive rates, tooling performance metrics, moderator exposure tracking |
+| **compliance-officer** | Consume | Regulatory requirements for content moderation (DSA, Online Safety Act, state-level content laws), audit requirements | Compliance frameworks, audit checklists, regulatory filing templates |
+| **compliance-officer** | Feed | Evidence of content moderation controls, transparency data for regulatory reporting, CSAM reporting compliance evidence | Takedown statistics, appeal rates, NCMEC reporting logs, moderation audit trails |
+
+**Coordination Protocol:**
+1. New abuse pattern detected that doesn't fit existing policy → file a content-policy-manager request with examples and detection data (don't create ad-hoc enforcement rules outside the policy framework)
+2. Account takeover or credential attack detected → notify security-engineer AND incident-responder simultaneously (ATO is both a security incident and a trust issue)
+3. CSAM or violent extremism content detected → follow the legal escalation pathway documented in incident-responder's runbook; parallel-notify legal-advisor for evidence preservation
+4. Moderation tooling changes that affect reviewer workflow → coordinate with community-operations-manager BEFORE deploying (don't surprise moderators with new tools mid-shift)
+5. Regulatory inquiry about content moderation practices → route to compliance-officer with supporting evidence from T&S systems; do not respond to regulators directly
 
 ## Core Workflow
 
@@ -368,6 +485,70 @@ Evidence Package Structure:
 - Debriefing sessions: group or individual after reviewing particularly disturbing content
 - Exit pathway: moderator can permanently opt out of graphic content review with no career penalty
 
+## Best Practices
+
+<!-- BEST PRACTICES: Trust & Safety engineering patterns that prevent the most common failures -->
+
+1. **False Positive Minimization as a Metric, Not an Afterthought.** Every automated action (hide, suspend, ban) must have a measured false positive rate with a target below 0.1%. Run new detection models in shadow mode for 2+ weeks before enabling enforcement. Sample 5% of automated decisions for human audit. Every successful appeal is a labeled training example that improves the model. A false positive doesn't just frustrate one user — it erodes trust across the entire community. Users talk to each other. "I was banned for nothing" spreads faster than "this platform is safe."
+
+2. **Moderator Wellness: Secondary Trauma Is an Occupational Hazard.** Moderators reviewing CSAM, self-harm, violent extremism, and graphic medical content are exposed to the same psychological stressors as first responders — but without the same institutional support. Mandatory wellness check-ins, exposure time limits (max 2 hours/day on graphic queues), content rotation between high-severity and low-severity queues, and access to counseling services are operational requirements, not employee perks. A moderator who burns out after six months represents a failure of system design, not individual resilience.
+
+3. **Evidence Preservation Chain of Custody from the First Byte.** When content may become evidence in a criminal proceeding, every action on that content from the moment of detection must be logged: who accessed it, when, from where, and what action was taken. Use cryptographic chaining (each log entry hashes the previous) and WORM storage (write once, read many). If the defense can challenge the integrity of your evidence in court, months of investigative work are wasted. Chain of custody starts at detection, not at the legal hold trigger.
+
+4. **Automated Harm Detection Thresholds: High Precision for High-Severity Categories.** CSAM and self-harm content detection must prioritize precision over recall. A false positive in CSAM detection means a user is wrongly flagged for child exploitation material — a potentially life-destroying label. A false negative means CSAM stays up longer. Accept slightly lower recall to maintain near-perfect precision. For categories where human review is always required post-detection (CSAM), the detection system is a triage tool, not a decision-maker.
+
+5. **Appeal Workflow Design: Assume the System Will Be Wrong.** Every enforcement action — including permanent bans — must have an appeal pathway. Appeals must be reviewed by a human, not an algorithm (no automated appeal rejection). The appeal form must be accessible even to suspended users (limited-access mode). Appeal outcomes should be tracked by policy category to identify policies that generate disproportionate appeals — this is a signal that the policy or its enforcement is unclear.
+
+6. **Cross-Platform Threat Intelligence Sharing Without Violating Privacy.** Bad actors operate across platforms. A supplement scammer banned from your platform will move to another health community. Participate in industry threat intelligence sharing groups (Tech Coalition, GIFCT for terrorism, IWF for CSAM) but share only hashed identifiers (email hashes, device fingerprint hashes, content hashes), not raw user data. Cross-platform intelligence sharing is most effective when it's automated via APIs, not ad-hoc emails.
+
+7. **Penetration Testing of Reporting Flows.** Your reporting infrastructure is an attack surface. Test it: can a user submit 10,000 false reports to overwhelm moderators? Can a report be crafted to trigger an automated ban on an innocent user? Can the appeal system be denial-of-serviced? Quarterly penetration testing of the full report → triage → action → appeal pipeline ensures that the systems designed to protect users aren't weaponized against them.
+
+8. **Multi-Language Abuse Detection: Each Language Is a Separate System.** Keyword lists that work in English will fail in every other language. Arabic requires dialectal variation handling (MSA vs. Egyptian vs. Levantine). Chinese requires character decomposition for obfuscated terms. Hindi-English code-switching ("aaj kal bahut spam aa raha hai") requires mixed-language models. Every supported language needs: (a) a language-specific keyword lexicon built by native speakers, (b) validation on real-world abusive content in that language, and (c) a false positive measurement specific to that language. "We support 20 languages" means nothing if only English has been validated.
+
+## Error Decoder
+
+<!-- WAR STORIES: Trust & Safety failures — learn from these costly mistakes -->
+
+### War Story 1 — Automated Filter Blocked Legitimate Suicide Prevention Discussions
+
+A health platform deployed an automated self-harm detection system with a keyword list that included "suicide," "kill myself," "end it all," and "want to die." Within the first week, the system flagged and removed thousands of posts — including posts from suicide prevention support groups where users discussed their recovery journeys, crisis counselors sharing resources, and memorial threads for community members lost to suicide.
+
+**What went wrong:** The keyword filter had no context awareness. A post saying "I used to want to kill myself every day, but therapy saved my life" was treated identically to "I'm going to kill myself tonight." The system also flagged the crisis counselor's reply containing suicide prevention hotline numbers as "promoting harmful content."
+
+**Lesson:** Self-harm detection must distinguish between active ideation (Tier 1: specific plan + timeframe + means), past references (Tier 3: recovery discussion), and support/counseling (not harmful). Keyword-only filters are not sufficient for self-harm detection. Survivor speech protection rules must be validated with clinical advisors before deployment.
+
+### War Story 2 — 40% False Positive Rate Because Training Data Didn't Include Patient Vernacular
+
+A machine learning abuse classifier was trained on general social media toxic content datasets (Jigsaw, HateXplain). When deployed to a cancer patient community, the false positive rate was 40%. The model flagged "I want to die" (a common expression of treatment frustration among chemotherapy patients), "this is killing me" (describing side effects), and "fuck cancer" (community bonding expression) as toxic or self-harm content.
+
+**What went wrong:** The training data was from general social media where "I want to die" is typically a toxic or crisis signal. In a health community, the same phrase has a fundamentally different meaning. The model had no health-context awareness and no patient vernacular in its training data.
+
+**Lesson:** General-purpose abuse detection models fail catastrophically in specialized communities. You must fine-tune on community-specific data with health-context labels. Build a golden dataset of at least 10,000 labeled examples from your specific community before deploying any ML model. Include patient advocates in the labeling process to catch context-specific false positives.
+
+### War Story 3 — Moderator Burnout from CSAM Exposure Without Adequate Support
+
+A platform's content moderation team of 12 was reviewing reported content with no specialization — every moderator reviewed everything, including CSAM. Within 6 months, 4 moderators had resigned, 3 were on stress leave, and the remaining 5 had clinically significant secondary trauma symptoms. The platform had no wellness program, no exposure limits, and no content rotation.
+
+**What went wrong:** The platform treated all content moderation as equivalent work. They didn't distinguish between reviewing spam and reviewing child sexual abuse material. There were no psychological support resources, no mandatory breaks, and no mechanism for moderators to opt out of graphic content. The cost of replacing and retraining moderators exceeded the cost of a proper wellness program by 4x.
+
+**Lesson:** Moderator safety is an engineering problem, not just an HR problem. Engineering controls — exposure time limits in the queue system, content blurring by default, grayscale mode for graphic content, mandatory break enforcement — reduce exposure at the system level. Psychological support is necessary but not sufficient without engineering controls.
+
+### War Story 4 — Shadowban Backfired: User Discovered It and Went to the Press
+
+A platform shadowbanned a user who was posting borderline health content (not clearly violative but consistently pushing against policy boundaries). The shadowban was applied silently — the user's posts appeared normal to them but were hidden from others. The user discovered the shadowban by checking their posts from an incognito browser and went to a tech journalist with screenshots. The resulting article — "Health Platform Secretly Silences Patients" — caused more reputational damage than the original content.
+
+**What went wrong:** Shadowbanning was used for a borderline case where the content didn't clearly violate any policy. There was no policy documentation authorizing shadowbans, no transparency about the practice, and no appeal pathway for shadowbanned users. The secrecy itself became the story.
+
+**Lesson:** Shadowbans are a powerful tool but must be reserved for clear abuse cases (spam networks, ban evasion, coordinated manipulation) — never for borderline content disputes. Document shadowban criteria in your enforcement policy. Provide a mechanism for users to discover and appeal shadowbans. Transparency about enforcement practices prevents the enforcement from becoming the controversy.
+
+### War Story 5 — Evidence Inadmissible in Court Due to Broken Chain of Custody
+
+A platform preserved evidence of a harassment campaign for a criminal stalking case. They snapshotted the harassing posts, IP addresses, and timestamps. In court, the defense successfully challenged the evidence because: (a) timestamps were in server time without NTP synchronization proof, (b) there was no record of who accessed the evidence between preservation and court submission, and (c) the content snapshots were screenshots, not original data with cryptographic hashes.
+
+**What went wrong:** The evidence preservation process was built for internal moderation, not for court admissibility. Timestamps were not synchronized to a trusted time source. Access logs for the preserved evidence did not exist. The "snapshot" was a rendered HTML page, not the raw data with an integrity hash.
+
+**Lesson:** Evidence that may end up in court must be preserved to forensic standards from the moment of detection. Requirements: NTP-synchronized timestamps (RFC 3161 trusted timestamp), cryptographic hashing of all evidence (SHA-256 minimum), chain-of-custody logging for every access, and WORM storage. Design the evidence preservation pipeline assuming the evidence will be challenged by an adversarial legal team.
+
 ## Production Readiness Checklist
 
 <!-- CHECKLIST: TS1-TS14 reference IDs for Trust & Safety Engineering production readiness -->
@@ -386,6 +567,32 @@ Evidence Package Structure:
 - **TS12** — Moderation tooling: automated flagging, bulk actions, review queues deployed; moderator safety program operational
 - **TS13** — Multilingual coverage validated: keyword lists exist and tested for all supported languages; code-switching detection operational
 - **TS14** — Incident response integration: trust and safety incidents have defined severity levels, notification paths, and response runbooks
+
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Manual content moderation, reactive policy enforcement | Keep the platform safe enough to grow | Founder reviews flagged content; no formal policies; gut-feel decisions |
+| **Startup** | Automated flagging, content policies v1, basic tooling | Scale moderation, establish rules | Keyword filters + ML classifiers; first content policy doc; small mod team |
+| **Scale-up** | Trust & safety team, moderation platform, appeals process | Systematic enforcement, user trust | Dedicated T&S team; tiered enforcement; transparency reports; appeals workflow |
+| **Enterprise** | Global T&S org, regulatory compliance (DSA, Online Safety), crisis response | Platform integrity at global scale | Regional T&S teams; government engagement; CSAM reporting compliance; transparency center |
+
+## What Good Looks Like
+
+<!-- OUTCOME: The north star for Trust & Safety engineering in health platforms -->
+
+- **Bad actors cannot operate at scale.** Automated detection catches spam, bots, and coordinated abuse networks before they impact real users. Registration abuse is blocked at the CAPTCHA and device fingerprinting layers. Account takeovers trigger immediate session termination and owner notification. The platform is an unattractive target — the cost of abuse exceeds the value of the attack.
+
+- **Legitimate users never feel targeted by enforcement.** False positive rates are below 0.1% and continuously measured. Borderline content goes to human review, not automated action. Every enforcement action includes a specific policy citation and an appeal pathway. Users who successfully appeal receive an apology and a human explanation — not a form letter.
+
+- **Moderators are protected by system design, not just HR policy.** Graphic content is blurred by default, exposure time is enforced by the queue system, and content rotation between severity levels is automated. Moderators have access to psychological support and can permanently opt out of graphic content review with no career penalty. Moderator retention is a tracked metric with the same priority as detection recall.
+
+- **Evidence is court-ready from the moment of detection.** Every content action is logged with NTP-synchronized timestamps, cryptographic hashes, and chain-of-custody records. When law enforcement requests evidence, the response is an integrity-verified package, not a scramble to assemble screenshots. The evidence preservation pipeline is designed assuming adversarial legal challenge.
+
+- **Patient communities feel safe, not surveilled.** Abuse detection is proportional — heavy-weight verification targets high-risk actions, not every user interaction. Patients discussing sensitive health conditions trust that the platform protects them from predators, scrapers, and harassers without making them feel like suspects. Safety features are visible enough to build trust, invisible enough to not impede authentic connection.
+
+- **The platform learns from every enforcement action.** Appeals data feeds back into model training. Moderator decisions improve detection accuracy. Community feedback shapes policy evolution. The trust and safety system is not a static filter — it's a learning loop that gets smarter and more precise with every interaction.
 
 ## Sub-Skills
 

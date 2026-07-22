@@ -368,6 +368,16 @@ Partners are onboarded and have a first registered deal within 90 days for >60% 
 - [ ] **[S15]** Dormant partner offboarding process: partners with 0 deals in 12 months moved to dormant or offboarded
 - [ ] **[S16]** Conflict resolution log maintained — patterns tracked quarterly to identify process improvements
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Direct 1:1 partnerships, founder-to-founder relationships | Get first integration partnerships live | Handshake deals; no program; personal relationships drive everything |
+| **Startup** | Partner program v1, onboarding process, partner portal | Build repeatable partner motion | Structured partner tiers; self-serve onboarding; first co-marketing campaigns |
+| **Scale-up** | Channel sales, partner-sourced pipeline, deal registration | Drive revenue through partners | Deal registration incentives; partner sales training; channel conflict resolution |
+| **Enterprise** | Global partner ecosystem, GSIs, OEMs, resellers | Market expansion through partner network | Regional partner managers; multi-tier distribution; partner-sourced > 25% of revenue |
+
 ## References
 
 - **bizdev-manager** — for partner deal structure, partnership agreements, JBP creation, and partner recruitment

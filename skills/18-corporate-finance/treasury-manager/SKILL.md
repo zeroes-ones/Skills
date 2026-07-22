@@ -226,6 +226,34 @@ For startups with multi-currency operations (international customers, overseas t
 - **Wires are forever; ACH can be reversed.** A wire transfer is final within hours and virtually irreversible. An ACH debit can be reversed within 5 days (consumer) or 2 days (business). Fraudsters know this — they demand wire transfers. Any new vendor requesting wire payment for the first invoice? Call them at a known number first.
 - **Cap table hygiene prevents fundraising delays.** A messy cap table (missing signatures, untracked option grants, incorrect share counts) adds 2-4 weeks to fundraising legal review. That's 2-4 weeks of runway burned while your lawyers and their lawyers argue about who owns what.
 
+## Cross-Skill Coordination
+
+<!-- NEIGHBORS: Skills this treasury manager works with — cash is the company's oxygen -->
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `fp-and-a-analyst` | Cash forecast (annual + 13-week), fundraising timeline, expense run rate, department budgets | Weekly — actuals vs forecast reconciliation; pre-fundraising — cash strategy planning |
+| `accountant` | Bank reconciliation, AP aging, AR aging, payroll register, GL cash accounts | Daily/weekly — cash position update; monthly — balance sheet cash tie-out |
+| `ceo-strategist` | Fundraising strategy, board materials, strategic initiatives requiring capital allocation | Pre-fundraising — banking partner selection; pre-M&A — cash flow due diligence |
+| `legal-advisor` | Contract review, debt facility negotiation, equity round legal support | Debt facility setup/amendment; equity round closing — wire instructions verification |
+| `investor-relations` | Investor cash questions, capital allocation narrative | Quarterly updates — cash position, runway, capital efficiency metrics |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `fp-and-a-analyst` | Actual cash position, bank balances, debt covenants status, FX rates | FP&A models are anchored to your cash actuals — wrong = garbage forecast |
+| `accountant` | Bank statements, wire confirmations, investment account statements, debt schedule | Close can't complete without cash proof — delays cascading P&L/BS delivery |
+| `ceo-strategist` | Runway calculation, burn rate, cash efficiency metrics, debt covenant compliance | CEO makes strategic decisions (hiring, fundraising timing) on your runway number |
+| `board-manager` | Cash position summary, runway, covenant compliance for board package | Board governance requires cash visibility — every board meeting |
+| `investor-relations` | Cash balance, cash burn trend, months of runway | Investors' #1 question after "how's revenue?" is "how's cash?" |
+
+**Coordination cadence:**
+- **Daily:** Cash position across all accounts; flag any unexpected debits
+- **Weekly:** Cash forecast reconciliation with fp-and-a-analyst; AP run review with accountant
+- **Monthly:** Bank reconciliation sign-off; debt covenant calculation; investment account statement review
+- **Quarterly:** Banking relationship review; KYC refresh; insurance policy audit; 409A trigger check
+- **Pre-Fundraising:** Bank partner selection for incoming wire; fraud prevention briefing for team
+- **Emergency:** Bank freeze — contact relationship manager within 1 hour; wire fraud — bank fraud department within 30 minutes
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error from real startup treasury failures -->
@@ -276,6 +304,16 @@ For startups with multi-currency operations (international customers, overseas t
 ## What Good Looks Like
 
 Every Monday at 9 AM, the cash dashboard is updated: actual prior-week ending cash vs. forecast, variance explanation if > 5%, reforecast for next 12 weeks. A CFO or CEO can look at one screen and answer: "How many weeks of runway do we have? When do we need to raise? Are we compliant with all debt covenants? Is all cash FDIC/SIPC insured?" All bank accounts are visible at a glance. Payment runs (Tuesday/Thursday) process without drama because approvals are already in place. An auditor can test any wire transfer from the past year and find: approval, beneficiary match, callback verification log, and bank confirmation — in under 10 minutes. The company could survive its primary bank being inaccessible for 2 weeks without missing a single payment.
+
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | Single bank account, founder manages cash | Keep the lights on | One checking account; manual wires; no cash forecasting |
+| **Startup** | Cash management basics, 13-week forecast, investment policy | Optimize cash, earn yield | Sweep accounts; money market funds; first cash forecast; payment controls |
+| **Scale-up** | Multi-currency, multi-bank, FX hedging, debt management | Manage complexity, reduce FX risk | Multi-currency accounts; forward contracts; credit facilities; cash pooling |
+| **Enterprise** | Global treasury, in-house banking, capital structure | Optimize global liquidity, manage financial risk | Treasury management system; intercompany netting; bond issuance; FX options strategies |
 
 ## References
 <!-- QUICK: 30s — deeper reading and templates -->

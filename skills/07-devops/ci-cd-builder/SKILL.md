@@ -762,6 +762,10 @@ CI cost 2x above budget? → Cloud Architect (FinOps) → CTO Advisor
 | `File exists` | Output file already exists | Use `--force` flag or specify different output path |
 
 
+## What Good Looks Like
+
+> Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback. Builds are reproducible and hermetic — the same commit always produces the same artifact. Artifacts are immutable and promoted through environments with zero manual steps. The pipeline enforces quality gates at every stage and blocks deployment on failure. Developers trust the pipeline implicitly: a green build means "ready to ship," and a red build tells them exactly what to fix, where, and why.
+
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
 ### Pipeline Architecture

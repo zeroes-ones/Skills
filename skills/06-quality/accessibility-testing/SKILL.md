@@ -160,6 +160,16 @@ Configure periodic (daily) accessibility scans of key production pages using pa1
 
 **What good looks like:** A developer opens a PR that changes a button component from a `<div>` with an onClick handler to a native `<button>`. The CI pipeline runs. ESLint passes (the `<div>` would have been caught by `jsx-a11y/no-static-element-interactions`). Unit tests pass (jest-axe confirms the button has an accessible name). E2e tests pass (axe-core finds no new violations on any page containing the button). The accessibility dashboard in CI shows a green check and a baseline diff of "+0 new, -1 fixed" because the old `<div>` violation is now resolved. The developer didn't think about accessibility at all — the pipeline caught everything. That's what good looks like.
 
+## Scale Depth
+<!-- QUICK: 30s -- how this skill changes as the company grows -->
+
+| Stage | Scope | Focus | Key Difference |
+|-------|-------|-------|----------------|
+| **Solo** | axe-core in dev, manual Lighthouse audits | Catch the obvious, learn WCAG | Run axe in browser DevTools; fix what you find before shipping |
+| **Startup** | CI/CD a11y gates on every PR, linting in IDE | Automate enforcement, block regressions | Lint + axe in CI; violation baseline established; score tracked |
+| **Scale-up** | Cross-platform testing (web + iOS + Android), monitoring | Cover all platforms, continuous compliance | Daily production scans; mobile a11y automation; debt ratio tracked |
+| **Enterprise** | Dedicated a11y team, real-user monitoring, legal compliance | Proactive accessibility, ADA/508 defense | Accessibility program with dedicated headcount; VPATs published; user testing with assistive tech |
+
 ## References
 
 - axe-core API Reference: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md

@@ -293,6 +293,9 @@ Analysis contradicting company strategy? → Business Strategist → CEO Strateg
 - **Small → Medium**: 5+ parallel experiments. First production model serving customers. Compliance requirements appear.
 - **Medium → Enterprise**: 20+ data scientists. Model risk management required by regulation. Cross-team experiment interference observed.
 
+## What Good Looks Like
+
+> Every experiment begins with a pre-registered hypothesis, a power analysis, and a peer-reviewed design before the first user is bucketed. Results include confidence intervals and effect sizes, not just p-values, and the experimentation platform automatically flags SRM violations and peeking issues. Stakeholders make decisions on statistically rigorous evidence within 48 hours of experiment completion, and the experiment knowledge base means no question is tested twice. Models in production have documented performance baselines, and degradation triggers a retrain before any customer notices.
 
 ### Cross-skills Integration
 ```bash
