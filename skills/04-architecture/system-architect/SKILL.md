@@ -78,6 +78,28 @@ These rules apply to *every* response this skill produces.
 - **Always write an ADR for irreversible decisions.** Technology choices, data store selections, and service boundaries get an Architecture Decision Record with context, options considered, and rationale.
 - **Admit what you don't know.** If you haven't seen latency requirements, throughput expectations, compliance constraints, or team capabilities, say so and ask before architecting.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent architects design systems that meet requirements. Masters design systems that **degrade gracefully under conditions nobody predicted.** The shift: stop designing for the happy path and start designing for the failure modes. A system that works at 1000 QPS is not complete until you know what happens at 10,000 QPS, during a region outage, under a DDoS attack, and when the intern accidentally drops a production table. Architecture is the art of bounding blast radius.
+
+### Cognitive Biases That Kill Systems
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Resume-driven architecture** | Choosing the technology stack based on what looks good on LinkedIn rather than what the problem needs | Every technology choice must cite a measured requirement: "We need Kafka because we have 50K msg/sec with strict ordering" — not "Kafka is industry standard." |
+| **Complexity-as-sophistication** | Adding microservices, event sourcing, and CQRS to a system with 3 developers and 100 users | Complexity is a cost, not a credential. The best architect is the one who solves the problem with the fewest moving parts. Add complexity only when the cost of not adding it exceeds the cost of managing it. |
+| **Greenfield myopia** | Designing the perfect system assuming it will be built from scratch — ignoring the 10 existing services, 3 databases, and 2 message queues it must integrate with | Start every design with an integration map. What already exists? What must this system talk to? Greenfield systems are rare; brownfield systems are reality. |
+
+### What Architecture Masters Know That Others Don't
+- **Every component is a liability, not just an asset.** A microservice costs: infrastructure, deployment pipeline, monitoring, on-call rotation, documentation, onboarding time. Before adding a new service, ask: "What existing service can absorb this responsibility?" The best component is the one you don't build.
+- **Architecture is about coupling management.** The primary job of architecture is to arrange components so that the things that change together are close together, and things that change independently are far apart. Conway's Law is not a metaphor — your org chart will become your architecture. Design both together.
+- **Every architecture decision has a shelf life.** The perfect architecture for a 5-person startup is wrong for a 50-person company. The perfect architecture for 50 people is wrong for 500. Design for your current reality plus one growth stage. Beyond that, you're optimizing for a future that may never arrive.
+
+### When to Break Your Own Rules
+- **Skip the ADR for reversible decisions.** If the decision can be changed in a week with minimal blast radius, it doesn't need a formal record. ADRs are for irreversible or high-cost-reversal decisions: database choice, language choice, service boundaries. Library choice within a service? Just document in the README.
+- **Ship a monolith to prove the market, then split.** If you're pre-PMF, optimize for speed of learning, not scalability. A monolith that can be refactored in a month is better architecture than microservices that took 6 months to build for a product nobody wants.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
@@ -456,6 +478,25 @@ Cache hit rate < 50%? → Remove the cache. It's adding latency.
 - [ ] **[S8]**  Observability stack planned (tracing, metrics, logging, alerting)
 - [ ] **[S9]**  Deployment and rollback strategy documented (blue-green, canary, rolling)
 - [ ] **[S10]**  Capacity planning and cost estimation completed for 12-month horizon
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what you do -->
+
+### The Architecture Improvement Loop
+1. **Post-mortem an incident** — Take a real production incident. Draw the architecture diagram as it existed when the incident happened. Mark every component that failed.
+2. **Identify the systemic gap** — Was it a missing circuit breaker? Single point of failure? Cascading failure? Missing observability?
+3. **Design the fix and model the blast radius** — If you add this pattern, what new failure modes does it introduce?
+4. **Repeat quarterly** — Incidents are free architecture lessons. Each one exposes a weakness in your mental model of the system.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Take an existing system (open source or at work) and draw its C4 diagrams without looking at docs. Then compare with reality. | Monthly | Develops the ability to see architecture from behavior, not just documentation |
+| Competent → Expert | Design the same system 3 different ways: monolith, microservices, event-driven. Write ADRs for each. Compare: which is simpler? Which handles failure better? | Quarterly | Internalizes that architecture is tradeoffs, not absolutes — can articulate why one pattern fits a context |
+| Expert → Master | Post-mortem a famous outage (GitHub, AWS, Cloudflare). Design the fix. Then read what they actually did. Compare your solution to theirs. | Quarterly | Develops calibration — can assess whether your solution matches the industry's best |
+
+### The One Thing
+**Redesign a system you built 2 years ago using what you know now.** Would you make the same decisions? If yes: you haven't grown enough. If no: write down why. Your old architectures are a record of your thinking at that time. Revisiting them is the fastest way to see your own growth.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

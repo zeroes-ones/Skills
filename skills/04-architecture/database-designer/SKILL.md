@@ -62,6 +62,28 @@ These rules apply to *every* response this skill produces.
 - **Always consider data growth.** A schema that works at 10K rows may collapse at 10M. Estimate growth trajectory and design accordingly.
 - **Admit what you don't know.** If you haven't seen the query patterns, data volume estimates, or consistency requirements, say so and ask before designing.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent database designers model the data. Masters model **how the data will be accessed under load, at scale, for years.** The shift: stop thinking about entities and start thinking about queries. A perfectly normalized schema that requires 7 joins for every page load is wrong — not because normalization is wrong, but because it doesn't match the access pattern. The database exists to serve queries. Design from the queries backward to the schema, not from the entities forward.
+
+### Cognitive Biases That Kill Databases
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Normalization fundamentalism** | Normalizing to 5NF for every table — impeccable theory, 12-join queries in production | Normalize for write integrity. Denormalize for read performance. Know which queries are read-heavy and which are write-heavy before designing. |
+| **Index cargo culting** | Adding indexes to every foreign key "because that's best practice" without running EXPLAIN ANALYZE on actual query patterns | Every index costs write performance and storage. Index the queries your application actually runs, not the ones it might run someday. Unused indexes are dead weight. |
+| **ORM trust** | Assuming the ORM generates efficient queries — discovering at 5M rows that the "simple" `user.orders` generates 50,000 individual SELECTs | Always log and review generated SQL in development. Set a query count threshold per request — if any endpoint generates > 20 queries, investigate. ORMs are conveniences with sharp edges. |
+
+### What Database Masters Know That Others Don't  
+- **The query planner is a liar until proven otherwise.** `EXPLAIN ANALYZE` on production-sized data is the only truth. Estimated row counts, cost calculations, index suggestions — all approximations. Never trust a query plan on a 100-row dev database.
+- **Migrations are the highest-risk operation in your system.** A migration that locks a table blocks all writes. A migration that fails mid-way leaves the schema in an unknown state. Always: test on a production-sized copy, use `lock_timeout`, batch large data changes, and have a tested rollback.
+- **Connection pooling is not optional at scale.** A default PostgreSQL install allows 100 connections. With 20 application servers each opening 10 connections, you're at 200 — double the database's capacity. Use PgBouncer or built-in poolers. Connection count must be monitored and capped at the pooler level.
+
+### When to Break Your Own Rules
+- **Use a materialized view instead of denormalizing.** When you need read performance but want to keep the source schema normalized, a materialized view gives you the best of both: normalized source, denormalized query surface, and a refresh strategy you control.
+- **Skip foreign keys in a high-write append-only table.** Foreign keys validate on every INSERT. For an event log or audit table receiving 10K writes/sec, FK validation becomes the bottleneck. Enforce referential integrity at the application layer for these extreme cases — document the tradeoff explicitly.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
@@ -443,6 +465,25 @@ Do NOT denormalize when: read:write ratio < 10:1 (maintenance will kill you).
 - [ ] **[S8]**  Encryption at rest (TDE/KMS) and in transit (TLS 1.3) configured
 - [ ] **[S9]**  Monitoring dashboards for slow queries, connection counts, replication lag, disk usage
 - [ ] **[S10]**  Data retention and archival policy documented and automated
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what you do -->
+
+### The Database Improvement Loop
+1. **Enable slow query logging in production** — Set `log_min_duration_statement` to 100ms. Review the top 10 slowest queries weekly.
+2. **EXPLAIN ANALYZE the worst offender** — Is it a missing index? Bad join order? Table scan on a 50M-row table?
+3. **Fix, deploy, verify the query plan improved** — The fix is not complete until EXPLAIN shows the expected plan on production data.
+4. **Repeat weekly** — Query patterns change as the application evolves. Last month's fast query is this month's bottleneck.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Take a 50M-row dataset (public: NYC taxi data, GitHub archive). Write 10 queries. EXPLAIN ANALYZE each. Add indexes. Measure improvement | Monthly | Internalizes the relationship between indexes, query plans, and actual performance |
+| Competent → Expert | Design a schema migration with zero downtime on a 100M-row table. Test on a copy. Measure lock duration, replication lag, and rollback time | Per major migration | Can execute complex migrations without blocking production — knows expand-contract patterns cold |
+| Expert → Master | Contribute a query optimizer improvement to PostgreSQL, MySQL, or SQLite documentation. Explain a surprising query plan behavior in a blog post | Quarterly | Understands why the optimizer chose that plan, not just what plan it chose |
+
+### The One Thing
+**Restore last night's production backup to a staging server and run your application against it.** Not a synthetic dataset. Not a truncated copy. The real data, real volume, real distribution. Your queries that ran in 2ms on dev will show their true colors on 500GB of production data.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

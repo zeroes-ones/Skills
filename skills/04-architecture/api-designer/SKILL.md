@@ -69,6 +69,28 @@ These rules apply to *every* response this skill produces.
 - **Always design contract-first.** Write the OpenAPI spec before writing code. Share with consumers before implementation begins.
 - **Admit what you don't know.** If you don't know the consumer's latency budget, data volume, or client capabilities, say so and ask before designing.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent API designers build endpoints that return data. Masters build **contracts that survive years of evolution without breaking consumers.** The shift: your API is a product, and your consumers are customers. Every field you add, every response shape you commit to, every error format you choose — consumers will build dependencies on all of it. Changing your mind later means breaking their code. Design with the humility that you cannot predict the future, but you can design interfaces that accommodate it.
+
+### Cognitive Biases That Kill APIs
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Database-model leak** | Exposing your database schema through your API — consumers learn your table structure and build dependencies on it | Design API resources from consumer use cases, not database tables. A `/checkout` endpoint returns what checkout needs, not a join of 5 tables. The database schema is an implementation detail. |
+| **Over-fetching tolerance** | Returning full objects because "the consumer might need it someday" — bloated payloads, slow mobile, unused data | Return exactly what the consumer asked for. Use sparse fieldsets (`?fields=id,name`), GraphQL, or BFF pattern. Every unused field is bandwidth your users pay for. |
+| **Versioning procrastination** | Avoiding versioning because "we'll never need it" — until you do, and 500 clients break simultaneously | Version from v1.0. Assume every API will need breaking changes eventually. The cost of versioning infrastructure at day zero is near zero. The cost of adding it after 500 consumers is astronomical. |
+
+### What API Masters Know That Others Don't
+- **The API is the UI for developers.** Developer experience matters as much as user experience. Consistent naming, predictable error formats, clear pagination, SDK generation — these determine whether integration takes hours or weeks. A great API makes the happy path obvious and the error path informative.
+- **Backward compatibility is additive-only.** You can add fields, add endpoints, add optional parameters. You cannot remove, rename, retype, or re-semantic fields. If you need to change something, deprecate the old, create the new, and maintain both during a migration window. The window is measured in months, not days.
+- **Rate limiting is not punitive — it's protective.** A rate limit protects your system AND your consumers from each other. Without rate limits, one misbehaving consumer degrades the experience for everyone. Rate limits with clear headers (`Retry-After`, `X-RateLimit-Remaining`) turn failures into retryable events.
+
+### When to Break Your Own Rules
+- **Skip REST for internal service-to-service communication.** gRPC with protobuf gives you type safety, performance, and code generation that REST can't match. REST is for external consumers. Internal services can use faster contracts.
+- **Return 200 with an error body for legacy consumers.** If you have consumers that crash on non-200 status codes (it happens), wrap errors in a 200 response with an `error` field. It's not pure REST, but it keeps legacy consumers running while you migrate them.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new REST, GraphQL, or gRPC API from scratch
@@ -419,6 +441,25 @@ POST /rpc  { "method": "createOrder", "params": {...}, "id": 1 }
 ## What Good Looks Like
 
 > API consumers integrate in hours, not weeks. The specification is the source of truth — nothing ships that isn't documented. Breaking changes are rare and always communicated 6+ months ahead. SDKs in every target language stay in sync with the spec. Error messages tell consumers exactly what to fix. Your API feels like a product, not an afterthought.
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what you do -->
+
+### The API Design Improvement Loop
+1. **Review a real API integration** — Watch a developer integrate with your API for the first time. Time them. Where do they get stuck? What confused them? What did they have to read the docs for?
+2. **Fix the biggest friction point** — Simplify the confusing endpoint. Add the missing error message. Clarify the authentication docs.
+3. **Re-test with a new developer** — Did integration time decrease? If not, the fix wasn't the real bottleneck.
+4. **Repeat every time you onboard a new API consumer** — Every new integration is a UX test.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Design the same API in REST, GraphQL, and gRPC. Write a consumer for each. Compare: lines of client code, error handling clarity, type safety | Monthly | Can articulate paradigm tradeoffs from consumer experience, not documentation |
+| Competent → Expert | Take a public API (Stripe, GitHub, Twilio) and reverse-engineer their design decisions. Why did they version this way? Why this pagination pattern? Write an analysis | Monthly | Develops taste — can distinguish great API design from merely functional |
+| Expert → Master | Deprecate an endpoint in your own API with zero consumer complaints. Achieve 100% migration to the new endpoint before removing the old one | Per deprecation cycle | Masters API lifecycle management — deprecation without disruption is the hardest API skill |
+
+### The One Thing
+**Design an API by writing the consumer code first.** Before you write a single endpoint spec, write the code you wish you could write as a consumer. `const order = await api.orders.create({...})`. Let the ideal consumer experience drive the API design. An API that's easy to consume was designed from the outside in.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
