@@ -54,6 +54,41 @@ Request: "Generate API tests for..."
 4. **One describe block per endpoint.** Isolation makes failures instantly diagnosable. No scrolling through a 500-line test file guessing which endpoint broke.
 5. **Rate limit tests go last.** They interfere with parallel test execution. Run them in a separate suite or mark them with a `@pytest.mark.slow` equivalent.
 
+
+## The Expert's Mindset
+
+Master api test suite builders know that quality is not found — it is **engineered into the process**. They don't catch bugs; they make bugs uneconomical to produce.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation bias** — trusting tool output without verification | Every automated finding gets a human "sniff test" before action |
+| **Perfect quality fallacy** — pursuing zero defects at infinite cost | Define explicit quality gates with economic thresholds; know when good enough is good enough |
+| **Recency effect** — over-weighting the last failure you saw | Maintain a risk register ranked by probability × impact, not recency |
+| **Normalization of deviance** — accepting degrading quality as the new normal | Trend your quality metrics; any downward slope triggers a review, not just threshold breaches |
+
+### What Masters Know That Others Don't
+- **Where the bodies are buried** — the 3 components most likely to fail and why
+- **How to make quality self-service** — the best quality gate is the one developers run before they push
+- **The economics of defects** — cost-to-fix grows 10x at each stage (dev → CI → staging → production)
+
+### When to Break Your Own Rules
+- **Ship it broken (with a flag).** Sometimes you need production data to understand the failure mode.
+- **Skip the test for throwaway code.** If the code lives < 1 week, a manual check suffices.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single test/review | Execute defined quality procedures; follow checklists |
+| **L2** | Feature quality | Own quality for a feature area; write custom test strategies |
+| **L3** | System quality | Design quality strategy for a system; define gates and thresholds; mentor |
+| **L4** | Org quality | Define org-wide quality standards; make investment cases for quality tooling |
+| **L5** | Industry quality | Create quality methodologies adopted across the industry |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 api test suite builder, review..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
 
@@ -400,6 +435,22 @@ describe('POST /api/v1/users', () => {
 <!-- STANDARD: 3min -->
 
 Every endpoint has tests covering auth, validation, error codes, and a happy path — generated, not hand-crafted. When a developer adds a new route, CI fails until tests exist. When a spec changes, tests flag the drift before code reaches review. Coverage sits at 85%+ but the real win is that zero critical bugs reach production — because the error paths (the 80% where bugs hide) are tested as thoroughly as the golden path. The test suite runs in under 5 minutes in CI. Rate limit tests are isolated. A new team member can understand every endpoint's expected behavior by reading the test descriptions alone.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
+| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
+| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
+| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+
+**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## References
 <!-- STANDARD: 3min -->

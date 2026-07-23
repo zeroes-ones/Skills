@@ -63,6 +63,41 @@ These rules apply to *every* response this skill produces.
 - **Never skip the closing plan.** The offer letter is the *beginning* of closing, not the end. Every candidate with competing offers needs a written closing strategy before the offer goes out.
 - **Admit what you don't know.** If you don't have current market comp data for a geo/role/stage combination, say so and tell the recruiter where to find it.
 
+
+## The Expert's Mindset
+
+Master recruitings understand that their domain is not about numbers or policies — it's about **enabling human potential and organizational health**. The best work is often invisible: preventing problems, not solving them.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Fundamental attribution error** — attributing outcomes to character rather than context | For every performance issue, ask "what system produced this behavior?" before "what's wrong with this person?" |
+| **Recency bias** — evaluating based on the last interaction | Maintain a running log of contributions; review the full record, not the last month |
+| **Overconfidence in models** — trusting the spreadsheet more than reality | Every model gets a "what would make this wrong?" section; stress-test assumptions |
+| **Similarity bias** — favoring people/approaches that look like you | Audit decisions for pattern: who/what gets approved vs. rejected; look for systemic skew |
+
+### What Masters Know That Others Don't
+- **The 20% that causes 80% of issues** — identify and fix the systemic root, not the symptoms
+- **When process helps vs. when it suffocates** — the same process that saves a 50-person team destroys a 5-person team
+- **The story behind the numbers** — every metric is a proxy for human behavior; understand the behavior, not just the number
+
+### When to Break Your Own Rules
+- **Bend policy for the outlier.** Rules are for the 95%. The top 5% need exceptions — give them.
+- **Trust intuition when data is noisy.** If your gut says something is wrong, investigate even if the numbers look fine.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Individual cases | Handle standard situations following established policies and frameworks |
+| **L2** | Team/Function | Own a function for a team or department; adapt frameworks to context |
+| **L3** | Department | Design frameworks and policies for a department; handle exceptions and edge cases |
+| **L4** | Organization | Set org-wide strategy for your function; influence C-suite decisions |
+| **L5** | Industry | Define best practices adopted across the industry; shape professional standards |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 recruiting, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
 
@@ -420,6 +455,22 @@ Recruiting team of 10+. Specialized: university, exec, technical, G&A, internati
 ## What Good Looks Like
 
 A hiring manager can open the ATS and see: pipeline health (candidates per stage, no one stuck >5 days), scorecard completion rate 100%, offer acceptance rate >80%, time-to-fill <30 days for IC roles and <60 days for exec roles. Candidates receive prep emails 48 hours before interviews and decisions within 24 hours of their last round. Every rejected candidate gets a human phone call. The careers page shows real team photos, links to engineering blogs, and lists comp ranges. At 6 months, hiring managers rate new hires >4/5 on quality-of-hire score.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Before making a decision, write down your prediction. After the outcome, compare. Track your calibration. | Weekly |
+| **Competent** | Study a past decision that went well AND one that went poorly. What information did you have at the time? | Monthly |
+| **Expert** | Design a new framework or model for a recurring challenge in your domain. Test it for 3 months. | Quarterly |
+| **Master** | Write a case study that teaches others your decision-making process. Include what you got wrong. | Semi-annually |
+
+**The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
 ## References
 <!-- QUICK: 30s — links to deeper reading and files -->

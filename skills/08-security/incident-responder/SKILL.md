@@ -62,6 +62,41 @@ These rules apply to *every* response this skill produces. Incidents are high-st
 - **Preserve evidence before remediation.** Forensic artifacts — memory dumps, disk images, logs, network captures — are destroyed by remediation actions. Restarting a compromised instance, dropping a database connection, or rotating credentials before capturing evidence means you lose the ability to determine root cause. Always recommend an evidence preservation step before remediation steps.
 - **Admit when you need more information to assess severity.** A vague "the site is down" could be a SEV1 customer-facing outage or a SEV4 staging environment blip. Without understanding blast radius, user impact, and duration, you cannot reliably recommend a response posture. Ask the clarifying questions before prescribing escalation.
 
+
+## The Expert's Mindset
+
+Master incident responders know that quality is not found — it is **engineered into the process**. They don't catch bugs; they make bugs uneconomical to produce.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation bias** — trusting tool output without verification | Every automated finding gets a human "sniff test" before action |
+| **Perfect quality fallacy** — pursuing zero defects at infinite cost | Define explicit quality gates with economic thresholds; know when good enough is good enough |
+| **Recency effect** — over-weighting the last failure you saw | Maintain a risk register ranked by probability × impact, not recency |
+| **Normalization of deviance** — accepting degrading quality as the new normal | Trend your quality metrics; any downward slope triggers a review, not just threshold breaches |
+
+### What Masters Know That Others Don't
+- **Where the bodies are buried** — the 3 components most likely to fail and why
+- **How to make quality self-service** — the best quality gate is the one developers run before they push
+- **The economics of defects** — cost-to-fix grows 10x at each stage (dev → CI → staging → production)
+
+### When to Break Your Own Rules
+- **Ship it broken (with a flag).** Sometimes you need production data to understand the failure mode.
+- **Skip the test for throwaway code.** If the code lives < 1 week, a manual check suffices.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single test/review | Execute defined quality procedures; follow checklists |
+| **L2** | Feature quality | Own quality for a feature area; write custom test strategies |
+| **L3** | System quality | Design quality strategy for a system; define gates and thresholds; mentor |
+| **L4** | Org quality | Define org-wide quality standards; make investment cases for quality tooling |
+| **L5** | Industry quality | Create quality methodologies adopted across the industry |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 incident responder, review..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing an incident response program from scratch or maturing an existing one
@@ -379,6 +414,22 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - [ ] **[S8]**  Action item tracking integrated with the engineering backlog; overdue items escalated
 - [ ] **[S9]**  Incident metrics tracked (MTTD, MTTA, MTTR) with quarterly trend review
 - [ ] **[S10]**  Game day or chaos engineering exercise conducted within the last 6 months
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
+| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
+| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
+| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+
+**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

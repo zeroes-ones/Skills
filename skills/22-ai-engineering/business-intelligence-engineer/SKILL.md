@@ -47,6 +47,26 @@ These rules apply to *every* response this skill produces.
 - **Slowly changing dimensions must be modeled intentionally.** A customer's subscription tier as of "now" is not the same as their subscription tier as of "the date of the order." SCD Type 0, 1, 2, or 3 — choose deliberately, document explicitly.
 - **Admit what you don't know.** If a metric definition varies by industry standard, acknowledge it. If a regulatory reporting requirement changed in the last quarter, flag your knowledge cutoff.
 
+
+## The Expert's Mindset
+
+Masters of business intelligence engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Shiny object syndrome** — chasing new tools without evaluating fit | Before adopting any new tool, write the "why this over the incumbent" justification |
+| **Over-engineering** — building for hypothetical scale | Default to simplest solution; add complexity only when the current solution actually breaks |
+| **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom |
+| **Sunk cost fallacy** — sticking with a technology because you already invested in it | Re-evaluate tech choices every quarter; migration cost vs. staying cost |
+
+### What Masters Know That Others Don't
+- The **failure modes** of every component in their stack — not just the happy path
+- When **not** to use their favorite tool (every tool has a misuse zone)
+- That **data/model quality decays over time** — monitoring is not optional, it's foundational
+
+### When to Break Your Own Rules
+- **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
+- **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
 ## Route the Request
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 ```
@@ -64,6 +84,21 @@ What are you trying to do?
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single component/module | Implement a well-defined piece following established patterns |
+| **L2** | Feature or service | Design and build a complete feature; make tech choices within team conventions |
+| **L3** | System or product area | Define architecture for a product area; set team tech standards; mentor L1-L2 |
+| **L4** | Multiple systems / platform | Define org-wide architecture patterns; make build-vs-buy decisions; influence industry practice |
+| **L5** | Industry / ecosystem | Create new architectural patterns adopted across the industry; redefine what's possible |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 business intelligence engineer, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- QUICK: 30s — five reasons to invoke this skill -->
@@ -711,6 +746,22 @@ When this skill is invoked, the agent may need to drill into these specialized a
 <!-- QUICK: 30s -- aspirational north star for this skill -->
 
 > Business intelligence is not about building dashboards — it's about building a shared understanding of reality that the entire organization can trust and act on. **What good looks like**: every metric has exactly one definition that is discoverable, documented, and governed; every dashboard tells a clear story in under 10 seconds; every stakeholder — from the board to the front-line manager — trusts that the numbers they see are accurate, timely, and reconciled; analysts spend their time answering "why" questions, not "what is this number" questions; and when someone asks "where did this number come from?", the answer is a documented lineage trace, not a Slack thread of guesses. A BI practice that requires constant manual reconciliation, generates conflicting numbers, or produces dashboards nobody checks is failing, regardless of how many dashboards it has shipped.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Rebuild an existing system from scratch, then compare your design with the original | Monthly |
+| **Competent** | Add a new constraint (10x data, zero downtime, etc.) to a familiar design and re-architect | Quarterly |
+| **Expert** | Design the same system under 3 conflicting constraint sets; write a decision record for each | Quarterly |
+| **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
+
+**The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

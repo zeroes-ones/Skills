@@ -72,6 +72,41 @@ These rules apply to *every* response this skill produces. Patient education is 
 - **Adherence programs must address the why, not just the how.** Patients know they should take their medication. The barrier is almost never lack of knowledge — it's forgetfulness, injection anxiety, cost, denial, or lifestyle disruption. Design for the real barrier. Ask: "What makes it hard for you to take your factor?" before designing the intervention.
 - **Health behavior change requires reinforcement, not information.** A single educational video does not change behavior. Use spaced repetition, peer support, goal setting, and feedback loops. Adherence programs fail when they're treated as content delivery instead of behavior change.
 
+
+## The Expert's Mindset
+
+Master patient health educators carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation complacency** — over-trusting systems in high-stakes contexts | Every automated output gets a qualified human review before clinical action |
+| **False precision** — treating uncertain data as exact because it's in a database | Always report confidence intervals; never present a single number without its range |
+| **Normalcy bias** — assuming things will continue as they always have | Build "what if this fails?" scenarios into every rollout plan |
+| **Documentation asymmetry** — over-documenting the routine, under-documenting the exceptions | Exceptions are the most valuable documentation; they teach the model, not just the rule |
+
+### What Masters Know That Others Don't
+- **The difference between statistical significance and clinical significance** — a p-value is not a treatment decision
+- **Where the regulatory landmines are buried** — the 3 things that will trigger an audit versus the 30 things that won't
+- **That patient experience and clinical accuracy are not trade-offs** — bad UX causes medical errors; good UX prevents them
+
+### When to Break Your Own Rules
+- **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
+- **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single deliverable | Execute defined procedures under supervision; follow protocols exactly |
+| **L2** | Feature / study | Own a feature or study component; work within established regulatory frameworks |
+| **L3** | System / program | Design systems that balance clinical needs, regulatory requirements, and technical constraints |
+| **L4** | Product / therapeutic area | Define regulatory strategy; shape clinical development approach; influence industry guidance |
+| **L5** | Industry / public health | Shape regulatory frameworks; define standards of care through evidence generation |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 patient health educator, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -332,6 +367,22 @@ Content is for which audience?
 - **A teenager transitioning from pediatric to adult care** finds the app's content for "self-managing your hemophilia" and feels confident doing their first independent infusion without a parent present.
 - **The education team iterates based on outcome data** — modules with low knowledge retention are redesigned every quarter. The adherence program is tested against a control group. Patient outcomes improve measurably over time.
 
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Shadow a clinician or patient for a day; document every moment of friction in their workflow | Quarterly |
+| **Competent** | Review a past project that had a safety or compliance issue; map the chain of decisions that led there | Monthly |
+| **Expert** | Design a solution under 3 conflicting regulatory regimes (e.g., FDA, EMA, PMDA); identify where they diverge | Quarterly |
+| **Master** | Contribute to industry guidelines or regulatory frameworks; move from following rules to shaping them | Annually |
+
+**The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
 <!-- STANDARD: 3min -->

@@ -70,6 +70,41 @@ What do you need?
 - **Lighthouse accessibility score of 100 does NOT mean fully accessible.** Lighthouse tests ~30 automated checks. It cannot detect focus management bugs during SPA navigation, dynamic content announcements with aria-live, or keyboard trap scenarios. A 100 score is a green light for the easy stuff — manual testing covers the rest.
 - **Accessibility monitoring must be continuous, not point-in-time.** The homepage passed WCAG 2.2 AA in last month's audit. Since then: the marketing team added a carousel (no pause button), the engineering team migrated to a new modal library (no focus trap), and the design team updated the color palette (new gray-on-white contrast ratio: 2.8:1, minimum: 4.5:1). Continuous monitoring catches these within 24 hours, not at the next annual audit.
 
+
+## The Expert's Mindset
+
+Master accessibility testings know that quality is not found — it is **engineered into the process**. They don't catch bugs; they make bugs uneconomical to produce.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation bias** — trusting tool output without verification | Every automated finding gets a human "sniff test" before action |
+| **Perfect quality fallacy** — pursuing zero defects at infinite cost | Define explicit quality gates with economic thresholds; know when good enough is good enough |
+| **Recency effect** — over-weighting the last failure you saw | Maintain a risk register ranked by probability × impact, not recency |
+| **Normalization of deviance** — accepting degrading quality as the new normal | Trend your quality metrics; any downward slope triggers a review, not just threshold breaches |
+
+### What Masters Know That Others Don't
+- **Where the bodies are buried** — the 3 components most likely to fail and why
+- **How to make quality self-service** — the best quality gate is the one developers run before they push
+- **The economics of defects** — cost-to-fix grows 10x at each stage (dev → CI → staging → production)
+
+### When to Break Your Own Rules
+- **Ship it broken (with a flag).** Sometimes you need production data to understand the failure mode.
+- **Skip the test for throwaway code.** If the code lives < 1 week, a manual check suffices.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single test/review | Execute defined quality procedures; follow checklists |
+| **L2** | Feature quality | Own quality for a feature area; write custom test strategies |
+| **L3** | System quality | Design quality strategy for a system; define gates and thresholds; mentor |
+| **L4** | Org quality | Define org-wide quality standards; make investment cases for quality tooling |
+| **L5** | Industry quality | Create quality methodologies adopted across the industry |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 accessibility testing, review..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- STANDARD: 3min -->
 
@@ -263,6 +298,22 @@ Full accessibility program, VPATs per product, WCAG AAA targets, continuous moni
 <!-- STANDARD: 3min -->
 
 **What good looks like:** A developer opens a PR that changes a button component from a `<div>` with an onClick handler to a native `<button>`. The CI pipeline runs. ESLint passes (the `<div>` would have been caught by `jsx-a11y/no-static-element-interactions`). Unit tests pass (jest-axe confirms the button has an accessible name). E2e tests pass (axe-core finds no new violations on any page containing the button). The accessibility dashboard in CI shows a green check and a baseline diff of "+0 new, -1 fixed" because the old `<div>` violation is now resolved. The developer didn't think about accessibility at all — the pipeline caught everything. That's what good looks like.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
+| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
+| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
+| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+
+**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## References
 <!-- STANDARD: 3min -->

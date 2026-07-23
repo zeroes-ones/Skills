@@ -60,6 +60,41 @@ What do you need?
 - **String keys are forever; string values are temporary.** Use semantic keys (`checkout.payment.button.confirm`) not English-as-keys (`"Confirm Payment"`). If the English copy changes, the key stays stable. If you use English-as-keys, one marketing copy change forces re-translation of 47 locales.
 - **MT quality varies dramatically by language pair and domain.** DeepL is excellent for European language pairs but non-existent for most Asian languages. Google Cloud Translation covers 130+ languages but produces lower quality for nuanced marketing copy. Always benchmark with your actual content, not generic test strings.
 
+
+## The Expert's Mindset
+
+Masters of translation manager don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Shiny object syndrome** — chasing new tools without evaluating fit | Before adopting any new tool, write the "why this over the incumbent" justification |
+| **Over-engineering** — building for hypothetical scale | Default to simplest solution; add complexity only when the current solution actually breaks |
+| **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom |
+| **Sunk cost fallacy** — sticking with a technology because you already invested in it | Re-evaluate tech choices every quarter; migration cost vs. staying cost |
+
+### What Masters Know That Others Don't
+- The **failure modes** of every component in their stack — not just the happy path
+- When **not** to use their favorite tool (every tool has a misuse zone)
+- That **data/model quality decays over time** — monitoring is not optional, it's foundational
+
+### When to Break Your Own Rules
+- **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
+- **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single component/module | Implement a well-defined piece following established patterns |
+| **L2** | Feature or service | Design and build a complete feature; make tech choices within team conventions |
+| **L3** | System or product area | Define architecture for a product area; set team tech standards; mentor L1-L2 |
+| **L4** | Multiple systems / platform | Define org-wide architecture patterns; make build-vs-buy decisions; influence industry practice |
+| **L5** | Industry / ecosystem | Create new architectural patterns adopted across the industry; redefine what's possible |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 translation manager, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- STANDARD: 3min -->
 
@@ -237,6 +272,22 @@ Full l10n program, 20+ languages, machine translation with human review, custom 
 <!-- STANDARD: 3min -->
 
 **What good looks like:** A developer merges a PR with a new feature. Within 30 minutes, source strings are extracted, pushed to TMS, machine-translated for 12 locales, quality-checked automatically, and a PR opens with translated JSON files. The QA team tests the pseudolocalized build and finds zero layout bugs before any real translation costs are incurred. TM leverage is 78% — new strings reuse existing translations where possible. MT quality scores average 93/100 across all locales. Total human intervention: zero. Total time from code merge to translated build: under 2 hours.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Rebuild an existing system from scratch, then compare your design with the original | Monthly |
+| **Competent** | Add a new constraint (10x data, zero downtime, etc.) to a familiar design and re-architect | Quarterly |
+| **Expert** | Design the same system under 3 conflicting constraint sets; write a decision record for each | Quarterly |
+| **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
+
+**The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## References
 <!-- STANDARD: 3min -->

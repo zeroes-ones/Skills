@@ -61,6 +61,41 @@ These rules apply to *every* response this skill produces.
 - **Always define non-goals before happy paths.** The "Out of Scope" section prevents scope creep more than any other artifact.
 - **Admit what you don't know.** If user research is missing, analytics data unavailable, or technical constraints unknown, say so and tell the user to consult ux-researcher or the engineering team before proceeding.
 
+
+## The Expert's Mindset
+
+Master idea to specs understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Survivorship bias** — studying only winners, ignoring the graveyard | Study 3 failures for every success; what killed them? |
+| **Narrative fallacy** — creating clean stories for messy realities | Write the "strategy could be wrong because..." section first |
+| **Confirmation bias** — seeking data that supports your thesis | Assign a team member to build the best case AGAINST your strategy |
+| **Short-termism** — optimizing this quarter at the expense of next year | Every decision gets a "6-month" and "3-year" impact column |
+
+### What Masters Know That Others Don't
+- **The bottleneck is always one thing.** Find it. Fix it. Then find the next one.
+- **Strategy = what you say NO to.** If your strategy doesn't exclude anything, it's not a strategy.
+- **Timing beats brilliance.** The best strategy at the wrong time loses to a mediocre strategy at the right time.
+
+### When to Break Your Own Rules
+- **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
+- **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Initiative | Execute a defined strategic initiative with clear metrics |
+| **L2** | Product line / function | Define strategy for a product line; own outcomes |
+| **L3** | Business unit | Set multi-year strategy for a business unit; allocate resources across competing priorities |
+| **L4** | Company | Define company-wide strategy; make existential trade-off decisions |
+| **L5** | Industry | Shape industry dynamics; create new market categories |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 idea to spec, develop..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A stakeholder has a one-paragraph idea and needs a formal spec before sprint planning
@@ -320,6 +355,22 @@ The screen inventory in the spec maps 1:1 to frontend components. Every screen m
 - [ ] **[S8]**  Each user story has at least 3 acceptance criteria in Given/When/Then format
 - [ ] **[S9]**  Open questions have assigned owners and due dates
 - [ ] **[S10]**  Spec versioned and distributed for async review before any planning meeting
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Write a strategy memo for a past business event; compare your reasoning to what actually happened | Monthly |
+| **Competent** | Write 3 strategies for the same goal with different constraints; debate which wins | Quarterly |
+| **Expert** | Reverse-engineer a competitor's strategy from public information; validate against their next move | Quarterly |
+| **Master** | Board-level strategy for a company in a different industry; present to a peer CEO for feedback | Semi-annually |
+
+**The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

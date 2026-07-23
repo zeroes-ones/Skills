@@ -72,6 +72,41 @@ These rules apply to *every* response this skill produces.
 - **Always preserve user trust in error states.** Every error message that interrupts a clinical workflow must explicitly confirm data safety: "Your information is saved. You can resume where you left off." Never show a generic "Something went wrong" when clinical data is involved.
 - **Admit what you don't know.** If a question requires domain-specific regulatory knowledge (FDA labeling rules, HIPAA consent requirements, EMA guidance), flag it for legal/regulatory review. Do not guess.
 
+
+## The Expert's Mindset
+
+Master ux writers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Solution bias** — jumping to solutions before understanding the harm | Spend 50% of your time understanding the problem; the solution will take care of itself |
+| **False balance** — giving equal weight to all stakeholders regardless of risk exposure | Weight input by risk exposure: the most vulnerable users get the loudest voice |
+| **Scope neglect** — treating one bad case the same as a million | Always quantify impact at scale; a 0.01% failure rate × 10M users = 1,000 harmed people |
+| **Transparency illusion** — assuming users understand how their data/content is used | Test your disclosures with actual users; if they're surprised, it's not transparent enough |
+
+### What Masters Know That Others Don't
+- **The unintended use case** — how bad actors OR well-meaning users could misuse the system
+- **That every policy has a chilling effect** — measure not just what you block, but what you discourage from being created
+- **The recovery experience matters as much as the violation** — how you handle mistakes defines trust more than avoiding them
+
+### When to Break Your Own Rules
+- **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
+- **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single case/asset | Handle individual cases following established guidelines; escalate edge cases |
+| **L2** | Feature/policy area | Own a policy or creative area; apply guidelines to novel situations |
+| **L3** | Product/system | Design trust/creative frameworks for a product; balance competing stakeholder needs |
+| **L4** | Organization | Set org-wide strategy for trust/creative; define what "safe" means for the company |
+| **L5** | Industry | Shape industry standards; create frameworks adopted across the ecosystem |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 ux writer, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing onboarding flows, empty states, tooltips, or confirmation messages for a health product
@@ -426,6 +461,22 @@ Common chains:
 - [ ] **[UW12]** Content tokens defined for product name, company name, and repeated dynamic values
 - [ ] **[UW13]** Disclaimer language reviewed by Legal and Regulatory before publishing
 - [ ] **[UW14]** Content audit completed: no outdated medical claims, broken links, or non-inclusive language
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

@@ -51,6 +51,41 @@ These rules apply to *every* response this skill produces.
 - **Your eval is your spec.** A bad evaluation framework lets bad models through and blocks good ones. Invest in multi-metric, multi-slice evaluation before investing in model architecture.
 - **Admit what you don't know.** If you haven't benchmarked a particular embedding model on the user's domain, say so. If the hallucination detection method has known failure modes with certain languages or domains, flag them.
 
+## The Expert's Mindset
+
+Masters of LLM engineering don't just prompt — they **engineer systems where LLMs are a component, not the solution.** They think in failure modes, evaluation metrics, and cost curves.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Anthropomorphism** — attributing human reasoning to LLM outputs | Replace "the model thinks" with "the model predicts the next token." Always. |
+| **Demo-driven development** — building what looks good in a demo, not what works at scale | Every demo must include: failure case, cost estimate at 1M requests, and latency p99 |
+| **Benchmark overfitting** — optimizing for a public benchmark that doesn't match real use | Run your own domain-specific eval; a 5% improvement on MMLU means nothing if your users ask legal questions |
+| **Latest-model syndrome** — assuming the newest model is the best for every task | Maintain a cost-vs-quality matrix for your actual tasks; the best model is often 2 versions behind |
+
+### What Masters Know That Others Don't
+- **The shape of the failure distribution** — LLMs don't fail randomly; they fail systematically on specific input patterns. Find the pattern.
+- **That evals are a product decision, not a technical one** — what you measure defines what you ship; involve product in eval design
+- **The unit economics of every API call** — know the cost-per-request down to the millicent; a 10% token savings at scale pays for a senior engineer
+
+### When to Break Your Own Rules
+- **Ship a simple prompt before building a complex pipeline.** If a single well-crafted prompt solves 80%, ship it today and iterate.
+- **Use the most expensive model for evaluation, the cheapest for production.** Asymmetric quality investment is the hallmark of mature LLM systems.
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single prompt/task | Craft prompts for defined tasks; run provided evaluation frameworks |
+| **L2** | Feature or agent | Design and ship an LLM-powered feature; build eval suites; manage cost/quality trade-offs |
+| **L3** | LLM system / platform | Architect multi-model, multi-stage LLM pipelines; define org-wide evaluation standards; mentor |
+| **L4** | AI product strategy | Define the role of LLMs in the product portfolio; make build-vs-buy decisions on model providers |
+| **L5** | Industry AI | Advance the field through novel architectures, training methods, or evaluation paradigms |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 LLM engineer, design an evaluation framework for..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## Route the Request
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 ```
@@ -664,6 +699,22 @@ When this skill is invoked, the agent may need to drill into these specialized a
 <!-- QUICK: 30s -- aspirational north star for this skill -->
 
 > LLM engineering is not about making a model generate text — it's about building systems where the text is accurate, safe, fast, and cost-effective at scale. **What good looks like**: every prompt is versioned, tested, and monitored like production code; retrieval quality is measured and maintained, not assumed; guardrails fail closed, never open; token costs are tracked per feature and optimized continuously; evaluation is automated, correlated with human judgment, and run on every change; and when an LLM output is wrong, the system detects it before the user does. A pipeline that "usually works" but can't prove it, can't measure degradation, and can't prevent jailbreaks is a prototype, not a production system — no matter how impressive the demos look.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Build LLM<br/>pipeline] --> B[Evaluate<br/>rigorously] --> C[Find<br/>failure patterns] --> D[Re-architect<br/>for robustness] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Take an existing prompt and systematically test it against 50 edge cases; document every failure mode | Weekly |
+| **Competent** | Build the same RAG pipeline with 3 different frameworks (LangChain, LlamaIndex, raw); compare the trade-offs | Monthly |
+| **Expert** | Design an evaluation framework for a novel LLM use case; correlate automated metrics with human judgment for 3 months | Quarterly |
+| **Master** | Publish a case study of an LLM system failure in production: root cause, detection gap, and the architectural change that prevents recurrence | Semi-annually |
+
+**The One Highest-Leverage Activity:** Maintain a "failure log" for every LLM system you operate. For each unexpected output: the input, the output, why it was wrong, and what guardrail would have caught it. Review before every architecture change.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

@@ -46,6 +46,26 @@ Investor relations and fundraising operations for founders, CEOs, and CFOs. Run 
 - **Cap table errors compound.** A 1% error at Seed becomes a 5% error at Series C. Audit your cap table quarterly with a lawyer. Use Carta or Pulley — spreadsheets kill companies.
 - **Assume every investor email will leak.** Don't put anything in writing you wouldn't want a competitor, a journalist, or a future acquirer to see.
 
+
+## The Expert's Mindset
+
+Master investor relationss understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Survivorship bias** — studying only winners, ignoring the graveyard | Study 3 failures for every success; what killed them? |
+| **Narrative fallacy** — creating clean stories for messy realities | Write the "strategy could be wrong because..." section first |
+| **Confirmation bias** — seeking data that supports your thesis | Assign a team member to build the best case AGAINST your strategy |
+| **Short-termism** — optimizing this quarter at the expense of next year | Every decision gets a "6-month" and "3-year" impact column |
+
+### What Masters Know That Others Don't
+- **The bottleneck is always one thing.** Find it. Fix it. Then find the next one.
+- **Strategy = what you say NO to.** If your strategy doesn't exclude anything, it's not a strategy.
+- **Timing beats brilliance.** The best strategy at the wrong time loses to a mediocre strategy at the right time.
+
+### When to Break Your Own Rules
+- **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
+- **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 ## Route the Request
 <!-- QUICK: 30s — pick your path, skip the rest -->
 
@@ -67,6 +87,21 @@ What are you trying to do?
 └── Don't know where to start? → Run "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above.
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Initiative | Execute a defined strategic initiative with clear metrics |
+| **L2** | Product line / function | Define strategy for a product line; own outcomes |
+| **L3** | Business unit | Set multi-year strategy for a business unit; allocate resources across competing priorities |
+| **L4** | Company | Define company-wide strategy; make existential trade-off decisions |
+| **L5** | Industry | Shape industry dynamics; create new market categories |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 investor relations, develop..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
@@ -468,6 +503,22 @@ Fully independent board, all committees active, shareholder engagement, ISS/Glas
 ## What Good Looks Like
 
 A fundraise that goes from first meeting to term sheet in 6 weeks, diligence to close in 4 weeks. The data room has zero follow-up requests because everything was there on day one. The pitch deck gets partner-level meetings within 1 week of warm intro. Investor updates go out on the 5th of every month — investors reply "great update" or offer specific help. Cap table is audited and reconciled. Term sheet comparison matrix is one page with the winner highlighted — the founder can explain why in one sentence. Down-round scenarios are modeled and stress-tested. Customer references are pre-briefed and enthusiastic. The wire hits on schedule. There is a Plan B investor in the wings throughout.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Write a strategy memo for a past business event; compare your reasoning to what actually happened | Monthly |
+| **Competent** | Write 3 strategies for the same goal with different constraints; debate which wins | Quarterly |
+| **Expert** | Reverse-engineer a competitor's strategy from public information; validate against their next move | Quarterly |
+| **Master** | Board-level strategy for a company in a different industry; present to a peer CEO for feedback | Semi-annually |
+
+**The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## References
 <!-- QUICK: 30s — links to deeper reading -->

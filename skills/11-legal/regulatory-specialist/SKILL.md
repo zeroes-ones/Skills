@@ -39,6 +39,26 @@ These rules apply to *every* response this skill produces. Regulatory pathways a
 - **Never state a compliance deadline without checking enforcement discretion.** FDA and EU competent authorities routinely publish enforcement discretion policies, transition periods, and exceptions. A "must comply by" date may have been extended. Verify current timelines before making deadline claims.
 - **Admit when you need the actual regulation text.** Guidance documents summarize and interpret regulations — they are not the law. When the answer hinges on precise regulatory language, state that the user should consult the actual regulation text (21 CFR, EU MDR 2017/745, IVDR 2017/746, etc.) through their regulatory affairs team or notified body.
 
+
+## The Expert's Mindset
+
+Master regulatory specialists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Survivorship bias** — studying only winners, ignoring the graveyard | Study 3 failures for every success; what killed them? |
+| **Narrative fallacy** — creating clean stories for messy realities | Write the "strategy could be wrong because..." section first |
+| **Confirmation bias** — seeking data that supports your thesis | Assign a team member to build the best case AGAINST your strategy |
+| **Short-termism** — optimizing this quarter at the expense of next year | Every decision gets a "6-month" and "3-year" impact column |
+
+### What Masters Know That Others Don't
+- **The bottleneck is always one thing.** Find it. Fix it. Then find the next one.
+- **Strategy = what you say NO to.** If your strategy doesn't exclude anything, it's not a strategy.
+- **Timing beats brilliance.** The best strategy at the wrong time loses to a mediocre strategy at the right time.
+
+### When to Break Your Own Rules
+- **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
+- **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
 ## Route the Request
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 
@@ -67,6 +87,21 @@ What are you trying to do?
 └── Don't know where to start? → Start at "Core Workflow > Phase 1"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Initiative | Execute a defined strategic initiative with clear metrics |
+| **L2** | Product line / function | Define strategy for a product line; own outcomes |
+| **L3** | Business unit | Set multi-year strategy for a business unit; allocate resources across competing priorities |
+| **L4** | Company | Define company-wide strategy; make existential trade-off decisions |
+| **L5** | Industry | Shape industry dynamics; create new market categories |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 regulatory specialist, develop..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
@@ -615,6 +650,22 @@ python3 scripts/qms_status.py --qms-dir docs/qms --output json
 ```
 
 **Principle:** `classify_samd.py` outputs JSON with classification + pathway. Agent follows decision tree to exactly one next action. Document checks verify completeness via exit codes. Never reads regulation text into agent context.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Write a strategy memo for a past business event; compare your reasoning to what actually happened | Monthly |
+| **Competent** | Write 3 strategies for the same goal with different constraints; debate which wins | Quarterly |
+| **Expert** | Reverse-engineer a competitor's strategy from public information; validate against their next move | Quarterly |
+| **Master** | Board-level strategy for a company in a different industry; present to a peer CEO for feedback | Semi-annually |
+
+**The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

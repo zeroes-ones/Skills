@@ -58,6 +58,41 @@ Request: "Is my health app regulated by FDA?"
 4. **Enforcement discretion ≠ legal exemption.** FDA may exercise enforcement discretion for certain low-risk devices (e.g., mobile apps that automate simple medical calculations). This can change with new guidance. Plan for regulation even if currently exempt.
 5. **EU MDR is stricter than FDA for software.** Many apps exempt from FDA regulation are Class I or higher under EU MDR. If you have EU users, plan for MDR from day one.
 
+
+## The Expert's Mindset
+
+Master health regulatory submissions carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation complacency** — over-trusting systems in high-stakes contexts | Every automated output gets a qualified human review before clinical action |
+| **False precision** — treating uncertain data as exact because it's in a database | Always report confidence intervals; never present a single number without its range |
+| **Normalcy bias** — assuming things will continue as they always have | Build "what if this fails?" scenarios into every rollout plan |
+| **Documentation asymmetry** — over-documenting the routine, under-documenting the exceptions | Exceptions are the most valuable documentation; they teach the model, not just the rule |
+
+### What Masters Know That Others Don't
+- **The difference between statistical significance and clinical significance** — a p-value is not a treatment decision
+- **Where the regulatory landmines are buried** — the 3 things that will trigger an audit versus the 30 things that won't
+- **That patient experience and clinical accuracy are not trade-offs** — bad UX causes medical errors; good UX prevents them
+
+### When to Break Your Own Rules
+- **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
+- **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single deliverable | Execute defined procedures under supervision; follow protocols exactly |
+| **L2** | Feature / study | Own a feature or study component; work within established regulatory frameworks |
+| **L3** | System / program | Design systems that balance clinical needs, regulatory requirements, and technical constraints |
+| **L4** | Product / therapeutic area | Define regulatory strategy; shape clinical development approach; influence industry guidance |
+| **L5** | Industry / public health | Shape regulatory frameworks; define standards of care through evidence generation |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 health regulatory submission, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide -->
 
@@ -384,6 +419,22 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 <!-- STANDARD: 3min -->
 
 You have a dated, signed intended use statement that clearly defines what your software does and doesn't do. Your device classification is documented with supporting rationale. If regulated, you've selected a pathway (510(k), De Novo, or PMA) and have a realistic timeline and budget. Your QMS (ISO 13485) is implemented proportionate to your device class. Software documentation follows IEC 62304. Your risk management file (ISO 14971) is living — updated with every feature change. You have a clinical evidence strategy tailored to your device risk. Before adding any new feature, the team asks: "Does this change our intended use?" Investors, partners, and auditors can review your regulatory strategy in a single document and understand it without a medical degree.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Shadow a clinician or patient for a day; document every moment of friction in their workflow | Quarterly |
+| **Competent** | Review a past project that had a safety or compliance issue; map the chain of decisions that led there | Monthly |
+| **Expert** | Design a solution under 3 conflicting regulatory regimes (e.g., FDA, EMA, PMDA); identify where they diverge | Quarterly |
+| **Master** | Contribute to industry guidelines or regulatory frameworks; move from following rules to shaping them | Annually |
+
+**The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
 <!-- STANDARD: 3min -->
