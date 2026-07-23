@@ -275,6 +275,19 @@ When this skill is invoked, drill into these specialized areas as needed:
 | `platform-engineer` | Landing zone integration, network topology, IAM guardrails for self-service | Platform can't enforce cloud governance — shadow IT risk |
 
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Single-region deployment with no DR plan — one region outage = total outage | Propose multi-region architecture (active-standby minimum) with documented failover runbook and cross-region data replication | A single region is a known single point of failure; multi-region turns a region-wide outage from catastrophe to minor disruption |
+| Cloud costs spike 30%+ month-over-month with no attributable change in traffic | Propose right-sizing review: identify over-provisioned instances, unattached storage, idle load balancers, and orphaned IPs | Untracked cost spikes are the #1 symptom of resource sprawl; right-sizing before committing to RIs saves 20-40% |
+| No IAM least-privilege model — developers have `AdministratorAccess` or equivalent | Propose workload identity (IRSA, Workload Identity Federation) + permission boundaries; replace long-lived credentials with OIDC | Overly permissive IAM is the root cause of 80% of cloud security incidents; service accounts should have exactly the permissions their workload needs |
+| VPC design uses default VPC with public subnets for all workloads | Propose custom VPC with private subnets, NAT gateway, VPC endpoints for S3/DynamoDB, and security groups with least-privilege rules | Default VPCs are designed for quick starts, not production security; private subnets eliminate direct internet exposure for backend services |
+| Observability is an afterthought — no cloud-native metrics (CloudWatch/Cloud Monitoring), no structured logging | Propose integrating cloud-native observability from day one: structured logging with correlation IDs, CloudWatch dashboards per service, X-Ray/Cloud Trace for distributed tracing | Without observability, cloud architecture decisions are guesswork; you can't optimize what you can't measure |
+| VPC peering mesh growing quadratically — 10 VPCs = 45 peering connections | Propose transit gateway or hub-and-spoke topology with centralized egress; plan PrivateLink for cross-account service access | Mesh peering doesn't scale beyond ~5 VPCs; transit gateway reduces N connections to N attachments |
+| Reserved Instances/Savings Plans purchased without utilization tracking | Propose RI/SP coverage dashboard with monthly utilization review; prefer Savings Plans over standard RIs for workload flexibility | Unused commitments are dead money; 40% of RIs are underutilized because the workload changed after purchase |
+| Teams provisioning resources directly in cloud console (click-ops) with no IaC trace | Propose IaC-only policy enforced via SCP/IAM; all production changes must go through Terraform/CDK pipelines with PR review | Click-ops creates unreproducible infrastructure; the console is for exploration, IaC is for production |
+
 **What good looks like:** Architecture diagram with all services, data flows, and network boundaries. Multi-region failover tested and documented. Cost projection within 10% of actual for 3 consecutive months. Every service has SLO with error budget.
 
 ## Best Practices
@@ -285,6 +298,19 @@ When this skill is invoked, drill into these specialized areas as needed:
 - **Least privilege IAM**: start with no permissions, add only what's needed; use IAM Access Analyzer to validate.
 - **Design for failure**: assume any component can fail at any time; use circuit breakers, retries with backoff, and graceful degradation.
 - **Region selection**: prioritize latency, data residency, service availability, and cost in that order.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Single AWS account for everything — production, staging, dev, sandbox all share one blast radius | Separate production and non-production at the account/project level; use AWS Organizations/GCP resource hierarchy for policy isolation |
+| `AdministratorAccess` policy attached to every developer and service role — "we'll lock it down later" | Start with no permissions, add only what's needed; use IAM Access Analyzer to validate; enforce permission boundaries via SCPs |
+| Default VPC with all resources in public subnets — "it works, don't touch it" | Design custom VPC with private subnets, NAT gateway for egress, VPC endpoints for AWS services, and security group least-privilege rules per service |
+| Multi-region DR plan exists only on a Confluence page — never tested, never executed | Test failover quarterly with game days; automate DNS failover; maintain cross-region read replicas; document MTD (maximum tolerable downtime) per service |
+| Reserved Instances purchased for "future capacity" before workload is stable — utilization at 20% | Right-size workloads first (90-day observation), then commit; prefer Savings Plans over standard RIs for workload flexibility; track RI utilization monthly |
+| Architecture decisions made as one-off Slack conversations with no written record | Document every architecture decision as an ADR (Architecture Decision Record) with context, options considered, trade-offs, and outcome; store ADRs in repo |
+| Multi-cloud strategy adopted "just in case" with < $50M ARR and no multi-cloud expertise on team | Single cloud provider until $100M+ ARR or regulatory mandate; multi-cloud doubles operational complexity and halves your negotiation leverage |
+| All traffic routed through public internet between services — no PrivateLink, no VPC peering | Use VPC endpoints (PrivateLink) for AWS services, VPC peering or transit gateway for inter-VPC traffic; keep service-to-service traffic off the public internet |
 
 ## Is This Overkill? Checklist
 
@@ -347,7 +373,7 @@ When this skill is invoked, drill into these specialized areas as needed:
 - **Medium → Enterprise**: Multi-region required. Regulatory compliance. >$50K/month cloud spend.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

@@ -261,6 +261,19 @@ Critical bug found in production:
 | `site-reliability-engineer` | Error budget status, deploy risk assessment, rollback decision criteria, canary rollout gating | SRE can't gate risky deploys — reliability compromised |
 | `project-manager` | Release scope, feature readiness, deployment calendar, stakeholder communication | Project timelines disconnected from release reality — expectations mismanaged |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| No deployment calendar — releases happen "when ready," stakeholders have no predictability | Propose release train: weekly/bi-weekly cadence with published calendar, freeze dates, and deploy windows; teams self-select which train their features board | Release trains create predictability; stakeholders plan around known dates, teams coordinate across dependencies, and "is my change in prod?" anxiety disappears |
+| No formal go/no-go criteria — releases ship based on "it feels ready" | Propose go/no-go framework: CRITICAL criteria (auto NO-GO if fail) and CONDITIONAL criteria (requires release commander sign-off); checklist completed before every deploy window | Subjective go/no-go is wish-based deployment; objective criteria make the decision data-driven and defensible in postmortems |
+| Error budget status not checked before deployment — release ships despite SLO burn | Propose SRE integration: deploy pipeline queries error budget before promotion; if budget critically depleted, release is blocked; release manager and SRE jointly approve exceptions | Error budget is the safety valve for reliability; deploying when budget is exhausted guarantees SLO misses and customer impact |
+| QA sign-off is a verbal "looks good" with no documented evidence | Propose QA integration: automated test suite results attached to release candidate, manual test evidence for critical paths, security scan report; all artifacts linked in release dashboard | Verbal sign-off is unreviewable; documented evidence makes go/no-go decisions auditable and protects the release manager from "who approved this?" |
+| Database migration is part of the same release without a tested downgrade script | Propose migration safety: every migration must have a tested downgrade script; irreversible migrations go in a separate, carefully planned release; rollback plan includes migration reversal | Database migrations are the #1 cause of rollback failures; backward-compatible schema changes enable safe rollbacks |
+| Feature flags are permanent — flags from 18 months ago still in code, nobody knows if they're ON or OFF | Propose flag lifecycle: every flag has owner + removal date; flags > 60 days flagged as debt; flag removal is a release checklist item; stale flag cleanup is a recurring sprint task | Permanent feature flags are technical debt that compounds; every flag increases testing matrix and code complexity |
+| Rollback plan is "we'll figure it out if we need to" — no tested rollback pipeline | Propose rollback automation: one-click rollback pipeline tested monthly; target < 5 minutes from decision to previous healthy state; rollback smoke tests verify health after reversal | A rollback plan that hasn't been tested doesn't exist; untested rollbacks fail when you need them most — during an incident |
+| Release notes are the git log — 300 commits of "fix", "wip", "test" with no human summary | Propose release notes automation: conventional commits + release-drafter + human-written summary; organize by type (features, fixes, breaking changes); add known issues and upgrade instructions | Release notes are for humans; the git log is for computers; a human must summarize what changed for the user in plain language |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -336,7 +349,20 @@ Common chains:
 - **Release retrospectives compound**: each retro should produce < 5 action items. Track them across releases. If the same issue appears in 3 consecutive retros, escalate to engineering leadership.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Release train has no freeze window — features land 5 minutes before deploy, no time to test integration | Enforce code freeze 24-48 hours before deploy window; only bug fixes and security patches after freeze; feature work boards the next train automatically |
+| Go/no-go is a 60-minute meeting debating whether the release "feels ready" — no data, no criteria | Define CRITICAL (auto NO-GO) and CONDITIONAL criteria in a checklist before the release window; meeting is 15 minutes to review checklist results, not debate feelings |
+| Release commander role is permanent — same person for 2 years, everyone else disengaged from release risk | Rotate release commander every release train; rotation builds shared risk awareness and prevents single-point-of-failure in release knowledge |
+| Rollback takes 45 minutes because the migration downgrade script was never tested — QA only tested the upgrade path | Test downgrade migrations in staging before every release; every migration must have a tested downgrade; irreversible migrations go in separate releases with explicit risk acceptance |
+| Feature flags are removed "when someone has time" — 40 flags in production, 25 are permanently ON | Every flag has an owner and removal date; flags > 60 days become release checklist items; stale flag removal is a recurring sprint task; kill switches must be documented |
+| Release notes are auto-generated without human review — "chore: update deps" is the top feature | Enforce conventional commits; auto-generate draft from commits; human writes 1-paragraph summary, known issues, and upgrade instructions; release notes are a product artifact |
+| Friday 4 PM deploys because "we already finished, might as well ship" — weekend incident with no on-call | Enforce deploy curfew: no deploys after 2 PM Friday (or equivalent); hotfixes require secondary on-call for 4 hours post-deploy; weekend deploys are pre-scheduled exceptions only |
+| Versioning scheme changes mid-project without migration — half the org uses SemVer, half uses CalVer | Choose ONE versioning scheme, document in CONTRIBUTING.md, never change without cross-org agreement; if change is necessary, publish mapping table with 90-day transition window |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
