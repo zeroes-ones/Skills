@@ -499,6 +499,27 @@ Business strategy defines the market opportunity; product management validates i
 - [ ] **[S9]**  Risk register with mitigation strategies
 - [ ] **[S10]**  90-day execution plan with owners and deadlines
 
+## Deliberate Practice
+
+The best business strategists treat strategy as a craft, not a meeting. Deliberate practice means regularly producing strategic artifacts, getting feedback from the market, and refining your mental models.
+
+```mermaid
+graph LR
+    A[Study a business case] --> B[Apply framework to a real scenario]
+    B --> C[Get market feedback or data]
+    C --> D[Refine your model and assumptions]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Analyze a public company's business model and write a one-page critique | Weekly |
+| **Competent** | Build a financial model for a hypothetical product launch | Monthly |
+| **Expert** | Lead a strategy review for a real business unit, present to executives | Quarterly |
+| **Master** | Write a strategy memo that becomes the organization's north star | Biannually |
+
+**The One Highest-Leverage Activity**: Write a one-paragraph business strategy for a real or hypothetical company every week. If the strategy doesn't fit in a paragraph, you haven't understood it yet. Share with a peer and ask: "What's wrong with this?"
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - Related: `ceo-strategist`, `product-manager`, `growth-engineer`

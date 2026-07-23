@@ -435,6 +435,27 @@ Functional level (tactical: org change, process issue, vendor decision)
 - [ ] **[S9]**  Founder agreement signed: vesting, IP assignment, decision rights
 - [ ] **[S10]**  409A valuation completed for option pricing
 
+## Deliberate Practice
+
+CEO skill is built through repeated exposure to high-stakes decisions with structured reflection. The gap between a first-time CEO and a seasoned one is the decision journal they've accumulated.
+
+```mermaid
+graph LR
+    A[Make a consequential decision] --> B[Document: what you decided, why, expected outcome]
+    B --> C[Observe actual outcome over time]
+    C --> D[Quarterly review: what was your hit rate? what bias showed up?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Keep a decision journal. Write down every significant decision with rationale and expected outcome | Daily |
+| **Competent** | Run a mock board meeting with a peer CEO or coach before the real one | Quarterly |
+| **Expert** | Do a full 360 review: ask board, exec team, and skip-levels for honest feedback | Semi-annually |
+| **Master** | Write a public essay or talk on a leadership lesson — teaching crystallizes mastery | Annually |
+
+**The One Highest-Leverage Activity**: Keep a decision journal. For every significant decision, write: what you decided, why, what you expect to happen, and your confidence level (60%? 90%?). Review quarterly. The gap between your expectations and reality is the most honest feedback you'll ever get.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - Related: `cto-advisor`, `business-strategist`, `product-manager`
