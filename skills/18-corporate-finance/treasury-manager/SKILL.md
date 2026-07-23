@@ -46,6 +46,26 @@ Treasury, cash management, and financial risk for venture-backed startups. From 
 - **Insurance is not optional after your first fundraise.** Board members, investors, and enterprise customers will require D&O, E&O, cyber, and general liability coverage. Operating without D&O insurance means directors are personally liable — good luck recruiting a board.
 - **Venture debt amplifies outcomes — both ways.** It extends runway without dilution, but it's senior to equity in liquidation. If you borrow $5M and can't repay, the lender owns your company, not you. Model worst-case: what happens if you draw the full facility and revenue drops 50%?
 
+
+## The Expert's Mindset
+
+Master treasury managers understand that their domain is not about numbers or policies — it's about **enabling human potential and organizational health**. The best work is often invisible: preventing problems, not solving them.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Fundamental attribution error** — attributing outcomes to character rather than context | For every performance issue, ask "what system produced this behavior?" before "what's wrong with this person?" |
+| **Recency bias** — evaluating based on the last interaction | Maintain a running log of contributions; review the full record, not the last month |
+| **Overconfidence in models** — trusting the spreadsheet more than reality | Every model gets a "what would make this wrong?" section; stress-test assumptions |
+| **Similarity bias** — favoring people/approaches that look like you | Audit decisions for pattern: who/what gets approved vs. rejected; look for systemic skew |
+
+### What Masters Know That Others Don't
+- **The 20% that causes 80% of issues** — identify and fix the systemic root, not the symptoms
+- **When process helps vs. when it suffocates** — the same process that saves a 50-person team destroys a 5-person team
+- **The story behind the numbers** — every metric is a proxy for human behavior; understand the behavior, not just the number
+
+### When to Break Your Own Rules
+- **Bend policy for the outlier.** Rules are for the 95%. The top 5% need exceptions — give them.
+- **Trust intuition when data is noisy.** If your gut says something is wrong, investigate even if the numbers look fine.
 ## Route the Request
 <!-- QUICK: 30s — pick your path, skip the rest -->
 
@@ -68,6 +88,21 @@ What are you trying to do?
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Daily Cash Operations"
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Individual cases | Handle standard situations following established policies and frameworks |
+| **L2** | Team/Function | Own a function for a team or department; adapt frameworks to context |
+| **L3** | Department | Design frameworks and policies for a department; handle exceptions and edge cases |
+| **L4** | Organization | Set org-wide strategy for your function; influence C-suite decisions |
+| **L5** | Industry | Define best practices adopted across the industry; shape professional standards |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 treasury manager, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 <!-- QUICK: 30s — scan to decide if this skill fits -->
@@ -365,6 +400,22 @@ Controller + audit committee, SOX/internal controls, SEC reporting. Focus: publi
 ## What Good Looks Like
 
 Every Monday at 9 AM, the cash dashboard is updated: actual prior-week ending cash vs. forecast, variance explanation if > 5%, reforecast for next 12 weeks. A CFO or CEO can look at one screen and answer: "How many weeks of runway do we have? When do we need to raise? Are we compliant with all debt covenants? Is all cash FDIC/SIPC insured?" All bank accounts are visible at a glance. Payment runs (Tuesday/Thursday) process without drama because approvals are already in place. An auditor can test any wire transfer from the past year and find: approval, beneficiary match, callback verification log, and bank confirmation — in under 10 minutes. The company could survive its primary bank being inaccessible for 2 weeks without missing a single payment.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Before making a decision, write down your prediction. After the outcome, compare. Track your calibration. | Weekly |
+| **Competent** | Study a past decision that went well AND one that went poorly. What information did you have at the time? | Monthly |
+| **Expert** | Design a new framework or model for a recurring challenge in your domain. Test it for 3 months. | Quarterly |
+| **Master** | Write a case study that teaches others your decision-making process. Include what you got wrong. | Semi-annually |
+
+**The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
 ## References
 <!-- QUICK: 30s — deeper reading and templates -->

@@ -67,6 +67,41 @@ These rules apply to *every* response this skill produces.
 - **Always cite medical references.** Every clinical diagram must carry a citation line: "Adapted from [source], [year]. Reviewed by [clinician name, credentials], [date]." Traceability is non-negotiable in healthcare.
 - **Admit what you don't know.** If a request requires specialized anatomical knowledge you haven't verified, flag it for clinical informatics review. Never guess the course of the internal carotid artery or the staging classification of a tumor.
 
+
+## The Expert's Mindset
+
+Master medical illustrators operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Solution bias** — jumping to solutions before understanding the harm | Spend 50% of your time understanding the problem; the solution will take care of itself |
+| **False balance** — giving equal weight to all stakeholders regardless of risk exposure | Weight input by risk exposure: the most vulnerable users get the loudest voice |
+| **Scope neglect** — treating one bad case the same as a million | Always quantify impact at scale; a 0.01% failure rate × 10M users = 1,000 harmed people |
+| **Transparency illusion** — assuming users understand how their data/content is used | Test your disclosures with actual users; if they're surprised, it's not transparent enough |
+
+### What Masters Know That Others Don't
+- **The unintended use case** — how bad actors OR well-meaning users could misuse the system
+- **That every policy has a chilling effect** — measure not just what you block, but what you discourage from being created
+- **The recovery experience matters as much as the violation** — how you handle mistakes defines trust more than avoiding them
+
+### When to Break Your Own Rules
+- **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
+- **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single case/asset | Handle individual cases following established guidelines; escalate edge cases |
+| **L2** | Feature/policy area | Own a policy or creative area; apply guidelines to novel situations |
+| **L3** | Product/system | Design trust/creative frameworks for a product; balance competing stakeholder needs |
+| **L4** | Organization | Set org-wide strategy for trust/creative; define what "safe" means for the company |
+| **L5** | Industry | Shape industry standards; create frameworks adopted across the ecosystem |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 medical illustrator, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Creating anatomical illustrations with verified accuracy and citations
@@ -382,6 +417,22 @@ Common chains:
 - [ ] **[MI12]** High-contrast alternative available for all patient-facing clinical visuals
 - [ ] **[MI13]** Symbol/icon comprehension tested with target patient audience (>80% comprehension)
 - [ ] **[MI14]** Illustration library cataloged with metadata: purpose, audience, clinical reviewer, version, languages
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

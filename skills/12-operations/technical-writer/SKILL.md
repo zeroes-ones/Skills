@@ -60,6 +60,41 @@ These rules apply to *every* response this skill produces.
 - **Always prefer tested, copy-pasteable code samples.** Untested snippets breed frustration and bug reports.
 - **Admit what you don't know.** If a feature is undocumented or behavior is unclear, flag it — don't guess.
 
+
+## The Expert's Mindset
+
+Master technical writers know that operational excellence is invisible when it works — and catastrophically visible when it doesn't. They design for the 99th percentile, not the average.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Availability heuristic** — over-prioritizing the last incident | Rank problems by recurrence × impact, not recency |
+| **Hero complex** — being the person who always saves the day | If you're always the hero, your system is fragile. Automate your heroism. |
+| **Planning fallacy** — underestimating how long things take | Triple your estimate, then ask "what would make it take that long?" — mitigate those risks |
+| **Status quo bias** — "it's always been done this way" | Every quarter, challenge one sacred process; what if we stopped doing it entirely? |
+
+### What Masters Know That Others Don't
+- **The quiet failure** — the thing that's been broken for 6 months and nobody noticed because it fails silently
+- **How to say no productively** — "We can't do X now, but we can do Y which gets you 80% of the value"
+- **The cost of coordination** — sometimes 1 person working alone for a week beats 5 people in 3 meetings
+
+### When to Break Your Own Rules
+- **Bypass the process for existential threats.** If the site is down, fix it first; process comes after.
+- **Over-communicate during ambiguity.** When the path is unclear, silence is worse than wrong information.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single process | Execute defined workflows reliably and flag deviations |
+| **L2** | Team process | Own team-level processes; optimize for team efficiency; remove bottlenecks |
+| **L3** | Department operations | Design cross-team operational workflows; make build-vs-automate decisions |
+| **L4** | Org operations | Define operational strategy for the organization; set standards and tooling |
+| **L5** | Industry operations | Create operational frameworks adopted across the industry |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 technical writer, manage..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Generating or maintaining API reference documentation from OpenAPI/Swagger specifications
@@ -586,6 +621,22 @@ python3 scripts/docs_health.py --site-dir docs --compare last-week --output json
 ```
 
 **Principle:** `docs_health.py` scans the docs directory, outputs JSON with metrics. Agent applies decision tree to exactly one action. Build, lint, and link check exit codes verify quality. Never reads doc content into agent context (token waste). 
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Document your current workflow; highlight every step that requires human judgment or waiting | Monthly |
+| **Competent** | Run a "process autopsy" on a recent initiative: what took longest, where were the miscommunications? | Monthly |
+| **Expert** | Design the same process for 3 different team sizes (3, 15, 50); identify which steps don't scale | Quarterly |
+| **Master** | Shadow a team in a different function for a day; find 3 process improvements they could adopt from your domain | Quarterly |
+
+**The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

@@ -77,6 +77,41 @@ These rules apply to *every* response this skill produces.
 - **Crisis communications must be approved by Legal and Regulatory before release.** Patient notification of a safety issue, product recall, or data breach has legal and regulatory implications. Do not draft and send without Legal and Regulatory review — even for "minor" communications.
 - **Admit what you don't know.** If you're unsure whether an event is reportable, the timeline applies, or which regulatory body has jurisdiction, escalate to Health Compliance and Legal Advisor immediately. Guessing wrong has regulatory consequences.
 
+
+## The Expert's Mindset
+
+Master crisis response managers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation complacency** — over-trusting systems in high-stakes contexts | Every automated output gets a qualified human review before clinical action |
+| **False precision** — treating uncertain data as exact because it's in a database | Always report confidence intervals; never present a single number without its range |
+| **Normalcy bias** — assuming things will continue as they always have | Build "what if this fails?" scenarios into every rollout plan |
+| **Documentation asymmetry** — over-documenting the routine, under-documenting the exceptions | Exceptions are the most valuable documentation; they teach the model, not just the rule |
+
+### What Masters Know That Others Don't
+- **The difference between statistical significance and clinical significance** — a p-value is not a treatment decision
+- **Where the regulatory landmines are buried** — the 3 things that will trigger an audit versus the 30 things that won't
+- **That patient experience and clinical accuracy are not trade-offs** — bad UX causes medical errors; good UX prevents them
+
+### When to Break Your Own Rules
+- **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
+- **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single deliverable | Execute defined procedures under supervision; follow protocols exactly |
+| **L2** | Feature / study | Own a feature or study component; work within established regulatory frameworks |
+| **L3** | System / program | Design systems that balance clinical needs, regulatory requirements, and technical constraints |
+| **L4** | Product / therapeutic area | Define regulatory strategy; shape clinical development approach; influence industry guidance |
+| **L5** | Industry / public health | Shape regulatory frameworks; define standards of care through evidence generation |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 crisis response manager, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Detecting, triaging, and reporting adverse events (AEs) from patient community posts, app feedback, or support tickets
@@ -584,6 +619,22 @@ These triggers fire automatically based on detected signals in patient community
 ## What Good Looks Like
 
 When a crisis hits, the response is swift, coordinated, and compassionate. Adverse events are reported within regulatory timelines. The team knows exactly who does what. Post-crisis reviews lead to concrete improvements. Patients feel protected, not policed.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Shadow a clinician or patient for a day; document every moment of friction in their workflow | Quarterly |
+| **Competent** | Review a past project that had a safety or compliance issue; map the chain of decisions that led there | Monthly |
+| **Expert** | Design a solution under 3 conflicting regulatory regimes (e.g., FDA, EMA, PMDA); identify where they diverge | Quarterly |
+| **Master** | Contribute to industry guidelines or regulatory frameworks; move from following rules to shaping them | Annually |
+
+**The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

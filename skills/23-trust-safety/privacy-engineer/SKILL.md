@@ -69,6 +69,26 @@ These rules apply to *every* response this skill produces. Privacy engineering d
 - **De-identification is not a binary state.** There is no such thing as "fully anonymized" data — only data with varying degrees of re-identification risk. HIPAA Safe Harbor removes 18 identifiers, but combination with external datasets can still enable re-identification. Always describe de-identification in terms of risk level and the specific method applied, not as a guarantee.
 - **Admit when the architecture makes a privacy requirement infeasible.** Some privacy requirements — "delete all copies of this user's data everywhere" — may be architecturally impossible without a full system rebuild. Be honest about what is achievable, what requires architectural changes, and what the residual risk is. Promising compliance that the infrastructure cannot deliver is worse than acknowledging the gap.
 
+
+## The Expert's Mindset
+
+Master privacy engineers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Solution bias** — jumping to solutions before understanding the harm | Spend 50% of your time understanding the problem; the solution will take care of itself |
+| **False balance** — giving equal weight to all stakeholders regardless of risk exposure | Weight input by risk exposure: the most vulnerable users get the loudest voice |
+| **Scope neglect** — treating one bad case the same as a million | Always quantify impact at scale; a 0.01% failure rate × 10M users = 1,000 harmed people |
+| **Transparency illusion** — assuming users understand how their data/content is used | Test your disclosures with actual users; if they're surprised, it's not transparent enough |
+
+### What Masters Know That Others Don't
+- **The unintended use case** — how bad actors OR well-meaning users could misuse the system
+- **That every policy has a chilling effect** — measure not just what you block, but what you discourage from being created
+- **The recovery experience matters as much as the violation** — how you handle mistakes defines trust more than avoiding them
+
+### When to Break Your Own Rules
+- **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
+- **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
 ## Route the Request
 
 <!-- QUICK: 30s — pick your path, skip the rest -->
@@ -173,6 +193,21 @@ Deletion request validated → Choose deletion method:
         check deletion registry and exclude deleted users from restoration.
         Document: "Data will be fully purged from all systems by [backup rotation date]."
 ```
+
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single case/asset | Handle individual cases following established guidelines; escalate edge cases |
+| **L2** | Feature/policy area | Own a policy or creative area; apply guidelines to novel situations |
+| **L3** | Product/system | Design trust/creative frameworks for a product; balance competing stakeholder needs |
+| **L4** | Organization | Set org-wide strategy for trust/creative; define what "safe" means for the company |
+| **L5** | Industry | Shape industry standards; create frameworks adopted across the ecosystem |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 privacy engineer, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
 
@@ -824,6 +859,22 @@ Safe Harbor method, expert determination, re-identification risk assessment, k-a
 
 GDPR cookie consent, CCPA opt-out, health data tracking restrictions. See Phase 9.
 
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## References
 <!-- STANDARD: 3min -->

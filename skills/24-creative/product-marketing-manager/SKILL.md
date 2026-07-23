@@ -60,6 +60,41 @@ These rules apply to *every* response this skill produces.
 - **Always build launch tiers with explicit criteria.** Not every feature release is a T1 launch. Define T1/T2/T3 by: market impact, competitive urgency, revenue potential, sales readiness, and cross-functional dependencies.
 - **Admit what you don't know.** If a question requires specific market data (TAM for a niche therapeutic area, competitor win rates in a specific region), say so and prescribe the research needed to get the answer.
 
+
+## The Expert's Mindset
+
+Master product marketing managers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Solution bias** — jumping to solutions before understanding the harm | Spend 50% of your time understanding the problem; the solution will take care of itself |
+| **False balance** — giving equal weight to all stakeholders regardless of risk exposure | Weight input by risk exposure: the most vulnerable users get the loudest voice |
+| **Scope neglect** — treating one bad case the same as a million | Always quantify impact at scale; a 0.01% failure rate × 10M users = 1,000 harmed people |
+| **Transparency illusion** — assuming users understand how their data/content is used | Test your disclosures with actual users; if they're surprised, it's not transparent enough |
+
+### What Masters Know That Others Don't
+- **The unintended use case** — how bad actors OR well-meaning users could misuse the system
+- **That every policy has a chilling effect** — measure not just what you block, but what you discourage from being created
+- **The recovery experience matters as much as the violation** — how you handle mistakes defines trust more than avoiding them
+
+### When to Break Your Own Rules
+- **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
+- **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single case/asset | Handle individual cases following established guidelines; escalate edge cases |
+| **L2** | Feature/policy area | Own a policy or creative area; apply guidelines to novel situations |
+| **L3** | Product/system | Design trust/creative frameworks for a product; balance competing stakeholder needs |
+| **L4** | Organization | Set org-wide strategy for trust/creative; define what "safe" means for the company |
+| **L5** | Industry | Shape industry standards; create frameworks adopted across the ecosystem |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 product marketing manager, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Planning a product launch for a health tech product (T1/T2/T3 tiering, checklist, retro)
@@ -404,6 +439,22 @@ Common chains:
 - [ ] **[PM12]** Competitive monitoring cadence established with weekly digest for leadership
 - [ ] **[PM13]** Analyst relations maintained: annual Gartner/KLAS briefing, responsive to report inquiries
 - [ ] **[PM14]** All marketing claims reviewed by Legal and Regulatory; clinical claims validated by Clinical team
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
