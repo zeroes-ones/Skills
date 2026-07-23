@@ -283,6 +283,20 @@ The JBP is the annual operating plan for a strategic partnership. Structure: (1)
 - Channel conflict is inevitable — plan for it. Define rules of engagement: when does direct sales engage vs. partner? What happens when both are working the same account? Write it down before it happens.
 - Partner NPS is a leading indicator of partner-sourced revenue. Survey partners quarterly. If partner NPS drops, partner-sourced pipeline drops 6 months later. Fix satisfaction issues early.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Recruiting partners for logo prestige without SIMCA qualification | Logo-count partnerships produce zero revenue and consume SE hours, support resources, and management attention | SIMCA-qualify every partner before signing. Partners scoring <9 get rejected. Partners scoring 9-11 get a 90-day activation sprint with a named partner manager |
+| Signing exclusivity without performance gates | Exclusivity granted at signing locks you into a partner who has no incentive to perform — they already got what they wanted | Tie exclusivity to revenue milestones: "Exclusive for 12 months provided $X in revenue by month 12. Below threshold, converts to non-exclusive." |
+| Verbal term sheet handshake before legal review | Verbal agreements create expectations legal can't fulfill, killing trust and sometimes killing the deal entirely | Every term sheet goes through legal review before external sharing. Template includes "NON-BINDING" header. No exceptions, no shortcuts |
+| Allowing deal registration disputes to be resolved ad-hoc | Inconsistent resolution creates perception of favoritism, destroys partner trust, and guarantees future conflict | Define clear rules of engagement — first-to-register or partner-of-record — and automate enforcement in CRM. Publish a dispute log for transparency |
+| Treating partner onboarding as a self-serve PDF dump | Self-serve onboarding has near-zero completion. Partners don't know where to start and go silent within 30 days | Build a 30-60-90 day onboarding plan with a named partner manager. Week 1 kickoff call, week 2 product training, week 4 first deal review, week 12 activation check |
+| Writing a Joint Business Plan and reviewing it only at year-end | A JBP that sits in a drawer for 11 months is fiction. Targets drift, assumptions rot, and the partnership underperforms silently | Quarterly Business Reviews with both executive sponsors present. Review JBP targets, adjust investments, and document action items within 24 hours of each QBR |
+| Launching co-sell motion without account mapping first | Both teams sell to their own lists with no overlap strategy. Zero co-sell deals result because nobody knows which accounts to collaborate on | Map both companies' target account lists before launching co-sell. Overlap accounts are the addressable co-sell market — prioritize them with joint account plans |
+| Building an ISV integration without a joint GTM plan | The integration exists technically but neither party knows how to sell it. Customers never discover it, adoption is zero | Joint GTM is part of the integration agreement: co-marketing launch, sales enablement for both teams, customer-facing listing, and quarterly pipeline review |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -328,6 +342,20 @@ Partner program economics change (margin, tier structure) → VP Sales + Busines
 # Chain: bizdev-manager → product-manager
 # ISV ecosystem: BizDev identifies integration partners → PM prioritizes integration roadmap
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Partner NPS drops >15 points quarter-over-quarter | VP Sales, Partnerships Manager | Leading indicator of partner-sourced pipeline decline; satisfaction intervention needed before pipeline erodes |
+| Partner misses JBP revenue target for 2 consecutive quarters | Business Strategist, VP Sales, CEO Strategist | Partnership reset conversation or dissolution decision; prevent sunk-cost escalation |
+| Deal registration disputes exceed 3 cases in a quarter | VP Sales, Partnerships Manager, Legal Advisor | Rules of engagement breaking down; process overhaul needed before partner trust is permanently damaged |
+| Strategic partner announces merger, acquisition, or major strategy pivot | Business Strategist, Product Manager, Marketing Manager | Partner's GTM priorities may shift overnight; reassess JBP relevance and joint commitments within 2 weeks |
+| Partner ecosystem grows beyond 50 active partners without dedicated partner managers | VP Sales, Business Strategist | Partner experience degrading; coverage ratios breached — hire PAM headcount or implement tiered coverage model |
+| Competitor launches partner program with significantly better economics (margin, MDF, rev share) | Business Strategist, VP Sales | Partner defection risk; benchmark your program against competitor within 1 week and prepare retention offers for strategic partners |
+| Partner-sourced pipeline drops >30% quarter-over-quarter | VP Sales, Demand Generation | Ecosystem pipeline crisis; run partner activation sprint, audit dormant partners, and identify root cause within 2 weeks |
+| Key strategic partner executive sponsor departs or changes roles | BizDev Manager, CEO Strategist | Executive relationship must be re-established within 30 days; pending JBP decisions and escalations are now orphaned |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

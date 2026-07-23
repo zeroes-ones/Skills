@@ -855,6 +855,19 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 | Docs site UI design, component library, search UX | `frontend-developer` |
 | CI/CD pipeline, hosting infrastructure, preview environments | `devops-engineer` |
 
+## Proactive Triggers
+<!-- QUICK: 30s — when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Docs site availability drops below 99.5% in any 7-day window | DevOps, CTO Advisor | Platform reliability crisis; CDN or hosting investigation needed |
+| Search analytics show >40% of queries returning zero results | Technical Writers, DevRel | Content gap discovery; new docs or redirects needed for common search terms |
+| Freshness check flags >20% of docs as stale (>6 months unmodified) | All Writers, Engineering Leads | Content rot accelerating; dedicated docs sprint or ownership review needed |
+| New major product version announced requiring documentation restructure | Product Strategist, Technical Writers, DevRel | IA redesign, versioning setup, and content migration planning required |
+| Contributor docs PR rate drops >50% quarter-over-quarter | DevRel, Technical Writers | Community engagement declining; contribution barriers or motivation issues to investigate |
+| "Was this helpful?" negative rate exceeds 40% on top-10 pages | Technical Writers, Product Strategist | High-traffic docs failing users; prioritized rewrites or restructuring needed |
+| Build times exceed 5 minutes causing CI pipeline delays for writers | DevOps, All Writers | Author productivity impact; build optimization or caching improvements needed |
+
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -888,7 +901,7 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 **Output:** Self-maintaining docs system with automated quality monitoring
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -1011,6 +1024,20 @@ python3 scripts/docs_health.py --docs-dir docs --compare last-week --output json
 8. **Quickstart is the most important page:** If a new user can't succeed in <5 minutes, they leave. Time-to-first-success is your #1 docs KPI. Test it on a fresh machine monthly.
 9. **"Was this helpful?" on every page:** Binary feedback with optional text. Alert on pages with >50% "no" rate in last 30 days. This is your real-time quality signal.
 10. **Eat your own dogfood:** Docs engineers must follow the same workflow they prescribe. If your team won't use the docs-as-code pipeline, no one else will.
+
+## Anti-Patterns
+<!-- STANDARD: 3min — patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Writing documentation as a separate phase after feature launch | Docs are perpetually late; pressure to ship without docs; knowledge gaps form immediately | Include documentation in the definition of done; docs PR must be part of the feature PR |
+| Hand-editing auto-generated API reference docs | Edits are overwritten on next generation; drift between docs and spec accelerates | Never hand-edit generated docs; fix the source: OpenAPI annotations, code comments, or spec quality |
+| Creating a single massive "Documentation" navigation category | Users can't find anything; cognitive overload; search becomes the only discovery path | Use Diátaxis to separate content by type; max 4 levels per tree; multiple entry points for different user journeys |
+| Copying-pasting documentation between versions | Divergence inevitably occurs; fixes in one version don't propagate; maintenance multiplies | Version only content that changed; use partials/includes for shared content; keep versioned surface area minimal |
+| Building docs site before understanding search behavior | Beautiful IA that nobody navigates; users search-first, browse-second | Analyze search logs before designing IA; validate navigation with card sorting; measure task completion rate |
+| Requiring writers to learn git, markdown, YAML, and CI simultaneously | Writers spend >50% of time fighting tooling not writing; documentation velocity collapses | Provide templates, pre-configured VS Code workspaces, and one-click preview; invest in writer tooling experience |
+| Treating docs as a dumping ground for all internal knowledge | Signal-to-noise ratio plummets; users can't distinguish canonical docs from rough notes | Separate internal knowledge base from public docs; curate what ships; maintain a quality bar for published content |
+| Deploying docs site without analytics | Can't measure what's broken; no feedback loop; improvements based on intuition not data | Add page-level analytics, search analytics, and "was this helpful?" before launch; set baseline metrics immediately |
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

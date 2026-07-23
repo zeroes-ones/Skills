@@ -287,6 +287,20 @@ Quarterly Business Review with strategic partners. Structured agenda (60-90 minu
 - Segment partner communications by persona and activity level. A dormant partner and a Platinum partner should not receive the same email. Segment: active, at-risk, dormant. Each gets different outreach cadence and content.
 - Partner manager coverage ratios matter. One partner manager can handle ~20-30 active partners effectively. Beyond that, partners feel neglected and engagement drops. Calculate coverage and hire before burnout.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Treating partner onboarding as a content library dump | Partners download a PDF once and never return. Self-serve onboarding has near-zero completion and produces no activated partners | Build a 30-60-90 day onboarding with a named partner manager. Week 1 kickoff, week 2 product training, week 4 first deal review, week 12 activation check. Target first deal within 90 days |
+| Approving MDF without requiring post-activity pipeline reporting | MDF becomes charity — spend with zero accountability. Partners take the money, run the activity, and nobody knows if it produced pipeline | Every MDF dollar requires a post-activity report within 30 days documenting leads generated, pipeline created, and deals influenced. Partners who don't report lose future MDF eligibility |
+| Making partner certification so easy everyone passes | A certification with 100% pass rate is worthless. Partners aren't actually enabled — they just checked a box. Deals stall because partners can't sell competently | Target 70-80% first-attempt pass rate. Include active demonstration: pitch recording review, mock demo, discovery call role-play. Provide remediation paths for those who fail |
+| Resolving channel conflict case-by-case without fixing the process | When the same conflict type recurs, you're treating symptoms while the root cause festers. Partner trust erodes with every inconsistent ruling | When conflict happens, fix the process: was the rule ambiguous? Was enforcement inconsistent? Update the rules of engagement and publish the change. Track dispute patterns quarterly |
+| Sending the same partner newsletter to dormant and Platinum partners | Dormant partners delete it; Platinum partners feel undervalued. One-size-fits-all communication wastes everyone's attention | Segment partner communications by tier and activity: Platinum gets executive-level strategic updates, active partners get enablement content, dormant partners get re-activation offers |
+| Letting partner tier benefits be cosmetic rather than meaningful | If Silver and Platinum partners get essentially the same benefits, there's no incentive to invest in the partnership. Tiers become theater | Each tier unlocks something the partner genuinely wants: higher margin, MDF access, lead sharing, executive sponsorship, co-selling priority. Benefits must escalate materially |
+| Focusing partner manager time on the loudest partner instead of the highest-potential | The partner who complains the most consumes all the attention while high-potential but quiet partners starve for support | Implement tiered coverage model: Platinum = dedicated PAM (1:10-15), Gold = pooled PAM (1:20-30), Silver = self-serve + quarterly check-in. Automate Silver partner nurture |
+| Running QBRs as status updates instead of strategic planning sessions | Partners tune out. QBRs become a checkbox exercise with no accountability. JBP targets drift and the partnership underperforms silently | QBR agenda: performance vs. JBP, joint pipeline review with named deals, enablement and marketing ROI, product roadmap, next quarter commitments, documented action items within 24 hours |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -333,6 +347,20 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 # Chain: product-manager → partnerships-manager → sales-engineer
 # Integration partner: PM builds integration → Partnerships onboards partner → SE trains partner on integration selling
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Key strategic partner misses JBP revenue target for 2 consecutive quarters | BizDev Manager, VP Sales, CEO Strategist | Partnership reset conversation — restructure terms, adjust JBP, or begin managed offboarding before sunk costs escalate |
+| Partner NPS drops >20 points quarter-over-quarter | BizDev Manager, VP Sales | Partner satisfaction crisis; executive intervention needed. NPS drops precede pipeline drops by ~6 months |
+| Channel conflict exceeds 3 documented cases in a single quarter | VP Sales, BizDev Manager, Legal Advisor | Rules of engagement are breaking; process overhaul required. Systemic conflict, not isolated incidents |
+| Partner-sourced pipeline drops >30% quarter-over-quarter | BizDev Manager, VP Sales, Demand Generation | Ecosystem pipeline crisis; run partner activation sprint, audit dormant partners, coach active partners on pipeline generation |
+| Strategic partner executive sponsor departs or changes roles | BizDev Manager, CEO Strategist | Executive relationship orphaned; re-establish sponsorship within 30 days. Pending JBP decisions and escalations now have no owner on partner side |
+| Partner certification completion rate drops below 30% | BizDev Manager, Sales Engineer | Certification is either too hard, too long, or not valued. Audit the program: time-to-complete, pass rate, value proposition. Fix or partners won't be sell-ready |
+| MDF ROI drops below target (program spend >30% of attributed partner revenue) | Marketing Manager, BizDev Manager | MDF program is burning budget without pipeline return; tighten approval criteria, require stronger lead-capture mechanisms, audit past allocations |
+| Competitor partner program announces significantly better economics (higher margin, MDF, or rev share) | BizDev Manager, Business Strategist, VP Sales | Partner defection risk; benchmark your program against competitor within 1 week. Prepare retention offers for top 20% of partners by revenue |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

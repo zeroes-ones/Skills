@@ -545,7 +545,7 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Production chaos experiment proposed for first time | **CTO Advisor** + VP Engineering | Organizational risk decision; executive approval required |
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -566,6 +566,18 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Dashboard tuning, alert configuration, anomaly detection | `observability-engineer` |
 | Resilience architecture, circuit breaker design, service dependency mapping | `system-architect` |
 
+## Proactive Triggers
+<!-- QUICK: 30s — when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| GameDay exercise completed with severity findings | CTO Advisor, VP Engineering, All Service Owners | Resilience gaps discovered; prioritization needed for remediation tickets |
+| Chaos experiment reveals circuit breaker misconfiguration | System Architect, Service Owners | Circuit breaker not activating; configuration fix needed before next incident |
+| Blast radius containment breach during automated experiment | DevOps Lead, On-Call, Security Reviewer | Containment mechanism failure; halt all automated experiments until root cause fixed |
+| Experiment results show MTTR exceeds SLO by >2x | Service Owners, SRE, CTO Advisor | Recovery time unacceptable; architectural or procedural changes needed |
+| New service onboarded without chaos experiment coverage | Service Owner, DevOps | Resilience blind spot; experiment design and scheduling needed |
+| Chaos tooling license exceeds quarterly budget by >20% | CTO Advisor, Finance | Budget reallocation or tooling evaluation needed |
+| Steady state hypothesis invalidated by infrastructure change | Service Owners, DevOps | Baseline metrics shifted; hypothesis rewrite and experiment revalidation required |
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
@@ -623,6 +635,20 @@ Chaos engineering is inherently cross-team — you break things that other teams
 8. **Track MTTR per failure mode:** Recovery time is as important as resilience. If the system recovers in 30 seconds vs 5 minutes, that difference matters to users.
 9. **Integrate chaos into CI/CD:** Run automated experiments on every merge to main in staging. Catch resilience regressions like functional bugs — before they reach production.
 10. **GameDay debrief must produce tracked action items:** Every finding gets an owner, severity, ticket number, and due date. Learning without action is wasted effort.
+
+## Anti-Patterns
+<!-- STANDARD: 3min — patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Running chaos experiments only before big launches | Panic-driven chaos produces rushed experiments with incomplete rollback plans; teams associate chaos with stress | Schedule experiments continuously on a calendar; decouple experiments from release anxiety |
+| "Throwing the kitchen sink" — injecting all faults at once | Cannot isolate which fault caused the failure; debugging takes hours; teaches nothing about individual resilience | Inject exactly one fault per experiment; understand single-fault behavior before combining |
+| Disabling monitoring during experiments to avoid alert fatigue | Defeats the purpose — if you can't detect the fault, your monitoring is broken; fix monitoring, don't silence it | Tag experiments for alert deduplication; fix gaps in observability; never silence alerts as a workaround |
+| Skipping the GameDay retrospective because "we learned enough during the exercise" | Tacit knowledge stays in individuals' heads; no tracked action items; same failures repeat next quarter | Require a written retro with owner, severity, and ticket number for every finding within 48 hours |
+| Running experiments without telling on-call | On-call declares SEV-1 for a chaos experiment; trust in chaos program destroyed; experiments get banned | Notify on-call 24+ hours in advance with expected symptoms and abort command; no surprises |
+| Testing only infrastructure faults (pod kill, network) | Application-level failures (corrupt responses, slow endpoints, bad config deployments) cause more incidents than infra failures | Expand catalog to include application faults: latency injection, malformed responses, config rollbacks |
+| Gamifying chaos with "who broke production" culture | Blame culture suppresses reporting; teams hide failures; chaos becomes political not engineering | Frame experiments as learning opportunities; celebrate findings not blame; leadership models blameless culture |
+| Treating chaos engineering as a one-time certification | Resilience decays as code changes; last year's experiments don't test this year's architecture | Automate experiments in CI/CD; rerun on every deploy; treat resilience as continuous verification |
 
 ## Cost-Effective Decision Table
 

@@ -549,6 +549,21 @@ Validate strategies before risking capital. Learn from every trade — winners a
 - **Run a "paper clone" of live strategies.** Mirror your live strategy in a paper account with the same signals, same sizing, same timing. Divergence between paper and live P&L reveals execution problems — slippage you did not model, fills you are not getting, latency you did not measure.
 - **Never override the circuit breaker.** If max drawdown is 20% and you are at 19.5%, you are already past the point where you should have reduced size. The circuit breaker exists because you will be wrong about when to stop. Trust the breaker — it is smarter than you are during a losing streak.
 - **Correlation matrix is a daily check, not an annual review.** UOA signals cluster. A massive call-buying day in tech can give you 10 "independent" signals that are all the same bet. Recompute sector and factor correlations daily. Max 30% in any correlated bucket, no exceptions.
+
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **Skipping the paper clone because the backtest was perfect** | Backtests assume idealized fills; real-world execution has slippage, latency, and partial fills that compound. Without a parallel paper account, you cannot distinguish strategy failure from execution failure. | Run a paper clone mirroring live signals identically. Monitor P&L divergence daily — >2% gap means the execution model is broken, not the strategy. Investigate before adding more capital. |
+| **Doubling Kelly on high-conviction trades** | Conviction is emotional, not mathematical. Doubling Kelly inflates drawdown risk exponentially — a 3-sigma event causing 15% drawdown at half-Kelly becomes 45% drawdown at full Kelly. | Cap all positions at half-Kelly maximum. Size by risk-per-trade (1-2% of NAV), not by conviction level. The sizing formula is deterministic — encode it, test it, lock it. No manual overrides. |
+| **Relaxing the stop-loss because the thesis is still intact** | Stops exist precisely because the thesis is wrong and you do not know it yet. Widening stops during a losing trade converts a small controlled loss into a large unplanned drawdown. | Set bracket orders at entry with fixed stop-loss (2x ATR). The stop never moves against the position. If the thesis is truly intact, re-enter at a better price after the stop triggers — never hold through it. |
+| **Running the backtest once and calling it validated** | Single-period backtests optimize for noise, not signal. Parameters that work in a 2020-2021 bull market collapse in a 2022 rate-hiking cycle. One backtest = one data point, not proof. | Walk-forward validation with minimum 5 windows: train on 3 years, test on 6 months out-of-sample. Reject the strategy if out-of-sample Sharpe varies >50% across windows or any window produces negative returns. |
+| **Treating all STRONG BUY signals from quant as equal-sized trades** | A $5M call sweep on a stock with $500K daily option volume is fundamentally different from the same sweep on a $200B mega-cap. Signal size relative to float and liquidity matters more than absolute premium. | Normalize signals by ADV and float. Filter: reject signals where premium < 2% of daily dollar volume. Size positions proportional to liquidity — a $5M signal on an illiquid name gets a smaller position than a $2M signal on a liquid name. |
+| **Deploying live without testing broker API failure modes** | Broker APIs fail in production — timeouts, rate limits, partial fills, rejected orders. A rejected bracket order means the stop-loss never activates. A retried order can double-fill. Silent failures destroy accounts. | Test every failure mode before going live: API timeout, rate-limit response, duplicate submission rejection, partial fill handling. Verify the system logs every failure explicitly and never silences an error from the broker API. |
+| **Ignoring correlation until the drawdown forces attention** | UOA signals cluster by sector and factor. Five "independent" tech call sweeps on the same day are one leveraged bet on tech. Daily correlation monitoring catches concentration before it becomes a blow-up — checking monthly means the damage is already done. | Compute sector and factor correlation matrix daily. Hard cap: 30% per correlated bucket, 50% per factor. If correlation spikes above threshold, reduce the newest positions first — they have the least edge decay. |
+| **Assuming trailing stops protect profits without monitoring time-of-day effects** | In the first 30 minutes of market open, ATR is inflated by gap fills and opening auctions. A 2x ATR trailing stop set at 9:35 AM is 40% wider than the same stop at 10:30 AM, causing premature stop-outs. | Delay trailing stop activation for the first 30 minutes of trading. Use 15-minute ATR (not 1-minute) for stop calibration. Backtest stop placement by time-of-day to verify performance across the trading session. |
+
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
@@ -628,6 +643,21 @@ Validate strategies before risking capital. Learn from every trade — winners a
 # ML signal generation → Trade execution with confidence intervals
 /ml-ai-engineer && /algorithmic-trader
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Portfolio drawdown exceeds 10% intraday | algorithmic-trader + observability-engineer | Approaching circuit breaker territory; review open positions for correlated losses, prepare for potential partial liquidation before -20% breaker triggers |
+| Signal-to-execution latency exceeds 60 seconds for 3+ consecutive signals | backend-developer + market-data-engineer | Stale signals being traded — pipeline bottleneck or data feed degradation; halt new entries until latency restored below threshold |
+| Slippage exceeds 1.5x model estimate for 3 consecutive fills | observability-engineer + backend-developer | Execution quality degrading — possible market impact, liquidity drain, or broker routing change; recalibrate slippage model before next session |
+| Paper clone P&L diverges >2% from live P&L over trailing 5 days | algorithmic-trader + backend-developer | Execution fidelity problem — live fills not matching modeled fills; investigate broker routing, market impact, or latency not captured in backtest |
+| Correlation matrix shows >50% in single factor bucket | algorithmic-trader + quantitative-analyst | Concentration risk — multiple "independent" signals are the same directional bet; reduce newest correlated positions immediately |
+| Broker API returns 3+ consecutive order rejections within 5 minutes | backend-developer + algorithmic-trader | Possible buying power issue, symbol restriction, or API authentication failure; halt all trading until root cause identified and resolved |
+| Strategy win rate drops below 40% on 30-day rolling window | quantitative-analyst + algorithmic-trader | Strategy decay or market regime change; reduce position sizes by 50% until backtest confirms parameters are still valid in current regime |
+| VIX spikes >30 while holding net-long Vega positions | algorithmic-trader + observability-engineer | Volatility regime change — Vega exposure may dominate Delta P&L; review all position Greeks, hedge ratios, and correlation assumptions immediately |
+
 ## What Good Looks Like
 
 A production algorithmic trading system that executes this skill correctly has these observable characteristics:

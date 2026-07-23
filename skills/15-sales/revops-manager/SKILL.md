@@ -361,6 +361,20 @@ Which integration is suspect?
 - **Treat the deal desk as a revenue accelerator, not a revenue blocker.** Publish approval SLAs and track compliance monthly. If average approval time exceeds SLA, add deal desk headcount or increase AE discount authority.
 - **Revenue analytics dashboards must have a single source of truth.** Reconcile CRM ARR vs billing ARR monthly. Any gap over 2% triggers an immediate root cause analysis. Dual sources of ARR truth will erode board and investor confidence within 2 quarters.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Accepting forecast commits without deal-level inspection | Reps over-commit to look good; forecast accuracy drops below 70%. Board presentations become fiction | Implement mandatory deal inspection on all commit deals. Every commit number must trace to a specific deal with a named rep, verified stage, and validated close date. Run forecast accuracy retro quarterly |
+| Treating pipeline coverage ratio as meaningful without auditing pipeline quality | 4x coverage of unqualified leads creates false confidence. Reps work bad deals instead of hunting, and the quarter misses despite "healthy" coverage | Gate pipeline entry with BANT/MEDDIC qualification. Purge deals with no activity in 30 days. Coverage ratio only matters when the pipeline is real — audit quality before citing coverage |
+| Reporting NRR as a single aggregate number without segmenting by customer cohort | A 115% NRR can hide 85% logo retention if a few large accounts are expanding. Concentration risk is invisible in the aggregate | Segment NRR by customer size decile, by segment, and by cohort. If top 10% of customers drive over 50% of expansion, flag concentration risk. Report NRR and logo retention side by side |
+| Modeling new comp plans without running them against prior year actuals | Accelerators that look reasonable in a spreadsheet produce 30%+ cost overruns when applied to real deal distribution | Always back-test comp plans against prior year actuals before launch. Cap accelerators at 3x quota. If over 40% of reps would have exceeded 120% under the new plan, re-benchmark |
+| Blaming CRM adoption on rep training instead of workflow design | If the CRM is a data-entry burden that doesn't help reps sell, no amount of training will fix adoption. Reps build shadow spreadsheets | Shadow top reps for a week. Remove all fields not used in pipeline meetings. Automate data capture from email/calendar. CRM must be a selling tool, not a reporting tool |
+| Allowing the attribution debate to become a marketing-vs-sales political fight | Changing models mid-year invalidates all trend analysis. Teams argue about methodology instead of acting on pipeline data | Agree on one attribution model, lock it for 12 months. Present all models side-by-side for internal learning, but plan against the locked model. The CRO arbitrates if there's a dispute |
+| Letting the deal desk become a bottleneck with no SLA tracking | Deals stall in approval, AEs lose momentum, and revenue velocity drops. Nobody knows how bad it is because nobody measures it | Publish approval SLAs: standard deals <4 hours, non-standard <24 hours. Track compliance monthly. If SLA is breached, either increase AE discount authority or add deal desk headcount |
+| Running territory planning as an annual exercise with no quarterly validation | Territories calcify. High-growth accounts outgrow their segment, new logos go unassigned, and coverage gaps widen silently | Validate territory assignments quarterly. Check: no unassigned strategic accounts, no rep with >30 named accounts, territory variance <20% for same-tier reps. Adjust boundaries before the quarter starts |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -415,6 +429,20 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 # Chain: bizdev-manager -> revops-manager -> fp-and-a-analyst
 # Partner economics: bizdev-manager defines partner program -> revops-manager models commission impact and pipeline attribution -> fp-and-a-analyst validates unit economics
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Forecast accuracy drops below 80% for 2 consecutive months | CEO Strategist, CRO, CFO | Board credibility at risk; root cause analysis required within 1 week. Commit inspection discipline has broken down |
+| NRR drops below 100% for any quarter | CEO Strategist, Customer Success Manager, CFO | Company is shrinking on a same-customer basis; retention strategy emergency. Segment immediately by cohort to identify where churn is concentrated |
+| Pipeline coverage falls below 2.5x for the current quarter | Demand Generation, Marketing Manager, CRO | Insufficient pipeline to hit plan; demand gen acceleration needed. Run pipeline gap analysis by segment and geo within 48 hours |
+| CRM-to-billing ARR variance exceeds 2% in monthly reconciliation | FP&A Analyst, CFO | Dual source of truth emerging; investor and board reporting integrity at risk. Root cause must be identified and resolved before month-end close |
+| Non-standard deals exceed 25% of quarterly deal volume | CEO Strategist, FP&A Analyst, Legal Advisor, CRO | Pricing discipline breakdown; discounting culture forming. Audit non-standard deal log for patterns and tighten approval criteria |
+| Rep ramp time exceeds 6 months (enterprise) or 3 months (SMB) for 2+ consecutive hires | VP Sales, People Ops | Hiring profile or onboarding process mismatch; cost of delayed productivity compounds. Audit recent hires for common failure patterns |
+| Deal desk average approval time exceeds SLA for 2 consecutive months | CRO, VP Sales | Revenue velocity bottleneck; deals stalling in approval. Either increase AE discount authority or add deal desk headcount |
+| Win/loss analysis reveals same competitor winning with same objection across 5+ deals in a quarter | Product Manager, Marketing Manager, Sales Engineer | Systemic competitive vulnerability; product gap or positioning weakness being exploited. Battle card refresh and roadmap escalation |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

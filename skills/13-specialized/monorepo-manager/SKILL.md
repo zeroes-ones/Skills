@@ -594,7 +594,7 @@ Monorepo management touches every development team. A monorepo tooling change af
 | License compliance issue in shared dependency | **Legal Advisor** + Security Reviewer | Legal risk; may require dependency removal or legal review |
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -615,6 +615,18 @@ Monorepo management touches every development team. A monorepo tooling change af
 | CI/CD infrastructure, deployment orchestration | `devops-engineer` |
 | Module boundaries, extraction candidates, dependency rules | `system-architect` |
 
+## Proactive Triggers
+<!-- QUICK: 30s — when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Circular dependency detected by CI lint step | System Architect, Affected Package Owners | Build-breaking architecture violation; immediate refactor required |
+| Build times increase >30% in any pipeline week-over-week | DevOps, DX, Engineering Leads | Developer productivity degradation; cache or pipeline investigation needed |
+| Shared package release with breaking change (major version bump) | All Consumer Teams, System Architect | Migration guide needed; all consumers must update imports/APIs |
+| Dependency version conflict between two workspaces (different React/TypeScript versions) | Affected Teams, DX | Runtime errors possible; syncpack override or version alignment required |
+| Flaky test rate exceeds 5% in shared package test suite | QA, Package Owners | CI trust eroding; test quarantine, fix, or removal decision needed |
+| Orphan package detected (zero consumers, zero imports) | Package Owner, System Architect | Unmaintained code in repo; removal or documentation of purpose required |
+| Monorepo tool migration proposed (Lerna→Nx, Yarn→pnpm) | All Teams, DevOps, DX, CTO Advisor | 2-4 week migration window; training, CI reconfiguration, and workflow changes needed |
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
@@ -732,6 +744,20 @@ npx turbo run build --verbosity=1 2>&1 | grep -c "cache hit"
 8. **Remote caching pays for itself immediately:** If CI goes from 20 min to 5 min, that saves 15 min × developer × builds per day. At 5 developers, that's hours per day. S3 bucket caching costs <$5/mo.
 9. **Shared configs, not shared codebases:** Extract ESLint/TS/Vite configs into shared packages. Consistent tooling across packages reduces cognitive load more than shared utility code ever will.
 10. **Keep one package per team's ownership domain:** If Team A and Team B both modify the same package frequently, split it. Monorepo ≠ shared ownership of everything.
+
+## Anti-Patterns
+<!-- STANDARD: 3min — patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Every PR rebuilds all packages regardless of what changed | CI time grows linearly with package count; 50-package monorepo = 50-minute CI; developers context-switch | Implement affected-only detection: `turbo build --filter=[main...HEAD]` or `nx affected:build` |
+| No package boundary enforcement — any package can import any other | Spaghetti dependency graph forms within weeks; circular deps emerge; impossible to extract or version packages | ESLint `import/no-restricted-paths` or Nx module tags from day 1; CI fails on boundary violations |
+| Hoisting React/TypeScript to root and hoping for the best | Version conflicts surface as cryptic runtime errors; "works on my machine" bugs; peer dependency warnings ignored | Use syncpack to enforce single versions; pnpm overrides for critical deps; CI validates version consistency |
+| Manual version bumps with `npm version` in each package | Inevitably forget one package; changelogs diverge; release order dependencies break | Changesets: `pnpm exec changeset` describes change → CI opens Release PR with all version bumps and changelogs |
+| Skipping remote caching because "local cache is fast enough" | Each CI agent and developer rebuilds from scratch; cold builds dominate; cache misses cost minutes per build | S3 bucket remote cache costs <$5/month; 80%+ cache hit rate; pays for itself in developer time in days |
+| One massive shared utility package that everything depends on | Deep dependency chains (A→util, B→A→util, C→B→A→util); changing util rebuilds everything; no ownership boundaries | Split utils by domain: `@org/dates`, `@org/strings`, `@org/api-client`; keep fan-out under 15 consumers per package |
+| Adopting monorepo because "Google and Meta do it" without coordination problems | Monorepo solves multi-package coordination — if you don't have coordination problems, you don't need a monorepo | Evaluate: do you have >3 packages sharing code? Cross-package PRs weekly? Build order dependencies? If no, stay simple |
+| Running `pnpm install` in CI from scratch every build | 2-5 minutes wasted per CI run on dependency installation; cache invalidation from lockfile changes only | Use `actions/cache` with `pnpm-lock.yaml` as cache key; `pnpm install --frozen-lockfile`; install step <30 seconds |
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

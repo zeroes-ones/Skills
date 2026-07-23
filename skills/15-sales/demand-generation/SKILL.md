@@ -278,6 +278,20 @@ Calculate CAC per channel: total channel spend / customers acquired from that ch
 - Use incrementality testing for paid channels: geo-holdout tests (ads in Region A, no ads in comparable Region B) tell you whether paid is creating demand or capturing demand that would have converted organically.
 - Marketing automation migrations are more expensive than they appear. Budget 3x the platform cost for implementation, data migration, and training. A rushed migration corrupts data and breaks attribution for months.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Optimizing for lead volume over lead quality | High-volume, low-quality leads flood the pipeline, inflate CAC, and erode sales trust in marketing. MQL→SQL conversion drops below 10% | Gate content with qualifying form fields (company size, role, timeline). Add an open-text "biggest challenge" field. Tighten targeting to ICP criteria. Measure MQL→SQL conversion as the primary quality metric |
+| Running paid ads without UTM enforcement | Missing or inconsistent UTMs corrupt attribution, making it impossible to connect spend to pipeline. 80% of pipeline shows as "Direct" or "Other" | Enforce UTM parameters on every outbound link via a UTM builder tool. Audit active campaign URLs weekly. Add UTMs to CRM automation for retroactive classification |
+| Sending identical nurture sequences to all personas | A CTO and a marketing manager downloading the same ebook have completely different pain points and buying processes. Generic nurture underperforms by 3-5x | Segment nurture by persona, industry, and behavior. The CTO gets technical proof points; the marketing manager gets ROI and efficiency messaging. Different follow-up for different buyers |
+| Ignoring email deliverability until you land in spam | Once domain reputation tanks, recovery takes months. Bounce rates >2% and spam complaints >0.1% are flashing red before the crash | Monitor bounce rate, spam complaint rate, and domain reputation weekly. Pause sends and run list verification at first warning sign. Warm up domain with most-engaged segment |
+| Relying on open rates as the primary email metric | Apple Mail Privacy Protection inflates open rates, making them unreliable. Teams celebrating 40% open rates are optimizing for a vanity metric | Use click rate and conversion rate as primary email metrics. Open rate is directional at best. The only metric that matters is whether the recipient took the intended action |
+| Running ABM without sales alignment on follow-up | Marketing warms the account, generates engagement signals, but sales doesn't follow up within 48 hours. The signal decays and the ABM investment is wasted | Marketing and sales jointly plan account outreach. Sales commits to 48-hour follow-up SLA on engagement signals. If SLA is breached, the ABM program pauses until sales capacity is restored |
+| Changing attribution models mid-year | Shifting from first-touch to multi-touch or changing lookback windows invalidates all trend analysis. Teams argue about methodology instead of acting on data | Pick one attribution model, document it, and lock it for 12 months. Consistency matters more than precision. Run all models side-by-side for internal learning, but plan against the locked model |
+| Treating CRO as one-off tests instead of a continuous program | One-off A/B tests produce inconclusive results and no compounding learning. Conversion rate stays flat because there's no systematic experimentation cadence | Run a continuous CRO program: hypothesis backlog → prioritized by potential impact → test → learn → repeat. Each test builds on the last. Target 1-2 meaningful tests per month |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -325,6 +339,20 @@ MQL quality crisis (sales rejects >50% of MQLs) → Sales leadership + Marketing
 # Chain: demand-generation → growth-engineer
 # Conversion optimization: Demand gen identifies funnel leaks → Growth engineer builds and runs A/B tests
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| CAC increases >30% month-over-month on any paid channel | Marketing Manager, Business Strategist, Analytics Engineer | Channel efficiency crisis; may need creative refresh, targeting change, or channel pause before budget is wasted |
+| MQL→SQL conversion drops below 10% for 2+ consecutive weeks | Sales Engineer, Marketing Manager, RevOps Manager | Scoring model broken or sales follow-up degraded; pipeline forecast at risk; joint marketing-sales audit required |
+| Email domain reputation warning (bounce >2% or spam complaint >0.1%) | Marketing Manager, Analytics Engineer | Deliverability crisis imminent; pause all sends, audit list hygiene, and warm domain before full blacklist occurs |
+| Attribution tracking breaks (UTM pipeline failure, cookie consent change, CRM sync error) | Analytics Engineer, Marketing Manager, RevOps Manager | All spend data becomes unreliable; fix attribution pipeline before launching any new campaigns — flying blind on spend |
+| Pipeline gap exceeds 30% of quarterly target at mid-quarter | Marketing Manager, Sales Engineer, Business Strategist, RevOps Manager | Emergency pipeline generation required; surge campaigns, event acceleration, lead list activation, and SDR blitz |
+| Landing page conversion drops below 2% from paid traffic (sustained >1 week) | Growth Engineer, Marketing Manager | CRO emergency; test headline, offer, form length, page speed. Every day below threshold burns ad budget with no return |
+| Competitor launches aggressive paid campaign targeting your branded keywords or ICP | Marketing Manager, Business Strategist | Brand CPC inflation and share-of-voice loss; competitive response strategy needed within 48 hours |
+| Nurture sequence holdout test shows no statistically significant lift vs. control after 90 days | Marketing Manager, Content Strategist | Nurture is burning effort for zero incremental pipeline; kill the sequence and redirect resources to higher-ROI activities |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

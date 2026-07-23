@@ -266,6 +266,20 @@ Track technical win rate = (deals where you were technical evaluator's choice) /
 - When you lose a deal, conduct the loss analysis within 48 hours while memory is fresh. Pattern-match across losses — one loss is data, two is a pattern, three is a systemic issue.
 - Never demo on production. Ever. One wrong click, one real customer's data exposed, and the deal is dead — plus you've created a compliance incident.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Running demos as feature tours instead of pain-solving narratives | "Looks great" is the most dangerous phrase in presales. The prospect enjoyed the show but doesn't know what to do next because you never connected features to their business impact | Use Tell-Show-Tell: state the outcome, demo the feature, connect to business impact. Map every feature shown to a quantifiable pain discovered in discovery. End with "What happens next?" |
+| Starting a PoC without a signed mutual success plan | Without agreed scope and criteria, the PoC becomes an open-ended consulting project. Every stakeholder has a different definition of success and the evaluation drifts indefinitely | PoC must have ≤3 success criteria defined before starting, signed by both parties, 2-week max timeline, weekly check-ins, and a hard stop date. No signed plan = no PoC |
+| Writing RFP responses with generic affirmations ("Yes, we support X") | Generic answers are indistinguishable from competitors' generic answers. Evaluators score you the same as everyone else — and the incumbent wins on relationship | Every "yes" in an RFP needs a proof point: implementation guide link, architecture diagram, case study with metrics. Specificity is the only way to differentiate in a procurement-driven evaluation |
+| Assuming a technical win means a deal win | The engineering team loves your product but the economic buyer wasn't engaged. Technical win without business win = loss | MEDDIC "E" (Economic Buyer) and "C" (Champion) scores must be >7 before PoC starts. Arm your champion with ROI data and internal-selling materials. The technical evaluator can't sign the check |
+| Letting FUD sit unanswered for more than 24 hours | FUD has a 24-hour half-life. If you don't respond with evidence quickly, the prospect assumes the competitor's claim is true and your silence confirms it | Build competitive battle cards proactively. When FUD lands, respond with evidence within 24 hours — customer proof, third-party validation, or architecture explanation. Silence loses deals |
+| Maintaining only one demo environment with no backup | When the demo environment fails during a live call, credibility evaporates. You can't recover the momentum and the deal stalls | Maintain at least 3 demo environments: Clean (pristine), Realistic (data-rich), and Vertical-specific. Run daily automated health checks. Always have a recorded backup walkthrough ready |
+| Conducting loss analysis weeks after the deal closes | Memory fades, details blur, and the real reason for the loss gets replaced by convenient narratives. Patterns across losses go undetected | Complete loss analysis within 48 hours of deal outcome. Interview the AE, the champion, and the evaluator. Track patterns across losses monthly — one loss is data, two is a pattern, three is a systemic issue |
+| Treating demo follow-up as optional or delayed | The prospect's enthusiasm decays rapidly. A demo with no follow-up within 2 hours loses momentum the AE can't recover | Send follow-up within 2 hours: recording link, 1-page summary of what was shown and how it maps to their pain, and clear next steps. The follow-up is the bridge from demo to decision |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -313,6 +327,20 @@ RFP commitment exceeds current capability → Legal Advisor + VP Product + CEO S
 # Chain: marketing-manager → sales-engineer
 # Campaign launch: marketing-manager provides messaging/persona → sales-engineer builds demo tailored to campaign target
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Same product gap blocks 3+ active deals simultaneously | Product Manager, VP Sales, VP Product | Roadmap escalation required; quantify total revenue at risk across all affected deals. Pattern = systemic gap, not isolated objection |
+| Competitor launches feature that eliminates a key differentiator | Product Manager, Marketing Manager, VP Sales | Competitive response needed within 1 week; battle card refresh, demo narrative update, and sales enablement before competitive losses accumulate |
+| Demo environment is down or unstable during a scheduled call | AE on the deal, all SEs | Reputation damage control; switch to recorded backup immediately. Root cause the failure and implement preventive health checks before next demo |
+| PoC success criteria are not met by the agreed deadline | AE, Customer Success Manager, RevOps Manager | Expectation reset required; either extend with revised scope, or have the no-deal conversation. Prolonging a failing PoC wastes SE time and damages credibility |
+| RFP response requires a contractual commitment the product can't deliver (SLA, feature, certification) | Legal Advisor, Product Manager, VP Product | Liability risk; negotiate alternative language or decline the commitment before submission. A signed contract you can't fulfill is worse than a lost RFP |
+| Technical win rate drops below 30% for 2 consecutive months | VP Sales, Product Manager, Marketing Manager | Systemic presales issue; audit recent losses for patterns. Possible causes: demo quality, competitive positioning gap, product gap, or qualification failure |
+| MEDDIC "E" (Economic Buyer) score is <5 across 50%+ of active deals | VP Sales, RevOps Manager | Deals are unqualified — SE time is being wasted on opportunities that can't close. Tighten qualification gates before SE engagement |
+| Customer reports critical bug or data issue discovered during a live PoC or demo | Product Manager, Engineering Lead, Customer Success Manager | Trust crisis with an active prospect; immediate engineering escalation. Transparency and speed of response determine whether the deal survives |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

@@ -252,6 +252,20 @@ These rules apply to *every* response this skill produces.
 9. **I-9 compliance errors are the most common and most preventable HR liability.** Penalties: $250-$2,700 per form. Most common errors: Section 1 not completed by day 1, Section 2 not completed within 3 business days, acceptable documents not examined in person (remote I-9 requires authorized representative). E-Verify if required by state or federal contracts.
 10. **Internal mobility is the cheapest and fastest source of hire.** Internal candidates ramp 50% faster, have 30% higher retention at 12 months, and cost $0 in recruiting fees. Require: 12 months in current role before transfer eligibility, manager notification before application (not permission — notification), transparent internal job board.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **Running performance ratings that do not affect compensation** | If a "Meets Expectations" and an "Exceeds Expectations" rating both result in the same merit increase, ratings are theater. Employees learn the system is performative and disengage from the process entirely. | Either use ratings to differentiate compensation (bonus multiplier, equity refresh, base adjustment) or do not use ratings at all. Narrative-only feedback is better than ratings without consequences. |
+| **Onboarding = laptop handout + 3 coffee meetings** | New hires without structured onboarding take 2x longer to reach full productivity and are 50% more likely to leave within 6 months. "Figure it out" is not an onboarding strategy — it is a retention risk generator. | Implement a 0-30-60-90 day program: pre-boarding (laptop + accounts + buddy assignment before day 1), first-week small win, 30-day measurable project, 60-day check-in, 90-day NPS survey. Assign a cross-functional buddy who is trained and recognized. |
+| **Compensation bands that exist only in the Head of People's head** | Verbal comp philosophy does not survive a single departure. When the person who "knows the bands" leaves, internal equity, offer construction, and pay transparency all collapse overnight. | Publish bands in a shared document with market data source, effective date, geo-differential tiers, and exception process. Review quarterly. Transparency is a spectrum — at minimum, bands must be visible to all managers. |
+| **Skipping calibration sessions because "managers know their people"** | Without calibration, "Strong Yes" from one manager equals "Maybe" from another. Leniency bias inflates ratings — 40%+ of employees rated "Exceeds" means the system measures manager comfort with difficult conversations, not employee performance. | Run calibration sessions before every review cycle. Score independently, discuss until variance is under 0.5 points, and use forced distribution targets. Flag outlier managers who rate their entire team as exceptional. |
+| **Collecting engagement survey data and doing nothing visible with it** | If you ask "How is your workload?" for 3 consecutive quarters and the score stays at 2.8/5 with no change, employees stop responding. Broken promises damage trust more than never asking in the first place. | Publicize results within 2 weeks. Commit to 1-2 specific action items. Report progress next cycle. If you cannot act on a survey question, remove it — measuring what you will not fix is performative. |
+| **Publishing a career ladder without behavioral anchors per level** | "Staff Engineer: demonstrates technical leadership" is meaningless. Without observable, measurable criteria, promotions become a popularity contest and the ladder collects dust. | Anchor every level with specific behaviors: "Led architecture for a system serving 500K+ users," "Mentored 3+ engineers to promotion," "Reduced system latency by 40% through architectural redesign." Require promotion packets with evidence against these anchors. |
+| **Designing a geo-differential model that breaks on the first senior remote hire** | If your NYC-based VP moves to Boise and you cut their pay, they leave. If you do not cut their pay, your geo model is revealed as selectively enforced — a pay equity and credibility disaster. | Decide up front whether you adjust comp on relocation. If you will not adjust for senior talent, the model is location-agnostic — own that fully and apply it uniformly. If you will adjust, define tier thresholds clearly and enforce them for every hire regardless of level. |
+| **Automating a broken process during HRIS migration** | Implementing a 12-step performance review workflow in Workday when the underlying process has 7 unnecessary steps and 3 approval bottlenecks just makes the broken process faster and harder to change. | Redesign the process first — strip it to essential steps, remove bottlenecks, test manually — then configure the HRIS to support the simplified process. HRIS migration is a process redesign project that happens to involve software. |
+
 ## Token-Efficient Workflow
 
 ```
@@ -340,6 +354,20 @@ people-ops (eNPS survey + thematic analysis)
 | Calibration reveals systemic bias (e.g., underrepresented groups rated lower across all managers) | HR Manager + Legal Advisor | Potential discrimination pattern; external audit may be needed |
 | HRIS data migration reveals data integrity issues (missing I-9s, incorrect comp) | HR Manager + Legal Advisor | Compliance risk; may require self-audit and correction filings |
 
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Performance review cycle is 4 weeks out | All people managers + HR Manager | Managers need calibration prep, documentation review, and comp recommendation training — starting late guarantees inflated ratings, surprised employees, and comp inequity |
+| New hire starts within 5 business days | IT + Hiring Manager + Buddy | Pre-boarding must be complete before day 1: laptop shipped, accounts provisioned, buddy assigned and trained, 30-day plan written. A bad first week is the #1 predictor of early attrition |
+| Compensation benchmarking cycle is due (quarterly) | HR Manager + Finance + CEO Strategist | Stale bands cause offer rejections and high-performer departures. Re-benchmark against Pave/Levels.fyi before the market moves past you |
+| Engagement survey response rate drops below 50% | HR Manager + CEO Strategist | Low participation signals broken trust — either employees do not believe in anonymity or they do not believe action will follow. Both require leadership intervention |
+| Employee hits 1-year anniversary without a documented career conversation | Direct manager + HR Manager | The 12-month mark is the highest flight-risk window. If there is no documented discussion of level, growth path, and comp trajectory, the employee is having that conversation with a recruiter instead |
+| Manager reports team morale dip or eNPS drops >20 points in a single quarter | HR Manager + Department head | A sharp eNPS drop is a leading indicator of a retention crisis. Investigate within 2 weeks — the root cause is usually a specific manager behavior, policy change, or workload surge that is fixable if caught early |
+| HRIS migration or new module implementation is planned | IT + Finance + All people managers | HR data is always messier than expected. Start with a complete data audit before selecting the system. Map every field from source to target. Budget 2x your optimistic timeline |
+| I-9 audit deadline or E-Verify compliance deadline is approaching | Legal Advisor + Compliance Officer | I-9 penalties are $250-$2,700 per form. Self-audit a random 10% sample quarterly. Remediate errors before the government finds them |
+
 ## Scale Depth
 <!-- DEEP: 10+min -->
 
@@ -366,11 +394,6 @@ Dedicated People Ops team (5+). HRIS: Workday. Specialized: total rewards, peopl
 | Engagement survey participation <50% | Employees don't trust anonymity or don't believe action will be taken | Use third-party survey tool with anonymity guarantee (CultureAmp, Lattice). Share results transparently within 2 weeks. Commit to specific action items and report progress. | Trust in anonymity and visible action are prerequisites for participation — measure only what you're willing to act on. |
 | I-9 audit reveals missing/incorrect forms | No I-9 process owner, forms completed by hiring managers without training | Assign I-9 ownership to People Ops. E-Verify within 3 business days of hire. Quarterly self-audit on random sample of 10% of I-9s. Use electronic I-9 system (Equifax, LawLogix). | I-9 compliance fails when no single person owns it — assign clear ownership and automate what you can. |
 | Career ladder exists but no one uses it for promotions | Ladder is aspirational, not operational. No measurable criteria per level. | Add behavioral anchors to each level (e.g., "Staff Engineer: Led architecture for system serving 1M+ users"). Require promotion packets with evidence against level criteria. Review by cross-functional panel. | A career ladder without behavioral anchors is a wish, not a tool — add measurable criteria for every level before publishing. |
-
-### Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
 | Top performer quits unexpectedly | No retention risk signal detected | Implement pulse surveys with eNPS tracking. Flag any employee whose engagement score drops >20 points. Conduct stay interviews (not just exit interviews) — ask "what would make you leave?" before they decide. | Stay interviews are earlier, cheaper, and more effective than any retention counteroffer — ask what would make them leave before they decide. |
 | Offer rejected at signing stage | Compensation not benchmarked, or process took too long | Benchmark every offer against market data (Radford/Pave). Time-to-offer should be < 5 business days from final interview. Equity offers need a clear narrative: "this refreshes every year, here's the projected value at IPO." | Speed and market data are the two levers you control in the offer process — optimize both to close candidates before they cool. |
 | New hire underperforms after 90 days | No structured onboarding with milestones | 0-30-60-90 day plan with weekly check-ins. First week: systems access, team intros, small win. First 30 days: complete a defined project with measurable outcome. If no structure by day 30, the problem is the onboarding, not the hire. | If a new hire fails in the first 90 days, it is almost always the onboarding — structure creates ramp success, not talent alone. |

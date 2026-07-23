@@ -299,6 +299,20 @@ These rules apply to *every* response this skill produces.
 | Align engineering workforce strategy | `vp-engineering` | Multi-team workforce planning, engineering culture, technical hiring strategy, retention programs |
 | Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis. **Decision gate:** Is budget variance < 5% from plan? → on track. **Artifact:** headcount cost model + variance analysis. |
 
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Open enrollment is 90 days out | Benefits broker + Finance + All-hands | Benefits renewal requires benchmarking, employee surveys, and communication prep — starting late costs you in both premiums and trust |
+| Turnover in a department exceeds 15% annualized for 2+ consecutive months | Department head + CEO Strategist | A retention crisis is forming; exit interview themes must be analyzed and an intervention plan deployed before it becomes a talent hemorrhage |
+| A harassment or discrimination complaint is received | Legal Advisor (immediately) + CEO Strategist (if senior leader involved) | Every complaint triggers formal investigation protocol — delaying notification risks evidence loss, escalation, and legal exposure |
+| A new manager has been in role for 60 days without documented 1:1s or team feedback | Engineering Manager + People Ops | Uncoached new managers are the #1 driver of regrettable attrition; intervene before their team starts interviewing elsewhere |
+| Performance review cycle is 4 weeks out | All people managers + People Ops | Managers need calibration training, documentation review, and comp recommendation prep — starting late guarantees inflated ratings and surprise terminations |
+| State or federal employment law change is enacted (FLSA, paid leave, non-compete) | Legal Advisor + Compliance Officer + All-hands policy update | Regulatory changes can invalidate handbook policies overnight; a 30-day compliance window is standard, and missing it creates liability |
+| Employee handbook is 12+ months since last legal review | Legal Advisor + CEO Strategist | Stale handbooks are litigation bait — every policy must have a dated, versioned review within the trailing 12 months |
+| Merger, acquisition, or restructuring is announced | Legal Advisor + Finance + People Ops + All affected managers | Workforce integration triggers I-9 audits, benefits harmonization, comp band reconciliation, and cultural integration planning — start the workstream before the announcement |
+
 ## Best Practices
 <!-- STANDARD: 4min — read when designing or auditing -->
 
@@ -317,6 +331,20 @@ These rules apply to *every* response this skill produces.
 7. **Create stay interviews, not just exit interviews.** Exit interviews tell you why people left — stay interviews tell you why they are still here (and what might make them leave). Quarterly, 30-minute conversations with a sample of employees across levels and demographics. Ask: "What keeps you here?", "What would make you leave?", "What is one thing you would change if you were CEO?", "When was the last time you thought about leaving, and what triggered it?". Aggregate themes. Act on the top 3 themes within the quarter. Share what you heard and what you are doing about it. Stay interviews turn retention from a lagging indicator into a leading one.
 
 8. **Scale HR from 1 person to a team.** As the first HR hire (1-50 employees): you are a generalist doing everything — onboarding, benefits, compliance, employee relations. Your leverage comes from systems: HRIS, broker, PEO. At 50-200: hire specialists where the pain is greatest — usually recruiting or employee relations first. At 200+: implement the HRBP model — HRBPs embedded with business units, centers of excellence (compensation, benefits, L&D, DEI), and shared services (HRIS, employee support tickets). At every stage: document processes before you delegate them. A process that lives in your head cannot scale.
+
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **"We're at-will, so we don't need documentation."** Terminating without a written record of performance issues, PIPs, and coaching | At-will employment does not protect against wrongful termination claims if there is no evidence the decision was non-discriminatory. Juries assume the worst when there is no paper trail. | Document every performance conversation in writing. Require a documented PIP before any performance-based termination. If it is not in writing, the termination does not happen. |
+| **Rushing to terminate within 48 hours of an incident without investigation** | Acting on emotion or pressure from leadership skips the fact-finding that makes the termination defensible. The employee's attorney will find the gaps. | Follow the investigation protocol: assign a neutral investigator, interview all parties, preserve evidence, document findings, then decide on corrective action. Speed is not a substitute for process. |
+| **Setting new-hire comp based on candidate negotiation skill, not band alignment** | Creates immediate internal equity problems — the best negotiator earns 25% more than a quieter peer in the same role. This is a retention time bomb and a pay equity lawsuit risk. | Anchor every offer to published compensation bands. Any above-band exception requires written approval from HR + department head with a documented business rationale. Fix existing team comp before making above-band offers. |
+| **Selecting benefits plans based on premium cost alone** | The cheapest plan with a high deductible and narrow network drives employees to competitors with better benefits. The savings in premiums are dwarfed by the cost of replacing the talent you lose. | Survey employees on what they value (low deductible, broad network, mental health, fertility). Benchmark 3-5 peer companies. Offer at least two plan options. Run annual utilization reports. |
+| **Treating DEI as a one-time training session instead of a systemic program** | A 2-hour unconscious bias workshop without follow-up signals that DEI is a checkbox, not a commitment. Employees see through it immediately. | Build DEI into hiring (diverse sourcing channels, blind resume review), promotion (sponsorship programs, bias-interruption training for calibration panels), retention (ERG budgets, pay equity audits), and measurement (quarterly demographic reporting to leadership). |
+| **Operating HR as the policy police — saying "no" without offering alternatives** | HR becomes an obstacle rather than a partner. Managers learn to work around HR instead of with HR. Trust erodes and HR is excluded from strategic conversations. | Frame every "no" as a path to "yes, if…": "We cannot offer a signing bonus outside the policy, but we can front-load the first equity vest or offer a relocation stipend within the approved range." |
+| **Using exit interviews as the primary retention signal** | By the time someone is in an exit interview, they decided to leave 3-6 months ago. Exit interviews are autopsies, not diagnostics. | Run quarterly stay interviews with a random sample across levels and demographics. Ask: "What keeps you here?", "What would make you leave?", "When did you last think about leaving and why?" Act on the top 3 themes within the quarter. |
+| **Skipping stay interviews because "people seem happy"** | Surface-level calm hides flight risk. High-performers rarely complain loudly — they just take the recruiter call, ace the interview, and give notice. By the time you notice, it is too late. | Stay interviews are not optional — they are the leading indicator that exit interviews cannot provide. Schedule them quarterly regardless of how things "feel." The most dangerous retention risks are the quiet ones. |
 
 ## Error Decoder
 <!-- DEEP: 10+min — war stories from HR failures that cost companies millions -->

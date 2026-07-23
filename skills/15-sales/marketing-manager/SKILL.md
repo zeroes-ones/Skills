@@ -241,6 +241,20 @@ Analyst relations (AR) is a long game, not a deal-sprint. Strategy: (1) Identify
 - Use the "messaging house" framework consistently: Umbrella → Pillars → Proof Points. If a message doesn't ladder up to a pillar, it's clutter. Cut it.
 - Campaign briefs that are approved in one review cycle save 2 weeks of launch delay. Invest time in the brief — it's the blueprint demand gen follows. Ambiguity in the brief = waste in execution.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Writing positioning that a competitor could claim by swapping their logo for yours | Undifferentiated positioning gives buyers no reason to choose you. They default to the cheapest option or the biggest brand | Run the logo-swap test on every positioning statement. If a competitor can say the same thing, rewrite until only you can credibly claim it. Differentiated positioning is irreplaceable |
+| Launching without a "why now" narrative | Feature announcements without urgency generate zero pipeline. Buyers have no reason to act today vs. next quarter | Every launch must answer: "Why should anyone care about this today?" Build urgency with a compelling offer, market shift, or competitive window. No "why now" = no launch |
+| Building battle cards from internal opinions instead of win/loss data | Your opinion of why you win is usually wrong. Internal bias fills gaps that real competitive dynamics don't support | Interview 5 won deals and 5 lost deals against each competitor. The patterns will surprise you. Build battle cards from evidence, not conjecture |
+| Briefing analysts on features instead of strategy and vision | Analysts score vision and execution — features are table stakes. Feature-focused briefings result in lower-than-expected placements | Lead briefings with market vision, customer momentum (logos, growth rate, NPS), and 12-month roadmap. Features come last. Quarterly touchpoints, not evaluation-time panic |
+| Testing messaging internally and calling it validated | Your team fills gaps with product knowledge buyers don't have. Internal validation produces false confidence that collapses in market | Test messaging with cold prospects, not existing customers or employees. If they can't articulate what you do in 5 seconds, rewrite. Blank-slate reaction is the only test that matters |
+| Announcing pricing changes without a 90-day communication runway | Surprise price increases trigger churn. Customers feel ambushed and competitors exploit the anger to poach accounts | Price increases >15% need 90-day notice. Grandfather existing customers for 12 months minimum. Communicate the value-add, not just the price change |
+| Letting competitive monitoring lapse to quarterly or event-driven cadence | You react to public launches instead of anticipating them. By the time a competitor announces, they've been building for 6-12 months | Track competitor job listings, pricing page changes (archive.org), and leadership blog posts monthly. Hiring patterns reveal strategy 6 months before launch |
+| Co-owning launch assets with no single owner | Co-ownership means no ownership. Deadlines slip, stakeholders point fingers, and the launch either ships late or ships incomplete | Every launch asset has one owner and one deadline. Track on a single spreadsheet visible to all stakeholders. No shared ownership cells in the tracker |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 
@@ -289,6 +303,20 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 # Chain: marketing-manager → sales-engineer
 # Sales enablement: PMM builds battle cards & pitch decks → SE uses in demos and provides feedback loop
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Competitor raises $50M+ or launches major feature that threatens core positioning | CEO Strategist, Product Manager, Sales Engineer, Demand Generation | Competitive response strategy needed within 1 week; messaging update, battle card refresh, and sales enablement before deals are lost |
+| Messaging tests below 30% comprehension or recall with target buyers | Product Manager, Content Strategist, Demand Generation | Stop campaign spend immediately; messaging is broken at the foundation. Fix positioning before scaling distribution |
+| Pricing change causes >5% churn in the first 60 days | CEO Strategist, Product Manager, Customer Success Manager, RevOps Manager | Pricing rollback or adjustment decision; customer retention intervention; grandfathering extension consideration |
+| Analyst evaluation places company significantly lower than previous cycle | CEO Strategist, VP Sales, Product Manager | Response strategy within 48 hours; factual error check, customer reference mobilization, and re-briefing preparation |
+| Strategic customer publicly endorses a competitor or appears in competitor case study | CEO Strategist, Sales Engineer, Customer Success Manager | Competitive displacement risk across the account base; win-back strategy and reference customer defense |
+| Launch asset misses deadline that cascades into full launch delay | All launch stakeholders, VP Marketing | Launch date recalibration; stakeholder expectation reset; root cause analysis on why deadline was missed |
+| Market category definition shifts (analyst redefinition, new entrant creating category, regulatory change) | CEO Strategist, Product Strategist, Business Strategist | Positioning may need fundamental repositioning; category-level strategy review within 2 weeks |
+| Competitor hiring patterns signal entry into your market segment (5+ relevant job listings in 30 days) | CEO Strategist, Product Manager, Business Strategist | New competitive threat forming; pre-emptive positioning and sales enablement before competitor launches |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->

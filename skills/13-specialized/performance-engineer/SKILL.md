@@ -779,6 +779,20 @@ Performance is not a solo activity — it requires instrumentation from develope
 | CDN, caching layers, auto-scaling, resource allocation | `devops-engineer` |
 | SLO enforcement, capacity planning, incident response for perf regressions | `site-reliability-engineer` |
 
+## Proactive Triggers
+<!-- QUICK: 30s — when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| P99 latency spike >3x baseline on critical revenue path (checkout, payment) | CTO Advisor, Backend Developers, Product Strategist | Revenue-impacting degradation; war room investigation required |
+| Database CPU sustained >85% for >10 minutes during normal traffic | DBA, Backend Developers, DevOps | Imminent overload; query optimization or read replica scaling needed before outage |
+| Memory leak detected — heap grows monotonically without GC plateau | Backend Developers, DevOps | OOM crash risk within hours; restart mitigation + heap dump analysis for root cause |
+| Core Web Vitals LCP exceeds 4.0s (> "Poor" threshold) on >10% of page loads | Frontend Developers, Product Strategist, SEO Specialist | Google ranking penalty imminent; user bounce rate increasing |
+| Load test reveals capacity ceiling <3x current peak traffic | System Architect, DevOps, Project Manager | Insufficient headroom for growth or traffic spikes; scaling or optimization needed |
+| Cache hit rate drops below 50% on critical cache layer | DevOps, Backend Developers | Cache strategy failing; database load doubling; cache warming or sizing re-evaluation |
+| Performance CI regression gate fails on main branch | All Developers, DevOps | Performance regression shipped; immediate rollback or fix before next deploy |
+| N+1 query pattern discovered on endpoint with >1K RPM | Backend Developers | Low-hanging optimization; batch loading or eager loading fix with high impact/effort ratio |
+
 ## Core Workflow
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
@@ -812,7 +826,7 @@ Performance is not a solo activity — it requires instrumentation from develope
 **Output:** Capacity plan with headroom percentage, scaling triggers, and timeline
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -936,6 +950,20 @@ python3 scripts/perf_scan.py --service checkout --compare-before --output json
 8. **Monitor the right percentile:** Average latency hides the bad experiences. P95 is the minimum. P99 shows your worst users. Track both — P50 alone is deceptive.
 9. **Database queries are the #1 bottleneck:** Before profiling CPU or tuning GC, run EXPLAIN ANALYZE on the top 5 queries by total_time. Missing indexes fix 60% of perf issues.
 10. **Don't optimize what's not slow:** If all endpoints are P95 <200ms and LCP <2s, stop optimizing. Set baselines, monitor, and ship features instead.
+
+## Anti-Patterns
+<!-- STANDARD: 3min — patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Optimizing without profiling — guessing the bottleneck | 80% chance of fixing the wrong thing; can make performance worse (e.g., adding cache where DB is already fast) | Profile first: APM trace → flame graph → EXPLAIN ANALYZE → identify top contributor to P95 before touching code |
+| Caching everything "just in case" | Redis cluster with 5% hit rate adds latency (network hop) to 95% of requests; infrastructure cost without benefit | Cache only queries responsible for top-3 DB load; measure hit rate after deployment; remove caches with <50% hit rate |
+| Optimizing P50 (average) and declaring victory | Average hides the worst experiences; P99 could be 10x P50; users with bad experiences churn silently | Track and optimize P95 minimum; P99 tells the story of your worst user experience; set SLOs on P95/P99 not average |
+| Spreading optimization effort across 20 endpoints simultaneously | No single endpoint improves enough to matter; context switching wastes time; can't prove any fix worked | Fix one bottleneck, measure, then move to next; one endpoint's P95 from 2s→200ms is better than 20 endpoints from 2s→1.9s |
+| Load testing only on developer laptops with idealized conditions | Localhost network has microseconds of latency; production has milliseconds; results are optimistic by 10-100x | Load test on production-scale infrastructure; include realistic network latency (toxiproxy); use production traffic mix not single endpoint |
+| Adding indexes without checking existing ones | Duplicate or overlapping indexes waste write I/O; index maintenance slows INSERTs; storage bloat | Run EXPLAIN ANALYZE first; check `pg_stat_user_indexes` for unused indexes; drop before adding; measure write impact |
+| Tuning JVM GC flags from a blog post | Default GC settings are good for 95% of workloads; cargo-culted flags often hurt more than help; no measurement baseline | Profile GC behavior first (GC logs, allocation profiling); change one flag at a time; compare before/after with measurable metrics |
+| Starting with distributed systems before vertical scaling | Distributed systems add network latency, serialization, consistency problems; costs 10x in engineering time | Vertical scale first: bigger instance, connection pooling, query optimization; only go horizontal when vertical ceiling is hit |
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

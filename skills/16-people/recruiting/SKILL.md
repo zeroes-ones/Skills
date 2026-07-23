@@ -257,6 +257,20 @@ These rules apply to *every* response this skill produces.
 9. **Post-termination exercise window (PTEW) is a dealbreaker for senior hires.** Standard 90-day PTEW means a 4-year employee has 90 days to buy options they spent 4 years earning. Extended PTEW (1-5 years, or 10 years like Quora/Amplitude) is a competitive advantage. If your default is 90 days, expect senior candidates to negotiate this.
 10. **Hiring manager does the closing call, not the recruiter.** Candidates join for the manager and the team. The recruiter builds the bridge; the hiring manager seals the deal.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **Writing job descriptions as requirements laundry lists** | "5+ years React, 3+ years TypeScript, CS degree required" filters out qualified candidates who self-select out and attracts checkbox-fillers who match the keywords but not the job. | Write JDs as outcomes: "Ship a real-time collaborative editor handling 200 concurrent editors in the first 6 months." Include comp range, "Why this role exists now," and remove arbitrary years-of-experience requirements. |
+| **Sending an offer letter without a documented closing strategy** | If you do not know what the candidate cares about, what competing offers they hold, who will call them and when, what flex you have, and your BATNA — you are hoping the offer closes itself. Hope is not a strategy. | Before the offer goes out, document: (a) top 2 things the candidate values, (b) competing offers and timelines, (c) who calls and when, (d) flex across cash/equity/scope/title/start date, (e) BATNA if they decline. |
+| **Ghosting candidates after any interview stage** | Candidates who take time to interview and receive silence in return burn your employer brand. They post on Blind and Glassdoor. Their network hears about it. Ghosting compounds — one bad experience reaches hundreds of potential candidates. | Every candidate gets a decision within 48 hours of their last interview — yes or no. Rejected candidates receive specific, actionable feedback. A "no" delivered with respect preserves your brand; silence destroys it. |
+| **Running an interview panel without calibration** | One interviewer's "Strong Yes" is another's "No with reservations." Without calibration, you are not measuring the candidate — you are measuring each interviewer's personal leniency threshold. | Run a mock interview with all panelists before the first real candidate. Score independently. Discuss until inter-rater variance is under 0.5 points. Recalibrate monthly. This is not optional — it is the difference between hiring the best candidate and hiring the best interviewee. |
+| **Making above-band offers for "must-have" candidates without fixing existing team comp** | A new hire at 25% above your existing team members in the same role creates a retention time bomb. The moment your existing team discovers the gap (and they will), your best people start interviewing. | Fix existing team compensation to within 10% of the new-hire band before making above-band offers. If budget does not allow it, you cannot afford the above-band hire either — the cost of replacing your existing team will exceed the exception. |
+| **Paying referral bonuses 90+ days after the referred hire starts** | Delaying the payout signals that the program is an afterthought. The referring employee loses enthusiasm, stops referring, and tells colleagues the program is not worth the effort. | Pay referral bonuses within 30 days of the referred hire's start date. Publicly celebrate referrals in team channels. Send a quarterly "What we're hiring" digest to every employee. The program is only as active as its payout velocity. |
+| **Running interview loops that take 3+ weeks from first contact to offer** | Top candidates are off the market in 10 days. A 3-week loop means you are hiring from the pool of candidates rejected by faster-moving companies. Speed is not a process detail — it is a competitive advantage. | Target 14 days from first contact to offer. Compress the loop: same-day scheduling, panel blocks (not sequential one-offs), debrief within 24 hours of final interview, offer within 24 hours of debrief. Every day of delay loses candidates to faster competitors. |
+| **Hiring for skills while ignoring attributes that predict success in your environment** | A candidate aces the technical rounds but cannot handle ambiguity, does not collaborate cross-functionally, or makes decisions in a way that clashes with your culture. They fail within 6 months — skills got them hired, but attributes determine whether they succeed. | Add a values-based behavioral round to every loop. Include scenario questions: "Tell me about a time you had to make a decision with incomplete information," "How do you handle disagreement with a colleague?" Design scorecards for retention, not just screening. |
+
 ## Token-Efficient Workflow
 
 ```
@@ -335,6 +349,20 @@ recruiting (competing offer analysis + candidate priorities)
 | Candidate reports discriminatory interview behavior | HR Manager + Legal Advisor | Legal and brand risk; immediate investigation required |
 | Hiring manager consistently overrides panel feedback | HR Manager | Process integrity; panel trust erodes without enforcement |
 
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Role has been open for >30 days without a qualified finalist | Hiring Manager + HR Manager | Every day past 30 is a compounding cost in team burnout, missed deadlines, and recruiter hours. Root-cause investigation needed: is it the JD, the comp, the sourcing channels, or the interview process? |
+| Offer acceptance rate drops below 60% over a rolling quarter | HR Manager + Head of People | Signaling a systemic issue — comp below market, slow process, weak closing strategy, or employer brand problem. Fix the root cause before the pipeline empties |
+| Interview panel scores show >1.5 point variance across panelists | Hiring Manager + Panel lead | Uncalibrated panels produce random hiring decisions. Calibration session required before the next candidate — you are measuring interviewer leniency, not candidate quality |
+| Candidate reports a negative interview experience (ghosting, disrespect, discriminatory question) | HR Manager + Legal Advisor (if discrimination) | A single bad candidate experience reaches hundreds through Blind, Glassdoor, and word of mouth. Investigate within 48 hours — the brand damage compounds with every hour of inaction |
+| Candidate mentions a competing offer with an exploding deadline | Hiring Manager + Comp team | Time is the enemy — you need a decision within 24 hours. Pre-wire approval flex before the offer call. If you cannot match the deadline, be honest and give the candidate a clear timeline |
+| Executive or senior-level role is approved for search | CEO Strategist + HR Manager + Executive search firm (if retained) | Exec searches take 90-120 days on average. Delaying the launch by even 2 weeks pushes the start date out by a month. Launch sourcing within 48 hours of approval |
+| Diversity pipeline falls below 30% of candidates at top-of-funnel for 2+ consecutive quarters | HR Manager + DEI lead + Head of People | Pipeline diversity is the leading indicator of hiring diversity. If the top of funnel is not diverse, the hires will not be either — fix sourcing channels, not interview quotas |
+| Hiring manager starts overriding panel feedback or pushing unqualified referrals through | HR Manager + Department head | Process integrity is eroding. When one manager bypasses the panel, trust in the entire hiring process collapses. Other managers follow, panelists disengage, and quality-of-hire drops across the org |
+
 ## Scale Depth
 <!-- DEEP: 10+min -->
 
@@ -361,11 +389,6 @@ Recruiting team of 10+. Specialized: university, exec, technical, G&A, internati
 | Interviewers disagree on scores by >1.5 points | No calibration or vague rubric | Run calibration session before first interview. Each score must have 3 behavioral anchors. Recalibrate monthly until variance <0.5 points. | Calibration fixes the interviewers, not the rubric — without it, scores reflect leniency, not candidate quality. |
 | New hire fails within 6 months | Hired for skills, not for attributes that predict success in your environment | Audit scorecard: does it include adaptability, collaboration style, and decision-making approach? Add values-based behavioral round. Reference checks with specific scenario questions. | Skills get candidates hired; attributes determine if they succeed — design scorecards for retention, not just screening. |
 | Referral program produces few hires | Bonus too low, payout too slow, or no internal promotion | Raise bonus to $3K-10K based on role. Pay within 30 days of start. Feature referral stories in company meetings. Send quarterly "What we're hiring" digest to all employees. | Employee referrals are 3x more effective than any other source — invest in the program as heavily as you would in paid sourcing. |
-
-### Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
 | Top performer quits unexpectedly | No retention risk signal detected | Implement pulse surveys with eNPS tracking. Flag any employee whose engagement score drops >20 points. Conduct stay interviews (not just exit interviews) — ask "what would make you leave?" before they decide. | Stay interviews catch flight risk before exit interviews can — ask what would make them leave before they decide. |
 | Offer rejected at signing stage | Compensation not benchmarked, or process took too long | Benchmark every offer against market data (Radford/Pave). Time-to-offer should be < 5 business days from final interview. Equity offers need a clear narrative: "this refreshes every year, here's the projected value at IPO." | A delayed offer with uncompetitive terms loses to a faster, better-compensated competitor every time — speed and data close candidates. |
 | New hire underperforms after 90 days | No structured onboarding with milestones | 0-30-60-90 day plan with weekly check-ins. First week: systems access, team intros, small win. First 30 days: complete a defined project with measurable outcome. If no structure by day 30, the problem is the onboarding, not the hire. | Onboarding structure determines ramp success — a hire without milestones is set up to fail, not to learn. |
