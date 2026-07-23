@@ -439,6 +439,16 @@ graph LR
 - **Search in static docs** (`algolia`, `lunr.js`) indexes rendered HTML, not source Markdown. Code blocks inside ` ``` ` fences are indexed as searchable text. Users searching for variable names get results from code samples, not documentation. Configure search to exclude `code` blocks unless explicitly annotated.
 
 
+## Verification
+
+- [ ] Build docs: `npm run docs:build` or equivalent — zero warnings, zero broken links
+- [ ] Link checker: `muffet` or `lychee` against built docs — zero 404s
+- [ ] Search: search for top 5 user queries — correct page appears in top 3 results
+- [ ] Code samples: every code block has language annotation (` ```python `, not just ` ``` `)
+- [ ] Screenshot freshness: automated visual diff against latest UI build — zero screenshots with stale UI elements
+- [ ] Accessibility: `pa11y` or `axe` on docs site — WCAG 2.2 AA pass
+
+
 ## References
 - **API Documentation**: See [api-documentation.md](references/api-documentation.md)
 - **Analytics**: See [analytics.md](references/analytics.md)

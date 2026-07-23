@@ -349,6 +349,15 @@ graph LR
 - **Fundraising timing** — if you have 18 months of runway, you start fundraising at month 12. You'll close at month 16, with 2 months of cash remaining. The board sees desperation and terms get worse. Start fundraising when you have 12+ months of runway AND strong momentum. Desperation is a negotiating position you never want.
 
 
+## Verification
+
+- [ ] Vision/mission: every employee can articulate the company vision (verified by survey, ≥ 80% accuracy)
+- [ ] OKRs: company OKRs set, team OKRs cascade, progress reviewed monthly with data (not gut feel)
+- [ ] Board deck: last board meeting deck includes: wins, challenges, metrics dashboard, ask (what board can help with)
+- [ ] Runway: cash runway > 12 months (18+ if fundraising), updated monthly with burn rate and revenue projections
+- [ ] Strategy: strategy memo reviewed quarterly — what changed in the market, what we're doing about it
+
+
 ## References
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)
 - **Fundraising Cost by Round**: See [fundraising-cost-by-round.md](references/fundraising-cost-by-round.md)

@@ -356,6 +356,16 @@ graph LR
 - **Fine-tuned models forget** — fine-tuning on a specific task reduces performance on OTHER tasks (catastrophic forgetting). A GPT-4 fine-tuned on medical transcripts may lose 15% accuracy on general reasoning. Evaluate BOTH target-task AND general-benchmark performance post fine-tuning.
 
 
+## Verification
+
+- [ ] Prompt evaluation: run prompt through eval harness (e.g., `promptfoo eval`) — all test cases pass
+- [ ] Token budget: `tiktoken` or equivalent confirms prompt + expected completion < model's context window
+- [ ] Output validation: structured output (JSON, XML) parses correctly — `json.loads()` succeeds for 100/100 test runs
+- [ ] Hallucination check: for RAG use case, verify 10 responses cite source documents — all claims have source provenance
+- [ ] Latency: p99 response time < SLA (e.g., 2000ms for chat, 500ms for classification)
+- [ ] Cost: estimated cost per 1000 requests within budget — `(input_tokens × input_price + output_tokens × output_price)`
+
+
 ## References
 
 Detailed reference material loaded on demand:

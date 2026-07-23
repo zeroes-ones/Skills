@@ -452,5 +452,14 @@ graph LR
 - **Sponsorship vs mentorship** — mentoring (giving advice) helps individuals grow. Sponsoring (using your capital to get someone a high-visibility project, promotion support, or conference talk slot) changes careers. Senior→Staff transition requires sponsorship, not just mentorship.
 
 
+## Verification
+
+- [ ] Cross-team impact: at least 50% of work is outside your immediate team (verified by project tracking)
+- [ ] Architecture decision records: 1+ ADRs authored in the last quarter
+- [ ] Mentoring/sponsorship: 2+ engineers outside your team cite your work as career-accelerating
+- [ ] Technical strategy: written contribution to roadmap or technical vision document in the last 6 months
+- [ ] Critical path: identified the #1 constraint on engineering velocity and proposed a solution
+
+
 ## References
 - **Scale Depth: Solo → Small Team → Medium Team → Enterprise**: See [scale-depth-solo-small-team-medium-team-enterprise.md](references/scale-depth-solo-small-team-medium-team-enterprise.md)

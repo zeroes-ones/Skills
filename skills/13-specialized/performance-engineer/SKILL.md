@@ -440,6 +440,16 @@ graph LR
 - **`gc.pause()` in Go** at 50ms looks fine on a dashboard. But if your request timeout is 100ms and GC pause is 50ms, 50% of your request budget is GC. P99 request latency will show sawtooth patterns aligned with GC cycles. Use `GOMEMLIMIT` and `GOGC` tuning.
 
 
+## Verification
+
+- [ ] Profile before optimizing: `cProfile` / `py-spy` / `pprof` output confirms the bottleneck location
+- [ ] Baseline measurement: p50/p95/p99 latency collected for 5 minutes under representative load
+- [ ] Optimization applied — re-measure: p50/p95/p99 improved by at least the target % (not just "looks faster")
+- [ ] No regression: all existing tests pass, benchmark for unchanged code paths within 5% of baseline
+- [ ] Load test: `k6` or `wrk2` at 2× expected peak RPS for 10 minutes — p99 latency within SLO, zero errors
+- [ ] Memory profile: `heapdump` or `memray` — memory usage stable over 30 minutes under load (no leaks)
+
+
 ## References
 - **API Performance**: See [api-performance.md](references/api-performance.md)
 - **Concurrency & Async Patterns**: See [concurrency-&-async-patterns.md](references/concurrency-&-async-patterns.md)

@@ -346,6 +346,15 @@ graph LR
 - **Pseudo-localization** doubles string length and adds diacritics. But it doesn't catch: missing plural forms, date formats, currency codes, or word-order issues. Pseudo-loc is necessary but not sufficient.
 
 
+## Verification
+
+- [ ] Run pseudo-localization build: `npm run build -- --pseudo-locale=en-XA` — no layout breaks, no truncated strings
+- [ ] Run i18n coverage: `i18next-scanner` or `lingui extract` — zero missing keys
+- [ ] Check ICU MessageFormat: validate all `{count, plural, ...}` and `{gender, select, ...}` syntax with `icu-messageformat-parser`
+- [ ] Test RTL layout: set locale to `ar` or `he` — all layouts mirror correctly, no hardcoded `left`/`right` CSS
+- [ ] Spot-check 3 languages in staging: login, main flow, error screen — no English fallback strings visible
+
+
 ## References
 
 Detailed reference material loaded on demand:

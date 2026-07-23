@@ -448,6 +448,16 @@ graph LR
 - **72-hour breach notification** starts from WHEN YOU BECOME AWARE of the breach, not when the breach occurred. If an engineer discovers a 3-month-old exposed S3 bucket on Monday at 10 AM, you have until Thursday at 10 AM. The 72-hour clock includes weekends and holidays — no extensions.
 
 
+## Verification
+
+- [ ] Data inventory: all data stores catalogued with data categories, retention periods, and legal basis for processing
+- [ ] Consent mechanism: opt-in (not pre-checked), granular (per purpose), withdrawable (as easy as giving)
+- [ ] Data subject access request (DSAR): test DSAR process — all data returned within 30 days, covers ALL data stores
+- [ ] Data Processing Agreements: all processors have signed DPA, sub-processor list is current
+- [ ] Breach notification: process tested — notification can be sent to DPA within 72 hours
+- [ ] Privacy policy: written in plain language (< 8th grade reading level), covers all required Art 13/14 information
+
+
 ## References
 
 Detailed reference material loaded on demand:

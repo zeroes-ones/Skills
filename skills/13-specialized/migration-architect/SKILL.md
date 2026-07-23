@@ -473,6 +473,16 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **"Strangler Fig" migration** where the new system calls the old system via API — if the new system's availability depends on the old system, you've added a dependency without removing one. The combined system is LESS reliable than either alone. Cut the dependency before declaring migration complete.
 
 
+## Verification
+
+- [ ] Source/target parity: row counts match ± 0.01% for every migrated table
+- [ ] Checksum validation: `SELECT MD5(CONCAT_WS('|', *))` on 100 random rows — source and target match
+- [ ] Application smoke test: application switched to target — core flows (login, create, read, update, delete) all work
+- [ ] Performance comparison: p95 latency on target ≤ 110% of source (or documented improvement)
+- [ ] Rollback plan tested: switch back to source — application returns to source within documented rollback window
+- [ ] Cutover runbook: step-by-step with timing estimates and rollback triggers for each step
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -336,6 +336,16 @@ graph LR
 - **`random_state=42` everywhere** means your cross-validation folds, model initialization, AND data shuffling all use the same seed. This produces unrealistically consistent results. Use different random seeds for different sources of randomness.
 
 
+## Verification
+
+- [ ] Train/test split before any preprocessing: `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)`
+- [ ] Feature scaling: `scaler.fit(X_train)`, then `scaler.transform(X_test)` — scaler never sees test data
+- [ ] Cross-validation: k-fold CV (k=5 or k=10) on training data — mean CV score reported with standard deviation
+- [ ] Model comparison: at least 2 baseline models (e.g., logistic regression + random forest) compared against advanced model
+- [ ] Feature importance: reported with permutation importance (not just model-native importance) to avoid correlation bias
+- [ ] Notebook: "Restart kernel & Run All" — all cells execute in order, no hidden state dependencies
+
+
 ## References
 
 Detailed reference material loaded on demand:

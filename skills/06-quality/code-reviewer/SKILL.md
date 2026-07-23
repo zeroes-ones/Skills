@@ -361,6 +361,15 @@ After every review cycle: ask the author which comments were most and least valu
 - **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context.
 
 
+## Verification
+
+- [ ] All identified issues have severity grading (blocker/critical/major/minor/nit) and specific file:line references
+- [ ] Every issue has a concrete fix suggestion, not just "this is wrong"
+- [ ] Security issues are flagged separately with OWASP category reference
+- [ ] Review covers all 6 dimensions: security, performance, quality, error handling, testing, documentation
+- [ ] No style-only comments (leave formatting to automated formatters)
+
+
 ## References
 
 Detailed reference material loaded on demand:

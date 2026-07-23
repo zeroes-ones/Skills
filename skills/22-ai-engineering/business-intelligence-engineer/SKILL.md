@@ -438,6 +438,16 @@ graph LR
 - **Power BI `import mode`** loads the FULL dataset into memory. A 500MB dataset on a shared capacity node with 4GB RAM leaves 3.5GB for ALL other reports. One dataset can starve every other report on the node. Monitor dataset sizes and enforce refresh schedules to prevent overlap.
 
 
+## Verification
+
+- [ ] Dashboard load test: open dashboard in production — all charts render within 5 seconds
+- [ ] Verify extracts: each extract has refresh schedule AND failure notification configured
+- [ ] RLS (row-level security) test: login as user with restricted access — can only see authorized data, can't see unauthorized counts via aggregates
+- [ ] Cross-filter behavior: click a bar chart segment — all other charts filter correctly, no broken interactions
+- [ ] Mobile test: open dashboard on phone/tablet — layout adapts, all interactions work with touch
+- [ ] Verify data freshness: `SELECT MAX(updated_at) FROM ${source}` — data is within freshness SLA (e.g., < 24 hours)
+
+
 ## References
 
 Detailed reference material loaded on demand:

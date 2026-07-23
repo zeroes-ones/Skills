@@ -296,6 +296,16 @@ graph LR
 - **Session fixation**: If your app accepts a session ID from the URL query string (`?sessionid=xxx`), an attacker can send a victim `?sessionid=attacker_known_session`, the victim logs in, and now the attacker's session IS the victim's session. Always regenerate session IDs after login.
 
 
+## Verification
+
+- [ ] Run `semgrep --config=auto .` — zero high/critical findings
+- [ ] Run dependency scan: `npm audit` / `pip-audit` / `trivy` — zero known vulnerabilities with CVSS ≥ 7
+- [ ] Verify CSP header: `curl -I ${URL} | grep Content-Security-Policy` — header present, no `unsafe-inline` without nonce
+- [ ] Test auth: attempt to access protected endpoint without token — returns 401, not 403 and not 200
+- [ ] Session security: login, copy token, logout, replay token — token is invalidated (returns 401)
+- [ ] Rate limiting: send 100 requests/second to login endpoint — requests after threshold return 429
+
+
 ## References
 - **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)

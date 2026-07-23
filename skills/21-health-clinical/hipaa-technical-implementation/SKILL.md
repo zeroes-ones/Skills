@@ -427,6 +427,17 @@ graph LR
 - **De-identification safe harbor** requires removing 18 specific identifiers, but ZIP codes with populations < 20,000 count as an identifier. A dataset with ZIP+DOB+gender re-identifies 87% of the US population (Sweeney study). True de-identification is harder than it looks — use expert determination, not safe harbor.
 
 
+## Verification
+
+- [ ] Encryption at rest: `aws s3api get-bucket-encryption` — all PHI buckets have encryption enabled
+- [ ] Encryption in transit: `curl -I https://${endpoint}` — all endpoints return HTTPS (not HTTP) with valid TLS 1.2+
+- [ ] Access logging: `aws s3api get-bucket-logging` — all PHI buckets have access logging enabled
+- [ ] Audit log: `SELECT * FROM audit_log WHERE timestamp > NOW() - INTERVAL '24 hours'` — all PHI access is logged
+- [ ] PHI in logs scan: `grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}' logs/*.log` — zero SSN patterns in logs
+- [ ] BAA audit: all vendors handling PHI have current BAA — zero vendors without BAA
+- [ ] Access review: all users with PHI access have documented business justification, reviewed within 90 days
+
+
 ## References
 
 Detailed reference material loaded on demand:

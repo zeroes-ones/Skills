@@ -404,6 +404,16 @@ graph LR
 - **Pod deletion in Kubernetes** sends SIGTERM, waits `terminationGracePeriodSeconds` (default 30s), then SIGKILL. A chaos experiment that deletes a pod with default grace period may not trigger graceful shutdown bugs — apps with 60s cleanup may work fine in chaos but fail in real deployments. Test with `gracePeriodSeconds: 0` to find shutdown bugs.
 
 
+## Verification
+
+- [ ] Chaos experiment manifest validates: `chaos-mesh validate experiment.yaml` or equivalent — no syntax errors
+- [ ] Blast radius: experiment targets ≤ 10% of instances (or documented justification for higher %)
+- [ ] Steady-state hypothesis: baseline metrics collected for 5 minutes BEFORE injection — metrics stable during baseline
+- [ ] Rollback: experiment has `duration` set (not infinite) — experiment auto-terminates after duration
+- [ ] Monitoring during experiment: grafana dashboard shows the injection impact — no "unknown unknown" failures
+- [ ] Game day report: findings documented, severity assessed, remediation tickets filed within 24 hours
+
+
 ## References
 - **Blast Radius (Military-Grade Controls)**: See [blast-radius-military-grade-controls.md](references/blast-radius-military-grade-controls.md)
 - **CI/CD Integration for Chaos**: See [ci-cd-integration-for-chaos.md](references/ci-cd-integration-for-chaos.md)

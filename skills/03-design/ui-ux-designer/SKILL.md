@@ -291,6 +291,16 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - **Dark mode as color-flipping** — you invert the background and text, but shadows don't work in dark mode (dark shadow on dark background = invisible). Elevation must be communicated through LIGHT (higher surfaces are lighter). Dark mode needs its own elevation system keyed to ambient light, not shadow.
 
 
+## Verification
+
+- [ ] Design tokens: exported as JSON/CSS/SCSS and imported by all platforms without manual conversion
+- [ ] Component states: every component has defined states for default, hover, focus, active, disabled, loading, empty, error
+- [ ] Responsive: design tested at 320px, 768px, 1024px, 1440px — no breakpoint-gap layouts
+- [ ] Dark mode: all screens tested in dark mode — elevation hierarchy is clear, contrast ratios pass
+- [ ] Accessibility: color contrast ≥ 4.5:1 for text, ≥ 3:1 for large text/icons — verified with contrast checker
+- [ ] Handoff: Figma/Zepkin link reviewed by developer — all spacing, colors, and typography match design tokens
+
+
 ## References
 
 Detailed reference material loaded on demand:

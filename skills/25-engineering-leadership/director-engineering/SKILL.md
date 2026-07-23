@@ -414,6 +414,15 @@ graph LR
 - **Tech debt "big rewrite"** approved by leadership — the rewrite takes 18 months, during which the old system gets zero investment. Customers leave because nothing improves. The rewrite launches, is missing 40% of edge cases the old system handled, and customers don't come back. Incremental strangler-fig migration always beats big rewrite.
 
 
+## Verification
+
+- [ ] Team health: every team has updated skills matrix, succession plan for critical roles, and ≤ 20% attrition rate
+- [ ] Architecture alignment: team boundaries align with system boundaries per Conway's Law
+- [ ] Tech debt: top 3 tech debt items have owners, estimated interest rates (cost to the business), and remediation timeline
+- [ ] Delivery: sprint predictability (committed/delivered ratio) is 80-120% for each team
+- [ ] Career growth: every engineer has documented growth plan, promotion timeline estimate, and skill gap analysis
+
+
 ## References
 
 Detailed reference material loaded on demand:

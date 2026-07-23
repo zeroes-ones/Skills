@@ -458,6 +458,16 @@ graph LR
 - **`dbt run` with `--select`** only runs the selected models. Downstream models that depend on the updated model are NOT auto-selected. If you `dbt run --select stg_orders` but `fct_orders` depends on it, `fct_orders` still has old data and you won't know until someone queries it.
 
 
+## Verification
+
+- [ ] Run `dbt deps` — all dependencies resolve, no missing packages
+- [ ] Run `dbt run --select state:modified+` — only changed models and downstream dependencies are rebuilt
+- [ ] Run `dbt test` — uniqueness, not-null, referential integrity, and custom data tests all pass
+- [ ] Run `dbt docs generate && dbt docs serve` — documentation renders, lineage graph shows complete DAG
+- [ ] Verify incremental models: `dbt run --full-refresh --select ${incremental_model}` in staging — output matches non-incremental equivalent row-for-row
+- [ ] Check model performance: no model exceeds SLA (e.g., `< 5 minutes` for daily runs)
+
+
 ## References
 
 Detailed reference material loaded on demand:

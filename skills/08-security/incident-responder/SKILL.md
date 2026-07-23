@@ -397,6 +397,16 @@ graph LR
 - **Post-incident review timeline**: if the review happens the next day, details are fresh but emotions are high. If it happens 2 weeks later, emotions are lower but details are lost. The sweet spot is 3-5 days — enough distance for objectivity, close enough for accuracy.
 
 
+## Verification
+
+- [ ] Run incident response drill: inject a known failure — incident declared within 2 minutes, IMOC assigned, comms channel created
+- [ ] Verify on-call rotation: PagerDuty/Opsgenie schedule is current — next week's on-call engineer confirmed
+- [ ] Runbook accuracy: pick 3 runbooks at random, execute steps exactly — all commands work, no outdated references
+- [ ] Post-incident review template: timeline captured, contributing causes identified, action items assigned with owners and due dates
+- [ ] Comms template: status page update, internal #incident Slack post, customer-facing email — all templates tested within last quarter
+- [ ] Verify monitoring coverage: every service in production has an alert for "service is down" + "service is degraded"
+
+
 ## References
 
 Detailed reference material loaded on demand:

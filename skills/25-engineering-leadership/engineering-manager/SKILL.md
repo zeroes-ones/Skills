@@ -403,6 +403,16 @@ After every difficult conversation: write down what you said, what they said, an
 - **Shielding your team from ALL organizational chaos** — your team doesn't know about the re-org, the budget cut, or the strategy pivot. When the decision lands, they're blindsided and feel you weren't transparent. Share context proportionally: enough to understand WHY decisions are made, not enough to distract from execution.
 
 
+## Verification
+
+- [ ] 1:1 cadence: every direct report had a 1:1 in the last 2 weeks
+- [ ] Performance feedback: every direct report received written feedback in the last quarter
+- [ ] Career conversations: every direct report has documented career goals and development plan
+- [ ] Team metrics: sprint review completed, retrospective action items tracked to completion, bugs/story ratio < 20%
+- [ ] Hiring: open roles have job descriptions, interview panels assigned, and sourcing active
+- [ ] Psychological safety: team survey shows ≥ 80% agree "I can raise problems without fear of retaliation"
+
+
 ## References
 
 Detailed reference material loaded on demand:

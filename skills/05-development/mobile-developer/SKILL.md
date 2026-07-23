@@ -395,6 +395,16 @@ Common chains:
 - **App State (`AppState.currentState`)** on iOS reports `"inactive"` during Control Center pull-down. If you pause video on `"background"` only, your video keeps playing when the user opens Control Center.
 
 
+## Verification
+
+- [ ] Run `npm test` / `flutter test` / XCTest — all tests pass
+- [ ] Build for both platforms: `npx react-native run-ios` AND `npx react-native run-android` (or Flutter equivalents) — both build without error
+- [ ] Test on physical device (not just simulator): touch interactions, scroll performance, keyboard behavior
+- [ ] Test offline: enable airplane mode — app shows cached data, not crash/white screen
+- [ ] Test permissions: deny camera/location/notifications — app degrades gracefully with explanation
+- [ ] Verify app size: `du -sh` the built .ipa/.apk — within budget (< 20% increase from baseline)
+
+
 ## References
 
 Detailed reference material loaded on demand:

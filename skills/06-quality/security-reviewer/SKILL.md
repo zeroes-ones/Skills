@@ -459,6 +459,16 @@ graph LR
 - **Prototype pollution in `Object.assign` or spread operators**: If user input like `{"__proto__": {"isAdmin": true}}` reaches a merge function, it pollutes `Object.prototype`. Every `{}` in the application now has `isAdmin: true`. Use `Object.create(null)` or libraries that sanitize keys.
 
 
+## Verification
+
+- [ ] Run `npm audit` / `pip-audit` / `trivy fs .` — zero critical/high vulnerabilities
+- [ ] Run SAST: `semgrep --config=auto .` or `codeql analyze` — zero high-severity findings
+- [ ] Verify secrets: `detect-secrets` or `trufflehog` — zero secrets in codebase
+- [ ] STRIDE threat model complete: all 6 threat categories addressed with mitigations
+- [ ] OWASP Top 10 2021: each category checked, any findings have CVSS score
+- [ ] Auth review: JWT validation, session management, password policy — all items checked against checklist
+
+
 ## References
 
 Detailed reference material loaded on demand:

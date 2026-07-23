@@ -363,6 +363,16 @@ graph LR
 - **AWS Budget alerts** can only notify on FORECASTED or ACTUAL spend exceeding thresholds. If you set a $10K monthly budget alert and spend $9K in the first 5 days, the alert fires AFTER you've already spent $9K — not before. Use anomaly detection alongside budgets.
 
 
+## Verification
+
+- [ ] Cost allocation: every cloud resource has `cost_center` / `team` / `environment` tag — 100% tagging coverage
+- [ ] Budget alerts: every account/project has budget alert with threshold < 80% of actual budget — test alert fires when threshold exceeded
+- [ ] Unused resources: `aws-nuke` dry-run or `cloud-custodian` report — zero unattached EBS volumes, idle load balancers, unused IPs
+- [ ] Savings coverage: compute savings plan / reserved instance coverage > 80% for steady-state workloads
+- [ ] Anomaly detection: cost anomaly alert configured — test by deploying an expensive resource, alert fires within 24 hours
+- [ ] Monthly report: cost per team, cost per feature, cost per customer — trend line shows cost/unit decreasing or stable
+
+
 ## References
 
 Detailed reference material loaded on demand:

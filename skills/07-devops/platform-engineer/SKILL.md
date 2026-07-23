@@ -351,6 +351,16 @@ graph LR
 - **Scorecards and tech-insights** that check for `CODEOWNERS` file existence — teams react by creating empty `CODEOWNERS` files to go green. Every automated check must validate content quality, not just file existence, or it becomes a checkbox exercise.
 
 
+## Verification
+
+- [ ] Scaffold a service from golden path template: `npx create-service` or Backstage scaffolder — service boots, health check passes
+- [ ] Verify template version: deployed service `catalog-info.yaml` references the correct template version
+- [ ] Self-service provision a resource (DB, queue, bucket) — resource created, connection details injected into service config
+- [ ] Verify resource quotas: attempt to provision a resource exceeding quota limits — request is REJECTED with clear error
+- [ ] Scorecard check: run `tech-insights` or `scorecard` against scaffolded service — all required checks pass (CODEOWNERS, branch protection, etc.)
+- [ ] Verify upgrade path: document steps to upgrade from template v1.0 to v1.1 — procedure tested on a sample service
+
+
 ## References
 
 Detailed reference material loaded on demand:
