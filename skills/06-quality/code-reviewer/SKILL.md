@@ -64,6 +64,40 @@ These rules apply to *every* response this skill produces.
 - **Always explain the "why."** A finding without rationale is a complaint, not a review. Show the impact: "This N+1 query adds 500ms per item — on a page with 50 items, that's 25 seconds."
 - **Admit what you don't know.** If a change touches a domain outside your expertise (e.g., cryptography implementation details), flag it for a specialist and don't pretend confidence.
 
+## The Expert's Mindset
+
+Code review is not gatekeeping — it's **the highest-leverage quality practice in software engineering**. A review that catches a bug saves 10x the cost of fixing it in QA and 100x in production. But the real value is not bug catching: it's **shared understanding, knowledge transfer, and collective ownership**.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Review is teaching, not policing** | Every comment is a chance to level up the author. If your review doesn't make the author a better developer, you're optimizing for the wrong outcome. |
+| **Speed matters as much as thoroughness** | A perfect review delivered after 3 days is worse than a good review delivered in 4 hours. Review latency is the #1 predictor of team velocity. |
+| **The code, not the coder** | Critique the artifact, never the person. "This function has a race condition" not "You wrote a race condition." Distinguish between objective issues and style preferences. |
+| **Every bug caught in review is 10x cheaper than in QA** | But reviews that block for 2 days over naming preferences cost more than they save. Calibrate your rigor to the risk. |
+
+### Cognitive Biases That Weaken Reviews
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Anchoring on first solution** | Accepting suboptimal code because it matches the first approach that came to mind | Ask: "What alternative approaches did you consider?" before evaluating the implementation. |
+| **Familiarity bias** | Preferring code that looks like code you would write | Separate style (use a linter) from substance. Ask: "Does this work correctly?" not "Does this look like my code?" |
+| **Diffusion of responsibility** | Assuming other reviewers will catch the hard issues | If you're the second reviewer, review as if you're the only reviewer. |
+| **Authority bias** | Going easy on senior developers, hard on juniors | Apply the same standards regardless of author. Review the code blind to the name. |
+
+### What Masters Know That Others Don't
+
+- **The best reviewers ask questions before making assertions.** "What happens if this query returns 10,000 rows?" teaches more than "This query doesn't have pagination" and arrives at the same fix.
+- **Positive feedback is as important as criticism.** Pointing out elegant solutions reinforces good practices. A review with only negatives is demoralizing; a review with praise + constructive feedback is motivating.
+- **Review your own code first.** Before assigning reviewers, do a self-review pass. You'll catch 50% of issues and save reviewer time. Add comments explaining non-obvious choices.
+- **A "LGTM" review is worse than no review.** It creates a false sense of security. Either do a real review or decline.
+
+### When to Break Your Own Rules
+
+- **Waive the checklist for hotfixes.** In a P0 incident, review for "does this fix the issue without making things worse?" and defer thoroughness to a post-incident follow-up. Ship, then review properly.
+- **Approve with nits when the author is more expert in the domain than you.** Flag style and clarity issues (nits) but don't block on correctness you can't fully evaluate.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Reviewing pull requests before merge
@@ -348,6 +382,31 @@ Common chains:
 - [ ] **[S8]**  Positive feedback given alongside constructive criticism
 - [ ] **[S9]**  Review turnaround time tracked and < 24 hours
 - [ ] **[S10]**  Security-sensitive changes (auth, payments, PII) reviewed by security specialist
+
+## Deliberate Practice
+
+Reviewing is a skill separate from coding — it requires different mental muscles (pattern matching for bugs, empathy for the author, calibration of severity). The best reviewers practice deliberately.
+
+### The Review Improvement Loop
+
+```
+REVIEW → RECEIVE FEEDBACK ON YOUR REVIEW → CALIBRATE → repeat
+```
+
+After every review cycle: ask the author which comments were most and least valuable. Did you catch the important bugs? Did you waste time on nits? Adjust your focus.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | Review 10 PRs using a structured checklist. For each PR, write your findings. Then read the senior reviewer's comments on the same PR. Identify 3 things they caught that you missed and why. | Weekly |
+| **Competent** | Time-box reviews to 60 minutes. Track your false positive rate (comments marked "won't fix" or dismissed). Target <20% false positives. | Every review |
+| **Expert** | Review a PR in a codebase or language outside your primary expertise monthly. Focus on logic, error handling, and edge cases — the universal patterns. | Monthly |
+| **Master** | Pair-review with a junior engineer. Let them lead. After each file, discuss: what did you see? What did they see? Calibrate your teaching to their level. | Biweekly |
+
+### The One Highest-Leverage Activity
+
+**Do a self-review before assigning reviewers.** Comment on your own PR explaining non-obvious choices, flagging areas you're unsure about, and noting what you'd change if you had more time. This catches 50% of issues and makes you a better reviewer of others.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
