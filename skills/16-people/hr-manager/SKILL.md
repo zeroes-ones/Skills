@@ -286,6 +286,23 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
+
+## Cross-Skill Coordination
+
+| Collaborates With | Purpose |
+|-------------------|---------|
+| **people-ops** | Employee lifecycle management, onboarding, offboarding |
+| **recruiting** | Hiring pipeline, offer letters, candidate experience |
+| **legal-advisor** | Employment law, compliance, contractor classification |
+| **compliance-officer** | Labor law compliance, EEO reporting, workplace policies |
+| **vp-engineering** | Engineering org structure, leveling frameworks, compensation bands |
+| **project-manager** | Resource allocation, team capacity planning, project staffing |
+
+**Coordination Protocol:**
+1. HR policies affecting engineering teams → coordinate with vp-engineering
+2. Hiring plans involving visa/immigration → coordinate with legal-advisor
+3. Organizational restructuring → coordinate with people-ops and vp-engineering
+
 ## Proactive Triggers
 
 <!-- QUICK: 30s -- when to proactively notify stakeholders -->

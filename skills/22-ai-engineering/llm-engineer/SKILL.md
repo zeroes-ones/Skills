@@ -98,6 +98,20 @@ Masters of LLM engineering don't just prompt — they **engineer systems where L
 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
+
+## When to Use
+
+| Scenario | Use This Skill |
+|----------|---------------|
+| Building a RAG pipeline with vector embeddings | ✅ |
+| Fine-tuning an open-source LLM for domain tasks | ✅ |
+| Designing prompt chains with tool use | ✅ |
+| Evaluating LLM outputs for quality and safety | ✅ |
+| Optimizing inference latency and cost | ✅ |
+| Building a general-purpose chatbot from scratch | ❌ Use a managed platform or existing framework |
+| Setting up infrastructure for model serving | ❌ Use mlops-engineer |
+| Designing the product UX around LLM features | ❌ Use product-manager + ux-researcher |
+
 ## Route the Request
 
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
