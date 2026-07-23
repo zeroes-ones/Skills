@@ -313,6 +313,19 @@ Recovery requirements?
 | `devops-engineer` | Database provisioning specs, backup verification, monitoring alerts, failover runbooks | Infrastructure teams can't manage databases — reliability gaps |
 | `site-reliability-engineer` | Database SLO definitions, failover procedures, capacity forecasts, runbooks for database incidents | SRE can't enforce database reliability — outages unmanaged |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Replication lag exceeds 2 seconds on any replica | Investigate: primary write volume spike, network saturation, or replica resource contention; alert at 5s | Lag grows before disks fill, before queries time out, before failover fails — it's the leading indicator of every database problem |
+| Autovacuum not keeping pace — dead tuple ratio > 20% on a table > 100GB | Tune `autovacuum_vacuum_scale_factor` down to 0.01-0.05; schedule aggressive manual vacuum; monitor `age(dat frozenxid)` | Default autovacuum settings from 2005 silently kill production databases in 2026 — tune for your write rate |
+| Backup verification test fails — restore from most recent backup produces corrupt data | Investigate backup process immediately; validate WAL archiving continuity; restore from last known good backup; do NOT wait for next scheduled test | An untested backup is a wish, not a backup — the first restore test during an incident is already too late |
+| Connection pool utilization exceeds 80% during normal (non-peak) traffic | Size pool for P95 × 1.5 headroom; add read replicas; implement connection queuing; review connection leak suspects | Pool exhaustion during peak is a capacity planning failure — you should be sizing for peaks, not averages |
+| Storage growth rate exceeds 5%/day — 14-day warning on capacity | Add storage; investigate write amplification (unnecessary indexes, un-vacuumed bloat, verbose logging); escalate to capacity planning | Storage fills at the worst possible time — growth rate monitoring prevents surprise outages |
+| Query plan regression detected — previously fast query now scanning sequential | Check statistics freshness; investigate plan cache; consider `pg_hint_plan` or query pin; review recent schema changes | Query plans regress silently after ANALYZE — a query that was fast yesterday can be a production killer today |
+| ALTER TABLE with ACCESS EXCLUSIVE lock in deployment pipeline | Reject deployment; require expand-contract pattern: add nullable → backfill → set NOT NULL → set DEFAULT; enforce via migration linter | Locking DDL in production is surgery without anesthesia — review every schema change against a production-sized dataset |
+| WAL archiving gap detected — PITR window compromised | Investigate archive command failure; restore archiving immediately; document gap; re-evaluate RPO against business requirements | If WAL archiving has a gap, PITR is incomplete — your RPO is whatever was committed before the gap started |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -384,7 +397,20 @@ Recovery requirements?
 - **DR testing is quarterly, not optional** — If you haven't failed over to DR this quarter, you don't have DR. Record actual RPO/RTO and track improvement over time.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Trusting that backups work without automated restore verification | Automate weekly restore-to-staging tests; monitor backup output for truncation/failure; alert on "backup not verified in 7 days" |
+| Sizing connection pools for average traffic instead of peak | Size for P95 × 1.5 headroom; monitor connection count trends; add read replicas or pool queuing before exhaustion |
+| Running locking DDL (ADD COLUMN DEFAULT NOT NULL) on production without review | Use expand-contract: add nullable → backfill in batches → set NOT NULL → set DEFAULT; review every DDL against production-sized dataset |
+| Accepting default autovacuum settings (scale_factor = 0.2) on large tables | Set scale_factor to 0.01-0.05 for tables > 100GB; monitor dead tuple ratio; tune based on write rate, not storage percentage |
+| Creating indexes reactively when queries are slow without reviewing existing index usage | Review `pg_stat_user_indexes` monthly; drop unused indexes (idx_scan = 0); every index costs writes — index with purpose, not panic |
+| Assuming async replication is synchronous — reading from replicas without lag awareness | Implement lag-aware routing: read from primary if replica lag > threshold; monitor and alert on lag; size replicas for peak read volume |
+| Storing monitoring data only as absolute values without growth rates | Track growth rates: days-until-full for storage, connection growth trend, replication lag trajectory — absolutes without rates are blind |
+| Running production databases as snowflakes — each instance has different configs, extensions, backup schedule | Standardize fleet: Terraform all instances with identical configuration; configuration drift is a bug — differences are undocumented failure modes |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

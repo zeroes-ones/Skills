@@ -221,6 +221,18 @@ Culture is what you tolerate, what you celebrate, and what you model. At VP leve
 | **After** | `investor-relations` | Fundraising narrative, investor updates, due diligence presentations. |
 | **After** | `staff-engineer` | Strategy cascading — staff engineers socialize architecture implications of VP-level decisions. |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Director-level attrition signal — a Director gives notice or 2+ directors express frustration in 1:1s within a quarter | Conduct stay interviews with all Directors within 2 weeks; identify systemic patterns (comp, autonomy, strategy clarity, growth); fix the system, not just the retention offer | Director attrition cascades — each Director departure destabilizes 3-5 teams and 30-50 engineers; the replacement cycle is 6-9 months |
+| Board narrative not landing — directors report "the board doesn't understand engineering's value" or budget disproportionately questioned | Reframe engineering strategy in business-outcome language; partner with CFO on a shared financial model; present at next board meeting personally; never send a proxy | When engineering is the first budget line cut, it's a narrative failure, not a value failure — the board funds what it understands |
+| Engineering brand decline — candidate acceptance rate drops below 60% or Glassdoor scores dip below 3.5 | Audit employer brand: last blog post date, conference talks from your engineers, GitHub org activity, interview experience feedback; invest in one visible initiative per quarter | Engineering brand is the compound interest of talent — a 6-month brand neglect takes 18 months to repair |
+| Compensation equity drift — pay equity analysis reveals >5% gap by gender or race at same level/performance | Correct immediately in next comp cycle; do not wait for annual review; communicate proactively to affected employees; publish aggregate equity stats externally | Pay equity gaps are the fastest path to external reputation damage and internal trust erosion — fix before someone blogs about it |
+| Key person risk — single person owns critical system, client relationship, or institutional knowledge with no backup | Mandate documentation and pairing rotation; identify succession for every critical role; if the person resists knowledge sharing, escalate as a performance issue | "Irreplaceable" people are a leadership failure, not an asset — bus factor of 1 is organizational negligence |
+| Platform investment request denied or deferred 2+ quarters — teams duplicating infrastructure across product streams | Quantify duplication cost (engineering hours, reliability risk, security surface area); present as "not funding platform costs us X% more in duplicative work" to CFO/CEO | Platform underinvestment is invisible on P&L but visible in velocity decline — you must make the cost of NOT building platform explicit |
+| Cross-org dependency tax rising — 40%+ of team capacity consumed by cross-team coordination | Audit dependency graph; co-locate tightly coupled teams under one Director; create API contracts and SLAs for cross-team interfaces; accept Conway's Law and reorganize accordingly | Teams spending more time coordinating than building is an org design smell — the structure is misaligned with the architecture |
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 
@@ -247,6 +259,19 @@ Start small: one blog post per quarter from your engineers about interesting pro
 
 ### 8. Internal Promotion vs External Hire at Director+ Level
 Promote from within when: the person already operates at the next level, they have organizational trust, and the role doesn't require skills the team lacks. Hire externally when: you need a skill no one has (e.g., ML at scale, security leadership), you need fresh perspective to break groupthink, or the team needs diversity of experience. Wrong choice in either direction costs 12-18 months.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|-------------------|
+| Still reviewing PRs, making architecture decisions personally, or coding on the critical path 18+ months into the VP role | Your technical contribution is the quality of your technical leadership team. Hire a chief of staff for operational details. Dedicate 50%+ of time to Director 1:1s and cross-functional relationships |
+| Optimizing solely for velocity — shipping features relentlessly without platform, reliability, or developer experience investment | Publish a balanced scorecard: delivery metrics AND quality metrics AND team health. Declare stability quarters when needed. Make platform investment a visible, tracked initiative |
+| Hiring Director+ from FAANG/enterprise without assessing stage-fit — assuming "great at Google" means "great at a 50-person startup" | Screen for stage-appropriate experience explicitly: "Tell me about a time you built something from scratch with a team of 5." Pedigree without stage adaptability is destructive |
+| Presenting raw DORA metrics, velocity charts, or deployment frequency to the board without business translation | Every metric must answer "so what?" Velocity → "we can deliver revenue commitments." MTTR → "we recover from incidents 3x faster." The board funds business outcomes, not engineering excellence |
+| Treating reorgs as strategy — reorganizing every 6-12 months to signal action instead of addressing underlying leadership gaps | Stabilize org structure for minimum 18 months after any reorg. Require strategy clarity before structural change. Teams need stability to build trust and velocity |
+| Underfunding platform engineering — treating it as a cost center to minimize rather than a capacity multiplier | Fund platform at 15-25% of total engineering capacity. Measure platform ROI: "platform reduced new service bootstrap from 3 weeks to 2 days." Platform is R&D, not overhead |
+| Managing CEO relationship as a reporting obligation rather than a strategic partnership — sending weekly status emails instead of building trust | Weekly 1:1 with structured agenda: 20% operational, 40% strategic, 20% organizational, 20% personal. Surface bad news immediately. The CEO should never be surprised by engineering |
+| Promoting the loudest EM to Director because they're visible — confusing advocacy with leadership capability | Evaluate Director candidates on team health, attrition trends, and IC growth in their teams, not just delivery velocity. The best Directors are often the quietest — their teams speak for them |
 
 ## Error Decoder
 <!-- DEEP: 10+min -->
