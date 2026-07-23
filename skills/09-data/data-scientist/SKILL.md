@@ -28,13 +28,13 @@ chain:
   - business-intelligence-engineer
   - data-engineer
   - market-data-engineer
-  - ml-ai-engineer
+  - ml-engineer
   - quantitative-analyst
   feeds_into:
   - analytics-engineer
   - business-intelligence-engineer
   - growth-engineer
-  - ml-ai-engineer
+  - ml-engineer
   - patient-health-educator
   - product-strategist
   - quantitative-analyst
@@ -81,7 +81,7 @@ What are you trying to do?
 ├── Interpret a model → Load **model-interpretability** sub-skill
 ├── Need data to analyze first → Invoke `data-engineer` skill instead
 ├── Need analytics and metrics → Invoke `analytics-engineer` skill instead
-├── Need ML model productionization → Invoke `ml-ai-engineer` skill instead
+├── Need ML model productionization → Invoke `ml-engineer` skill instead
 ├── Need growth experiments → Invoke `growth-engineer` skill instead
 └── Not sure? → Start at "Core Workflow" Phase 1 — frame before you analyze
 
@@ -274,13 +274,13 @@ What question are you answering?
 |---|---|---|
 | `data-engineer` | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks | Before designing experiments or analysis that depend on data availability |
 | `analytics-engineer` | Metric calculation logic, experiment metric implementation, curated analysis datasets | Before defining experiment metrics or building analysis models |
-| `ml-ai-engineer` | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds | Before productionizing statistical models or integrating ML predictions |
+| `ml-engineer` | Model artifacts, feature engineering code, inference pipeline requirements, monitoring thresholds | Before productionizing statistical models or integrating ML predictions |
 
 | Downstream Skill | What You Provide | Impact of Delay |
 |---|---|---|
 | `product-strategist` | Experiment results with confidence intervals, effect sizes, trade-off analysis | Product decisions lack evidence — roadmap driven by intuition |
 | `growth-engineer` | Experiment tracking setup, metric calculation, statistical significance implementation, SRM checks | Growth experiments can't measure impact — invalid results |
-| `ml-ai-engineer` | Feature engineering insights, model evaluation metrics, training data quality assessment | ML models built on poor features — garbage in, garbage out |
+| `ml-engineer` | Feature engineering insights, model evaluation metrics, training data quality assessment | ML models built on poor features — garbage in, garbage out |
 | `analytics-engineer` | Metric definitions, experiment frameworks, statistical function specifications | Analytics can't build trusted metrics — dashboards unreliable |
 
 ## Proactive Triggers
@@ -306,7 +306,7 @@ What question are you answering?
 
 ```bash
 # Analytics models → Statistical analysis → ML models
-/analytics-engineer && /data-scientist && /ml-ai-engineer
+/analytics-engineer && /data-scientist && /ml-engineer
 # Clean datasets → Hypothesis testing → Business decisions
 /data-engineer && /data-scientist && /product-manager
 # Analytics engineers provide clean, modeled data. Data scientists test hypotheses and build models. ML engineers productionize.

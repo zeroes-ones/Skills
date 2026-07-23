@@ -27,13 +27,13 @@ chain:
   consumes_from:
     - market-data-engineer
     - data-scientist
-    - ml-ai-engineer
+    - ml-engineer
   feeds_into:
     - algorithmic-trader
     - data-scientist
-    - ml-ai-engineer
+    - ml-engineer
   alternatives:
-    - ml-ai-engineer
+    - ml-engineer
 ---
 
 # Quantitative Analyst
@@ -56,7 +56,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A1 | `file_contains("*.py", "BlackScholes\|black_scholes\|bsm_price\|implied_volatility")` OR `file_contains("*.py", "scipy.stats.norm\|monte_carlo.*option\|heston\|binomial")` OR `file_contains("*.R", "BlackScholes\|Garch\|rugarch")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
 | A2 | `file_contains("*.py", "kafka\|KafkaProducer\|polygon\|alpaca.*trade\|websocket")` OR `file_contains("*.sql", "CREATE TABLE.*ticks\|CREATE TABLE.*options_flow")` | Invoke **market-data-engineer** instead. This is data pipeline work. |
 | A3 | `file_contains("*.py", "backtrader\|zipline\|vectorbt\|alpaca.*trade\|order.*submit")` OR `file_contains("*.py", "Strategy.*next\|stop_loss\|take_profit\|bracket")` | Invoke **algorithmic-trader** instead. This is execution and order placement. |
-| A4 | `file_contains("*.py", "sklearn\|tensorflow\|torch\|xgboost\|RandomForest\|GradientBoosting")` AND `file_contains("*.py", "predict\|classify\|signal")` | Invoke **ml-ai-engineer** instead. This is ML-based signal prediction. |
+| A4 | `file_contains("*.py", "sklearn\|tensorflow\|torch\|xgboost\|RandomForest\|GradientBoosting")` AND `file_contains("*.py", "predict\|classify\|signal")` | Invoke **ml-engineer** instead. This is ML-based signal prediction. |
 | A5 | `file_contains("*.py", "pandas\|numpy\|statsmodels\|scipy")` AND `file_contains("*.py", "regression\|hypothesis.test\|p.value\|ttest")` | Jump to **Decision Trees** — Statistical Validation. |
 | A6 | `file_contains("*.py\|*.R", "ggplot\|matplotlib\|plotly\|seaborn")` AND `file_contains("*.py", "volatility.surface\|vol.smile\|skew\|term.structure")` | Jump to **Decision Trees** — IV Surface Construction. |
 | A7 | `file_contains("*.py", "put.call.parity\|arbitrage\|no.arbitrage\|risk.neutral")` | Jump to **Decision Trees** — Arbitrage Detection. |
@@ -386,7 +386,7 @@ Sector-wide anomaly (10+ STRONG BUY in single sector)? → Business Strategist �
 /quantitative-analyst && /data-scientist && /quantitative-analyst
 
 # ML-enhanced signal classification (alternative to rules-based)
-/market-data-engineer && /quantitative-analyst && /ml-ai-engineer && /algorithmic-trader
+/market-data-engineer && /quantitative-analyst && /ml-engineer && /algorithmic-trader
 
 # Market data engineer provides clean options chains.
 # Quantitative analyst detects UOA, computes Greeks, generates signals.

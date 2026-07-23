@@ -34,7 +34,7 @@ chain:
   - data-scientist
   - database-reliability-engineer
   - market-data-engineer
-  - ml-ai-engineer
+  - ml-engineer
   - mlops-engineer
 ---
 
@@ -112,10 +112,10 @@ What are you trying to do?
 ├── Optimize Spark jobs → Jump to "Core Workflow — Phase 5 (Spark & Performance)"
 ├── Set up CDC from a database → Jump to "Core Workflow — Phase 3 (Stream Processing) → CDC Patterns"
 ├── Implement data governance / catalog → Jump to "Production Checklist — Governance section"
-├── Need ML models on this data → Invoke `ml-ai-engineer` skill instead
+├── Need ML models on this data → Invoke `ml-engineer` skill instead
 ├── Need analytics or dashboards → Invoke `analytics-engineer` skill instead
 ├── Need statistical modeling → Invoke `data-scientist` skill instead
-├── Need ML feature pipelines → Invoke `ml-ai-engineer` skill instead
+├── Need ML feature pipelines → Invoke `ml-engineer` skill instead
 ├── Need database reliability → Invoke `database-reliability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
 
@@ -358,7 +358,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 |---|---|---|
 | `analytics-engineer` | Raw data schemas, freshness SLAs, data dictionary, PII classification, partitioning strategy | Analytics can't build models — dashboards show stale data |
 | `data-scientist` | Data schema documentation, SLAs for freshness, backfill capabilities, quality checks | Scientists can't access reliable data — experiments invalid |
-| `ml-ai-engineer` | Feature computation schedules, point-in-time correctness, historical backfill, embedding storage | ML models can't train — feature pipelines empty |
+| `ml-engineer` | Feature computation schedules, point-in-time correctness, historical backfill, embedding storage | ML models can't train — feature pipelines empty |
 | `business-intelligence-engineer` | Clean data warehouse tables, query performance optimization, data catalog with lineage | BI reports can't run — business decisions on hold |
 
 ## Proactive Triggers
@@ -369,7 +369,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 |---------|--------|-----|
 | Dashboard refresh takes 45 minutes and the analytics team says "we just run it overnight" | Propose incremental materialization with merge strategies; implement streaming ingestion (Kafka → warehouse) for sub-5-minute freshness; sync with `analytics-engineer` on query optimization and `business-intelligence-engineer` on dashboard freshness SLAs | Full-refresh on every run scales linearly with data growth; incremental models with unique keys process only new/updated rows; streaming bridges the gap between batch windows and business need for near-real-time data |
 | Backend team adds a new microservice that emits events — no one knows the schema | Propose schema registry (Confluent/AWS Glue) with Avro/Protobuf enforcement; implement schema evolution rules (forward/backward compatibility); sync with `backend-developer` on event contract | Without a schema registry, every producer-consumer pair negotiates schema ad-hoc; a registry with compatibility enforcement prevents silent breaking changes — a field rename that would crash 5 downstream consumers is caught at registration time |
-| Marketing team asks "can we get real-time user behavior data?" for personalization | Propose streaming architecture: Kafka for event ingestion → Flink/Spark Streaming for windowed aggregations → feature store for serving; sync with `ml-ai-engineer` on feature engineering requirements | Batch pipelines (hourly/daily) can't power real-time personalization; streaming with exactly-once semantics ensures no double-counting; CDC from operational DB catches changes within seconds |
+| Marketing team asks "can we get real-time user behavior data?" for personalization | Propose streaming architecture: Kafka for event ingestion → Flink/Spark Streaming for windowed aggregations → feature store for serving; sync with `ml-engineer` on feature engineering requirements | Batch pipelines (hourly/daily) can't power real-time personalization; streaming with exactly-once semantics ensures no double-counting; CDC from operational DB catches changes within seconds |
 | Data science team can't trace which source table produced which column in the gold layer | Propose data lineage tracking: dbt docs + DataHub/Amundsen for column-level lineage; automate lineage extraction from transformation code; sync with `data-scientist` and `analytics-engineer` on discoverability | When a dashboard shows wrong numbers, you need to trace Gold → Silver → Bronze → Source in seconds; manual lineage documentation rots immediately; automated lineage from transformation code stays current |
 | Monthly data load takes 8 hours and occasionally fails mid-way, requiring full restart | Propose idempotent pipeline with partition-level retry: use INSERT OVERWRITE on date partitions instead of full-table reload; implement checkpointing for long-running jobs; sync with `database-reliability-engineer` on resource management | A monolithic pipeline that must fully restart on failure is a reliability anti-pattern; partition-level operations isolate failures — a corrupted partition is re-processed without touching 29 other days of data |
 | Team is building data pipelines but no data quality checks exist — "we'll add tests later" | Propose data quality framework (Great Expectations/dbt tests) as a pipeline stage: schema validation → null checks → uniqueness checks → freshness checks → distribution checks; block downstream consumption on quality failure; sync with `analytics-engineer` on quality thresholds | "Later" never arrives; data quality checks added after pipelines are built catch errors that have already propagated to dashboards; quality-as-gate prevents bad data from reaching consumers |

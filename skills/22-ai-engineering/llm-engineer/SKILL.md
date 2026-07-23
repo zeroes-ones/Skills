@@ -32,7 +32,8 @@ chain:
   consumes_from:
   - ai-safety-engineer
   - backend-developer
-  - ml-ai-engineer
+  - ml-engineer
+  - ai-engineer
   - mlops-engineer
   feeds_into:
   - ai-safety-engineer
@@ -153,7 +154,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | Upstream Skill | What You Receive | Decision Gate |
 |---|---|---|
 | `mlops-engineer` | Model serving infrastructure (vLLM/Triton), GPU optimization, deployment pipelines, monitoring dashboards | Validate latency/cost at target throughput before committing to architecture |
-| `ml-ai-engineer` | Model selection guidance, training data, fine-tuning strategies, embedding model benchmarks | Align on model capabilities vs requirements; avoid over-engineering for simple tasks |
+| `ml-engineer` | Model selection guidance, training data, fine-tuning strategies, embedding model benchmarks | Align on model capabilities vs requirements; avoid over-engineering for simple tasks |
 | `backend-developer` | API design patterns, service architecture, database schemas, authentication/authorization | Integrate LLM calls into service boundaries; define error handling and retry contracts |
 | `ai-safety-engineer` | Safety evaluation criteria, guardrail specs, red-teaming findings, bias audit results | Gate deployment on safety evaluation pass; integrate guardrails into output pipeline |
 
@@ -242,7 +243,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
-| **Before** | ml-ai-engineer | ML problem framing, baseline models, training infrastructure |
+| **Before** | ml-engineer | ML problem framing, baseline models, training infrastructure |
 | **Before** | api-designer | API contracts for LLM service endpoints, rate limiting design |
 | **Before** | database-designer | Vector database schema, indexing strategy, hybrid search design |
 | **This** | llm-engineer | RAG pipeline, prompts with versioning, evaluation framework, guardrails |
@@ -251,7 +252,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | **After** | frontend-developer | LLM-powered UI components, streaming integration, user feedback collection |
 
 Common chains:
-- **Chain**: ml-ai-engineer → llm-engineer → ai-safety-health-reviewer — ML baseline feeds into LLM pipeline design; safety reviewer validates outputs before user exposure
+- **Chain**: ml-engineer → llm-engineer → ai-safety-health-reviewer — ML baseline feeds into LLM pipeline design; safety reviewer validates outputs before user exposure
 - **Chain**: api-designer → llm-engineer → mlops-engineer — API contracts define LLM service boundaries; MLOps deploys and monitors the service
 - **Chain**: database-designer → llm-engineer → frontend-developer — Vector DB schema designed for retrieval patterns; frontend integrates streaming responses
 
@@ -325,6 +326,138 @@ START: Designing retrieval for a RAG pipeline
        └─ NO → HYBRID as default. Pure keyword fails on natural language. Pure embeddings fail on exact match. Hybrid covers both.
 ```
 
+### Prompt Strategy: Zero-Shot → Few-Shot → Chain-of-Thought → Tree-of-Thought
+
+```
+START: Choosing a prompting strategy for your task
+  │
+  ├─ Is the task a simple, well-defined classification or extraction with clear success criteria?
+  │    ├─ YES → ZERO-SHOT. "Classify sentiment: positive, negative, neutral." No examples needed.
+  │    │   Cost: $0.0005/request. Only upgrade if accuracy <85% on held-out test set.
+  │    └─ NO → Continue
+  │
+  ├─ Does the task require a specific output format, tone, or style that is hard to describe in words alone?
+  │    ├─ YES → FEW-SHOT (3-5 examples). Show the model exemplars of desired output.
+  │    │   Cost: 2-5× zero-shot token cost. ROI: typically +10-25% accuracy on format-sensitive tasks.
+  │    └─ NO → Continue
+  │
+  ├─ Does the task require multi-step reasoning, math, or logic where the model benefits from "thinking out loud"?
+  │    ├─ YES → CHAIN-OF-THOUGHT (CoT). Add "Let's think step by step." For complex problems, provide 2-3 CoT exemplars.
+  │    │   Cost: 2-8× zero-shot tokens (reasoning chains are verbose). ROI: +15-40% on GSM8K, AQuA, multi-hop QA.
+  │    └─ NO → Continue
+  │
+  ├─ Does the task have branching possibilities or require exploring multiple reasoning paths before committing?
+  │    ├─ YES → TREE-OF-THOUGHT (ToT). Generate 3-5 candidate reasoning paths, evaluate each, select best. Use BFS or DFS.
+  │    │   Cost: 10-30× zero-shot tokens. ROI: +20-50% on creative problem-solving, game playing, complex planning.
+  │    └─ NO → Continue
+  │
+  ├─ Does the task need to check its own work or self-correct?
+  │    ├─ YES → REFLEXION / SELF-CONSISTENCY. Generate N independent completions (typically 5-11), majority vote. For code: generate + execute + fix cycle.
+  │    │   Cost: N× base prompt tokens. Self-consistency at N=5 improves GSM8K from 78% to 92%.
+  │    └─ NO → Continue
+  │
+  └─ Is the task safety-critical (medical, legal, financial advice)?
+       ├─ YES → CONSTITUTIONAL CHAIN-OF-THOUGHT. Chain multiple CoT prompts, each constrained by a principle. Final answer must cite sources.
+       │   Cost: 5-15× zero-shot tokens. Required for regulated industries — audit trail matters more than token savings.
+       └─ NO → Start with zero-shot. Graduate to few-shot if accuracy insufficient. Add CoT if reasoning required. ToT only when no simpler strategy works.
+```
+
+### Model Selection for Production: Cost vs Quality vs Latency
+
+```
+START: Choosing a model for production use
+  │
+  ├─ Is per-request latency absolute SLA <200ms (TTFT + generation)?
+  │    ├─ YES → SMALL MODEL (GPT-4o-mini, Claude Haiku, Gemma-2B, Llama-3.2-1B).
+  │    │   Optimize: quantize to int4/8, use speculative decoding, pre-warm KV cache.
+  │    │   Cost: $0.00015-$0.0003/1K tokens. Latency: 50-200ms TTFT.
+  │    └─ NO → Continue
+  │
+  ├─ Is task complexity HIGH (multi-step reasoning, code generation, creative writing)?
+  │    ├─ YES → PREMIUM MODEL (GPT-4o, Claude Opus, Gemini Ultra).
+  │    │   BUT: gate with smaller model first — if GPT-4o-mini produces good enough answer (85%+ quality), use it.
+  │    │   Pattern: Haiku for classification → Haiku passes → done. Haiku unsure → escalate to Opus. Saves 70-90% cost.
+  │    │   Cost: $2.50-$15/1M input tokens. Latency: 500ms-5s.
+  │    └─ NO → Continue
+  │
+  ├─ Is cost per 1M requests the #1 constraint AND accuracy tolerance is ±5%?
+  │    ├─ YES → OPEN-SOURCE SMALL (Llama-3.1-8B, Mistral-7B, Qwen-2.5-7B). Self-host on vLLM/TGI.
+  │    │   Cost: $0.00001-$0.0001/1K tokens (GPU amortized). One A100 ($1.50/hr) serves 100+ concurrent users.
+  │    │   Trade-off: maintain GPU infra, handle cold starts, no managed API SLA.
+  │    └─ NO → Continue
+  │
+  ├─ Is multilingual support essential (Arabic, Japanese, Hindi, etc.)?
+  │    ├─ YES → CHECK multilingual benchmarks per model. Claude 3.5 and GPT-4o lead on MMLU-multilingual. Cohere Command R+ strong for enterprise multilingual RAG.
+  │    │   Token-count warning: Japanese/Korean cost 2-3× more tokens per character than English. Budget accordingly.
+  │    └─ NO → Continue
+  │
+  ├─ Do you need structured JSON output with guaranteed schema compliance?
+  │    ├─ YES → OpenAI Structured Outputs (GPT-4o/gpt-4o-mini) or Instructor library with Pydantic. Claude with tool_use. Gemini with controlled generation.
+  │    │   100% schema compliance (OpenAI) vs ~95% (prompt-only). JSON parse failures at scale: 5% × 100K req/day = 5,000 failures → $250/day in retry costs + eng firefighting.
+  │    └─ NO → Continue
+  │
+  └─ Do you need to handle 1M+ tokens context (entire codebases, book-length documents)?
+       ├─ YES → Gemini 1.5 Pro (2M context) or Claude (200K). GPT-4o (128K) for mid-range. Long-context tax: 2-4× higher per-token cost beyond 128K tokens.
+       │   Needle-in-haystack: test retrieval accuracy at your actual context length — models lose accuracy at >70% of max context.
+       └─ NO → Standard context (4K-8K tokens) — most models perform equivalently. Choose by cost/latency.
+
+COMPARISON TABLE (per 1M tokens, approximate as of mid-2025):
+  GPT-4o:            $2.50 input / $10 output  — Best all-around quality, structured output
+  GPT-4o-mini:       $0.15 input / $0.60 output — Best cost/quality ratio for simple tasks
+  Claude Opus:       $15 input / $75 output     — Best for complex reasoning, safety-critical
+  Claude Sonnet:     $3 input / $15 output      — Balanced mid-tier, strong for coding
+  Claude Haiku:      $0.25 input / $1.25 output — Fastest managed API, lowest cost
+  Llama-3.1-8B (self-host): ~$0.01/1K tokens GPU-amortized — Cheapest for high volume
+  Mistral-7B (self-host):  ~$0.008/1K tokens   — Lightweight, good multilingual
+```
+
+### Hallucination Mitigation Strategy
+
+```
+START: Detecting and reducing hallucinations in your LLM application
+  │
+  ├─ Is 100% factual accuracy REQUIRED (medical, legal, financial compliance)?
+  │    ├─ YES → GROUNDED GENERATION ONLY.
+  │    │   1. Retrieve source documents first (RAG)
+  │    │   2. Prompt: "Answer ONLY using the provided sources. If you cannot find the answer, say 'I don't have enough information.' Do NOT guess."
+  │    │   3. Post-generation: verify each factual claim against source chunks (NLI model or cross-encoder)
+  │    │   4. Flag unverifiable claims for human review
+  │    │   Cost: 3-5× base request cost (retrieval + verification). Non-negotiable for regulated use cases.
+  │    └─ NO → Continue
+  │
+  ├─ Is hallucination rate currently >5% on held-out evaluation set?
+  │    ├─ YES → DIAGNOSE ROOT CAUSE:
+  │    │   1. Is retrieval bringing irrelevant chunks? → Fix retrieval (hybrid search, re-ranking, better chunking)
+  │    │   2. Is the model "filling gaps" when sources lack information? → Strengthen grounding prompt, add "I don't know" training examples
+  │    │   3. Is the model overconfident on ambiguous queries? → Add uncertainty calibration: "Provide confidence score (0-100) with each claim."
+  │    │   4. Are hallucinations concentrated in specific domains? → Fine-tune on domain documents
+  │    └─ NO → Continue
+  │
+  ├─ Do you need automated hallucination detection in production?
+  │    ├─ YES → LAYERED DETECTION:
+  │    │   1. NLI-based: entailment model (BART-large-MNLI) checks each claim against retrieved sources
+  │    │   2. SelfCheckGPT: generate N responses, measure consistency. High variance = likely hallucination.
+  │    │   3. LLM-as-judge: GPT-4o evaluates factual consistency (costs ~$0.001/eval, use sparingly on flagged cases)
+  │    │   4. Rule-based: detect patterns like fabricated URLs, nonexistent citations, impossible numbers
+  │    │   Alert if any layer flags output. Escalate high-confidence flags to human review queue.
+  │    └─ NO → Continue
+  │
+  ├─ Is the application creative (storytelling, brainstorming, marketing) where "truth" is subjective?
+  │    ├─ YES → Differentiate factual vs creative tasks. Only apply hallucination detection to factual claims within creative content.
+  │    │   Example: "Generate ad copy for new product X." → No fact-checking needed for style.
+  │    │   Example: "Generate ad copy including product X's 99.9% uptime SLA." → Verify "99.9% uptime" claim against product docs.
+  │    └─ NO → Continue
+  │
+  └─ Do users report hallucinations but the eval framework says <2%?
+       ├─ YES → YOUR EVAL SET DOESN'T MATCH PRODUCTION. Eval distribution drift is the #1 cause of "works in test, fails in prod."
+       │   1. Log 10,000 real user queries, sample 500 that received low ratings
+       │   2. Manually label these 500 for hallucination
+       │   3. Add to eval set. Your "2% hallucination rate" may actually be 8-15% on real user queries.
+       └─ NO → Run continuous hallucination monitoring: daily automated eval on production sample. Alert on rate spike >2× baseline.
+
+CRITICAL: A single hallucinated medical/financial/legal answer costs $500K-$2M+ in liability. At 0.01% error rate on 100K requests/day = 10 incidents/day. This is the highest-ROI investment in your LLM pipeline.
+```
+
 ## What Good Looks Like
 
 <!-- QUICK: 30s -- aspirational north star for this skill -->
@@ -348,13 +481,13 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a "failure log" for every LLM system you operate. For each unexpected output: the input, the output, why it was wrong, and what guardrail would have caught it. Review before every architecture change.
 
-## Gotchas
+## Gotchas — Highest-Value Content
 
-- **OpenAI `temperature=0`is NOT deterministic**. With`temperature=0`, the model still uses floating-point sampling and GPU non-determinism. Two identical requests can return different tokens. For truly deterministic outputs, use `seed` parameter (where supported) or tolerate minor variation.
-- **`max_tokens`truncation** is silent. If your prompt + completion exceeds the model's context window AND you set`max_tokens=4096`, the model simply stops generating at token 4096. The response appears complete but the last sentence may be cut off mid-word with no error.
-- **ChatML message ordering**: `[system, user, assistant, user, assistant]`is standard. Inserting a`system`message between`user`and`assistant` resets the model's "voice" and can produce garbled output. Some providers silently reorder messages; verify the final payload.
-- **Token counting is NOT byte-counting**. 1 token ≈ 0.75 words in English but 1 token ≈ 0.3 words in Japanese. A 500-character Japanese prompt costs 3x the tokens of a 500-character English prompt. Budget by token count, not character count.
-- **Fine-tuned models forget** — fine-tuning on a specific task reduces performance on OTHER tasks (catastrophic forgetting). A GPT-4 fine-tuned on medical transcripts may lose 15% accuracy on general reasoning. Evaluate BOTH target-task AND general-benchmark performance post fine-tuning.
+- **OpenAI `temperature=0` is NOT deterministic.** With `temperature=0`, the model still uses floating-point sampling and GPU non-determinism. Two identical requests can return different tokens. Debugging non-deterministic outputs burns **4-8 engineering hours/month ($400-$800/month)** just investigating "why did the output change?" when no code or prompt changed. In regulated industries (finance, healthcare), non-deterministic outputs can fail audit requirements — a failed SOC 2 or HIPAA audit costs **$10,000-$100,000+**. For truly deterministic outputs, use `seed` parameter (where supported) and set `OMP_NUM_THREADS=1`, `MKL_NUM_THREADS=1`, `CUDA_LAUNCH_BLOCKING=1`.
+- **`max_tokens` truncation is silent.** If your prompt + completion exceeds the model's context window AND you set `max_tokens=4096`, the model simply stops generating at token 4096. No error. No warning. A truncated response looks complete but may be missing critical information. At 0.5% truncation rate on 1M requests/day = **5,000 incomplete answers/day**. Each generates a support ticket ($5 avg) = **$25,000/day in support costs** or worse — users act on incomplete information. Always check `finish_reason` in the response: if `finish_reason != "stop"`, increase `max_tokens` or shorten the prompt.
+- **ChatML message ordering: `[system, user, assistant, user, assistant]` is standard.** Inserting a `system` message between `user` and `assistant` resets the model's "voice" and produces garbled output. At 5% error rate on 100K daily requests, that's **5,000 wasted API calls/day** — at $0.03/request average, **$150/day = $54,750/year** in garbage outputs. Some providers silently reorder messages; always verify the final payload with `.model_dump()` before sending. Test with `system → user → system` to confirm your provider rejects or reorders it.
+- **Token counting is NOT byte counting.** 1 token ≈ 0.75 words in English but 1 token ≈ 0.3 words in Japanese. A 500-character Japanese prompt costs 3x the tokens of a 500-character English prompt. A multilingual app with 30% non-English traffic and $50K/month LLM bill is unknowingly spending **$15,000/month ($180,000/year) on token counting assumptions alone**. Budget by `tiktoken` count per language, not character or word count. Implement cost-per-language dashboards to catch billing surprises.
+- **Fine-tuned models forget — catastrophic forgetting is real.** Fine-tuning a GPT-4 on medical transcripts may lose 15% accuracy on general reasoning benchmarks. A medical chatbot that gets medical Q&A 95% right but fails basic common-sense questions ("Is it safe to take expired Tylenol?") creates **liability exposure of $500,000-$2M per incident**. Always evaluate BOTH target-task AND general-benchmark performance post fine-tuning. Keep baseline model side-by-side in production with a router that falls back to the general model for out-of-domain queries.
 
 ## Verification
 
