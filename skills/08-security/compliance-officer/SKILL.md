@@ -232,6 +232,19 @@ Focus: Unified Control Framework across 6+ regulations, continuous compliance. T
 | `gdpr-privacy` | Data subject rights requirements, DPIA triggers, cross-border transfer restrictions | GDPR compliance gaps — regulatory exposure |
 | `privacy-engineer` | Privacy-by-design requirements, data classification guidance, PII handling policies | Privacy controls not embedded in architecture — retrofitting costs |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| A new vendor or SaaS tool is being onboarded without a completed vendor risk assessment | Halt onboarding until the vendor provides a SOC 2 Type II report, ISO 27001 certificate, or completes your security questionnaire. Require a DPA if they process personal data. Unvetted vendors are the #1 source of fourth-party risk. | Vendor risk is your risk. A vendor breach involving your customer data is your breach in the eyes of regulators and customers. |
+| A data subject access request (DSAR) arrives with a 30-day GDPR/CCPA response deadline and no process exists to handle it | Start the clock immediately. Identify all systems that store the subject's data, collect and collate the records, redact third-party data, and respond within the deadline. Document every step — regulators will audit the process, not just the outcome. | GDPR Article 15 fines start at €10M or 2% of global turnover. A missed DSAR deadline is the easiest fine for a regulator to issue because the violation is binary: you responded on time or you didn't. |
+| The scope of an upcoming SOC 2 audit includes systems that don't process or store customer data | Challenge the scope immediately — over-scoping multiplies audit cost, timeline, and complexity. Define explicit system boundaries with a data flow diagram showing which systems touch regulated data. | Scope creep is the #1 cost driver in compliance audits. Every system in scope adds controls to test, evidence to collect, and auditor hours to bill. |
+| A new regulation (e.g., EU AI Act, state privacy law) passes that may apply to the business within 12–18 months | Start a regulatory impact assessment within 30 days. Map the regulation's requirements to your existing control framework. The worst time to discover you need a 12-month implementation program is 6 months before the enforcement date. | Regulatory lead time is your most valuable compliance asset. Starting early means you can phase implementation. Starting late means you're racing a hard deadline with no margin for error. |
+| Evidence collection for a continuous monitoring control has been failing silently for >1 week | The control is effectively non-operational for the period the evidence is missing. Fix the collection pipeline immediately and document the gap — auditors will ask about the missing evidence window. A 1-week gap in a 52-week audit period is a finding. | Continuous monitoring means continuous. Every day of missing evidence is a day auditors can claim the control wasn't operating. Document the gap and implement alerting for collection failures. |
+| An employee reports that a data processing activity doesn't match what's documented in the Record of Processing Activities (ROPA) | Update the ROPA within 72 hours. GDPR Article 30 requires the ROPA to be accurate and up to date. An inaccurate ROPA is both a standalone violation and evidence that your data governance processes are broken. | The ROPA is the foundation of GDPR compliance. If regulators discover processing activities not documented in your ROPA, they will question what else is missing. |
+| A third-party vendor announces a data breach that potentially involves your customer data | Activate your incident response plan: determine what data was exposed, notify your DPO within 24 hours, assess breach notification obligations (GDPR: 72 hours to supervisory authority), and prepare customer notification. Delay turns a vendor breach into your negligence. | The clock starts when you learn of the breach, not when the vendor confirms the details. Regulators expect you to notify within the deadline even if you're still investigating — you can update the notification as more facts become available. |
+| A penetration test or security audit finds that documented controls don't match implemented controls | This is a control design failure — your policy says one thing, your infrastructure does another. Remediate the gap and update either the control implementation or the policy. Mismatched documentation is guaranteed to produce audit findings. | Documentation without implementation is compliance theater. Auditors verify that controls exist and operate — if your access review policy says "quarterly" but you only review annually, that's a finding. |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Unified control framework**: one control satisfies many requirements; do the work once.
@@ -241,9 +254,20 @@ Focus: Unified Control Framework across 6+ regulations, continuous compliance. T
 - **Vendor risk management**: assess third-party compliance; require SOC 2 reports or ISO certificates from critical vendors.
 - **Privacy by design**: bake GDPR/CCPA data subject rights (access, deletion, portability) into system architecture from day one.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Writing policies as aspirational documents ("we should use MFA") rather than auditable requirements ("MFA enforced for all human users, verified quarterly via IAM access review") | Every policy statement must be verifiable: define who, what, when, and how it's measured. "Should" isn't auditable. "Must, enforced by X, verified by Y on Z cadence" is. If you can't write the audit test for a policy statement, rewrite it. |
+| Scoping a SOC 2 audit to include every SaaS tool, internal wiki, and development environment | Only systems that process, store, or transmit customer data belong in scope. Define scope boundaries with a data flow diagram. Every system in scope adds 3–5 controls to test and hours of evidence collection — over-scoping is the fastest way to audit failure and budget overrun. |
+| Collecting audit evidence manually via screenshots 2 weeks before the audit | Automate evidence collection on a continuous cadence. Use a GRC platform (Vanta, Drata, Secureframe) or evidence-as-code scripts that run monthly. Manual evidence collection always misses time periods and produces inconsistent formats — both are auditor red flags. |
+| Treating GDPR consent as a one-time checkbox during signup | Implement granular consent (per purpose), a preference center where users can modify consent, and an audit log recording every consent change with timestamp and consent text version. GDPR Article 7 requires consent to be as easy to withdraw as it is to give. A buried preferences page violates this. |
+| Signing a vendor's DPA without reviewing whether their sub-processor list includes companies in non-adequate jurisdictions | Review the DPA's sub-processor list and cross-border transfer mechanisms (SCCs, BCRs). If the vendor uses sub-processors in countries without adequacy decisions and hasn't implemented SCCs, your data transfer is illegal under GDPR Chapter V. |
+| Running a compliance program as an annual pre-audit fire drill rather than a continuous operational rhythm | Implement continuous monitoring: automated control testing runs weekly, evidence collection runs monthly, policy reviews are scheduled, and the control framework is updated as regulations change. An 11-month gap between compliance activities guarantees findings — auditors test the full audit period, not just the last month. |
+| Accepting a vendor's SOC 2 report without reading the scope, exceptions, or complementary user entity controls (CUECs) | Read the full report: what's in scope (services, data centers, time period), what exceptions were noted, and what CUECs you're responsible for. A SOC 2 with 12 exceptions in critical trust principles is a red flag. CUECs are controls you must implement — if you miss them, the vendor's control doesn't protect you. |
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

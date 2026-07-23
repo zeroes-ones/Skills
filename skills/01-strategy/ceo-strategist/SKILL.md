@@ -274,6 +274,19 @@ Functional level (tactical: org change, process issue, vendor decision)
   └── Functional lead handles. `ceo-strategist` informed via weekly sync. No escalation needed.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Runway drops below 9 months with no active fundraising process | Immediately model three scenarios: best case (revenue grows 2x), realistic (flat), worst case (20% churn). Cut non-essential burn to extend runway to 12+ months. Begin warm-intro pipeline to 30+ target investors within 2 weeks | Cash running out is the #1 startup killer; fundraising with <6 months runway destroys negotiating leverage — investors offer down-rounds or cram-down terms when they smell desperation |
+| Investor asks "what's your moat?" and you default to "we execute better" or "our team is our advantage" | Build a Wardley Map of your value chain. Identify where you have unique data, network effects, switching costs, or proprietary technology. If you can't articulate defensibility in one sentence, your pitch is incomplete | "Execution" and "team" are not moats — every competitor says it. Investors buy monopoly theses in growing markets; without a structural moat, you're competing on price alone |
+| Board member raises the same strategic concern for the third consecutive meeting | Schedule a 1-on-1 pre-board call before the next meeting. Ask directly: "What would make you vote against the current strategy?" Surface disagreement privately, not in the boardroom. Flag to board-manager | Repeated concerns signal unresolved strategic disagreement. Board meetings are for decisions, not surprises — alignment is built in prep calls, not discovered in the room |
+| Key employee (top 10% performer) gives notice — cites "lack of growth" or "no clear path" | Audit the career ladder: when was their last promotion? Do they have a clear path to the next level? Counter-offer within 48 hours with a concrete growth plan including scope, title timeline, and mentorship. If they still leave, run the exit interview yourself | Losing a top performer costs 2-3x their salary in recruiting + ramp-up + lost institutional knowledge. More importantly, it signals to other top performers that growth stalls here — one departure can trigger a cascade |
+| Co-founder tension surfaces — leadership meeting disagreements become personal, not professional | Engage a startup coach or facilitator within 1 week. Review the founder agreement: are decision rights per domain clear? Schedule a structured offsite to define who decides what and what happens when you disagree. Do not let tension fester | Co-founder conflict kills more startups than competition. A $5K facilitator session now prevents a $50K+ legal battle, cap table poison, and 6 months of operational paralysis later |
+| Revenue concentration: single customer represents >30% of ARR | Diversification sprint: identify 3 adjacent segments you can sell to within 90 days. Model revenue without the whale customer to show board. Communicate concentration risk with a mitigation timeline. Involve business-strategist | Customer concentration makes your company uninvestable at Series A+. One customer leaving means layoffs, not just a bad quarter. Investors price in the probability of whale churn |
+| Term sheet arrives with liquidation preference >1x or full-ratchet anti-dilution | Run the dilution model with these terms across best/worst exit scenarios before signing anything. Negotiate to 1x non-participating preferred with weighted-average anti-dilution. If investor won't budge, be prepared to walk — involve legal-advisor | A 2x liquidation preference today means common shareholders (including employees with options) get zero in a moderate exit. Bad terms in one round compound through every future round and make downstream fundraising nearly impossible |
+| Your calendar shows >80% internal meetings for two consecutive weeks — zero customer calls, zero recruiting | Audit your calendar immediately: which meetings require the CEO vs. which can be delegated? Cut or delegate everything that isn't customers, recruiting, fundraising, or strategy. Block 2 hours daily for deep work and refuse meeting invites in those slots | If the CEO is 100% internal, nobody is selling, recruiting executives, or talking to customers. The company runs on autopilot — directionless. Your calendar is your strategy; what it shows is what you actually prioritize |
+
 ## Best Practices
 <!-- STANDARD: 3min -- operational principles for the CEO role -->
 - **Strategy before execution**: Spend 20% of your time on strategy. Without it, you optimize the wrong thing. Annual offsite for long-range planning; quarterly reviews to adjust.
@@ -287,6 +300,18 @@ Functional level (tactical: org change, process issue, vendor decision)
 - **Your calendar is your strategy**: If 80% of your time is internal meetings, nobody is focused on customers, recruiting, or fundraising. Audit your calendar monthly — cut or delegate anything that doesn't require the CEO.
 - **Pre-mortem every major decision**: Before a big hire, fundraising round, or pivot, ask "If this fails, what was the root cause?" Design mitigations before you start, not after you're committed.
 - **Founder conflict kills more startups than competition**: Address co-founder tension early. Use a coach or facilitator. Have a pre-agreed decision framework for impasses: who decides what, and what happens if you still disagree?
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Waiting for "the right metrics" to start fundraising — runway hits 4 months before the first investor meeting is even scheduled | Begin fundraising at 10+ months runway regardless of metric perfection. The best time to raise is when you don't need the money. A B+ round with leverage beats an A+ round under duress every time |
+| Founder equity with no vesting schedule — departing co-founder walks away with 25% fully-vested shares on day 1, dooming future fundraising | Every founder agreement includes 4-year vesting with 1-year cliff, double-trigger acceleration, IP assignment tied to vesting, and a bad-actor buyback clause. A $5K lawyer pre-incorporation saves $80K+ and untold relationship damage later |
+| Hiring executives for the company you have, not the company you're building — VP of Sales hired before the founder has sold anything | Seed stage: generalists who thrive in chaos. Growth stage: specialists who build process. Don't hire a VP when you haven't validated the playbook yourself. Founder-led sales until you can hand off a repeatable, documented motion |
+| Keeping toxic A-players because "we can't afford to lose them" — one person drives 30% of output but has driven 3 good people to quit | Fire them fast. The cost of keeping toxic talent (attrition of good people, reputational damage, cultural erosion, management distraction) exceeds their individual output. Culture is what you tolerate, not what you preach |
+| Running board meetings as update sessions — 45 minutes of slide reading followed by 15 minutes of shallow discussion | Pre-board 1-on-1s with every director before the meeting. Send the deck 72 hours in advance. Board meetings are 80% strategic discussion, 20% updates. Use the limited time for decisions only the board can make, not reading slides everyone has already read |
+| Org redesign announced Monday, effective Monday — no transition plan, no interim leads, velocity drops 60% for two months | Phase the transition: announce 2 weeks early, appoint interim leads before the reorganization, create a dependency register for in-flight work, run a 2-week stabilization sprint before any new feature work. Plan for a 6-week velocity dip as the cost of structural change |
+| Handshake-only co-founder agreements — "we trust each other, we don't need paperwork" | Written co-founder agreement covering: vesting schedule, IP assignment, decision rights per domain, dispute resolution mechanism, and exit terms. Handshakes are not contracts — they're lawsuits and cap table disasters waiting to happen |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -335,7 +360,7 @@ Functional level (tactical: org change, process issue, vendor decision)
 **Lesson:** Founder agreements without vesting are not agreements — they're lawsuits waiting to happen. A $5K lawyer session pre-incorporation saves $80K+ and untold relationship damage. Vesting is not optional.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

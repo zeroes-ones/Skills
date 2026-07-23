@@ -331,6 +331,18 @@ Do not read the entire skill. Follow the route above and read only the sections 
 - When processing data on behalf of enterprise customers, sign a DPA that incorporates the latest EU Standard Contractual Clauses (SCCs).
 - Trademark clearance should happen before finalizing any product name — rebranding is expensive and disrupts SEO.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Copy-pasting a competitor's Terms of Service and changing the company name — this is copyright infringement and their terms may not fit your business model | Draft from industry templates (YC Series Seed, Cooley GO) customized to your actual data practices, liability model, and jurisdiction. Run through a qualified attorney before publishing |
+| Using browsewrap (passive "by using this site you agree") instead of clickwrap for binding terms | Implement explicit clickwrap: user must check a box or click "I Agree" before proceeding. Courts routinely strike down browsewrap as unenforceable — Uber lost a major arbitration clause case because the terms were buried behind a hyperlink |
+| Treating all open-source licenses as "free to use" without understanding copyleft triggers — GPL/AGPL code in your backend can force you to open-source your entire codebase | Segregate strong copyleft components (GPL, AGPL, EUPL) into separate services behind an API boundary. Use FOSSA or Snyk for automated license compliance scanning in CI/CD. Maintain an SPDX-compliant SBOM |
+| Collecting user data first, then figuring out privacy policy and consent later — this is per se illegal under GDPR (fines up to 4% global revenue) and several US state laws | Privacy-by-design: define data collection purpose, legal basis, and retention period BEFORE writing any data ingestion code. Implement consent management at project kickoff, not as launch-day panic |
+| Filing a trademark application without a proper clearance search — rebranding after a cease-and-desist costs $50K-250K in design, domain, SEO, and customer confusion | Commission a comprehensive trademark clearance search (USPTO TESS + common law + domain + social media handles) BEFORE finalizing any product name. Budget $500-2K for the search — it's the cheapest insurance you'll buy |
+| Signing enterprise contracts without a limitation of liability cap — uncapped liability means one data breach could bankrupt the company | Include mutual liability caps tied to contract value (12-24 months of fees) with standard carve-outs for gross negligence, willful misconduct, and IP infringement. Never accept uncapped indemnification for third-party claims |
+| Using NDAs as a substitute for actual IP assignment agreements with contractors — an NDA prevents disclosure but does NOT transfer ownership of the work | Always use a written IP assignment agreement (work-for-hire clause) with every contractor BEFORE work begins. For employees, ensure employment agreements include present assignment of future inventions. Without this, the contractor owns what they build for you |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Legal advice touches every function. Missed coordination creates liability; over-lawyering blocks velocity. Balance is structural.
@@ -393,6 +405,19 @@ Legal advice touches every function. Missed coordination creates liability; over
 | Cross-border M&A or IPO preparation | **External Transactional Counsel** + CEO Strategist + CFO | Complex multi-jurisdiction; specialized expertise required |
 | Criminal allegation involving employee or company | **External Criminal Defense Counsel** + Board | Personal and corporate liability; privilege critical |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| User mentions "we're launching in Europe next month" without discussing GDPR readiness | Prompt: "GDPR requires a Data Protection Officer, lawful basis documentation, and a records of processing activities (Art. 30) BEFORE processing EU resident data. Fines are up to 4% of global annual revenue. Want me to run the GDPR-readiness checklist?" | GDPR is not post-launch compliance — it's a pre-launch requirement. Launching without Art. 30 documentation and consent mechanisms creates immediate liability. EU regulators have fined companies within weeks of market entry |
+| Developer asks to integrate a GPL-licensed library into the main backend codebase | Flag: "GPL/AGPL is a strong copyleft license — integrating it may require you to open-source your entire backend. Consider: (1) Is there an MIT/Apache alternative? (2) Can this run as a separate service behind an API boundary? Let me audit all current dependencies for copyleft triggers" | One GPL dependency integrated into proprietary code can create an enforceable obligation to release the entire codebase. This is how many startups discover they've accidentally open-sourced their core IP during due diligence |
+| User describes "we don't have a privacy policy yet, we'll add one before launch" | Intervene: "Privacy policy must be published BEFORE you collect any user data — not at launch. Under GDPR, CCPA, and similar laws, you need to disclose what data you collect, why, and how long you keep it at the point of collection. A retroactive privacy policy is legally meaningless and creates ongoing exposure" | Pre-collection disclosure is a universal requirement across privacy regulations. A privacy policy posted after data collection began does not cure the original violation. This creates liability for every user whose data was collected without notice |
+| Co-founder asks to use personal funds for company expenses without proper documentation | Alert: "Commingling personal and business funds pierces the corporate veil — eliminating limited liability protection. Every company expense must go through a business bank account with clear documentation. This is how founders lose personal asset protection in litigation. Set up a business account and expense policy now" | Commingling is the #1 way courts pierce the corporate veil. Once pierced, founders are personally liable for all company debts and judgments. This applies to LLCs and corporations equally — the protection is conditional on separation of finances |
+| Product team describes collecting health data or children's data without special handling | Escalate: "Health data (HIPAA) and children's data (COPPA, GDPR Art. 8) trigger additional regulatory frameworks with mandatory requirements. This is not general privacy — these are regulated data categories with per-violation fines. The product design must include age verification, parental consent flows, and data segregation BEFORE implementation" | Regulated data categories impose obligations that general privacy laws don't — mandatory breach notification timelines (HIPAA: 60 days), verifiable parental consent (COPPA), data minimization requirements. Designing the product without these constraints means expensive redesign or regulatory action |
+| Developer proposes an "accept terms on signup" flow without version tracking or change notification | Warn: "Terms of service need: (1) version tracking with effective dates, (2) user re-consent for material changes, (3) archived versions accessible to users, (4) audit trail of who accepted which version and when. A simple checkbox without versioning means you can't prove a user agreed to the current terms in a dispute" | Without versioned acceptance records, you cannot enforce arbitration clauses, liability limitations, or class action waivers against users who signed up under old terms. Courts require proof that the specific user agreed to the specific version being enforced |
+| User mentions "we'll just use the same contract template for all our enterprise customers" without customization | Flag: "Enterprise contracts need per-customer negotiation on: liability caps, SLA commitments, data processing terms, termination rights, and IP ownership of custom work. A one-size template either gives away too much (low liability cap for a $500K deal) or is too aggressive (no SLA for a mission-critical deployment). Each enterprise deal needs legal review of these 5 key terms" | Enterprise contract standardization saves time but creates risk at both ends. Underselling liability caps loses money; overselling SLAs creates unbounded operational liability. The gap between a $5K and $500K contract should be reflected in the legal terms |
+| Team discusses an acquisition or funding round without having done IP assignment cleanup | Intervene immediately: "Due diligence will require: (1) signed IP assignment agreements from every founder, employee, and contractor who ever contributed code, (2) open-source license audit (SBOM), (3) trademark registration status, (4) patent filings if any. Missing IP assignments from a former contractor who contributed 20% of the codebase can kill a deal. Start the IP cleanup audit now — it takes months" | IP ownership gaps are the #1 deal-killer in M&A and funding due diligence. A single contractor without a signed IP assignment means the company doesn't own its own product. This is unfixable retroactively without locating and negotiating with the former contractor |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -448,7 +473,7 @@ Run skills in the order shown:
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

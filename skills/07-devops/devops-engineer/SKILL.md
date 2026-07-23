@@ -522,6 +522,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `site-reliability-engineer` | Alerting setup, runbook automation, deploy pipeline integration, error budget checks | SRE can't measure or enforce reliability without infrastructure integration |
 | `platform-engineer` | Infrastructure building blocks, IaC modules, cluster templates for golden paths | Platform has no foundation — developers can't self-serve |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| `terraform plan` drift detected on a security group or IAM role | Investigate immediately and page on-call if the change is unauthorized. Drift on security-boundary resources often indicates a manual console change or a compromised credential. | Security group and IAM drift are the #1 indicators of misconfiguration or breach. Benign tag drift can wait; security drift cannot. |
+| Argo CD reports `OutOfSync` on a production application for more than 5 minutes | Check if `selfHeal` is enabled and prune is configured. If sync is blocked by a resource conflict, resolve manually and root-cause why auto-sync failed. | Prolonged OutOfSync means the cluster's actual state diverges from Git — the entire premise of GitOps is broken. |
+| Vault lease expiration rate spikes across multiple services simultaneously | Check for synchronized credential renewal — all services renewing at the same TTL boundary creates a thundering herd. Stagger renewal windows by adding jitter to each service's TTL. | Synchronous credential rotation can overwhelm Vault and cause a cascading auth failure across every service. |
+| Cloud bill projected to exceed monthly budget by >20% mid-month | Run cost attribution report by tag, identify the top 3 spend drivers, and notify service owners. Check for orphaned resources (unattached EBS volumes, idle load balancers, abandoned NAT gateways). | Mid-month budget overruns don't self-correct. A $500 leak on day 10 becomes a $1,500 surprise by day 30. |
+| Production deploy succeeded but error budget burn rate spiked within the rollout window | Trigger automated rollback using the deployment tool's rollback API. Do not investigate in production — roll back first, diagnose on staging. | Error budget burn during a rollout almost always correlates with the release. The safest action is rollback, then RCA. |
+| A teammate runs `kubectl apply` directly on a production cluster managed by Argo CD/Flux | The manual change will be auto-reverted within the sync interval. Educate the teammate on GitOps workflow and verify `selfHeal: true` is configured. If the manual change was an emergency fix, it must be committed to Git immediately. | Manual `kubectl` on a GitOps cluster is an anti-pattern that causes confusion (who changed what?) and drift (the revert may surprise the operator). |
+| Terraform state file grows beyond 100MB or `terraform plan` takes >10 minutes | Refactor state into smaller scoped workspaces — split by component (network, compute, data) or by service team. Large state files slow every plan/apply cycle and increase blast radius on state corruption. | State file bloat is a gradual degradation that silently erodes deployment velocity. A 200MB state file can turn a 30-second plan into a 10-minute blocking operation. |
+| DNS TTL for critical endpoints is ≥300 seconds during a planned failover test | Reduce TTL to ≤60 seconds at least 1 TTL period before the failover window. DNS propagation delay with high TTL means clients cache stale IPs and can't reach the new endpoint during DR. | High DNS TTL is the silent killer of fast failover. A 300-second TTL means up to 5 minutes of client downtime even if your infrastructure fails over in 30 seconds. |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 <!-- DEEP: 10+min -->
@@ -532,6 +545,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **GitOps single source of truth** — No `kubectl apply` from laptops. Git repo defines desired state; Argo CD/Flux reconciles. Manual changes auto-reverted within 5 seconds (`selfHeal: true`).
 - **Cost-awareness from day one** — Tag every resource. Set budget alerts at 50%, 80%, 100% of monthly forecast. Weekly cost reviews; monthly FinOps meeting with service owners.
 - **DR is a continuous practice, not a document** — Run DR tests on schedule. Measure recovery time, not just "it worked." Automate the failover — manual runbooks fail under pressure.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Running `terraform apply` from a local laptop against production state | All applies must run through CI/CD with plan posted as PR comment and human approval required. Local applies bypass review, lack audit trail, and use unverified credentials. Lock down production state to only allow CI service principal access. |
+| Using the same Terraform state file for staging and production with workspace switching | Use separate state files (or separate backends) per environment. A `terraform destroy` in the wrong workspace can delete production. Separate state files also enforce blast radius isolation — a corrupted staging state doesn't block production changes. |
+| Baking secrets into container images or AMIs at build time | Inject secrets at runtime via a secrets manager (Vault, AWS Secrets Manager, External Secrets Operator). Build-time secrets persist in image layers and are visible to anyone with registry access. Runtime injection ensures secrets are ephemeral and auditable. |
+| Configuring GitOps without `selfHeal: true` and `prune: true` | Manual `kubectl` changes will persist indefinitely, creating hidden drift. Self-heal auto-reverts unauthorized changes within seconds. Pruning removes resources deleted from Git — without it, orphaned resources accumulate. Both settings are non-negotiable for production. |
+| Deploying a canary without a control group — sending 100% of traffic through the canary | Keep 10–20% of traffic on the stable version as a baseline. Canary analysis must compare metrics (error rate, latency) against the live control group. Without a control group, you're just monitoring a full rollout and hoping for the best. |
+| Treating disaster recovery as a document that gets updated once a year | Run automated DR tests on a schedule (monthly for tier-1 services). Measure RTO/RPO against targets. Game days expose gaps that documentation alone never reveals — like a DNS change that wasn't committed to Git or a runbook step that references a decommissioned tool. |
+| Using long-lived static credentials for CI/CD pipelines instead of OIDC federation | Use OIDC federation (GitHub Actions → AWS, GitLab → GCP) with short-lived tokens scoped to each pipeline step. Static credentials are a single point of compromise — if leaked, an attacker has permanent access. Rotate any existing static credentials immediately. |
 
 ## Infrastructure Cost per User at Scale
 
@@ -615,7 +640,7 @@ Self-hosting only wins when:
 - **Medium → Enterprise**: 10+ services with cross-team ownership. Multi-region or compliance required. >50 engineers.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
