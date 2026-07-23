@@ -269,6 +269,19 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 | Reading level regression detected | `clinical-informatics-specialist`, `ux-researcher` | Patient comprehension at risk |
 | New regulatory requirement discovered | `regulatory-specialist`, `legal-advisor`, `ui-ux-designer` | May require flow redesign, new disclaimers |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Medical disclaimer draft completed for patient-facing feature | Notify regulatory-specialist and legal-advisor within 24 hours; do not publish until both sign off; a disclaimer at the decision point is content, not legal CYA | Disclaimer language that hasn't been legally reviewed is a regulatory liability — and disclaimers no one reads aren't disclaimers |
+| Consent comprehension testing shows <50% of users can explain what they consented to | Simplify to ≤6th grade reading level; add comprehension check question; split into granular options instead of single checkbox; retest until >80% comprehension | If users can't explain what they consented to, consent isn't informed — this is both a UX failure and a regulatory risk |
+| Reading level analysis detects regression above 8th grade for patient-facing content | Flag affected strings; simplify within 1 sprint; notify clinical-informatics-specialist and ux-researcher; add reading-level gate to CI/CD | Health literacy regression silently excludes vulnerable patients — reading level is an accessibility metric |
+| String freeze deadline approaching with untranslated source strings containing English idioms or concatenation | Audit all frozen strings: rewrite idiomatic expressions, replace concatenated strings with ICU MessageFormat, add translator comments for context | Source strings designed for translatability prevent localization defects — idioms and concatenation are technical debt |
+| Accessibility audit reveals missing alt text, heading hierarchy skips, or non-descriptive link text in UX copy | Fix within same sprint: add descriptive alt text, fix heading hierarchy (H1→H2→H3 no skips), rewrite link text to be descriptive out of context | Content accessibility starts at the writing stage — these aren't engineering defects, they're writing defects |
+| Trust survey or NPS shows statistically significant drop quarter-over-quarter | Audit tone across all user-facing copy: check for mismatched register (cheerful tone for serious condition), cop-out disclaimers, inconsistent voice; prioritize fixes by user touchpoint volume | Tone mismatches erode trust faster than factual errors — the right register for the right context is critical in healthcare |
+| New product feature adds >50 new strings without content design review | Halt string freeze until UX writer reviews all strings: check for consistency, reading level, translatability, error states, empty states, and loading states | Content design review before implementation prevents rework — every string without review is technical debt |
+| Regulatory finding cites missing disclaimer for AI-generated content or overly broad consent scope | Add per-feature disclaimers; narrow consent options to specific purposes; document regulatory rationale; update consent flow template to prevent recurrence | Regulatory requirements evolve — build disclaimers and consent flows with flexibility for changing compliance landscapes | 
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -279,6 +292,19 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 - **Error messages are UX, not engineering**: Don't let developers write error strings. Every error message is a content design opportunity.
 - **Translations are not an afterthought**: Design strings for internationalization from day one. Retrofitting i18n costs 3x more.
 - **Disclaimers are content, not legal CYA**: A disclaimer that no one reads is not a disclaimer. Design it for comprehension.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Writing dense paragraphs of clinical copy without scanning affordances | Use headings, bullets, and bold keywords — users scan health information, they don't read it; structure for skimmability |
+| Testing copy exclusively with colleagues who have 100x the health literacy of users | Test with people matching target demographics; health literacy gaps are invisible to your team but glaring to patients |
+| Wireframing with lorem ipsum instead of real copy | Design content before design: if real copy doesn't fit, the design is wrong — lorem ipsum hides content-design conflicts |
+| Bundling multiple consent asks (research, marketing, data sharing) on one screen | One action per screen, especially in consent flows; granular consent options with comprehension checks for each |
+| Letting developers write error message strings | Every error message is a content design opportunity: explain what happened, the impact, and the next action — engineering owns the logic, UX writing owns the words |
+| Treating internationalization as a post-launch retrofit | Design strings for i18n from day one: ICU MessageFormat, translator comments, expansion buffers; retrofitting costs 3x more |
+| Burying disclaimers in page footers where no one reads them | Place inline at the decision point with progressive disclosure; a disclaimer no one sees is no disclaimer at all |
+| Using cheerful/playful tone for serious medical conditions | Match register to context: compassionate and clear for serious conditions, warm and encouraging for wellness — tone mismatches erode trust | 
 
 ## MVP vs Growth vs Scale
 
@@ -366,7 +392,7 @@ Common chains:
 - **Small → Medium**: >1000 strings, >10 languages, first FDA-regulated product, consent complexity exceeds manual management
 - **Medium → Enterprise**: >5000 strings, multi-jurisdiction regulatory requirements, patient safety-critical content
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

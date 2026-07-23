@@ -227,6 +227,19 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 - **Cultural competency gate:** Non-English communities require dedicated moderators from those communities. Translated content ≠ culturally competent content. Artifact: Cultural competency assessment per language/region.
 - **Ambassador compensation gate:** Peer mentors compensated at fair market rates (honoraria, stipends, conference sponsorship). Uncompensated mentorship = exploitation. Artifact: Ambassador compensation policy with rate schedule.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Community engagement drops >20% month-over-month | Trigger root-cause analysis within 48 hours: survey lapsed members, review content cadence, check for negative sentiment events; present findings to product strategist | Engagement decline is a leading indicator of community health deterioration — waiting for member exodus is too late |
+| New member posts-per-day ratio drops below 0.3 (averaged over 7 days) | Review onboarding flow: is the first-prompt clear, specific, low-stakes? A/B test new prompts; reach out to recent joiners who haven't posted | New members who don't post within 7 days have a <10% chance of ever becoming active — the window is short |
+| Peer mentor reports feeling "overwhelmed" or "drained" in check-in | Immediate mentor support: reduce mentee load, offer clinical supervision session, assess for vicarious trauma; do not wait for formal burnout | Mentor burnout is a patient safety issue — an exhausted mentor makes judgment errors that can harm mentees |
+| Community post with suicidal ideation and specific plan or intent detected | Execute 5-minute crisis protocol: human assessment (not automated), C-SSRS screening, warm handoff to crisis service, document all actions | Automated responses to suicidal ideation are never acceptable — every minute of delay increases risk |
+| Coordinated misinformation appears across 3+ community threads within 24 hours | Content policy escalation: identify source pattern, assess clinical risk level, deploy community communication, escalate to crisis response if safety risk | Misinformation spreads exponentially in health communities — early containment prevents normalization of dangerous claims |
+| Patient privacy incident: member PII or PHI visible in public community area | Immediate content removal or edit; contact member privately within 1 hour; document action with rationale; review privacy controls | Community members share health data trusting it stays within the community — a privacy breach erodes trust permanently |
+| Cultural competency gap identified: non-English segment has <50% engagement of English segments | Assess: dedicated moderators from that community? Culturally adapted content? Language barriers in platform UI? Address gaps within 30 days | Non-English communities that feel like "translations" rather than authentic communities will fail — cultural competency is a growth and safety requirement |
+| Ambassador departs publicly with criticism of community leadership | Acknowledge the departure respectfully (no defensiveness); reach out privately to understand concerns; review ambassador program for systemic issues | How you handle a departing ambassador is witnessed by every active member — it's the ultimate community trust test |
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -238,6 +251,19 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 - **HIPAA does not apply to patient communities, but patient privacy ethics do.** A patient sharing their own health information in a community is not a HIPAA event. But the community operator aggregating, analyzing, or resharing that data introduces privacy obligations. Treat patient data with clinical-grade respect even when the law does not require it.
 - **Cultural competency means more than translation.** A Spanish-language community is not an English community translated. Cultural attitudes toward treatment, family roles in healthcare, faith-based coping — these shape the community experience. Hire community managers from the communities you serve.
 - **Gamification in health communities must be designed with care.** A leaderboard of "most bleeds survived" is harmful. Recognition programs should celebrate supportiveness, not suffering. "Most helpful responses" is better than "most posts." Never gamify health outcomes — it creates perverse incentives.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Community guidelines that read like a legal EULA — dense, punitive, unreadable | Write guidelines in plain language with specific examples: "This is OK: sharing your experience with treatment X. This is not OK: telling someone to stop taking their medication." |
+| Suppressing negative posts or critical feedback about treatments/clinicians | Respond constructively: "Thank you for sharing your experience. Different treatments work differently for different people. Here's what the evidence says about [topic]." Healthy disagreement builds more trust than a perfectly positive feed. |
+| Using "super-user" volunteers as unpaid labor for moderation and support | Compensate peer mentors at fair market rates (stipends, honoraria); provide clinical supervision; limit mentor-to-mentee ratios; have formal burnout monitoring |
+| Launching condition-specific sub-communities without dedicated moderator coverage | Every community segment must have a trained moderator — never launch a community and "figure out moderation later"; inadequate moderation is a patient safety risk |
+| Treating community side-effect discussions as noise or deleting them | Treat as safety surveillance signal: log patterns, identify trends, escalate potential AEs; patient-reported side effects in communities have detected signals that clinical trials missed |
+| Gamification that rewards health outcomes or treatment adherence | Reward supportive behaviors: helpful responses, welcome messages, resource sharing; never create leaderboards tied to clinical outcomes — it creates shame, competition, and perverse incentives |
+| Assuming HIPAA applies to everything patients share in community | HIPAA doesn't cover patient self-disclosure, but ethical privacy obligations do: never aggregate, analyze, or reshare patient health data without explicit consent — treat all patient data with clinical-grade respect |
+| Building community growth strategy that only reaches English-speaking, urban, highly-engaged patients | Measure demographic diversity of new members vs. target patient population; invest in culturally-competent outreach for underserved segments — the patients who need community most are often the hardest to reach | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

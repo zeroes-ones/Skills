@@ -274,6 +274,19 @@ Do not read the entire skill. Follow the route above and read only the sections 
 9. **DMA alignment traps.** ARM Cortex-M DMA requires word-aligned buffers. Unaligned buffer → slow byte copies or fault. Use `__attribute__((aligned(4)))` on all DMA buffers.
 10. **Brown-out detection with hysteresis.** BOD threshold at min operating voltage + 10% margin + 50mV hysteresis. Without hysteresis: dying battery → rapid BOD-reset loops → flash corruption.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Dynamic memory allocation in event loops or interrupt context | Allocate all buffers at boot; use static pools with `ACQUIRE_BUFFER()`/`RELEASE_BUFFER()` macros; heap after init = fragmentation time bomb |
+| Kicking watchdog from ISR or timer callback without subsystem health checks | Kick watchdog only in main loop after ALL critical subsystems report healthy via heartbeat flags; each subsystem must set its flag within deadline |
+| Using datasheet typical current for power budgeting | Measure actual current on first prototype at -20°C, 25°C, 60°C across all power modes; datasheet typical can be 20-50% optimistic |
+| Shipping firmware without hardware version detection | Read board revision via GPIO strapping or EEPROM; firmware must refuse to run on unsupported revision rather than operating with wrong pin config |
+| Long interrupt-disabled sections for "atomic" multi-step operations | Use lock-free data structures or short critical sections (<5µs); move heavy work to deferred procedure call from ISR |
+| Trusting SPI/I2C peripherals without bus recovery or timeout | Implement I2C bus recovery (9 SCL pulses), SPI timeout with peripheral reset, and UART receive timeout on every peripheral transaction |
+| Leaving GPIO pins floating in low-power sleep modes | Configure every unused pin as analog input (lowest leakage) or driven output; a single floating CMOS input can add 50-200µA leakage |
+| Shipping OTA updates without dual-bank flash and rollback | Implement dual-bank flash with bootloader that: validates signature, checks CRC, reverts to known-good image after 3 failed boots | 
+
 ## Error Decoder
 <!-- QUICK: 30s -- exact error → root cause → fix -->
 <!-- DEEP: 10+min -- war stories from production hardware failures -->
@@ -293,19 +306,6 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | Memory leak in production on resource-constrained device | Dynamic memory allocation in interrupt handler — memory allocated but never freed because function returned early on error path | Never use malloc/free in production code on embedded devices. Use static allocation only. If heap is necessary, use a memory pool with fixed-size blocks and leak detection. | An IoT sensor would crash after 47 days of uptime. The root cause: a 32-byte malloc in the SPI ISR that wasn't freed on CRC error. Over 47 days, the 64KB heap fragmented until allocation failed. |
 | GPIO pin conflict from shared driver assumption | Two peripheral drivers both claimed GPIO 12 for chip select — second driver silently reconfigured it | Implement a GPIO registry: every pin assigned to exactly one driver at init time. Assert on double-claim. Document pin mux in a spreadsheet reviewed at code review. | A custom PCB had the SD card CS and the display CS on the same GPIO. The display driver would fail randomly after the SD card was used. Root cause assumed "the display driver must have initialized first." |
 | Race condition on interrupt handler | Shared global variable written from ISR and main loop without volatile or critical section | All data shared between ISR and main loop must be: (1) declared volatile, (2) read/written atomically or within critical section, (3) never allocated on stack. Use a message queue pattern, not shared globals. | A motor controller occasionally "jumped" to full speed. Root cause: the ISR set a "new target speed" variable that the main loop read non-atomically. Half the bytes were from the new speed, half from the old — full throttle. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Device crashes randomly in the field | Watchdog timer not configured or reset incorrectly | Configure the hardware watchdog timer with a proper reset handler. The watchdog must be kicked (reset) only in the main loop after all critical subsystems have reported healthy. Never kick the watchdog in an interrupt handler — it masks the crash. | Never kick watchdog in ISR. Kick only in main loop after all healthy checks. |
-| I2C bus locks up after 24 hours of operation | No bus recovery mechanism on lock condition | Implement I2C bus recovery: if the bus is busy for >100ms without a stop condition, toggle SCL 9 times to reset slave devices. Add a bus health monitor that detects lockups and triggers re-initialization. Missing this is the #1 cause of "works in the lab, fails in the field." | Bus recovery after 100ms of no stop condition. Works-in-lab/fails-in-field #1. |
-| Firmware OTA update bricks 5% of devices | No rollback mechanism in bootloader | Every OTA update requires: dual-bank flash with a confirmed-good fallback image, CRC check before applying the update, and a bootloader that boots the previous image if the new one fails to start. If the bootloader can't roll back, every OTA is a potential bricking event. | Dual-bank flash with CRC + rollback is mandatory for any OTA-capable device. |
-| ADC readings drift with temperature | No temperature compensation in firmware | Add a temperature sensor near the ADC reference. Read temperature at each conversion cycle and apply a compensation curve. If the ADC has an internal temperature sensor, use it. ADC drift without compensation can be 10-50% across the operating temperature range. | Temperature compensation is essential for accurate ADC across operating range. |
-| Production test fails 30% of units, all pass in re-test | Test fixture has poor contact or timing issues | Review test fixture: pogo pin alignment, contact resistance, settling time after power-up. Add a "pretest" sequence that checks fixture contact before running tests. The first test after a power cycle should be a known-good reference measurement. | Pretest reference measurement catches fixture issues before false failures. |
-| Interrupt latency causes missed events | Shared interrupt priority or long critical sections | Assign interrupt priorities carefully: time-critical interrupts (timers, communication) get highest priority. Limit critical section duration to <10μs. Use a real-time trace (logic analyzer or Segger SystemView) to measure worst-case interrupt latency. If latency exceeds your timing budget, restructure critical sections. | Map critical sections with logic analyzer. Keep <10μs for hard real-time. |
-| Power budget exceeded by 40% | Sleep mode not configured for peripherals | Every peripheral must be in its lowest power state when not in use. GPIO pins should not float (internal pull-up/down or driven). Use the MCU's lowest sleep mode that can wake from the required source. Measure actual current at the PSU, not the datasheet typical — it's always higher. | Every peripheral must be in lowest power state. Measure at PSU, not datasheet. |
-
 
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail. All must pass before production. -->
@@ -374,6 +374,19 @@ Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA /
 - **Handoff to `firmware-developer`:** Memory map (linker script input), peripheral init sequence, ISR priority assignments, DMA channel allocation, HAL API specification. Artifact: BSP handoff package with all register-level documentation.
 - **Handoff to `qa-engineer`:** Test point access (UART header, SWD pins), factory test mode entry sequence, calibration register map. Artifact: HIL test specification with pass/fail thresholds.
 - **Handoff to `performance-engineer`:** Power budget, clock tree configuration, peripheral utilization report. Artifact: Power and performance baseline report.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| OTA rollout reaches 5% fleet and no brick reports yet | Continue staged rollout: 5% → 15% → 50% → 100% with 24-hour observation windows; monitor boot success rate per version | Early-stage brick detection limits blast radius; a 0.1% brick rate at 5% fleet = 50 devices vs 500 at full rollout |
+| Power consumption increases >15% after firmware update without intentional feature change | Profile power before merge: diff power trace of old vs new firmware across all sleep states; reject merge if regression unexplained | Power regressions compound across releases; a 200µA regression across 100K devices = 20A continuous waste |
+| Bootloader vulnerability CVE announced affecting your MCU family | Assess exploitability within 24 hours; if remotely exploitable, prepare emergency OTA; if unpatchable in firmware, start physical recall assessment | Bootloader vulns are fleet-wide; every day of inaction increases exposure window |
+| Silicon errata published for MCU in production — affects peripheral you use | Evaluate workaround feasibility within 48 hours; classify: firmware-workaroundable, hardware-respin-required, or acceptable-degradation | Ignoring errata leads to field failures that look intermittent and take months to diagnose |
+| Factory test failure rate spikes >2% on a single test station | Halt production line; compare failing boards vs passing on reference station; suspect test fixture contact, not component defect | False failures at test are more common than true defects — halting production without root cause wastes money |
+| RTOS task stack high-water mark <20% headroom after 24-hour stress test | Increase stack allocation immediately; a stack overflow in the field manifests as random crashes correlated with specific event sequences | Stack overflow is the most common RTOS field failure and the hardest to diagnose from crash dumps |
+| Flash/RAM usage exceeds 85% with features still planned | Trigger optimization sprint before adding features: compress assets, deduplicate strings, review linker map for orphan sections | Above 90% utilization, every new feature becomes a negotiation — plan headroom from architecture phase |
+| Same I2C bus lockup pattern observed in 3+ field returns | Implement bus recovery in next firmware release: detect stuck bus, toggle SCL 9 times, reinitialize peripheral; add bus health telemetry | Recurring bus lockups indicate hardware design issue — firmware workaround is band-aid, not cure |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 

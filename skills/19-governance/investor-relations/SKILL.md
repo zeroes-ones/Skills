@@ -117,6 +117,19 @@ Do not read the entire skill. Follow the route above.
 - **Fundraising:** Daily pipeline tracking; weekly strategy sync with CEO and legal
 - **Crisis:** Immediate notification protocol — board and major investors within 24 hours
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Monthly investor update is 3+ days late | Send update immediately even if incomplete — late is worse than imperfect; investors track consistency as a trust signal | Timeliness builds trust more than polish; a late update signals disorganization or hidden bad news |
+| Investor hasn't engaged with updates for 3+ consecutive months | Move to quarterly update cadence; don't waste CEO time on disengaged investors; flag to board if lead investor is disengaged | Disengaged investors won't lead your next round — conserve energy for active supporters |
+| Term sheet received with participating preferred structure | Model full exit waterfall at $50M, $100M, $500M, $1B — show CEO exactly how participation dilutes common at each exit value | Founders often focus on valuation and miss that participation preferred can leave common with $0 at moderate exits |
+| Warm intro request for target investor sits unanswered for 5+ business days | Follow up once; if no response in 2 more days, find alternative intro path or deprioritize that investor | Fundraising timelines are tight — waiting 2+ weeks for one intro burns runway and momentum |
+| Data room has 5+ unanswered diligence questions accumulating | Designate one person as "diligence quarterback" to triage, assign, and track every question within 24 hours; escalate anything >48 hours unanswered | Unanswered diligence questions create the impression you're hiding something — speed of response builds confidence |
+| Pitch deck hasn't been updated in 3+ months or since last material metric change | Refresh deck within 1 week — update traction slide with latest numbers; remove stale references; ensure narrative matches current strategy | Outdated decks signal that fundraising isn't a priority or that metrics have gotten worse |
+| Competitor raises significant round or announces product that directly competes | Draft reactive messaging within 24 hours: "Here's why this validates our market and why we're differentiated"; proactively send to existing investors | Investors will see the competitor news — your framing of it shapes whether they see threat or validation |
+| Secondary transaction proposed without employee-wide communication plan | Insert communication design into process: who sells, how much, who's eligible next, rationale, impact on 409A — communicate before, not after | Secondaries create winners and losers; silence breeds resentment and attrition among those excluded |
+
 ## Decision Trees
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -345,6 +358,19 @@ Thank you to [investor name] for [specific help they provided this month].
 10. **References make or break your round**: A single bad customer reference kills a deal faster than any diligence finding. Pre-select your references. Pre-brief them. Know what each reference will say. If a reference is lukewarm, they're not a reference — they're a liability.
 11. **Secondary transactions require board approval and careful communication**: Tender offers and founder secondaries create winners and losers. Employees who can't sell watch colleagues cash out. Design secondaries so every employee gets at least some liquidity. Communicate the rationale transparently.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Fundraising with 6 months of runway and decelerating growth | Start fundraising process at 12+ months runway while growth is accelerating; desperation is priced into every term |
+| Sending the same generic pitch deck to 50 investors without tailoring | Customize the first 3 slides for each investor: why this firm, why this partner, why now |
+| Using a spreadsheet cap table beyond 10+ equity holders | Migrate to Carta or Pulley before Series A; reconcile monthly; outside counsel audit before every fundraise |
+| Accepting a term sheet based on headline valuation alone | Build full term sheet comparison matrix: liquidation preference, participation, board control, anti-dilution, redemption, drag-along — structure beats price |
+| Treating all investors equally in communication cadence | Tier investors: active leads (weekly), warm relationships (bi-weekly), passive (monthly updates), disengaged (quarterly); conserve CEO energy |
+| Running a data room as a Dropbox folder shared via email | Build structured data room with 14 folders, indexed, counsel-reviewed, before first investor meeting; use Docsend or similar for access control |
+| Disclosing bad news for the first time during diligence | Pre-disclose all material challenges before the term sheet: customer concentration, key person departures, litigation, revenue misses |
+| Skipping investor updates during "quiet periods" because "there's nothing to report" | Send update every month regardless: "Steady progress this month — metrics attached. No major updates, but here's what we're focused on." Silence = suspicion | 
+
 ## Error Decoder
 <!-- DEEP: 10+min -- IR failures that kill companies -->
 
@@ -358,6 +384,8 @@ Thank you to [investor name] for [specific help they provided this month].
 | Down round destroys founder equity | Anti-dilution provisions (full ratchet) + pay-to-play + option pool refresh combine to crush common. | Negotiate weighted-average anti-dilution. Model down-round scenarios before accepting terms. If facing a down round, negotiate: (1) recapitalization instead of priced round, (2) option pool refresh as part of the round, not after, (3) founder refresher grants for those who stay. | Negotiate weighted-average anti-dilution. Model down-round scenarios upfront. |
 | Customer reference call goes badly | Customer wasn't pre-briefed or was selected without verifying enthusiasm. | Only put forward customers who would rate you 9+/10. Ask directly: "Would you be willing to take a call and be fully candid about your experience?" If they hesitate, they're not a reference. | Only put forward 9+/10 customers. If they hesitate, don't use them. |
 | Pitch deck leaks to competitors | Sent to too many investors without watermarking or tracking. | Every deck has a unique watermark with the recipient firm name. Use Docsend or similar for view tracking. Never email the deck as an attachment — always a tracked link. | Watermark every deck. Use Docsend/tracked links. Never email attachments. |
+| Fundraising process takes 6+ months with no clear timeline to close | No fundraising project plan or pipeline management | Create a fundraising project plan: target list, outreach schedule, meeting cadence, data room readiness, legal timeline. Update pipeline weekly. If no term sheet after 30+ first meetings, run a no-term-sheet post-mortem. | Fundraising without a project plan drifts. Pipeline management and weekly tracking are essential. |
+| New investor asks for information already in the data room | Data room index not shared or investor didn't open it | Send investors a data room index (table of contents) with their access link. Reference it in every follow-up: "This is covered in folder 5 — Commercial Diligence." | Index the data room and reference it in every investor communication. |
 | Earnings call with wrong numbers | CFO used preliminary Q3 numbers in script; final Q3 had different revenue recognition conclusion | Establish a "numbers freeze" 48 hours before earnings: all numbers are final, signed off by CFO and auditor. No last-minute substitutions. | A public company CEO read $48.2M revenue on the earnings call. The actual number was $46.8M due to a contract that missed ASC 606 cutoff. The stock dropped 8% on the "restatement" — even though $1.4M was within the normal variance range. |
 | Investor day confused the market | Presented 5 different ARR metrics without explaining which one was the primary KPI | Pick ONE primary metric and define it clearly. Secondary metrics get context. Every slide that shows a number must define what's included and excluded. | A SaaS company presented "Commited ARR, Booked ARR, Billed ARR, Recognized ARR, and Cash ARR" at investor day. Analysts couldn't figure out which number to model. The stock was flat for 6 months until the next earnings clarified. |
 | Material non-public information mishandled | CEO told a friendly analyst about a pending acquisition "off the record" — analyst traded on it | Implement a Reg FD training program for all executives and board members. No selective disclosure. If you say it to one analyst, you must say it to everyone. | The SEC fined a company $2.5M and the CEO was barred from serving as a public company officer for 2 years. The CEO thought "off the record" was a real thing. With Reg FD, there is no "off the record" for material information. |
@@ -370,19 +398,6 @@ Thank you to [investor name] for [specific help they provided this month].
 - **Down round**: Communicate before it leaks. Frame as "recapitalization to extend runway to profitability, with strong insider participation." Lead with the plan, not the valuation. Existing investors must re-invest or signal confidence, or new investors won't touch it.
 - **Layoffs**: Three communications, in order: (1) internal all-hands — laid-off employees hear from CEO first, (2) investor update within 24 hours with rationale, numbers, and path to breakeven, (3) public blog post if >20% of company. Never let investors learn about layoffs from TechCrunch.
 - **Product incident/breach**: Customer communication first, investor update second, public disclosure third (if material). Investor update: "On [date], we experienced [incident]. Here's what happened, what we're doing, and the customer impact. We will provide a post-mortem within [timeframe]."
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Board meeting is a status update, not a decision-making session | No decision-forward agenda or pre-reads | Every board agenda item must end with a specific ask: "approve budget," "approve option pool increase," "confirm strategy direction." Pre-reads sent 7 days before — no reading at the table. Meeting time is for discussion and decisions, not information dissemination. | Every agenda item must end with a specific ask. Pre-reads sent 7 days before. |
-| Director conflicts not disclosed | No annual conflict-of-interest process | Implement an annual D&O questionnaire that explicitly asks about: board seats at other companies, investments in competitors, family relationships with suppliers, and other potential conflicts. Review with legal counsel before the first board meeting each year. | Annual D&O questionnaire must explicitly ask about conflicts. Legal review before first meeting. |
-| Investor-relations fire drill before funding round | No regular investor communication cadence | Send monthly investor updates: key metrics (revenue, burn, cash, headcount), milestones achieved, challenges, asks. Invest the time in quarterly one-on-ones with lead investors. If the only time you talk to investors is when you need money, you're not managing the relationship. | Monthly investor updates prevent fire drills. Quarterly 1:1s with lead investors. |
-| Down round devastates employee morale | No communication plan around the financing | Explain to employees what a down round means before they hear it on the news. Key messages: why the round happened (market conditions, not company failure), what it means for options (409A repricing, new grants), and the path to future value creation. Silence creates the worst possible narrative. | Communicate down round before employees hear from external sources. Lead with the plan. |
-| Shareholder lawsuit after acquisition | Fiduciary duties not followed during sale process | Document the full sale process: board minutes approving the process, fairness opinion, special committee (if conflict exists), market check, shareholder vote materials. Every step must demonstrate that the board fulfilled its Revlon duties. If no fairness opinion or market check, expect a lawsuit. | Document full sale process. Fairness opinion + market check are essential. |
-| Cap table shows options that expired years ago | Option grants never tracked post-termination | Post-termination exercise periods vary (30-90 days standard, longer for early exercise). Track all option grants with expiration dates. Expired options should be returned to the pool. Uncancelled expired options create cap table noise and legal risk. | Track option grants post-termination. Return expired options to pool. |
-| Annual shareholder meeting delayed past legal deadline | No calendar for corporate compliance events | Maintain a compliance calendar: annual meeting date, franchise tax deadlines, annual report filings, board election dates, option exercise windows. Set reminders 60 days before each deadline. Missing a filing deadline can result in fines or loss of good standing. | Maintain compliance calendar with 60-day reminders. Missing filing = fines + risk. |
-
 
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail items. All must pass. -->

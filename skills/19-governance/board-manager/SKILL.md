@@ -111,6 +111,19 @@ Do not read the entire skill. Follow the route above.
 - **Annually:** D&O questionnaire cycle; board self-evaluation; committee charter review
 - **Event-driven:** Governance crisis activation (24-hour board notification requirement for S1 incidents)
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Board meeting agenda has zero strategic discussion items | Restructure agenda: 20% updates (as pre-reads), 60% strategic debate, 20% administrative — send revised agenda 7 days before meeting | Meetings without strategic discussion waste the board's primary value: collective judgment on hard decisions |
+| Director misses 2 consecutive meetings without prior notice | Lead director initiates private conversation about bandwidth and commitment; document in board minutes | Two consecutive unexplained absences signal disengagement that degrades quorum and decision quality |
+| Board composition hasn't been reviewed in 12+ months | Conduct board skills matrix review: map current directors against company's next 2-year challenges; identify gaps | Board needs evolve with stage — a Seed board can't govern a Series C company effectively |
+| D&O insurance renewal within 60 days without broker review scheduled | Schedule comprehensive broker meeting: confirm coverage adequacy for current stage, review exclusions, confirm severability clause | D&O gaps discovered at claim time are uninsurable; annual review with written confirmation is mandatory |
+| Material non-public information discussed with directors who have competing portfolio investments | Immediately document the conflict and recusal; review whether information barriers are adequate; consider restricting certain directors from competitive discussions | Undisclosed conflicts poison board decisions and expose all directors to fiduciary duty claims |
+| CEO performance hasn't been formally reviewed in 12+ months | Initiate compensation committee CEO evaluation: gather 360° input from directors, direct reports, and key stakeholders; present findings in executive session | Annual CEO review is the board's single most important governance process — skip it and you lose the right to complain about performance |
+| Minute book hasn't been audited by outside counsel in 18+ months | Engage outside counsel for annual minute book audit; verify: charter, bylaws, all board/committee minutes, stock ledgers, material agreements are complete and accessible | Missing minutes create liability for directors personally — incomplete records can pierce the corporate veil |
+| Board deck circulated less than 5 days before meeting | Flag to CEO that late materials reduce decision quality; implement standing rule: materials <5 days = meeting rescheduled or limited to consent agenda only | Directors need time to read, reflect, and prepare questions — late materials guarantee superficial discussion |
+
 ## Decision Trees
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
@@ -283,6 +296,19 @@ What happened in the meeting?
 9. **Board portal or bust**: By Series B, use a board portal (Diligent, Nasdaq Boardvantage, Boardable). No emailing financials. No Google Docs. Board communications are discoverable — the portal creates a record and controls access.
 10. **CEO succession is the board's #1 duty**: The board's most important job is hiring and firing the CEO. Have an emergency succession plan from Series A onward. "If the CEO is hit by a bus tomorrow, who runs the company?" If you can't answer, you're negligent.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Board meetings that are 90% CEO presentation and 10% Q&A | Restructure to 20% updates (pre-read), 60% strategic discussion, 20% administrative — send pre-reads 7 days before |
+| Adding investors to the board without considering governance dynamics | Map board seats by class before every financing; model voting control; consider independent director seats to balance investor influence |
+| Allowing directors to serve on 8+ boards simultaneously | Cap director board seats at 4 public or 6 private; check bandwidth before appointment; board evaluation flags over-commitment |
+| Executive session never happens because "things are going well" | Every board meeting must include independent director executive session (no CEO/management); lead director chairs; document occurrence in minutes |
+| Sending board materials as unencrypted email attachments | Use secure board portal (Diligent, Nasdaq Boardvantage) from Series B onward; watermark all documents; track access |
+| Approving CEO compensation without independent market data | Engage independent compensation consultant annually; benchmark against 10-15 peer companies; document committee rationale for each decision |
+| Minutes drafted 3+ months late from memory | Assign corporate secretary (CFO or GC); draft minutes within 5 business days; annual outside counsel audit of minute book |
+| No emergency CEO succession plan because "the founder is young and healthy" | Document emergency succession plan from Series A onward; update annually; lead independent director must know the plan | 
+
 ## Error Decoder
 <!-- DEEP: 10+min — governance failures in the wild -->
 
@@ -301,19 +327,8 @@ What happened in the meeting?
 | Confidential information leaked before filing | Board deck with material non-public information was emailed unencrypted to directors; one forwarded to assistant who shared it | Use a secure board portal (Nasdaq Boardvantage, Diligent). Never email board materials. Encrypt all documents. Directors sign NDA acknowledging insider trading rules. | A startup's Series B terms leaked to the press 48 hours before the announcement because a director's assistant left a printed deck on an airplane. The round was oversubscribed but the leak damaged investor trust. |
 | Board deadlocked on CEO succession plan | No succession planning committee; founders and VCs had irreconcilable views | Create a succession planning committee of independent directors. Develop a CEO succession profile before you need it. Document the process and criteria in board minutes. | A founder-CEO was diagnosed with a serious illness. The board had no succession plan. It took 6 months and $500K in executive search fees to find a replacement — and the company lost 2 quarters of momentum. |
 | Compensation committee approved CEO pay without market data | No compensation benchmarking report; comp committee relied on CEO's self-assessment | Engage independent compensation consultant annually. Benchmark CEO pay against peer group of 10-15 comparable companies. Document committee rationale for each comp decision. | A founder-CEO's compensation was $400K at a $5M ARR company — 2x market. When investors discovered, it triggered a compensation audit and damaged the board's credibility. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Board meeting is a status update, not a decision-making session | No decision-forward agenda or pre-reads | Every board agenda item must end with a specific ask: "approve budget," "approve option pool increase," "confirm strategy direction." Pre-reads sent 7 days before — no reading at the table. Meeting time is for discussion and decisions, not information dissemination. | Every agenda item must end with a specific ask. Pre-reads sent 7 days before. |
-| Director conflicts not disclosed | No annual conflict-of-interest process | Implement an annual D&O questionnaire that explicitly asks about: board seats at other companies, investments in competitors, family relationships with suppliers, and other potential conflicts. Review with legal counsel before the first board meeting each year. | Annual D&O questionnaire must explicitly ask about conflicts. Legal review before first meeting. |
-| Investor-relations fire drill before funding round | No regular investor communication cadence | Send monthly investor updates: key metrics (revenue, burn, cash, headcount), milestones achieved, challenges, asks. Invest the time in quarterly one-on-ones with lead investors. If the only time you talk to investors is when you need money, you're not managing the relationship. | Monthly investor updates prevent fire drills. Quarterly 1:1s with lead investors. |
-| Down round devastates employee morale | No communication plan around the financing | Explain to employees what a down round means before they hear it on the news. Key messages: why the round happened (market conditions, not company failure), what it means for options (409A repricing, new grants), and the path to future value creation. Silence creates the worst possible narrative. | Communicate down round before employees hear from external sources. Lead with the plan. |
-| Shareholder lawsuit after acquisition | Fiduciary duties not followed during sale process | Document the full sale process: board minutes approving the process, fairness opinion, special committee (if conflict exists), market check, shareholder vote materials. Every step must demonstrate that the board fulfilled its Revlon duties. If no fairness opinion or market check, expect a lawsuit. | Document full sale process. Fairness opinion + market check are essential. |
-| Cap table shows options that expired years ago | Option grants never tracked post-termination | Post-termination exercise periods vary (30-90 days standard, longer for early exercise). Track all option grants with expiration dates. Expired options should be returned to the pool. Uncancelled expired options create cap table noise and legal risk. | Track option grants post-termination. Return expired options to pool. |
-| Annual shareholder meeting delayed past legal deadline | No calendar for corporate compliance events | Maintain a compliance calendar: annual meeting date, franchise tax deadlines, annual report filings, board election dates, option exercise windows. Set reminders 60 days before each deadline. Missing a filing deadline can result in fines or loss of good standing. | Maintain compliance calendar with 60-day reminders. Missing filing = fines + risk. |
-
+| Committee charter not reviewed in 3+ years | No annual governance review cycle | Review all committee charters (audit, compensation, nominating) annually. Update for regulatory changes and best practices. File updated charters with corporate records. | Outdated charters expose the board to compliance risk and signal governance neglect to investors. |
+| Board evaluation skipped for 2+ consecutive years | No culture of board self-assessment | Conduct annual board evaluation: anonymous survey on effectiveness, composition, process. Lead director reviews results in executive session. Document action items. | Boards that don't evaluate themselves repeat the same dysfunctions. Annual evaluation is a governance maturity marker. |
 
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail items. All must pass. -->

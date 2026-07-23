@@ -121,6 +121,19 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 /system-architect && /hardware-architect && /embedded-engineer && /firmware-developer && /qa-engineer
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Silicon errata published for selected MCU/MPU — affects a peripheral in your design | Evaluate workaround feasibility within 48 hours: classify as firmware-workaroundable, hardware-respin-required, or acceptable-degradation; notify embedded and firmware teams | Ignoring errata leads to field failures that appear intermittent and take months to root-cause |
+| Key component shows lead time >20 weeks on distributor check | Identify alternative component immediately; if no drop-in replacement, initiate redesign feasibility assessment within 1 week | 52-week lead times have killed production schedules — component availability must be validated before schematic freeze, not at BOM release |
+| EMC pre-compliance scan shows emissions >3dB over limit on any frequency | Root-cause before PCB fab: check return paths, decoupling, stackup; 3dB margin is the minimum — aim for 6dB to absorb production variation | Fixing EMC after tooling is 10x more expensive than during design; every dB over limit adds weeks to certification |
+| Thermal simulation shows junction temperature within 10°C of maximum rating | Redesign thermal solution: larger heatsink, better airflow, or clock reduction; 10°C margin is consumed by manufacturing variation and dust accumulation | Junction temp at 90% of max in simulation = field failures at 18 months when dust and ambient conditions degrade cooling |
+| BOM cost exceeds target by >15% at component selection phase | Initiate design-to-cost review: identify top 5 cost drivers; evaluate cheaper alternatives with equivalent specs; present trade-offs to product manager | Cost overruns discovered after design freeze are locked in — early intervention preserves margin without compromising schedule |
+| Second-source supplier discontinues pin-compatible alternative to your primary IC | Flag as single-source risk immediately; if primary supplier also has constrained capacity, start redesign feasibility for alternative architecture | Losing second-source turns a managed risk into a single point of failure — treat as severity 1 supply chain incident |
+| Firmware team reports flash/RAM >85% on current build with features still in development | Trigger memory optimization review: evaluate feature deferral, compression, or chip upgrade; flash exhaustion discovered post-design = PCB respin | Flash/RAM headroom is an architectural constraint set during chip selection — running out means the architecture was wrong |
+| >2 field returns show same component failure (same batch, same failure mode) | Suspect component quality issue or design margin problem; halt production if failure rate suggests systemic defect; initiate root cause analysis with supplier | Pattern of identical failures is never coincidence — every day of continued production compounds the liability |
+
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -235,9 +248,22 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 - **Design for test (DFT) saves development time.** Add test points for every power rail, critical signal, and programming interface. Include a UART debug header. Add an LED that the bootloader toggles — when the device won't boot, that LED tells you whether the bootloader ran.
 - **Have a BOM risk plan.** Mark every component: single-source (risk), multi-source (safe), or EOL-risk (obsolete). For single-source parts, have an alternative part identified before the design review. Lead times > 20 weeks should trigger a back-up plan.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Selecting an SoC because "it's what we've always used" without evaluating alternatives | Create a scored selection matrix: interfaces, power, cost, ecosystem maturity, lifecycle guarantee, second-source availability — score 3+ options before committing |
+| Using datasheet typical current for power budgeting without measurement | Budget using max numbers + 20% regulator derating; measure actual current on first prototype at -20°C, 25°C, 60°C across all power modes |
+| Skipping thermal simulation because "the enclosure has vents" | Run thermal simulation before PCB layout; model worst-case: max ambient + max power + 20% margin; identify hot components and plan heatsinking |
+| Selecting single-source components without documented alternatives | Mark every BOM line: single-source (risk), multi-source (safe), EOL-risk; for single-source, identify alternative and document in design review |
+| Running EMC pre-compliance after PCB fabrication | Run EMC pre-compliance at prototype/breadboard stage; include EMC engineer in PCB layout review; budget for at least 1 EMC-related respin |
+| Designing without DFT (Design for Test) provisions | Add test points for every power rail, critical signal, and programming interface; include UART debug header and bootloader-status LED on every board |
+| Selecting clock source without analyzing accuracy requirements | Match clock to interface requirements: USB/CAN need ±0.25% (crystal required); UART at 115200 needs ±2%; internal oscillator at ±5% is not enough for most protocols |
+| Committing to PCB fabrication before pin mux review with firmware team | Every pin assignment must pass firmware team review before schematic freeze — pin conflict discovered after fab = PCB respin ($15K-50K + 4-6 weeks) |
+
 <!-- DEEP: 10+min -- hardware architecture failures in the wild -->
 
-### Error Decoder
+## Error Decoder
 
 | Problem | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

@@ -103,6 +103,19 @@ Do not read the entire skill. Follow the route above and read only the sections 
 - **Monthly:** Regulatory alignment with `compliance-officer` and `regulatory-specialist`
 - **Per red-team cycle:** Safety findings handoff to `ai-safety-engineer` for guardrail implementation
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| New model version or fine-tuning run completed without red-team evaluation | Halt deployment; run domain-specific red-team scenarios (drug-seeking, symptom exaggeration, contraindication probing, pediatric dosing) before any patient-facing release | Red-team pass rates are a release gate — skipping this step means untested safety risks reach patients |
+| Emergency keyword detected in AI output (suicidal ideation, self-harm, chest pain, stroke symptoms, anaphylaxis) | Trigger immediate crisis protocol regardless of context; show crisis resources; do not attempt to "verify" the emergency — false positive cost is near zero, false negative cost is catastrophic | Zero false-negative tolerance for emergency keywords — the cost asymmetry is so extreme that any hesitation is negligence |
+| Clinical knowledge base version exceeds 90-day staleness SLA | Trigger automatic review: audit KB for guideline changes, drug recalls, trial retractions; update before next safety decision is made | Medical knowledge decays — a 90-day-stale KB can reference retracted studies and superseded guidelines |
+| NLI hallucination detector flags >5% of factual medical claims as unverifiable | Investigate: is the KB stale, or is the model hallucinating at an elevated rate? Halt deployment if >10% unverifiable; surface findings to model team | Unverifiable medical claims at scale = systematic safety failure, not edge case noise |
+| AI output contains differential diagnosis that could anchor patient on single condition | Flag for human review; ensure output presents multiple possibilities with explicit uncertainty language and direction to in-person evaluation | Diagnostic anchoring delays appropriate care — AI outputs that sound definitive can be more dangerous than no output at all |
+| User query matches pediatric/adolescent profile + sensitive topic (eating disorder, self-harm, gender identity, abuse) | Route through pediatric guardrail layer FIRST (before adult safety checks): age-appropriate language, parental consent flags, mandatory escalation, specialized crisis resources (Trevor Project for LGBTQ+ youth) | Children have distinct safety profiles — applying adult guardrails to pediatric queries is a systematic vulnerability |
+| Domain-specific confidence threshold breached (e.g., mental health triage <95%) | Suppress output or route to human review; never surface raw confidence scores to patients; log for model improvement | A 90% confidence in dermatology is not the same as 90% in mental health — domain-calibrated thresholds are essential |
+| Third-party medical AI evaluation or certification framework published (e.g., FDA guidance, NICE framework, WHO AI ethics) | Review within 2 weeks; assess gaps between framework requirements and current safety practices; publish gap analysis and remediation timeline | Regulatory frameworks evolve — proactive alignment demonstrates good-faith safety commitment to regulators | 
+
 ## Core Workflow
 <!-- STANDARD: 3min -->
 
@@ -456,6 +469,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 7. **Detect medical hallucinations with retrieval verification, not just confidence scores**: LLMs can confidently fabricate drug names, clinical trial results, and guideline citations. Implement NLI-based hallucination detection that cross-references every factual medical claim against a trusted knowledge base (DrugBank, UpToDate, PubMed). Flag claims that cannot be verified — don't just flag low-confidence outputs.
 
 8. **Version-lock clinical knowledge bases and audit update cadence**: Medical knowledge evolves rapidly — guidelines change, drugs are recalled, trials are retracted. The KB version used for verification must be tracked alongside every safety decision. Set maximum staleness SLAs (e.g., KB frozen for >90 days triggers automatic review). Document which KB version was active for every safety incident.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Using boilerplate disclaimers ("Talk to your doctor") regardless of content risk level | Tier disclaimers by risk: educational content, symptom information, and treatment-adjacent content each need different urgency and specificity |
+| Surfacing raw AI confidence scores to patients | Suppress below-threshold outputs or route to human review; confidence scores are misleading to patients and can create false reassurance or false alarm |
+| Applying the same safety guardrails to adults and children | Implement pediatric guardrail layer BEFORE adult checks: age-appropriate language, parental consent considerations, specialized crisis resources |
+| Relying solely on confidence scores to detect hallucinations | Implement NLI-based retrieval verification: cross-reference every factual medical claim against trusted KB (DrugBank, UpToDate, PubMed); flag unverifiable claims |
+| Red-teaming only before major releases — ignoring post-fine-tuning safety drift | Red-team after every fine-tuning run, every prompt template change, and every KB update; safety is not a one-time gate |
+| Treating all medical domains with the same confidence threshold | Calibrate thresholds per domain: dermatology image classification ≠ mental health triage ≠ drug interaction checking; clinical risk determines threshold stringency |
+| Allowing clinical KB to drift past 90 days without audit | Version-lock KB; set 90-day maximum staleness SLA; document KB version active for every safety decision; audit update cadence |
+| Designing differential diagnosis outputs that anchor patients on a single condition | Structure outputs to present multiple possibilities, emphasize uncertainty, and direct to in-person evaluation — AI that sounds definitive is more dangerous than no AI | 
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -->

@@ -258,6 +258,19 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 | Series C | $25-100M | 73-82% | 60-90% | 45-70% | 0.5-1.2x |
 | Pre-IPO | $100M+ | 75-85% | 50-75% | 50%+ | <0.8x |
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Building model top-down from revenue without bottoms-up headcount validation | Build both top-down revenue AND bottoms-up headcount — reconcile the two; revenue drives hiring, not vice versa |
+| Using best-month growth rate as forecast baseline | Use trailing 3-month or 6-month average for baseline growth; model bull/base/bear with probability weights |
+| Treating ARR as a single number without cohort decomposition | Break ARR into new logo, expansion, contraction, and churn — each has different growth/risk characteristics |
+| Presenting model outputs without reconciling to actuals first | Reconcile model vs. actuals for the last 12 months before any presentation — model must reproduce history within 5% |
+| Assuming constant gross margin as revenue scales | Model gross margin trajectory: hosting costs step-function at scale, support costs grow with customer count, payment processing scales linearly |
+| Using "fully loaded" cost per employee that excludes benefits, payroll tax, equipment, and facilities | Build fully loaded cost: salary + bonus + 7.65% payroll tax + $12-20K benefits + $5K equipment + $15-30K facilities — add 20% buffer |
+| Letting burn multiple drift above 2.0x without triggering action | Set hard triggers: burn multiple >2.0x → hiring freeze; >2.5x → expense audit; >3.0x → emergency board meeting |
+| Copying competitor SaaS metrics without verifying methodology | Always document methodology for every metric — "ARR growth" means different things at different companies; appendix with definitions is non-negotiable |
+
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Skills this FP&A analyst works with — the model is the central nervous system of the company -->
@@ -297,6 +310,19 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 - **Handoff to `investor-relations`:** Investor-ready model with SaaS metrics dashboard, guidance ranges, and KPI definitions. Artifact: Fundraising model with methodology appendix.
 - **Handoff to `treasury-manager`:** Cash forecast (annual + 13-week), fundraising timeline, expense run rate by department. Artifact: Cash forecast model with weekly granularity.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Actual revenue deviates >10% from plan in a single month | Trigger immediate reforecast — don't wait for quarter-end; identify driver (volume, price, churn, timing) within 48 hours | A 10% miss compounds across the year; early detection enables course correction before the gap becomes unbridgeable |
+| Burn multiple exceeds 2.0x for two consecutive months | Freeze all non-critical hiring; initiate department-level expense audit; present burn-multiple bridge to CFO within 1 week | Burn multiple is the single best efficiency metric — two months above 2.0x signals systemic overspend |
+| Headcount plan shows hiring 3+ months ahead of revenue proof | Challenge hiring timeline — model what happens if each hire is delayed 60 days; present risk-adjusted headcount ramp to CEO | Hiring ahead of revenue is the #1 cause of cash crises; "just in time" hiring preserves optionality |
+| SaaS metric benchmarking shows NRR <100% for enterprise segment | Deep-dive churn analysis by cohort, segment, and AE within 5 business days; flag to CEO and CRO | NRR <100% in enterprise means you're shrinking even if top-line grows from new logos — this is unsustainable |
+| Fundraising process starts without model-to-actuals reconciliation | Halt investor outreach until model reproduces last 12 months within 5%; present bridge analysis to CEO | Investors will find discrepancies — finding them yourself preserves credibility and saves weeks of diligence back-and-forth |
+| Cash runway drops below 9 months without fundraising process active | Immediate alert to CEO and board — model 3 scenarios (best/mid/worst case cash-out dates); prepare bridge-round materials | 9 months is the minimum safe runway to run a process; below 6 months, options narrow dramatically |
+| Department exceeds quarterly budget by >15% with 6+ weeks remaining | Schedule budget review with department head within 3 business days; identify root cause (overspend vs. timing vs. scope change); reforecast remaining period | Early intervention prevents a single department's overspend from consuming the entire contingency reserve |
+| Board slides reference metrics without documented methodology | Pause presentation prep; write and circulate methodology appendix for all KPI definitions before any board materials are finalized | Board trust is built on consistent, documented metrics — if methodology changes, explain why before they ask |
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error is a model failure that burned real cash -->
@@ -315,18 +341,6 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 | Board presentation with unreconciled numbers | Model was updated without reconciling to actuals — board saw forward projections that contradicted historical financials | Every board deck must reconcile model to actuals before presentation. Include a "model vs actuals" bridge page. Have finance team sign off on numbers. | A CEO presented $12M ARR to the board; accounting showed $9.8M. The CEO used gross ARR (including churned accounts not yet removed). Trust was damaged and the board asked for external audit. |
 | Headcount model shows breakeven but company keeps burning | Fully loaded cost per employee understated by 30% (no benefits, payroll tax, equipment, or facilities cost included) | Build fully loaded cost per employee: salary + bonus + payroll tax (7.65% employer) + benefits ($12-20K/yr) + equipment ($5K/yr) + facilities ($15-30K/yr). Add 20% buffer. | A founder modeled breakeven at 50 people with $5K/mo per employee. Real cost was $8.5K/mo. At 50 people they were burning $175K/mo more than expected. |
 | Unit economics show positive but company loses money on every customer | Contribution margin calculated incorrectly — allocated S&M and G&A as variable costs | Contribution margin = revenue - direct variable costs (COGS + customer support + payment processing). S&M and G&A are period costs, not COGS. Gross margin + contribution margin are different metrics. | A marketplace startup claimed 80% gross margin and positive unit economics. Their "COGS" excluded payment processing, customer support, and refunds. Real contribution margin was -15%. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. | Accrual vs cash variance should be reviewed monthly. If >5%, find the reconciling item. |
-| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. | Publish your SaaS metric methodology as a board appendix. Standardize definitions. |
-| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. | Every model must reproduce the last 12 months within 5%. If it can't explain the past, it can't predict the future. |
-| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. | Update 13-week cash forecast every Friday. Track DSO religiously. |
-| Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). | Use automated sales tax tools. Monitor nexus thresholds in every state. |
-| Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. | ASC 606 review at contract signing, not after. Involve accounting early. |
-| Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. | Use Carta/Pulley. Reconcile cap table monthly. Audit before fundraises. |
 
 
 ## Production Checklist
