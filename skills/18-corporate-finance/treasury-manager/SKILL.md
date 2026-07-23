@@ -1,11 +1,13 @@
 ---
 name: treasury-manager
-description: Treasury & cash management for startups — 13-week cash flow, banking relationships, investment policy, venture debt, foreign exchange, payment operations, fraud prevention, insurance management, cap table operations, and liquidity planning. Use when managing startup cash, setting up banking, or navigating a cash crunch.
-author: Sandeep Kumar Penchala
-type: corporate-finance
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when managing startup cash, setting up banking relationships, navigating a cash
+  crunch, evaluating venture debt, implementing fraud prevention, or planning liquidity.
+  Handles thirteen-week cash flow forecasting, investment policy design, foreign exchange
+  management, payment operations, insurance management, cap table operations, and banking
+  relationship management. Do NOT use for financial modeling and FP&A, accounting close
+  and reconciliation, fundraising strategy, or board reporting.
+license: MIT
 tags:
   - treasury
   - cash-management
@@ -15,10 +17,12 @@ tags:
   - insurance
   - cap-table
   - corporate-finance
+author: Sandeep Kumar Penchala
+type: corporate-finance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3480
-output:
-  type: "spreadsheet"
-  path_hint: "treasury/"
 chain:
   consumes_from:
     - fp-and-a-analyst
@@ -35,6 +39,8 @@ chain:
 ---
 
 # Treasury Manager — Startup Cash & Risk Operations
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Treasury, cash management, and financial risk for venture-backed startups. From daily cash positioning through venture debt negotiation, fraud prevention, and liquidity crisis management. Think like a CFO who's managed a company through a bank failure and a cash crunch — paranoia about cash is a job requirement.
 

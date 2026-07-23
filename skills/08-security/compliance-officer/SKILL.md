@@ -1,15 +1,28 @@
 ---
 name: compliance-officer
-description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation,
-  control mapping, evidence collection, and policy writing. Triggered by compliance,
-  SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS, audit, GRC, policy, control.
+description: >
+  Use when preparing for SOC 2, ISO 27001, HIPAA, or PCI-DSS audits, mapping controls
+  across frameworks, collecting audit evidence, writing compliance policies, or
+  performing vendor risk assessments. Handles framework scoping (SOC 2, ISO 27001,
+  HIPAA, PCI-DSS), control mapping, gap analysis, evidence collection, policy
+  authoring, and unified control framework design. Do NOT use for GDPR or
+  privacy-specific compliance, legal contract review, or regulatory submission
+  preparation.
+license: MIT
+tags:
+- compliance
+- soc2
+- iso27001
+- hipaa
+- pci-dss
+- audit
+- grc
+- policy
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- compliance-officer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 2625
 chain:
   consumes_from:
@@ -35,11 +48,10 @@ chain:
   - privacy-engineer
   - regulatory-specialist
   - security-engineer
-output:
-  type: code
-  path_hint: ./
-------
+---
 # Compliance Officer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Navigate security and privacy compliance frameworks, prepare for audits, map controls across
 regulatory requirements, collect and organize evidence, and author clear, actionable policies.

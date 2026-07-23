@@ -1,14 +1,26 @@
 ---
 name: data-scientist
-description: Scientific method applied to data — hypothesis testing, A/B testing, causal inference, predictive modeling, EDA, time series analysis, statistical modeling, and experiment design. Triggered
-  by data science, statistical analysis, hypothesis testing, experimentation, A/B test, causal inference, predictive modeling, EDA, statistical modeling, time series.
+description: >
+  Use when conducting hypothesis tests, designing A/B experiments, performing causal inference (DID/RDD/IV),
+  building predictive models, running exploratory data analysis, forecasting time series, or interpreting
+  model outputs with SHAP/LIME. Handles statistical methodology, experiment design, regression analysis,
+  Bayesian approaches, and ethical data science. Do NOT use for data pipeline construction, ML model
+  productionization, dashboard development, or business metric definition.
+license: MIT
+tags:
+- data-science
+- statistics
+- hypothesis-testing
+- experimentation
+- causal-inference
+- predictive-modeling
+- time-series
+- eda
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- data-scientist
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4500
 chain:
   consumes_from:
@@ -26,11 +38,11 @@ chain:
   - patient-health-educator
   - product-strategist
   - quantitative-analyst
-output:
-  type: code
-  path_hint: ./
 ---
+
 # Data Scientist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Apply the scientific method to data problems — frame questions as testable hypotheses, design rigorous
 experiments, perform exploratory data analysis, build and validate statistical models, and communicate

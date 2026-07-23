@@ -1,15 +1,27 @@
 ---
 name: security-engineer
-description: Application security, penetration testing, IAM design, secrets management,
-  API security, network security, zero trust, and security monitoring. Triggered by
-  security, pentest, IAM, secrets, zero trust, vulnerability, threat model, API security.
+description: >
+  Use when designing application security controls, conducting threat modeling,
+  architecting IAM policies, managing secrets infrastructure, implementing zero trust
+  networks, or configuring security monitoring. Handles threat modeling (STRIDE), IAM
+  architecture, secrets management, API security hardening, network security and WAF,
+  SAST and DAST integration, and continuous security monitoring. Do NOT use for
+  compliance auditing, code review, or incident response management.
+license: MIT
+tags:
+- security
+- threat-modeling
+- iam
+- secrets
+- zero-trust
+- pentest
+- api-security
+- network-security
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- security-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 2835
 chain:
   consumes_from:
@@ -36,11 +48,10 @@ chain:
   - security-reviewer
   - system-architect
   - trust-safety-engineer
-output:
-  type: code
-  path_hint: ./
-------
+----
 # Security Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, implement, and validate security controls across the application, infrastructure, and network
 layers. This skill covers threat modeling, penetration testing methodology, IAM architecture,

@@ -1,22 +1,41 @@
 ---
 name: customer-support-engineer
-description: "Customer Support Engineer for technical support operations. Support tier design (L1/L2/L3), ticket management workflow, debugging customer issues (log analysis, reproduction), knowledge base management, customer communication, SLA management, bug reporting pipeline, feature request triage, on-call escalation, customer health signals, support metrics (CSAT, NPS, CES), support tool stack, proactive support, enterprise customer management. [KEYWORDS: customer support, support engineer, technical support, help desk, customer issue, troubleshooting, knowledge base, escalation, SLA, CSAT]"
+description: >
+  Use when designing support tiers (L1/L2/L3), debugging customer-reported issues, managing knowledge bases,
+  triaging bug reports, handling escalations, monitoring SLAs, measuring support metrics (CSAT/NPS/CES),
+  or building proactive customer health signals. Handles ticket management, log analysis, reproduction
+  workflows, customer communication, and feature request triage. Do NOT use for incident response,
+  security vulnerability handling, code-level bug fixes, or product roadmap prioritization.
+license: MIT
+tags:
+- support
+- customer-service
+- sla
+- knowledge-base
+- triage
+- debugging
+- escalation
+- csat
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - customer-support-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3420
-output:
-  type: "code"
-  path_hint: "./"
 chain:
-  consumes_from: ["backend-developer", "observability-engineer", "product-manager"]
-  feeds_into: ["product-manager", "qa-engineer", "account-manager"]
+  consumes_from:
+  - backend-developer
+  - observability-engineer
+  - product-manager
+  feeds_into:
+  - product-manager
+  - qa-engineer
+  - account-manager
 ---
+
 # Customer Support Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Customer Support Engineering — the technical bridge between customers and engineering. Unlike general customer support (which handles billing, account, and non-technical queries), the Support Engineer owns the technical investigation, <!-- DEEP: 10+min -->
 debugging, reproduction, and resolution of customer-reported issues. This role spans L1 triage through L3 escalation, knowledge base ownership, bug reporting, feature request triage, and proactive customer health monitoring.

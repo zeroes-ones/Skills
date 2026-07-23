@@ -1,21 +1,28 @@
 ---
 name: quantitative-analyst
-description: Quantitative finance for options markets — pricing models (Black-Scholes, Binomial, Monte Carlo), Greeks computation (Delta, Gamma, Theta, Vega, Rho), implied volatility surface construction, unusual options activity (UOA) detection, volatility smile/skew analysis, put-call parity validation, and trade signal generation from options flow anomalies. Triggered by options pricing, Greeks, UOA, unusual options activity, implied volatility, IV surface, volatility skew, Black-Scholes, binomial tree, Monte Carlo simulation, options flow, options signal, put-call parity, volatility smile, trade signal, options strategy.
-author: Sandeep Kumar Penchala
-type: finance
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when pricing options, computing Greeks, constructing implied volatility surfaces, detecting
+  unusual options activity, or generating trade signals from options flow anomalies. Handles
+  pricing models (Black-Scholes, Binomial, Monte Carlo), Greeks computation (Delta, Gamma, Theta,
+  Vega, Rho), implied volatility surface construction, UOA detection, volatility smile/skew
+  analysis, and put-call parity validation. Do NOT use for trade execution, market data pipeline
+  engineering, or portfolio management.
+license: MIT
 tags:
   - quantitative-analyst
   - options
-  - uoa
   - greeks
+  - uoa
   - volatility
+  - black-scholes
+  - monte-carlo
+  - pricing-models
+author: Sandeep Kumar Penchala
+type: finance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - market-data-engineer
@@ -29,6 +36,8 @@ chain:
     - ml-ai-engineer
 ---
 # Quantitative Analyst
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Options market intelligence through quantitative rigor. Build pricing models, compute and interpret Greeks,
 detect unusual options activity (UOA), construct implied volatility surfaces, validate put-call parity, analyze

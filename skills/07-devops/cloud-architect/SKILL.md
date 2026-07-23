@@ -1,14 +1,28 @@
 ---
 name: cloud-architect
-description: AWS, Azure, GCP architecture design, landing zones, multi-cloud strategy, cost optimization, IAM, networking, and serverless. Triggered by cloud, AWS, Azure, GCP, architecture, landing zone,
-  multi-cloud, serverless, IAM, Well-Architected.
+description: >
+  Use when designing cloud architectures, planning multi-cloud or hybrid strategies,
+  evaluating managed services, designing landing zones, or conducting Well-Architected
+  reviews across AWS, Azure, or GCP. Handles landing zone design, multi-account
+  governance, IAM strategy, networking topologies, serverless patterns, managed
+  service selection, and cost-optimized architecture decisions. Do NOT use for
+  hands-on IaC implementation (Terraform/Pulumi), CI/CD pipeline design, or
+  Kubernetes cluster operations.
+license: MIT
+tags:
+- cloud
+- aws
+- azure
+- gcp
+- architecture
+- landing-zone
+- serverless
+- iam
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- cloud-architect
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -24,11 +38,10 @@ chain:
   - platform-engineer
   - security-engineer
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Cloud Architect
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design secure, scalable, cost-optimized cloud architectures across AWS, Azure, and GCP. Covers
 landing zone design, multi-account/ multi-project governance, networking topologies, IAM strategy,

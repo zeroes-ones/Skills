@@ -1,20 +1,28 @@
 ---
 name: security-reviewer
-description: STRIDE threat modeling during code review, OWASP Top 10 2021 per-language
-  patterns, JWT/OAuth2/session auth review, data protection, injection vectors, API
-  security, dependency and container security, IaC and mobile security, CVSS-aligned
-  severity grading, and structured review reports.
+description: >
+  Use when performing security-focused code reviews, conducting STRIDE threat
+  modeling, auditing authentication and authorization, reviewing data protection
+  and encryption, or assessing API security posture. Handles OWASP Top 10 per-language
+  patterns, dependency and container security, IaC hardening, and CVSS-aligned
+  severity grading. Do NOT use for general code review, penetration testing execution,
+  compliance auditing, or incident response.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- security-reviewer
+- security
+- stride
+- owasp
+- vulnerability
+- threat-modeling
+- authentication
+- encryption
+- cvss
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -32,6 +40,8 @@ chain:
   - qa-engineer
 ---
 # Security Reviewer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Comprehensive security review of applications, APIs, infrastructure, and mobile platforms. Covers STRIDE threat modeling during code review, OWASP Top 10 2021 mapped to language-specific patterns, authentication and authorization hardening, data protection and encryption, injection defense across all vectors, API security posture, dependency and supply chain analysis, container and IaC hardening, mobile security review, CVSS-aligned severity classification, and structured review reports with reproduction and verification steps.
 

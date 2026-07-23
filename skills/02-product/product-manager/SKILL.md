@@ -1,17 +1,26 @@
 ---
 name: product-manager
-description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage
-  stakeholders, and craft user stories with precise acceptance criteria. Use for feature
-  definition, sprint planning, backlog grooming, and strategic product decisions.
-  Triggered by write a PRD, prioritize features, build a roadmap, define user stories,
-  RICE score this, stakeholder update.
+description: >
+  Use when writing PRDs, prioritizing features with RICE scoring, building product
+  roadmaps, managing stakeholders, or crafting user stories with precise acceptance
+  criteria. Handles feature definition, sprint planning, backlog grooming, stakeholder
+  communication, user story mapping, and strategic product decisions. Do NOT use for
+  technical architecture decisions, code-level design, or engineering team management.
+license: MIT
+tags:
+- product
+- prd
+- rice
+- roadmap
+- user-stories
+- backlog
+- prioritization
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- product-manager
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 2430
 chain:
   consumes_from:
   - account-manager
@@ -48,12 +57,10 @@ chain:
   - ui-ux-designer
   - ux-researcher
   - ux-writer
-token_budget: 2430
-output:
-  type: code
-  path_hint: ./
-------
+---
 # Product Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 

@@ -1,17 +1,27 @@
 ---
 name: technical-writer
-description: API documentation (OpenAPI), architecture decision records, READMEs, runbooks, onboarding guides, changelogs, knowledge base articles, documentation site structure.
+description: >
+  Use when writing API reference documentation from OpenAPI specs, authoring architecture decision records,
+  improving READMEs, creating operational runbooks, building developer onboarding guides, managing
+  changelogs, or organizing documentation site information architecture. Handles docs-as-code pipelines,
+  knowledge base management, and documentation quality gates. Do NOT use for docs platform engineering,
+  developer advocacy content, UI microcopy, or API contract design.
+license: MIT
+tags:
+- technical-writing
+- documentation
+- api-docs
+- openapi
+- adr
+- readme
+- runbooks
+- onboarding
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- technical-writer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - api-designer
@@ -23,7 +33,10 @@ chain:
   - documentation-engineer
   - ux-writer
 ---
+
 # Technical Writer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Technical documentation system covering the full documentation lifecycle — from API reference generation to architecture decision records to knowledge base management. Designed for developer-tooling, platform, and infrastructure teams.
 

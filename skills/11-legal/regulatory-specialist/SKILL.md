@@ -1,18 +1,28 @@
 ---
 name: regulatory-specialist
-description: FDA 21 CFR Part 11, ISO 13485, MDR, HIPAA compliance, GxP validation,
-  audit trail requirements, medical device software (SaMD), quality management systems.
+description: >
+  Use when navigating FDA medical device regulations, EU MDR/IVDR compliance, GxP
+  validation for software systems, HIPAA compliance for health tech, or quality
+  management system design. Handles FDA 21 CFR Part 11, ISO 13485, EU MDR and IVDR,
+  SaMD classification, GxP validation (GAMP5), audit trail requirements, and quality
+  management systems for life sciences. Do NOT use for general compliance auditing
+  (SOC 2, ISO 27001), privacy law implementation, or legal contract drafting.
+license: MIT
+tags:
+- fda
+- mdr
+- gxp
+- hipaa
+- samd
+- validation
+- qms
+- regulatory
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- regulatory-specialist
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - compliance-officer
@@ -24,8 +34,10 @@ chain:
   - compliance-officer
   - content-policy-manager
   - health-regulatory-submission
-------
+---
 # Regulatory Specialist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Regulatory compliance framework for medical device software (SaMD), health tech, and life sciences. Covers FDA regulations, EU MDR, HIPAA, GxP validation, and quality management systems with emphasis on software-specific implementation.
 

@@ -1,12 +1,25 @@
 ---
 name: business-intelligence-engineer
-description: >-
-  Business Intelligence Engineer covering semantic layer design (dbt metrics, LookML explores, MetricFlow, metric definitions with business logic), self-serve dashboard architecture (Looker/Metabase/Lightdash/Holistics, governed self-service), board reporting (investor KPIs, SaaS metrics including ARR/NRR/LTV-CAC/magic number, operational metrics), clinical outcomes analytics (patient-reported outcome trends, treatment adherence patterns, quality-of-life indices), pharma partner reporting (real-world evidence dashboards, patient population analytics, de-identification requirements), data modeling (star schemas, slowly changing dimensions, snapshots vs incrementals), ETL for BI (dbt transformations, incremental strategies, data freshness SLAs, dbt tests and Great Expectations), and embedded analytics (customer-facing dashboards, white-label reporting, data export compliance). Triggered by business intelligence, BI, semantic layer, dbt, dashboards, clinical analytics, investor reporting, metrics.
+description: >
+  Use when designing semantic layers, building board-ready dashboards with SaaS metrics,
+  modeling star schemas for BI, creating clinical outcomes analytics, or implementing
+  embedded customer-facing analytics. Handles semantic layer design (dbt metrics, LookML
+  explores, MetricFlow, metric definitions with business logic), self-serve dashboard
+  architecture (Looker/Metabase/Lightdash/Holistics with governed self-service), board
+  and investor reporting with SaaS metrics (ARR, NRR, LTV/CAC, magic number), clinical
+  outcomes analytics (patient-reported outcome trends, treatment adherence patterns,
+  quality-of-life indices), pharma partner reporting (real-world evidence dashboards,
+  patient population analytics, de-identification requirements), dimensional data modeling
+  (star schemas, slowly changing dimensions, snapshots vs incrementals), dbt transformation
+  pipelines with testing and freshness SLAs (dbt tests, Great Expectations), and embedded
+  analytics with data export compliance. Do NOT use for data engineering pipeline
+  infrastructure, machine learning model building, or general-purpose data science.
+license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - business-intelligence
   - semantic-layer
@@ -16,9 +29,6 @@ tags:
   - investor-reporting
   - metrics
 token_budget: 5000
-output:
-  type: "document"
-  path_hint: "./"
 chain:
   consumes_from:
     - data-engineer
@@ -32,6 +42,8 @@ chain:
     - fp-and-a-analyst
 ---
 # Business Intelligence Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Strategic business intelligence engineering — from semantic layer design through board-ready reporting and embedded analytics. Covers metric definition with dbt MetricFlow and LookML, self-serve dashboard architecture, investor and board reporting with SaaS metrics (ARR, NRR, LTV/CAC, magic number), clinical outcomes analytics for healthcare, pharma partner reporting with real-world evidence dashboards, star schema data modeling, dbt transformation pipelines with testing and freshness SLAs, and embedded analytics for customer-facing dashboards.
 

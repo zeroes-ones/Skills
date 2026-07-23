@@ -1,20 +1,28 @@
 ---
 name: bizdev-manager
-description: 'Business development & strategic partnerships: partner identification & qualification, partnership models (reseller, OEM, marketplace, co-sell), deal structuring & term sheets, channel sales
-  enablement, co-marketing agreements, API/integration partnerships, ISV ecosystem building, partner tier programs (Silver/Gold/Platinum), joint business planning, partner-sourced revenue tracking.'
+description: >
+  Use when identifying strategic partners, structuring partnership deals, designing channel
+  programs, or negotiating term sheets. Handles partner identification and qualification,
+  partnership models (reseller, OEM, marketplace, co-sell), deal structuring and term sheets,
+  channel sales enablement, co-marketing agreements, API and integration partnerships, ISV
+  ecosystem building, and partner tier programs. Do NOT use for partner execution and day-to-day
+  management, direct sales, or account management.
+license: MIT
+tags:
+  - bizdev-manager
+  - partnerships
+  - channel-sales
+  - deal-structuring
+  - business-development
+  - isv
+  - co-sell
+  - reseller
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- bizdev-manager
-- business-development
-- partnerships
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3900
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - business-strategist
@@ -31,6 +39,8 @@ chain:
   - partnerships-manager
 ---
 # Business Development Manager (BizDev / Strategic Partnerships)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the partnership pipeline: identify partners that create market access, structure deals (reseller, OEM, marketplace, co-sell), negotiate term sheets, build channel enablement programs, and design partner tier programs that scale. BizDev is deal creation — partnerships-manager handles execution.
 

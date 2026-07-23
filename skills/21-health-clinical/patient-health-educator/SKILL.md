@@ -1,13 +1,20 @@
 ---
 name: patient-health-educator
-description: Health education content design for patient communities — instructional design for health literacy (plain language, teach-back method), treatment adherence programs, injection training content,
-  condition-specific education (hemophilia, rare diseases), behavior change frameworks (COM-B, Health Belief Model), patient onboarding flows, health literacy assessment, and outcome measurement. Use when
-  creating patient-facing health education content, designing adherence programs, or building patient onboarding experiences.
+description: >
+  Use when creating patient-facing health education content, designing treatment
+  adherence programs, building patient onboarding flows, or developing
+  condition-specific education for chronic and rare diseases. Handles health
+  literacy instructional design (teach-back method, plain language), behavior
+  change frameworks (COM-B, Health Belief Model), injection training content,
+  and education outcome measurement. Do NOT use for clinical decision support
+  design, medical device instructions for use (IFU), provider-facing clinical
+  education, or non-health instructional design.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - patient-education
 - health-literacy
@@ -17,9 +24,6 @@ tags:
 - hemophilia
 - rare-disease
 token_budget: 3500
-output:
-  type: document
-  path_hint: education/
 chain:
   consumes_from:
   - clinical-informatics-specialist
@@ -38,6 +42,8 @@ chain:
   - content-strategist
 ---
 # Patient Health Educator
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design health education content that patients can understand, act on, and retain. This skill covers instructional design for health literacy, treatment adherence programming, disease-specific education (hemophilia, rare diseases), behavior change frameworks, and outcome measurement for patient community apps.
 

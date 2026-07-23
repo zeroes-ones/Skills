@@ -1,22 +1,25 @@
 ---
 name: recruiting
-description: 'Technical & executive recruiting: job description writing (outcomes-based), sourcing (Boolean, GitHub, LinkedIn Recruiter, referrals), structured interview design (rubric scoring, panel calibration),
-  offer construction & negotiation (equity: ISO/NSO/RSU, 409A, cliff vs graded vesting), closing strategies, recruiting metrics, employer branding, diversity sourcing. Use when hiring technical or executive
-  roles, building a recruiting function, or optimizing hiring throughput.'
-author: Sandeep Kumar Penchala
-type: people
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when hiring technical or executive roles, building a recruiting function, designing
+  structured interview loops, constructing offer packages with equity components, or
+  optimizing hiring throughput. Handles outcomes-based job descriptions, Boolean and
+  LinkedIn sourcing, rubric-scored interviews with panel calibration, offer negotiation
+  (ISO/NSO/RSU, 409A, cliff vs graded vesting), closing strategies, recruiting metrics,
+  and employer branding. Do NOT use for employee relations, onboarding program design,
+  compensation band creation, or performance management.
+license: MIT
 tags:
 - recruiting
 - talent-acquisition
 - technical-hiring
 - executive-recruiting
+author: Sandeep Kumar Penchala
+type: people
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3500
-output:
-  type: markdown
-  path_hint: ./
 chain:
   consumes_from:
   - director-engineering
@@ -32,6 +35,8 @@ chain:
 ---
 
 # Technical & Executive Recruiting
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end hiring system for technical and executive roles. From job description through close — every stage is measured, every decision is structured, every candidate interaction is intentional.
 

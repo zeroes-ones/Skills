@@ -1,14 +1,28 @@
 ---
 name: docker-kubernetes
-description: Dockerfile optimization, docker-compose, Kubernetes manifests, Helm charts, service mesh, pod security, and ingress design. Triggered by docker, kubernetes, k8s, helm, container, service mesh,
-  ingress, pod, deployment.
+description: >
+  Use when writing production Dockerfiles, configuring docker-compose, authoring
+  Kubernetes manifests or Helm charts, hardening container security, or designing
+  ingress and service mesh topologies. Handles multi-stage Dockerfile optimization,
+  docker-compose orchestration, Kubernetes Deployment, Service, and Ingress manifests,
+  Helm chart authoring, pod security contexts, NetworkPolicy, and service mesh
+  integration (Istio/Linkerd). Do NOT use for Kubernetes cluster provisioning, CI/CD
+  pipeline design, or observability instrumentation.
+license: MIT
+tags:
+- docker
+- kubernetes
+- helm
+- containers
+- service-mesh
+- ingress
+- security
+- compose
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- docker-kubernetes
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -22,11 +36,10 @@ chain:
   - observability-engineer
   - platform-engineer
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Docker & Kubernetes Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, build, and operate containerized workloads on Kubernetes. Covers production-grade Dockerfiles,
 multi-service development with compose, Kubernetes resource manifests, Helm chart authoring,

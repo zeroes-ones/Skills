@@ -1,14 +1,29 @@
 ---
 name: accessibility-auditor
-description: WCAG 2.2 compliance auditing across automated and manual testing, screen reader workflows, semantic HTML validation, focus management, accessible forms, legal landscape (ADA, Section 508, EN
-  301 549), and remediation prioritization.
+description: >
+  Use when auditing digital products for WCAG 2.2 compliance, testing with assistive
+  technologies, evaluating semantic HTML, or assessing legal exposure under ADA,
+  Section 508, or EN 301 549. Handles automated auditing (axe-core, pa11y,
+  Lighthouse), screen reader testing (VoiceOver, NVDA, JAWS), focus management
+  audits, accessible forms validation, and remediation prioritization. Do NOT use
+  for implementing accessibility fixes, general UI design, or non-digital
+  accessibility consulting.
+license: MIT
+tags:
+- accessibility
+- a11y
+- wcag
+- compliance
+- screen-reader
+- audit
+- ada
+- section-508
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- accessibility-auditor
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 4000
 chain:
   consumes_from:
   - accessibility-testing
@@ -19,12 +34,10 @@ chain:
   - frontend-developer
   - legal-advisor
   - qa-engineer
-token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 ---
 # Accessibility Auditor
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Master the art and science of digital accessibility auditing — from automated scanning to manual assistive-technology testing. This skill covers WCAG 2.2 at all conformance levels, automated testing tools (axe-core, pa11y, Lighthouse), manual testing scripts for screen readers (VoiceOver, NVDA, JAWS), semantic HTML audits, focus management, accessible forms, time-based media, legal compliance frameworks, and remediation prioritization strategies.
 

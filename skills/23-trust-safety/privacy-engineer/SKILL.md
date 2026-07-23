@@ -1,28 +1,31 @@
 ---
 name: privacy-engineer
-description: Privacy engineering for health platforms — BAA implementation with sub-processors
-  (BAA checklist, sub-processor inventory, annual review, breach notification requirements),
-  data minimization architecture (collection minimization, retention policies, purpose
-  limitation enforcement, data flow mapping and data lineage), DSAR (Data Subject
-  Access Request) automation (intake portal, identity verification, data discovery
-  across systems, response generation, 30-day SLA tracking), consent management infrastructure
-  (granular consent for treatment types, research, and marketing, consent withdrawal
-  propagation, age verification, parental consent), audit logging (access logs for
-  who viewed what PHI, change logs, purpose-of-access recording, tamper-proof storage,
-  retention), patient data deletion workflows (hard delete vs soft delete, cascade
-  deletion across systems, backup handling, third-party deletion propagation), privacy-by-design
-  review process (privacy impact assessments PIA, data protection impact assessments
-  DPIA, pre-launch privacy review checklist), de-identification (HIPAA Safe Harbor
-  method, expert determination, re-identification risk assessment, k-anonymity and
-  l-diversity), and cookie and tracking consent (GDPR cookie consent, CCPA opt-out,
-  health data-specific tracking restrictions). Triggered by privacy engineering, DSAR,
-  consent management, data minimization, audit logging, de-identification, HIPAA BAA,
-  privacy by design, cookie consent.
+description: >
+  Use when implementing BAAs with sub-processors, automating DSAR workflows, building
+  consent management infrastructure, designing data deletion pipelines, or conducting
+  privacy-by-design reviews for health platforms. Handles BAA implementation with
+  sub-processors (BAA checklist, sub-processor inventory, annual review, breach
+  notification requirements), data minimization architecture (collection minimization,
+  retention policies, purpose limitation enforcement, data flow mapping and data lineage),
+  DSAR automation (intake portal, identity verification, data discovery across systems,
+  response generation, 30-day SLA tracking), consent management infrastructure (granular
+  consent for treatment types, research, and marketing, consent withdrawal propagation,
+  age verification, parental consent), audit logging (access logs for who viewed what
+  PHI, change logs, purpose-of-access recording, tamper-proof storage, retention),
+  patient data deletion workflows (hard delete vs soft delete, cascade deletion across
+  systems, backup handling, third-party deletion propagation), privacy-by-design review
+  process (PIA, DPIA, pre-launch privacy review checklist), de-identification (HIPAA
+  Safe Harbor method, Expert Determination, re-identification risk assessment,
+  k-anonymity and l-diversity), and cookie and tracking consent (GDPR cookie consent,
+  CCPA opt-out, health data-specific tracking restrictions). Do NOT use for legal
+  privacy policy drafting, general compliance auditing, or security infrastructure
+  hardening.
+license: MIT
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - privacy-engineering
 - dsar
@@ -33,13 +36,6 @@ tags:
 - hipaa-baa
 - privacy-by-design
 token_budget: 8000
-dependencies:
-  tools: []
-  packages: []
-  permissions: []
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - gdpr-privacy
@@ -55,6 +51,8 @@ chain:
 ------
 
 # Privacy Engineer (Technical)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Implement privacy controls at the infrastructure, application, and data layers. This skill covers the technical implementation of privacy requirements — BAAs, data minimization, DSAR automation, consent management, audit logging, data deletion, privacy-by-design reviews, de-identification, and cookie consent. Privacy engineering is the bridge between legal requirements and working code. A privacy policy is aspirational; a privacy architecture is enforceable.
 

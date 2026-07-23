@@ -1,14 +1,27 @@
 ---
 name: site-reliability-engineer
-description: SRE, site reliability, error budget, toil reduction, SLI, SLO, SLA, incident management, capacity planning, chaos engineering, reliability engineering. Works with Claude Code, Copilot CLI,
-  Cursor, OpenClaw, Gemini CLI.
+description: >
+  Use when defining SLOs and SLIs, managing error budgets, reducing toil through
+  automation, planning capacity, conducting blameless postmortems, or designing
+  reliability architectures. Handles SLO/SLI definition, error budget policy, toil
+  automation, incident analysis, capacity planning, chaos engineering integration,
+  and reliability measurement. Do NOT use for observability stack setup, CI/CD
+  pipeline design, or infrastructure provisioning.
+license: MIT
+tags:
+- sre
+- reliability
+- slo
+- error-budget
+- toil
+- incident
+- capacity
+- chaos
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- site-reliability-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3555
 chain:
   consumes_from:
@@ -26,11 +39,10 @@ chain:
   - incident-responder
   - observability-engineer
   - release-manager
-output:
-  type: code
-  path_hint: ./
 ---
 # Site Reliability Engineer (SRE)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Apply software engineering to operations problems. Define and measure reliability through SLIs and
 SLOs, manage error budgets as decision-making frameworks, eliminate toil through automation, run

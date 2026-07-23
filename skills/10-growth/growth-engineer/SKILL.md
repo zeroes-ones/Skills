@@ -1,17 +1,27 @@
 ---
 name: growth-engineer
-description: A/B testing frameworks, conversion rate optimization, viral loops, referral programs, onboarding optimization, activation metrics, growth modeling, experimentation culture.
+description: >
+  Use when building A/B testing infrastructure, optimizing conversion funnels, engineering viral loops
+  and referral programs, diagnosing activation bottlenecks, modeling growth scenarios, or instrumenting
+  event taxonomies. Handles experimentation platforms, feature flag architecture, onboarding optimization,
+  and growth loop design. Do NOT use for statistical experiment design, product roadmap planning,
+  content marketing strategy, or BI dashboard creation.
+license: MIT
+tags:
+- growth
+- experimentation
+- ab-testing
+- cro
+- viral-loops
+- onboarding
+- activation
+- feature-flags
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- growth-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - analytics-engineer
@@ -28,7 +38,10 @@ chain:
   - product-manager
   - revops-manager
 ---
+
 # Growth Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Technical growth engineering system for designing, instrumenting, and scaling growth loops. Combines product instrumentation, experimentation infrastructure, and data-driven optimization to drive sustainable user acquisition, activation, retention, and monetization.
 

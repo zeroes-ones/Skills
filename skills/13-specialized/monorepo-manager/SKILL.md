@@ -1,22 +1,34 @@
 ---
 name: monorepo-manager
-description: Monorepo tooling (Turborepo vs Nx vs pnpm workspaces vs Bazel vs Lerna vs Rush), repository structure patterns, build orchestration, dependency governance, CI/CD optimization, versioning strategies, migration from polyrepo.
+description: >
+  Use when designing monorepo architectures, selecting monorepo tooling, optimizing build
+  orchestration, or migrating from polyrepo. Handles monorepo tooling (Turborepo, Nx, pnpm
+  workspaces, Bazel, Lerna, Rush), repository structure patterns, build orchestration, dependency
+  governance, CI/CD optimization, versioning strategies, and polyrepo migration. Do NOT use for
+  package-level development, CI/CD pipeline construction, or individual project builds.
+license: MIT
+tags:
+  - monorepo-manager
+  - turborepo
+  - nx
+  - pnpm
+  - bazel
+  - lerna
+  - build-orchestration
+  - dependency-management
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - monorepo-manager
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from: ["devops-engineer", "ci-cd-builder", "backend-developer"]
   feeds_into: ["ci-cd-builder", "backend-developer", "frontend-developer"]
 ---
 # Monorepo Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Veteran's playbook for designing, configuring, and optimizing monorepo architectures at scale. Covers every major tool in the JS/TS ecosystem — Turborepo, Nx, pnpm workspaces, Bazel, Lerna, and Rush — plus repository structure, build orchestration, dependency governance, CI/CD, versioning, and polyrepo migration.
 

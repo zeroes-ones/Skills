@@ -1,16 +1,26 @@
 ---
 name: idea-to-spec
-description: Transform raw product ideas into structured PRDs, data models, API contracts,
-  screen definitions, and work items. Use when converting napkin sketches, feature
-  requests, or brainstorming notes into actionable engineering specs. Triggered by
-  spec this out, write a PRD from this idea, formalize this feature, idea to spec.
+description: >
+  Use when transforming raw product ideas into structured engineering specifications,
+  converting napkin sketches into actionable work items, or formalizing feature
+  requests into PRDs. Handles PRD generation, data model design, API contract
+  definition, screen inventory, domain modeling, and prioritized work item creation.
+  Do NOT use for architecture decisions, code implementation, or UI/UX design
+  execution.
+license: MIT
+tags:
+- product
+- prd
+- specification
+- requirements
+- domain-model
+- api-contract
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- idea-to-spec
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 2190
 chain:
   consumes_from:
   - product-manager
@@ -24,12 +34,10 @@ chain:
   - frontend-developer
   - qa-engineer
   - tdd-guide
-token_budget: 2190
-output:
-  type: code
-  path_hint: ./
 ---
 # Idea to Spec
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Systematically decompose a raw product idea into a complete, implementation-ready specification package — PRD, domain model, API surface, screen inventory, and prioritized work items — so that an engineering team can estimate and build without ambiguity.
 

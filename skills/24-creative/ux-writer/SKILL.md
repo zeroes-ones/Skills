@@ -1,17 +1,20 @@
 ---
 name: ux-writer
-description: UX writing and content design for digital health products — product copy design for onboarding flows, empty states, loading states, error messages, and success confirmations; medical disclaimer
-  language with regulatory requirements, placement patterns (inline, modal, footer), and when-to-show logic; informed consent UX with granular consent options, withdrawal pathways, and health literacy-adjusted
-  reading levels; plain-language health messaging at ≤8th grade reading level with visual reinforcement and localization strategies; error message design for health contexts with clinical data preservation
-  assurances; voice and tone systems spanning compassionate, professional, and encouraging registers for sensitive health topics; content design systems with reusable patterns, content tokens, and localization-ready
-  string design; microcopy A/B testing, comprehension testing, and trust impact analysis; content accessibility including screen reader content, alt text for medical diagrams, and plain-language alternatives
-  for complex terms. Use when writing product copy for health tech, designing medical disclaimers, crafting consent language, optimizing microcopy for health literacy, or building a content design system
-  for regulated digital health products.
+description: >
+  Use when writing product copy for digital health products, designing medical
+  disclaimer language, crafting informed consent UX flows, optimizing microcopy
+  for health literacy (≤8th grade reading level), or building content design
+  systems for regulated health apps. Handles error message design with clinical
+  data preservation, voice and tone systems for sensitive health topics,
+  screen-reader-friendly content, and comprehension-tested microcopy. Do NOT
+  use for marketing copy, technical documentation, clinical decision support
+  content, or general UX writing without health or regulatory requirements.
+license: MIT
 author: Sandeep Kumar Penchala
 type: creative
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - ux-writing
 - content-design
@@ -21,9 +24,6 @@ tags:
 - consent-language
 - product-copy
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - brand-guidelines
@@ -41,6 +41,8 @@ chain:
   - patient-health-educator
 ---
 # UX Writer / Content Designer (Health Tech)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Craft the words that make digital health products feel safe, clear, and human. From onboarding microcopy to medical disclaimers, consent flows to error messages — every word builds trust, reduces anxiety, and drives health outcomes.
 

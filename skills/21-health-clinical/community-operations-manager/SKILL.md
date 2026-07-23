@@ -1,24 +1,20 @@
 ---
 name: community-operations-manager
-description: Patient ambassador and peer mentorship program design with matching,
-  training, boundaries, and compensation. Community health metrics including engagement
-  rate, response rate, sentiment analysis, and clinical outcome correlations. Patient
-  events such as virtual roundtables, in-person HTC events, conference meetups, and
-  webinar programs. Community growth strategy via organic growth, clinical referral
-  partnerships, and advocacy organization relationships. Moderation escalation partnership
-  with trust-safety-engineer and content-policy-manager. Patient privacy in communities
-  with HIPAA implications in community settings. Community segmentation by condition
-  subtype, treatment regimen, age cohort, and caregiver vs patient roles. Gamification
-  and recognition including top contributor programs, expert patient badges, and clinical
-  advisory roles. Cultural competency for non-English communities, cultural attitudes
-  toward treatment, and faith-based considerations. Triggered by patient community,
-  peer mentorship, community operations, patient engagement, health community, support
-  groups.
+description: >
+  Use when designing patient community programs, peer mentorship initiatives,
+  community health metrics and engagement tracking, patient event programs
+  (virtual roundtables, webinars, conference meetups), or patient support group
+  operations. Handles ambassador program design, community segmentation by
+  condition and treatment regimen, gamification and recognition systems, cultural
+  competency for diverse communities, and HIPAA-aware community privacy.
+  Do NOT use for clinical trial recruitment, medical content creation, crisis
+  response management, or general non-health community management.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - patient-community
 - peer-mentorship
@@ -27,9 +23,6 @@ tags:
 - health-community
 - support-groups
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - content-policy-manager
@@ -43,6 +36,8 @@ chain:
   - patient-experience-researcher
 ------
 # Community Operations Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build, nurture, and scale patient communities that deliver measurable health outcomes and sustainable engagement. This skill covers the full community operations lifecycle — from peer mentorship program design and community health metrics to patient events, cultural competency, and the delicate balance between patient privacy and community connection — designed for health communities serving patients with chronic and rare conditions.
 

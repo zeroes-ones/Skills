@@ -1,13 +1,14 @@
 ---
 name: board-manager
-description: Board management and corporate governance for founders and executives. Covers board composition, meeting cadence, committee structure, fiduciary duties, D&O questionnaires, board evaluations,
-  compensation, shareholder communications, minute-taking, and post-Series A governance evolution. Use when preparing for board meetings, recruiting directors, structuring committees, or navigating governance
-  crises.
-author: Sandeep Kumar Penchala
-type: governance
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when preparing for board meetings, recruiting independent directors, structuring
+  board committees, managing shareholder communications, drafting board minutes, or
+  navigating governance crises. Handles board composition and fiduciary duties, meeting
+  cadence and agenda design, D&O questionnaires, board evaluations, director compensation,
+  and post-Series A governance evolution. Do NOT use for investor relations and fundraising
+  communications, general legal advice, shareholder litigation, or day-to-day management
+  decisions.
+license: MIT
 tags:
 - board-governance
 - fiduciary-duties
@@ -15,10 +16,12 @@ tags:
 - committee-structure
 - shareholder-communications
 - corporate-governance
+author: Sandeep Kumar Penchala
+type: governance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3480
-output:
-  type: document
-  path_hint: ./board-manager/
 chain:
   consumes_from:
   - accountant
@@ -33,6 +36,8 @@ chain:
   - legal-advisor
 ---
 # Board Manager — The Governance Operating System
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Board management and corporate governance for founders and executives. Run effective boards, recruit independent directors, structure committees, and avoid the governance failures that destroy companies.
 

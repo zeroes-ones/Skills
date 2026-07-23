@@ -1,17 +1,26 @@
 ---
 name: content-strategist
-description: Content planning, editorial calendars, content audits, content marketing funnel, topic clusters, content repurposing, tone of voice guidelines, content metrics.
+description: >
+  Use when planning content strategy, designing editorial calendars, auditing content inventories,
+  architecting topic clusters, defining tone-of-voice guidelines, measuring content ROI, or building
+  content marketing funnels. Handles content operations, repurposing workflows, audience persona
+  development, and data-driven content iteration. Do NOT use for SEO keyword research, social media
+  management, paid advertising strategy, or developer documentation authoring.
+license: MIT
+tags:
+- content-strategy
+- editorial
+- content-marketing
+- topic-clusters
+- tone-of-voice
+- content-audit
+- content-operations
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- content-strategist
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - devrel-advocate
@@ -23,7 +32,10 @@ chain:
   - marketing-manager
   - seo-specialist
 ---
+
 # Content Strategist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 

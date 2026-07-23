@@ -1,17 +1,29 @@
 ---
 name: algorithmic-trader
-description: "Algorithmic trading strategy development and execution: entry/exit/trim strategy design, backtesting engines (vectorized and event-driven), walk-forward optimization, position sizing (Kelly, risk-parity, fixed-fractional), risk management (VaR, CVaR, max drawdown limits, correlation matrices), broker API integration (Alpaca, Interactive Brokers, TD Ameritrade/Schwab), order execution algorithms (TWAP, VWAP, iceberg), and portfolio-level risk monitoring. Triggered by algorithmic trading, trading bot, backtest, position sizing, entry strategy, exit strategy, trim strategy, stop-loss, trailing stop, options flow, unusual options activity, UOA, broker API, Alpaca, Interactive Brokers, order execution, TWAP, VWAP, Kelly criterion, drawdown, risk management, Sharpe ratio."
+description: >
+  Use when developing algorithmic trading strategies, building backtesting engines, designing
+  position sizing logic, or integrating with broker APIs. Handles entry/exit/trim strategy design,
+  vectorized and event-driven backtesting, walk-forward optimization, position sizing (Kelly,
+  risk-parity, fixed-fractional), risk management (VaR, CVaR, drawdown limits), broker API
+  integration (Alpaca, Interactive Brokers), and order execution algorithms (TWAP, VWAP, iceberg).
+  Do NOT use for quantitative research, market data pipeline engineering, or options pricing model
+  development.
+license: MIT
+tags:
+  - algorithmic-trader
+  - trading-bot
+  - backtesting
+  - position-sizing
+  - order-execution
+  - options-trading
+  - risk-management
+  - broker-api
 author: Sandeep Kumar Penchala
 type: finance
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - algorithmic-trader
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - quantitative-analyst
@@ -27,6 +39,8 @@ chain:
     - ml-ai-engineer
 ---
 # Algorithmic Trader
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Algorithmic trading strategy development and execution — from signal consumption through position
 management to post-trade analysis. This skill is the bridge between quantitative research output

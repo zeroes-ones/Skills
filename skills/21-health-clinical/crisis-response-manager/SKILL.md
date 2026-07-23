@@ -1,23 +1,20 @@
 ---
 name: crisis-response-manager
-description: Adverse event (AE) reporting to FDA MedWatch, EudraVigilance, and manufacturer
-  systems with 24-hour/7-day/15-day timelines. Suicide prevention escalation using
-  Columbia-Suicide Severity Rating Scale (C-SSRS) with warm handoff to crisis lines.
-  Public health emergency response for disease outbreak alerts and recall notifications
-  in patient communities. Safety incident taxonomy with severity levels S1-S5, response
-  SLAs, and escalation matrix. Crisis communication templates for patient notification,
-  regulatory disclosure, and internal communications. Pharmacovigilance signal detection
-  in community data with automated AE mention detection. Mental health crisis protocols
-  for self-harm or harm-to-others indicators. Medical device adverse event reporting
-  (MDR) for connected devices. Post-crisis review with root cause analysis, timeline
-  reconstruction, and corrective action plans. Triggered by adverse event, crisis,
-  pharmacovigilance, suicide prevention, safety incident, recall, medical device report,
-  public health emergency.
+description: >
+  Use when managing adverse event reporting (FDA MedWatch, EudraVigilance),
+  suicide prevention escalation in patient communities, pharmacovigilance signal
+  detection, public health emergency response, or medical device adverse event
+  reporting (MDR). Handles crisis taxonomies (S1-S5), response SLAs and
+  escalation matrices, crisis communication templates, post-crisis review with
+  root cause analysis, and regulatory timeline compliance (24-hour, 7-day,
+  15-day). Do NOT use for routine community moderation, non-health crisis
+  management, or clinical trial safety monitoring.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - crisis-response
 - adverse-event-reporting
@@ -27,9 +24,6 @@ tags:
 - medical-misinformation
 - health-emergency
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - community-operations-manager
@@ -44,6 +38,8 @@ chain:
   - patient-community-safety
 ------
 # Crisis Response Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Manage health-related crises in patient-facing communities and digital health products — from adverse event detection and regulatory reporting to suicide prevention escalation and public health emergency response. This skill covers the full crisis lifecycle with regulatory timelines, safety taxonomies, communication templates, and post-crisis review protocols designed for FDA-regulated, patient-safety-critical environments.
 

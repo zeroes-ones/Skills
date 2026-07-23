@@ -1,14 +1,27 @@
 ---
 name: incident-responder
-description: Incident response plans, on-call procedures, postmortems, runbooks, escalation policies, communication templates, and blameless SRE culture. Triggered by incident, on-call, postmortem, runbook,
-  escalation, SRE, blameless.
+description: >
+  Use when responding to active incidents, designing on-call rotations, writing
+  postmortems, creating runbooks, establishing escalation policies, or building
+  incident communication templates. Handles incident command, detection and triage,
+  containment and recovery, blameless postmortem facilitation, runbook automation,
+  and on-call rotation design. Do NOT use for observability stack setup, CI/CD
+  pipeline design, or security vulnerability assessment.
+license: MIT
+tags:
+- incident
+- on-call
+- postmortem
+- runbook
+- escalation
+- blameless
+- response
+- sre
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- incident-responder
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -23,11 +36,10 @@ chain:
   - compliance-officer
   - devops-engineer
   - security-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Incident Responder
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Manage the full incident lifecycle: preparation, detection, response, recovery, and learning.
 This skill provides battle-tested patterns for on-call rotations, incident command,

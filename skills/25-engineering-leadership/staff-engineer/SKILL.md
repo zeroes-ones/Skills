@@ -1,17 +1,21 @@
 ---
 name: staff-engineer
-description: >-
-  Individual contributor leadership — technical strategy across multiple teams,
-  architecture decision-making, mentoring senior engineers, writing RFCs and ADRs,
-  building cross-team alignment, and solving the hardest technical problems without
-  people-management authority. Triggered by staff engineer, principal engineer, IC
-  leadership, technical strategy, cross-team architecture, influence without
-  authority, RFC, ADR, design review, mentoring seniors, technical direction.
+description: >
+  Use when setting technical strategy across multiple teams, writing RFCs and ADRs,
+  driving architecture decisions without authority, mentoring senior engineers, or
+  solving the hardest cross-team technical problems as an individual contributor leader.
+  Handles technical strategy and direction setting across teams, architecture
+  decision-making and ADR authoring, RFC writing and review facilitation, cross-team
+  alignment and influence without authority, mentoring senior and staff-track engineers,
+  and solving ambiguous high-impact technical problems without people-management
+  authority. Do NOT use for people management, single-team technical leadership, or
+  project management.
+license: MIT
 author: Sandeep Kumar Penchala
 type: engineering-leadership
 status: stable
-version: "1.0.0"
-updated: 2026-07-22
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - staff-engineer
   - principal-engineer
@@ -21,9 +25,6 @@ tags:
   - mentorship
   - influence-without-authority
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - engineering-manager
@@ -37,6 +38,8 @@ chain:
 ---
 
 # Staff Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Lead through technical influence, not authority. The Staff/Principal Engineer is the IC who sets
 technical direction across multiple teams, mentors senior engineers, solves the hardest problems,

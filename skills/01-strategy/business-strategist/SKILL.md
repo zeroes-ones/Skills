@@ -1,14 +1,26 @@
 ---
 name: business-strategist
-description: Business model design, go-to-market strategy, financial modeling, pricing strategy, and growth planning. Use when designing business models, creating go-to-market plans, modeling financials,
-  evaluating pricing, or planning market expansion.
+description: >
+  Use when designing business models, creating go-to-market plans, modeling financial
+  projections, evaluating pricing strategies, or planning market expansion. Handles
+  TAM/SAM/SOM analysis, unit economics, competitive positioning, business model canvas,
+  revenue modeling, and growth planning. Do NOT use for financial accounting, payroll
+  setup, or tax compliance.
+license: MIT
+tags:
+- strategy
+- business-model
+- gotomarket
+- financial-modeling
+- pricing
+- growth
+- competitive-analysis
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- business-strategist
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 4000
 chain:
   consumes_from: []
   feeds_into:
@@ -16,12 +28,10 @@ chain:
   - ceo-strategist
   - marketing-manager
   - product-strategist
-token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 ---
 # Business Strategist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and validate business models, craft go-to-market strategies, build financial models, and plan sustainable growth. Think like a COO/CFO/Head of Strategy combined.
 

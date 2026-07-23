@@ -1,18 +1,20 @@
 ---
 name: medical-illustrator
-description: Medical illustration and visual design for digital health products — clinical diagram design covering clotting cascade, mechanism of action, disease progression, and anatomical illustrations
-  with strict anatomical accuracy requirements; patient education visuals including injection site guides, infusion process illustrations, joint health and bleed location diagrams, and treatment comparison
-  infographics; visual health literacy with universal design symbols, visual-first explanations that reduce text dependency, and iconography for health concepts; regulatory illustration standards covering
-  FDA labeling requirements for patient-facing visuals, required disclaimers on clinical diagrams, and substantiation requirements; motion design for health including animated mechanism of action, treatment
-  process animations, and micro-interactions for health education apps; visual design for medical accuracy with anatomical reference checking, clinical review workflows, versioning for updates, and citation/traceability;
-  accessibility in medical illustration with color-blind safe palettes, alt text for complex diagrams, tactile graphics, and high-contrast versions; visual brand for health including compassionate visual
-  language, trust-building imagery, diverse patient representation, and stereotype avoidance. Use when creating clinical diagrams, patient education visuals, anatomical illustrations, animated mechanism-of-action
-  videos, or building a visual design system for regulated health products.
+description: >
+  Use when creating clinical diagrams, anatomical illustrations, patient
+  education infographics, mechanism-of-action animations, or visual design
+  systems for regulated health products. Handles FDA labeling compliance for
+  patient-facing visuals, color-blind safe palettes, medical accuracy
+  verification workflows, motion design for health education, and accessible
+  medical illustration (alt text, tactile graphics, high-contrast). Do NOT use
+  for general graphic design, brand identity creation, non-health illustration
+  work, or UI component design without clinical content.
+license: MIT
 author: Sandeep Kumar Penchala
 type: creative
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - medical-illustration
 - patient-education
@@ -22,9 +24,6 @@ tags:
 - motion-design
 - visual-health-literacy
 token_budget: 3800
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - medical-content-reviewer
@@ -37,6 +36,8 @@ chain:
   - ux-writer
 ---
 # Medical Illustrator / Visual Designer (Health Tech)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Create accurate, accessible, and compassionate visuals for health — from anatomical diagrams and mechanism-of-action animations to patient education infographics, all designed for clinical accuracy, regulatory compliance, and health literacy.
 

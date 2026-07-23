@@ -1,21 +1,27 @@
 ---
 name: people-ops
-description: "People operations & employee experience: onboarding program design (0-30-60-90 day plans), compensation philosophy & band design (market percentiles, geo-differentials), performance review cycles (360 feedback, calibration sessions, 9-box grid), leveling frameworks & career ladders (IC vs management track), employee engagement surveys (eNPS, pulse checks), retention risk analysis, internal mobility programs, offboarding & exit interviews, HR compliance (I-9, EEO, FLSA classification, state-specific labor laws), HRIS implementation (Rippling/BambooHR/Workday). Use when designing people programs, running performance cycles, building compensation bands, or implementing HR systems."
-author: Sandeep Kumar Penchala
-type: people
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when designing people programs, running performance review cycles, building compensation
+  bands and leveling frameworks, designing onboarding programs, conducting engagement surveys,
+  implementing HRIS, or analyzing retention risk. Handles employee experience from onboarding
+  through offboarding with compensation philosophy design, 360 feedback and calibration
+  sessions, career ladder frameworks, eNPS and pulse surveys, internal mobility programs,
+  exit interviews, and HR compliance (I-9, EEO, FLSA). Do NOT use for employee relations
+  investigations, recruiting pipeline management, payroll tax compliance, or employment
+  law disputes.
+license: MIT
 tags:
   - people-ops
   - employee-experience
   - compensation
   - performance-management
   - onboarding
+author: Sandeep Kumar Penchala
+type: people
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3500
-output:
-  type: "markdown"
-  path_hint: "./"
 chain:
   consumes_from:
     - hr-manager
@@ -28,6 +34,8 @@ chain:
 ---
 
 # People Operations & Employee Experience
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Operational backbone for scaling a company through people programs. From onboarding through offboarding — every program is measurable, every process is documented, every decision is anchored in philosophy before policy.
 

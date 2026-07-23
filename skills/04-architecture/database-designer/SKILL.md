@@ -1,18 +1,28 @@
 ---
 name: database-designer
-description: 'Schema design, normalization/denormalization, indexing strategies, database migrations, SQL vs NoSQL selection, query optimization, data modeling, and performance tuning. Trigger: database
-  design, schema, indexing, migrations, normalization, SQL, NoSQL, data modeling, query optimization.'
+description: >
+  Use when designing database schemas, planning indexing strategies, normalizing or
+  denormalizing data models, choosing between SQL and NoSQL, or optimizing query
+  performance. Handles logical and physical data modeling, migration management,
+  performance tuning, technology selection, and access pattern analysis. Do NOT use
+  for implementing database code, configuring database servers, or designing API
+  endpoints.
+license: MIT
+tags:
+- database
+- schema
+- sql
+- nosql
+- indexing
+- normalization
+- migration
+- performance
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- database-designer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - api-designer
@@ -29,6 +39,8 @@ chain:
   - performance-engineer
 ---
 # Database Designer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 

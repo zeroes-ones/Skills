@@ -1,17 +1,20 @@
 ---
 name: medical-content-reviewer
-description: Clinical accuracy review of health content — medical misinformation detection
-  and prevention, evidence-based content validation (use of citations, GRADE framework
-  for evidence quality), community Q&A medical accuracy, health claims fact-checking,
-  clinical guideline compliance, disclaimer and liability language, adverse event
-  reporting triggers. Use when reviewing patient-facing content for clinical accuracy,
-  building medical misinformation detection rules, or establishing a content review
-  workflow.
+description: >
+  Use when reviewing patient-facing health content for clinical accuracy,
+  building medical misinformation detection rules, fact-checking health claims
+  against clinical guidelines, or establishing evidence-based content validation
+  workflows. Handles GRADE framework evidence assessment, disclaimer and
+  liability language drafting, adverse event trigger identification, community
+  Q&A medical accuracy review, and clinical guideline compliance verification.
+  Do NOT use for regulatory submission writing, clinical trial protocol
+  authoring, peer-reviewed journal publication, or non-health content review.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - medical-content-review
 - clinical-accuracy
@@ -19,9 +22,6 @@ tags:
 - evidence-based-medicine
 - health-content
 token_budget: 3500
-output:
-  type: document
-  path_hint: review/
 chain:
   consumes_from:
   - ai-safety-engineer
@@ -38,6 +38,8 @@ chain:
   - compliance-officer
 ------
 # Medical Content Reviewer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ensure every piece of health content in your app is clinically accurate, evidence-based, and legally defensible. This skill covers medical accuracy review workflows, misinformation detection, evidence quality assessment, disclaimer drafting, and adverse event trigger identification — specifically for digital health apps and patient communities.
 

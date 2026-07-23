@@ -1,11 +1,20 @@
 ---
 name: health-regulatory-submission
-description: FDA SaMD classification, 510(k) vs De Novo vs PMA decision trees, breakthrough device designation, EU MDR/IVDR pathways, pre-submission meeting preparation, clinical evidence requirements, and global regulatory strategy for health software. Use when determining regulatory pathway for health apps, preparing FDA submissions, or evaluating whether software is a medical device.
+description: >
+  Use when determining FDA regulatory pathways for health software (SaMD
+  classification), preparing 510(k)/De Novo/PMA submissions, evaluating EU
+  MDR/IVDR requirements, or assessing whether a health app qualifies as a
+  medical device. Handles FDA pre-submission strategy, breakthrough device
+  designation, clinical evidence requirements, predicate device selection,
+  CDS guidance analysis, and global regulatory strategy. Do NOT use for HIPAA
+  compliance implementation, clinical trial design, post-market surveillance,
+  or non-software medical device regulation.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - health-regulatory-submission
 - fda
@@ -27,11 +36,10 @@ chain:
   - product-manager
   - regulatory-specialist
 token_budget: 4000
-output:
-  type: document
-  path_hint: docs/regulatory/
 ---
 # Health Regulatory Submission
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Navigate FDA medical device regulation for software — determine if your health app is a medical device, classify it, choose the right regulatory pathway, and prepare pre-submission materials. Covers FDA SaMD framework, 510(k), De Novo, PMA, EU MDR/IVDR, and global harmonization.
 

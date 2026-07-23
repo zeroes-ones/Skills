@@ -1,15 +1,27 @@
 ---
 name: ui-ux-designer
-description: 'Build design systems, define component specs, manage design tokens, prepare developer handoff, create responsive layouts, specify interaction patterns, and guide prototyping efforts. Use for
-  design-to-code workflows, design system governance, and pixel-perfect implementation guidance. Triggers: design system, component spec, design tokens, developer handoff, responsive design, interaction
-  pattern, prototype this.'
+description: >
+  Use when building design systems, defining component specifications, managing design
+  tokens, preparing developer handoff, creating responsive layouts, or specifying
+  interaction patterns. Handles design-to-code workflows, design system governance,
+  pixel-perfect implementation guidance, responsive design, prototyping, and component
+  API design. Do NOT use for frontend implementation, accessibility auditing, or brand
+  strategy definition.
+license: MIT
+tags:
+- design
+- design-system
+- components
+- design-tokens
+- responsive
+- prototyping
+- handoff
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- ui-ux-designer
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 2280
 chain:
   consumes_from:
   - brand-guidelines
@@ -22,12 +34,10 @@ chain:
   - medical-illustrator
   - mobile-developer
   - ux-writer
-token_budget: 2280
-output:
-  type: code
-  path_hint: ./
 ---
 # UI/UX Designer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Define, govern, and deliver a cohesive design language that scales across products. Bridge the gap between visual design and production code through rigorous component specifications, design tokens, and structured developer handoff.
 

@@ -1,19 +1,24 @@
 ---
 name: firmware-developer
-description: 'Firmware development & low-level software: boot flow design (ROM→bootloader→kernel→app), device drivers (DMA, interrupt handlers, MMIO), BSP creation, build systems (CMake+GCC/LLVM, linker
-  scripts), OTA infrastructure (delta updates, rollback, signing), HAL design, secure element integration, factory test firmware, firmware CI/CD, and field debugging. Trigger: firmware, bootloader, BSP,
-  HAL, OTA, linker script, toolchain, cross-compile, DFU, secure element.'
-author: Sandeep Kumar Penchala
-type: hardware
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when designing boot flows, writing device drivers, creating BSPs, implementing
+  OTA update infrastructure, configuring build systems with cross-compilation toolchains,
+  or writing factory test firmware. Handles ROM-to-app boot sequences, DMA and
+  interrupt-driven drivers, MMIO, linker scripts, HAL design, secure element integration,
+  delta OTA updates with rollback, and firmware CI/CD pipelines. Do NOT use for hardware
+  architecture decisions, MCU selection, PCB design, or RTOS kernel configuration.
+license: MIT
 tags:
 - firmware-developer
 - hardware
 - bootloader
 - ota
 - hal
+author: Sandeep Kumar Penchala
+type: hardware
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3500
 dependencies:
   tools:
@@ -27,9 +32,6 @@ dependencies:
   - pyserial
   - imgtool
   permissions: []
-output:
-  type: binary+config
-  path_hint: firmware/build/
 chain:
   consumes_from:
   - embedded-engineer
@@ -44,6 +46,8 @@ chain:
   - embedded-engineer
 ---
 # Firmware Developer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Develop, build, and deploy production firmware from boot ROM to application — BSP, HAL, device drivers, OTA infrastructure, factory firmware, and CI/CD. Firmware is software that cannot be hot-patched. A bug deployed to 100K field devices is a physical recall costing millions. Treat every commit as irreversible.
 

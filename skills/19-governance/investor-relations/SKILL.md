@@ -1,12 +1,14 @@
 ---
 name: investor-relations
-description: Investor relations and fundraising operations for founders and CFOs. Covers investor CRM management, fundraising process, data room preparation, pitch deck creation, due diligence, cap table
-  modeling, annual meetings, shareholder reporting, secondary transactions, and IR during crises. Use when raising capital, managing investor communications, or navigating down rounds and tender offers.
-author: Sandeep Kumar Penchala
-type: governance
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when raising capital, managing investor communications, preparing data rooms,
+  building pitch decks, modeling dilution and cap table scenarios, or navigating down
+  rounds and tender offers. Handles investor CRM management, fundraising process design,
+  due diligence coordination, annual meeting preparation, shareholder reporting, secondary
+  transactions, and crisis communications under Reg FD. Do NOT use for board meeting
+  preparation, financial modeling for internal planning, legal document drafting, or
+  day-to-day investor accounting.
+license: MIT
 tags:
 - investor-relations
 - fundraising
@@ -15,10 +17,12 @@ tags:
 - data-room
 - shareholder-reporting
 - secondary-transactions
+author: Sandeep Kumar Penchala
+type: governance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3490
-output:
-  type: document
-  path_hint: ./investor-relations/
 chain:
   consumes_from:
   - accountant
@@ -34,6 +38,8 @@ chain:
   - treasury-manager
 ---
 # Investor Relations — The Fundraising Operating System
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Investor relations and fundraising operations for founders, CEOs, and CFOs. Run efficient fundraises, manage investor communications at scale, handle due diligence, model dilution scenarios, and navigate the hardest IR moments — down rounds, tender offers, and crisis disclosures.
 

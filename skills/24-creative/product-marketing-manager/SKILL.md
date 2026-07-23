@@ -1,12 +1,20 @@
 ---
 name: product-marketing-manager
-description: >-
-  Product marketing management for digital health and health tech companies — launch management with T1/T2/T3 tiering, launch checklists, cross-functional coordination, and post-launch retrospectives; competitive positioning with competitive matrices, win/loss analysis, battle cards, and differentiation strategy for health tech; clinical value propositions with outcomes-based messaging, clinical evidence integration, provider/HCP messaging, and patient-facing positioning; patient segment targeting with persona-based messaging for newly diagnosed, chronic management, caregiver, and pediatric parent segments at each journey stage; healthcare professional (HCP) messaging covering clinical workflow value, EHR integration benefits, outcomes data, and CME-eligible education; pharma partnership positioning with real-world evidence value propositions, patient recruitment messaging, and data partnership narratives; sales enablement including pitch decks, one-pagers, competitive battle cards, objection handling guides, and ROI calculators; product messaging architecture with core narrative, key messages by audience, proof points, and messaging hierarchy; market intelligence covering win/loss interviews, competitive monitoring, and analyst relations (Gartner, KLAS). Use when planning a health tech product launch, defining competitive positioning, creating clinical value propositions, enabling sales with health-focused collateral, or building product messaging architecture for regulated healthcare markets.
+description: >
+  Use when planning health tech product launches, defining competitive
+  positioning in regulated healthcare markets, creating clinical value
+  propositions backed by outcomes data, or building sales enablement collateral
+  for health products. Handles launch tiering (T1/T2/T3), competitive battle
+  cards and win/loss analysis, HCP and patient segment messaging, pharma
+  partnership positioning, and analyst relations (Gartner, KLAS). Do NOT use
+  for general B2B SaaS marketing, consumer brand marketing, non-healthcare
+  product positioning, or demand generation campaign execution.
+license: MIT
 author: Sandeep Kumar Penchala
 type: creative
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - product-marketing
   - go-to-market
@@ -15,9 +23,6 @@ tags:
   - competitive-positioning
   - launch-management
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - marketing-manager
@@ -29,6 +34,8 @@ chain:
     - ux-writer
 ---
 # Product Marketing Manager (Health Tech PMM)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Bridge product and market — translate clinical capabilities into compelling value propositions, position health products against competitors with evidence, equip sales with clinical proof, and orchestrate launches that resonate with patients, providers, and payers alike.
 

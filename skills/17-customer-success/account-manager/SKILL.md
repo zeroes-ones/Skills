@@ -1,21 +1,26 @@
 ---
 name: account-manager
-description: "Account Manager: own the commercial relationship post-sale — account planning with stakeholder mapping, renewal management (timeline, negotiation, price justification), expansion selling (land-and-expand, upsell, cross-sell), executive sponsor programs, ROI documentation, account tier management, multi-threading, retention campaigns, renewal forecasting, and contract negotiation (MSA, SLA, security addenda). Use for account planning, renewal strategy, expansion deals, ROI business cases, negotiation prep. [KEYWORDS: account management, AM, renewal, expansion, upsell, cross-sell, contract negotiation, stakeholder mapping, account planning, executive sponsor]"
-author: Sandeep Kumar Penchala
-type: customer-success
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when planning account strategies, executing renewals, expanding revenue within existing
+  accounts, building ROI business cases, or preparing for contract negotiations. Handles
+  commercial relationship management post-sale with stakeholder mapping, renewal strategy
+  and price justification, land-and-expand selling, executive sponsor programs, account tier
+  management, multi-threading, retention campaigns, and renewal forecasting. Do NOT use for
+  new logo acquisition, customer onboarding and adoption, product roadmap prioritization,
+  or support ticket management.
+license: MIT
 tags:
   - account-manager
   - renewal-management
   - expansion-selling
   - contract-negotiation
   - stakeholder-mapping
+author: Sandeep Kumar Penchala
+type: customer-success
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3520
-output:
-  type: "document"
-  path_hint: "./"
 chain:
   consumes_from:
     - sales-engineer
@@ -27,6 +32,8 @@ chain:
     - product-manager
 ---
 # Account Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the commercial relationship: retain and expand revenue within existing accounts. Unlike the sales engineer (who wins new logos) and the CSM (who drives adoption and health), the Account Manager owns the renewal, the expansion, and the commercial negotiation. Your KPIs: Gross Revenue Retention (GRR), Net Revenue Retention (NRR) from expansion, renewal rate, and average contract value growth.
 

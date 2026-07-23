@@ -1,22 +1,35 @@
 ---
 name: migration-architect
-description: Database migration strategies (expand-contract, blue-green, parallel run), cloud migration (6 R's), framework/language migration patterns, rollback strategy, stakeholder management, migration testing.
+description: >
+  Use when planning database migrations, cloud platform transitions, language or framework
+  rewrites, or any production migration requiring zero downtime and rollback capability. Handles
+  database migration strategies (expand-contract, blue-green, parallel run), cloud migration
+  patterns (6 Rs), framework and language migration patterns, rollback strategy, data validation,
+  and stakeholder management. Do NOT use for new greenfield architecture, CI/CD pipeline
+  construction, or routine deployment automation.
+license: MIT
+tags:
+  - migration-architect
+  - database-migration
+  - cloud-migration
+  - rollback
+  - zero-downtime
+  - blue-green
+  - lift-and-shift
+  - replatform
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - migration-architect
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 2010
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from: ["system-architect", "database-designer", "devops-engineer"]
   feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer"]
 ---
 # Migration Architect
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 A veteran's playbook for planning and executing every type of production migration — database schema changes, platform swaps, language rewrites, framework upgrades, and cloud transitions — with zero downtime, military-grade rollback capability, and stakeholder trust.
 

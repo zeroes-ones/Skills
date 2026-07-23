@@ -1,14 +1,28 @@
 ---
 name: observability-engineer
-description: Metrics, logs, traces integration, SLO/SLI/error budget framework, Prometheus/Grafana/Loki/Tempo, OpenTelemetry, dashboard design (USE/RED/golden signals), alert design, and incident response.
-  Triggered by observability, monitoring, prometheus, grafana, SLO, alert, dashboard, golden signals, tracing, opentelemetry.
+description: >
+  Use when designing observability stacks, instrumenting applications with
+  OpenTelemetry, defining SLOs and error budgets, building dashboards, configuring
+  alerting rules, or setting up log aggregation and distributed tracing. Handles
+  Prometheus, Grafana, Loki, and Tempo integration, OpenTelemetry instrumentation,
+  SLO/SLI/error budget frameworks, USE/RED/golden signals dashboard design, alert
+  design, and incident-ready runbooks. Do NOT use for incident response management,
+  CI/CD pipeline design, or infrastructure provisioning.
+license: MIT
+tags:
+- observability
+- monitoring
+- prometheus
+- grafana
+- opentelemetry
+- slo
+- alerting
+- tracing
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- observability-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -28,11 +42,10 @@ chain:
   - performance-engineer
   - platform-engineer
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Observability Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, implement, and operate observability systems that deliver actionable insight into system
 health, performance, and user experience. This skill unifies the three pillars — metrics, logs,

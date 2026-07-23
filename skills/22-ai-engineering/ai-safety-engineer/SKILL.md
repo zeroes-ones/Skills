@@ -1,11 +1,21 @@
 ---
 name: ai-safety-engineer
-description: AI safety evaluation and guardrail design for health applications — LLM output safety evaluation (medical accuracy, hallucination detection, harm prevention), guardrail architecture (input/output filtering, content policy enforcement, boundary enforcement), red-teaming methodology (jailbreak attempts, prompt injection, adversarial testing), bias and fairness evaluation, model alignment testing, regulatory compliance for AI in healthcare (FDA AI/ML framework, HIPAA considerations for AI features, EU AI Act), and continuous safety monitoring. Use when evaluating LLM features for safety, building guardrail systems, conducting red-teaming exercises, or preparing AI features for regulatory review.
+description: >
+  Use when evaluating LLM features for safety in regulated health contexts, building
+  guardrail systems, conducting red-teaming exercises, or preparing AI features for
+  FDA/EU AI Act regulatory review. Handles LLM output safety evaluation (medical accuracy,
+  hallucination detection, harm prevention), guardrail architecture (input/output filtering,
+  content policy enforcement, boundary enforcement), red-teaming methodology (jailbreak
+  attempts, prompt injection, adversarial testing), bias and fairness evaluation, model
+  alignment testing, regulatory compliance (FDA AI/ML framework, HIPAA considerations
+  for AI features, EU AI Act), and continuous safety monitoring. Do NOT use for traditional
+  ML model safety, LLM pipeline architecture design, or general-purpose security engineering.
+license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: "1.0.0"
-updated: 2026-07-22
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - ai-safety
   - guardrails
@@ -14,9 +24,6 @@ tags:
   - health-ai
   - llm-safety
 token_budget: 3800
-output:
-  type: "document"
-  path_hint: "safety/"
 chain:
   consumes_from:
     - ai-safety-health-reviewer
@@ -27,10 +34,10 @@ chain:
     - llm-engineer
     - medical-content-reviewer
     - product-manager
-  alternatives:
-    - security-engineer
 ---
 # AI Safety Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ensure AI features in your health app are safe, reliable, and compliant. This skill covers guardrail architecture, safety evaluation, red-teaming methodology, bias testing, and regulatory preparation — specifically for LLM-powered features in regulated health contexts.
 
