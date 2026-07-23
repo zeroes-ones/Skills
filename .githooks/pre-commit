@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+# Pre-commit: Fast frontmatter + link checks on changed skill files only.
+# Target: <3 seconds for typical commits. Full suite runs in pre-push.
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SKILLS_DIR="$REPO_ROOT/skills"
+
+# Only check if skills files changed
+changed=$(git diff --cached --name-only --diff-filter=ACM | grep '^skills/.*\.md$' || true)
+if [ -z "$changed" ]; then
+    exit 0
+fi
+
+has_skill_md=false
+while IFS= read -r f; do
+    if [[ "$f" == */SKILL.md ]]; then
+        has_skill_md=true
+        break
+    fi
+done <<< "$changed"
+
+if [ "$has_skill_md" = false ]; then
+    exit 0
+fi
+
+errors=0
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Pre-commit: Skill file validation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Check 1: Frontmatter on changed SKILL.md files
+echo -n "  [1] Frontmatter validity... "
+python3 -c "
+import os, re, yaml, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                   cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    path = os.path.join('$REPO_ROOT', f)
+    if not os.path.exists(path):
+        continue
+    with open(path) as fh:
+        content = fh.read()
+    parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+    if len(parts) < 3:
+        print(f'\n  ❌ MISSING FRONTMATTER: {f}', file=sys.stderr)
+        errors += 1
+        continue
+    try:
+        fm = yaml.safe_load(parts[1])
+        if not isinstance(fm, dict):
+            print(f'\n  ❌ INVALID YAML: {f}', file=sys.stderr)
+            errors += 1
+            continue
+        for field in ['name', 'description', 'license']:
+            if field not in fm:
+                print(f'\n  ❌ MISSING {field}: {f}', file=sys.stderr)
+                errors += 1
+    except yaml.YAMLError as e:
+        print(f'\n  ❌ YAML ERROR in {f}: {e}', file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
+# Check 2: Description trigger format on changed files
+echo -n "  [2] Description trigger format... "
+python3 -c "
+import os, re, yaml, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                   cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    if '00-framework' in f:
+        continue
+    path = os.path.join('$REPO_ROOT', f)
+    if not os.path.exists(path):
+        continue
+    with open(path) as fh:
+        content = fh.read()
+    parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+    if len(parts) < 3:
+        continue
+    try:
+        fm = yaml.safe_load(parts[1])
+    except:
+        continue
+    if not isinstance(fm, dict):
+        continue
+    desc = fm.get('description', '')
+    if 'Use when' not in desc:
+        print(f'\n  ❌ MISSING \"Use when\" in description: {f}', file=sys.stderr)
+        errors += 1
+    if 'Handles' not in desc:
+        print(f'\n  ❌ MISSING \"Handles\" in description: {f}', file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
+# Check 3: Broken reference links on changed files
+echo -n "  [3] Reference link integrity... "
+python3 -c "
+import os, re, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                   cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    path = os.path.join('$REPO_ROOT', f)
+    if not os.path.exists(path):
+        continue
+    with open(path) as fh:
+        content = fh.read()
+    for m in re.finditer(r'\(references/([^)]+)\)', content):
+        ref_file = os.path.join(os.path.dirname(path), 'references', m.group(1))
+        if not os.path.exists(ref_file):
+            print(f'\n  ❌ BROKEN LINK {m.group(1)} in {f}', file=sys.stderr)
+            errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
+# Check 4: Portability target in changed files
+echo -n "  [4] Portability target... "
+python3 -c "
+import os, re, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                   cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    if '00-framework' in f:
+        continue
+    path = os.path.join('$REPO_ROOT', f)
+    if not os.path.exists(path):
+        continue
+    with open(path) as fh:
+        content = fh.read()
+    if 'Portability target' not in content:
+        print(f'\n  ❌ MISSING portability target: {f}', file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
+if [ "$errors" -gt 0 ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  ❌ Pre-commit checks FAILED"
+    echo "  Run: bash scripts/validate-skills.sh for details"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    exit 1
+fi
+
+echo "  ✅ All pre-commit checks passed"
+exit 0
