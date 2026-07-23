@@ -281,6 +281,28 @@ When this skill is invoked, the agent may need to drill into these specialized a
 
 **What good looks like:** Incident timeline documented with all decisions and actions. Root cause identified and confirmed. Containment completed within SLA (SEV1 < 1 hour). Post-mortem published within 48 hours with action items, owners, and due dates.
 
+## Proactive Triggers
+
+| Trigger | Action | Rationale |
+|---|---|---|
+| No runbook exists for a critical service or component | Propose runbook creation; prioritize services with highest customer impact and lowest operational familiarity | An undocumented service in an incident is a blind spot — the team learns how it works while it's on fire |
+| MTTR (Mean Time to Resolve) shows upward trend for 2+ quarters | Propose incident process audit: review recent postmortems for process gaps, alert design, and runbook effectiveness | Rising MTTR signals systemic degradation — either alerts are noisier, runbooks are stale, or on-call is overwhelmed |
+| New service or dependency added to production without incident playbook | Flag for incident readiness review; ensure alerting, runbook, and escalation path exist before the service handles traffic | New services fail in novel ways — having no runbook guarantees extended MTTR on the first incident |
+| Alert-to-noise ratio exceeds 30% (fewer than 1 in 3 alerts corresponds to real incidents) | Audit alerting rules; reduce threshold sensitivity; page on symptoms (user-facing error rate), not causes (CPU > 80%) | Alert fatigue causes responders to ignore real incidents — every false alarm erodes trust in the paging system |
+| Postmortem action items not completed within 2 sprints | Escalate to engineering manager; action items with no owner or deadline are organizational debt that guarantees incident recurrence | Unresolved action items mean the same incident class will happen again — postmortems without follow-through are theater |
+| No game day or chaos engineering exercise conducted in 6+ months | Schedule tabletop exercise for top failure mode; game days reveal stale runbooks and untested assumptions before production does | Runbooks that have never been exercised are documentation, not preparedness — the first execution during a real incident is too late |
+| Compliance breach notification clock started (GDPR 72-hour, PCI DSS) | Activate compliance workflow; preserve evidence chain of custody; engage legal and communications | Regulatory deadlines are non-negotiable — every hour of delay increases legal and financial exposure |
+
+**Service Interaction Designs:**
+
+| Interaction | Design Detail |
+|---|---|
+| Incident ↔ Observability | Alert correlation: group related alerts into a single incident to reduce noise and reveal causal chains. Dashboard drill-down: incident commander's dashboard links directly to service dashboards, log explorers, and trace viewers for the affected time window. Anomaly detection triggers pre-incident investigation before alert threshold is breached. |
+| Incident ↔ SRE | Post-mortem ownership: SRE owns postmortem process, action item tracking, and reliability improvement backlog. Error budget integration: incidents consume error budget; budget exhaustion triggers feature freeze. Runbook maintenance: SRE ensures runbooks are tested and updated quarterly. |
+| Incident ↔ DevOps | Deployment freeze during SEV1: automated rollback capability verified before incident response begins. Infrastructure change log surfaced during incident triage — recent deployments are the #1 trigger. Secret rotation workflow activated automatically during security incidents. |
+| Incident ↔ Security | Security incident classification overlay on SEV severity: SEV1 + security = immediate security engineer + CISO engagement. IoC sharing between incident response and threat detection. Forensic evidence preservation before remediation (snapshot impacted systems before restarting/rebuilding). |
+| Incident ↔ Communications | Pre-written communication templates for SEV1, SEV2, security incidents, and scheduled maintenance. Status page auto-update from incident management tool. Customer-facing messaging approved and published within 15 minutes of confirmed impact. Executive briefing template for SEV1 with business impact summary. |
+
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
 ### Solo (1 person, 0-100 users)
@@ -323,8 +345,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Practice makes prepared**: run tabletop exercises quarterly and full game days twice a year.
 - **Post-incident review of alert quality**: after every SEV1/SEV2, ask: was the page actionable? Should it have fired earlier?
 
+## Anti-Patterns
 
-### Error Decoder
+- **Hero culture**: Praising the engineer who single-handedly resolved a SEV1 at 3 AM without following process. Hero culture incentivizes bypassing incident response procedures, silos knowledge, and burns out the "heroes." Build systems, not heroes — every "heroic" save is a process failure.
+- **Blame-oriented postmortems**: Asking "who caused this?" instead of "what in our system allowed this to happen?" Blame kills psychological safety — engineers hide incidents rather than surface them. Every postmortem must be blameless by policy.
+- **Runbook rot**: Writing runbooks once and never updating them. A runbook that references a deprecated dashboard, retired service, or former team member is actively harmful — it wastes precious minutes during an incident. Runbooks must be exercised quarterly and updated within 1 sprint of any service change.
+- **Alert fatigue normalization**: Accepting that "most alerts are noise" as a fact of life. When responders develop learned helplessness about alert quality, they stop investigating and start acknowledging-without-reading. Audit alert quality monthly: every alert must be actionable.
+- **Postmortem theater**: Running the postmortem process but never completing action items. Postmortems that produce "we'll look into it" or "add monitoring later" with no owner, deadline, or tracking are organizational waste. Every action item needs an owner, a due date, and escalation on overdue.
+- **Silent incidents**: Incidents that are resolved without documentation because "it was a quick fix." Undocumented incidents cannot be trended, learned from, or prevented. Every incident — even a 5-minute blip — must produce a timeline and a root cause note.
+- **On-call as dumping ground**: Assigning on-call responsibilities only to junior engineers or a single team while the rest of engineering is unaccountable for reliability. On-call must rotate across all engineers who ship to production — you build it, you carry the pager.
+- **All-hands war room for every SEV2**: Pulling 15 people into an incident call for a non-critical issue. War rooms should scale to severity: SEV1 gets IC + comms lead + subject matter experts; SEV2 gets primary on-call + 1 expert; SEV3/4 gets the on-call responder alone. Over-including people burns organizational incident response capacity.
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

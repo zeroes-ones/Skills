@@ -201,6 +201,17 @@ Change type?
 - **Review in a timely manner**: < 4 hours for small PRs (< 200 lines), < 24 hours for large PRs. Code review is the #1 bottleneck in development velocity.
 - **Automate what can be automated**: Linting, formatting, type checking, security scanning — leave human review for logic, design, and architecture.
 
+## Anti-Patterns
+
+- **Style-only reviews**: Focusing exclusively on formatting, naming, and code style while ignoring logic correctness, security, and performance. Code reviews that never catch bugs are performative. Automate style (Prettier, gofmt, black) so human review targets substance.
+- **Rubber-stamp approvals**: Approving PRs without reading the diff — "LGTM" with zero comments. Every rubber stamp is a production incident waiting to happen. Track review comment-to-approval ratio; zero-comment approvals should be rare.
+- **Gatekeeper mentality**: Blocking merges for subjective preferences ("I would have used a for-loop instead of map"). Code review is a conversation, not a veto. Use `nit:` or `suggestion:` prefixes for non-blocking style opinions.
+- **Scope creep in review**: Requesting changes that go beyond the PR's intent — refactoring unrelated files, introducing new patterns, or expanding the feature. Open a separate ticket or tech-debt item instead.
+- **Inconsistent severity application**: Flagging a missing semicolon with the same urgency as an auth bypass. Use a consistent severity grading framework (Critical/High/Medium/Low) so authors can triage.
+- **Reviewing without context**: Reading the diff in isolation without understanding the PR description, linked issue, or architectural constraints. Always start with the PR description and linked ticket to understand intent before reviewing implementation.
+- **Delayed reviews**: Allowing PRs to sit unreviewed for days while the author context-switches. Review latency is the #1 bottleneck in development velocity. Set SLA: <4 hours for small PRs, <24 hours for large PRs.
+- **Skipping dependency review**: Approving PRs without checking new or updated dependencies for known CVEs, license conflicts, or supply chain risks. Every `package-lock.json` or `requirements.txt` change must be verified against SCA scan results.
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -233,6 +244,28 @@ Architecture dispute? → System Architect → CTO Advisor
 Repeated quality issues from same author? → Engineering Manager
 CI infrastructure issues? → DevOps Engineer
 ```
+
+## Proactive Triggers
+
+| Trigger | Action | Rationale |
+|---|---|---|
+| PR changes affect 2+ services or API boundaries | Flag integration test gaps; verify contract tests exist for cross-service communication | Multi-service changes have multiplicative failure modes — the integration surface is where bugs hide |
+| New dependency added (any manifest change) | Check license compatibility, known CVEs in SCA scan, maintainer reputation, and supply chain posture | A single compromised dependency grants attacker access to the entire build pipeline |
+| Auth/authorization code modified | Auto-assign security reviewer; flag for mandatory security review gate | Auth changes are the highest-leverage attack surface — even a one-line change can create an auth bypass |
+| Database migration present (schema change or data migration) | Verify rollback plan exists; check for locking/blocking operations; ensure migration is reversible | A bad migration with no rollback plan can cause hours of downtime with no undo path |
+| PR exceeds 400 lines | Request decomposition into smaller, reviewable units | Review quality is inversely proportional to PR size — a 1000-line PR gets a fraction of the scrutiny per line |
+| CI review gate configured | Verify required status checks include: lint, type-check, unit tests, SAST scan, and dependency audit | CI gates enforce consistency; missing gates allow unreviewed code to merge silently |
+| Concurrency-sensitive code (goroutines, threads, async shared state) | Check for race conditions, missing locks/synchronization, and non-atomic operations on shared mutable state | Concurrency bugs are deterministic in hindsight but invisible in code review without deliberate attention |
+
+**Service Interaction Designs:**
+
+| Interaction | Design Detail |
+|---|---|
+| Code Review ↔ CI/CD | Automated review gates enforce required status checks (lint, test, SAST, dependency audit) before merge. CI must block PRs that fail any gate. Review comment resolution verified via GitHub Checks API — unresolved threads block merge. |
+| Code Review ↔ Security | SAST results (Semgrep/CodeQL) posted as inline PR annotations. Dependency scanning (Dependabot/Snyk) runs on every manifest change. Security reviewer auto-assigned when diff touches `auth/`, `crypto/`, `payment/`, or `admin/` paths. |
+| Code Review ↔ QA | Review findings with severity grading feed into QA's test plan. Flagged coverage gaps become targeted test cases. Flaky test patterns identified during review shared with QA for quarantine. |
+| Code Review ↔ Frontend | Accessibility and bundle-size checks run as part of review gates. Semantic HTML and ARIA patterns validated via automated checks before human review. Visual regression diffs included in PR for UI changes. |
+| Code Review ↔ DevOps | IaC changes (Dockerfile, Terraform, K8s manifests) get specialized review path. Container image scanning results posted to PR. Secret detection (truffleHog/gitleaks) blocks PRs containing credentials. |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -291,7 +324,7 @@ Common chains:
 | `language-specific` (Python/TS/Go/Rust) | Per-language anti-patterns | `references/language-specific-review-guides.md` |
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

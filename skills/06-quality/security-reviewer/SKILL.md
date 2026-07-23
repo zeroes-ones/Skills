@@ -583,6 +583,17 @@ Every finding must follow this structured format:
 - **Security is quality**: Frame findings as bugs. Don't appeal to fear -- appeal to correctness and engineering excellence.
 - **Know thy threat model**: A startup MVP has a different threat model than a bank. Calibrate review depth and severity to the actual risk.
 
+## Anti-Patterns
+
+- **WAF-as-fix**: Slapping a Web Application Firewall rule on top of a SQL injection vulnerability instead of fixing the parameterized query. A WAF is a bandage — it can be bypassed, misconfigured, or expire. Fix at the code level first, then add defense-in-depth.
+- **Checkbox security**: Running SAST/DAST tools and accepting the report as "security done" without triaging findings, verifying exploitability, or fixing root causes. Tool output is input to a human process, not the output of the process.
+- **Severity inflation**: Marking everything as "Critical" to get attention. When everything is critical, nothing is. Use CVSS-aligned severity with objective criteria (exploitability, impact, exposure) so teams can triage effectively.
+- **Scope-by-label**: Triggering security review only when the PR has a `security` label. Attackers don't label their PRs. Gate on file patterns (`auth/`, `crypto/`, `payment/`, `admin/`, `graphql/`, `resolver/`), not human-assigned labels.
+- **Theoretical-only findings**: Reporting vulnerabilities that require unrealistic conditions (physical access to the data center, admin privileges already compromised). Focus on exploitable findings — threat model the actual attack surface, not hypotheticals.
+- **Secrets in codebase tolerated**: Finding hardcoded secrets and filing a "Low" ticket because "it's in a private repo." Private repos become public repos (acquisition, open-sourcing, insider threat). All secrets must be rotated and moved to a secrets manager.
+- **Security review as gatekeeper**: Using security review as the sole approval gate before production without empowering developers to self-service security scanning. Security team becomes the bottleneck — every PR waits days for a review. Shift-left: run SAST in CI and let developers self-remediate.
+- **Compliance ≠ security**: Passing a SOC 2 audit does not mean the system is secure. Compliance frameworks set a minimum bar — they cover yesterday's threats. Security review must assess current, active threat vectors beyond the compliance checklist.
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -623,6 +634,28 @@ Medium (CVSS 4.0–6.9, limited impact, requires non-default config)?
 Low / Info?
   └── Log in backlog. No escalation needed. Fix when refactoring.
 ```
+
+## Proactive Triggers
+
+| Trigger | Action | Rationale |
+|---|---|---|
+| JWT/OAuth2/SAML implementation or modification found | Verify algorithm validation (reject `none`), signature verification, claims validation (exp, nbf, aud, iss), and key management | JWT misconfiguration is the #1 auth vulnerability — algorithm confusion, missing signature checks, and weak secrets enable privilege escalation |
+| File upload or file-serving endpoint added | Check for path traversal, unrestricted file types, stored file access controls, and filename sanitization | File upload is a triple threat: path traversal to overwrite, unrestricted upload for webshells, and insecure storage for data leaks |
+| User input flows to database query | Check for SQL/NoSQL injection — verify parameterized queries or ORM-safe patterns on every data path | Injection remains #3 on the OWASP Top 10 — and every new query path is a new injection surface |
+| New third-party dependency or SDK added | Audit for known CVEs, license compatibility, supply chain posture, and transitive dependency risk | The average npm package pulls in 79 transitive dependencies — any one of them can be compromised |
+| IaC change (Terraform, Pulumi, CloudFormation, K8s manifests) | Scan for open security groups, public S3 buckets, overly permissive IAM policies, and unencrypted data stores | Infrastructure misconfiguration is the #1 cause of cloud data breaches — one `0.0.0.0/0` rule exposes everything |
+| Container image or Dockerfile change | Verify non-root user, read-only filesystem, pinned base image digest, no secrets in layers, and dropped capabilities | Container escape CVEs are published monthly — hardened containers contain the blast radius when the next one hits |
+| Devops pipeline or CI/CD configuration change | Audit for secret management in CI, pipeline injection risks, and artifact signing | CI/CD pipelines have access to production credentials — pipeline compromise = full infrastructure compromise |
+
+**Service Interaction Designs:**
+
+| Interaction | Design Detail |
+|---|---|
+| Security ↔ DevOps | Secret rotation audit: verify all secrets are in a secrets manager (Vault, AWS Secrets Manager), not in env vars or config files. IaC scanning (tfsec, Checkov, cfn_nag) runs on every IaC PR. Container image signing (Cosign/Notary) enforced before deployment. Network policy audit ensures least-privilege egress from production. |
+| Security ↔ CI/CD | SAST (Semgrep/CodeQL) runs as blocking check on every PR. Dependency scanning (Dependabot/Snyk/osv-scanner) with auto-PR for patch versions. Secret detection (truffleHog/gitleaks) blocks commits containing credentials. SBOM generated and signed at build time. |
+| Security ↔ Compliance | Regulatory scope mapping: classify systems by data type (PII, PHI, PCI) and map to compliance frameworks (GDPR, HIPAA, PCI DSS, SOC 2). Automated evidence collection from review findings for auditor-ready reports. Breach notification clock workflow triggered from finding severity. |
+| Security ↔ Code Review | Security findings from SAST posted as inline PR annotations. Dependency vulnerability alerts surfaced in PR diff view. Security reviewer auto-assigned by file pattern (`auth/`, `payment/`, `crypto/`, `admin/`). |
+| Security ↔ Observability | Security-relevant logs (auth failures, permission denials, suspicious patterns) shipped to SIEM. Detection rules aligned to MITRE ATT&CK framework. Anomaly detection on authentication and data access patterns. |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -682,7 +715,7 @@ Common chains:
 | `threat-modeling` | STRIDE per component during code review (not just architecture diagrams) | Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege |
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

@@ -136,6 +136,17 @@ Configure periodic (daily) accessibility scans of key production pages using pa1
 7. **Prefer integration tests over unit tests for a11y.** A `<Button>` component may pass axe in isolation. But 5 `<Button>` components with conflicting aria-labels inside a `<nav>` may fail at the integration level. The most common a11y bugs are compositional, not isolated.
 8. **Mobile accessibility is not "small desktop accessibility."** Touch target size (minimum 44x44 CSS pixels), screen reader swipe gestures, dynamic type/text resize support, and reduced motion preferences are unique to mobile. Test on real devices, not just responsive viewports.
 
+## Anti-Patterns
+
+- **axe-only testing**: Believing a clean axe-core scan means the application is accessible. Automated tools catch ~30% of WCAG violations. Keyboard traps, focus management, cognitive barriers, and screen reader usability are invisible to automation. Always supplement with manual keyboard + screen reader walkthroughs.
+- **Accessibility as a final step**: Running accessibility checks only before release instead of integrating them into the development workflow. Retrofitting accessibility is 10x more expensive than building it in. Shift-left: lint rules in IDE, axe in component tests, pa11y in CI on every PR.
+- **ARIA misapplication**: Adding `aria-*` attributes without understanding their semantics — `aria-label` overriding visible text, missing required `aria-*` parent/child relationships, or using ARIA to "fix" inaccessible native elements. First rule of ARIA: don't use ARIA if native HTML works.
+- **Color-only indicators**: Using color as the sole differentiator for state (red/green for error/success, blue links indistinguishable from body text). Users with color vision deficiency cannot perceive these distinctions. Always pair color with an icon, text label, or pattern.
+- **Skip-link theater**: Adding a "Skip to main content" link that exists in the DOM but is non-functional (wrong target, hidden from focus order, or positioned off-screen without `:focus` styles). Test skip links with keyboard navigation — they must actually work.
+- **Responsive ≠ accessible**: Assuming that a responsive layout is automatically accessible. Zooming to 200% can break layouts, fixed-position elements can overlap, and touch targets can shrink below 44x44px on smaller viewports. Test at 200% zoom and on real mobile devices.
+- **Placeholder-as-label**: Using `placeholder` attributes as the only label for form inputs. Placeholders disappear on focus, have low contrast, and are not consistently announced by screen readers. Every input must have a persistent `<label>` or `aria-label`.
+- **Animation without preference check**: Adding animations, parallax, or auto-playing video without respecting `prefers-reduced-motion: reduce`. Vestibular disorders make motion-triggered effects physically harmful. Wrap all animations in a media query check.
+
 <!-- DEEP: 10+min -->
 ## Error Decoder
 
@@ -202,6 +213,29 @@ Blocked by inaccessible third-party component? → Accessibility Auditor → Leg
 ADA/Section 508 complaint received? → Legal Advisor → Compliance Officer → CTO
 Accessibility score < 70 on critical user flow? → Product Manager → CTO Advisor
 ```
+
+## Proactive Triggers
+
+| Trigger | Action | Rationale |
+|---|---|---|
+| New UI component added | Run axe-core on component in isolation and within the page layout; verify ARIA labels, roles, and focus management | New components are the most common source of accessibility regressions — catch violations at the component level before they propagate |
+| Color scheme, theme, or design token change | Run automated contrast ratio checks on all affected component states (default, hover, focus, disabled, error) | A palette change that passes WCAG AA for one state can fail for another — check the full state matrix |
+| New form or form step added | Verify all inputs have persistent labels, error messages are linked via `aria-describedby`, required fields are marked, and keyboard tab order is logical | Forms are the #1 interaction point between users and services — inaccessible forms block core business functions |
+| Navigation structure change (menu, tabs, routing) | Test keyboard navigation: verify focus order matches visual order, skip links work, focus is not trapped, and active element is always visible | Navigation is the skeleton of accessibility — if users can't navigate, they can't use anything else |
+| Third-party component or library introduced | Audit the component's accessibility documentation and VPAT; run axe against the component in your actual usage context | Third-party components often have incomplete ARIA implementations — test in your real DOM, not the library's demo page |
+| CI pipeline for frontend configured | Wire axe-core into component tests and E2E tests; set Lighthouse CI accessibility budget (minimum score 95); enforce zero new critical/serious violations baseline | CI gates prevent regressions from reaching production — the most effective time to catch a violation is before it merges |
+| Production accessibility score drops >5 points in 24 hours | Trigger investigation; check recent deploys for DOM structure changes, new components, or third-party script additions | Production monitoring catches regressions that slip through CI — page composition at runtime differs from test environments |
+
+**Service Interaction Designs:**
+
+| Interaction | Design Detail |
+|---|---|
+| A11y ↔ Frontend | eslint-plugin-jsx-a11y enforces semantic HTML at the IDE level. Component library enforces accessible patterns (required `aria-label` on icon buttons, `alt` text on images). Design system tokens include accessible color pairings with pre-verified contrast ratios. |
+| A11y ↔ CI/CD | axe-core integrated into Playwright/Cypress E2E tests — runs after every navigation and DOM mutation. pa11y-ci scans sitemap-based URL list on staging deploy. Lighthouse CI enforces minimum 95 accessibility score with budget. Zero new critical (A) or serious (AA) violations against stored baseline blocks merge. |
+| A11y ↔ Mobile | Espresso AccessibilityChecks (Android) and XCUITest accessibility checks (iOS) enabled in mobile CI. Touch target size enforcement (44x44dp minimum). Dynamic type/text resize testing on real devices. Reduced motion preference testing. |
+| A11y ↔ QA | Accessibility test suite integrated into the regression suite. Violation baseline tracked per-route. Accessibility debt ratio tracked monthly. QA owns the manual screen reader + keyboard navigation walkthrough for top 5 user flows. |
+| A11y ↔ Design | Design tokens include contrast-verified color pairings. Component specs include accessibility requirements (focus order, ARIA roles, keyboard interactions). Design review includes accessibility checklist before handoff. |
+| A11y ↔ Legal/Compliance | VPAT (Voluntary Product Accessibility Template) updated per release. WCAG conformance level (A/AA/AAA) documented per feature. ADA/Section 508 compliance evidence collected from CI audit trail. Legal notified of any pattern of accessibility regressions. |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- STANDARD: 3min -->
