@@ -17,7 +17,7 @@
 6. [Skill Archetypes & Adaptations](#6-skill-archetypes--adaptations)
 7. [Voice & Style Guide](#7-voice--style-guide)
 8. [Quality Standard — The Goldilocks Test](#8-quality-standard--the-goldilocks-test)
-9. [Migration Plan: Complete (103 Skills)](#9-migration-plan-complete-103-skills)
+9. [Migration Plan: Complete (106 Skills)](#9-migration-plan-complete-106-skills)
 10. [Skill Graph Visualized](#10-skill-graph-visualized)
 11. [Automation & Maintenance](#11-automation--maintenance)
 
@@ -575,7 +575,7 @@ The remaining 20% of content covers edge cases and niche scenarios.
 
 ---
 
-## 9. Migration Plan: Complete (103 Skills)
+## 9. Migration Plan: Complete (106 Skills)
 
 ### Phase 1: Template + Archetypes (Foundation)
 
