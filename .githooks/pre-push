@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Pre-push: Full skills validation suite — blocks push on any failure.
+# This runs the same script as CI/CD to ensure consistent gates.
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Pre-push: Full skills governance gate"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f "$REPO_ROOT/scripts/validate-skills.sh" ]; then
+    bash "$REPO_ROOT/scripts/validate-skills.sh"
+else
+    echo "⚠️  validate-skills.sh not found — skipping pre-push check"
+    exit 0
+fi
