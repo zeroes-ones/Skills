@@ -91,6 +91,20 @@ Competent API designers build endpoints that return data. Masters build **contra
 - **Skip REST for internal service-to-service communication.** gRPC with protobuf gives you type safety, performance, and code generation that REST can't match. REST is for external consumers. Internal services can use faster contracts.
 - **Return 200 with an error body for legacy consumers.** If you have consumers that crash on non-200 status codes (it happens), wrap errors in a 200 response with an `error` field. It's not pure REST, but it keeps legacy consumers running while you migrate them.
 
+## Operating at Different Levels
+
+API design skill manifests in the scope of the API — from single endpoints to org-wide API governance.
+
+| Level | API Design Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Implements API endpoints from a spec. Learns REST/GraphQL conventions. "Here's the endpoint that returns user data." |
+| **L2 — Practitioner** | Designs API surfaces for a single domain. Produces OpenAPI specs. Handles error responses, pagination, and versioning correctly. |
+| **L3 — Senior** | Designs the API strategy for a product. Paradigm selection (REST vs GraphQL vs gRPC). Auth, rate limiting, and deprecation strategy. Trade-off rationale included. |
+| **L4 — Staff** | Sets API design standards for the organization. API governance: naming conventions, error formats, versioning policy. "Every API at this company follows this contract." |
+| **L5 — Principal** | Creates API design paradigms adopted across the industry. "Here's a new API pattern for this class of problem." |
+
+**Usage**: Say "as an L3 API designer, design the API surface for..." Default: **L2** (domain-level API design, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new REST, GraphQL, or gRPC API from scratch

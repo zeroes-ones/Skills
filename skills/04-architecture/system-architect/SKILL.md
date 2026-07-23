@@ -100,6 +100,20 @@ Competent architects design systems that meet requirements. Masters design syste
 - **Skip the ADR for reversible decisions.** If the decision can be changed in a week with minimal blast radius, it doesn't need a formal record. ADRs are for irreversible or high-cost-reversal decisions: database choice, language choice, service boundaries. Library choice within a service? Just document in the README.
 - **Ship a monolith to prove the market, then split.** If you're pre-PMF, optimize for speed of learning, not scalability. A monolith that can be refactored in a month is better architecture than microservices that took 6 months to build for a product nobody wants.
 
+## Operating at Different Levels
+
+Architecture decisions compound — a decision made at L2 has L4 consequences. Understanding level expectations ensures the right depth for the problem at hand.
+
+| Level | Architecture Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Learns architecture patterns. Reads ADRs. Can diagram an existing system and explain the trade-offs already made. |
+| **L2 — Practitioner** | Produces architecture for a single service or bounded context. Evaluates trade-offs with guidance. Writes clear, decision-focused ADRs. |
+| **L3 — Senior** | Designs multi-service systems. Makes build-vs-buy and monolith-vs-microservices decisions with defensible rationale. Architecture RFCs that stand up to peer review. |
+| **L4 — Staff** | Sets architecture standards for the organization. Defines technology radar, architecture principles, and governance. "This is what we mean by 'well-architected' here." |
+| **L5 — Principal** | Creates architecture methodologies adopted across the industry. "Here's a new way to reason about distributed system design." |
+
+**Usage**: Say "as an L4 architect, review the system design for..." Default: **L3** (multi-service design, independent architectural decisions).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch

@@ -98,6 +98,20 @@ Code review is not gatekeeping — it's **the highest-leverage quality practice 
 - **Waive the checklist for hotfixes.** In a P0 incident, review for "does this fix the issue without making things worse?" and defer thoroughness to a post-incident follow-up. Ship, then review properly.
 - **Approve with nits when the author is more expert in the domain than you.** Flag style and clarity issues (nits) but don't block on correctness you can't fully evaluate.
 
+## Operating at Different Levels
+
+Code review quality scales with the reviewer's ability to spot patterns — from local bugs to systemic risks.
+
+| Level | Code Review Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Learns to review. Catches obvious bugs and style issues. Follows a checklist. |
+| **L2 — Practitioner** | Catches logic errors, missing edge cases, and test gaps. Reviews for maintainability. Provides actionable feedback. |
+| **L3 — Senior** | Spots architectural issues, coupling problems, and security risks. Reviews the design, not just the code. "This approach will cause problems when we scale to X." |
+| **L4 — Staff/Principal** | Identifies systemic patterns across reviews. "I'm seeing this same anti-pattern across three teams — let's fix the template." Sets org-wide review standards. |
+| **L5 — Industry-level** | Creates review methodologies adopted across the industry. "Here's a new dimension for evaluating code quality." |
+
+**Usage**: Say "as an L3 reviewer, review this PR." Default: **L3** (architectural and security review, pattern recognition).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Reviewing pull requests before merge

@@ -124,6 +124,20 @@ Competent developers make things work. Masters make things **unbreakable under l
 - **Skip the abstraction for one-off scripts.** A 50-line migration script doesn't need repository pattern, dependency injection, or a service layer. It needs to run once and be correct.
 - **Use raw SQL when the ORM creates N+1 queries.** ORMs optimize for developer convenience, not query efficiency. When you see 500 queries in your logs for a single endpoint, drop to raw SQL. The ORM is a tool, not a religion.
 
+## Operating at Different Levels
+
+The same backend task produces fundamentally different output depending on the practitioner's level. Invoke this skill with your target level (or the level you want to grow toward) to calibrate depth and scope.
+
+| Level | Backend Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Step-by-step implementation with explanations. Safe defaults. "Here's the route handler, here's why we use this pattern." |
+| **L2 — Practitioner** | Production-ready implementation with tests, error handling, and edge cases covered. Independent execution. |
+| **L3 — Senior** | API design with trade-off analysis, data model design, architectural decisions. Decision rationale included. System-level thinking. |
+| **L4 — Staff** | API design standards for the org, cross-service patterns, architectural RFCs. "This is how all our services should handle auth/caching/errors." |
+| **L5 — Principal** | Novel patterns that change how the industry thinks about backend design. Framework-level contributions. "Here's a new approach to this class of problem." |
+
+**Usage**: Say "as an L3 backend developer, design the API for..." or "give me an L2 implementation of this endpoint" to calibrate the response. If no level is specified, defaults to **L2** (production-ready, independent execution).
+
 ## When to Use
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework

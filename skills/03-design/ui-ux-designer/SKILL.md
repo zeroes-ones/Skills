@@ -93,6 +93,20 @@ UI/UX design is not about making things pretty — it's about **making things un
 - **Skip the design system when prototyping.** The design system is for production. When exploring ideas, move fast with rough components. Lock into the system once the direction is validated.
 - **Break consistency when the inconsistency improves clarity.** A red "Delete account" button that looks different from other buttons is worth the inconsistency. Use sparingly.
 
+## Operating at Different Levels
+
+Design skill scales from individual components to org-wide design systems to company-defining design philosophy.
+
+| Level | UI/UX Designer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Designs individual screens or components from a design system. Learns interaction patterns and visual hierarchy. |
+| **L2 — Practitioner** | Owns a feature's design end-to-end. Produces component specs, handles all states, and delivers developer-ready handoff. |
+| **L3 — Senior** | Owns a product surface's design. Establishes interaction patterns, contributes to the design system, and advocates for the user in product decisions. Trade-off rationale included. |
+| **L4 — Staff/Principal** | Owns the design system and design quality across products. Defines design principles. "This is how we think about design at this company." |
+| **L5 — Design Leadership** | Defines design philosophy that shapes the industry. "Here's a new way to think about interaction design." |
+
+**Usage**: Say "as an L3 designer, create the component spec for..." Default: **L2** (feature-level design, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product needs a design system built or extended with new components

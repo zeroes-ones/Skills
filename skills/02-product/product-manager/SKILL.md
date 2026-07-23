@@ -120,6 +120,20 @@ Product management is not about writing specs — it's about **making decisions 
 - **Skip RICE when the strategic bet is existential.** If a feature is table stakes (competitors have it, you'll lose deals without it), don't score it — just build it. Be honest about whether it's truly table stakes or just "nice to have."
 - **Ship without full consensus when speed matters more than alignment.** In crisis or time-sensitive opportunities, ship first, align after. Document the decision and rationale.
 
+## Operating at Different Levels
+
+PM skill manifests in the scope and complexity of the problems you own — from individual features to product lines to company strategy.
+
+| Level | Product Manager Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Writes user stories from an existing roadmap. Learns basic prioritization. Ships features under guidance. |
+| **L2 — Practitioner** | Owns a feature area. Writes PRDs with problem framing, success metrics, and acceptance criteria. RICE-scores independently. |
+| **L3 — Senior** | Owns a product or significant surface area. Discovers opportunities (not just executes roadmap). Stakeholder management across functions. Trade-off rationale included. |
+| **L4 — Staff/Group** | Owns a product line or portfolio. Sets product strategy, not just tactics. "This is the two-year bet we're making." Cross-team prioritization. |
+| **L5 — CPO/VP Product** | Defines the product philosophy and decision framework for the entire company. "This is how we decide what to build." |
+
+**Usage**: Say "as an L3 PM, write the PRD for..." or "as an L4 PM, prioritize across these product lines." Default: **L2** (feature-area ownership).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document

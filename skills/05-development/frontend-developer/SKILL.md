@@ -103,6 +103,20 @@ Competent developers ship features that look right on their machine. Masters shi
 - **Skip SSR for internal dashboards.** Server-side rendering adds complexity. If your users are 50 employees on office WiFi, a client-side SPA is faster to build and perfectly adequate.
 - **Use a `<div>` when semantics don't help.** Not every container needs to be `<section>`, `<article>`, or `<aside>`. Semantic HTML matters for landmarks and interactive elements. For purely visual grouping, a `<div>` is fine.
 
+## Operating at Different Levels
+
+The same frontend task produces fundamentally different output depending on the practitioner's level. Invoke this skill with your target level to calibrate depth and scope.
+
+| Level | Frontend Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Step-by-step component implementation with explanations. Safe defaults, accessibility basics covered. "Here's the component, here's why we use flexbox here." |
+| **L2 — Practitioner** | Production-ready component with all states (loading, empty, error, edge cases), tests, and accessibility. Independent delivery. |
+| **L3 — Senior** | Component architecture design with trade-off analysis. State management strategy. Performance and bundle-size optimization. Decision rationale included. |
+| **L4 — Staff** | Design system patterns, shared component library standards, SSR/SSG strategy for the org. "This is how all our apps should handle routing/data fetching/state." |
+| **L5 — Principal** | Novel frontend patterns or tools adopted across the industry. Framework-level contributions. "Here's a new rendering strategy for this class of interaction." |
+
+**Usage**: Say "as an L3 frontend developer, architect the component tree for..." or "give me an L2 implementation of this form" to calibrate. Default: **L2** (production-ready, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project

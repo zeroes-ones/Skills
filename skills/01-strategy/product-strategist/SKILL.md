@@ -98,6 +98,20 @@ Product strategy is not about picking the right framework — it's about **seein
 - **Skip competitive analysis when creating a new category.** There are no competitors when you're defining the market. But validate that users have an existing behavior you're replacing — even category creators compete with "the way it's done today."
 - **Ignore roadmap discipline during existential pivots.** When the company might die, throw out the roadmap and focus all resources on the one thing that might save it. Survival is the strategy.
 
+## Operating at Different Levels
+
+Product strategy scales from individual product lines to company-defining bets. The scope and time horizon of decisions defines the level.
+
+| Level | Product Strategy Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Analyzes a market segment. Contributes to competitive analysis. Learns strategy frameworks. |
+| **L2 — Practitioner** | Owns product strategy for a feature area. PMF analysis, pricing recommendations, competitive positioning for a product surface. |
+| **L3 — Senior** | Owns product strategy for a full product. Portfolio-level OKRs, build-vs-buy-vs-partner analysis. Strategic rationale for market positioning. |
+| **L4 — Director/VP** | Owns strategy for a product line or business unit. Multi-year strategic bets. "These are the three markets we're betting on for the next 3 years." |
+| **L5 — CPO/CEO** | Defines the company's product philosophy and strategic decision framework. "This is how we choose which markets to enter and how we win in them." |
+
+**Usage**: Say "as an L3 product strategist, evaluate the PMF for..." Default: **L3** (full-product strategy, independent analysis).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Validating product-market fit for a new product or feature

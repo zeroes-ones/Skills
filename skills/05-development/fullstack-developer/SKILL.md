@@ -88,6 +88,20 @@ Competent fullstack developers make the frontend work and the backend work. Mast
 - **Skip the API for internal tools.** An admin panel that queries the database directly (via a secure internal service) is faster to build and perfectly adequate for 5 internal users. Not every screen needs a REST API.
 - **Put computation in the client when it's truly presentation-only.** Sorting a 200-row table, formatting dates, local search — the user's device can handle this faster than a round trip. Server-side rendering is not always the answer.
 
+## Operating at Different Levels
+
+Fullstack spans two disciplines, so level manifests in the sophistication of integration decisions — where to put logic, how to design the boundary, and how to optimize the whole.
+
+| Level | Fullstack Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Implements features following established patterns. Learns the stack boundaries. "Here's the endpoint and the component that consumes it." |
+| **L2 — Practitioner** | Delivers full features independently — database through UI. Handles errors at both layers. Solid integration quality. |
+| **L3 — Senior** | Makes boundary decisions with explicit rationale: "This logic belongs in the API because..." Designs the data flow end-to-end. Trade-off analysis across the stack. |
+| **L4 — Staff** | Defines fullstack patterns for the org: monorepo strategy, shared package architecture, API contract standards. "This is how all our features should connect frontend to backend." |
+| **L5 — Principal** | Creates fullstack frameworks or methodologies adopted across the industry. "Here's a new way to think about the frontend-backend boundary." |
+
+**Usage**: Say "as an L3 fullstack developer, design the data flow for..." Default: **L2** (production-ready, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Delivering a feature that spans database, API, and UI layers

@@ -87,6 +87,20 @@ Competent mobile developers build apps that work on their test device. Masters b
 - **Ship a native module for a single critical feature.** The cross-platform abstraction tax isn't always worth it. If AR, Bluetooth, or advanced camera is your core differentiator, go native for that module. Wrap it in a cross-platform interface for the rest of the app.
 - **Use WebView for content that changes daily.** Terms of service, help center, marketing pages — content that changes faster than your app review cycle belongs in a WebView, not in native code.
 
+## Operating at Different Levels
+
+Mobile development spans platform-specific concerns (app stores, device capabilities, offline) that manifest differently at each level.
+
+| Level | Mobile Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Implements screens from design specs. Learns navigation patterns, platform conventions, and the build pipeline. |
+| **L2 — Practitioner** | Delivers complete features with offline support, error states, and platform-appropriate UX. Independent shipping. |
+| **L3 — Senior** | Architecture decisions: navigation design, state management strategy, native vs. cross-platform trade-offs. Platform-specific optimizations. |
+| **L4 — Staff** | Mobile platform strategy for the org: shared component architecture, CI/CD for mobile, OTA update strategy, App Store governance. |
+| **L5 — Principal** | Novel mobile patterns or frameworks adopted across the industry. "Here's a new approach to offline sync / navigation / cross-platform architecture." |
+
+**Usage**: Say "as an L3 mobile developer, design the navigation architecture for..." Default: **L2** (production-ready, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between native (Swift/Kotlin), React Native, Flutter, or PWA for a new mobile project

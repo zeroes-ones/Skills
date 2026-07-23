@@ -124,6 +124,20 @@ DevOps is not about tools — it's about **reducing the time and friction betwee
 - **Manual steps are acceptable in early-stage startups.** When you're shipping to 10 users, a manually-provisioned EC2 instance is fine. Automate when the manual process causes pain, not before.
 - **Skip the full GitOps pipeline for internal tools.** The rigor needed for customer-facing production is not always needed for internal dashboards. Match process rigor to blast radius.
 
+## Operating at Different Levels
+
+DevOps skill manifests in the scope of infrastructure you own and the blast radius of your decisions.
+
+| Level | DevOps Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Executes infrastructure changes from runbooks. Learns IaC, CI/CD patterns. Deploys with guidance. |
+| **L2 — Practitioner** | Owns infrastructure for a service. Writes Terraform/Pulumi, builds CI/CD pipelines. Handles incidents independently. |
+| **L3 — Senior** | Designs infrastructure for a product. Multi-account architecture, DR strategy, progressive delivery. Incident command. Trade-off analysis included. |
+| **L4 — Staff/Principal** | Sets platform standards for the organization. "This is how all our services deploy, monitor, and recover." Infrastructure governance and FinOps strategy. |
+| **L5 — Industry-level** | Creates DevOps methodologies adopted across the industry. "Here's a new approach to infrastructure reliability." |
+
+**Usage**: Say "as an L3 DevOps engineer, design the deployment pipeline for..." Default: **L3** (product-level infrastructure, independent design).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures

@@ -116,6 +116,20 @@ Engineering management is not "senior engineer plus meetings." It's a fundamenta
 - **Cancel a 1:1 when there's truly nothing to discuss.** The rule "never cancel 1:1s" exists because most EMs cancel too easily. But an experienced EM knows when the relationship is strong enough to skip a week. Ask: "Anything you want to discuss this week?" before canceling.
 - **Write code when it's the highest-leverage thing you can do.** Fix a flaky test that's wasting 2 hours of team time daily. Build a tool that automates a manual process. But set a time box (4 hours max) and return to management.
 
+## Operating at Different Levels
+
+Engineering management skill scales from managing individuals to managing managers to managing organizations. The leverage point shifts from people → teams → systems.
+
+| Level | Engineering Manager Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Tech lead with 1-2 direct reports. Learns 1:1s, feedback, and basic people management. |
+| **L2 — EM** | Manages a team of 4-8. Performance management, hiring, career development, team process. Delivers through the team. |
+| **L3 — Senior EM** | Manages 2-3 teams or a larger team (8-15). Cross-team coordination, org design within a group. Coaching other EMs. |
+| **L4 — Director** | Manages managers (3-5 EMs, 20-50 engineers). Org design, technical strategy for a department. "This is the engineering culture we're building." |
+| **L5 — VP/SVP** | Manages directors (50-200+ engineers). Multi-year org strategy, executive stakeholder management. "This is how engineering delivers business value." |
+
+**Usage**: Say "as an L3 engineering manager, help me handle a performance issue with..." Default: **L2** (team-level management, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
