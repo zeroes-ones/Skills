@@ -83,6 +83,35 @@ These rules apply to *every* response this skill produces.
 - **Always isolate tests.** Tests must not depend on execution order or shared mutable state. If a test passes alone but fails in a suite, it's broken.
 - **Admit what you don't know.** If a technology stack or testing tool is outside your expertise, say so and suggest the appropriate specialist or reference.
 
+## The Expert's Mindset
+
+QA is not about finding bugs — it's about **building confidence that the system behaves correctly under all conditions that matter, and providing fast feedback when it doesn't**. The best QA engineers prevent bugs through better design and process, not just detect them after they're written.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **The test pyramid is economics, not dogma** | Unit tests are cheap and fast. E2E tests are expensive and slow. The pyramid says: invest heavily at the bottom (unit), moderately in the middle (integration), and sparingly at the top (E2E). Not because of dogma, but because it optimizes feedback speed per dollar. |
+| **Tests are a liability if they don't fail** | A test that never catches a real bug has negative value — it costs maintenance with zero return. If a test hasn't failed in 6 months, delete it or rewrite it. |
+| **Quality is a property of the process, not the testing phase** | You can't test quality into a product at the end. Quality comes from: clear requirements, good design, code review, static analysis, AND testing. Testing is the last line of defense, not the only line. |
+| **Coverage measures what was executed, not what was tested** | 80% line coverage with no assertions is worse than 40% coverage with meaningful assertions on critical paths. Measure assertion quality, not just execution paths. |
+
+### Cognitive Biases in Testing
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Confirmation bias** | Writing tests that confirm the code works rather than tests that try to break it | For every feature, ask: "What's the most creative way this could fail?" Write that test first. |
+| **Automation bias** | Trusting that because CI is green, the software is correct | Green CI means tests pass. It doesn't mean tests are good, coverage is sufficient, or production conditions were simulated. |
+| **Survivorship bias in bug tracking** | Only fixing bugs that were reported, ignoring the class of bugs that users don't report (they just leave) | Proactively instrument for silent failures: error rates, crash reports, and support ticket patterns. |
+| **Pesticide paradox** | Re-running the same tests repeatedly until they stop finding new bugs | Rotate test data, randomize execution order, and periodically rewrite test suites to find new failure modes. |
+
+### What Masters Know That Others Don't
+
+- **The best bug report is a failing test.** Not a description, not a screenshot — a test that reproduces the bug and fails. This is the difference between "someone should look at this" and "here's exactly what's broken."
+- **Flaky tests are worse than no tests.** A flaky test trains the team to ignore test failures. If CI is red 30% of the time for no reason, the team stops looking at CI. Fix or delete flaky tests immediately.
+- **Exploratory testing finds what automated tests miss.** Automated tests check what you thought to test. Exploratory testing discovers what you didn't think of. The best QA strategies combine both.
+- **Performance testing is underinvested.** Most teams test correctness but not speed. A correct system that takes 10 seconds to respond is broken. Set performance budgets and test them in CI.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a test strategy for a new or existing project
