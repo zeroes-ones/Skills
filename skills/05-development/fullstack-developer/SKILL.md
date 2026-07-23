@@ -66,6 +66,28 @@ These rules apply to *every* response this skill produces.
 - **Always test across the full stack.** A passing frontend test + passing backend test ≠ a working feature. Integration tests that cross the boundary are non-negotiable.
 - **Admit what you don't know.** If a task is purely frontend or purely backend, say so and invoke the specialized skill rather than giving shallow advice.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent fullstack developers make the frontend work and the backend work. Masters understand that **the boundary between them is the product.** Every decision about where data lives, where validation runs, and where computation happens shapes user experience, performance, and maintainability. The fullstack advantage isn't doing both sides — it's knowing which side should own each responsibility.
+
+### Cognitive Biases That Kill Fullstack Systems
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Frontend favoritism** | Putting business logic in the client "because it's faster" — until you need to reuse it in mobile, API, or batch jobs | Business logic belongs on the backend. The frontend is a presentation layer. If logic lives in the client, you will reimplement it for every new surface. |
+| **Backend favoritism** | Designing the API around database tables instead of UI needs — forcing 5 round trips to render a single page | APIs serve use cases, not data models. A BFF (Backend-for-Frontend) that returns exactly what one screen needs beats a "pure" REST API that requires N+1 client fetches. |
+| **Stack-blind optimization** | Optimizing the API to 12ms while the frontend takes 3 seconds to paint because nobody measured end-to-end | Measure user-visible latency: click-to-render, not just server response time. A 12ms API is meaningless if the client spends 2 seconds parsing the response. |
+
+### What Fullstack Masters Know That Others Don't
+- **Data ownership is not about the database — it's about the API contract.** Frontend owns UI state. Backend owns domain state. The API is the contract. Type generation from OpenAPI (frontend types from backend schema) eliminates an entire class of bugs.
+- **Validation lives in three places for different reasons.** Database constraints (integrity), backend validation (security/business rules), frontend validation (UX). None replaces the others. Backend validation without database constraints means a bug in the API can corrupt data. Database constraints without backend validation means cryptic errors reach users.
+- **The cost of crossing the network boundary is 1000× higher than crossing a function call.** Batch requests. Use GraphQL or BFF to fetch exactly what the screen needs in one round trip. Every additional API call adds 50-200ms of latency the user feels.
+
+### When to Break Your Own Rules
+- **Skip the API for internal tools.** An admin panel that queries the database directly (via a secure internal service) is faster to build and perfectly adequate for 5 internal users. Not every screen needs a REST API.
+- **Put computation in the client when it's truly presentation-only.** Sorting a 200-row table, formatting dates, local search — the user's device can handle this faster than a round trip. Server-side rendering is not always the answer.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Delivering a feature that spans database, API, and UI layers
@@ -397,6 +419,25 @@ Common chains:
 - [ ] **[S8]**  Database migrations run automatically in CI/CD pipeline with backup step
 - [ ] **[S9]**  Structured logging with correlation IDs spanning frontend requests through backend
 - [ ] **[S10]**  Feature flags in place for gradual rollout of major features
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what you do -->
+
+### The Fullstack Improvement Loop
+1. **Trace one user flow end-to-end** — Click in browser → network request → API handler → database query → response → render. Measure each segment.
+2. **Find the slowest link** — Is it the database query? Network waterfall? Client-side render? Bundle parse time?
+3. **Optimize the bottleneck and re-measure end-to-end** — The only metric that matters is user-perceived latency: time from interaction to fully painted result.
+4. **Repeat across different flows** — Login, search, checkout, dashboard. Each flow stresses different parts of the stack.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Build the same todo app with 3 different stacks (Next.js+Prisma, Remix+Drizzle, SvelteKit+SQLite). Compare DX, performance, bundle size | Monthly | Can articulate stack tradeoffs from actual data, not blog posts |
+| Competent → Expert | Add a feature that requires changing the database schema, API contract, AND UI. Time yourself end-to-end. The goal: < 4 hours from idea to deployed | Monthly | Reduces friction — the fullstack advantage is speed of shipping a complete feature |
+| Expert → Master | Delete your API and rebuild it with a different paradigm: REST → GraphQL, or REST → tRPC. Compare client code complexity, type safety, and latency | Quarterly | Understands that API paradigms are UX decisions, not architectural preferences |
+
+### The One Thing
+**Ship a complete feature — database schema change through UI — in under 2 hours every month.** Speed reveals bottlenecks in your tooling, your understanding, and your stack. If you can't ship a complete feature in 2 hours, something in your stack is too complex. Find it. Simplify it. Repeat.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
