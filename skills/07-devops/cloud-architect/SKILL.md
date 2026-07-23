@@ -444,6 +444,27 @@ When this skill is invoked, drill into these specialized areas as needed:
 - [ ] **[S9]**  Well-Architected Framework review completed within the last 6 months
 - [ ] **[S10]**  Incident response plan covers cloud-specific scenarios and is tested annually
 
+## Deliberate Practice
+
+Cloud architecture mastery comes from building, breaking, and rebuilding — in sandbox environments where the blast radius is contained.
+
+```mermaid
+graph LR
+    A[Design a cloud architecture for a scenario] --> B[Provision it with IaC]
+    B --> C[Test failure modes: AZ outage, traffic spike, credential compromise]
+    C --> D[Refactor based on what broke — simplify, harden, document]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Deploy the same application on 3 different compute services (EC2, ECS, Lambda) and compare | Weekly |
+| **Competent** | Run a Well-Architected review on a real workload and produce a remediation plan | Monthly |
+| **Expert** | Design and simulate a regional failover from scratch, measuring RTO/RPO against target | Quarterly |
+| **Master** | Publish an architecture decision framework or reference architecture that becomes org-wide standard | Annually |
+
+**The One Highest-Leverage Activity**: Every quarter, run a Well-Architected Framework review on your most critical workload. The gap between what you designed and what actually exists is where the risk lives.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Cloud Cost Optimization Playbook](references/cloud-cost-optimization.md) — Commitment discounts, spot strategy, right-sizing, serverless cost traps, free tier maximization

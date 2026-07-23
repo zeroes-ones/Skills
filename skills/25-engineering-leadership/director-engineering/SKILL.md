@@ -488,6 +488,27 @@ the fires. In executive meetings, you're sought for business perspective, not
 asked to justify headcount. Your EMs say "working here made me a better leader"
 — and they mean it.
 
+## Deliberate Practice
+
+Director effectiveness grows through structured reflection on organizational outcomes. Unlike IC roles, you can't practice by doing more of the job — you practice by observing patterns, calibrating judgment, and learning from the best (and worst) orgs you've seen.
+
+```mermaid
+graph LR
+    A[Make an org decision: reorg, hire, fire, strategy shift] --> B[Document your rationale and expected outcome]
+    B --> C[3-6 months later: what actually happened?]
+    C --> D[Calibrate: what did you get right/wrong? what bias showed up?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Read a leadership book and write a one-page memo: "How would I apply this to my org?" | Monthly |
+| **Competent** | Do a skip-level audit: talk to 5 ICs across your org, ask "What's the biggest thing slowing you down?" | Quarterly |
+| **Expert** | Write a leadership narrative: "Here's what I've learned about org design / EM development / strategy in the last year" | Semi-annually |
+| **Master** | Coach another director through their first reorg or crisis. Teaching is the ultimate test of understanding. | Annually |
+
+**The One Highest-Leverage Activity**: Every quarter, audit your calendar against your stated priorities. If you say quality is #1 but spend 0 hours on testing infrastructure and 20 hours on feature delivery, quality is not your priority. Your calendar doesn't lie.
+
 
 ## References
 <!-- STANDARD: 3min -->

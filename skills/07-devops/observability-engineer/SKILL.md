@@ -736,6 +736,27 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 - [ ] **[S31]**  Blameless postmortem process established; action items tracked to completion
 - [ ] **[S32]**  Capacity planning: metrics retention ≥ 13 months for year-over-year trends
 
+## Deliberate Practice
+
+Observability mastery comes from using your own dashboards during real incidents. The gap between what you designed on a whiteboard and what you actually need at 3am is where mastery lives.
+
+```mermaid
+graph LR
+    A[Instrument a service with metrics, logs, traces] --> B[Simulate a production incident]
+    B --> C[Can you find the root cause in < 60 seconds using your dashboards?]
+    C --> D[Fix what was missing: add instrumentation, improve dashboards, adjust alerts]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Instrument a side project with OpenTelemetry and build a dashboard that tells you if it's healthy | Weekly |
+| **Competent** | Participate in an incident and note: "What question did I ask that my dashboards couldn't answer?" | Monthly |
+| **Expert** | Run an observability fire-drill: inject a latency spike and measure MTTR using only your observability stack | Quarterly |
+| **Master** | Design an observability strategy for an organization of 500+ engineers — publish it as a reference architecture | Annually |
+
+**The One Highest-Leverage Activity**: During every incident, write down every question you asked that you couldn't answer with your current dashboards. After the incident, make those questions answerable. Over time, your dashboards evolve from "what looks nice" to "what actually saves time."
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [SLO Cookbook — Production Field Manual](references/slo-cookbook.md) — SLI patterns, SLO formulation, error budget mechanics, burn rate alerting, dashboard design

@@ -481,6 +481,27 @@ Common chains:
 - [ ] **[S9]**  Coverage trends tracked (Codecov/Coveralls) and review required on drops
 - [ ] **[S10]**  QA environment with dedicated test database and seeded data refreshed daily
 
+## Deliberate Practice
+
+QA mastery comes from developing an instinct for where bugs hide. This instinct is built through deliberate exposure to failures — studying real bugs and the conditions that created them.
+
+```mermaid
+graph LR
+    A[Study a real production bug] --> B[Write a test that catches it]
+    B --> C[Analyze: what test gap allowed this?]
+    C --> D[Add that test category to your mental checklist]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Pick a bug from the backlog, write a reproduction test, then fix it. Every bug is a test lesson. | Daily |
+| **Competent** | Run an exploratory testing session on a feature you didn't build — 30 min, no script | Weekly |
+| **Expert** | Review a week's worth of production incidents and ask: "What test would have caught each one?" | Monthly |
+| **Master** | Design a quality strategy for a product you don't own — present it, defend it, learn from pushback | Quarterly |
+
+**The One Highest-Leverage Activity**: Every time a bug reaches production, write the test that would have caught it BEFORE fixing the bug. The test should fail (proving it catches the bug), then pass after your fix. This one habit eliminates entire bug classes over time.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Playwright Documentation](https://playwright.dev/docs/)

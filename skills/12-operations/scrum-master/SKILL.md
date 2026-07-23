@@ -588,6 +588,27 @@ Common chains:
 - [ ] **[S13]**  If multi-team: scaling framework selected; cross-team coordination operational
 - [ ] **[S14]**  Retrospective action items integrated into sprint backlog and counted toward capacity
 
+## Deliberate Practice
+
+Scrum mastery is built through pattern recognition across many teams. The best scrum masters have seen dysfunction in enough forms to recognize it early and address it before it becomes a crisis.
+
+```mermaid
+graph LR
+    A[Observe a team pattern: delivery is slowing, conflict is brewing] --> B[Diagnose: what's the root cause? Team dynamics? Process? External blockers?]
+    B --> C[Intervene with a specific experiment or coaching conversation]
+    C --> D[Retro the intervention: did it help? what would you do differently?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Facilitate a retro for a team you don't know. Practice reading the room. | Monthly |
+| **Competent** | Run a sprint health assessment: metrics, team happiness, delivery predictability. Present findings to the team. | Every sprint |
+| **Expert** | Coach a Product Owner through a difficult prioritization conversation with stakeholders | Monthly |
+| **Master** | Design an agile transformation approach for a 100+ person organization — then execute the first 90 days | Annually |
+
+**The One Highest-Leverage Activity**: After every retro, track whether the team's #1 action item was actually completed before the next retro. Completion rate is your effectiveness metric. If it's below 80%, you're facilitating discussions, not facilitating change.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Scrum Guide (Schwaber & Sutherland)](https://scrumguides.org/)

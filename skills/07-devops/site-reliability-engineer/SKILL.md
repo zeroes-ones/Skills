@@ -398,6 +398,27 @@ debugging signal, not a user-impact signal.
 - [ ] **[S13]**  SLO review conducted monthly; targets calibrated quarterly based on user feedback and error budget consumption
 - [ ] **[S14]**  Reliability dashboard visible to all engineers with SLI status, error budget remaining, and incident history
 
+## Deliberate Practice
+
+SRE mastery is built under pressure — but the pressure should come from practice, not from production incidents. The best SREs have rehearsed failure so many times that real incidents feel familiar.
+
+```mermaid
+graph LR
+    A[Run a chaos experiment or gameday] --> B[Observe: what broke? what surprised you?]
+    B --> C[Fix the gap: automate detection, improve runbooks, harden the system]
+    C --> D[Run it again — was recovery faster this time?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Kill a pod in staging. Watch what happens. Time the recovery. | Weekly |
+| **Competent** | Run a chaos experiment: simulate a dependency failure, partition a network, exhaust disk space | Monthly |
+| **Expert** | Run a cross-team gameday with a realistic incident scenario. Debrief with a blameless postmortem. | Quarterly |
+| **Master** | Design a reliability program that spans multiple teams: SLO framework, chaos engineering, incident command | Annually |
+
+**The One Highest-Leverage Activity**: Run a gameday every quarter. Inject a realistic failure scenario into production (with safety guards). The gap between how you think the system fails and how it actually fails is where real reliability work lives.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Google SRE Book](https://sre.google/books/) — Foundational SRE principles, SLI/SLO framework, toil elimination

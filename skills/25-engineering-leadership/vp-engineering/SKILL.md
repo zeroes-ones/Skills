@@ -388,6 +388,27 @@ operational firefighting. When you're out for a month, nothing stalls. When a cr
 hits, the org responds with calm competence, not panic. Your CEO says "engineering
 is our competitive advantage" — and the data proves it.
 
+## Deliberate Practice
+
+VP-level judgment is built through repeated exposure to high-stakes decisions across multiple companies and contexts. The best VPs have a library of patterns — organizational, technical, and strategic — built from direct experience.
+
+```mermaid
+graph LR
+    A[Make a strategic decision: budget, reorg, platform investment] --> B[Document: rationale, expected outcome, confidence level]
+    B --> C[Track outcomes over 6-12 months]
+    C --> D[Review: what pattern did you learn? share with your leadership team]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Write a board-level narrative for your engineering strategy — even if you don't have a board presentation coming up | Monthly |
+| **Competent** | Peer-review with another VP: share your toughest decision and get honest feedback | Monthly |
+| **Expert** | Run an engineering-wide strategy offsite. Articulate the vision, facilitate debate, produce alignment. | Annually |
+| **Master** | Write publicly about engineering leadership. Publish a framework, give a keynote, contribute to the discipline. | Annually |
+
+**The One Highest-Leverage Activity**: Build and maintain a peer network of 5-7 VPs of Engineering at other companies. Meet monthly. Share real decisions, real numbers, real mistakes. Your external network is your early warning system.
+
 ## References
 <!-- STANDARD: 3min -->
 

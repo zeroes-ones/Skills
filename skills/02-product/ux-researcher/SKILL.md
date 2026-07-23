@@ -335,6 +335,27 @@ Common chains:
 - [ ] **[S9]**  Highlights reel shared with stakeholders before the full report
 - [ ] **[S10]**  Raw data, transcripts, and analysis artifacts archived for future reference
 
+## Deliberate Practice
+
+UX research mastery comes from observing real users, repeatedly, until pattern recognition becomes instinct. There is no substitute for watching users struggle.
+
+```mermaid
+graph LR
+    A[Design a study for a real question] --> B[Conduct sessions — moderate, observe, listen]
+    B --> C[Synthesize findings into actionable insights]
+    C --> D[Track whether your recommendations changed the product]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Watch a recorded usability session and write down every moment of confusion | Weekly |
+| **Competent** | Moderate a usability test and produce a findings report within 48 hours | Biweekly |
+| **Expert** | Run a triangulated study: combine usability testing + analytics + survey for the same question | Monthly |
+| **Master** | Build a research ops system (panel, repository, consent framework) that scales across products | Annually |
+
+**The One Highest-Leverage Activity**: Watch one user session recording every day. Not a highlight reel — a raw, unedited session. 15 minutes. You'll learn more about your product than from any dashboard.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - **product-manager** — for translating research insights into prioritized features and PRDs

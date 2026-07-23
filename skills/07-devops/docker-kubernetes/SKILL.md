@@ -473,6 +473,27 @@ Don't adopt K8s until you can answer YES to:
 - [ ] **[S10]**  Helm charts versioned, linted, and tested before release
 - [ ] **[S11]**  cert-manager and external-dns configured for automated TLS and DNS
 
+## Deliberate Practice
+
+Kubernetes mastery is built through controlled destruction. The best K8s engineers have broken clusters in every possible way — in sandboxes, not in production.
+
+```mermaid
+graph LR
+    A[Deploy a workload to a cluster] --> B[Break something: drain a node, kill a pod, exhaust resources]
+    B --> C[Observe: did self-healing work? what surprised you?]
+    C --> D[Document the failure mode. Add to your mental model of K8s.]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Deploy a simple app to a local cluster (kind/minikube) using raw YAML, then Helm, then Kustomize | Weekly |
+| **Competent** | Simulate a node failure: drain a node, watch pods reschedule, verify availability | Monthly |
+| **Expert** | Run a full cluster failure scenario: control plane outage, etcd corruption recovery, network partition | Quarterly |
+| **Master** | Design a multi-cluster architecture that survives a region failure — test it, document it, share it | Annually |
+
+**The One Highest-Leverage Activity**: Once a month, break your staging cluster in a way you've never broken it before. The failure mode you discover is the one that would have caused a P1 incident in production. Fix the gap before it finds you.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - Dockerfile Best Practices: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/

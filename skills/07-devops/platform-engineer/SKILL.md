@@ -395,6 +395,27 @@ Common chains:
 - [ ] **[S13]**  Deprecation tracker shows migration status for all deprecated features
 - [ ] **[S14]**  Brownfield migration playbook exists for services not yet on golden paths
 
+## Deliberate Practice
+
+Platform engineering mastery comes from treating the platform as a product — measuring adoption, gathering feedback, and iterating. The best platform engineers obsess over developer experience metrics.
+
+```mermaid
+graph LR
+    A[Ship a platform capability] --> B[Measure adoption and developer NPS]
+    B --> C[Identify the #1 friction point from user feedback]
+    C --> D[Fix it, ship again, measure again]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Build a Backstage plugin or golden path template for a single use case | Weekly |
+| **Competent** | Shadow a developer through onboarding. Time every step. Eliminate the slowest one. | Monthly |
+| **Expert** | Run a platform review: adoption metrics, NPS, support ticket trends, cost-per-developer | Quarterly |
+| **Master** | Design a platform strategy that would work for 10× your current engineering org | Annually |
+
+**The One Highest-Leverage Activity**: Once a month, onboard a new hire yourself using only your platform. Time every step. The friction you feel is what every developer feels every day.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Team Topologies](https://teamtopologies.com/) — Conway's Law, stream-aligned teams, enabling teams, platform as product

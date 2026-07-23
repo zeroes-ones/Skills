@@ -784,6 +784,27 @@ Common chains:
 - [ ] **[S11]**  Mobile: Keychain/Keystore for auth tokens, cert pinning, root/jailbreak detection, no plaintext logs
 - [ ] **[S12]**  Every finding documented: description, reproduction, severity, fix, verification, and references
 
+## Deliberate Practice
+
+Security instinct is built through repeated adversarial thinking — learning to see systems the way an attacker sees them. This is a mindset that must be practiced, not just studied.
+
+```mermaid
+graph LR
+    A[Study a real vulnerability or CVE] --> B[Can you reproduce it in your own codebase?]
+    B --> C[Fix it and write a detection rule]
+    C --> D[Add that vulnerability class to your mental threat model]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Solve one OWASP WebGoat or PortSwigger Web Security Academy lab | Weekly |
+| **Competent** | Review a real PR with the question: "How would I break this?" | Weekly |
+| **Expert** | Run a threat modeling session for a system you don't know well — practice the STRIDE questions cold | Monthly |
+| **Master** | Publish a security finding with a novel attack vector or a new detection technique | Annually |
+
+**The One Highest-Leverage Activity**: Every time a major CVE is published, ask: "Is our system vulnerable to this class of attack?" Don't wait for a scanner to tell you — read the CVE, understand the vulnerability class, and hunt for it manually in your codebase.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [OWASP Top 10 (2021)](https://owasp.org/www-project-top-ten/)
