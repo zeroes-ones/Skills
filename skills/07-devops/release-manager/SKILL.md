@@ -34,37 +34,55 @@ Covers the full release lifecycle from branch strategy through production verifi
 retrospective.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists(".github/workflows/release*.yml")` OR `file_contains(".github/workflows/*.yml", "release.*train\|deploy.*prod")` | Go to "Core Workflow > Phase 2" (Deployment Coordination) — release pipeline detected |
+| A2 | `file_contains("**/migrations/**", "down\|downgrade\|rollback")` OR `file_exists("prisma/migrations/")` | Go to "Core Workflow > Phase 4" (Rollback Planning) — DB migrations detected |
+| A3 | `file_exists("feature-flags.yaml")` OR `file_contains("*.go", "featureflag\|launchdarkly\|unleash")` OR `file_contains("*.env", "FEATURE_FLAG\|FF_")` | Go to "Sub-Skills > feature-flag-management" — feature flags detected |
+| A4 | `file_exists("go-no-go-checklist.md")` OR `file_contains("docs/*.md", "go.*no-go\|go/no-go\|release.*checklist")` | Go to "Core Workflow > Phase 3" (Go/No-Go Decision) — go/no-go docs detected |
+| A5 | `file_contains(".github/release-drafter.yml", "template\|categories")` OR `file_exists(".github/release.yml")` | Go to "Best Practices > Release Notes" — release drafter/notes config detected |
+| A6 | `file_contains("CHANGELOG.md", "BREAKING CHANGE\|## [v")` AND `file_contains("package.json", "\"version\":")` | Go to "Best Practices > Versioning" — semver + changelog detected |
+| A7 | `file_exists("canary*.yml")` OR `file_contains("**/*.tf", "canary\|blue_green\|rolling_deploy")` | Go to "Decision Trees > Deployment Strategy Selection" — canary/advanced deployment detected |
+| A8 | `file_exists(".github/workflows/rollback*.yml")` OR `file_contains("scripts/", "rollback\|undo.*deploy\|revert")` | Go to "Core Workflow > Phase 4" (Rollback Planning) — rollback scripts detected |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Plan a release (schedule, scope, dependencies) → Jump to "Core Workflow > Phase 1" (Release Planning)
-│   ├── Establish release cadence → Go to "Decision Trees > Release Cadence"
-│   └── Coordinate across teams → Go to "Best Practices > Cross-Team Coordination"
 ├── Coordinate a deployment → Jump to "Core Workflow > Phase 2" (Deployment Coordination)
-│   ├── Canary deployment → Go to "Decision Trees > Deployment Strategy Selection"
-│   └── Feature flag management → Jump to "Core Workflow > Phase 2" (Feature Flag Dark Launch)
 ├── Run a go/no-go decision → Jump to "Core Workflow > Phase 3" (Go/No-Go Decision)
-├── Plan a rollback → Go to "Core Workflow > Phase 4" (Rollback Planning) and "Best Practices > Rollback"
-├── Set up a canary deployment → Jump to "Decision Trees > Deployment Strategy Selection" and "Core Workflow > Phase 2"
+├── Plan a rollback → Go to "Core Workflow > Phase 4" (Rollback Planning)
+├── Set up a canary deployment → Jump to "Decision Trees > Deployment Strategy Selection"
 ├── Manage feature flags for release → Go to "Sub-Skills > feature-flag-management"
 ├── Need CI/CD pipeline setup → Invoke `ci-cd-builder` skill instead
 ├── Need quality assurance → Invoke `qa-engineer` skill instead
 ├── Need infrastructure automation → Invoke `devops-engineer` skill instead
 ├── Need production monitoring → Invoke `site-reliability-engineer` skill instead
-└── Not sure where to start? → "Decision Trees > Release Strategy" — match your release frequency to team maturity
+└── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never deploy without a verified rollback plan.** Every deployment must have a documented, tested rollback procedure that takes less time than the deployment itself. If you can't roll back in <5 minutes, don't deploy.
-- **Go/no-go decisions need objective criteria, not gut feel.** Use a checklist: test pass rate, coverage, performance benchmarks, security scan results, change failure rate. "Feels ready" is not a criterion.
-- **Every release needs a communication plan.** Stakeholders, support teams, and on-call engineers must know: what's deploying, when, what changes, what to watch, and who to contact if something breaks.
-- **Feature flags need owners and expiry dates.** Every flag must have a named owner and a removal date (within 1-2 sprints). Flags without expiry dates are technical debt that will cause incidents.
-- **Always verify in production after deploy.** Smoke tests, canary metrics, and real-user monitoring before declaring the release complete. The deploy isn't done when the binary is live — it's done when you've confirmed it works.
-- **Admit what you don't know.** If you don't have visibility into a dependent team's readiness or a downstream system's state, flag it as a risk — don't assume.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to deploy without a verified, tested rollback plan.** If you can't roll back in < 10 minutes, don't deploy. Every deployment must have a documented, tested rollback procedure. | Trigger: `grep -L "rollback\|undo\|revert" .github/workflows/deploy*.yml` → deploy workflows missing rollback steps | STOP. Respond: "No rollback plan detected. Every deploy workflow needs a documented, tested rollback procedure. Add `rollback.yml` or a rollback job to your deploy pipeline and test it in staging first." |
+| **R2** | **REFUSE to proceed with go/no-go based on subjective 'feels ready' assessments.** Decisions need objective criteria: test pass rate, coverage, performance benchmarks, security scan results. | Trigger: No `go-no-go-checklist*.md` file exists AND user says "should be fine" or "looks good" without citing metrics | STOP. Respond: "Define objective go/no-go criteria before the release window. Create a checklist with CRITICAL (auto NO-GO) and CONDITIONAL criteria. I need: test pass rate, security scan status, perf benchmark results, rollback plan verification." |
+| **R3** | **REFUSE to deploy on Friday afternoons or before holidays without explicit risk acceptance.** Friday 4 PM deploys are the #1 cause of weekend incidents with no on-call coverage. | Trigger: Current day is Friday AND time is after 14:00 local AND deploy is proposed for production | STOP. Respond: "This deploy is in the Friday danger zone. Weekend deploys require: (1) secondary on-call for 4 hours post-deploy, (2) abbreviated pre-flight checks, (3) explicit risk acceptance from release commander. Do you want to proceed with these conditions?" |
+| **R4** | **REFUSE to accept irreversible database migrations in a standard release.** Migrations without tested downgrade scripts create unrecoverable failure modes. | Trigger: `grep -rn "CREATE\|DROP\|ALTER" migrations/**/*.sql \| grep -v "down\|downgrade\|rollback"` AND no corresponding `.down.sql` file | STOP. Respond: "Irreversible migrations detected (no downgrade script). Separating: (1) forward-compatible changes go in this release, (2) destructive changes (DROP COLUMN, DROP TABLE) go in a separate follow-up release after old code is confirmed removed." |
+| **R5** | **STOP and ASK when feature flags lack owners and expiry dates.** Flags without owners and removal dates are technical debt that causes production incidents. | Trigger: `grep -rn "FEATURE_FLAG\|FF_\|feature.*flag" --include="*.env" --include="*.yaml" \| grep -v "owner\|expir\|removal_date\|created_by"` → flags missing ownership metadata | STOP. Ask: "Who owns each feature flag? When does each flag expire? Every flag needs: (1) named owner, (2) removal date (within 60 days), (3) rollout plan. Can you provide ownership and expiry for each flag?" |
+| **R6** | **DETECT and WARN about missing release communication plan.** Stakeholders, support, and on-call must know what's deploying, when, and who to contact. | Trigger: No `RELEASE_NOTES.md` or `release-briefing*` file staged alongside the deploy | WARN: "No release communication detected. Add a release briefing including: what's deploying, when, what changes, what to watch, who to contact. Template: `docs/release-briefing-template.md`." |
+| **R7** | **DETECT and WARN about version scheme inconsistency across the codebase.** Mixed versioning (SemVer + CalVer in different places) causes confusion and deployment errors. | Trigger: `grep -rn "version\|VERSION" package.json pyproject.toml Makefile Dockerfile \| grep -oP '\d+\.\d+\.\d+' \| sort -u \| wc -l` > 3 different version formats detected | WARN: "Multiple versioning patterns detected. Choose one scheme (SemVer or CalVer), document in CONTRIBUTING.md, and standardize all version sources. Mixed schemes cause deployment ordering bugs." |
 
 
 ## The Expert's Mindset
@@ -385,47 +403,50 @@ Common chains:
 
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Release train has no freeze window — features land 5 minutes before deploy, no time to test integration | Enforce code freeze 24-48 hours before deploy window; only bug fixes and security patches after freeze; feature work boards the next train automatically |
-| Go/no-go is a 60-minute meeting debating whether the release "feels ready" — no data, no criteria | Define CRITICAL (auto NO-GO) and CONDITIONAL criteria in a checklist before the release window; meeting is 15 minutes to review checklist results, not debate feelings |
-| Release commander role is permanent — same person for 2 years, everyone else disengaged from release risk | Rotate release commander every release train; rotation builds shared risk awareness and prevents single-point-of-failure in release knowledge |
-| Rollback takes 45 minutes because the migration downgrade script was never tested — QA only tested the upgrade path | Test downgrade migrations in staging before every release; every migration must have a tested downgrade; irreversible migrations go in separate releases with explicit risk acceptance |
-| Feature flags are removed "when someone has time" — 40 flags in production, 25 are permanently ON | Every flag has an owner and removal date; flags > 60 days become release checklist items; stale flag removal is a recurring sprint task; kill switches must be documented |
-| Release notes are auto-generated without human review — "chore: update deps" is the top feature | Enforce conventional commits; auto-generate draft from commits; human writes 1-paragraph summary, known issues, and upgrade instructions; release notes are a product artifact |
-| Friday 4 PM deploys because "we already finished, might as well ship" — weekend incident with no on-call | Enforce deploy curfew: no deploys after 2 PM Friday (or equivalent); hotfixes require secondary on-call for 4 hours post-deploy; weekend deploys are pre-scheduled exceptions only |
-| Versioning scheme changes mid-project without migration — half the org uses SemVer, half uses CalVer | Choose ONE versioning scheme, document in CONTRIBUTING.md, never change without cross-org agreement; if change is necessary, publish mapping table with 90-day transition window |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Release train has no freeze window — features land 5 minutes before deploy, no time to test integration | Enforce code freeze 24-48 hours before deploy window; only bug fixes and security patches after freeze; feature work boards the next train automatically | `git log --oneline --since="release-freeze" --until="release-deploy" \| grep -v "fix:\|security:\|cherry-pick"` → non-fix commits during freeze | CI check: after freeze timestamp, block merges to release branch unless commit message matches `^(fix|security|chore)\(` |
+| Go/no-go is a 60-minute meeting debating whether the release "feels ready" — no data, no criteria | Define CRITICAL (auto NO-GO) and CONDITIONAL criteria in a checklist before the release window; meeting is 15 minutes to review | `grep -rn "CRITICAL\|CONDITIONAL\|GO\|NO-GO" docs/go-no-go*.md` → returns empty | CI check: `go-no-go-checklist.md` must exist and be updated within 48h of release; blocking criteria must be machine-checkable |
+| Release commander role is permanent — same person for 2 years, everyone else disengaged from release risk | Rotate release commander every release train; rotation builds shared risk awareness and prevents single-point-of-failure | `git log --oneline --grep="release-commander\|Release Commander" \| awk '{print $NF}' \| sort \| uniq -c \| sort -rn \| head -1` → same name > 3 consecutive releases | Policy: `RELEASE_COMMANDER_ROTATION.md` defines rotation schedule; CI blocks if same person signs off > 3 consecutive releases |
+| Rollback takes 45 minutes because the migration downgrade script was never tested — QA only tested the upgrade path | Test downgrade migrations in staging before every release; every migration must have a tested downgrade; irreversible migrations go in separate releases | `find migrations/ -name "*.up.sql" \| while read f; do test -f "${f/.up.sql/.down.sql}" \|\| echo "MISSING: $f"; done` → missing .down.sql files | Pre-release CI: `migration_test` job runs `up` → `down` → `up` cycle; blocks release if any migration fails the round-trip |
+| Feature flags are removed "when someone has time" — 40 flags in production, 25 are permanently ON | Every flag has an owner and removal date; flags > 60 days become release checklist items; stale flag removal is a recurring sprint task | `grep -rn "FEATURE_FLAG\|feature_flag\|FF_" --include="*.go" --include="*.env" \| grep -v "owner\|expir\|removal\|//.*remove" \| wc -l` → stale flag count | Cron CI: `stale-flag-check.sh` runs weekly; flags > 60 days without `removal_date` field → auto-create Jira ticket; flags > 90 days → page flag owner |
+| Release notes are auto-generated without human review — "chore: update deps" is the top feature | Enforce conventional commits; auto-generate draft from commits; human writes 1-paragraph summary, known issues, and upgrade instructions | `grep -c "chore:\|style:" CHANGELOG.md \| head -1` AND `grep -L "Summary\|summary\|### What's New" CHANGELOG.md` → no human summary | CI check: release PR must modify `RELEASE_NOTES.md` with non-empty `## Summary` section; block if only `CHANGELOG.md` auto-updated |
+| Friday 4 PM deploys because "we already finished, might as well ship" — weekend incident with no on-call | Enforce deploy curfew: no deploys after 2 PM Friday (or equivalent); hotfixes require secondary on-call for 4 hours post-deploy | `git log --oneline --after="$(date -d 'last friday 14:00' +%Y-%m-%d)" --before="$(date -d 'last friday 23:59' +%Y-%m-%d)" --grep="deploy\release"` → Friday afternoon deploys | GitHub environments: `protection_rules: [{restricted_time: {days: [friday], hours: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]}}]` in production environment |
+| Versioning scheme changes mid-project without migration — half the org uses SemVer, half uses CalVer | Choose ONE versioning scheme, document in CONTRIBUTING.md, never change without cross-org agreement; publish mapping table with 90-day transition | `grep -rn "VERSION\|version =" --include="*.sh" --include="Makefile" --include="*.json" \| grep -oP '\d+\.\d+\.\d+' \| sort -u \| wc -l` > 1 pattern detected | Lint: `version-check.sh` runs in CI; fails if version format differs across `package.json`, `pyproject.toml`, `Chart.yaml`, `Makefile` |
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Release had to be rolled back — database migration dropped a column that was still referenced by the previous version | Migration was applied before the new code was deployed. During the rollback gap, old code was still running and referenced the now-missing column. | Always separate schema changes from code deploys. Add columns first (safe for old code), deploy new code, remove old references, then drop columns in a separate release. Test rollback scenarios in staging specifically: does the migration downgrade script restore the exact schema? | Database migrations are the highest-risk part of any release. Always design them to be backward-compatible with the previous version of the code. |
-| Version numbering confusion — "v2.0.1" was older than "v1.5.3" | Team switched from SemVer to CalVer mid-project without updating all consumers. Some teams read the version as "major.minor.patch" while others read it as "year.month.patch." | Choose ONE versioning scheme and document it in CONTRIBUTING.md. If you must switch schemes, create a version mapping table and announce the change with 90 days notice before deprecating the old scheme. | Mixed versioning schemes are worse than any single scheme. Consistency and documentation matter more than which scheme you choose. |
-| Customer confused because release notes said "bug fixes" but the UI changed completely | Release notes were auto-generated from commit messages without human review. Developers wrote "fix minor bug" as the commit message for a major feature change. | Enforce conventional commits style (feat/fix/breaking). Set up a release-drafter or similar tool to organize commits by type. Always add a human-written summary section that captures the user-visible changes in plain language. | Auto-generated release notes without human review are dumpster fires. A human must summarize what changed for the user. |
-| Staging deploy failed — but go/no-go decided to deploy to production anyway because "staging was having DNS issues, not our code" | No objective go/no-go criteria. The decision was based on subjective confidence: "it should work, staging is separate." | Define objective go/no-go criteria before the release window: tests passing, security scan clean, performance benchmarks met, rollback plan verified. Any NO on critical criteria = NO-GO. Document the decision and who made it. | A go/no-go without objective criteria is just a wish. Gut feel is not a deployment gate. |
-| Hotfix deployed at 4 PM Friday caused outage — no one available to roll back until Monday | Friday afternoon hotfix bypassed normal review and test processes. When it broke production, the deployer had already left for the weekend. | Enforce a "no deploys after 2 PM Friday" policy (or similar). Hotfixes must still pass abbreviated review and test. The deployer or a backup must be on-call for the next 4 hours after any hotfix deploy. | Friday afternoon deploys are the #1 cause of weekend incidents. If it's urgent enough to deploy on Friday, it's urgent enough to have someone watching it. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "column.*does not exist\|unknown column\|no such column" app*.log` + `grep -rn "DROP COLUMN\|DROP TABLE" migrations/*.sql` | Release had to be rolled back — database migration dropped a column still referenced by old code | Migration applied before new code deployed; during rollback gap, old code referenced now-missing column | Separate schema from code: add column → deploy code → remove old refs → drop column in separate release; always test rollback: `down` → `up` cycle | 1. `grep "DROP\|ALTER.*DROP" migrations/` find destructive changes 2. `git log --oneline --since="1 hour ago" --grep="rollback"` check rollback status 3. `kubectl rollout undo deployment/<svc>` revert to last known good 4. Create follow-up release with drop-column migration ONLY |
+| `grep -rn "version.*not.*found\|unknown.*version\|v\d.*vs.*v\d" deploy*.log` + `grep -rn "version:" package.json Chart.yaml VERSION` returning different formats | Version numbering confusion — "v2.0.1" was older than "v1.5.3" | Team switched versioning schemes without updating all consumers; half reads SemVer, half reads CalVer | Choose ONE scheme, document in CONTRIBUTING.md; if switching, publish mapping table with 90-day transition; never mix | 1. `grep -rn "version\|VERSION" package.json Chart.yaml Makefile \| grep -oP '\d+\.\d+\.\d+' \| sort -u` check formats 2. Standardize to one format across all files 3. `git tag -l \| sort -V` verify tag ordering 4. Add CI check: `version-consistency.sh` |
+| `grep -rn "user.*confus\|changelog.*wrong\|release.*notes.*incomplete" feedback*.csv` + `grep -c "^[a-z]+:" CHANGELOG.md` → changelog exists but only has `chore:` and `style:` entries | Customer confused because release notes said "bug fixes" but UI changed completely | Release notes auto-generated from commits without human review; "fix minor bug" commit message for major feature | Enforce conventional commits (feat/fix/breaking); auto-generate draft; human writes 1-paragraph summary + known issues + upgrade instructions | 1. `npx commitlint --from HEAD~20` validate commit format 2. `release-drafter` auto-categorizes by type 3. `grep -L "## Summary" RELEASE_NOTES.md` → missing; block release 4. Template: `### What's New`, `### Breaking Changes`, `### Known Issues`, `### Upgrade Guide` |
+| `grep -rn "staging.*fail\|preflight.*error\|smoke.*test.*fail" deploy*.log` AND `grep -rn "GO\|go.*decision" release-log*.md \| grep "14:00\|15:00\|16:00"` | Staging deploy failed — but go/no-go decided to deploy to production anyway | No objective go/no-go criteria; decision based on subjective confidence: "it should work, staging is separate" | Define objective criteria before release: test pass rate, security scan, perf benchmarks, rollback verified; any NO on CRITICAL = NO-GO | 1. `grep "CRITICAL" go-no-go-checklist.md` list blocking criteria 2. `curl -s ci.internal/api/release/$VERSION/checks \| jq '.critical[] \| select(.status=="fail")'` 3. Any critical fail → auto-block with `gh release update $VERSION --draft` + Slack notification 4. Document decision + decision-maker in release archive |
+| `grep -rn "deploy\|hotfix\|release" $(date +%Y-%m-%d)*.log` AND `date +%u` returns 5 (Friday) AND `date +%H` > 14 + `grep "on.call\|oncall" pagerduty*.yml \| grep -c "primary"` == 0 | Hotfix deployed at 4 PM Friday caused outage — no one available to roll back until Monday | Friday afternoon hotfix bypassed normal review; deployer left for weekend; no secondary on-call designated | Enforce "no deploys after 2 PM Friday" policy; hotfixes need abbreviated review + test; deployer or backup on-call for 4 hours post-deploy | 1. `date +%u%H \| awk '{if ($1 >= 514) print "DEPLOY CURFEW"}'` check curfew 2. If within curfew: require `--force` flag + secondary on-call assignment 3. `pd schedules:list` verify coverage in next 4h window 4. Auto-schedule `rollback-check` job at deploy_time + 4h |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Release calendar published for current quarter with freeze dates, deploy windows, and release commander assignments
-- [ ] **[S2]**  Go/no-go checklist defined with CRITICAL (auto NO-GO if fail) and CONDITIONAL criteria
-- [ ] **[S3]**  Release branch strategy documented: branch naming, cherry-pick process, merge-back to main
-- [ ] **[S4]**  Rollback pipeline tested within last 30 days; target: < 10 minutes from decision to previous healthy state
-- [ ] **[S5]**  All database migrations have tested downgrade scripts; irreversible migrations flagged and planned separately
-- [ ] **[S6]**  Feature flag platform in place; all new features behind flags with rollout plan and removal date
-- [ ] **[S7]**  Release notes auto-generated from conventional commits with human-written summary and breaking change callouts
-- [ ] **[S8]**  Canary deployment pipeline: 5% → monitor → 25% → monitor → 100% with automated metric gates at each stage
-- [ ] **[S9]**  Post-release monitoring dashboard active for 72 hours after every deploy
-- [ ] **[S10]**  Release retrospective conducted within 1 week of every release; action items tracked
-- [ ] **[S11]**  Stakeholder briefing template ready; stakeholders briefed 48 hours before major releases
-- [ ] **[S12]**  Release archive maintained: branch, build artifacts, test results, go/no-go decision for audit
-- [ ] **[S13]**  Deployment window communicated to all teams; no competing infrastructure changes during window
-- [ ] **[S14]**  Support/customer success team has escalation path for release-related issues
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-## Footguns
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Release calendar published for current quarter with freeze dates, deploy windows, and release commander assignments | `grep -rn "Q[1-4].*$(date +%Y)\|$(date +%Y).*Freeze\|Release Commander" docs/release-calendar*.md` → current quarter entries found | `gh issue create --title "Q$(($(date +%m)/3+1)) Release Calendar" --body-file docs/release-calendar-template.md --label release-planning` |
+| **[S2]** | Go/no-go checklist defined with CRITICAL (auto NO-GO if fail) and CONDITIONAL criteria | `grep -c "CRITICAL\|CONDITIONAL" docs/go-no-go-checklist.md` → ≥ 5 CRITICAL + ≥ 3 CONDITIONAL items | Template: `CRITICAL: all tests passing, security scan clean, perf regression < 5%, rollback tested, migration downgrade verified` |
+| **[S3]** | Release branch strategy documented: branch naming, cherry-pick process, merge-back to main | `grep -rn "release/v\|cherry-pick\|merge-back\|hotfix/" docs/release-strategy.md` → branching strategy documented | Create `docs/release-strategy.md` with: `release/v*` naming, `git cherry-pick -x` process, `git merge release/v* --no-ff` merge-back |
+| **[S4]** | Rollback pipeline tested within last 30 days; target: < 10 minutes from decision to previous healthy state | `gh run list --workflow=rollback.yml --limit=1 --json createdAt \| jq -r '.[0].createdAt'` → within 30 days | Schedule: `cron: '0 10 1 * *'` monthly rollback drill in staging; measure: `time gh workflow run rollback.yml --ref release/v$VERSION` |
+| **[S5]** | All database migrations have tested downgrade scripts; irreversible migrations flagged and planned separately | `find migrations/ -name "*.up.sql" \| while read f; do test -f "${f/.up.sql/.down.sql}" \|\| echo "MISSING: $f"; done` → no missing .down.sql files | Generate downgrade: `migration-tool reverse migrations/001_add_column.up.sql > migrations/001_add_column.down.sql`; irreversible → separate release |
+| **[S6]** | Feature flag platform in place; all new features behind flags with rollout plan and removal date | `grep -rn "FEATURE_FLAG\|launchdarkly\|unleash" --include="*.go" --include="*.env" \| grep -v "owner\|expir" \| wc -l` → 0 (all flags have ownership) | Add to every flag: `owner: "team-billing"`, `expires: "2026-09-01"`, `rollout_plan: "5% → 25% → 100% over 48h"` |
+| **[S7]** | Release notes auto-generated from conventional commits with human-written summary and breaking change callouts | `grep -c "## Summary\|### What's New\|### Breaking Changes" RELEASE_NOTES.md` → ≥ 3 human-written sections | `release-drafter` auto-organizes by `feat:`, `fix:`, `breaking:`; human fills `## Summary` before publish |
+| **[S8]** | Canary deployment pipeline: 5% → monitor → 25% → monitor → 100% with automated metric gates at each stage | `grep -rn "canary\|weight.*5\|weight.*25\|weight.*100" .github/workflows/deploy*.yml` → canary stages with metric gates | Argo Rollouts: `canary: {steps: [{setWeight: 5}, {pause: {duration: 10m}}, {setWeight: 25}, {pause: {duration: 10m}}, {setWeight: 100}]}` + `analysis: {metrics: [errorRate < 1%, latencyP99 < 500ms]}` |
+| **[S9]** | Post-release monitoring dashboard active for 72 hours after every deploy | `grep -rn "post.*release\|72.*hour\|monitor.*after.*deploy" grafana/**/*.json` → post-release dashboard exists | Create `grafana-post-release.json`: panels for error rate, latency p99, throughput, crash rate relative to 24h pre-deploy baseline |
+| **[S10]** | Release retrospective conducted within 1 week of every release; action items tracked | `gh issue list --label release-retro --json createdAt \| jq '[.[] \| select(.createdAt > "'$(date -d '7 days ago' +%Y-%m-%d)'")] \| length'` → ≥ 1 if release occurred | Auto-create: `gh issue create --title "Retro: Release $(git describe --tags)" --body-file docs/retro-template.md --label release-retro --milestone $MILESTONE` |
+| **[S11]** | Stakeholder briefing template ready; stakeholders briefed 48 hours before major releases | `grep -rn "stakeholder\|briefing\|48.*hour" docs/release-briefing-template.md` → template exists | Template: `### What's Deploying`, `### Timeline`, `### Risks`, `### Rollback Plan`, `### Contact: release-commander@` |
+| **[S12]** | Release archive maintained: branch, build artifacts, test results, go/no-go decision for audit | `gh release view $(git describe --tags) --json assets,tarballUrl,body` → release with artifacts and decision docs | `gh release create v$VERSION --notes-file RELEASE_NOTES.md --title "Release $VERSION" ./artifacts/* ./go-no-go-checklist-signed.pdf` |
+| **[S13]** | Deployment window communicated to all teams; no competing infrastructure changes during window | `grep -rn "deploy.*window\|change.*freeze\|maintenance.*window" docs/release-calendar*.md` AND `#deploy-announcements` Slack message within 24h | Auto-post to Slack `#deploy-announcements` 24h before window; block non-release infra changes (Terraform, k8s config) during window via CI |
+| **[S14]** | Support/customer success team has escalation path for release-related issues | `grep -rn "escalation\|support.*release\|customer.*success\|release.*contact" docs/support-escalation.md` → documented path | Create `docs/support-escalation.md`: `Tier 1: #support-release Slack → Tier 2: release commander DM → Tier 3: CTO mobile` |
 <!-- DEEP: 10+min — war stories from production release management -->
 
 | Footgun | What Happened | Root Cause | How to Prevent |

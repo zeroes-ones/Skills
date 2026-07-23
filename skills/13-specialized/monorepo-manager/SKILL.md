@@ -21,36 +21,53 @@ chain:
 Veteran's playbook for designing, configuring, and optimizing monorepo architectures at scale. Covers every major tool in the JS/TS ecosystem — Turborepo, Nx, pnpm workspaces, Bazel, Lerna, and Rush — plus repository structure, build orchestration, dependency governance, CI/CD, versioning, and polyrepo migration.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("pnpm-workspace.yaml")` OR `file_exists("lerna.json")` OR `file_exists("nx.json")` OR `file_exists("turbo.json")` OR `file_exists("rush.json")` OR `file_contains("package.json", "\"workspaces\"")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_exists("turbo.json")` AND `file_contains("turbo.json", "\"dependsOn\"\|\"outputs\"\|\"inputs\"")` | Jump to **Sub-Skills** — Build Orchestration (pipeline config). |
+| A3 | `file_exists("pnpm-workspace.yaml")` AND `file_contains("pnpm-workspace.yaml", "packages:")` AND NOT `file_exists("turbo.json\|nx.json")` | Jump to **Decision Trees** — Tool Selection (need build orchestrator). |
+| A4 | `file_contains(".github/workflows/*.yml", "affected\|--filter=\|nx affected")` | Jump to **Sub-Skills** — CI/CD for Monorepos. |
+| A5 | `file_exists(".changeset/config.json")` OR `file_contains("package.json", "\"@changesets/cli\"")` | Jump to **Sub-Skills** — Versioning & Release. |
+| A6 | `file_contains("package.json", "\"syncpack\"\|\"manypkg\"\|\"check-dependency-version-consistency\"")` OR `file_contains(".eslintrc*", "import/no-restricted-paths\|\"@nx/enforce-module-boundaries\"")` | Jump to **Sub-Skills** — Dependency Governance & Package Boundary Enforcement. |
+| A7 | `file_contains("*.yml", "git subtree\|git filter-repo\|git submodule\|polyrepo")` AND `file_contains("*.md", "monorepo\|mono.repo\|migrate")` | Jump to **Sub-Skills** — Monorepo Migration (polyrepo → monorepo). |
+| A8 | `file_exists("WORKSPACE")` OR `file_exists("BUILD.bazel\|BUILD")` OR `file_contains("*", "bazel build\|bazel test")` | This is a Bazel monorepo — jump to **Tool Selection & Decision Matrix** — Bazel row. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
-├── Choose monorepo tooling (Turborepo/Nx/pnpm workspaces/Bazel/Lerna/Rush) → Start at "Workspace Configuration" then "Build Orchestration" under Sub-Skills
-├── Design repository structure → Go to "Workspace Configuration" under Sub-Skills
-├── Set up build orchestration → Jump to "Build Orchestration" under Sub-Skills
-├── Enforce dependency governance → Go to "Dependency Governance" and "Package Boundary Enforcement" under Sub-Skills
-├── Optimize CI/CD for monorepo → Jump to "CI/CD for Monorepos" under Sub-Skills
-├── Set up versioning strategy → Go to "Versioning & Release" under Sub-Skills
-├── Migrate from polyrepo → Jump to "Polyrepo Migration" under references/
-├── Need CI/CD pipeline setup first → Route to `ci-cd-builder`
-├── Need backend service structure defined → Route to `backend-developer`
-├── Need frontend architecture decided → Route to `frontend-developer`
-├── Need infrastructure provisioning → Route to `devops-engineer`
-└── Don't know where to start? → Start at "Workspace Configuration"
-
-**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+├── Choose monorepo tooling (Turborepo/Nx/pnpm/Bazel/Lerna/Rush) → Jump to "Tool Selection & Decision Matrix"
+├── Design repository structure and package boundaries → Jump to "Sub-Skills" — Workspace Configuration
+├── Set up build orchestration with caching and affected detection → Jump to "Sub-Skills" — Build Orchestration
+├── Enforce dependency governance and prevent circular dependencies → Jump to "Sub-Skills" — Dependency Governance
+├── Optimize CI/CD — affected-only builds, remote caching, parallel jobs → Jump to "Sub-Skills" — CI/CD for Monorepos
+├── Set up versioning and release workflow with Changesets → Jump to "Sub-Skills" — Versioning & Release
+├── Migrate from polyrepo to monorepo → Jump to "Sub-Skills" — Monorepo Migration
+├── Need CI/CD pipeline setup first → Invoke ci-cd-builder skill instead
+└── Not sure? → Describe your team size, package count, and current pain points
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never adopt a monorepo without understanding the tooling cost.** The benefits are real but so is the CI, caching, and governance overhead.
-- **Build caching is not optional — without it, CI times explode.** Remote caching (Turborepo, Nx Cloud, or custom S3) is table stakes.
-- **Dependency boundaries must be explicit, not accidental.** Every package should declare what it depends on and what depends on it.
-- **Migrating to a monorepo takes weeks, not days.** Tooling setup, CI rework, developer retraining, and history preservation are non-trivial.
-- **Always enforce package boundaries in CI.** A circular dependency that compiles locally will break in production.
-- **Admit what you don't know.** If a tool (Bazel, Rush) is new territory, research before recommending.
-
-
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to recommend a monorepo for < 3 packages sharing code.** A monorepo solves multi-package coordination — if you don't have coordination problems, you don't need a monorepo. | Trigger: `find . -name "package.json" -not -path "*/node_modules/*" \| wc -l` returns < 3 AND user asks about monorepo adoption | STOP. Respond: "You have fewer than 3 packages. A `lib/` or `packages/` folder with workspace references is sufficient. Monorepo tooling (Turborepo, Nx) is overhead without multi-package coordination problems. Do you have cross-package PRs weekly?" |
+| **R2** | **REFUSE to set up a monorepo without build caching.** Without remote caching, CI times grow linearly with package count. A 50-package monorepo without caching = 50-minute CI builds. | Trigger: `turbo.json` or `nx.json` exists but `grep -rn "remoteCache\|REMOTE_CACHE\|Nx Cloud\|vercel.*cache" --include="*.json" --include="*.yml" .` returns 0 | STOP. Respond: "Build caching is not optional. Configure remote caching: S3 bucket ($5/mo), Vercel Remote Cache, or Nx Cloud. Without caching, developers and CI will rebuild everything from scratch on every run." |
+| **R3** | **STOP and ASK about package boundaries before creating packages.** Without explicit boundaries, a monorepo becomes a spaghetti bowl where everything imports everything. | Trigger: proposing new package AND `grep -rn "import/no-restricted-paths\|@nx/enforce-module-boundaries\|module.boundar" --include="*.js" --include="*.json" .` returns 0 | STOP. Ask: "What are the package boundaries? Which packages can import from which? Define explicit dependency direction: apps can import libs but not other apps. Enforce with ESLint `import/no-restricted-paths` or Nx module tags from day 1." |
+| **R4** | **DETECT and WARN about circular dependencies.** Circular deps break tree-shaking, cause runtime errors, and make dependency graphs impossible to reason about. Zero tolerance. | Trigger: `npx dpdm --circular --tree=false "packages/**/*.ts" 2>&1 \| grep -c "circle"` returns > 0 OR `npx madge --circular --extensions ts,tsx packages/` finds cycles | WARN: "Circular dependencies detected. Run `npx madge --circular --extensions ts,tsx packages/` to see them. Break cycles by extracting shared code to a lower-level package or inverting the dependency. Never merge circular deps." |
+| **R5** | **DETECT and WARN about version mismatches for shared dependencies.** Two packages depending on conflicting React/TypeScript versions cause runtime errors that are nearly impossible to debug. | Trigger: `npx syncpack list-mismatches 2>&1 \| grep -c "✘"` returns > 0 OR `grep -rn "\"react\":\|\"typescript\":" packages/*/package.json \| awk -F: '{print $NF}' \| sort -u \| wc -l` returns > 1 for any shared dep | WARN: "Version mismatches found for shared dependencies. Run `npx syncpack fix-mismatches` to align versions. Add `npx syncpack list-mismatches` to CI lint step. Mismatched React versions cause 'works on my machine' bugs." |
+| **R6** | **STOP and ASK before using wildcard workspace globs.** `packages/*` includes everything — test fixtures, build outputs, abandoned experiments. Every package in the workspace pays the install cost. | Trigger: `grep -rn "packages/\*\|\"packages/\*\"" pnpm-workspace.yaml\|package.json` returns a match with no `!packages/` exclusions | STOP. Ask: "Your workspace glob matches every directory. Are there test fixtures, build outputs, or abandoned packages included? Add exclusions: `!packages/e2e` and list packages explicitly if < 10." |
+| **R7** | **REFUSE to migrate to a monorepo without benchmarking CI time before and after.** If migration makes CI slower for any team, the migration is NOT complete. Monorepo must make development faster, not just more centralized. | Trigger: monorepo migration proposed AND no CI benchmark data: `grep -rn "benchmark\|CI.time\|build.*before\|build.*after" migration-plan.md \| wc -l` returns 0 | STOP. Respond: "Benchmark before migration: `git clone`, install, build, test for each repo. Set targets for the monorepo: clone < 90s, install < 60s, affected build < 3min. Migration isn't done until CI is FASTER than before." |
 ## The Expert's Mindset
 
 Masters of monorepo manager don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -630,25 +647,16 @@ Monorepo management touches every development team. A monorepo tooling change af
 
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| CI build takes 45 minutes for a single-line comment change | No affected-project detection; every PR triggers full rebuild of all packages | Implement Turborepo `--filter=[main...HEAD]` or Nx affected commands; set up remote caching to share build artifacts across CI runs | If every change rebuilds everything your CI doesn't scale — implement affected-only detection before anything else |
-| Two packages depend on conflicting major versions of React causing runtime errors | No version consistency enforcement; hoisting silently resolved to the wrong version | Use syncpack to enforce single versions across all packages; configure pnpm overrides for critical shared dependencies; run version consistency check in CI | Dependency hell isn't a theory in monorepos — enforce version consistency from day one or pay for it later |
-| Every PR has merge conflicts in package.json files across the monorepo | Too many packages with overlapping ownership in a single repository; no CODEOWNERS | Split packages by team ownership domain; add CODEOWNERS per directory for clear ownership; use changesets to serialize version bumps | Merge conflicts in a monorepo signal ownership boundary violations — respect team domains |
-| Critical security vulnerability requires patching 15 packages manually | Packages pinned dependencies without workspace protocol; no Renovate or Dependabot automation | Use `workspace:*` protocol for all cross-package dependencies; enable Renovate with auto-merge for patch-level security updates | Manual dependency patching doesn't scale past 5 packages — automate dependency updates or accept delayed security fixes |
-| Junior developer accidentally imported from another app's internal module | No package boundary enforcement; any package can import from any other regardless of ownership | Enforce ESLint `import/no-restricted-paths` or Nx module boundary rules; define explicit dependency direction (apps can import libs but not other apps) | Trust is not a dependency governance strategy — enforce package boundaries programmatically in CI |
-
-### Route to Other Skills
-
-| If the Request Is About | Route To |
-|--------------------------|----------|
-| CI/CD pipeline setup, build caching, remote execution | `ci-cd-builder` |
-| Shared library APIs, schema evolution, contract testing | `backend-developer` |
-| Shared UI components, design system, workspace tooling | `frontend-developer` |
-| CI/CD infrastructure, deployment orchestration | `devops-engineer` |
-| Module boundaries, extraction candidates, dependency rules | `system-architect` |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `Error: cache miss on all tasks\|FULL TURBO.*0%\|remote cache disabled` + `npx turbo run build --dry-run=json 2>&1 \| jq '.packages \| length'` > 5 AND `grep -c "\"remoteCache\"" turbo.json` returns 0 | CI builds take 25+ minutes — every PR rebuilds all packages from scratch regardless of what changed | No remote caching configured. Each CI agent starts with a cold cache. With 15 packages, each one rebuilds on every PR even if only 1 package changed | Configure remote caching: S3 bucket (`turbo.json` → `"remoteCache": {"signature": true}` + env vars), Vercel Remote Cache, or Nx Cloud. Verify: `npx turbo run build --remote-only 2>&1 \| grep "cache hit"` should show cache hits on second run | 1. Check cache state: `npx turbo run build --dry-run=json \| jq '.tasks[].cache.state' \| sort \| uniq -c` 2. If all `local: false, remote: false`, set up S3 cache: `aws s3 mb s3://turborepo-cache` + set `TURBO_TOKEN`, `TURBO_TEAM`, `TURBO_REMOTE_CACHE_URL` 3. Run first build (populate cache): `npx turbo run build` 4. Run second build (should be all cache hits): `npx turbo run build --verbosity=1 2>&1 \| grep "cache hit" \| wc -l` 5. CI: add cache warm/restore steps before `turbo run` |
+| `Error: Cannot find module '@org/shared'\|Module not found: Error: Can't resolve '@org/shared'` + `grep -c "\"workspace:\*\|\"workspace:\^" packages/*/package.json` returns 0 | Package A imports from `@org/shared` but installs a stale npm-published version instead of the local workspace version | Cross-package dependencies use `"@org/shared": "^1.0.0"` instead of `"workspace:*"`. pnpm installs from the npm registry (stale version) instead of linking to the local package | Use `workspace:*` protocol for all cross-package deps: `"@org/shared": "workspace:*"`. This tells pnpm to always link to the local package. Verify: `pnpm list --depth=0 --recursive \| grep "@org/shared"` — must show `link:../shared` | 1. Find non-workspace internal deps: `grep -rn "\"@org/" packages/*/package.json \| grep -v "workspace:"` 2. Replace each: `"@org/shared": "^1.0.0"` → `"@org/shared": "workspace:*"` 3. Reinstall: `rm -rf node_modules pnpm-lock.yaml && pnpm install` 4. Verify linkage: `ls -la node_modules/@org/shared` → must be symlink to `packages/shared` 5. CI lint: `scripts/check-workspace-protocols.sh` — fails if any `@org/*` dep doesn't use `workspace:*` |
+| `Error: Task graph cycle detected\|circular dependency detected\|dependency cycle` + `npx madge --circular --extensions ts,tsx packages/ 2>&1` shows A → B → A | Package A imports from Package B, and Package B imports from Package A — neither can build first, both fail | Someone added a cross-import without checking the dependency graph. Common cause: shared types in Package A imported by Package B, but Package B's utilities imported by Package A | Break the cycle: extract the shared dependency into a lower-level package C. A → C and B → C (never A ↔ B). Use `dpdm --circular --tree=false` to detect before commit | 1. Detect cycle: `npx madge --circular --extensions ts,tsx packages/` 2. Identify shared imports in both directions: `npx dpdm packages/A/src/index.ts --circular` 3. Extract shared code to new package: `mkdir packages/shared-types` with its own `package.json` 4. Update both A and B to import from `@org/shared-types` instead of each other 5. Verify no cycles: `npx madge --circular --extensions ts,tsx packages/` → must return no output 6. CI: `npx madge --circular --extensions ts,tsx packages/` as lint step — fails if cycles found |
+| `Error: Invalid hook call\|React version mismatch\|multiple copies of React` + `pnpm why react --recursive 2>&1 \| grep "version" \| sort -u \| wc -l` returns > 1 | React hooks throw "Invalid hook call" — multiple versions of React loaded in the bundle | Hoisting resolved React to different versions for different packages. Package A uses React 18.2.0 (hoisted), Package B uses React 18.3.1 (nested in its own node_modules). At runtime, two React instances exist | Force single version: add to root `package.json` → `"pnpm": {"overrides": {"react": "18.2.0", "react-dom": "18.2.0"}}`. Verify with `pnpm why react --recursive` — should show one version. Run `pnpm install --force` | 1. Audit versions: `pnpm why react --recursive 2>&1 \| grep "version:" \| sort \| uniq -c` 2. If > 1 version, add overrides: `pnpm.overrides.react = "18.2.0"` in root `package.json` 3. Clean install: `rm -rf node_modules packages/*/node_modules pnpm-lock.yaml && pnpm install` 4. Verify single version: `find . -path "*/node_modules/react/package.json" -exec jq -r '"{}: " + .version' {} \; \| sort -u` → must be 1 entry 5. CI: `scripts/check-react-singleton.sh` — fails if multiple React versions detected |
+| `Error: CI concurrency: cancel-in-progress killed all jobs\|stale PR runs queued for 20 minutes` + `grep -c "concurrency:" .github/workflows/*.yml` returns 0 | Developer pushes 3 commits in 5 minutes — CI queues 3 builds for 73 packages each. 219 builds in queue, latest push waits 45 minutes | No concurrency control. Every push triggers a full CI run. Without `cancel-in-progress: true`, stale runs consume queue slots and block the latest commit | Add to every CI workflow: `concurrency: {group: ${{ github.workflow }}-${{ github.ref }}, cancel-in-progress: true}`. This cancels stale runs when a new commit is pushed to the same PR/branch | 1. Check current concurrency: `grep -rn "concurrency:" .github/workflows/*.yml` 2. If missing, add to each workflow YAML: `concurrency: group: ci-${{ github.ref }}, cancel-in-progress: true` 3. Also set `fetch-depth: 0` for affected detection: `actions/checkout@v4 with: fetch-depth: 0` 4. Verify: push 2 commits quickly to a PR — second commit should cancel first CI run 5. Monitor: `gh run list --workflow=ci --branch=feature-branch \| head -5` — should show only the latest run as active |
+| `Error: pnpm install: ENOENT\|pnpm-lock.yaml out of date\|ERR_PNPM_OUTDATED_LOCKFILE` + `git diff --name-only HEAD~1 \| grep "pnpm-lock.yaml"` on every unrelated PR | Every PR has merge conflicts in `pnpm-lock.yaml` — 12K-line lockfile changed on every dependency update | `pnpm-lock.yaml` changes on every `pnpm install` even for unrelated dependency updates. In a monorepo with Renovate/Dependabot, the lockfile changes continuously | Accept `pnpm-lock.yaml` changes from Renovate PRs and use merge queues. Don't require lockfile review — use `pnpm install --frozen-lockfile` in CI to validate. For merge conflicts: always regenerate from latest main | 1. Use merge queue: GitHub Settings → "Require merge queue" on main branch 2. CI: `pnpm install --frozen-lockfile` to validate lockfile, never regenerate in CI 3. Auto-merge lockfile-only PRs: Renovate config → `"lockFileMaintenance": {"automerge": true}` 4. For manual conflicts: `git checkout main -- pnpm-lock.yaml && pnpm install && git add pnpm-lock.yaml` 5. Pre-commit: `scripts/check-lockfile.sh` — warns if lockfile changed but no `package.json` changed (unexpected lockfile churn) |
 
 ## Proactive Triggers
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
@@ -664,32 +672,22 @@ Monorepo management touches every development team. A monorepo tooling change af
 | Monorepo tool migration proposed (Lerna→Nx, Yarn→pnpm) | All Teams, DevOps, DX, CTO Advisor | 2-4 week migration window; training, CI reconfiguration, and workflow changes needed |
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  **Monorepo tooling selected** with documented rationale (tool, package manager, versioning strategy)
-- [ ] **[S2]**  **Package manager (pnpm) configured** with `pnpm-workspace.yaml`, `.npmrc` (`strict-peer-dependencies=true`), and hoisting strategy
-- [ ] **[S3]**  **Pipeline configuration** (`turbo.json` or `nx.json`) with correct `dependsOn`, `outputs`, `inputs`, and `env` for every task
-- [ ] **[S4]**  **Global dependencies** defined — `globalDependencies` (config files) and `globalEnv` (env vars) in turbo.json
-- [ ] **[S5]**  **Shared config packages** exist and are active: `typescript-config`, `eslint-config`, `prettier-config`, `jest-config`
-- [ ] **[S6]**  **Dependency boundaries enforced** via ESLint (`@nx/enforce-module-boundaries` or `import/no-restricted-paths`) — apps don't import other apps; libraries follow dependency direction
-- [ ] **[S7]**  **Circular dependency detection running in CI** — `dpdm` or `madge` as a lint step; zero cycles allowed
-- [ ] **[S8]**  **Affected-only CI operational** — PRs only rebuild/test changed packages and their dependents (Turborepo `--filter=[main...HEAD]` or Nx `affected`)
-- [ ] **[S9]**  **Remote caching configured** and working across CI agents and developer machines (Vercel, Nx Cloud, or self-hosted S3)
-- [ ] **[S10]**  **Dependency graph visualized and audited** — no circular deps, no orphans (packages with zero consumers), reasonable fan-out (< 15 consumers per package)
-- [ ] **[S11]**  **Versioning strategy chosen** (independent via Changesets recommended) and fully automated in GitHub Actions
-- [ ] **[S12]**  **Release pipeline automated**: changeset consumption → version PR → publish on merge (changesets/action)
-- [ ] **[S13]**  **Dependency version consistency enforced** with `syncpack` or `manypkg` — no version mismatches for shared deps
-- [ ] **[S14]**  **pnpm overrides / resolutions configured** for critical shared deps (React, Next, TypeScript) to enforce single versions
-- [ ] **[S15]**  **Peer dependencies correctly declared** in all shared packages — especially React, React DOM, and framework-specific packages
-- [ ] **[S16]**  **Code generation tooling configured** (Turborepo generators, Nx generators, or Plop) for new packages/components
-- [ ] **[S17]**  **Root-level scripts provide unified commands**: `pnpm dev`, `pnpm build --filter=...`, `pnpm test`, `pnpm lint`
-- [ ] **[S18]**  **CI parallelization**: matrix tests split per package with independent retry capability
-- [ ] **[S19]**  **CI uses `fetch-depth: 0`** for proper affected detection on PRs
-- [ ] **[S20]**  **PR concurrency configured**: `concurrency` + `cancel-in-progress: true` to cancel stale PR runs
-- [ ] **[S21]**  **Git hooks active**: Husky + lint-staged pre-commit (lint/format), commitlint for commit message conventions
-- [ ] **[S22]**  **VSCode workspace file** with recommended extensions, folder layout, and formatter settings committed
-- [ ] **[S23]**  **`.gitignore` covers all build outputs**: `dist/`, `.next/`, `coverage/`, `node_modules/`, `.turbo/`, `.nx/`
-- [ ] **[S24]**  **Secrets never committed**: `.env` ignored by `.gitignore`; use vault/secrets manager for environment variables
-- [ ] **[S25]**  **Backup/migration plan documented**: if gradual migration, timeline and risk mitigation are written and shared with the team
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Workspace configured — `pnpm-workspace.yaml` with explicit package paths, `.npmrc` with `strict-peer-dependencies=true` and `hoist=true` | `pnpm list --depth=0 --recursive 2>&1 \| grep -c "ERR_PNPM"` → must return 0 | `pnpm install --frozen-lockfile` in CI; any drift fails the build |
+| **[S2]** | Build orchestrator configured — `turbo.json` or `nx.json` with correct `dependsOn`, `outputs`, `inputs`, and `env` for every task | `npx turbo run build --dry-run=json 2>&1 \| jq '.tasks \| length'` → must be > 0 | Template: `templates/turbo.json` with pre-configured pipelines for build, test, lint, typecheck |
+| **[S3]** | Affected-only CI operational — PRs only rebuild/test changed packages and their dependents | `npx turbo run build --filter=[main...HEAD] --dry-run=json \| jq '.packages \| length'` → must be LESS THAN total package count | CI: `turbo run build test lint --filter=[${{ github.base_ref }}...HEAD]` in workflow plus `fetch-depth: 0` |
+| **[S4]** | Remote caching configured and verified — cache hits > 80% on second run | `npx turbo run build --verbosity=1 2>&1 \| grep -c "cache hit"` → must be > 80% of total tasks on second run | S3 cache: `turbo.json` → `"remoteCache": {}` + `TURBO_TOKEN` + `TURBO_REMOTE_CACHE_URL` env vars |
+| **[S5]** | Circular dependencies enforced — zero tolerance; CI fails if any cycle detected | `npx madge --circular --extensions ts,tsx packages/ 2>&1 \| grep -c "✖"` → must return 0 | CI lint: `npx madge --circular --extensions ts,tsx packages/` as required step before build |
+| **[S6]** | Package boundaries enforced — apps cannot import other apps; libraries follow dependency direction | `npx eslint packages/ --rule '{"import/no-restricted-paths": ["error", {"zones": [{"target": "./packages/apps/", "from": "./packages/apps/"}]}]}' 2>&1 \| grep -c "error"` → must return 0 | ESLint config: `import/no-restricted-paths` rules for each app boundary; Nx: `@nx/enforce-module-boundaries` in `.eslintrc.json` |
+| **[S7]** | Cross-package dependencies use `workspace:*` protocol — never a published version number | `grep -rn "\"@org/" packages/*/package.json \| grep -v "workspace:" \| wc -l` → must return 0 | Script: `scripts/fix-workspace-protocols.sh` — replaces `"@org/package": "^X.Y.Z"` with `"@org/package": "workspace:*"` in all `package.json` files |
+| **[S8]** | Version consistency enforced — shared dependencies (React, TypeScript, Next.js) have single version across all packages | `npx syncpack list-mismatches 2>&1 \| grep -c "✘"` → must return 0 | CI: `npx syncpack list-mismatches` as lint step. Fix: `npx syncpack fix-mismatches && pnpm install` |
+| **[S9]** | pnpm overrides configured for critical shared dependencies — React, React DOM, TypeScript, Next.js | `grep -c "\"pnpm\".*\"overrides\"" package.json` → must be ≥ 1 with at least React and TypeScript entries | Add to root `package.json`: `"pnpm": {"overrides": {"react": "18.2.0", "react-dom": "18.2.0", "typescript": "5.3.0"}}` |
+| **[S10]** | Changesets configured for versioning — `npx changeset version` generates bump PR with changelogs | `test -d .changeset && test -f .changeset/config.json && echo "OK"` → must return "OK" | `pnpm add -Dw @changesets/cli && npx changeset init` then configure `.changeset/config.json` with `"baseBranch": "main"` and `"commit": false` |
+| **[S11]** | Release pipeline automated — changeset consumption → version PR → publish on merge | `grep -rn "changesets/action\|changeset.*version\|changeset.*publish" .github/workflows/*.yml \| wc -l` → must be ≥ 1 | GitHub Actions: `changesets/action@v1` with `publish: pnpm release` and `version: pnpm changeset version` |
+| **[S12]** | Git hooks active — commitlint for message conventions, lint-staged for pre-commit lint/format | `grep -c "\"husky\"\|\"lint-staged\"\|\"commitlint\"" package.json` → must be ≥ 2 (at least 2 of 3 configured) | `pnpm add -Dw husky lint-staged @commitlint/cli @commitlint/config-conventional && npx husky init` + add `commit-msg` and `pre-commit` hooks |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
@@ -781,18 +779,18 @@ npx turbo run build --verbosity=1 2>&1 | grep -c "cache hit"
 10. **Keep one package per team's ownership domain:** If Team A and Team B both modify the same package frequently, split it. Monorepo ≠ shared ownership of everything.
 
 ## Anti-Patterns
-<!-- STANDARD: 3min — patterns that predictably fail -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| Anti-Pattern | Why It Fails | Correct Approach |
-|---|---|---|
-| Every PR rebuilds all packages regardless of what changed | CI time grows linearly with package count; 50-package monorepo = 50-minute CI; developers context-switch | Implement affected-only detection: `turbo build --filter=[main...HEAD]` or `nx affected:build` |
-| No package boundary enforcement — any package can import any other | Spaghetti dependency graph forms within weeks; circular deps emerge; impossible to extract or version packages | ESLint `import/no-restricted-paths` or Nx module tags from day 1; CI fails on boundary violations |
-| Hoisting React/TypeScript to root and hoping for the best | Version conflicts surface as cryptic runtime errors; "works on my machine" bugs; peer dependency warnings ignored | Use syncpack to enforce single versions; pnpm overrides for critical deps; CI validates version consistency |
-| Manual version bumps with `npm version` in each package | Inevitably forget one package; changelogs diverge; release order dependencies break | Changesets: `pnpm exec changeset` describes change → CI opens Release PR with all version bumps and changelogs |
-| Skipping remote caching because "local cache is fast enough" | Each CI agent and developer rebuilds from scratch; cold builds dominate; cache misses cost minutes per build | S3 bucket remote cache costs <$5/month; 80%+ cache hit rate; pays for itself in developer time in days |
-| One massive shared utility package that everything depends on | Deep dependency chains (A→util, B→A→util, C→B→A→util); changing util rebuilds everything; no ownership boundaries | Split utils by domain: `@org/dates`, `@org/strings`, `@org/api-client`; keep fan-out under 15 consumers per package |
-| Adopting monorepo because "Google and Meta do it" without coordination problems | Monorepo solves multi-package coordination — if you don't have coordination problems, you don't need a monorepo | Evaluate: do you have >3 packages sharing code? Cross-package PRs weekly? Build order dependencies? If no, stay simple |
-| Running `pnpm install` in CI from scratch every build | 2-5 minutes wasted per CI run on dependency installation; cache invalidation from lockfile changes only | Use `actions/cache` with `pnpm-lock.yaml` as cache key; `pnpm install --frozen-lockfile`; install step <30 seconds |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Every PR rebuilds all packages regardless of what changed — CI time grows linearly with package count | Implement affected-only detection: `turbo build --filter=[main...HEAD]` or `nx affected:build`. With 20 packages changing 1, CI should build 1 package + its dependents (~3-5 total). | `grep -c "\--filter=\|affected" .github/workflows/ci.yml` → must be ≥ 1. If 0, no affected detection in CI | CI template: `templates/ci-affected.yml` with `turbo run build test lint --filter=[${{ github.base_ref }}...HEAD]` |
+| No package boundary enforcement — any package can import any other, spaghetti dependency graph within weeks | ESLint `import/no-restricted-paths` or Nx module tags from day 1. CI fails on boundary violations. Define explicit dependency direction: apps can import libs, not other apps. | `grep -rn "import/no-restricted-paths\|@nx/enforce-module-boundaries\|module.boundar" --include="*.js" --include="*.json" . \| wc -l` → must be ≥ 1 | Add to `.eslintrc.js`: `'import/no-restricted-paths': ['error', { zones: [{ target: './packages/apps/', from: './packages/apps/', message: 'Apps cannot import other apps' }] }]` |
+| Manual version bumps with `npm version` in each package — inevitably forget one package, changelogs diverge | Use Changesets: `pnpm exec changeset` → describe change → CI opens Release PR with all version bumps and changelogs automatically computed from the dependency graph. | `grep -rn "\"version\"\s*:" packages/*/package.json \| wc -l` vs `grep -c "\"@changesets/cli\"" package.json` → if packages > 5 and no changesets, manual versioning pain ahead | `pnpm add -Dw @changesets/cli && npx changeset init` + GitHub Actions workflow: `changesets/action@v1` |
+| Skipping remote caching because "local cache is fast enough" — each CI agent and developer rebuilds from scratch | S3 bucket remote cache costs < $5/month. 80%+ cache hit rate. Pays for itself in developer time in days. Configure via Turborepo: `turbo.json` → `"remoteCache": {}` | `npx turbo run build --verbosity=1 2>&1 \| grep "cache miss" \| wc -l` → if > 50% on CI, remote cache not configured or not working | S3 setup: `aws s3 mb s3://turbo-repo-cache` → set `TURBO_REMOTE_CACHE_URL`, `TURBO_TOKEN`, `TURBO_TEAM` env vars in CI and local `.env` |
+| One massive shared utility package that everything depends on — changing `@org/utils` rebuilds everything, deep chains form (A→B→utils, C→A→utils) | Split utils by domain: `@org/dates`, `@org/strings`, `@org/api-client`, `@org/hooks`. Keep fan-out under 15 consumers per package. Monitor with `nx graph` or `turbo run build --graph`. | `find packages/ -name "package.json" -exec jq -r '.name' {} \; \| while read pkg; do echo "$pkg: $(grep -rn "\"$pkg\"" packages/*/package.json \| wc -l) consumers"; done \| sort -t: -k2 -rn \| head -5` → packages with > 15 consumers need splitting | CI lint: `scripts/check-fanout.sh` — fails if any package has > 15 consumers, flags for splitting |
+| Adopting monorepo because "Google and Meta do it" without coordination problems — monorepo solves multi-package coordination, if you don't have it, you don't need it | Evaluate objectively: do you have > 3 packages sharing code? Cross-package PRs weekly? Build order dependencies? Coordination problems between teams? If no to all, stay polyrepo. | `find . -name "package.json" -not -path "*/node_modules/*" \| wc -l` → if < 4, monorepo overhead exceeds benefit. `git log --oneline --since="1 month" \| grep -c "cross-package\|workspace\|link"` → if 0, no cross-package work | Decision tree: `scripts/should-monorepo.sh` — scores on package count, team count, cross-package PR frequency, CI pain → outputs recommendation with rationale |
+| Running `pnpm install` in CI from scratch every build — 2-5 minutes wasted per CI run on dependency installation | Cache `node_modules` using `actions/cache@v4` with `pnpm-lock.yaml` as cache key. `pnpm install --frozen-lockfile --prefer-offline`. Install step < 30 seconds on cache hit. | `grep -c "actions/cache\|cache:" .github/workflows/ci.yml` → must be ≥ 1 with `pnpm-lock.yaml` as part of cache key | GitHub Actions cache: `uses: actions/cache@v4 with: path: node_modules, key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}` before `pnpm install` |
+| Publishing packages manually with `npm publish` — order dependencies, forgot private flag, published internal package to npm | Changesets with `private: true` in `package.json` for non-publishable packages. CI-only publishing. `pnpm publish -r --filter=./packages/*` only publishes packages where `private: false`. | `grep -c "\"private\"\s*:\s*true" packages/*/package.json` → all internal packages should be private. `grep -rn "\"private\"\s*:\s*false" packages/*/package.json \| wc -l` → only publishable packages show here | Pre-publish hook: `scripts/check-publish-config.sh` — ensures `"private": true` on internal packages, `"publishConfig": {"access": "public"}` on public packages, fails if misconfigured |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from monorepo management at scale -->

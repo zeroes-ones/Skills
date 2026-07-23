@@ -47,48 +47,37 @@ chain:
 Design, implement, and validate embedded systems from silicon selection through RTOS architecture, peripheral bring-up, power optimization, and hardware-in-the-loop testing. Hardware failures cost $50K per PCB respin and 6 weeks of schedule. There is no `git revert` for a burned board.
 
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
-```
-What are you trying to do?
-├── SELECT silicon
-│   ├── New product MCU/MPU selection → Jump to "Decision Trees > MCU/MPU Selection Matrix"
-│   ├── Evaluate an existing chip for a new feature → Scan "When to Use" triggers
-│   └── Replace an EOL component → references/component-lifecycle.md
-├── BUILD or configure
-│   ├── Set up RTOS (FreeRTOS/Zephyr/ThreadX) → "Core Workflow" Phase 2
-│   ├── Design bootloader + OTA → "Core Workflow" Phase 3
-│   ├── Configure peripherals (SPI/I2C/UART/CAN) → references/peripheral-design-guide.md
-│   └── Bare-metal superloop → "Decision Trees > RTOS vs Bare-Metal"
-├── OPTIMIZE
-│   ├── Reduce power consumption → "Decision Trees > Power Management Strategy"
-│   ├── Shrink flash/RAM footprint → references/memory-constrained-patterns.md
-│   └── Meet real-time deadlines → "Core Workflow" Phase 5
-├── DEBUG or test
-│   ├── Hardware-in-the-loop setup → "Core Workflow" Phase 4
-│   ├── JTAG/SWD debugging → references/debugging-toolchain.md
-│   └── Field failure analysis → "Error Decoder"
-├── CROSS-SKILL ROUTING
-│   ├── Need hardware architecture decisions (SoC, PCB, power tree)? → Invoke `hardware-architect`
-│   ├── Need firmware/BSP/bootloader/OTA implementation? → Invoke `firmware-developer`
-│   ├── Need backend/cloud integration? → Invoke `backend-developer`
-│   ├── Need QA/HIL testing infrastructure? → Invoke `qa-engineer`
-│   └── Need performance/power optimization? → Invoke `performance-engineer`
-└── Not sure? → Describe the board, power budget, and real-time requirements
-```
-Do not read the entire skill. Follow the route above and read only the sections it points to.
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.[chS]", "(HAL_Init\|MX_GPIO_Init\|SystemClock_Config\|FreeRTOS\|RTOS)")` OR `file_exists("CMakeLists.txt")` AND `file_contains("CMakeLists.txt", "(arm-none-eabi\|xtensa\|riscv)")` | This is your skill. Jump to **Core Workflow** — Phase 1: Silicon Selection & Architecture. |
+| A2 | `file_contains("*.ioc|*.prj", "(STM32\|nRF\|ESP32\|MSP430\|PIC)")` OR `file_contains("*", "MCU.*selection\|silicon.*selection\|chip.*selection")` | Jump to **Decision Trees** — MCU/MPU Selection Matrix. |
+| A3 | `file_contains("*", "(linker script|\.ld|memory\.ld|flash\.ld|sections\.ld)")` OR `file_contains("*", "(bootloader|DFU|OTA.*boot|dual.bank)")` | Invoke **firmware-developer** for bootloader/OTA. |
+| A4 | `file_exists("*.kicad_*|*.sch|*.brd")` AND `file_contains("*.kicad_sch", "(BOM|bill.of.materials|power.tree)")` | Invoke **hardware-architect** instead — this is PCB-level. |
+| A5 | `file_contains("*", "(power.profil\|Joulescope\|Otii\|Nordic.PPK)")` AND `file_contains("*", "(sleep.current\|deep.sleep\|low.power|µA)")` | Jump to **Decision Trees** — Power Management Strategy. |
+| A6 | `file_contains("*", "(SPI\|I2C\|UART\|CAN\|USB).*(errata\|stuck\|recover\|bus.reset)")` | Jump to **Error Decoder** — I2C/SPI bus recovery rows. |
+| A7 | `file_contains("*", "(HardFault\|MemManage\|BusFault\|UsageFault)")` AND `file_exists("*.s|*.S")` | Jump to **Error Decoder** — HardFault row. |
+| A8 | `file_contains("*", "(ESD\|EMC\|FCC\|CE\|radiated.emission|pre.compliance)")` | Jump to **Error Decoder** — EMC pre-compliance rows. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 ## Ground Rules — Read Before Anything Else
-<!-- QUICK: 30s — these apply to every single response -->
-<!-- STANDARD: 3min — embedded systems have no undo; understand these before proceeding -->
+<!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
-- **Never recommend a chip without the full power/thermal/peripheral budget.** Before suggesting an STM32H7 or nRF5340, demand: target BOM cost, peak current draw, ambient temp range, peripheral count (SPI/UART/I2C/CAN instances), and production volume. Silicon selection without a power tree is guessing.
-- **Always prefer a chip you've shipped with.** Novelty kills schedules. A new chip will have errata you discover at week 8. If using a new chip, budget 2 weeks for errata discovery on the dev board before committing to PCB.
-- **Design for field recovery.** Every device must have: (a) hardware watchdog that resets within 2 seconds, (b) golden image recovery partition, (c) means to enter DFU mode via GPIO or button combo. JTAG-only recovery = not production-ready.
-- **Measure, don't assume.** Datasheet says 5 µA deep sleep; you'll measure 50 µA because of a pull-up on UART RX. Never ship power numbers without a power profiler trace (Nordic PPK2, Joulescope, Otii Arc).
-- **Admit when a problem needs a hardware fix.** Firmware cannot fix a missing pull-up, a floating pin leaking 200 µA, or crosstalk into the ADC. Say "this requires a PCB respin" and escalate to hardware-architect. Three weeks of software workaround for a hardware bug is denial, not engineering.
-
-<!-- DEEP: 10+min — war story -->
-*Shipped 10K smart locks before discovering an ESD issue on the keypad GPIO. A 4kV zap through the button membrane latched up the MCU. Hardware fix: TVS diode array (SM05, $0.03) on each keypad line. Firmware workaround: external watchdog with 1.5s timeout. Total cost: $400K in field replacements because the PCB couldn't be OTA-fixed.*
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|---------------------|
+| G1 | **REFUSE** to recommend a chip without full power/thermal/peripheral budget. | `user_message_contains("recommend.*chip\|suggest.*MCU\|which.*processor")` AND NOT `file_contains("*", "(BOM.cost|peak.current|ambient.temp|peripheral.count|production.volume)")` | STOP. Demand: target BOM cost, peak current draw, ambient temp range, peripheral count (SPI/UART/I2C/CAN), production volume. |
+| G2 | **STOP if no hardware watchdog configured.** | `grep -rL "WDT\|watchdog\|IWDG\|WWDG" *.[ch] src/` | HALT. Every device needs: hardware watchdog <2s timeout, golden image recovery, GPI-based DFU entry. JTAG-only recovery = NOT production-ready. |
+| G3 | **DETECT datasheet power figures used without measurement.** | `file_contains("*", "datasheet.*typical\|typical.*µA\|typical.*mA\|datasheet.*says.*[0-9].*µA")` AND NOT `file_exists("*power-profile*")` | STOP. Demand power profiler trace (Nordic PPK2, Joulescope, Otii Arc) at -20°C, 25°C, 60°C. |
+| G4 | **REFUSE to work around hardware bugs with firmware.** | `file_contains("*", "(floating.pin|missing.pull.up|crosstalk|ADC.noise).*(firmware.fix\|software.workaround)")` | STOP. Escalate to **hardware-architect**: "This requires a PCB respin." Three weeks of firmware workaround = denial, not engineering. |
+| G5 | **STOP if using a never-shipped chip without errata review.** | `user_message_contains("new.chip\|never.used\|first.time\|unfamiliar.MCU")` AND NOT `file_contains("*", "errata\|known.issue\|rev.[A-Z]")` | HALT. Budget 2 weeks for errata discovery on dev board. Review silicon errata document before PCB commit. |
+| G6 | **DETECT dynamic memory allocation in event loops/ISR context.** | `grep -n "malloc\|calloc\|realloc" src/*.[ch] \| grep -v "init\|boot\|setup"` | WARN. Allocate all buffers at boot. Static pools only after init. Heap after init = fragmentation time bomb. |
+| G7 | **STOP if OTA update lacks dual-bank flash + rollback.** | `file_contains("*", "(OTA\|over.the.air\|firmware.update)")` AND NOT `file_contains("*", "(dual.bank\|A/B.partition\|rollback\|revert\|fallback)")` | HALT. Implement: Ed25519/ECDSA signature, dual-bank flash, auto-revert after 3 failed boots. |
 
 
 ## The Expert's Mindset
@@ -310,55 +299,52 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 10. **Brown-out detection with hysteresis.** BOD threshold at min operating voltage + 10% margin + 50mV hysteresis. Without hysteresis: dying battery → rapid BOD-reset loops → flash corruption.
 
 ## Anti-Patterns
+<!-- QUICK: 30s -- machine-detectable anti-patterns with auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Dynamic memory allocation in event loops or interrupt context | Allocate all buffers at boot; use static pools with `ACQUIRE_BUFFER()`/`RELEASE_BUFFER()` macros; heap after init = fragmentation time bomb |
-| Kicking watchdog from ISR or timer callback without subsystem health checks | Kick watchdog only in main loop after ALL critical subsystems report healthy via heartbeat flags; each subsystem must set its flag within deadline |
-| Using datasheet typical current for power budgeting | Measure actual current on first prototype at -20°C, 25°C, 60°C across all power modes; datasheet typical can be 20-50% optimistic |
-| Shipping firmware without hardware version detection | Read board revision via GPIO strapping or EEPROM; firmware must refuse to run on unsupported revision rather than operating with wrong pin config |
-| Long interrupt-disabled sections for "atomic" multi-step operations | Use lock-free data structures or short critical sections (<5µs); move heavy work to deferred procedure call from ISR |
-| Trusting SPI/I2C peripherals without bus recovery or timeout | Implement I2C bus recovery (9 SCL pulses), SPI timeout with peripheral reset, and UART receive timeout on every peripheral transaction |
-| Leaving GPIO pins floating in low-power sleep modes | Configure every unused pin as analog input (lowest leakage) or driven output; a single floating CMOS input can add 50-200µA leakage |
-| Shipping OTA updates without dual-bank flash and rollback | Implement dual-bank flash with bootloader that: validates signature, checks CRC, reverts to known-good image after 3 failed boots | 
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| Dynamic memory allocation in event loops or IRQ context | Allocate all buffers at boot; static pools with `ACQUIRE_BUFFER()`/`RELEASE_BUFFER()` macros | `grep -n "malloc\|calloc\|realloc\|free" src/*.[ch] \| grep -v "_init\|setup\|boot"` | REFUSE merge if malloc appears outside init functions. |
+| Kicking watchdog from ISR without subsystem health checks | Kick only in main loop after ALL subsystems report healthy via heartbeat flags | `grep -rn "WDT.*Feed\|IWDG.*Refresh\|watchdog.*kick" *.[ch] \| grep -v "main\|while(1)\|super.loop"` | WARN. Flag every watchdog kick not in main loop. |
+| Using datasheet typical current for power budgeting | Measure actual on first prototype at -20°C, 25°C, 60°C across all power modes | `grep -rn "typical\|typ\." docs/power* \| grep -i "µA\|mA\|current"` | STOP. Replace typical values with max datasheet numbers + 20% regulator derating. |
+| Shipping firmware without hardware version detection | Read board revision via GPIO strapping or EEPROM; refuse to run on unsupported rev | `grep -rL "board.*rev\|hw.*version\|REV_\|BOARD_REV" src/` | WARN. Auto-generate HW version detection from GPIO strapping pins. |
+| Long interrupt-disabled sections >5µs | Use lock-free data structures; move heavy work to deferred procedure call | `grep -n "__disable_irq\|__asm.*CPSID\|portENTER_CRITICAL" src/ && grep -c "portEXIT_CRITICAL"` | STOP. Flag every critical section. Require timing budget annotation. |
+| SPI/I2C without bus recovery or timeout | I2C: 9 SCL pulses recovery; SPI: timeout + peripheral reset; UART: receive timeout | `grep -L "bus.*recover\|SCL.*pulse\|timeout\|bus.reset" src/drivers/*i2c* src/drivers/*spi*` | WARN. Auto-inject bus recovery pattern into peripheral drivers. |
+| Floating GPIO pins in low-power sleep | Configure unused pins as analog input (lowest leakage) or driven output | `grep -A5 "sleep\|low.power\|deep.sleep" src/*.[ch] \| grep -v "analog\|pull.up\|pull.down\|output"` | WARN. Generate pin configuration review report for sleep modes. |
+| OTA without dual-bank flash + rollback verification | Dual-bank: validate signature, check CRC, revert after 3 failed boots | `grep -l "OTA\|firmware.update" src/ \| xargs grep -L "dual.bank\|rollback\|revert\|fallback"` | STOP. Block OTA PR merge without dual-bank + rollback. | 
 
 ## Error Decoder
-<!-- QUICK: 30s -- exact error → root cause → fix -->
-<!-- DEEP: 10+min -- war stories from production hardware failures -->
+<!-- QUICK: 30s -- exact error → root cause → fix with auto-recovery -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| HardFault at 0x00000000 | Null pointer dereference in ISR or task callback | Check all function pointers before calling. Enable MPU to catch null accesses. Use `__builtin_return_address(0)`. | Null pointer in ISR is always the first thing to check. Enable MPU early. |
-| Device resets every ~2 seconds | Watchdog timeout — task stuck or deadlocked | Check task that kicks watchdog. Increase stack first — most deadlocks are stack overflows, not logic bugs. | Most watchdog deadlocks are stack overflows, not logic bugs. Increase stack first. |
-| I2C bus stuck, SDA permanently low | Slave held SDA low during MCU reset | Clock SCK 9× to release. If still stuck, power-cycle slave via GPIO-controlled FET. | Always implement I2C bus recovery (9 clock pulses). Power-cycle via GPIO if needed. |
-| `Stack overflow detected` (FreeRTOS) | Task stack too small or unbounded recursion | Double stack, 24h stress test, `uxTaskGetStackHighWaterMark()`. If >90% remains, fix held. | Use uxTaskGetStackHighWaterMark() in testing. Double stack and 24h stress test. |
-| ADC drifts 20% over temperature | Internal bandgap VREF (1.2V ±10%) vs external reference | Add REF3030 (0.2% initial, 50ppm/°C). If BOM can't absorb, calibrate at 3 temp points in factory. | Internal bandgap VREF can vary 10%. Use external reference or 3-point temp calibration. |
-| BLE drops after exactly 30 seconds | Supervision timeout — >30s in critical section with IRQs disabled | Audit every `__disable_irq()` — none >100µs. Move long ops to a task. Enable BLE LL priority. | No critical section >100µs with IRQs disabled when BLE is active. |
-| Flash write fails after 10K cycles | Endurance exceeded — logging cycling same sector | Wear leveling. Move frequent writes to SPI NOR (100K cycles) or FRAM (10^13). Internal flash for infrequent updates only. | Use wear leveling. Move frequent writes to SPI NOR or FRAM. |
-| Device wakes from sleep drawing 200µA "mysteriously" | Floating CMOS input biased into linear region by leakage | Add pull-down/pull-up on every external signal entering sleep. Disconnect analog GPIOs in sleep. | Floating CMOS inputs into linear region are silent power killers. Add pull resistors. |
-| Firmware OTA update bricked entire fleet | Staged rollout wasn't used — 100% of devices received update simultaneously; bootloader had no rollback mechanism | Implement staged rollout: 1%, 5%, 20%, 50%, 100% with boot-success monitoring at each stage. Dual-bank flash with fallback image. | A smart lock startup bricked 40K devices in one push. The fix required physical reflash at dealer locations. Cost: $2.3M. Lesson: never push to more than 1% without automated rollback verification. |
-| Watchdog timer too short causing false resets during field upgrade | OTA download took 8 seconds but watchdog was configured for 5 seconds | Set watchdog timeout to accommodate longest expected operation plus 50% margin. Reset watchdog before and after long operations. Never reset watchdog in interrupt handler. | A medical device factory reset during a 10-second firmware upload because the watchdog was set to 5 seconds. The device was bricked and had to be returned. 2% of field units were affected before the fix. |
-| Memory leak in production on resource-constrained device | Dynamic memory allocation in interrupt handler — memory allocated but never freed because function returned early on error path | Never use malloc/free in production code on embedded devices. Use static allocation only. If heap is necessary, use a memory pool with fixed-size blocks and leak detection. | An IoT sensor would crash after 47 days of uptime. The root cause: a 32-byte malloc in the SPI ISR that wasn't freed on CRC error. Over 47 days, the 64KB heap fragmented until allocation failed. |
-| GPIO pin conflict from shared driver assumption | Two peripheral drivers both claimed GPIO 12 for chip select — second driver silently reconfigured it | Implement a GPIO registry: every pin assigned to exactly one driver at init time. Assert on double-claim. Document pin mux in a spreadsheet reviewed at code review. | A custom PCB had the SD card CS and the display CS on the same GPIO. The display driver would fail randomly after the SD card was used. Root cause assumed "the display driver must have initialized first." |
-| Race condition on interrupt handler | Shared global variable written from ISR and main loop without volatile or critical section | All data shared between ISR and main loop must be: (1) declared volatile, (2) read/written atomically or within critical section, (3) never allocated on stack. Use a message queue pattern, not shared globals. | A motor controller occasionally "jumped" to full speed. Root cause: the ISR set a "new target speed" variable that the main loop read non-atomically. Half the bytes were from the new speed, half from the old — full throttle. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `gdb> bt` shows `HardFault_Handler` at `0x00000000` | HardFault at null address | Null pointer dereference in ISR/task callback | Check all function pointers before calling. Enable MPU to catch null accesses. Use `__builtin_return_address(0)`. | **Loop 1:** (1) Detect: HardFault with PC=0x00000000. (2) Dump fault registers (CFSR, HFSR, MMFAR, BFAR). (3) Enable MPU on null region. (4) Re-run with MPU enabled. (5) Verify: no HardFault for 24h. |
+| `grep "reset\|POR\|BOR" serial.log` every ~2s | Device resets every ~2 seconds | Watchdog timeout — task stuck or deadlocked | Check task that kicks watchdog. Increase stack first — most deadlocks are stack overflows. | **Loop 2:** (1) Detect: periodic reset at same interval. (2) Log reset cause register (RCC_CSR). (3) `uxTaskGetStackHighWaterMark()` on all tasks. (4) Double stack for any task <20% headroom. (5) 24h stress test. |
+| Logic analyzer shows SDA stuck low for >100ms | I2C bus locked — SDA held low | Slave held SDA low during MCU reset | Clock SCL 9× to release. If stuck, power-cycle slave via GPIO-controlled FET. | **Loop 3:** (1) Detect: SDA low > 100ms. (2) Generate 9 SCL pulses via bit-bang. (3) If still stuck, GPIO power-cycle slave. (4) Re-init I2C peripheral. (5) Log recovery event. |
+| `uxTaskGetStackHighWaterMark()` returns <50 words | Stack overflow detected (FreeRTOS) | Task stack too small or unbounded recursion | Double stack, 24h stress test. If >90% remains, fix held. | **Loop 4:** (1) Detect: stack high-water < 20% on any task. (2) Log offending task name and current depth. (3) Double stack allocation. (4) Re-run 24h stress. (5) Verify: ALL tasks > 30% headroom. |
+| DMM shows ADC reading drifts >5% over 4h thermal soak | ADC drifts 20% over temperature | Internal bandgap VREF (1.2V ±10%) | Add REF3030 (0.2%, 50ppm/°C) or 3-point factory temp calibration. | **Loop 5:** (1) Detect: ADC drift >5% vs temp. (2) Log ADC ref voltage at -20°C, 25°C, 60°C. (3) Generate 3-point calibration polynomial. (4) Apply in firmware. (5) Re-verify drift <2%. |
+| BLE sniffer shows disconnection at exactly 30s | BLE drops after 30 seconds | Supervision timeout — critical section >100µs with IRQs disabled | Audit every `__disable_irq()` — none >100µs. Move long ops to task. | **Loop 6:** (1) Detect: BLE disconnect at fixed interval. (2) Instrument all critical sections with GPIO toggle. (3) Measure max critical section duration on scope. (4) Refactor any >100µs section to DPC pattern. (5) Verify: no disconnect for 24h. |
+| `grep "flash.*fail\|write.*error\|erase.*fail" serial.log` after 10K cycles | Flash write fails after 10K cycles | Endurance exceeded — logging cycling same sector | Wear leveling. Move frequent writes to SPI NOR (100K) or FRAM (10^13). Internal flash for infrequent only. | **Loop 7:** (1) Detect: flash erase count > 8K on any sector. (2) Log sector wear map. (3) Migrate hot sectors to external NOR/FRAM. (4) Enable wear leveling on internal flash. (5) Verify: estimated lifetime > 5 years. |
+| Power analyzer shows 200µA in sleep mode | Wakes drawing 200µA "mysteriously" | Floating CMOS input biased into linear region | Add pull resistors on every external signal entering sleep. Disconnect analog GPIOs. | **Loop 8:** (1) Detect: sleep current > 3× expected. (2) Dump GPIO config for all pins. (3) Flag any input with no pull configuration. (4) Configure floating pins as analog input. (5) Re-measure: sleep current within 2× datasheet. |
 
 ## Production Checklist
-<!-- QUICK: 30s — binary pass/fail. All must pass before production. -->
+<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
 
-- [ ] **[E1]** MCU/MPU selection documented: power budget, peripheral count, flash/RAM >20% headroom, BOM cost target
-- [ ] **[E2]** Bootloader: Ed25519/ECDSA P-256 signature verification; unsigned images rejected; boot reason logged from reset cause register
-- [ ] **[E3]** A/B partition with fallback: 3 failed boots → auto-revert to previous working image
-- [ ] **[E4]** Hardware watchdog: 2s timeout; external watchdog IC for safety-critical (ISO 26262, IEC 61508)
-- [ ] **[E5]** Power profile measured on production PCB at -20°C, 25°C, 60°C; battery life validated with 10-unit soak
-- [ ] **[E6]** All ISRs <10 µs; critical interrupt latency <1 µs at max CPU load; jitter <5% of period
-- [ ] **[E7]** Stack high-water marks <80% after 24h stress; all tasks >20% headroom
-- [ ] **[E8]** I2C bus recovery tested (stuck SDA); SPI signal integrity verified on scope at max clock
-- [ ] **[E9]** Brown-out detection: 10% voltage margin, 50mV hysteresis; tested with programmable supply
-- [ ] **[E10]** Board revision detected at boot (GPIO strapping or EEPROM); firmware branches per revision
-- [ ] **[E11]** HIL 24h soak with randomized fault injection passes; zero manual resets
-- [ ] **[E12]** OTA power-loss tested at every 10% of download; device always recovers to valid image
-- [ ] **[E13]** ADC calibrated at factory (min 3 temp points if internal VREF); readings validated vs known-good reference
-- [ ] **[E14]** FCC/CE/ISED pre-compliance scan: intentional radiator emissions within limits with 3dB margin
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|----------------|--------------------|----------|
+| E1 | MCU/MPU selection documented: power budget, peripheral count, flash/RAM >20% headroom, BOM cost | `test -f docs/mcu-selection.md && grep -q "BOM\|power.budget\|peripheral.*count\|headroom" docs/mcu-selection.md` | Generate selection matrix template with all required columns. |
+| E2 | Bootloader: Ed25519/ECDSA P-256 signature verification; unsigned images rejected; boot reason logged | `grep -q "ed25519\|ecdsa\|mbedtls_pk_verify" bootloader/src/*.[ch] && grep -q "RCC_CSR\|reset.*reason" bootloader/src/*.[ch]` | Auto-inject signature verification stub (mbedTLS) and reset cause logging. |
+| E3 | A/B partition with fallback: 3 failed boots → auto-revert | `grep -q "boot.attempt\|revert\|fallback\|dual.bank" bootloader/src/*.[ch]` | Generate boot attempt counter in persistent storage with fallback logic. |
+| E4 | Hardware watchdog: 2s timeout; external WDT IC for safety-critical | `grep -q "WDT\|IWDG\|watchdog" src/main.c && grep -q "2000\|2.*sec" src/main.c` | WARN: prompt for external WDT IC selection for ISO 26262/IEC 61508. |
+| E5 | Power profile measured on production PCB at -20°C, 25°C, 60°C; 10-unit soak | `test -f test/power-profile.csv && grep -c "\-20\|25\|60" test/power-profile.csv | awk '{exit $1<3}'` | Generate power test plan and CSV template. |
+| E6 | All ISRs <10µs; critical interrupt latency <1µs at max CPU load; jitter <5% | `grep -q "GPIO.toggle\|DWT_CYCCNT\|cycle.count" src/*isr* && test -f test/isr-timing-report.md` | Auto-inject GPIO toggle instrumentation for scope measurement. |
+| E7 | Stack high-water marks <80% after 24h stress; all tasks >20% headroom | `grep "uxTaskGetStackHighWaterMark\|stack.*high.water" test/*.[ch] && test -f test/stack-report.csv` | Generate stack monitoring task. Auto-log watermark in CSV. |
+| E8 | I2C bus recovery tested; SPI signal integrity on scope at max clock | `grep -q "SCL.*pulse\|bus.*recover\|9.*clock" src/drivers/*i2c* && test -f test/scope-captures/spi-eye*` | Auto-inject I2C recovery pattern. Prompt for scope capture. |
+| E9 | Brown-out detection: 10% voltage margin, 50mV hysteresis; tested with programmable supply | `grep -q "BOR\|brown.out\|UVLO\|under.voltage" src/init* && test -f test/brownout-report.md` | Generate brown-out test procedure and config. |
+| E10 | Board revision detected at boot (GPIO strapping or EEPROM); firmware branches per rev | `grep -q "BOARD_REV\|board.*revision\|hw.*version" src/init*` | Auto-generate GPIO strapping config and revision enum. |
+| E11 | HIL 24h soak with randomized fault injection passes; zero manual resets | `test -f test/hil-24h-report.log && grep -c "PASS\|FAIL\|RESET" test/hil-24h-report.log` | Generate randomized fault injection test harness stub. |
+| E12 | OTA power-loss tested at every 10% of download; device always recovers | `test -f test/ota-powerloss-report.log && grep "10%\|20%\|30%\|...\|100%" test/ota-powerloss-report.log | wc -l | awk '{exit $1<10}'` | Generate OTA power-loss test script with percentage checkpoints. |
+| E13 | ADC calibrated at factory (min 3 temp points if internal VREF); validated vs reference | `test -f cal/adc-calibration.csv && grep -c "cal.point\|temp.*point" cal/adc-calibration.csv | awk '{exit $1<3}'` | Generate 3-point calibration routine with polynomial fit. |
+| E14 | FCC/CE/ISED pre-compliance scan: emissions within limits with 3dB margin | `test -f test/emc-precompliance-report.pdf && grep -q "margin.*3.*dB\|pass" test/emc-precompliance-report.*` | Generate EMC pre-compliance test plan and checklist. |
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s — who to talk to, when, what to share -->

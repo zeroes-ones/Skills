@@ -47,13 +47,15 @@ Financial planning and analysis for venture-backed startups. Build models that r
 
 ## Ground Rules — Read Before Anything Else
 
-These rules apply to **every** response this skill produces.
-
-- **Never project without drivers.** Every revenue and cost line item must tie to a verifiable driver (headcount, customer count, usage volume). "Revenue grows 20% because it grew 20% last year" is not FP&A — it's guessing.
-- **Model top-down AND bottom-up.** Top-down: TAM × penetration = revenue. Bottom-up: reps × quota × attainment = revenue. They must reconcile within 10%. If they don't, your assumptions are wrong.
-- **Cash is the only truth.** GAAP profit is an opinion; cash is fact. Always model cash flow separately from P&L. A company can be "profitable" on GAAP basis and still run out of cash due to AR timing or prepaid expenses.
-- **Show your work.** Every model cell must be traceable to its source assumption. If an investor or board member asks "where does this number come from?" and you can't answer in 5 seconds, the model fails.
-- **Scenario ≠ wishful thinking.** Your "upside case" must be plausible under specific, named conditions (e.g., "conversion improves from 3% to 5% due to new onboarding flow"). Never model "everything goes perfectly."
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| 1 | REFUSE to project revenue without named driver | `file_contains("*.xlsx\|*.csv\|model", "Revenue.*20%\|grows.*MoM")` AND NOT `file_contains("*", "headcount\|quota\|pipeline\|TAM")` | STOP. Ask: "What driver produces this revenue? Headcount × quota? Customer count × ARPU? Usage × pricing tier?" Retry only once driver is named. |
+| 2 | REFUSE single-method forecasting (top-down only or bottom-up only) | `file_contains("*", "TAM\|market size")` AND NOT `file_contains("*", "reps\|quota\|sales capacity")` | DETECT: Missing bottoms-up validation. STOP. Require: "Build bottoms-up [reps × quota × attainment] and reconcile to top-down within 10%." |
+| 3 | STOP if cash flow not modeled separately from P&L | `file_contains("*", "EBITDA\|net income\|P&L")` AND NOT `file_contains("*", "cash flow\|cash position\|ending cash")` | DETECT: P&L-only model. STOP. Require full 3-statement model with indirect-method cash flow from balance sheet. |
+| 4 | REFUSE black-box model cells (untraceable formulas) | Model cell references `=Sheet2!R[12]C[-2]` or INDIRECT() without supporting assumption tab | STOP. Require: "Every model output must trace to a labeled assumption in an Assumptions tab within 5 seconds of inspection." |
+| 5 | DETECT upside case without named catalyst | `file_contains("*", "upside\|bull case\|best case")` AND NOT `file_contains("*", "due to\|because\|catalyst\|triggered by")` | STOP. Require: "Name the specific condition that produces the upside (e.g., 'conversion improves from 3%→5% due to new onboarding'). Remove 'everything goes perfectly' scenarios." |
+| 6 | STOP if burn multiple drifts above 2.0x without action trigger | `file_contains("*", "burn multiple")` AND model shows burn_multiple > 2.0 over quarter | DETECT: Burn multiple alarm. STOP. Trigger: >2.0x → hiring freeze; >2.5x → expense audit; >3.0x → emergency board meeting. |
+| 7 | REFUSE to present model unreconciled to actuals | `file_contains("*", "forecast\|projection\|model")` AND NOT `file_contains("*", "actuals\|vs actual\|reconciliation\|budget vs")` | STOP. Require: "Reconcile model to last 12 months of actuals. Variance must be <5% on revenue and <10% on costs before presentation." |
 
 
 ## The Expert's Mindset
@@ -76,7 +78,24 @@ Master fp and a analysts understand that their domain is not about numbers or po
 - **Bend policy for the outlier.** Rules are for the 95%. The top 5% need exceptions — give them.
 - **Trust intuition when data is noisy.** If your gut says something is wrong, investigate even if the numbers look fine.
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.xlsx", "Revenue\|COGS\|EBITDA\|P&L\|Budget\|Forecast")` OR `file_contains("*.csv", "MRR\|ARR\|churn\|LTV\|CAC")` OR `file_contains("*.xlsm", "scenario\|sensitivity\|waterfall")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_contains("*.sql", "GL\|general_ledger\|trial_balance\|journal_entry")` OR `file_contains("*.csv", "debit\|credit\|reconciliation")` | Invoke **accountant** instead. |
+| A3 | `file_contains("*.xlsx\|*.csv", "cash balance\|bank account\|debt covenant\|wire\|FX exposure")` OR `file_exists("treasury/\|cash_forecast/")` | Invoke **treasury-manager** instead. |
+| A4 | `file_contains("*.pptx\|*.pdf", "board deck\|executive summary\|investor update")` AND `file_contains("*", "governance\|fiduciary\|committee")` | Invoke **board-manager** instead. |
+| A5 | `file_contains("*.xlsx", "cap table\|409A\|option pool\|dilution")` AND NOT `file_contains("*", "P&L\|revenue model\|headcount")` | Invoke **treasury-manager** — Cap Table Operations. |
+| A6 | `file_contains("*", "pitch deck\|fundraising\|data room\|investor Q&A")` AND `file_exists("investor_update*")` | Invoke **investor-relations** instead. |
+| A7 | `file_contains("*", "budget variance\|variance report\|budget vs actual\|spend analysis")` | Jump to **Decision Trees** — Budget Variance Diagnosis. |
+| A8 | `file_contains("*", "headcount plan\|org chart\|hiring plan\|FTE")` AND `file_contains("*", "salary\|comp\|fully loaded")` | Jump to **Core Workflow** — Phase 2: Headcount & OpEx. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 What are you trying to do?
 ├── Build a financial model
@@ -295,16 +314,16 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Building model top-down from revenue without bottoms-up headcount validation | Build both top-down revenue AND bottoms-up headcount — reconcile the two; revenue drives hiring, not vice versa |
-| Using best-month growth rate as forecast baseline | Use trailing 3-month or 6-month average for baseline growth; model bull/base/bear with probability weights |
-| Treating ARR as a single number without cohort decomposition | Break ARR into new logo, expansion, contraction, and churn — each has different growth/risk characteristics |
-| Presenting model outputs without reconciling to actuals first | Reconcile model vs. actuals for the last 12 months before any presentation — model must reproduce history within 5% |
-| Assuming constant gross margin as revenue scales | Model gross margin trajectory: hosting costs step-function at scale, support costs grow with customer count, payment processing scales linearly |
-| Using "fully loaded" cost per employee that excludes benefits, payroll tax, equipment, and facilities | Build fully loaded cost: salary + bonus + 7.65% payroll tax + $12-20K benefits + $5K equipment + $15-30K facilities — add 20% buffer |
-| Letting burn multiple drift above 2.0x without triggering action | Set hard triggers: burn multiple >2.0x → hiring freeze; >2.5x → expense audit; >3.0x → emergency board meeting |
-| Copying competitor SaaS metrics without verifying methodology | Always document methodology for every metric — "ARR growth" means different things at different companies; appendix with definitions is non-negotiable |
+| ❌ | ✅ | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|----|----|------------------------|------------------|
+| Building model top-down from revenue without bottoms-up headcount validation | Build both top-down revenue AND bottoms-up headcount — reconcile the two; revenue drives hiring, not vice versa | `grep -L "headcount\|FTE\|quota.*attainment" *.xlsx` → missing bottoms-up | Pre-flight: require at least one worksheet named "Headcount" or "FTE Plan" before allowing model submission |
+| Using best-month growth rate as forecast baseline | Use trailing 3-month or 6-month average for baseline growth; model bull/base/bear with probability weights | `grep -i "best month\|peak month\|record month" *` → single-month extrapolation | Auto-replace: `=AVERAGE(last_3_months)` not `=MAX(recent_months)` in growth assumptions |
+| Treating ARR as a single number without cohort decomposition | Break ARR into new logo, expansion, contraction, and churn — each has different growth/risk characteristics | `grep -L "cohort\|new logo\|expansion\|contraction\|churn" model*` → monolithic ARR | Require 4-column ARR bridge (new + expansion - contraction - churn) before any ARR projection |
+| Presenting model outputs without reconciling to actuals first | Reconcile model vs. actuals for the last 12 months before any presentation — model must reproduce history within 5% | `grep -v "actuals\|vs.*actual\|reconciliation\|budget.vs" *.xlsx` → no actuals comparison | Block output: if `|forecast - actual| / actual > 0.05` on any revenue line, refuse to present |
+| Assuming constant gross margin as revenue scales | Model gross margin trajectory: hosting costs step-function at scale, support costs grow with customer count, payment processing scales linearly | `grep -i "gross margin.*constant\|gross margin.*flat\|gross margin.*same" *` → static GM assumption | Enforce: gross margin must be a formula referencing customer count tier, not a constant |
+| Using "fully loaded" cost per employee that excludes benefits, payroll tax, equipment, and facilities | Build fully loaded cost: salary + bonus + 7.65% payroll tax + $12-20K benefits + $5K equipment + $15-30K facilities — add 20% buffer | `grep -P "cost.*per.*employee.*salary\b(?!.*benefit)" *` → salary-only headcount cost | Auto-multiply: all headcount cost cells ×1.30 minimum multiplier; flag if multiplier <1.25 |
+| Letting burn multiple drift above 2.0x without triggering action | Set hard triggers: burn multiple >2.0x → hiring freeze; >2.5x → expense audit; >3.0x → emergency board meeting | `grep -i "burn multiple" *` and cell value >2.0 → silent alarm | Conditional-format cell red if burn_multiple >2.0; auto-append "⚠️ HIRING FREEZE THRESHOLD" to any output with burn >2.0 |
+| Copying competitor SaaS metrics without verifying methodology | Always document methodology for every metric — "ARR growth" means different things at different companies; appendix with definitions is non-negotiable | `grep -i "compared to\|benchmark\|industry average" *` AND `grep -L "methodology\|definition\|appendix" *` → unverified comps | Append methodology footer to any benchmark output: "Definitions: ARR = [...]; NRR = [...]; Gross Margin = [...]" |
 
 ## Cross-Skill Coordination
 
@@ -362,39 +381,40 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error is a model failure that burned real cash -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Model doesn't balance (Assets ≠ Liabilities + Equity) | Working capital formula error or retained earnings not linked to P&L net income | Check: ΔRetained Earnings = Net Income (P&L) each period. Check: Cash = Prior Cash + Cash Flow Statement net change. Trace the plug line. | A broken model undermines every decision. Always verify retained earnings ties to net income. |
-| ARR per employee outside $100K-$300K range | Headcount ramped too fast relative to revenue, or revenue overstated | Audit: sales headcount vs. quota attainment. Check ARR includes only recurring subscription revenue. At seed stage, $50K-80K is normal. | Headcount growth must track revenue. Never hire more than one quarter ahead of proven demand. |
-| NRR > 120% consistently | Expansion includes non-recurring revenue, price increases double-counted, or churn understated | Recalculate: NRR = (starting cohort ARR + true expansion - true churn - downgrades) / starting cohort ARR. Exclude: one-time services, new product lines sold only to existing customers. | Metric inflation destroys credibility. Audit expansion revenue quarterly against industry-standard definitions. |
-| Cash runs out while P&L shows profit | Deferred revenue timing mismatch — you spent the cash from annual prepays before earning the revenue | Model: monthly cash flow from balance sheet, not P&L. Add line: "cash collected but not yet earned" = Δ Deferred Revenue. This is the GAAP-vs-cash bridge. | Cash is fact, profit is opinion. Deferred revenue timing is the #1 GAAP-vs-cash trap. |
-| Burn multiple spikes suddenly | Revenue growth slowed but burn stayed flat (hiring continued) | Freeze hiring until burn multiple < 2.0x. Model: what ARR growth is needed at current burn to get burn multiple < 1.5x? | Hiring freeze acts faster than growth acceleration. Act on burn multiple the quarter it spikes. |
-| EBITDA looks great but bank account is shrinking | Working capital drain: AR growing faster than revenue, inventory build, prepaid expenses | Audit: DSO trend (rising = collection problem), DPO trend (falling = paying vendors faster), prepaid balance (lumpy annual software contracts). | Working capital can kill a profitable company. Track DSO and DPO as closely as revenue. |
-| Fundraise dilution model shows 60%+ founder ownership after Series B | Assumed valuations too high relative to stage benchmarks | Check: pre-money / ARR multiple vs. market. Series A: 15-25x, Series B: 10-20x, Series C: 8-15x. Use median, not top-decile. | Unrealistic valuation assumptions mislead fundraising strategy. Always benchmark against actual market comps. |
-| Forecast missed by 40% due to wrong growth assumption | Assumed 15% MoM growth based on best month, not 3-month average | Use trailing 3-month average for baseline growth rate. Model 3 scenarios: base, upside, downside — with probability weights. | A Series A company modeled 15% MoM growth because December was a record month. January-March averaged 3%. Missed forecast cost them a bridge round. |
-| Budget variance not flagged until too late | No monthly variance review process — budget vs actual run only at quarter end | Implement monthly budget vs actual review within 5 business days of month-end. Flag any line >10% variance. Escalate >20% variances to CFO. | A marketing team spent 60% of annual budget in Q1 on a campaign that underperformed. By Q4, there was no budget left for critical demand gen. Monthly variance review would have caught this in February. |
-| Board presentation with unreconciled numbers | Model was updated without reconciling to actuals — board saw forward projections that contradicted historical financials | Every board deck must reconcile model to actuals before presentation. Include a "model vs actuals" bridge page. Have finance team sign off on numbers. | A CEO presented $12M ARR to the board; accounting showed $9.8M. The CEO used gross ARR (including churned accounts not yet removed). Trust was damaged and the board asked for external audit. |
-| Headcount model shows breakeven but company keeps burning | Fully loaded cost per employee understated by 30% (no benefits, payroll tax, equipment, or facilities cost included) | Build fully loaded cost per employee: salary + bonus + payroll tax (7.65% employer) + benefits ($12-20K/yr) + equipment ($5K/yr) + facilities ($15-30K/yr). Add 20% buffer. | A founder modeled breakeven at 50 people with $5K/mo per employee. Real cost was $8.5K/mo. At 50 people they were burning $175K/mo more than expected. |
-| Unit economics show positive but company loses money on every customer | Contribution margin calculated incorrectly — allocated S&M and G&A as variable costs | Contribution margin = revenue - direct variable costs (COGS + customer support + payment processing). S&M and G&A are period costs, not COGS. Gross margin + contribution margin are different metrics. | A marketplace startup claimed 80% gross margin and positive unit economics. Their "COGS" excluded payment processing, customer support, and refunds. Real contribution margin was -15%. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `#REF!` or `#VALUE!` in model cells | Model doesn't balance (Assets ≠ Liabilities + Equity) | Working capital formula error or retained earnings not linked to P&L net income | Check: ΔRetained Earnings = Net Income (P&L) each period. Check: Cash = Prior Cash + Cash Flow Statement net change. Trace the plug line. | **Loop 1:** (1) Trace `#REF!` to broken link → (2) Restore reference to source assumption → (3) Verify Assets = Liabilities + Equity → (4) If still broken, rebuild formula tree from P&L → Balance Sheet bridge |
+| `ARR / FTE < 100000` OR `ARR / FTE > 300000` | ARR per employee outside $100K-$300K range | Headcount ramped too fast relative to revenue, or revenue overstated | Audit: sales headcount vs. quota attainment. Check ARR includes only recurring subscription revenue. At seed stage, $50K-80K is normal. | **Loop 2:** (1) Compare actual headcount to model headcount → (2) Recalculate ARR excluding one-time revenue → (3) If >$300K: flag under-hiring risk → (4) If <$100K: trigger headcount audit with hiring freeze recommendation |
+| `NRR > 1.20` OR cell displays `120%+` | NRR > 120% consistently | Expansion includes non-recurring revenue, price increases double-counted, or churn understated | Recalculate: NRR = (starting cohort ARR + true expansion - true churn - downgrades) / starting cohort ARR. Exclude: one-time services, new product lines sold only to existing customers. | **Loop 3:** (1) Isolate expansion revenue by category → (2) Remove non-recurring items → (3) Recalculate NRR per SaaS-standard definition → (4) If still >120%: mark as "Verify with auditor" and footnote methodology |
+| `cash_balance < 0` while `net_income > 0` | Cash runs out while P&L shows profit | Deferred revenue timing mismatch — you spent the cash from annual prepays before earning the revenue | Model: monthly cash flow from balance sheet, not P&L. Add line: "cash collected but not yet earned" = Δ Deferred Revenue. This is the GAAP-vs-cash bridge. | **Loop 4:** (1) Rebuild indirect cash flow from balance sheet → (2) Add deferred revenue bridge row → (3) Verify ending cash = prior cash + net change → (4) If still negative: flag "Cash Crunch — see treasury-manager" and model 20% burn reduction |
+| `burn_multiple > 2.0` in any period | Burn multiple spikes suddenly | Revenue growth slowed but burn stayed flat (hiring continued) | Freeze hiring until burn multiple < 2.0x. Model: what ARR growth is needed at current burn to get burn multiple < 1.5x? | **Loop 5:** (1) Compare current quarter burn to prior quarter → (2) Isolate fixed vs. variable burn → (3) Calculate ARR gap to reach <1.5x → (4) Auto-generate "Hiring Freeze + Expense Audit" action plan if gap >20% of ARR |
+| `ebitda > 0` AND `cash_flow_from_ops < 0` | EBITDA looks great but bank account is shrinking | Working capital drain: AR growing faster than revenue, inventory build, prepaid expenses | Audit: DSO trend (rising = collection problem), DPO trend (falling = paying vendors faster), prepaid balance (lumpy annual software contracts). | **Loop 6:** (1) Calculate DSO, DPO, DIO → (2) Flag any >20% deterioration vs. prior quarter → (3) Build working capital waterfall → (4) If net working capital >30% of revenue: trigger AR collection acceleration and vendor payment deferral |
+| `dilution_model_shows_founder > 0.60 after Series B` | Fundraise dilution model shows 60%+ founder ownership after Series B | Assumed valuations too high relative to stage benchmarks | Check: pre-money / ARR multiple vs. market. Series A: 15-25x, Series B: 10-20x, Series C: 8-15x. Use median, not top-decile. | **Loop 7:** (1) Replace top-decile valuation with median → (2) Recalculate dilution through Series C → (3) If founder <40% at Series C: flag "governance risk — invoke board-manager" → (4) Output dilution waterfall with median and cautious scenarios |
+| `forecast_variance > 0.30` from actuals | Forecast missed by >30% due to wrong growth assumption | Assumed best-month growth rate instead of 3-month average | Use trailing 3-month average for baseline growth rate. Model 3 scenarios: base, upside, downside — with probability weights. | **Loop 8:** (1) Replace growth rate with trailing 3-month average → (2) Run 3-scenario model with probability weights → (3) Compare each scenario to actuals over prior 3 months → (4) Select scenario with lowest MAPE as new baseline |
+| `budget_variance > 0.10` AND `review_date > last_day_of_month + 5` | Budget variance not flagged until too late | No monthly variance review process — budget vs actual run only at quarter end | Implement monthly budget vs actual review within 5 business days of month-end. Flag any line >10% variance. Escalate >20% variances to CFO. | **Loop 9:** (1) Check if current date > month-end + 5 business days → (2) If yes and no variance report exists: auto-generate variance report → (3) Flag all lines with >10% variance → (4) Auto-email: "[Line Item] variance: [X]% — review required within 24 hours" |
+| `board_metrics != accounting_metrics` (reconciliation fail) | Board presentation with unreconciled numbers | Model was updated without reconciling to actuals — board saw forward projections that contradicted historical financials | Every board deck must reconcile model to actuals before presentation. Include a "model vs actuals" bridge page. Have finance team sign off on numbers. | **Loop 10:** (1) Compare board deck ARR/EBITDA to latest accounting close → (2) Build bridge: model output vs. accounting actual → (3) If variance >2%: block deck distribution → (4) Require CFO sign-off before release |
+| `fully_loaded_cost_per_fte < base_salary * 1.20` | Headcount model shows breakeven but company keeps burning | Fully loaded cost per employee understated by 30% (no benefits, payroll tax, equipment, or facilities cost included) | Build fully loaded cost per employee: salary + bonus + payroll tax (7.65% employer) + benefits ($12-20K/yr) + equipment ($5K/yr) + facilities ($15-30K/yr). Add 20% buffer. | **Loop 11:** (1) Check multiplier on all headcount costs → (2) If any FTE line uses multiplier <1.25: auto-replace with 1.30 → (3) Recalculate total burn → (4) Compare new burn to revenue — flag if >20% delta from original model |
 
 
 ## Production Checklist
 <!-- QUICK: 30s — all must pass before presenting to anyone -->
 
-- [ ] **[S1]** Revenue model has both top-down AND bottom-up build — they reconcile within 10%
-- [ ] **[S2]** Every cost line traces to a driver (headcount, customer count, usage) — no flat % growth assumptions
-- [ ] **[S3]** Cash flow statement built from balance sheet (indirect method), not P&L — ending cash ties to balance sheet cash
-- [ ] **[S4]** Headcount costs are fully loaded: salary × 1.25-1.35× for benefits + taxes + equipment + software
-- [ ] **[S5]** SaaS metrics calculated using SaaS-industry-standard formulas — no custom definitions
-- [ ] **[S6]** Three scenarios modeled: base, upside (specific catalyst), downside (specific risk) — not "everything +/- 10%"
-- [ ] **[S7]** Fundraise model includes: use of funds waterfall, dilution path through next 2 rounds, option pool refresh
-- [ ] **[S8]** Sensitivity tables on at least 2 key drivers (CAC + churn, or growth + burn)
-- [ ] **[S9]** Board financials fit on one printed page: revenue waterfall, KPI dashboard, cash + runway, headcount
-- [ ] **[S10]** Model is version-controlled with date in filename — not `_vFinal_FINAL`
-- [ ] **[S11]** Peer benchmarks included: gross margin, opex ratios, ARR/FTE vs. public SaaS comps
-- [ ] **[S12]** Deferred revenue modeled separately — cash collected ≠ GAAP revenue (ASC 606)
-- [ ] **[S13]** Gross margin split by product line if multiple revenue streams exist
-- [ ] **[S14]** Runway shown in months at current burn AND at 20% burn reduction scenario
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Revenue model has both top-down AND bottom-up build — reconcile within 10% | `grep -L "top.down\|bottom.up\|TAM\|quota" model*` → missing dual build | Auto-append "⚠️ Missing dual method — add bottoms-up [reps × quota × attainment] tab" |
+| S2 | Every cost line traces to a driver (headcount, customer count, usage) — no flat % growth | `grep -P "cost.*\d+%.*growth\|grows.*\d+%(?!.*headcount\|customer\|usage)" model*` → driverless cost | Auto-replace: insert "DRIVER: [specify]" comment on any flat-% cost line |
+| S3 | Cash flow statement built from balance sheet (indirect method), not P&L — ending cash ties to balance sheet cash | `grep -L "indirect\|cash flow.*from.*balance\|Δ.*working capital" model*` → P&L-only cash flow | Auto-insert indirect cash flow bridge sheet with ΔAR, ΔAP, ΔDeferred Revenue rows |
+| S4 | Headcount costs fully loaded: salary × 1.25-1.35× for benefits + taxes + equipment + software | `grep -P "headcount.*cost.*\d{4,}(?!.*1\.[2-9])" model*` → salary-only headcount cost | Auto-multiply all headcount cells ×1.30; flag cells where multiplier <1.25 |
+| S5 | SaaS metrics calculated using SaaS-industry-standard formulas — no custom definitions | `grep -i "ARR\|NRR\|LTV\|CAC" *` AND missing `grep -i "ARR = \|NRR = \|definition" *` | Auto-append methodology appendix: "ARR = annualized GAAP subscription revenue; NRR = (start + expansion - churn - downgrade)/start" |
+| S6 | Three scenarios modeled: base, upside (specific catalyst), downside (specific risk) | `ls *scenario* *case* 2>/dev/null \| wc -l` < 3 → insufficient scenarios | Auto-generate 3-tab scenario workbook: Base (50% weight), Upside (25% with named catalyst), Downside (25% with named risk) |
+| S7 | Fundraise model includes: use of funds waterfall, dilution path through next 2 rounds, option pool refresh | `grep -L "use of funds\|dilution\|option pool" fundraise*` → incomplete fundraise model | Auto-add: use of funds tab, dilution waterfall through Series C, option pool refresh row |
+| S8 | Sensitivity tables on at least 2 key drivers (CAC + churn, or growth + burn) | `grep -L "sensitivity\|data table\|what.if" model*` → no sensitivity analysis | Auto-generate 2-way data table: rows=CAC (80%-120%), cols=churn (80%-120%), output=ARR at Year 3 |
+| S9 | Board financials fit on one printed page: revenue waterfall, KPI dashboard, cash + runway, headcount | `file_exists("board_deck*")` → check page count > 1 for financials section | Auto-consolidate: revenue waterfall + KPI dashboard + cash/runway + headcount into single-page executive summary |
+| S10 | Model is version-controlled with date in filename — not `_vFinal_FINAL` | `ls model* \| grep -v "[0-9]\{4\}-[0-9]\{2\}"` → unversioned or ambiguous version | Auto-rename: `model_v7.xlsx` → `model_2026-07-23.xlsx` with ISO date stamp |
+| S11 | Peer benchmarks included: gross margin, opex ratios, ARR/FTE vs. public SaaS comps | `grep -L "benchmark\|peer\|comparable\|comp set" model*` → no benchmark data | Auto-append benchmark table with public SaaS comp quartiles for gross margin, opex %, ARR/FTE |
+| S12 | Deferred revenue modeled separately — cash collected ≠ GAAP revenue (ASC 606) | `grep -L "deferred revenue\|ASC 606\|unearned revenue\|cash collected" model*` → missing deferred rev | Auto-add deferred revenue schedule: cash collected this period, revenue recognized, Δ deferred balance |
+| S13 | Gross margin split by product line if multiple revenue streams exist | `grep "revenue.*stream\|product.*line" *` AND `grep -L "gross margin.*by product\|GM.*split" *` → missing product-level GM | Auto-pivot: add product-line gross margin breakdown if >1 revenue stream detected |
+| S14 | Runway shown in months at current burn AND at 20% burn reduction scenario | `grep -L "runway.*months\|cash.*runway\|months.*cash" model*` → missing runway calc | Auto-calculate: runway_months_current = cash / monthly_burn; runway_months_reduced = cash / (burn × 0.80) |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 

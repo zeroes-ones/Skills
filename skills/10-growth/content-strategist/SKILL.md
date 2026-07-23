@@ -28,8 +28,25 @@ chain:
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("editorial-calendar.*", "publish_date\|assigned_to")` OR `file_exists("content-calendar.csv")` | Editorial calendar is active. Jump to **Sub-Skills > Editorial Calendar Design**. |
+| A2 | `file_exists("content-inventory.csv")` OR `file_contains("content-inventory.*", "page_url\|traffic\|status")` | Content inventory detected. Jump to **Sub-Skills > Content Audit & Inventory**. |
+| A3 | `file_exists("tone-of-voice.md")` OR `file_exists(".vale.ini")` | Tone-of-voice guidelines exist. Jump to **Sub-Skills > Tone-of-Voice & Style Guidelines**. |
+| A4 | `file_contains("topic-cluster.*", "pillar_page\|cluster_page")` OR `file_exists("keyword-map.*")` | Topic cluster architecture in play. Jump to **Sub-Skills > Topic Cluster Architecture**. |
+| A5 | `file_exists("content-brief-template.md")` OR `file_contains("content-brief.*", "target_audience\|conversion_goal")` | Content production pipeline active. Jump to **Core Workflow > Phase 1**. |
+| A6 | `file_contains("dashboard.*", "content_pipeline\|traffic_by_page")` OR `file_exists("content-performance-dashboard.*")` | Performance tracking active. Jump to **Sub-Skills > Content ROI Measurement**. |
+| A7 | `file_exists("repurposing-workflow.md")` OR `file_contains(".*", "repurpos.*workflow\|format_adaptation")` | Repurposing workflow exists. Jump to **Sub-Skills > Content Repurposing**. |
+| A8 | `file_exists("cms-config.*")` OR `file_contains("cms.*", "content_model\|publish_workflow")` | CMS/content ops infrastructure detected. Jump to **Core Workflow > Phase 2**. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+```
 What are you trying to do?
 ├── Content planning (pillars, personas, workflows)
 │   ├── New content program → Start at "Core Workflow > Phase 1"
@@ -47,22 +64,25 @@ What are you trying to do?
 ├── Tone of voice guidelines
 │   └── Inconsistent brand voice → Go to "Sub-Skills > Tone-of-Voice & Style Guidelines"
 ├── Cross-skill: Coordinate content-keyword strategy with `seo-specialist` → Open that skill
-├── Cross-skill: Involve `devrel-advocate` for developer tutorials and technical content → Open that skill
+├── Cross-skill: Involve `devrel-advocate` for developer tutorials → Open that skill
 ├── Cross-skill: Align campaign content with `marketing-manager` → Open that skill
-└── Don't know where to start? → Start at "Core Workflow > Phase 1"
-
+└── Not sure? → Describe the problem in plain language and I'll route you
+```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
 
 These rules apply to *every* response this skill produces.
 
-- **Never recommend content without audience research.** Every content piece needs evidence of who it serves and why.
-- **Every content piece needs a measurable goal.** If you can't define what success looks like, don't recommend creating it.
-- **Content calendar dates without capacity planning are wishful thinking.** Always pair deadlines with a realistic estimate of writer/editor hours.
-- **Tone of voice must match real brand values, not aspirational ones.** If the brand says "bold" but writes like a bank, fix the brand values, not the copy.
-- **Always anchor recommendations in data.** Cite traffic, engagement, or conversion data — never rely on "best practice" alone.
-- **Admit what you don't know.** If you haven't seen audience research or performance data, say so before recommending content direction.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to recommend content without audience persona evidence** | Trigger: User says "what content should we create?" or "build a content plan" without attaching persona doc, ICP definition, or audience research | STOP. Respond: "I need audience research before recommending content direction. Share your persona document or ICP definition — who is the target reader and what job do they need done? I'll help you build personas first if needed." |
+| **R2** | **REFUSE to add items to editorial calendar without writer capacity estimate** | Trigger: User says "schedule this" or "add to calendar" without providing `estimated_hours` or `assigned_to` | STOP. Respond: "What's the estimated writer/editor capacity for this piece? A calendar without hours-per-piece is a wish list. I need `assigned_to` and `estimated_hours` before scheduling." |
+| **R3** | **REFUSE to enforce tone-of-voice against aspirational brand values that contradict observed writing** | Trigger: User provides brand values (e.g., "bold, innovative") but writing samples show opposite style (formal, cautious) | DETECT. Respond: "These brand values don't match the writing samples. 'Bold' and 'innovative' aren't visible in the actual copy. Let's either update the values to match reality or rewrite the samples before we enforce guidelines the team can't follow." |
+| **R4** | **REFUSE to cite "best practice" as sole justification without performance data** | Trigger: User asks "what's best practice for blog frequency/CTAs/headline length?" without sharing their own data | DETECT. Respond: "Instead of generic best practice, I'd rather anchor recommendations to your data. Share your content performance dashboard or analytics and I'll prescribe based on what's working for your specific audience." |
+| **R5** | **STOP if >30% of recommended content in a plan has no conversion goal mapped** | Trigger: Content plan has 10+ pieces but fewer than 7 have `journey_stage` or `conversion_goal` fields populated | STOP. Respond: "I count {n} pieces without a conversion goal in this plan. Every content piece must map to a funnel stage (TOFU/MOFU/BOFU) and a measurable outcome. Let me add conversion goals before we finalize — content without an outcome is noise." |
+| **R6** | **DETECT content debt >20% of inventory and block net-new creation** | Trigger: Content audit reveals >20% of published pages driving zero organic traffic for 6+ consecutive months | DETECT. Flag loudly: "Your inventory has {n} zombie pages ({pct}% of total) generating zero traffic for 6+ months. Schedule a cleanup sprint — merge, refresh, or deprecate — before creating anything new. Dead content drags down your site's overall quality signal." |
+| **R7** | **REFUSE to publish content without a documented target keyword cluster** | Trigger: Content brief submitted for review without `keyword_cluster` or `primary_keyword` field populated | STOP. Respond: "This content piece has no keyword target. Every piece must map to a documented keyword cluster — otherwise it's competing blind. Share the keyword research before I review the content." |
 
 
 ## The Expert's Mindset
@@ -306,16 +326,16 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Building an editorial calendar from keyword targets alone without writer capacity planning | Schedule only what your team can actually produce — one great post beats four rushed posts; map every assignment to a named writer with estimated hours |
-| Publishing all content at top-of-funnel (awareness) with no consideration or decision-stage content | Balance 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert); every piece needs a conversion goal tied to funnel stage |
-| Letting content accumulate as digital debt — 80% of posts from 2 years ago drive zero traffic but remain published | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete; merge thin posts; 301 redirect consolidated pages |
-| Repurposing content by copy-pasting the same text across platforms without format adaptation | Tailor each format to its platform: blog → Twitter thread (bite-sized takeaways), LinkedIn (professional narrative with opinion), video (visual demo) |
-| Letting multiple writers use their own style with no tone-of-voice guidelines — brand sounds like different companies | Create 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples; enforce via editorial review checklist; use Vale linter |
-| Publishing content because "we haven't posted this week" without a documented content mission or audience need | Every piece maps to a documented customer journey stage, target keyword cluster, and measurable conversion goal — no content for content's sake |
-| Treating content ROI as "pageviews" without connecting to pipeline or revenue | Track content-sourced and content-influenced pipeline; attribute to revenue, not traffic; multi-touch attribution when possible |
-| Ignoring content that is already performing — always creating new instead of optimizing existing | Before creating new content, refresh top-performing posts with updated data, better depth, more internal links — a refreshed post compounds faster than a new one |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| Building editorial calendar from keyword targets alone without writer capacity planning | Schedule only what your team can actually produce — one great post beats four rushed posts; map every assignment to a named writer with estimated hours | `grep -c "TBD\|\"\"\|unassigned" editorial-calendar.*` → >0 unassigned entries | Calendar template requires `assigned_to` and `estimated_hours` fields; reject entries with null values at input |
+| Publishing all content at top-of-funnel (awareness) with no consideration or decision-stage content | Balance 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert); every piece needs a conversion goal tied to funnel stage | `grep -o "TOFU\|MOFU\|BOFU" content-plan.* \| sort \| uniq -c` → if TOFU >60%, flag imbalance | Content tracker enforces funnel-stage distribution; warn when any single stage exceeds 50% of queue |
+| Letting content accumulate as digital debt — 80% of posts from 2 years ago drive zero traffic but remain published | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete; merge thin posts; 301 redirect consolidated pages | `grep "last_updated.*202[0-4]" content-inventory.* \| wc -l` → stale count >30% of inventory | Automated stale-content scanner: pages >18 months old with <10 visits/quarter auto-tagged for review sprint |
+| Repurposing content by copy-pasting the same text across platforms without format adaptation | Tailor each format to its platform: blog → Twitter thread (bite-sized takeaways), LinkedIn (professional narrative with opinion), video (visual demo) | `diff blog-post.md twitter-thread.md \| grep "^>" \| wc -l` → <50% structural difference indicates copy-paste | Repurposing checklist gate: must answer "How does this format differ from source material?" before publish; block if similarity >60% |
+| Letting multiple writers use their own style with no tone-of-voice guidelines — brand sounds like different companies | Create 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples; enforce via editorial review checklist; use Vale linter | `vale --config .vale.ini content/ \| grep -c "warning\|error"` → >0 violations detected | Vale linter in CI pipeline; PR merge blocked if tone violations detected; weekly brand voice audit across all channels |
+| Publishing content because "we haven't posted this week" without a documented content mission or audience need | Every piece maps to a documented customer journey stage, target keyword cluster, and measurable conversion goal — no content for content's sake | `grep -L "journey_stage\|keyword_cluster\|conversion_goal" content/*.md` → files missing required metadata | CMS publish button disabled until `journey_stage`, `keyword_cluster`, and `conversion_goal` fields are populated |
+| Treating content ROI as "pageviews" without connecting to pipeline or revenue | Track content-sourced and content-influenced pipeline; attribute to revenue, not traffic; multi-touch attribution when possible | `grep -L "pipeline_influence\|revenue_attributed" dashboard-config.*` → dashboard missing pipeline columns | Dashboard template requires pipeline-attribution columns; pageviews-only dashboards rejected at config review |
+| Ignoring content that is already performing — always creating new instead of optimizing existing | Before creating new content, refresh top-performing posts with updated data, better depth, more internal links — a refreshed post compounds faster than a new one | `grep "traffic_change.*-\[2-9\]\[0-9\]%" performance-report.*` → declining high-performers detected | Automated decline alert: pages dropping >20% organic traffic over 90 days auto-queued for refresh sprint before any net-new content creation |
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
@@ -447,31 +467,34 @@ Run skills in the order shown:
 <!-- DEEP: 10+min -->
 ## Error Decoder
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Content calendar has 30 scheduled posts but only 5 were published this quarter | Calendar was built from keyword targets alone without writer capacity planning -- each post needs 8 hours of research, writing, and editing | Reduce to 10 posts per quarter with confirmed writer assignments. Add buffer: plan for 2 weeks of editing per post. Track capacity, not just deadlines. | A content calendar without capacity planning is a wish list, not a plan. Schedule only what your team can actually produce. Priority: one great post beats four rushed posts. |
-| Blog traffic dropped 50% after 6 months of consistent publishing | All content was written for top-of-funnel keywords (awareness) -- no consideration or decision-stage content to capture readers ready to convert | Map every upcoming piece to a funnel stage. Balance: 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert). Add CTAs that match intent at each stage. | Content that generates traffic but not conversions is content marketing theater. Map every piece to the buyer journey and give it a conversion goal. Content without an outcome is noise. |
-| Content audit found 80% of posts from 2 years ago still published but driving zero traffic | No content refresh or deprecation process -- pages accumulate like digital debt, diluting site authority with thin content | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete. Merge thin posts into comprehensive resources. 301 redirect consolidated pages. | Content debt compounds. Old, thin pages drag down your site's overall quality signal. Schedule quarterly audits before you have 200+ pages of dead content. |
-| Repurposing existing content generated almost no engagement despite heavy promotion | Repurposed content was a direct copy-paste of the original blog post into a LinkedIn article -- no format adaptation for the platform | Tailor each format to its platform: blog becomes Twitter thread (bite-sized takeaways), blog becomes LinkedIn (professional narrative with opinion), blog becomes video (visual demo). | Repurposing is not copy-pasting -- it is reformatting for the medium. Each platform has its own content grammar. Respect it. One piece of research should yield 5 platform-native outputs. |
-| Brand voice is inconsistent across blog, newsletter, and social media | No tone-of-voice guidelines existed -- each writer used their own style, and the brand sounded like 3 different companies | Create a 1-page tone-of-voice guide: 3 brand voice attributes with do/do not examples. Enforce via editorial review checklist and Vale linter in CI. | Tone of voice inconsistency erodes brand trust faster than grammatical errors. A 1-page guide enforced in review prevents brand schizophrenia. Writers want guardrails -- give them some. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `calendar.compliance: assigned_to=NULL for 17 of 30 entries` | Content calendar has 30 scheduled posts but only 5 were published this quarter | Calendar was built from keyword targets alone without writer capacity planning — each post needs 8 hours of research, writing, and editing | Reduce to 10 posts per quarter with confirmed writer assignments. Add buffer: plan for 2 weeks of editing per post. Track capacity, not just deadlines. | 1. Reject calendar entries with null `assigned_to` → 2. Auto-shrink calendar to match confirmed writer capacity → 3. Weekly capacity audit: if slip >2 weeks, cut 25% of remaining quarter's volume → 4. Alert editor with capacity-vs-commitments report |
+| `funnel.distribution: TOFU=85% MOFU=10% BOFU=5%` | Blog traffic dropped 50% after 6 months of consistent publishing | All content was written for top-of-funnel keywords (awareness) — no consideration or decision-stage content to capture readers ready to convert | Map every upcoming piece to a funnel stage. Balance: 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert). Add CTAs that match intent at each stage. | 1. Run funnel distribution audit monthly via `grep` on content metadata → 2. Flag if any stage <15% of total → 3. Auto-reject new TOFU pieces until MOFU/BOFU catch up → 4. Rebalance queue with conversion-goal-weighted prioritization |
+| `inventory.stale: 142 of 178 pages with traffic=0 for 6+ consecutive months` | Content audit found 80% of posts from 2 years ago still published but driving zero traffic | No content refresh or deprecation process — pages accumulate like digital debt, diluting site authority with thin content | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete. Merge thin posts into comprehensive resources. 301 redirect consolidated pages. | 1. Automated stale-content scan runs monthly → 2. Auto-tag pages with 0 traffic for 6 months → 3. Generate cleanup sprint ticket with page list → 4. Block net-new content creation if stale ratio >30% of inventory → 5. Require cleanup completion before unlocking new content pipeline |
+| `repurpose.diff: source_vs_output_similarity=94%` | Repurposing existing content generated almost no engagement despite heavy promotion | Repurposed content was a direct copy-paste of the original blog post into a LinkedIn article — no format adaptation for the platform | Tailor each format to its platform: blog becomes Twitter thread (bite-sized takeaways), blog becomes LinkedIn (professional narrative with opinion), blog becomes video (visual demo). | 1. Pre-publish diff check: compute structural similarity between source and output → 2. Require >40% content difference → 3. Block publish if similarity >60% → 4. Flag for format-specific adaptation checklist → 5. Track engagement per repurposed format; kill formats with <1% engagement rate |
+| `tone.consistency: 3 distinct brand voices detected across 12 recent pieces (variance >2σ from baseline)` | Brand voice is inconsistent across blog, newsletter, and social media — audience asks "did someone else write this?" | No tone-of-voice guidelines existed — each writer used their own style, and the brand sounded like 3 different companies | Create a 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples. Enforce via editorial review checklist and Vale linter in CI. | 1. Vale lint on every PR → 2. Block merge if tone violations detected → 3. Weekly brand voice audit across all channels → 4. Flag writers with >3 violations per piece for coaching → 5. Re-baseline voice model quarterly as brand evolves |
 
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Content mission statement is documented and visible to all content creators
-- [ ] **[S2]**  Topic cluster map exists with pillar pages and cluster relationships defined
-- [ ] **[S3]**  Editorial calendar covers next 90 days with assignments, deadlines, and distribution plan
-- [ ] **[S4]**  Content brief template is standardized and used for every assigned piece
-- [ ] **[S5]**  Tone of voice guidelines are published and include do/don't examples for each voice attribute
-- [ ] **[S6]**  Review workflow is defined with SLAs per stage and tracked
-- [ ] **[S7]**  Content inventory is maintained with status, owner, last-updated, and performance data
-- [ ] **[S8]**  Quarterly content audit process is in place — identifies gaps, refreshes, consolidations, and deletions
-- [ ] **[S9]**  Content performance dashboard shows funnel-stage metrics and month-over-month trends
-- [ ] **[S10]**  Keyword cannibalization is monitored and addressed within each content cluster
-- [ ] **[S11]**  All published content has structured data (Article, HowTo, or FAQ schema as applicable)
-- [ ] **[S12]**  Internal linking strategy is enforced — every new post links to pillar page and 3+ relevant cluster posts
-- [ ] **[S13]**  Accessibility baseline met: proper heading hierarchy, alt text, sufficient color contrast in embedded graphics
-- [ ] **[S14]**  Content refresh triggers are automated: pages dropping >20% traffic over 90 days flagged for review
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **S1** | Content mission statement is documented and visible to all content creators | `grep -c "content.mission\|mission.statement" content-mission.md \|\| echo "MISSING"` → must return ≥1 | Generate mission-statement template from persona docs and ICP; gate: publish pipeline blocked until mission doc exists |
+| **S2** | Topic cluster map exists with pillar pages and cluster relationships defined | `grep -c "pillar_page\|cluster_page" topic-cluster-map.*` → must return ≥3 cluster relationships | Validate cluster relationships are bidirectional (pillar↔cluster cross-links); flag orphan cluster pages with no pillar parent |
+| **S3** | Editorial calendar covers next 90 days with assignments, deadlines, and distribution plan | `python -c "import csv; from datetime import date,timedelta; rows=list(csv.DictReader(open('calendar.csv'))); cutoff=date.today()+timedelta(days=90); print(sum(1 for r in rows if r.get('date','')>=str(cutoff)))"` → must return ≥ planned count | Auto-shrink calendar to match confirmed writer capacity if unassigned entries >20%; notify editor of gap |
+| **S4** | Content brief template is standardized and used for every assigned piece | `grep -L "target_audience\|keyword_cluster\|conversion_goal" briefs/*.md` → must return empty (no incomplete briefs) | CMS enforces brief template fields; publish blocked if any required field is empty |
+| **S5** | Tone of voice guidelines are published and include do/don't examples for each voice attribute | `vale --config .vale.ini --minAlertLevel warning content/ \| grep -c "warning"` → must return 0 | PR merge blocked if Vale tone violations detected; auto-suggest corrections inline |
+| **S6** | Review workflow is defined with SLAs per stage and tracked | `grep -c "sla_hours\|stage_duration\|review_deadline" review-workflow.*` → must return ≥3 SLA definitions | Auto-escalate reviews exceeding SLA by 2x to next-level editor; notify content lead |
+| **S7** | Content inventory is maintained with status, owner, last-updated, and performance data | `wc -l < content-inventory.csv` → must be ≥ number of published pages | Auto-populate inventory from CMS API weekly; flag rows with missing `owner` or `last_updated` fields |
+| **S8** | Quarterly content audit process is in place — identifies gaps, refreshes, consolidations, and deletions | `find . -name "audit-*" -mtime -90 \| wc -l` → must return ≥1 recent audit | Generate audit ticket automatically on first day of each quarter; block net-new content if stale ratio >30% with no active cleanup sprint |
+| **S9** | Content performance dashboard shows funnel-stage metrics and month-over-month trends | `curl -s https://dashboard-api/metrics \| jq '.funnel_stages \| length'` → must return ≥3 stages | Auto-configure funnel-stage filters from content metadata; alert if dashboard query returns <3 distinct stages |
+| **S10** | Keyword cannibalization is monitored and addressed within each content cluster | `grep -c "cannibaliz\|duplicate_target" seo-audit-report.*` → must return ≥0 with no unresolved flags | Weekly cannibalization scan via GSC API; auto-flag clusters with >1 page targeting same primary keyword; generate merge ticket |
+| **S11** | All published content has structured data (Article, HowTo, or FAQ schema as applicable) | `curl -s https://site.com/page \| grep -c 'application/ld+json'` → must return ≥1 per page | CI pipeline validates JSON-LD presence on every page template; deploy blocked if Article/HowTo/FAQ page missing schema |
+| **S12** | Internal linking strategy is enforced — every new post links to pillar page and 3+ relevant cluster posts | `grep -oP 'href="/[^"]*"' new-post.md \| wc -l` → must return ≥4 internal links (pillar + 3 cluster) | Pre-publish check: require ≥1 pillar link + ≥3 cluster links; block publish if insufficient; suggest relevant pages from inventory |
+| **S13** | Accessibility baseline met: proper heading hierarchy, alt text, sufficient color contrast in embedded graphics | `pa11y-ci --sitemap https://site.com/sitemap.xml 2>&1 \| grep -c "error"` → must return 0 | Block publish if a11y errors detected on content pages; auto-flag for remediation with specific element references |
+| **S14** | Content refresh triggers are automated: pages dropping >20% traffic over 90 days flagged for review | `grep "traffic_drop.*>20%" alerts-config.* \| wc -l` → must return ≥1 active alert rule | Auto-create refresh ticket when organic traffic drops >20% in 90 days; assign to content owner; escalate if untouched for 14 days |
 
 ## MVP vs Growth vs Scale
 

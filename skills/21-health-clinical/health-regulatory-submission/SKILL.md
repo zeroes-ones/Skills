@@ -36,27 +36,51 @@ output:
 Navigate FDA medical device regulation for software — determine if your health app is a medical device, classify it, choose the right regulatory pathway, and prepare pre-submission materials. Covers FDA SaMD framework, 510(k), De Novo, PMA, EU MDR/IVDR, and global harmonization.
 
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
+<!-- QUICK: 30s — auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*", "510\(k\)\|De.Novo\|PMA\|premarket.notification\|FDA.submission")` | This is your skill. Jump to **Core Workflow** — Phase 3 (510(k) vs De Novo vs PMA). |
+| A2 | `file_contains("*", "intended.use\|indications.for.use\|general.wellness\|medical.device.determination")` | Jump to **Core Workflow** — Phase 1 (Is This a Medical Device?). |
+| A3 | `file_contains("*", "CDS\|clinical.decision.support\|opaque\|transparent\|FDA.*guidance.*2022")` | Jump to **Decision Trees** — Clinical Decision Support. |
+| A4 | `file_contains("*", "EU.MDR\|CE.mark\|Notified.Body\|IVDR\|ISO.13485")` | Jump to **Core Workflow** — Phase 5 (EU MDR/IVDR). |
+| A5 | `file_contains("*", "predicate.device\|substantial.equivalence\|SE")` AND `file_contains("*", "510\(k\)\|clearance")` | Jump to **Decision Trees** — Predicate Selection. |
+| A6 | `file_contains("*", "Breakthrough.Device\|De.Novo\|novel\|no.predicate")` | Jump to **Decision Trees** — Breakthrough Designation. |
+| A7 | `file_contains("*", "IEC.62304\|software.documentation\|SRS\|SDS\|traceability")` | Jump to **Core Workflow** — Phase 2 (SaMD Documentation). |
+| A8 | `file_contains("*", "clinical.evaluation\|clinical.evidence\|PMCF\|PMS\|post.market")` | Jump to **Core Workflow** — Phase 4 (Clinical Evidence Planning). |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 ```
 Request: "Is my health app regulated by FDA?"
 ├── ...it tracks symptoms/conditions? → Jump to Phase 1 (Is This a Medical Device?)
-├── ...it suggests treatments? → Jump to Decision Tree → Clinical Decision Support
-├── ...it's for patient community + education only? → Jump to Decision Tree → General Wellness
+├── ...it suggests treatments? → Jump to Decision Tree — Clinical Decision Support
+├── ...it's for patient community + education only? → Jump to Decision Tree — General Wellness
 ├── ...I need to submit to FDA? → Jump to Phase 3 (510(k) vs De Novo vs PMA)
 ├── ...we're launching in EU too? → Jump to Phase 5 (EU MDR/IVDR)
 └── Not sure?
     → The "Is This a Medical Device?" decision tree is always the first step.
 ```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
-<!-- STANDARD: 3min -->
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-1. **FDA regulates based on INTENDED USE, not technical capability.** If your marketing says "helps manage diabetes" — you're a medical device. If you say "tracks wellness" but the algorithm detects arrhythmias — you're a medical device. Claims matter more than code.
-2. **Clinical Decision Support (CDS) software is regulated if it's opaque.** FDA's 2022 CDS Guidance: software that uses patient-specific data to generate a specific treatment recommendation (and the user can't independently review the basis) = medical device. Transparent, non-automated CDS = not regulated.
-3. **General wellness = low risk, narrow lane.** "Helps you live healthier" is general wellness. "Helps manage your hemophilia treatment" is a medical device. The line is disease/condition-specific claims.
-4. **Enforcement discretion ≠ legal exemption.** FDA may exercise enforcement discretion for certain low-risk devices (e.g., mobile apps that automate simple medical calculations). This can change with new guidance. Plan for regulation even if currently exempt.
-5. **EU MDR is stricter than FDA for software.** Many apps exempt from FDA regulation are Class I or higher under EU MDR. If you have EU users, plan for MDR from day one.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
+
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to classify a device without an intended use statement.** FDA regulates based on INTENDED USE, not technical capability. Classification without reviewing exact marketing claims and labeling is premature and dangerous. | Trigger: generated output contains `Class.I\|Class.II\|Class.III\|classification` AND `grep -rn "intended.use\|indications.for.use\|labeling\|marketing.claim" --include="*.md"` returns 0 results | STOP. Respond: "I cannot classify this device without reviewing the intended use statement. FDA regulates based on what you CLAIM the device does, not what the code can do. Share the exact intended use statement, marketing claims, and labeling. Classification without claims review is regulatory malpractice." |
+| **R2** | **REFUSE to claim 'general wellness' exemption without confirming no disease-specific claims.** "Helps you live healthier" is general wellness. "Helps manage your diabetes" is a medical device. The line is disease/condition-specific claims. | Trigger: generated output contains `general.wellness\|wellness.exemption\|not.regulated` AND `file_contains("*", "diabetes\|cancer\|asthma\|hemophilia\|condition\|disease\|treatment")` | STOP. Respond: "This product references disease-specific conditions. General wellness exemption only applies to products that do NOT reference specific diseases or conditions. The presence of [specific condition] means this likely requires FDA regulatory determination. Do not claim wellness exemption." |
+| **R3** | **REFUSE to select a 510(k) predicate without verifying same intended use.** Your predicate must have the SAME intended use. Different intended use = different predicate = invalid 510(k). | Trigger: generated output identifies a predicate device AND `grep -rn "intended.use\|indications" predicate/` shows different language than the subject device | STOP. Respond: "Predicate device [name] has intended use '[X]'. Your device's intended use is '[Y]'. These do not match. A 510(k) requires the SAME intended use as the predicate. Search the FDA 510(k) database for devices with your exact intended use statement." |
+| **R4** | **DETECT and WARN when the term 'diagnose' appears in marketing without FDA clearance for diagnosis.** "Diagnose" and "detect" have specific regulatory meanings that trigger FDA oversight. | Trigger: generated marketing language contains `diagnose\|detects.*cancer\|detects.*disease\|screens.for` AND `grep -rn "510\(k\)\|PMA\|clearance\|approval" --include="*.md"` returns 0 results | WARN: "The term [diagnose/detect/screen] appears in marketing claims but no FDA clearance for diagnostic use is documented. Replace with 'track,' 'log,' or 'monitor' (for non-diagnostic purposes) OR obtain FDA clearance before using diagnostic claims. Diagnostic claims without clearance invite FDA enforcement." |
+| **R5** | **DETECT and WARN about EU MDR Class I self-certification treated as trivial.** MDR Class I software still needs QMS (ISO 13485), Technical Documentation, Clinical Evaluation, PMS system, UDI, and EU Authorized Representative. | Trigger: generated output contains `Class.I\|self.certif` AND NOT `ISO.13485\|Technical.Documentation\|Clinical.Evaluation\|PMS\|UDI\|Authorized.Representative` within 30 lines | WARN: "MDR Class I self-certification is not 'no work.' Add to the checklist: ISO 13485 QMS, Technical Documentation, Clinical Evaluation Report, Post-Market Surveillance system, UDI assignment, and EU Authorized Representative appointment. Self-certification ≠ zero regulatory burden." |
+| **R6** | **STOP and ASK before deferring regulatory to 'after Series A.'** Investors discount valuations 30-50% for unaddressed regulatory risk. Device determination should happen before fundraising. | Trigger: generated timeline shows `regulatory\|FDA\|submission` scheduled AFTER `fundraising\|Series.A\|investment` | STOP. Ask: "This timeline defers regulatory determination until after fundraising. Investors will discount your valuation 30-50% for unaddressed regulatory risk. Strongly recommend: complete device determination BEFORE Series A. A 2-hour regulatory counsel review (~$2-5K) now saves 30% of valuation later." |
+| **R7** | **DETECT and WARN about enforcement discretion treated as permanent exemption.** FDA enforcement discretion can change with new guidance. Plan for regulation even if currently exempt. | Trigger: generated output contains `enforcement.discretion\|not.currently.enforced\|FDA.doesn't.regulate` AND NOT `contingency.plan\|if.regulated\|regulatory.pathway.reserve` | WARN: "Enforcement discretion is not a legal exemption. FDA can change guidance at any time. Add contingency: 'If enforcement discretion ends, our regulatory pathway will be [510(k)/De Novo]. Estimated timeline: 12 months. Budget reserve: $150K.' Plan for regulation even while exempt." |
 
 
 ## The Expert's Mindset
@@ -349,48 +373,48 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 8. **Regulatory counsel is not optional.** This skill provides frameworks. An FDA regulatory attorney provides liability protection. Budget $15-30K for initial regulatory strategy consultation.
 
 ## Anti-Patterns
-<!-- STANDARD: 2min -->
+<!-- MACHINE-EXECUTABLE: Each row has a grep/lint pattern for detection and auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|----------------|-------------------|
-| "We're just a wellness app — FDA doesn't apply" (while tracking disease-specific symptoms) | If your app collects, analyzes, or acts on disease-specific data, you're likely regulated. Get a regulatory determination. |
-| Shipping first, asking FDA later | FDA has authority to require recall of unapproved medical devices. Starting regulated development after a warning letter costs 5-10x more. |
-| Copying a competitor's 510(k) without understanding their predicate | Your predicate must have the SAME intended use. A different intended use = different predicate = different 510(k). |
-| "AI makes it novel, so we'll go De Novo" | If a predicate exists with similar intended use (even if not AI), you go 510(k). De Novo is only when NO predicate of any technology type exists. |
-| EU: "It's Class I, so self-certification is easy" | MDR Class I software still needs: QMS (ISO 13485), Technical Documentation, Clinical Evaluation, PMS system, UDI, and EU Authorized Representative. Self-certification ≠ no work. |
-| "We'll do regulatory after Series A" | Investors will discount your valuation by 30-50% for unaddressed regulatory risk. Have the device determination BEFORE fundraising. |
-| Using the term "diagnose" anywhere in marketing if you're not FDA-cleared for diagnosis | "Diagnose" and "detect" have specific regulatory meanings. Use "track," "log," "monitor" (for non-diagnostic purposes) or get clearance. |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| "We're just a wellness app — FDA doesn't apply" (while tracking disease-specific symptoms) | If your app collects, analyzes, or acts on disease-specific data, you're likely regulated. Get a regulatory determination. | `grep -rn "wellness\|not.regulated\|FDA.doesn't\|exempt" regulatory_strategy.md \| grep -rn "(diabetes\|hemophilia\|cancer\|asthma\|disease\|condition)" . -l \| xargs grep` → matches = block | **Wellness claim lint**: CI rule: `npx validate-regulatory-claims --forbid-wellness-with-disease`. Auto-fail if `"wellness"` AND `"disease\|condition"` both appear in product docs. |
+| Shipping first, asking FDA later | FDA has authority to require recall of unapproved medical devices. Starting regulated development after a warning letter costs 5-10x more. | `grep -rn "ship.*first\|launch.*before\|regulatory.*later\|after.*launch" roadmap.md` → matches = block | **Regulatory gate lint**: CI rule: `npx validate-launch-gate --require-regulatory-determination`. Add `regulatory_determination: required` before `launch_date` in config. |
+| Copying a competitor's 510(k) without understanding their predicate | Your predicate must have the SAME intended use. Different intended use = different predicate = different 510(k). | `grep -rn "same.as\|similar.to\|competitor.*clearance\|like.*510" submission_plan.md \| grep -v "intended.use\|indications\|same"` → matches = flag | **Predicate lint**: CI rule: `npx validate-predicate --require-intended-use-match`. Auto-diff intended use of subject vs. predicate: `npx fda-predicate-diff subject.md predicate.md`. |
+| "AI makes it novel, so we'll go De Novo" | If a predicate exists with similar intended use (even if not AI), you go 510(k). De Novo is only when NO predicate of any technology type exists. | `grep -rn "De.Novo\|de.novo\|novel.*pathway" submission_plan.md \| grep -v "no.predicate.*exists\|exhaustive.search"` → matches = flag | **De Novo gate lint**: CI rule: `npx validate-de-novo-eligibility --require-exhaustive-predicate-search`. Require FDA 510(k) database search results attached. Auto-fail De Novo claim without predicate search evidence. |
+| EU: "It's Class I, so self-certification is easy" | MDR Class I software still needs: QMS (ISO 13485), Technical Documentation, Clinical Evaluation, PMS system, UDI, EU Authorized Rep. | `grep -rn "Class.I\|self.certif\|easy\|just" mdr_plan.md \| grep -v "ISO.13485\|Technical.Documentation\|Clinical.Evaluation\|PMS\|UDI\|Authorized.Rep"` → matches = block | **MDR Class I checklist lint**: CI rule: `npx validate-mdr-class-i --require-all-deliverables`. Required items: `["ISO 13485", "Technical Documentation", "Clinical Evaluation Report", "PMS Plan", "UDI Registration", "EC Authorized Rep"]`. All must be present. |
+| "We'll do regulatory after Series A" | Investors discount valuations 30-50% for unaddressed regulatory risk. Have the device determination BEFORE fundraising. | `grep -rn "regulatory\|FDA\|submission" timeline.md` found AFTER `"Series.A\|fundraising\|investment"` → matches = flag | **Timeline lint**: CI rule: `npx validate-regulatory-timeline --require-before-fundraising`. Auto-fail if `regulatory_determination_date` > `series_a_date`. |
+| Using the term "diagnose" anywhere in marketing if you're not FDA-cleared for diagnosis | "Diagnose" and "detect" have specific regulatory meanings. Use "track," "log," "monitor" (for non-diagnostic purposes) or get clearance. | `grep -rP "(diagnose\|detects.*cancer\|detects.*disease\|screens.for)" marketing/ --include="*.md" --include="*.yaml" \| grep -v "510(k)\|clearance\|approved\|PMA"` → matches = block | **Marketing claim lint**: CI rule: `npx validate-marketing-claims --forbid "diagnose,detect,screen" --unless-cleared-by-fda`. Auto-replace suggestions: `diagnose → track, detect → identify, screen → assess`. |
 
 ## Error Decoder
-<!-- STANDARD: 3min -->
+<!-- MACHINE-EXECUTABLE: First column is exact grep regex for console/log matching -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| FDA rejects 510(k) — "no predicate" | Your identified predicate has a different intended use. "General health tracking" ≠ "diabetes management tracking." | Search the FDA 510(k) database for your EXACT intended use statement wording. Predicate must match intended use, not just technology. | Intended use determines classification. Two apps with identical code but different marketing claims can have different regulatory pathways. |
-| EU Notified Body rejects Technical Documentation — "insufficient clinical evidence" | Clinical evaluation was a literature review only. MDR requires clinical investigation for Class IIb/III devices unless justified. | Plan clinical investigation early. For SaMD, this often means a retrospective study using existing data or a usability study with clinicians. | MDR raised the bar for clinical evidence. What passed under MDD (93/42/EEC) may not pass under MDR (2017/745). |
-| Breakthrough Device designation denied | "More effective" wasn't demonstrated. FDA requires evidence that your device provides a clinically meaningful advantage. | Provide comparative data: your device vs. standard of care. Time-to-diagnosis, accuracy improvement, patient outcome data. | Breakthrough is for genuinely innovative devices, not "faster 510(k)." Most SaMD won't qualify. |
-| 12 months into development, realize the app is Class III | Intended use wasn't reviewed by regulatory counsel at the concept stage. A feature that seemed benign is actually high-risk. | Pause development. Get regulatory determination. Consider feature modification to achieve lower classification. | The cheapest time to determine regulatory pathway is before a single line of code is written. |
+| 🖥️ Console Match (grep regex) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -cP "NSE\|Not.Substantially.Equivalent\|predicate.*reject" fda_response.txt` → count > 0 | FDA rejects 510(k) — "no predicate" or "not substantially equivalent" | Your identified predicate has different intended use OR different technological characteristics | Search FDA 510(k) database for EXACT intended use wording AND matching tech profile. Predicate must match BOTH dimensions. | **1.** Parse FDA response: `npx fda-parse-response --file fda_response.txt` → extract `reason_code`. **2.** If `intended_use_mismatch`: `npx fda-predicate-search --intended-use "$(cat .intended_use)" --output predicates_by_iu.csv`. **3.** If `tech_mismatch`: `npx fda-predicate-search --tech-profile "$(cat .tech_profile)" --output predicates_by_tech.csv`. **4.** Find intersection: `npx fda-predicate-intersect --file1 predicates_by_iu.csv --file2 predicates_by_tech.csv`. **5.** If empty → De Novo pathway: `npx fda-de-novo-assessment --device $(cat .device_id)`. |
+| `grep -cP "insufficient.*clinical.*evidence\|clinical.*evaluation.*reject\|MDR.*clinical.*gap" notified_body_response.txt` → count > 0 | EU Notified Body rejects Technical Documentation — "insufficient clinical evidence" | Clinical evaluation was literature review only. MDR requires clinical investigation for Class IIb/III devices unless justified. | Plan clinical investigation early. For SaMD: retrospective study using existing data or usability study with clinicians. | **1.** Parse NB response: `npx mdr-parse-nb-response --file nb_response.txt` → extract `gap_type`. **2.** If `study_population_gap`: `npx mdr-design-eu-study --population "$(cat .target_population)" --min-sites 3 --min-n 150`. **3.** If `no_clinical_investigation`: `npx mdr-clinical-investigation-plan --device-class $(cat .device_class) --output cip.md`. **4.** Schedule pre-application with NB: `npx mdr-schedule-nb-meeting --purpose clinical_evidence_review`. **5.** Re-submit with clinical evidence supplement: `npx mdr-resubmit --technical-documentation updated_td.pdf --clinical-evidence clinical_study_report.pdf`. |
+| `grep -cP "Breakthrough.*denied\|not.innovative\|no.clinical.advantage\|more.effective.*not.*demonstrated" fda_bt_response.txt` → count > 0 | Breakthrough Device designation denied | "More effective" wasn't demonstrated. FDA requires evidence of clinically meaningful advantage over standard of care. | Provide comparative data: your device vs. standard of care on time-to-diagnosis, accuracy, patient outcomes. | **1.** Parse denial: `npx fda-parse-bt-denial --file bt_response.txt` → check if `denial_reason: evidence_gap`. **2.** Design comparative study: `npx fda-bt-comparative-study --device $(cat .device_id) --soc "$(cat .standard_of_care)" --outcomes "time_to_diagnosis,accuracy,patient_outcome"`. **3.** If no existing data: `npx fda-bt-feasibility-assessment --device $(cat .device_id)` → if feasible, proceed. If not, consider standard 510(k)/De Novo. **4.** Resubmit with evidence: `npx fda-bt-resubmit --new-evidence comparative_study_results.pdf`. |
+| `grep -cP "Class.III\|PMA.required\|high.risk.*device\|class.*up.classif" regulatory_determination.txt \| grep -v "510\(k\)\|De.Novo\|Class.II"` → count > 0 | 12 months into development, realize the app is Class III | Intended use wasn't reviewed by regulatory counsel at concept stage. A "benign" feature triggered high-risk classification. | Pause development. Get regulatory determination. Consider feature modification to achieve lower classification. | **1.** Audit intended use: `npx fda-audit-intended-use --file intended_use_statement.md` → flag trigger verbs (`diagnose, treat, predict, optimize, manage+disease`). **2.** Rewrite: `npx fda-rewrite-intended-use --forbid-verbs "diagnose,treat,predict,optimize" --suggest-alternatives "track,record,log,display"`. **3.** Re-classify: `npx fda-classify --intended-use revised_iu.md --output new_classification.md`. **4.** If still Class III: `npx fda-feature-audit --find-class-iii-trigger` → remove or gate the triggering feature. **5.** Regulatory counsel review: schedule 2-hour consult before any further development.** |
 
 ## Production Checklist
-<!-- STANDARD: 3min -->
+<!-- MACHINE-EXECUTABLE: Every item has an exact CLI validation command and auto-fix path -->
 
-| ID | Item | Status |
-|----|------|--------|
-| HR1 | Intended use statement drafted and reviewed by regulatory counsel | ☐ |
-| HR2 | Device classification determined (Class I, II, III) | ☐ |
-| HR3 | Regulatory pathway selected (exempt, 510(k), De Novo, PMA) | ☐ |
-| HR4 | Predicate device(s) identified (for 510(k) pathway) | ☐ |
-| HR5 | Pre-submission meeting with FDA requested (recommended for first-time submitters) | ☐ |
-| HR6 | QMS implementation started (ISO 13485) | ☐ |
-| HR7 | Software documentation per IEC 62304 initiated (SRS, architecture, SDS, traceability) | ☐ |
-| HR8 | Risk management per ISO 14971 — hazard analysis, FMEA, risk control measures | ☐ |
-| HR9 | Clinical evidence plan: usability study minimum, clinical performance study if Class II+ | ☐ |
-| HR10 | Labeling: Instructions for Use, patient labeling, package labels drafted | ☐ |
-| HR11 | EU MDR classification completed (if EU market planned) | ☐ |
-| HR12 | Notified Body engaged (for EU Class IIa+) — 6-12 month lead time | ☐ |
-| HR13 | Regulatory budget: $50-150K for 510(k), $200-500K+ for De Novo/PMA (including clinical) | ☐ |
-| HR14 | Regulatory counsel retained — FDA specialist, not general healthcare attorney | ☐ |
-| HR15 | Post-market surveillance plan drafted (complaint handling, adverse event reporting, CAPA) | ☐ |
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|---------|
+| **HR1** | Intended use statement drafted and reviewed by regulatory counsel | `grep -rn "intended.use\|indications.for.use" intended_use_statement.md` must exist AND `grep -rn "reviewed.by.*counsel\|regulatory.attorney" intended_use_statement.md` must exist | `npx fda-intended-use-init --device "$(cat .device_name)" --require-counsel-review --output intended_use_statement.md` |
+| **HR2** | Device classification determined (Class I, II, III) | `grep -rn "Class.[I]{1,3}\|classification.*determined" regulatory_determination.md` must have matched result | `npx fda-classify --intended-use intended_use_statement.md --output regulatory_determination.md` |
+| **HR3** | Regulatory pathway selected (exempt, 510(k), De Novo, PMA) | `grep -rn "510\(k\)\|De.Novo\|PMA\|exempt" regulatory_determination.md \| wc -l` must be `>= 1` | `npx fda-pathway-select --classification $(cat .device_class) --intended-use intended_use_statement.md` |
+| **HR4** | Predicate device(s) identified for 510(k) pathway | `curl -s "https://api.fda.gov/device/510k.json?search=..." \| jq '.results \| length'` must be `>= 1` OR `grep -rn "no.predicate\|De.Novo" regulatory_determination.md` confirmed | `npx fda-predicate-search --intended-use "$(cat .intended_use)" --tech-profile "$(cat .tech_profile)" --output predicates.csv` |
+| **HR5** | Pre-submission meeting with FDA requested (recommended for first-time) | `grep -rn "Q-Sub\|pre.submission\|meeting.*requested\|meeting.*held" regulatory_log.md \| wc -l` must be `>= 1` | `npx fda-meeting-request --type q-sub --output qsub_request.pdf` |
+| **HR6** | QMS implementation started (ISO 13485) | `find . -name "quality_manual.md" -o -name "qms_scope.md" -o -name "iso_13485_gap.md" \| wc -l` must be `>= 1` | `npx iso-13485-init --device-class $(cat .device_class) --output-dir qms/` |
+| **HR7** | Software documentation per IEC 62304 (SRS, architecture, SDS, traceability) | `ls docs/iec62304/ \| grep -c "srs\|architecture\|sds\|traceability\|risk"` must be `>= 4` | `npx iec62304-docs-init --output-dir docs/iec62304/ --templates "srs,sds,architecture,traceability"` |
+| **HR8** | Risk management per ISO 14971 (hazard analysis, FMEA, risk controls) | `grep -rn "hazard\|FMEA\|risk.control\|benefit.risk" risk_management/ \| wc -l` must be `>= 4` | `npx iso14971-init --device $(cat .device_id) --output-dir risk_management/ --templates "hazard_analysis,fmea,risk_controls,benefit_risk"` |
+| **HR9** | Clinical evidence plan: usability study minimum; clinical performance study if Class II+ | `grep -rn "usability\|clinical.study\|performance.study\|clinical.evidence" clinical_plan.md \| wc -l` must be `>= 3` | `npx clinical-evidence-plan --device-class $(cat .device_class) --output clinical_plan.md` |
+| **HR10** | Labeling: IFU, patient labeling, package labels drafted | `ls labeling/ \| grep -c "ifu\|patient_label\|package_label"` must be `>= 3` | `npx labeling-init --device $(cat .device_id) --output-dir labeling/ --templates "ifu,patient_label,package_label"` |
+| **HR11** | EU MDR classification completed (if EU market planned) | `grep -rn "MDR\|EU.2017/745\|Class.I[ab]\|Class.II[ab]\|Class.III" eu_mdr_classification.md \| wc -l` must be `>= 1` OR `grep -rn "EU.*not.planned\|no.EU" market_plan.md` must exist | `npx mdr-classify --device $(cat .device_id) --intended-use intended_use_statement.md --output eu_mdr_classification.md` |
+| **HR12** | Notified Body engaged for EU MDR (Class IIa+) — 6-12 month lead time | `grep -rn "notified.body\|NB.*engaged\|NB.*contacted\|BSI\|TUV\|DEKRA" eu_regulatory_log.md \| wc -l` must be `>= 1` OR not applicable | `npx mdr-nb-search --device-class $(cat .device_class) --output nb_shortlist.csv` |
+| **HR13** | Regulatory budget: $50-150K for 510(k), $200-500K+ for De Novo/PMA | `grep -rn "budget\|cost.*estimate.*\$" regulatory_budget.csv \| wc -l` must be `>= 1` | `npx regulatory-budget-estimate --pathway $(cat .regulatory_pathway) --device-class $(cat .device_class) --output regulatory_budget.csv` |
+| **HR14** | Regulatory counsel retained — FDA specialist, not general healthcare attorney | `grep -rn "regulatory.counsel\|FDA.attorney\|regulatory.lawyer" contacts.md \| wc -l` must be `>= 1` | `npx regulatory-counsel-finder --specialty fda_medical_device --output counsel_shortlist.csv` |
+| **HR15** | Post-market surveillance plan: complaint handling, AE reporting, CAPA | `grep -rn "complaint\|adverse.event.*report\|CAPA\|post.market" pms_plan.md \| wc -l` must be `>= 4` | `npx pms-plan-init --device $(cat .device_id) --regulations "21CFR820,EU_MDR" --output pms_plan.md` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- STANDARD: 3min -->
