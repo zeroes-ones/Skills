@@ -44,8 +44,26 @@ leverage — building systems (hiring, career ladders, delivery processes) that 
 across teams. Every section is a decision framework, not abstract advice.
 
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
+<!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Detect Condition | Route To | Intent Route Fallback |
+|---|-----------------|----------|----------------------|
+| **A1** | `file_contains("**/team-charter*.md", "mission\|scope\|stakeholders\|working agreements")` OR `file_exists("**/org-chart*.{yaml,yml,md}")` | Jump to **Core Workflow > Phase 1: Org Design** | "I detect team charters or org charts — routing to Org Design for team topology and ownership boundaries." |
+| **A2** | `file_contains("**/budget*.{xlsx,csv,md}", "headcount\|salary\|opex\|capex\|forecast")` OR `file_contains("**/*.md", "budget cycle\|headcount plan\|FP&A")` | Jump to **Decision Trees > Build vs Buy vs Partner** + **Best Practices > Budget Planning** | "I detect budget or headcount planning documents — routing to Budget Planning." |
+| **A3** | `file_contains("**/okr*.{md,yaml}", "quarter\|objective\|key result\|KR[0-9]")` OR `file_contains("**/strategy*.md", "engineering strategy\|roadmap\|priorities")` | Jump to **Core Workflow > Phase 2: Strategy Translation** | "I detect OKRs or strategy docs — routing to Strategy Translation." |
+| **A4** | `file_contains("**/1:1*.md", "EM\|engineering manager\|direct report\|skip.level")` OR `file_contains("**/*.md", "succession plan\|EM development\|manager calibration")` | Jump to **Core Workflow > Phase 3: EM Development** | "I detect manager development or succession documents — routing to EM Development." |
+| **A5** | `file_contains("**/*.md", "executive summary\|board deck\|ELT\|exec team\|stakeholder")` AND `file_contains("**/*.md", "engineering\|tech\|product")` | Jump to **Core Workflow > Phase 4: Cross-Functional Leadership** | "I detect executive/stakeholder communication — routing to Cross-Functional Leadership." |
+| **A6** | `file_contains("**/*.md", "reorg\|restructur\|team split\|merge team\|reorganiz")` | Jump to **Decision Trees > When to Split** BEFORE acting | "I detect reorg language — routing to Reorg Decision Tree. Do not act before reading." |
+| **A7** | `file_contains("**/*.md", "vendor\|RFP\|procurement\|build vs buy\|POC")` AND `file_contains("**/*.md", "budget\|cost\|pricing\|contract")` | Jump to **Decision Trees > Build vs Buy vs Partner** | "I detect vendor/platform evaluation documents — routing to Build vs. Buy decision framework." |
+| **A8** | `file_contains("**/postmortem*.md", "incident\|outage\|root cause\|action item")` OR `file_contains("**/*.md", "postmortem action\|incident review\|blameless")` | Jump to **Best Practices > Incident Review Culture** | "I detect incident review or postmortem documents — routing to Incident Review Culture." |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
 ├── Org design problem (structure, team boundaries, ownership)?
 │   └── Jump to "Core Workflow > Phase 1: Org Design"
@@ -68,36 +86,24 @@ What are you trying to do?
 │   └── Jump to "Decision Trees > Build vs Buy vs Partner"
 └── Don't know where to start?
     └── Run all 4 phases of "Core Workflow" sequentially
+```
 
 Do not read the entire skill. Follow the route above.
 
 ## Ground Rules — Read Before Anything Else
-<!-- STANDARD: 3min -->
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-1. **You manage the system that manages the work.** If you're in every decision,
-   your org has a single point of failure. Build the system — hiring standards,
-   delivery cadences, escalation paths — then trust your EMs to operate it. If
-   you can't take a two-week vacation without things breaking, you haven't built
-   the system yet.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-2. **Hire and develop great EMs.** Your EMs are your multipliers. A great EM
-   amplifies 6-8 engineers; a weak EM drags them all down. Invest disproportionately
-   in EM hiring, onboarding, and development. No other activity gives higher
-   organizational leverage.
-
-3. **Team topology is your primary design tool.** Wrong boundaries create more
-   problems than wrong code. Teams aligned to the wrong axis produce working
-   software that doesn't add up to a working product. Conway's law is a design
-   constraint you must actively manage.
-
-4. **Speak the language of the business.** Revenue, cost, risk, time-to-market are
-   your vocabulary, not just tech debt and latency. "Refactoring the API layer"
-   is a cost center. "Reducing time-to-market by 40%" is a competitive advantage.
-
-5. **Culture is what you tolerate.** If you tolerate toxic brilliance, that's your
-   culture. If you tolerate EMs who blame their teams for failures, that's your
-   culture. Culture isn't what you write on the wiki — it's the worst behavior
-   you consistently let slide.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to reorganize teams without first producing 3 non-reorg alternatives.** Reorgs are the most destructive change a director can make — they reset trust, velocity, and psychological safety for 3-6 months. | Trigger: user proposes a reorg AND `grep -rn "non-reorg alternative\|diagnosis\|strategy gap\|EM effectiveness" --include="*.md"` returns 0 results in the current context | STOP. Respond: "Before we consider a reorg, I need to see 3 non-reorg alternatives you've tried. What's the root cause — unclear strategy, weak EMs, resource gaps, or misaligned incentives? If you can't list three things you tried first, don't reorg." |
+| **R2** | **REFUSE to bypass EMs and manage ICs directly.** Every time you give direct feedback to an IC that their EM should deliver, you undermine the EM's authority and make the IC confused about who their manager is. | Trigger: proposed action involves skip-level 1:1 that includes performance feedback, task assignment, or process changes for ICs | STOP. Respond: "This feedback/decision must flow through the EM. If the EM can't deliver it, the problem is the EM — not the IC. Coach or replace the EM, don't route around them." |
+| **R3** | **STOP and DETECT when skip-level signals reveal systemic issues.** If 3+ ICs across different teams independently report the same problem, it's not a team-level issue — it's an org design or strategy failure. | Trigger: skip-level notes contain 3+ similar complaints across >1 team AND no cross-team diagnosis has been run | STOP. Respond: "This pattern across 3+ ICs suggests a systemic issue, not isolated team problems. Before acting, let's run a cross-team diagnosis: is this a strategy clarity problem, an EM capability problem, or a resource/capacity problem?" |
+| **R4** | **DETECT and WARN when budget models lack scenarios.** A single-line headcount forecast is not a budget. Directors need 3 scenarios (status quo, +10%, -10%) with trade-offs quantified. | Trigger: user presents budget/headcount request without at least 2 scenario alternatives | WARN: "This is a single-scenario request. Finance will treat it as optional. Add 3 scenarios: (1) KTLO — what stops working if unfunded, (2) current plan — what we deliver, (3) stretch — what we accelerate if overfunded. Each with business impact quantified." |
+| **R5** | **DETECT and WARN when team health data is stale or missing.** Leading without team health metrics (engagement, psychological safety, attrition signals) is flying blind. | Trigger: user proposes org change AND `grep -rn "engagement\|psychological safety\|attrition\|eNPS\|team health" --include="*.md" --include="*.csv"` returns 0 results in the last 90 days | WARN: "You're proposing an org change without recent team health data. Collect engagement survey results, attrition trends by team, and eNPS before restructuring. Org changes without health data are rearranging deck chairs." |
+| **R6** | **REFUSE to let postmortem action items linger.** Unfinished postmortem actions teach teams that reliability doesn't matter. >60% incomplete after 30 days is a red flag. | Trigger: user describes an incident review process AND `grep -c "☐\|[ ]\|incomplete" postmortem-action-items*.md` > 60% of total items | STOP. Respond: "Postmortem action completion is below 40%. Declare action bankruptcy: consolidate incomplete items, assign one owner per item with hard dates, and track in the same system as product work. Nothing else matters if we don't learn from incidents." |
+| **R7** | **REFUSE to communicate to exec team in engineering-only language.** Velocity, story points, and deployment frequency mean nothing to the CFO or CEO without business translation. | Trigger: generated communication (memo, email, deck) contains "velocity\|story points\|sprint\|backlog" without corresponding business translation | STOP. Rewrite: "Velocity is stable" → "We'll hit Q3 commitments with current headcount." "Tech debt" → "A Z-month investment to reduce risk of [specific outage] by X%." Every metric must answer "so what for the business?" |
 
 ## The Expert's Mindset
 
@@ -405,48 +411,52 @@ rates by demographic. **Inclusion:** measure psychological safety. **Accountabil
 include D&I metrics in quarterly strategy memo.
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|-------------------|
-| Reorging every time delivery slips — rearranging teams instead of fixing strategy, process, or management gaps | Diagnose before restructuring: is the strategy clear? Are EMs effective? Are teams properly resourced? Require "three non-reorg alternatives considered" before any reorg proposal |
-| Becoming a super-EM: attending standups, reviewing IC PRs, bypassing EMs for direct team management | Time-box IC touchpoints to <15% of calendar; tell EMs explicitly what you're stepping back from; coach or replace EMs who need constant intervention |
-| Avoiding hard conversations — tolerating underperforming EMs because "they've been here forever" or "it's not that bad" | Conduct quarterly EM calibration: are they growing? Do their teams trust them? Are they delivering? PIP or transition EMs who consistently underperform — one weak EM damages 5-8 ICs |
-| Letting Conway's Law operate unchecked — architecture mirrors the org chart including historical accidents | Start from target architecture; design team boundaries around bounded contexts; explicitly document "this team owns this subsystem because it was convenient in 2021, not because it's correct" |
-| Communicating in engineering-only terms to exec team — reporting velocity, story points, and deployment frequency without business translation | Translate all metrics: "velocity is stable" → "we'll hit Q3 commitments." "Tech debt" → "engineering capacity investment with Z-month ROI." Speak outcomes, not output |
-| Delegating responsibility without authority or context — handing off a problem with "figure it out" and no decision rights | Frame delegation as: "You own X outcome. Your decision authority is Y. Escalate if Z happens. Here's the context you need." Delegation without clarity is abandonment |
-| Hiring for technical skills while ignoring team culture fit — filling seats with "smart engineers" regardless of collaboration style | Include culture contribution in every hiring rubric; debrief "would this person strengthen or weaken how we work together?" Technical brilliance that corrodes team trust is a net negative |
-| Letting postmortems become blame sessions — asking "who caused this?" instead of "what in our system allowed this?" | Use blameless postmortem templates; track action item completion (>90%); share learnings across teams; never name individuals in postmortem write-ups |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Reorging every time delivery slips — rearranging teams instead of fixing strategy, process, or management gaps | Diagnose before restructuring: is the strategy clear? Are EMs effective? Are teams properly resourced? Require "three non-reorg alternatives considered" before any reorg proposal | `grep -rn "reorg\|restructur\|team split\|merge" --include="*.md" \| grep -v "non-reorg\|alternative\|diagnosis"` → finds reorg proposals without pre-work documentation | Pre-commit hook: `scripts/check-reorg-rationale.sh` — fails if reorg proposal lacks "Non-Reorg Alternatives Considered" section with 3+ entries |
+| Becoming a super-EM: attending standups, reviewing IC PRs, bypassing EMs for direct team management | Time-box IC touchpoints to <15% of calendar; tell EMs explicitly what you're stepping back from; coach or replace EMs who need constant intervention | `grep -rn "skip.level\|1:1.*IC\|standup.*attend" --include="*.md" \| wc -l` → audit skip-level frequency; >5 recurring IC touchpoints/week is a super-EM pattern | Calendar audit script: `scripts/calendar-time-audit.sh` — flags if IC meetings >15% of weekly hours; posts warning to director's Slack |
+| Avoiding hard conversations — tolerating underperforming EMs because "they've been here forever" or "it's not that bad" | Conduct quarterly EM calibration: are they growing? Do their teams trust them? Are they delivering? PIP or transition EMs who consistently underperform | `grep -rn "performance improvement\|PIP\|underperform" --include="*.md" \| grep -v "resolved\|closed\|improved"` → finds open-ended performance concerns without resolution dates | EM calibration tracker template: `templates/em-calibration.md` — requires quarterly review with status (green/yellow/red) and action plan for yellows |
+| Letting Conway's Law operate unchecked — architecture mirrors the org chart including historical accidents | Start from target architecture; design team boundaries around bounded contexts; explicitly document "this team owns this subsystem because it was convenient in 2021, not because it's correct" | `grep -rn "historically\|legacy\|because it was\|we inherited" --include="*team-charter*.md"` → finds teams owning systems by accident, not by design | Team charter template requires "Architecture Rationale" field — must cite business domain alignment, not history |
+| Communicating in engineering-only terms to exec team — reporting velocity, story points, and deployment frequency without business translation | Translate all metrics: "velocity is stable" → "we'll hit Q3 commitments." "Tech debt" → "engineering capacity investment with Z-month ROI." Speak outcomes, not output | `grep -rn "velocity\|story points\|sprint\|backlog\|burndown" --include="*strategy*.md" --include="*exec*.md"` → finds engineering-only language in exec-facing docs | `eslint-plugin-engineering-leadership`: custom rule that flags engineering-only terms in files matching `**/executive-*` or `**/board-*` patterns |
+| Delegating responsibility without authority or context — handing off a problem with "figure it out" and no decision rights | Frame delegation as: "You own X outcome. Your decision authority is Y. Escalate if Z happens. Here's the context you need." | `grep -rn "figure it out\|you own this\|handle it\|your problem" --include="*.md" -B 3 \| grep -v "decision authority\|escalate if\|context"` → finds delegation without decision-rights framing | Delegation template: `templates/delegation-frame.md` — requires Outcome, Authority, Escalation Trigger, and Context sections |
+| Hiring for technical skills while ignoring team culture fit — filling seats with "smart engineers" regardless of collaboration style | Include culture contribution in every hiring rubric; debrief "would this person strengthen or weaken how we work together?" | `grep -rn "hiring rubric\|interview loop\|debrief" --include="*.md" \| grep -v "culture\|collaboration\|values\|behavioral"` → finds hiring processes without culture/values assessment | Interview rubric template: `templates/hiring-rubric.md` — requires Culture Contribution score (1-5) weighted at 25%+ of total |
+| Letting postmortems become blame sessions — asking "who caused this?" instead of "what in our system allowed this?" | Use blameless postmortem templates; track action item completion (>90%); share learnings across teams; never name individuals | `grep -rn "who caused\|whose fault\|who broke\|blame\|someone.*should have" --include="*postmortem*.md" --include="*incident*.md"` → finds blaming language in incident reviews | Blameless postmortem template: `templates/postmortem.md` — enforces "Contributing Factors" (not "Root Cause Person"), requires systemic fix, blocks publication if individual names appear |
+| Letting vendor/platform decisions drift without documented rationale — "we went with AWS because the CTO liked it in 2019" | Form committee (you + EMs + staff engineer + procurement). Define criteria before looking at vendors. Document rationale — protects you when the vendor gets acquired | `grep -rn "vendor\|platform decision\|procurement" --include="*.md" \| grep -v "criteria\|scorecard\|POC\|evaluation matrix"` → finds vendor decisions without documented evaluation | Vendor decision template: `templates/vendor-evaluation.md` — requires weighted criteria matrix with scores from 3+ evaluators, POC results, and documented rationale |
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Low morale, trust eroded after frequent restructuring | Reorg used as solution for unclear strategy or weak EMs. Reorging rearranges deck chairs instead of fixing underlying problems. | Diagnose before reorging: is strategy clear? Are EMs effective? Require "non-reorg alternatives considered" in any reorg proposal. | If you can't list three things you tried first, don't reorg. Reorgs fix org structure, not strategy gaps or weak management. |
-| Director works 60-hour weeks, ICs report directly undermining EMs | Trust deficit in EMs. Bypassed them, making them weaker and yourself overloaded. Became a super-EM instead of building the management system. | Stop all skip-levels except quarterly structured ones. Tell each EM "I've been too involved. Here's what I need to step back from." Coach or replace weak EMs. | If >15% of your calendar is with ICs, you're in super-EM territory. Your leverage comes through EMs, not around them. |
-| Team is happy but not delivering. No loud complaints yet output lags. | Conflict avoidance kept underperforming EM too long. Harmony became the goal instead of an enabler of high performance. | Conduct hard conversations. PIP the underperforming EM. Push back on roadmap with data. High-performing teams debate constructively. | Ask peers and your manager quarterly: "Where am I avoiding conflict?" Harmony without performance is just polite mediocrity. |
-| Architecture mirrors org chart including bad parts. Cross-cutting concerns are inconsistent. | Teams designed around people and history, not target architecture. Conway's law operated unchecked. | Start from target architecture. Redraw boundaries around bounded contexts. Accept that moving people is necessary. | Every team charter must map to architecture decisions, not historical accidents. Let architecture drive org design, not the reverse. |
-| Exec team doesn't understand engineering's value. Budget questioned. Engineering is first to cut. | Communicated in engineering language. Reported activity, not outcomes. No narrative connecting engineering work to company success. | Write quarterly strategy memos. Translate all initiatives into business impact language. Build relationships with CFO, not just CTO/VP. | If a non-technical exec can't explain your org in 30 seconds, your narrative is broken. Speak outcomes, not output. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `reorg\|restructur` + `grep -rn "non-reorg\|alternative\|diagnosis" --include="*.md"` returns 0 | Low morale, trust eroded after frequent restructuring | Reorg used as solution for unclear strategy or weak EMs. Reorging rearranges deck chairs instead of fixing underlying problems | Diagnose before reorging: is strategy clear? Are EMs effective? Require "non-reorg alternatives considered" in any reorg proposal | 1. `grep -rn "reorg" --include="*.md" \| wc -l` — count reorg mentions in last 12 months 2. If >2: `grep -rn "team health\|engagement\|eNPS" --include="*.md"` — verify health data was consulted 3. If no health data: STOP. Collect data first. 4. Template: `templates/reorg-rationale.md` |
+| `skip.level\|1:1.*IC` + `grep -c "IC\|individual contributor\|engineer" calendar-export.csv` >15% of total meetings | Director works 60-hour weeks, ICs report directly undermining EMs | Trust deficit in EMs. Bypassed them, making them weaker and yourself overloaded. Became a super-EM instead of building the management system | Stop all skip-levels except quarterly structured ones. Tell each EM "I've been too involved. Here's what I need to step back from." Coach or replace weak EMs | 1. Export calendar: `scripts/calendar-export.sh` 2. `grep "IC\|engineer\|individual" calendar.csv \| wc -l` — count IC meetings 3. If >15%: generate EM delegation plan 4. Template: `templates/delegation-reset.md` |
+| `budget\|headcount\|forecast` + `grep -c "scenario\|+10%\|-10%\|status quo\|stretch" budget*.md` returns 0 | Budget requests rejected by finance; engineering treated as cost center | Single-scenario budget requests lack trade-off visibility. FP&A treats unmodeled requests as optional | Build 3 scenarios per budget cycle: status quo (KTLO), current plan (committed), stretch (acceleration). Quantify business impact for each tier | 1. `grep -rn "budget\|headcount" --include="*.md"` — find budget docs 2. Count scenarios: `grep -c "scenario\|tier\|KTLO" budget*.md` 3. If <3 scenarios: apply template 4. Template: `templates/budget-scenarios.md` |
+| `velocity\|story points\|burndown\|sprint` + `file_contains("*board*.md\|*exec*.md\|*ELT*.md", "velocity\|story points")` | Exec team doesn't understand engineering's value. Budget questioned. Engineering is first to cut | Communicated in engineering language. Reported activity, not outcomes. No narrative connecting engineering work to company success | Write quarterly strategy memos. Translate all initiatives into business impact language. Build relationships with CFO, not just CTO/VP | 1. `grep -rn "velocity\|story points\|burndown" --include="*exec*.md" --include="*board*.md"` — find engineering-only terms in exec docs 2. Replace each with business translation 3. Template: `templates/strategy-memo-business.md` |
+| `postmortem\|incident review` + `grep -c "☐\|[ ]\|incomplete\|open" postmortem-actions*.md` / `grep -c "." postmortem-actions*.md` > 0.6 | Same incidents recur. Teams stop filing postmortems. Reliability culture erodes | Postmortem action items tracked but not completed. >60% incomplete teaches teams that reliability doesn't actually matter | Declare postmortem action bankruptcy. Consolidate incomplete items. Assign one owner per item with due dates. Track in same system as product work with public dashboard | 1. `grep -c "☐\|[ ]" postmortem-actions*.md` — count incomplete 2. `grep -c "☒\|[x]" postmortem-actions*.md` — count complete 3. If incomplete > 2× complete: trigger action bankruptcy 4. Template: `templates/postmortem-action-bankruptcy.md` |
+| `EM calibration\|manager review\|performance.*EM` + `grep -rn "underperform\|needs improvement\|not meeting" --include="*EM*.md" \| grep -v "resolved\|closed\|plan"` | Strong ICs leaving. Exit interviews cite "no consequences for bad managers" | Underperforming EM tolerated for 12+ months. Conflict avoidance costs best engineers — they're watching and they know | Set personal rule: address EM performance concerns within 30 days. Document everything. Involve HR at day 31 if no improvement. Every month of delay costs your best engineers' trust | 1. `grep -rn "underperform\|needs improvement" EM-reviews*.md` — find open concerns 2. For each >30 days: escalate to PIP template 3. Template: `templates/em-pip-timeline.md` |
+| `team health\|engagement\|eNPS\|psychological safety` returns 0 in last 90-day file set | Team attrition spikes without warning. Director caught off-guard by departures | No leading indicators tracked. Team health is a leading indicator of attrition — drops predict departures within 6-8 weeks | Implement quarterly engagement pulse (5 questions max). Track per-team trends. A 15% drop in one quarter triggers immediate skip-level diagnosis | 1. `find . -name "*engagement*\|*team-health*" -mtime -90` — check recency 2. If no results in 90 days: deploy pulse survey template 3. Template: `templates/engagement-pulse.md` |
 
 ## Production Checklist
-<!-- STANDARD: 3min -->
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-| ID | Check | Status |
-|---|---|---|
-| DE1 | Org chart documented with team charters for every team | ☐ |
-| DE2 | EM:IC ratio between 1:5 and 1:8 for all teams | ☐ |
-| DE3 | Director:EM ratio between 1:4 and 1:6 | ☐ |
-| DE4 | Career ladder current and published for all engineering roles | ☐ |
-| DE5 | Annual budget and headcount plan approved by FP&A | ☐ |
-| DE6 | Team health metrics collected quarterly (engagement, safety) | ☐ |
-| DE7 | Cross-team architecture forum meets bi-weekly or monthly | ☐ |
-| DE8 | Succession plan documented for each EM role (ready-now name) | ☐ |
-| DE9 | Quarterly strategy memo written and presented to exec team | ☐ |
-| DE10 | Stakeholder NPS measured (product, design, dependent teams) | ☐ |
-| DE11 | Incident review action items tracked, completion > 90% | ☐ |
-| DE12 | Promotion rate audited by demographic, no significant differentials | ☐ |
-| DE13 | Vendor contract renewals calendar with 90-day review trigger | ☐ |
-| DE14 | EM peer group meets bi-weekly with documented learnings | ☐ |
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[DE1]** | Org chart documented with team charters for every team — mission, scope, stakeholders, working agreements | `find . -name "*team-charter*" -o -name "*org-chart*" \| wc -l` → must be >= number of teams in org | Template: `templates/team-charter.md` — deploy one per team |
+| **[DE2]** | EM:IC ratio between 1:5 and 1:8 for all teams | `scripts/check-em-ic-ratio.sh` → parses org-chart.yaml, flags teams outside 5-8 range | Alert: notify director when any team exceeds 1:8 or falls below 1:5 |
+| **[DE3]** | Director:EM ratio between 1:4 and 1:6 | `scripts/check-director-span.sh` → parses org-chart.yaml, flags if span >6 | Alert: suggest hiring additional director or redistributing teams |
+| **[DE4]** | Career ladder current and published for all engineering roles | `grep -rn "career ladder\|level guide\|competency" --include="*.md" \| wc -l` → must match >= 1 per role family | Template: `templates/career-ladder.md` |
+| **[DE5]** | Annual budget and headcount plan approved by FP&A — 3 scenarios modeled | `grep -c "scenario\|tier\|KTLO\|stretch" budget*.md` → must be >= 3 | Template: `templates/budget-scenarios.md` |
+| **[DE6]** | Team health metrics collected quarterly (engagement, psychological safety, eNPS) | `find . -name "*engagement*\|*team-health*\|*pulse*" -mtime -90` → must return files | Cron: `scripts/send-pulse-survey.sh` on quarterly schedule |
+| **[DE7]** | Cross-team architecture forum meets bi-weekly or monthly — documented decisions | `grep -rn "architecture forum\|design review\|tech council" --include="*.md" -mtime -30` → must return recent meeting notes | Calendar: recurring invite with `templates/architecture-forum-agenda.md` |
+| **[DE8]** | Succession plan documented for each EM role — ready-now name identified | `grep -c "succession\|ready.now\|backup" succession-plan*.md` → must be >= number of EMs | Template: `templates/succession-plan.md` — one row per EM |
+| **[DE9]** | Quarterly strategy memo written and presented to exec team — business language, not velocity charts | `grep -rn "executive summary\|quarterly strategy\|Q[1-4].*memo" --include="*.md" -mtime -90` → must return file | Template: `templates/strategy-memo-business.md` |
+| **[DE10]** | Stakeholder NPS measured (product, design, dependent teams) — quarterly trend | `grep -rn "stakeholder NPS\|partner satisfaction\|internal NPS" --include="*.md" -mtime -90` → must return data | Cron: `scripts/send-stakeholder-nps.sh` quarterly |
+| **[DE11]** | Incident review action items tracked — completion > 90% within 30 days | `scripts/check-postmortem-actions.sh` → calculates (complete / total) × 100, fails if < 90 | Dashboard: `scripts/postmortem-dashboard.sh` — public Slack channel |
+| **[DE12]** | Promotion rate audited by demographic — no significant differentials | `scripts/audit-promotion-rates.sh` → chi-squared test, flags p < 0.05 differentials | Quarterly run: `scripts/audit-promotion-rates.sh --report` |
+| **[DE13]** | Vendor contract renewals calendar with 90-day review trigger | `grep -rn "renewal\|contract end\|expir" vendor-calendar*.md` → must list all active vendors with dates | Cron: `scripts/vendor-renewal-alert.sh` — 90-day warning to director |
+| **[DE14]** | EM peer group meets bi-weekly with documented learnings | `find . -name "*EM-peer*\|*EM-community*\|*manager-roundtable*" -mtime -14` → must return notes | Calendar: recurring invite with `templates/em-peer-agenda.md` |
 
 ## Scale Depth
 <!-- DEEP: 10+min -->

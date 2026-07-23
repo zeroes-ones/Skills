@@ -31,36 +31,52 @@ Reserved Instances/Savings Plans, Kubernetes cost optimization, spot instance st
 tiering, data transfer optimization, anomaly detection, and carbon-aware cost reduction.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("cost-dashboard.json")` OR `file_contains("./**/*.md", "cost.*anomaly\|bill.*spike\|spend.*increase")` | Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility) |
+| A2 | `file_exists("main.tf")` AND `file_contains("main.tf", "instance_type\|vm_size\|machine_type")` AND NOT `file_contains("main.tf", "reserved\|savings_plan")` | Jump to "Core Workflow > Phase 2" (Resource Optimization) — right-sizing opportunity |
+| A3 | `file_contains("main.tf", "reserved_instance\|savings_plan\|capacity_reservation")` OR `file_exists("commitments/")` | Go to "Decision Trees > RI vs Savings Plans vs Spot" |
+| A4 | `grep -rn "tag\|label\|cost_center\|CostCenter" . --include="*.tf" --include="*.json"` returns fewer than 3 matches | Jump to "Core Workflow > Phase 3" (Budgeting & Governance) — tagging gap |
+| A5 | `file_exists("chargeback.csv")` OR `file_contains("./**/*.md", "chargeback\|showback\|cost.*allocation")` | Go to "Best Practices > Cost Allocation & Showback/Chargeback" |
+| A6 | `file_exists("main.tf")` AND `file_contains("main.tf", "eks\|aks\|gke\|kubernetes")` AND `file_contains("main.tf", "kubecost")` is false | Go to "Sub-Skills > kubernetes-cost-optimization" |
+| A7 | No `.tf` files, no cloud provider config — pure financial/planning context | Invoke `fp-and-a-analyst` skill instead |
+| A8 | `file_contains("./**/*.csv", "cost\|spend\|usage")` exists but no cost visualization or dashboard | Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility) — build visibility first |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Analyze cloud costs (understand what's driving spend) → Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility)
-│   ├── Tagging strategy → Go to "Best Practices > Tagging Strategy"
-│   └── Anomaly detection → Go to "Best Practices > Anomaly Detection"
-├── Optimize resource usage (right-sizing, waste reduction) → Jump to "Core Workflow > Phase 2" (Resource Optimization)
-│   ├── Idle/underutilized resources → Go to "Decision Trees > Resource Right-Sizing"
-│   └── Kubernetes cost optimization → Go to "Sub-Skills > kubernetes-cost-optimization"
-├── Plan reserved instances / savings plans → Go to "Decision Trees > RI vs Savings Plans vs Spot"
-├── Reduce cloud waste (orphaned resources, idle LBs, old snapshots) → Jump to "Core Workflow > Phase 2" (Waste Reduction)
-├── Set up budgeting and governance → Jump to "Core Workflow > Phase 3" (Budgeting & Governance)
-├── Implement showback/chargeback → Go to "Best Practices > Cost Allocation & Showback/Chargeback"
-├── Need cloud architecture guidance → Invoke `cloud-architect` skill instead
-├── Need infrastructure automation → Invoke `devops-engineer` skill instead
-├── Need financial planning → Invoke `fp-and-a-analyst` skill instead
-└── Not sure where to start? → "Core Workflow > Phase 1" — start with visibility: you can't optimize what you can't measure
+├── Analyze cloud costs (understand what's driving spend)
+├── Optimize resource usage (right-sizing, waste reduction)
+├── Plan reserved instances / savings plans
+├── Reduce cloud waste (orphaned resources, idle LBs, old snapshots)
+├── Set up budgeting and governance
+├── Implement showback/chargeback
+├── Optimize Kubernetes costs
+└── Not sure? → Start with visibility: you can't optimize what you can't measure
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never report savings without showing the calculation.** "Save $50K/month" is meaningless without showing: current spend, target spend, unit price, usage delta, and time period. Show your work.
-- **Reserved instance recommendations need utilization data.** Don't recommend a 1-year RI for a workload with 40% CPU utilization that might be decommissioned next quarter. Match commitment to predictable baseload.
-- **Cost attribution must be transparent.** Every dollar must trace to a team, project, or environment through tags, labels, or account structure. If you can't answer "who owns this spend?", you can't fix it.
-- **Don't optimize before measuring.** Right-sizing an instance that costs $50/month is noise. Find the top 5 cost drivers first, then focus optimization effort where it matters.
-- **Always consider the operational cost of optimization.** Turning off dev environments on weekends saves money but may cost engineering velocity. Every cost decision has a trade-off.
-- **Admit what you don't know.** If you don't have access to actual billing data, say so. Estimates without data are speculation. Point users to their cloud provider's cost explorer.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to report savings without showing the calculation** — "Save $50K/month" is meaningless without current spend, target spend, unit price, usage delta, and time period. | Trigger: outgoing response contains dollar savings figure but no formula or before/after breakdown within the same paragraph | STOP. Append: "Calculation: [current spend] − [target spend] = [savings]. Unit price: [$/unit], Usage delta: [old usage] → [new usage], Time period: [monthly/annual]. Show your work." |
+| **R2** | **REFUSE to recommend Reserved Instances without 90+ days of utilization data** — committing to a workload that might be decommissioned next quarter is dead money. | Trigger: user requests RI/SP recommendation but no `file_contains` match for "utilization\|CPU.*average\|usage.*hours" with date ranges spanning ≥ 90 days | STOP. Respond: "Insufficient utilization data for RI/SP recommendation. Provide ≥ 90 days of CPU/memory utilization data (CloudWatch metrics, Cost Explorer, or CSV export). Committing without stable baselines risks paying for resources you won't use." |
+| **R3** | **REFUSE to optimize resources without first identifying the top-5 cost drivers** — right-sizing a $50/month instance is noise when the $50K/month data transfer bill is unexamined. | Trigger: optimization output targets resources ranked #6+ by cost AND top-5 cost drivers have not been analyzed first | STOP. Respond: "Optimizing low-priority resources before top cost drivers. Top-5 by spend: [list from cost data]. Optimize these first — Pareto principle: 80% of savings come from 20% of resources." |
+| **R4** | **REFUSE to implement chargeback before showback has run for 6-12 months** — surprise bills make teams resent the FinOps program. | Trigger: user requests chargeback but no showback report history exists (no `file_contains` match for "showback\|cost.*visibility\|per.team.*report" in project docs) | STOP. Respond: "Chargeback requested but no showback history detected. Implement showback first: 6-12 months of cost visibility without financial accountability. Build cost awareness and trust — then transition to chargeback with agreed-upon budgets." |
+| **R5** | **STOP and ASK when Spot instances are proposed for stateful workloads** — Spot for databases or message queues causes outages when instances are reclaimed. | Trigger: `file_contains("main.tf", "spot\|spot_instance\|spot_fleet")` AND the same file references `aws_db_instance\|aws_elasticache\|aws_msk` or similar stateful resources | STOP. Ask: "Spot instances detected near stateful resources ([list]). Spot is for stateless, fault-tolerant, interruptible workloads only (batch jobs, CI/CD, non-production). Move databases/queues to on-demand or Reserved. Confirm you want Spot only for stateless workloads?" |
+| **R6** | **DETECT and WARN about untagged resources** — every dollar without a team/owner tag is untraceable spend. | Trigger: `grep -rn "tags\s*=" main.tf` returns zero matches OR `grep -rnE "(Team|Environment|CostCenter|Service)\s*=" main.tf` returns fewer than 3 matches | WARN: "Missing mandatory cost allocation tags. Every resource must have `Team`, `Environment`, `Service`, and `CostCenter` tags. Without tags, you can't answer 'who owns this spend?' — and you can't optimize what you can't attribute." |
+| **R7** | **DETECT and WARN about cost anomalies being ignored due to alert fatigue** — an alert fired weekly and ignored is worse than no alert. | Trigger: `grep -rn "anomaly\|budget.*alert\|cost.*alert" . --include="*.tf" --include="*.md"` shows threshold at flat 10% without standard deviation baselines | WARN: "Flat percentage anomaly threshold detected. Set thresholds at 2 standard deviations from trailing 14-day average, not a flat percentage. Filter known growth patterns. Escalate if acknowledged but not investigated within 72 hours. Alert fatigue kills FinOps programs." |
 
 
 ## The Expert's Mindset
@@ -373,46 +389,53 @@ Common chains:
 
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| "We'll optimize costs after launch" — no tagging, no budgets, no RI planning at design time | Tag from day one; set budget alerts before first production deploy; right-size resources at design time, not as a post-launch fire drill |
-| 100% Reserved Instance coverage — every workload committed, zero flexibility for change | Target 60-80% RI/SP coverage; keep 20-40% on-demand for variable workloads and new services; flexibility has value — unused RIs are dead money |
-| Cost optimization treated as a quarterly cleanup project — one person manually hunts for waste 4×/year | Continuous cost optimization: automated right-sizing recommendations weekly, anomaly detection real-time, idle resource cleanup nightly; cost is a daily practice, not a quarterly event |
-| Chargeback implemented before showback — teams get surprise bills and resent the FinOps program | Showback first: 6-12 months of cost visibility without financial accountability; build cost awareness and trust before adding chargeback |
-| Spot instances used for production databases — interruption causes outage, team declares "spot is unreliable" | Spot for stateless, fault-tolerant, interruptible workloads only (batch jobs, CI/CD, non-production); never for databases, message queues, or stateful production services |
-| Every resource gets its own RI — 200 individual RI purchases to manage, nobody tracks utilization | Use Savings Plans for broad coverage across instance families; consolidate RI purchases by family/region; automate utilization tracking with monthly report |
-| Cost data lives in a finance spreadsheet that engineers never see — "cost is finance's problem" | Embed cost data in engineering tools: Infracost in CI/CD, cost-per-PR estimates, Slack cost bot, per-team dashboards in observability platform |
-| Cloud provider bill is the only source of truth — no internal cost allocation or showback, no reconciliation | Multi-cloud cost platform (CloudHealth, Vantage, Kubecost) as single pane; allocate costs by team/service/environment; reconcile with provider bill monthly |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| "We'll optimize costs after launch" — no tagging, no budgets, no RI planning at design time | Tag from day one; set budget alerts before first production deploy; right-size resources at design time | `grep -rn "tags\s*=" main.tf` returns zero matches → no resource tagging at all | CI check requiring `Team`, `Environment`, `Service`, `CostCenter` tags on all resources; `infracost` in CI showing cost estimate per PR |
+| 100% Reserved Instance coverage — every workload committed, zero flexibility for change | Target 60-80% RI/SP coverage; keep 20-40% on-demand for variable workloads and new services | `grep -rn "reserved_instance\|savings_plan" . --include="*.tf" \| wc -l` equals total compute resource count → 100% coverage | Cloud Custodian policy: alert when RI coverage > 85% for 30+ days; auto-flag for review |
+| Cost optimization treated as a quarterly cleanup project — one person manually hunts for waste 4×/year | Continuous cost optimization: automated right-sizing weekly, anomaly detection real-time, idle resource cleanup nightly | `grep -rn "cron\|schedule\|scheduled" .github/workflows/` returns zero cost-related scheduled jobs → no automated optimization | Scheduled GitHub Actions: weekly right-sizing scan, daily idle resource detection, real-time anomaly alerts via CloudWatch |
+| Chargeback implemented before showback — teams get surprise bills and resent the FinOps program | Showback first: 6-12 months of cost visibility without financial accountability; build cost awareness before adding chargeback | `file_contains("./**/*.md", "chargeback")` exists but `file_contains("./**/*.md", "showback")` does not exist → chargeback without showback history | Mandatory 6-month showback period enforced by FinOps governance policy; CI check verifying showback reports exist before chargeback config |
+| Spot instances used for production databases — interruption causes outage, "spot is unreliable" declared | Spot for stateless, fault-tolerant, interruptible workloads only (batch, CI/CD, non-production) | `grep -rn "spot\|spot_instance" main.tf` AND same file contains `aws_db_instance\|aws_elasticache\|aws_msk` → spot on stateful resources | `tfsec` rule + CI check: block `spot_instance` adjacent to `aws_db_instance`, `aws_elasticache`, or `aws_msk` in same module |
+| Every resource gets its own RI — 200 individual RI purchases, nobody tracks utilization | Use Savings Plans for broad coverage across instance families; automate utilization tracking with monthly report | `grep -rn "aws_reserved_instance" main.tf \| wc -l` → > 10 individual RIs without SP → fragmented commitments | Savings Plans Purchase Analyzer: recommend consolidating individual RIs into SP; monthly utilization report auto-generated |
+| Cost data lives in a finance spreadsheet that engineers never see — "cost is finance's problem" | Embed cost data in engineering tools: Infracost in CI/CD, cost-per-PR estimates, Slack cost bot, per-team dashboards | `grep -rn "infracost\|cost.*dashboard\|cost.*slack" .github/workflows/` returns zero matches → cost invisible to engineers | Infracost CI integration auto-injected on all PRs; mandatory cost visibility dashboard linked in repo README |
+| Cloud provider bill is the only source of truth — no internal cost allocation, no reconciliation | Multi-cloud cost platform (CloudHealth, Vantage, Kubecost) as single pane; allocate by team/service/environment; reconcile monthly | `grep -rn "cloudhealth\|vantage\|kubecost\|cost.*platform" . --include="*.md"` returns zero matches → no cost platform | Monthly reconciliation report requirement: provider bill vs. cost platform must match within 2%; CI check failing if cost platform not configured |
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Cloud bill doubled overnight | Data transfer costs spiked from a new feature that streams large assets without CDN | Route all static/large assets through CDN. Set budget alerts at 80%/100%/120%. Tag every resource and query by tag to find the culprit in under 5 minutes. | Unmonitored data transfer is the most common source of bill spikes. CDN and cost alerts are the cheapest insurance you can buy. |
-| Reserved instance shows no savings | RI purchased for a workload that stopped running or changed instance family | Reserve only for workloads with predictable, stable usage (24/7 services). Spot for batch jobs. Savings Plans cover instance family changes — prefer them over RIs for heterogeneous fleets. | Commitment discounts lock in savings only for stable workloads. The more dynamic your infrastructure, the more flexible the commitment instrument must be. |
-| Cost anomaly alert fires weekly, team ignores it | Threshold set too tight (10%) for a variable workload | Set anomaly thresholds at 2 standard deviations from trailing 14-day average, not a flat percentage. Filter out known growth patterns. Escalate if alert is acknowledged but not investigated within 72 hours. | Alert fatigue kills FinOps programs. An alert that fires every week and is ignored is worse than no alert — it trains the team that cost alerts are noise. |
-| Engineering team has no idea what their infrastructure costs | No per-team cost allocation or showback | Implement tag-based cost allocation. Every resource must have `Team`, `Environment`, `Service`, and `CostCenter` tags. Generate a weekly per-team cost report. Showback > chargeback — visibility first, accountability second. | Cost visibility is a prerequisite for cost optimization. Engineers can't optimize costs they can't see. |
-| Hundreds of 'orphan' storage volumes costing $5K/mo | EBS volumes/block storage never deleted when EC2 terminates | Enable 'Delete on termination' by default. Implement a 'leaked resource' Lambda that snapshots and deletes unattached volumes older than 7 days. Tag volumes with `CreatedBy` and `TTL` for automated cleanup. | Orphaned resources are a silent budget drain. Automation is the only reliable way to clean them up — manual quarterly cleanup always misses some. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "Transfer\|DataTransfer\|egress\|bandwidth" cost*.csv 2>/dev/null && python3 -c "import csv; rows=list(csv.DictReader(open('cost.csv'))); print(sum(float(r.get('DataTransfer',0)) for r in rows))"` shows > 30% of total | Cloud bill doubled overnight | Data transfer costs spiked from a new feature that streams large assets without CDN | Route all static/large assets through CDN; set budget alerts at 80%/100%/120%; tag every resource and query by tag to find culprit in under 5 minutes | 1. `aws ce get-cost-and-usage --filter '{"Dimensions":{"Key":"USAGE_TYPE","Values":["DataTransfer*"]}}'` 2. Identify top data-transfer services 3. Enable CloudFront for static assets 4. Set budget alert before next billing cycle |
+| `grep -rn "reserved_instance\|savings_plan" main.tf && aws ce get-reservation-utilization --time-period | jq '.Total.UtilizationPercentage'` shows < 20% | Reserved Instance shows no savings | RI purchased for a workload that stopped running or changed instance family | Reserve only for workloads with predictable, stable usage (24/7 services); Spot for batch jobs; Savings Plans cover instance family changes — prefer them over RIs for heterogeneous fleets | 1. `aws ce get-reservation-utilization` to find unused RIs 2. `aws ce get-reservation-purchase-recommendation --service AmazonEC2 --lookback-period SIXTY_DAYS` 3. Convert unused RIs to Savings Plans via AWS Marketplace 4. Set monthly utilization review |
+| `grep -rn "anomaly\|threshold\|alert" . --include="*.tf" --include="*.yml" | grep -E "10%\|0\.1\|percentage"` returns matches | Cost anomaly alert fires weekly, team ignores it | Threshold set too tight (10%) for a variable workload | Set anomaly thresholds at 2 standard deviations from trailing 14-day average, not a flat percentage; filter out known growth patterns; escalate if acknowledged but not investigated within 72 hours | 1. Replace flat % threshold with `anomaly_band: 2` (std deviations) 2. Add filter for expected growth patterns 3. Set escalation policy: alert → warn at 24h → page at 72h if unacknowledged 4. Measure alert signal-to-noise ratio improving |
+| `grep -rn "tags\|CostCenter\|Team" main.tf` returns zero matches AND `aws resourcegroupstaggingapi get-resources --tags-per-page 100` shows < 50% tagged | Engineering team has no idea what their infrastructure costs | No per-team cost allocation or showback | Implement tag-based cost allocation; every resource must have `Team`, `Environment`, `Service`, and `CostCenter` tags; generate weekly per-team cost report; showback > chargeback | 1. Create tag policy with SCP/Tag Policy enforcement 2. `aws resourcegroupstaggingapi tag-resources` for all untagged resources 3. Generate `per-team-cost-report.csv` weekly 4. Share dashboard read-only with all engineering teams |
+| `aws ec2 describe-volumes --filters "Name=status,Values=available" | jq '.Volumes | length'` returns > 10 | Hundreds of 'orphan' storage volumes costing $5K/mo | EBS volumes/block storage never deleted when EC2 terminates | Enable 'Delete on termination' by default; implement 'leaked resource' Lambda that snapshots and deletes unattached volumes older than 7 days; tag volumes with `CreatedBy` and `TTL` for automated cleanup | 1. List orphaned: `aws ec2 describe-volumes --filters "Name=status,Values=available"` 2. Snapshot volumes older than 7 days: `aws ec2 create-snapshot` 3. Delete: `aws ec2 delete-volume` 4. Schedule Lambda for daily cleanup |
+| `grep -rn "kubecost\|cost.*allocation\|namespace.*cost" k8s/ --include="*.yaml"` returns zero matches AND `kubectl get namespaces | wc -l` > 5 | Kubernetes cost 40% of cloud bill but no one knows which namespace drives it | No Kubernetes cost allocation; shared cluster costs are opaque | Implement kubecost or equivalent; right-size resource requests with VPA recommender; allocate costs by namespace/label; show per-team K8s spend in dashboards | 1. `helm install kubecost kubecost/cost-analyzer` 2. Wait 24h for data aggregation 3. Identify top-cost namespaces: `kubectl cost --namespace '*'` 4. Right-size requests with VPA and reduce waste by 30-50% |
+| `grep -rn "S3\|BlobStorage\|GCS\|bucket" main.tf && grep -rn "lifecycle\|expiration\|delete" main.tf` returns zero matches | S3/storage costs doubled in 6 months — logs and temp data accumulating forever | No lifecycle policies applied to any storage buckets; temporary data, logs, and old versions accumulate indefinitely | Apply lifecycle policies to all buckets: transition to cheaper tier after N days, expire/delete after M days; use Intelligent-Tiering for unpredictable access patterns | 1. `aws s3api get-bucket-lifecycle-configuration --bucket <name>` for each bucket 2. Add transition to STANDARD_IA after 30 days, expire after 90 days 3. Enable S3 Intelligent-Tiering for variable access patterns 4. Verify storage costs drop 20-40% next month |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Tagging strategy documented with mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`)
-- [ ] **[S2]**  Tag enforcement in place via SCP, Azure Policy, or Org Policy; > 95% resource tag compliance
-- [ ] **[S3]**  Budget alerts configured per team/environment at 50%, 80%, 100%, 120% thresholds
-- [ ] **[S4]**  Cost anomaly detection enabled and alerting to team communication channels
-- [ ] **[S5]**  Cost dashboards available to all engineering teams (self-service, updated daily)
-- [ ] **[S6]**  RI/SP coverage at 60-80% for steady-state compute; review coverage monthly
-- [ ] **[S7]**  Right-sizing review completed within last 90 days; recommendations implemented
-- [ ] **[S8]**  Spot instances adopted for > 40% non-production and > 20% production stateless workloads
-- [ ] **[S9]**  S3/Azure Blob/GCS lifecycle policies applied to all buckets; deletion policies for logs/temp data
-- [ ] **[S10]**  Data transfer optimization: VPC endpoints for S3/DynamoDB, CDN for egress-heavy endpoints
-- [ ] **[S11]**  Kubernetes cost allocation implemented (kubecost or equivalent); resource requests right-sized
-- [ ] **[S12]**  Idle resource cleanup automated: non-production shutdown nights/weekends; unattached resources deleted
-- [ ] **[S13]**  Monthly FinOps review established with action items and ownership
-- [ ] **[S14]**  Unit economics dashboard for at least top-3 products/customer segments
-- [ ] **[S15]**  Carbon footprint baseline measured; reduction targets set
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Tagging strategy documented with mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`) | `grep -rn "tags\s*=" main.tf \| wc -l` → ≥ 1 AND `grep -rnE "(Team\|Environment\|CostCenter\|Service)" main.tf \| wc -l` → ≥ 3 | Add mandatory tag block to all resource modules |
+| **[S2]** | Tag enforcement in place via SCP, Azure Policy, or Org Policy; > 95% resource tag compliance | `aws resourcegroupstaggingapi get-resources --tags-per-page 100 \| jq '.ResourceTagMappingList \| length'` → equals total resources | Apply SCP denying resource creation without required tags |
+| **[S3]** | Budget alerts configured per team/environment at 50%, 80%, 100%, 120% thresholds | `grep -rn "budgets_budget\|budget_alert" main.tf \| wc -l` → ≥ 1 | Add `aws_budgets_budget` with 4 threshold alerts |
+| **[S4]** | Cost anomaly detection enabled and alerting to team communication channels | `grep -rn "anomaly_monitor\|anomaly_subscription" main.tf \| wc -l` → ≥ 1 | Add `aws_ce_anomaly_monitor` + `aws_ce_anomaly_subscription` |
+| **[S5]** | Cost dashboards available to all engineering teams (self-service, updated daily) | `grep -rn "grafana\|cost.*dashboard\|infracost\|vantage" . --include="*.md" \| wc -l` → ≥ 1 | Deploy Infracost dashboard or CloudHealth/Vantage |
+| **[S6]** | RI/SP coverage at 60-80% for steady-state compute; review coverage monthly | `aws ce get-reservation-coverage --time-period \| jq '.Total.CoverageHours.CoverageHoursPercentage'` → between 60-80 | Purchase Savings Plans for gap to reach 60-80% coverage |
+| **[S7]** | Right-sizing review completed within last 90 days; recommendations implemented | `find . -name "right-sizing*" -mtime -90 \| wc -l` → ≥ 1 | Run AWS Compute Optimizer + generate right-sizing report quarterly |
+| **[S8]** | Spot instances adopted for > 40% non-production and > 20% production stateless workloads | `grep -rn "spot\|spot_instance\|spot_fleet" main.tf \| wc -l` → ≥ 1 | Add Spot instance pools for stateless workloads |
+| **[S9]** | S3/Azure Blob/GCS lifecycle policies applied to all buckets | `aws s3api get-bucket-lifecycle-configuration --bucket <name>` → non-empty for all buckets | Add lifecycle policy: transition to IA after 30d, expire after 90d |
+| **[S10]** | Data transfer optimization: VPC endpoints for S3/DynamoDB, CDN for egress-heavy endpoints | `grep -rn "vpc_endpoint\|cloudfront\|cdn" main.tf \| wc -l` → ≥ 1 | Add S3/DynamoDB VPC endpoints + CloudFront distribution |
+| **[S11]** | Kubernetes cost allocation implemented (kubecost or equivalent) | `kubectl get pods -n kubecost \| wc -l` → ≥ 1 | `helm install kubecost kubecost/cost-analyzer` |
+| **[S12]** | Idle resource cleanup automated: non-production shutdown nights/weekends | `grep -rn "schedule\|cron" --include="*.tf" AND grep -rn "stop\|terminate\|shutdown"` → related to instance scheduling | Add Instance Scheduler: stop dev/staging instances 8pm-7am + weekends |
+| **[S13]** | Monthly FinOps review established with action items and ownership | `find . -name "finops*review*" -mtime -30 \| wc -l` → ≥ 1 | Schedule recurring calendar + FinOps review template |
+| **[S14]** | Unit economics dashboard for at least top-3 products/customer segments | `grep -rn "unit.economics\|cost.per.customer\|cost.per.request" . --include="*.md" \| wc -l` → ≥ 1 | Build unit economics dashboard linking cost to business metrics |
+| **[S15]** | Carbon footprint baseline measured; reduction targets set | `grep -rn "carbon\|sustainability\|emissions" . --include="*.md" \| wc -l` → ≥ 1 | Enable AWS Customer Carbon Footprint Tool + set 12-month reduction target |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production cloud cost management -->

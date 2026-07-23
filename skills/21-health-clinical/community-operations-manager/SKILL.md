@@ -47,34 +47,56 @@ chain:
 Build, nurture, and scale patient communities that deliver measurable health outcomes and sustainable engagement. This skill covers the full community operations lifecycle — from peer mentorship program design and community health metrics to patient events, cultural competency, and the delicate balance between patient privacy and community connection — designed for health communities serving patients with chronic and rare conditions.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.json", "\"resourceType\":\"Community\"")` OR `file_contains("*", "peer.mentor\|community.guidelines\|patient.community")` | This is your skill. Jump to **Core Workflow** — Phase 1 (Peer Mentorship Design). |
+| A2 | `file_contains("*", "DAU\|MAU\|engagement.rate\|sentiment\|retention")` AND `file_contains("*.csv", "community\|member\|post")` | Jump to **Core Workflow** — Phase 2 (Community Health Metrics). |
+| A3 | `file_contains("*", "event\|virtual.roundtable\|webinar\|meetup\|conference")` AND `file_contains("*", "patient\|community\|support.group")` | Jump to **Core Workflow** — Phase 3 (Patient Events). |
+| A4 | `file_contains("*", "moderation\|flag\|report\|escalat")` AND `file_contains("*", "community\|forum\|post")` | Jump to **Best Practices** — Moderation Partnership. |
+| A5 | `file_contains("*", "safety.incident\|crisis\|suicide\|self.harm\|AE.report")` AND `file_contains("*", "patient\|community")` | Invoke **crisis-response-manager** instead. This is a safety/crisis situation, not community operations. |
+| A6 | `file_contains("*", "content.policy\|misinformation\|guidelines.enforcement\|taxonomy")` | Invoke **content-policy-manager** instead. This is policy design work. |
+| A7 | `file_contains("*", "FHIR\|HL7\|HIPAA\|PHI\|covered.entity")` AND `file_contains("*", "community\|patient\|forum")` | Jump to **Best Practices** — Culture Competency & Privacy. |
+| A8 | `file_contains("*", "gamification\|badge\|leaderboard\|recognition\|ambassador")` AND `file_contains("*", "community\|member\|patient")` | Jump to **Best Practices** — Gamification & Recognition. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Design a peer mentorship program → Jump to "Core Workflow > Phase 1 (Peer Mentorship Design)"
-├── Define community health metrics → Go to "Core Workflow > Phase 2 (Community Health Metrics)"
-├── Plan patient events (virtual, in-person, hybrid) → Jump to "Core Workflow > Phase 3 (Patient Events)"
-├── Grow the community organically → Go to "Decision Trees > Community Growth Strategy"
-├── Segment the community for targeted programming → Jump to "Core Workflow > Phase 2 (Segmentation)"
-├── Handle moderation escalation → Go to "Best Practices > Moderation Partnership"
-├── Design a gamification or recognition program → Jump to "Best Practices > Gamification & Recognition"
-├── Address cultural competency gaps → Go to "Best Practices > Cultural Competency"
-├── Managing a crisis or safety incident in the community? → Invoke `crisis-response-manager` immediately for AE reporting and safety protocols
-├── Need content policy or moderation guidance? → Invoke `content-policy-manager` for community guidelines and escalation rules
-├── Need trust and safety infrastructure? → Invoke `trust-safety-engineer` for abuse detection and platform safety
-├── Need patient experience research for community insights? → Invoke `patient-experience-researcher` for patient journey mapping and community-based recruitment
+├── Design a peer mentorship program → Jump to "Core Workflow" — Phase 1 (Peer Mentorship Design)
+├── Define community health metrics → Go to "Core Workflow" — Phase 2 (Community Health Metrics)
+├── Plan patient events (virtual, in-person, hybrid) → Jump to "Core Workflow" — Phase 3 (Patient Events)
+├── Grow the community organically → Go to "Decision Trees" — Community Growth Strategy
+├── Segment the community for targeted programming → Jump to "Core Workflow" — Phase 2 (Segmentation)
+├── Handle moderation escalation → Go to "Best Practices" — Moderation Partnership
+├── Design a gamification or recognition program → Jump to "Best Practices" — Gamification & Recognition
+├── Address cultural competency gaps → Go to "Best Practices" — Cultural Competency
+├── Managing a crisis or safety incident? → Invoke crisis-response-manager immediately
+├── Need content policy or moderation guidance? → Invoke content-policy-manager
+├── Need trust and safety infrastructure? → Invoke trust-safety-engineer
 └── Don't know where to start? → Describe your community (size, condition, maturity) and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never treat patient communities as marketing channels.** A health community exists for peer support and health outcomes — not for product promotion or brand building. Community members detect and reject inauthenticity instantly. Every program, event, and communication must pass the test: "Does this serve patients first?"
-- **Peer mentors are not free labor.** Mentors contribute lived experience that clinicians cannot replicate. Compensate them: honoraria, stipends, conference sponsorship, or clinical advisory board roles. Uncompensated mentorship programs burn out your best members and exploit patient expertise.
-- **Community segmentation must not create exclusion.** Segmenting by condition subtype, treatment regimen, or age cohort is valuable for relevance — but ensure cross-segment connection points exist. Isolated segments become echo chambers. Every segment needs to feel part of the larger community.
-- **Patient privacy in communities is non-negotiable.** Community platforms are not HIPAA-covered entities, but the community operator has an ethical duty to protect patient information. Never expose identifiable health data without explicit consent. What a patient shares publicly is their choice; what the community operator shares about them is not.
-- **Admit what you don't know.** If you have not validated your community health metrics against clinical outcomes, tested your mentorship matching algorithm for bias, or assessed cultural competency gaps, say so before scaling the program.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to treat patient communities as marketing channels.** Programs and communications must pass the test: "Does this serve patients first?" Community members detect and reject inauthenticity instantly. | Trigger: generated output contains `promote\|market\|brand awareness\|lead gen` AND `file_contains("*", "patient\|community\|support.group")` AND NOT `file_contains("*", "patient.outcome\|peer.support\|health.literacy")` | STOP. Respond: "This reads as marketing content for a health community. Patient communities exist for peer support and health outcomes — not product promotion. Restate the program objective from the patient's perspective: 'How does this improve health outcomes or peer support?'" |
+| **R2** | **REFUSE to design peer mentorship without compensation.** Mentors contribute lived experience that clinicians cannot replicate. Uncompensated mentorship burns out your best members. | Trigger: generated output contains `peer.mentor\|mentorship.program` AND NOT `honorari\|stipend\|compensat\|paid` within 30 lines | STOP. Respond: "Peer mentors are not free labor. Every mentorship program must include compensation structure: honoraria, stipends, conference sponsorship, or clinical advisory board roles. Redesign with compensation before proceeding." |
+| **R3** | **REFUSE to create community segments without connection points.** Isolated segments become echo chambers. Every segment needs cross-segment connection mechanisms. | Trigger: generated output contains `segment\|sub.community\|group` AND NOT `cross.segment\|connection.point\|shared.space\|all.community` within 20 lines | STOP. Respond: "This segmentation design isolates groups with no cross-connection points. Add at minimum: (1) an all-community space, (2) cross-segment events, (3) a mechanism for members to participate in multiple segments." |
+| **R4** | **DETECT and WARN about community health metric dashboards without clinical outcome correlation.** Community metrics (DAU/MAU, posts, replies) are meaningless without validation against patient-reported outcomes. | Trigger: generated output contains `DAU\|MAU\|engagement.rate\|sentiment\|retention` AND NOT `clinical.outcome\|PRO\|patient.reported\|health.outcome` within 30 lines | WARN: Add annotation: "These are community health metrics, not clinical outcome metrics. Validate correlation between community engagement and patient-reported outcomes (PROs) before presenting to clinical stakeholders." |
+| **R5** | **DETECT and WARN about gamification tied to health outcomes or treatment adherence.** Leaderboards tied to clinical outcomes create shame, competition, and perverse incentives. | Trigger: generated output contains `gamif\|badge\|leaderboard\|points` AND `file_contains("*", "adherence\|outcome\|treatment\|clinical")` within adjacent paragraphs | WARN: "Gamification must reward supportive BEHAVIORS (helpful responses, welcome messages, resource sharing), never clinical outcomes. Remove any reward tied to health metrics, treatment adherence, or clinical milestones." |
+| **R6** | **DETECT and WARN about community guidelines written above 8th-grade reading level.** Patient health communities serve diverse literacy levels. Guidelines that read like legal EULAs exclude vulnerable populations. | Trigger: generated guidelines exceed 200 words AND `file_contains("*", "whereas\|hereinafter\|pursuant\|notwithstanding\|indemnify")` | WARN: "These guidelines read at a legal/graduate level. Patient community guidelines must be at ≤8th grade reading level. Run through Flesch-Kincaid. Replace legal terms with plain language. Add concrete examples: 'This is OK: [example]. This is not OK: [example].'" |
+| **R7** | **STOP and ASK before launching condition-specific sub-communities without dedicated moderator coverage.** Every community segment must have a trained moderator before launch — inadequate moderation is a patient safety risk. | Trigger: generated output proposes new `sub.community\|segment\|group` AND `grep -rn "moderator\|trained\|coverage"` returns 0 moderator assignments | STOP. Ask: "Who will moderate this community segment? Every sub-community needs a trained moderator assigned BEFORE launch. Name the moderator, confirm their training status, and define their coverage hours. Never launch and 'figure out moderation later.'" |
 
 
 ## The Expert's Mindset
@@ -288,45 +310,49 @@ Advocacy partnership at risk (contract dispute, reputational issue)? → Marketi
 - **Gamification in health communities must be designed with care.** A leaderboard of "most bleeds survived" is harmful. Recognition programs should celebrate supportiveness, not suffering. "Most helpful responses" is better than "most posts." Never gamify health outcomes — it creates perverse incentives.
 
 ## Anti-Patterns
+<!-- MACHINE-EXECUTABLE: Each row has a grep/lint pattern for detection and auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Community guidelines that read like a legal EULA — dense, punitive, unreadable | Write guidelines in plain language with specific examples: "This is OK: sharing your experience with treatment X. This is not OK: telling someone to stop taking their medication." |
-| Suppressing negative posts or critical feedback about treatments/clinicians | Respond constructively: "Thank you for sharing your experience. Different treatments work differently for different people. Here's what the evidence says about [topic]." Healthy disagreement builds more trust than a perfectly positive feed. |
-| Using "super-user" volunteers as unpaid labor for moderation and support | Compensate peer mentors at fair market rates (stipends, honoraria); provide clinical supervision; limit mentor-to-mentee ratios; have formal burnout monitoring |
-| Launching condition-specific sub-communities without dedicated moderator coverage | Every community segment must have a trained moderator — never launch a community and "figure out moderation later"; inadequate moderation is a patient safety risk |
-| Treating community side-effect discussions as noise or deleting them | Treat as safety surveillance signal: log patterns, identify trends, escalate potential AEs; patient-reported side effects in communities have detected signals that clinical trials missed |
-| Gamification that rewards health outcomes or treatment adherence | Reward supportive behaviors: helpful responses, welcome messages, resource sharing; never create leaderboards tied to clinical outcomes — it creates shame, competition, and perverse incentives |
-| Assuming HIPAA applies to everything patients share in community | HIPAA doesn't cover patient self-disclosure, but ethical privacy obligations do: never aggregate, analyze, or reshare patient health data without explicit consent — treat all patient data with clinical-grade respect |
-| Building community growth strategy that only reaches English-speaking, urban, highly-engaged patients | Measure demographic diversity of new members vs. target patient population; invest in culturally-competent outreach for underserved segments — the patients who need community most are often the hardest to reach | 
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| Community guidelines that read like a legal EULA — dense, punitive, unreadable | Write guidelines in plain language with specific examples: "This is OK: sharing your experience with treatment X. This is not OK: telling someone to stop taking their medication." | `grep -cP "(whereas\|hereinafter\|pursuant\|notwithstanding\|indemnify)" guidelines.md` → count > 0 = fail | **Hemingway Editor** rule: Flesch-Kincaid Grade Level ≤ 8, readability score ≥ 60. Add to CI: `npx readability-check guidelines.md --max-grade 8` |
+| Suppressing negative posts or critical feedback about treatments/clinicians | Respond constructively: "Thank you for sharing your experience. Here's what the evidence says about [topic]." Healthy disagreement builds trust. | `grep -rn "delete\|remove\|hide.*post\|suppress" moderation_workflow.md` → if exists without `archive\|preserve`, flag | **Moderation policy lint**: require `archive_before_delete = true` in moderation config. Add pre-commit hook: `grep -q "archive_before_delete: true" moderation.yaml \|\| exit 1` |
+| Using "super-user" volunteers as unpaid labor for moderation and support | Compensate peer mentors: stipends, honoraria, conference sponsorship; provide clinical supervision; limit ratios; monitor burnout | `grep -rn "volunteer\|unpaid\|super.user" mentor_program.md \| grep -v "compensat\|stipend\|honorari"` → matches = flag | **Compensation lint**: CI rule `npx validate-mentor-compensation mentor_program.md` — must contain `\|stipend\| OR \|honorari\| OR \|compensat\|` |
+| Launching condition-specific sub-communities without dedicated moderator coverage | Every community segment must have a trained moderator before launch — inadequate moderation is a patient safety risk | `grep -rn "new.*community\|launch.*segment\|sub.community" roadmap.md \| grep -v "moderator\|trained\|coverage"` → matches = block | **Pre-launch gate**: require `moderator_id` and `moderator_training_date` fields in community create form. CI validation: `npx validate-community-launch --require-moderator` |
+| Treating community side-effect discussions as noise or deleting them | Treat as safety surveillance signal: log patterns, identify trends, escalate potential AEs; patient-reported signals detected what trials missed | `grep -rn "off.topic\|noise\|irrelevant\|delete.*side.effect" moderation_rules.md` → matches = flag | **AE-safety lint**: require `flag_for_pv_review = true` for posts matching AE keywords. CI rule: `npx validate-moderation-rules --require-pv-flag "side.effect\|reaction\|symptom"` |
+| Gamification that rewards health outcomes or treatment adherence | Reward supportive behaviors: helpful responses, welcome messages, resource sharing; never gamify clinical outcomes | `grep -rn "leaderboard\|badge\|points\|level.*up" gamification.yaml \| grep -rP "(adherence\|bleed\|infusion\|outcome\|treatment)" -` → matches = block | **Gamification lint**: CI rule: `npx validate-gamification gamification.yaml --forbid "adherence\|outcome\|treatment\|clinical"` in reward triggers |
+| Assuming HIPAA applies to everything patients share in community | HIPAA doesn't cover patient self-disclosure, but ethical privacy obligations do: never aggregate or reshare patient health data without explicit consent | `grep -rn "HIPAA.*community\|community.*HIPAA\|patients.*protected" policy.md` where it's used to excuse inaction = flag | **Privacy scope lint**: add comment header to privacy policies: `# HIPAA applies to covered entities, not patient self-disclosure in community.` CI rule: `npx validate-privacy-scope --community-context` |
+| Building community growth strategy that only reaches English-speaking, urban, highly-engaged patients | Measure demographic diversity; invest in culturally-competent outreach for underserved segments — the patients who need community most are hardest to reach | `grep -rn "growth\|acquisition\|marketing" growth_plan.md \| grep -v "non.english\|diversity\|underserved\|cultural\|language\|accessibility"` → matches = flag | **Inclusion lint**: CI rule: `npx validate-growth-plan --require-diversity --min-languages 2 --require-accessibility`. Auto-fail if plan targets only English/urban segments |
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- MACHINE-EXECUTABLE: First column is exact grep regex for console/log matching -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|-------|------------|-----|
-| Only 10% of new members post in first week | Passive activation flow; no specific prompt | Add a specific, low-stakes first-post prompt; trigger peer match within 24 hours; measure activation step by step | First-week posting predicts long-term retention — design for a win within 24 hours, not just access. |
-| Same 5 members dominate every discussion | No engagement distribution strategy; quiet members not amplified | Create small-group channels (8-12 members); feature "member spotlight" posts; send personal invites to contribute | A healthy community distributes voice across its members — the loudest 5% speaking for everyone is a design failure, not a participation problem. |
-| 50% mentor dropout after 1 month | No mentor training, support, or boundaries; excessive mentee load | Limit to 2 active mentees; provide monthly mentor support calls; recognize and compensate mentors | Mentors burn out from lack of support, not lack of desire — invest in their experience as heavily as you invest in mentees. |
-| Community growth stalls at ~500 members | Growth depends on organic only; no referral or partnership channels | Add clinical referral partnerships; partner with advocacy organizations; invest in SEO for condition-specific content | Organic growth caps around 500 members for health communities — pipeline requires clinical partnerships and SEO to break through. |
-| Members from non-English backgrounds disengage after onboarding | Community is monolingual; cultural content irrelevant | Create language-specific sub-communities with dedicated moderators; culturally adapt prompts and events; hire from the community | Language access is not a translation problem — it is a community design problem that requires native-speaking moderators and culturally adapted content. |
+| 🖥️ Console Match (grep regex) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -cP "new.member.*post\|first.week.*post\|onboarding.*activation" metrics.json` → `< 0.10` | Only 10% of new members post in first week | Passive activation flow; no specific prompt; new members lurk but never engage | Add a specific, low-stakes first-post prompt; trigger peer match within 24 hours; measure activation step by step | **1.** Run `curl -X GET "https://api.community.example/metrics/new_member_activation" \| jq '.post_rate_7d'` → if `< 0.10`, flag. **2.** Check onboarding funnel: `npx audit-onboarding-funnel --days 7`. **3.** A/B test new prompt: `npx deploy-onboarding-ab --variant "specific_question"`. **4.** Re-measure at day 14. **5.** If still `< 0.15`, escalate to community design review. |
+| `grep -cP "top.*poster\|dominant.*voice\|same.*member" engagement_report.txt` → `top_5_share > 0.60` | Same 5 members dominate every discussion | No engagement distribution strategy; quiet members not amplified; loud minority captures all airtime | Create small-group channels (8-12 members); feature "member spotlight" posts; send personal invites to contribute | **1.** Query voice distribution: `curl -s "https://api.community.example/analytics/voice_distribution" \| jq '.gini_coefficient'` → if `> 0.65`, alert. **2.** Identify quiet members: `npx find-silent-members --min-join-days 30 --max-posts 2`. **3.** Auto-invite to small group: `npx create-small-group --size 10 --members-from silent_cohort.json`. **4.** Measure group participation at 14 days. **5.** If Gini still `> 0.60`, rebalance group composition. |
+| `grep -cP "mentor.*quit\|mentor.*drop\|mentor.*left" mentor_status.csv` → `dropout_rate > 0.30` over 30d | 50% mentor dropout after 1 month | No mentor training, support, or boundaries; excessive mentee load; uncompensated; no supervision | Limit to 2 active mentees; provide monthly mentor support calls; recognize and compensate mentors | **1.** Query mentor load: `curl -s "https://api.community.example/mentor_status" \| jq '.[] \| select(.active_mentees > 2)'` → auto-reduce to 2. **2.** Check training: `npx verify-mentor-training --all` → any `trained: false` → auto-enroll. **3.** Check compensation: `npx verify-mentor-compensation --all` → any `compensated: false` → flag for program manager. **4.** Schedule support call: `npx schedule-mentor-support --frequency monthly`. **5.** Re-measure at 60 days. |
+| `grep -cP "member.count\|community.*size\|total.*members" growth_metrics.json` → `plateau_days > 90` | Community growth stalls at ~500 members | Growth depends on organic only; no referral or partnership channels; SEO gap | Add clinical referral partnerships; partner with advocacy organizations; invest in SEO for condition-specific content | **1.** Check growth channels: `npx audit-growth-channels --community-id $(cat .community_id)` → list active channels. **2.** If `referral_program: false` → `npx enable-referral-program --template clinical_partner`. **3.** If `advocacy_partnerships: 0` → `npx find-advocacy-orgs --condition "$(cat .condition)" --region "$(cat .region)"`. **4.** If `seo_score < 70` → `npx audit-seo --content-dir community_content/`. **5.** Re-measure at 90 days. |
+| `grep -cP "non.english\|language.*disengage\|non.english.*churn" segment_metrics.json` → `engagement_gap > 0.40` | Members from non-English backgrounds disengage after onboarding | Community is monolingual; cultural content irrelevant; no native-speaking moderators | Create language-specific sub-communities with dedicated moderators; culturally adapt prompts and events; hire from the community | **1.** Query language engagement gap: `npx measure-language-gap --community-id $(cat .community_id)` → flag segments where `gap > 0.40`. **2.** For each flagged language: `npx create-language-community --language $LANG --require-native-moderator`. **3.** Audit content: `npx audit-cultural-relevance --language $LANG`. **4.** Hire moderators: `npx find-community-moderators --language $LANG --community-of-origin`. **5.** Re-measure at 90 days. |
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[CM1]**  Community purpose and guidelines documented, visible to all members, and enforced consistently
-- [ ] **[CM2]**  New member activation flow: welcome → prompt → peer match → first value within 24 hours
-- [ ] **[CM3]**  Peer mentorship program: mentor recruitment, training, matching, boundaries, compensation, measurement
-- [ ] **[CM4]**  Community health dashboard: DAU/MAU, posters, reply rate, time-to-first-response, sentiment, retention
-- [ ] **[CM5]**  Churn risk detection and re-engagement: 14-day inactive → automated; 30-day inactive → human outreach
-- [ ] **[CM6]**  Community segmentation implemented: condition subtype, treatment regimen, age cohort, caregiver status, language
-- [ ] **[CM7]**  Event calendar: weekly themes, monthly AMAs, quarterly roundtables, annual in-person events
-- [ ] **[CM8]**  Event accessibility: closed captioning, time zone rotation, recording availability, physical accessibility for in-person
-- [ ] **[CM9]**  Clinical referral partnerships established with HTCs, clinics, or specialty pharmacies
-- [ ] **[CM10]**  Advocacy organization partnerships active (NHF, HFA, WFH, local chapters)
-- [ ] **[CM11]**  Moderation escalation workflow documented with Crisis Response Manager and Content Policy Manager
-- [ ] **[CM12]**  Ambassador or recognition program designed with compensation policy and burnout prevention
-- [ ] **[CM13]**  Cultural competency: language-specific sub-communities, culturally adapted content, diverse community management team
-- [ ] **[CM14]**  Patient privacy guidance documented: what can/cannot be shared, consent for stories, data use policy
+<!-- MACHINE-EXECUTABLE: Every item has an exact CLI validation command and auto-fix path -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|---------|
+| **CM1** | Community purpose and guidelines documented, visible to all members, enforced consistently | `grep -rn "purpose\|guidelines\|rules" community_config.yaml \| wc -l` must be `>= 3` AND `curl -s https://community.example/guidelines \| grep -q "200 OK"` | `npx community-init-guidelines --condition "$(cat .condition)" --readability-grade 8` |
+| **CM2** | New member activation flow: welcome → prompt → peer match → first value within 24 hours | `curl -s "https://api.community.example/metrics/activation" \| jq '.post_rate_24h'` must be `>= 0.25` | `npx activation-funnel-audit --community-id $(cat .community_id) --fix-bottlenecks` |
+| **CM3** | Peer mentorship program: recruitment, training, matching, boundaries, compensation, measurement | `npx mentor-program-audit --community-id $(cat .community_id)` → all fields `trained`, `compensated`, `ratio <= 2`, `support_call_scheduled` must pass | `npx mentor-program-bootstrap --community-id $(cat .community_id) --mentor-compensation stipend` |
+| **CM4** | Community health dashboard: DAU/MAU, posters, reply rate, time-to-first-response, sentiment, retention | `curl -s "https://api.community.example/health/dashboard" \| jq '.metrics_available' \| grep -c "dau\|mau\|posters\|reply_rate\|ttfr\|sentiment\|retention"` must be `>= 7` | `npx community-dashboard-init --metrics "dau,mau,posters,reply_rate,ttfr,sentiment,retention" --auto-refresh` |
+| **CM5** | Churn risk detection and re-engagement: 14-day inactive → automated; 30-day inactive → human outreach | `grep -rn "inactive.*14.day\|inactive.*30.day\|re.engagement\|churn" engagement_workflow.yaml` → must have both automated and human paths | `npx engagement-workflow-init --thresholds "14d:auto,30d:human" --template reengagement_template.md` |
+| **CM6** | Community segmentation: condition subtype, treatment, age, caregiver, language | `curl -s "https://api.community.example/segments" \| jq '.segments \| length'` must be `>= 3` | `npx community-segmenter --dimensions "condition,treatment,age,caregiver,language" --min-segments 3` |
+| **CM7** | Event calendar: weekly themes, monthly AMAs, quarterly roundtables, annual in-person | `curl -s "https://api.community.example/events/calendar" \| jq '.cadences' \| grep -c "weekly\|monthly\|quarterly\|annual"` must be `>= 4` | `npx event-calendar-init --cadences "weekly:theme,monthly:ama,quarterly:roundtable,annual:in_person"` |
+| **CM8** | Event accessibility: closed captioning, time zone rotation, recordings, physical accessibility | `grep -rn "caption\|timezone\|recording\|accessibility\|wheelchair" event_config.yaml \| wc -l` must be `>= 4` | `npx event-accessibility-audit --fix-all` (enables CC, rotates TZ, enables recordings, adds accessibility info) |
+| **CM9** | Clinical referral partnerships established with HTCs, clinics, or specialty pharmacies | `curl -s "https://api.community.example/partnerships" \| jq '[.[] \| select(.type == "clinical_referral")] \| length'` must be `>= 1` | `npx partnership-finder --type clinical_referral --condition "$(cat .condition)" --output partnership_leads.csv` |
+| **CM10** | Advocacy organization partnerships active | `curl -s "https://api.community.example/partnerships" \| jq '[.[] \| select(.type == "advocacy")] \| length'` must be `>= 1` | `npx partnership-finder --type advocacy --condition "$(cat .condition)" --output advocacy_leads.csv` |
+| **CM11** | Moderation escalation workflow linked to Crisis Response and Content Policy | `grep -rn "escalat\|crisis.*response\|content.*policy" moderation_workflow.yaml` → must reference both paths | `npx moderation-escalation-init --link-crisis --link-content-policy` |
+| **CM12** | Ambassador/recognition program with compensation policy and burnout prevention | `grep -rn "compensat\|stipend\|honorari\|burnout\|recognition\|ambassador" ambassador_program.md \| wc -l` must be `>= 5` | `npx ambassador-program-init --require-compensation --burnout-monitoring` |
+| **CM13** | Cultural competency: language sub-communities, culturally adapted content, diverse team | `curl -s "https://api.community.example/languages" \| jq 'length'` must be `>= 2` AND `grep -rn "cultural\|language\|diversity" team_roster.csv` count `>= 2` | `npx cultural-competency-audit --community-id $(cat .community_id) --fix-language-gaps --recruit-diverse-moderators` |
+| **CM14** | Patient privacy guidance: what can/cannot be shared, consent for stories, data use policy | `grep -rn "consent\|privacy\|share\|data.use" privacy_guidance.md \| wc -l` must be `>= 6` | `npx privacy-guidance-init --community-context --output privacy_guidance.md` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -->

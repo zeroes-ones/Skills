@@ -60,34 +60,51 @@ optimization (FinOps), disaster recovery (RPO/RTO design, 3-2-1 backup, failover
 mesh (Istio/Linkerd), and progressive delivery (canary, blue-green, feature flags).
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("main.tf")` OR `file_exists("Pulumi.yaml")` OR `file_exists("cdktf.json")` | Jump to "Core Workflow" — Phase 1 (IaC) for infrastructure-as-code review |
+| A2 | `file_exists(".github/workflows/")` AND `file_contains(".github/workflows/", "deploy\|apply\|terraform")` | Invoke `ci-cd-builder` skill instead |
+| A3 | `file_exists("vault/")` OR `file_contains("main.tf", "vault_\|aws_secretsmanager\|azure_key_vault")` OR `file_exists(".sops.yaml")` | Jump to "Core Workflow" — Phase 3 (Secrets) |
+| A4 | `file_exists("Chart.yaml")` OR `file_exists("kustomization.yaml")` OR `file_contains("main.tf", "kubernetes_\|helm_release")` | Invoke `docker-kubernetes` skill instead |
+| A5 | `file_contains("main.tf", "prometheus\|grafana\|datadog\|newrelic\|opentelemetry")` OR `file_exists("prometheus/")` | Jump to "Core Workflow" — Phase 5 (Observability) |
+| A6 | `file_contains("./**/deploy*.yaml", "canary\|blue.green\|rolling")` OR `file_contains("main.tf", "canary\|blue_green")` | Go to "Decision Trees" — Deployment Strategy |
+| A7 | `grep -rn "incident\|postmortem\|runbook" . --include="*.md"` returns matches AND `file_exists("PagerDuty")` is false | Invoke `incident-responder` skill instead |
+| A8 | No IaC files found, but `.github/` or CI config exists | Jump to "Core Workflow" — Phase 1 (IaC) — start codifying infrastructure |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Write infrastructure as code (Terraform/Pulumi) → Jump to "Core Workflow" — Phase 1 (IaC)
-├── Set up CI/CD or deployment pipelines → Invoke `ci-cd-builder` skill instead
-├── Configure secrets management (Vault, SOPS) → Jump to "Core Workflow" — Phase 3 (Secrets)
-├── Manage Kubernetes or container infrastructure → Invoke `docker-kubernetes` skill instead
-├── Set up release management → Invoke `release-manager` skill instead
-├── Need reliability and SLO framework → Invoke `site-reliability-engineer` skill instead
-├── Build an internal developer platform → Invoke `platform-engineer` skill instead
-├── Set up monitoring and observability → Jump to "Core Workflow" — Phase 5 (Observability)
-├── Plan a deployment strategy (canary, blue-green) → Go to "Decision Trees" — Deployment Strategy
-├── Design cloud infrastructure → Invoke cloud-architect skill instead
-├── Respond to an incident → Invoke incident-responder skill instead
+├── Write infrastructure as code (Terraform/Pulumi)
+├── Configure secrets management (Vault, SOPS, cloud KMS)
+├── Set up monitoring and observability
+├── Plan a deployment strategy (canary, blue-green, rolling)
+├── Manage a multi-environment infrastructure pipeline
+├── Automate infrastructure compliance and policy
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never apply terraform without reviewing the plan.** Always run `terraform plan` and inspect every resource change before `apply`. A typo in a `count` or `for_each` can destroy production.
-- **Infrastructure changes need rollback plans.** Every IaC change must have a documented rollback: can you `terraform apply` the previous commit? Is state versioned? Are there data plane changes that can't be rolled back?
-- **Never expose secrets in state files.** Terraform state contains all resource attributes in plaintext. Use encrypted backends, treat state files as secrets, and never commit them to version control.
-- **Always consider blast radius.** A single Terraform workspace managing 500 resources across 3 environments is a disaster. Use smaller state files, separate workspaces, and explicit dependencies. If you can `destroy` it with one command, it's too big.
-- **Always think about the operator on call at 3 AM.** The runbook for "increase capacity" shouldn't be "run terraform, wait 45 minutes, and pray." Build auto-scaling, self-healing, and operational simplicity into the infrastructure.
-- **Admit what you don't know.** If a cloud provider's Terraform provider has a known bug or a resource's behavior changed between versions, say so and check the provider changelog.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to apply terraform without reviewing the plan** — a typo in `count` or `for_each` can destroy production. | Trigger: user requests `terraform apply` without a prior `terraform plan` output in the conversation context | STOP. Respond: "No `terraform plan` output reviewed. Run `terraform plan -out=plan.tfplan` first. I will review every resource change — creates, updates, and especially destroys — before any apply." |
+| **R2** | **REFUSE to commit terraform state files or state backups to version control** — state contains all resource attributes in plaintext including secrets. | Trigger: `file_exists(".git/")` AND `grep -rn "terraform.tfstate" .gitignore` returns zero matches | STOP. Respond: "`.gitignore` does not exclude terraform state files. Add `*.tfstate`, `*.tfstate.*`, and `.terraform/` to `.gitignore` immediately. Terraform state contains plaintext secrets — committing it is a security incident." |
+| **R3** | **REFUSE to design infrastructure with a single state file spanning environments** — one `terraform destroy` in the wrong workspace deletes production. | Trigger: `file_contains("main.tf", "workspace")` AND `grep -rnE "count|for_each" main.tf` uses environment variables for branching instead of separate state backends | STOP. Respond: "Single state file detected spanning multiple environments. Use separate state files per environment (separate backends or state keys). A corrupted staging state should never block production changes." |
+| **R4** | **REFUSE to bake secrets into container images or AMIs at build time** — build-time secrets persist in image layers and are visible to anyone with registry access. | Trigger: `file_contains("Dockerfile", "ENV.*SECRET\|ENV.*PASSWORD\|ENV.*TOKEN\|ENV.*KEY")` OR `file_contains("packer*.json", "secret\|password\|token")` in plaintext | STOP. Respond: "Secret detected in [file:line] at build time. Secrets must be injected at runtime via a secrets manager (Vault, AWS Secrets Manager, External Secrets Operator). Build-time secrets persist in image layers forever." |
+| **R5** | **STOP and ASK when GitOps is configured without `selfHeal: true` and `prune: true`** — manual `kubectl` changes create hidden drift that accumulates silently. | Trigger: `file_contains("argocd/", "selfHeal")` is false OR `file_contains("flux/", "prune")` is false in GitOps manifests | STOP. Ask: "GitOps detected without `selfHeal: true` and `prune: true`. Without self-heal, manual changes persist indefinitely. Without prune, orphaned resources accumulate. Enable both? (These settings are non-negotiable for production GitOps.)" |
+| **R6** | **DETECT and WARN about long-lived static credentials for CI/CD** — static credentials are a single point of compromise; if leaked, attacker has permanent access. | Trigger: `grep -rnE "AWS_ACCESS_KEY_ID|AZURE_CLIENT_SECRET|GCP_SA_KEY|service.account.*key" .github/workflows/` returns matches AND OIDC is not configured | WARN: "Static cloud credentials detected in CI pipeline at [file:line]. Migrate to OIDC federation (GitHub Actions → AWS, GitLab → GCP) with short-lived tokens scoped per step. Rotate any existing static credentials immediately." |
+| **R7** | **DETECT and WARN when disaster recovery exists only as documentation** — DR docs without automated testing are wishful thinking. | Trigger: `file_exists("dr-plan.md")` OR `file_exists("runbooks/")` AND `grep -rn "dr.*test\|failover.*test\|game.*day" . --include="*.md" --include="*.yml"` returns zero matches | WARN: "DR documentation exists but no automated DR tests detected. Run game days quarterly — measure RTO/RPO against targets. Docs alone never reveal: DNS changes not committed to Git, runbook steps referencing decommissioned tools, or missing cross-region IAM permissions." |
 
 ## The Expert's Mindset
 
@@ -596,16 +613,17 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **DR is a continuous practice, not a document** — Run DR tests on schedule. Measure recovery time, not just "it worked." Automate the failover — manual runbooks fail under pressure.
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| Running `terraform apply` from a local laptop against production state | All applies must run through CI/CD with plan posted as PR comment and human approval required. Local applies bypass review, lack audit trail, and use unverified credentials. Lock down production state to only allow CI service principal access. |
-| Using the same Terraform state file for staging and production with workspace switching | Use separate state files (or separate backends) per environment. A `terraform destroy` in the wrong workspace can delete production. Separate state files also enforce blast radius isolation — a corrupted staging state doesn't block production changes. |
-| Baking secrets into container images or AMIs at build time | Inject secrets at runtime via a secrets manager (Vault, AWS Secrets Manager, External Secrets Operator). Build-time secrets persist in image layers and are visible to anyone with registry access. Runtime injection ensures secrets are ephemeral and auditable. |
-| Configuring GitOps without `selfHeal: true` and `prune: true` | Manual `kubectl` changes will persist indefinitely, creating hidden drift. Self-heal auto-reverts unauthorized changes within seconds. Pruning removes resources deleted from Git — without it, orphaned resources accumulate. Both settings are non-negotiable for production. |
-| Deploying a canary without a control group — sending 100% of traffic through the canary | Keep 10–20% of traffic on the stable version as a baseline. Canary analysis must compare metrics (error rate, latency) against the live control group. Without a control group, you're just monitoring a full rollout and hoping for the best. |
-| Treating disaster recovery as a document that gets updated once a year | Run automated DR tests on a schedule (monthly for tier-1 services). Measure RTO/RPO against targets. Game days expose gaps that documentation alone never reveals — like a DNS change that wasn't committed to Git or a runbook step that references a decommissioned tool. |
-| Using long-lived static credentials for CI/CD pipelines instead of OIDC federation | Use OIDC federation (GitHub Actions → AWS, GitLab → GCP) with short-lived tokens scoped to each pipeline step. Static credentials are a single point of compromise — if leaked, an attacker has permanent access. Rotate any existing static credentials immediately. |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Running `terraform apply` from a local laptop against production state | All applies must run through CI/CD with plan posted as PR comment and human approval required | `grep -rn "terraform apply" .github/workflows/` returns zero matches AND `file_exists("main.tf")` → no CI-enforced apply, local-only risk | CI pipeline requirement: production state backend denies access except from CI service principal; `terraform apply` blocked outside CI |
+| Using the same Terraform state file for staging and production with workspace switching | Use separate state files (or separate backends) per environment; `terraform destroy` in wrong workspace deletes production | `grep -rn "terraform.workspace\|workspace_key_prefix" main.tf` → workspace switching detected for env separation | `terraform validate` + CI check: if workspace switching used AND `backend` config same for prod/staging, block and require separate backends |
+| Baking secrets into container images or AMIs at build time | Inject secrets at runtime via secrets manager (Vault, AWS Secrets Manager, External Secrets Operator) | `grep -rn "ENV.*SECRET\|ENV.*PASSWORD\|ENV.*TOKEN\|ENV.*KEY" Dockerfile` → finds build-time secrets in images | `hadolint` rule DL3044 + Trivy secret scan in CI blocking images with embedded credentials |
+| Configuring GitOps without `selfHeal: true` and `prune: true` | Self-heal auto-reverts unauthorized changes; pruning removes resources deleted from Git | `grep -rn "selfHeal:" argocd/` shows `false` OR `grep -rn "prune:" flux/` shows `false` → disabled self-heal/prune | OPA/Gatekeeper policy: ArgoCD Application without `syncPolicy.automated.prune: true` → deny admission |
+| Deploying a canary without a control group — sending 100% of traffic through the canary | Keep 10–20% of traffic on the stable version as baseline; compare canary metrics against live control group | `grep -rn "canary\|canaryWeight" k8s/` AND `grep -rn "stableWeight" k8s/` shows `canaryWeight: 100` → no control group | Argo Rollouts analysis template requiring `stableWeight > 0` for canary steps; CI validation of rollout manifests |
+| Treating disaster recovery as a document that gets updated once a year | Run automated DR tests on schedule (monthly for tier-1); measure RTO/RPO against targets; game days expose gaps | `file_exists("dr-plan.md")` AND `grep -rn "dr.*test\|failover.*test\|game.*day" .github/workflows/` returns zero matches → DR doc without testing | Scheduled GitHub Actions workflow running DR failover test monthly; failed DR test → PagerDuty alert |
+| Using long-lived static credentials for CI/CD pipelines instead of OIDC federation | Use OIDC federation (GitHub Actions → AWS, GitLab → GCP) with short-lived tokens scoped to each pipeline step | `grep -rnE "AWS_ACCESS_KEY_ID\|AZURE_CLIENT_SECRET\|GCP_SA_KEY" .github/workflows/` returns matches → static credentials in CI | `trufflehog` CI scan blocking static cloud credentials; repo-level OIDC configuration required for production environments |
 
 ## Infrastructure Cost per User at Scale
 
@@ -690,14 +708,16 @@ Self-hosting only wins when:
 
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Staging tests pass — production deploy fails with database connection error | Staging used a t3.micro RDS instance with 100 max connections. Production used a db.r6g.xlarge with 1000 max connections. The application's connection pool was configured for staging's limit. | Never hardcode environment-specific values. All environment-specific configuration must come from environment variables. Use the same configuration structure across environments — only the values differ. Run integration tests in an environment as close to production as possible. | Environment parity is the foundation of reliable deployments. Every difference between staging and production is a class of untestable bugs. |
-| Deployment broke because app expected `DATABASE_URL` but IaC only exported `DB_URL` | Environment variables were defined by two different teams (app and infrastructure) with no shared naming convention. Both teams independently chose different variable names. | Define a shared environment variable schema that both application and infrastructure teams agree on. Publish the schema as a document and validate it in CI. Use a `.env.example` file as the single source of truth for variable names. | Naming inconsistency between infrastructure and application code is one of the most common deployment failures. A shared schema turns a silent mismatch into a loud validation error. |
-| Terraform destroy accidentally deleted the production RDS instance | A developer ran `terraform destroy` in what they thought was the staging workspace. The workspace selector was set to `prod` from a previous session. | Implement blast radius controls: use separate AWS accounts per environment with SCPs blocking cross-account access. Enable deletion protection on all production databases. Require multi-factor authentication for destroy operations. Never use the same Terraform state file for multiple environments. | A single `terraform destroy` can end your career. Production infrastructure must be protected by multiple layers of defense: account isolation, deletion protection, and human approval gates. |
-| Canary analysis showed no errors — 5 minutes after full rollout, all requests failing | Canary analysis compared p95 latency against the stable version, but the canary was configured with 100% traffic during testing so there was no "stable" baseline. | Canary analysis must compare against a live control group receiving old version traffic. At minimum: keep 10-20% of traffic on the old version during the analysis window. Use statistical significance testing, not simple threshold comparison. | Canary without a control group isn't a canary — it's a risky rollout with monitoring. Always maintain a baseline for comparison. |
-| Vault dynamic credentials stopped working — all services lost database access simultaneously | Vault's database secret engine TTL was set to 1 hour with a maximum lease TTL of 1 hour. After exactly 1 hour, all credentials expired simultaneously and every application tried to renew at the same time, overwhelming Vault. | Set renewal TTL to stagger across services (not all at T-0). Add a buffer period (renew at 50% of TTL, not 100%). Tune Vault's rate limiting for peak renewal load. Monitor Vault's lease expiration rate — a spike is a pre-incident signal. | Synchronous credential rotation creates thundering herd problems. Always stagger renewal times and add headroom for the peak load. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "DATABASE_URL\|DB_URL" . --include="*.tf" --include="*.env*" && grep -rn "DATABASE_URL\|DB_URL" app/ --include="*.ts" --include="*.js"` shows naming mismatch | Staging tests pass — production deploy fails with database connection error | Staging used t3.micro RDS (100 max connections); production used db.r6g.xlarge (1000 connections); app connection pool configured for staging's limit | Never hardcode environment-specific values; all env-specific config from environment variables; use same config structure across environments — only values differ | 1. Audit all env vars: `grep -rn "process\.env\." app/` 2. Compare staging vs production values 3. Standardize naming with `.env.example` as source of truth 4. Add CI validation that env var schema matches across environments |
+| `grep -rn "DATABASE_URL" app/ && grep -rn "DB_URL" main.tf` returns both but no shared schema doc | Deployment broke because app expected `DATABASE_URL` but IaC exported `DB_URL` | Env vars defined by two different teams (app and infra) with no shared naming convention | Define shared env var schema that both teams agree on; publish as doc and validate in CI; use `.env.example` as single source of truth for variable names | 1. `grep -rn "process\.env\." app/ -o | sort -u` to list all env vars 2. Cross-reference with IaC exports 3. Create `.env.example` with documented naming 4. Add CI check: `diff <(grep -oP 'process\.env\.\K\w+' app/) <(grep -oP 'export \K\w+' main.tf)` |
+| `grep -rn "terraform destroy" shell-history.txt 2>/dev/null && ls terraform.tfstate.d/` shows `prod/` directory | Terraform destroy accidentally deleted production RDS instance | Developer ran `terraform destroy` in what they thought was staging workspace; workspace selector was set to `prod` from previous session | Separate AWS accounts per environment with SCPs blocking cross-account access; enable deletion protection on all production databases; require MFA for destroy ops; never use same state file for multiple environments | 1. `aws rds modify-db-instance --deletion-protection` to enable 2. `terraform state list \| wc -l` to check blast radius 3. Split state per environment 4. Require MFA + approval for destroy in CI |
+| `grep -rn "stableWeight: 0\|canaryWeight: 100" k8s/ --include="*.yaml"` returns matches | Canary analysis showed no errors — 5 minutes after full rollout, all requests failing | Canary configured with 100% traffic during testing so there was no "stable" baseline; analysis compared canary against itself | Keep 10-20% of traffic on old version during analysis window; use statistical significance testing, not simple threshold comparison; canary without a control group is a risky rollout with monitoring | 1. Set `stableWeight: 20` and `canaryWeight: 20` in rollout manifest 2. Add analysis template with t-test on error rate 3. Verify two separate metric streams (canary vs stable) 4. Re-run canary deployment |
+| `grep -rn "vault\|Vault" main.tf && vault read -format=json sys/leases | jq '.data.leases | length'` shows zero active leases | Vault dynamic credentials stopped working — all services lost database access simultaneously | Vault database secret engine TTL was 1 hour with max lease TTL of 1 hour; all credentials expired simultaneously and every app tried to renew at the same time, overwhelming Vault | Set renewal TTL to stagger across services (not all at T-0); add buffer period (renew at 50% of TTL, not 100%); tune Vault rate limiting for peak renewal load; monitor lease expiration rate | 1. Set `ttl: 4h` and `max_ttl: 24h` with staggered `issue_time` 2. Renew at 50% TTL: `vault lease renew -increment=2h` 3. Monitor `vault.lease.expiration.count` metric 4. Load test renewal at peak scale |
+| `terraform plan -out=plan.tfplan 2>&1 | grep "0 to add, 0 to change, 0 to destroy"` BUT `kubectl get all -o yaml | diff - <(helm template .)` shows drift | Infrastructure drift — what's running in production doesn't match Terraform state or Git | Manual `kubectl` changes made by on-call engineer to fix an incident were never codified back into IaC | GitOps with `selfHeal: true` to auto-revert manual changes; detect drift with `terraform plan -detailed-exitcode` on schedule; require all changes through IaC PRs | 1. `terraform plan -detailed-exitcode` (exit 2 = drift) 2. `terraform state list` and diff against Git 3. Import manual changes or revert 4. Enable GitOps self-heal: `selfHeal: true` in ArgoCD |
 
 
 ## What Good Looks Like
@@ -705,58 +725,25 @@ Self-hosting only wins when:
 > Infrastructure is fully codified, versioned, and reproducible — nothing is created by hand and nothing drifts. Deployments are zero-downtime with automated rollback on health check failure. Secrets are never in plaintext, never in environment variables, and always retrieved at runtime from a secrets manager. Monitoring, alerting, and logging are standardized across every service. The developer experience from commit to production is seamless: a single command provisions, deploys, and verifies. Mean time to recovery is measured in minutes, not hours, because every failure has a runbook.
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-### IaC & State
-- [ ] **[S1]**  Remote state with encryption at rest + locking (S3+DynamoDB, GCS, Azure Blob)
-- [ ] **[S2]**  State per environment per component (blast radius isolation)
-- [ ] **[S3]**  All modules pinned by immutable git tag or commit SHA
-- [ ] **[S4]**  Provider versions pinned (`~>` pessimistic constraint)
-- [ ] **[S5]**  `terraform fmt -check` + `terraform validate` enforced in CI
-- [ ] **[S6]**  Speculative plan posted as PR comment; apply requires human approval
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-### GitOps & Deployment
-- [ ] **[S7]**  Argo CD/Flux deployed and managing all Kubernetes resources
-- [ ] **[S8]**  `selfHeal: true` and `prune: true` for production applications
-- [ ] **[S9]**  Sync windows defined for maintenance blackout periods
-- [ ] **[S10]**  SSO (OIDC) enabled; RBAC configured per team
-- [ ] **[S11]**  Progressive delivery configured (Argo Rollouts or Flagger) with automated analysis
-- [ ] **[S12]**  Automated rollback on SLO breach or analysis failure
-
-### Secrets & Security
-- [ ] **[S13]**  No plaintext secrets in Git, `.tfvars`, or Kubernetes manifests
-- [ ] **[S14]**  External Secrets Operator syncing from cloud secret manager
-- [ ] **[S15]**  Vault dynamic secrets with lease TTL for databases
-- [ ] **[S16]**  Secret rotation automated for all credential types
-- [ ] **[S17]**  Kubernetes etcd encryption at rest configured
-- [ ] **[S18]**  mTLS enforced mesh-wide (STRICT mode)
-
-### Observability & Alerting
-- [ ] **[S19]**  SLOs defined for all critical user journeys with error budgets
-- [ ] **[S20]**  Multi-window burn-rate alerts configured and routed to PagerDuty
-- [ ] **[S21]**  Golden signals dashboards (RED + USE) for every production service
-- [ ] **[S22]**  Distributed tracing with trace_id in structured logs for correlation
-
-### DR & Reliability
-- [ ] **[S23]**  RPO/RTO defined per service tier, signed off by business stakeholders
-- [ ] **[S24]**  3-2-1 backup rule applied to all Tier 0-2 data stores
-- [ ] **[S25]**  Cross-region replication for databases and object storage
-- [ ] **[S26]**  Failover automation scripted, tested, committed to Git
-- [ ] **[S27]**  DR test conducted within last quarter; postmortem action items tracked
-- [ ] **[S28]**  DNS TTL ≤ 60s for critical endpoints
-
-### Cost & Operations
-- [ ] **[S29]**  Tagging governance enforced at account/project level
-- [ ] **[S30]**  Budget alerts configured at 50%/80%/100% thresholds
-- [ ] **[S31]**  Idle resource detection running weekly
-- [ ] **[S32]**  Spot/preemptible instances used for stateless workloads (20-40%)
-- [ ] **[S33]**  Runbooks exist for all P1/P2 alerts with escalation paths
-- [ ] **[S34]**  Blameless postmortem process established; action items tracked to completion
-
-### Platform Engineering
-- [ ] **[S35]**  Internal developer portal (Backstage, Port) for service catalog
-- [ ] **[S36]**  Self-service infrastructure provisioning (TFC workspace per team, Backstage scaffolder)
-- [ ] **[S37]**  Golden path templates for new services (CI pipeline + IaC + observability + on-call)
-- [ ] **[S38]**  Service mesh in place for mTLS, observability, traffic management
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Remote state with encryption at rest + locking (S3+DynamoDB, GCS, Azure Blob) | `grep -rn "backend\s*\"s3\"\|backend\s*\"gcs\"\|backend\s*\"azurerm\"" main.tf \| wc -l` → ≥ 1 AND `grep -rn "encrypt\s*=\s*true\|dynamodb_table" main.tf \| wc -l` → ≥ 1 | Add S3 backend with `encrypt = true` + `dynamodb_table` for locking |
+| **[S2]** | State per environment per component (blast radius isolation) | `grep -rn "key\s*=\s*.*env\|workspace_key_prefix" main.tf \| wc -l` → ≥ 1 | Separate state keys: `states/prod/networking/terraform.tfstate` |
+| **[S3]** | All modules pinned by immutable git tag or commit SHA | `grep -rn "source\s*=\s*\"git::" main.tf \| grep -c "ref="` → equals total module count | Replace branch refs with `?ref=v1.2.3` or commit SHA |
+| **[S4]** | Provider versions pinned (`~>` pessimistic constraint) | `grep -rn "required_providers" main.tf -A 10 \| grep "version" \| grep -c "~>"` → equals provider count | Add `version = "~> 5.0"` to each required_provider |
+| **[S5]** | `terraform fmt -check` + `terraform validate` enforced in CI | `grep -rn "terraform fmt\|terraform validate" .github/workflows/ \| wc -l` → ≥ 2 | Add `terraform fmt -check -recursive` and `terraform validate` to CI |
+| **[S6]** | Speculative plan posted as PR comment; apply requires human approval | `grep -rn "terraform plan" .github/workflows/ \| wc -l` → ≥ 1 AND `grep -rn "environment.*production" .github/workflows/ \| wc -l` → ≥ 1 | Add plan-to-PR-comment action + production environment protection |
+| **[S7]** | Argo CD/Flux deployed and managing all Kubernetes resources | `kubectl get pods -n argocd \| grep argocd \| wc -l` → ≥ 1 OR `kubectl get pods -n flux-system \| wc -l` → ≥ 1 | `helm install argocd argo/argo-cd` |
+| **[S8]** | `selfHeal: true` and `prune: true` for production applications | `grep -rn "selfHeal:\s*true" argocd/ \| wc -l` → ≥ 1 AND `grep -rn "prune:\s*true" argocd/ \| wc -l` → ≥ 1 | Set `syncPolicy.automated.selfHeal: true` and `prune: true` |
+| **[S9]** | SSO (OIDC) enabled; RBAC configured per team | `grep -rn "oidc\|dex" argocd/ \| wc -l` → ≥ 1 | Configure ArgoCD SSO with OIDC provider |
+| **[S10]** | Progressive delivery configured (Argo Rollouts or Flagger) with automated analysis | `kubectl get pods -n argo-rollouts \| wc -l` → ≥ 1 OR `kubectl get pods -n flagger-system \| wc -l` → ≥ 1 | `helm install argo-rollouts argo/argo-rollouts` |
+| **[S11]** | No plaintext secrets in Git, `.tfvars`, or Kubernetes manifests | `grep -rnE "(password\|secret\|token\|key)\s*=\s*\"[^\"]{8,}\"" . --include="*.tfvars" --include="*.yaml" \| wc -l` → 0 | Run `trufflehog filesystem .` and rotate any found secrets |
+| **[S12]** | External Secrets Operator syncing from cloud secret manager | `kubectl get pods -n external-secrets \| wc -l` → ≥ 1 | `helm install external-secrets external-secrets/external-secrets` |
+| **[S13]** | SLOs defined for all critical user journeys with error budgets | `grep -rn "SLO\|error_budget\|sloth\|pyrra" . --include="*.yaml" --include="*.tf" \| wc -l` → ≥ 1 | Generate SLO manifest with `sloth` or `pyrra` |
+| **[S14]** | 3-2-1 backup rule applied to all Tier 0-2 data stores | `grep -rn "backup_vault\|backup_plan\|backup_retention" main.tf \| wc -l` → ≥ 1 AND at least 3 copies configured | Add `aws_backup_plan` with cross-region + cross-account copies |
+| **[S15]** | DR test conducted within last quarter; postmortem action items tracked | `grep -rn "dr.*test\|game.*day\|failover.*test" .github/workflows/ \| wc -l` → ≥ 1 AND `find . -name "postmortem*" -mtime -90 \| wc -l` → ≥ 1 | Schedule quarterly DR test workflow + postmortem template |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production infrastructure -->

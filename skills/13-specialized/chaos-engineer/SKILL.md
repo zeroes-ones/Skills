@@ -49,35 +49,52 @@ When the agent identifies a specific chaos engineering need, drill into the rele
 > **Token-saving rule:** Planning a GameDay? Load the GameDay playbook (731 lines) and only the experiment catalog entries for the experiments you're running. Don't load tooling deep dives for tools you aren't using. The experiment catalog alone would consume massive tokens if loaded entirely — pick specific experiments.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.yaml", "kind: ChaosEngine\|kind: NetworkChaos\|kind: PodChaos\|kind: StressChaos")` OR `file_contains("*.json", "\"gremlin\"\|\"chaos-mesh\"\|\"litmus\"")` OR `file_exists("gremlin.yaml\|chaos-experiment.yaml")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_contains("*.yaml", "apiVersion: litmuschaos.io\|chaos-mesh.org")` AND `file_contains("*.yaml", "steadyState\|hypothesis")` | Jump to **Decision Trees** — Steady State Hypothesis Design. |
+| A3 | `file_contains("docker-compose.yml\|*.yaml", "prometheus\|grafana\|datadog")` AND `file_contains("*", "alert\|dashboard\|SLO\|error.budget")` | Invoke **observability-engineer** instead. Observability must be in place before chaos. |
+| A4 | `file_contains("*.yaml", "deployment\|statefulset\|daemonset")` AND NOT `file_contains("*.yaml", "readinessProbe\|livenessProbe")` | STOP. Jump to **Ground Rules** R1 — no chaos without health checks. |
+| A5 | `file_exists("PagerDuty.yaml\|opsgenie.yaml\|incident-response")` AND `file_contains("*", "runbook\|on-call\|escalation")` | Invoke **incident-responder** instead. This is incident response playbook work. |
+| A6 | `file_contains("*.tf\|*.tfvars", "aws_\|azurerm_\|google_")` AND `file_contains("*", "VPC\|subnet\|multi-region\|failover")` | Invoke **devops-engineer** instead. This is infrastructure provisioning. |
+| A7 | `file_contains("*", "SLO:\|error_budget:\|burn_rate:")` AND `file_contains("*", "99.9\|99.95\|99.99")` | Invoke **site-reliability-engineer** instead. SLO definitions are SRE domain. |
+| A8 | `file_contains("gremlin.yaml", "\"attacks\"")` OR `file_contains("*_experiment.yaml", "spec:\|action:\|selector:")` | Jump to **Core Workflow** — Phase 2 (Fault Injection). |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
-├── Design a chaos experiment → Start at "Steady State Hypothesis Design" under Sub-Skills
-├── Run fault injection (network, pod kills, resource exhaustion, AZ failure) → Go to "Fault Injection" under Sub-Skills
-├── Control blast radius → Jump to "Blast Radius Engineering" under Sub-Skills
-├── Verify steady state hypothesis → Go to "Steady State Hypothesis Design" under Sub-Skills
-├── Plan and run a GameDay → Jump to "GameDay Facilitation" then "references/game-day-playbook.md"
-├── Validate resilience patterns → Go to "Resilience Pattern Validation" under Sub-Skills
-├── Need SLOs or error budgets defined first → Route to `site-reliability-engineer`
-├── Need infrastructure for experiment execution → Route to `devops-engineer`
-├── Need observability dashboards before experimenting → Route to `observability-engineer`
-├── Need incident response playbook validation → Route to `incident-responder`
-└── Don't know where to start? → Start at "Steady State Hypothesis Design"
-
-**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+├── Design a chaos experiment with steady-state hypothesis → Jump to "Decision Trees" — Steady State Hypothesis
+├── Run fault injection (network, pod kills, resource exhaustion) → Jump to "Core Workflow" — Phase 2
+├── Plan and run a GameDay → Jump to "Core Workflow" — Phase 3 then "references/game-day-playbook.md"
+├── Control blast radius and set up abort conditions → Jump to "Decision Trees" — Blast Radius Engineering
+├── Validate resilience patterns (circuit breakers, retries, bulkheads) → Jump to "Sub-Skills" — Resilience Pattern Validation
+├── Need SLOs or error budgets defined first → Invoke site-reliability-engineer skill instead
+├── Need observability dashboards before experimenting → Invoke observability-engineer skill instead
+└── Not sure? → Describe the system and I'll design a starting experiment for staging
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never experiment in production without a verified kill switch.** If you can't stop it instantly, you can't start it.
-- **Blast radius must be measured before, during, and after.** Assumed blast radius is the leading cause of chaos incidents.
-- **Steady state hypothesis must be falsifiable.** "The system is resilient" is not a hypothesis. "P99 latency stays under 500ms with 30% packet loss" is.
-- **GameDay findings without remediation tickets are wasted effort.** Every finding must become a tracked action item with an owner.
-- **Always start small and expand.** Staging → canary → 1% → 10% → production. Never jump steps.
-- **Admit what you don't know.** If a failure mode is poorly understood, design an experiment to learn — don't guess.
-
-
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to design chaos experiments for services without health checks and readiness probes.** Chaos without observability is just breaking things — the blast radius is unbounded. | Trigger: `grep -rn "readinessProbe\|livenessProbe" --include="*.yaml" --include="*.yml"` returns 0 results for target deployment | STOP. Respond: "This service has no health checks. I won't design a chaos experiment until liveness and readiness probes are in place. Without them, the orchestrator can't detect failure and the experiment has no abort signal." |
+| **R2** | **REFUSE to run production chaos without a verified kill switch.** Every experiment must have an abort mechanism tested in staging within the last 7 days. | Trigger: experiment plan lacks `grep -rn "abort\|kill.switch\|terminate\|rollback"` in experiment YAML/config AND no shell command provided to stop all active experiments (`kubectl delete chaosengine` or `gremlin halt`) | STOP. Respond: "Define the kill switch first. Add an abort command and test it in staging. Without an instant-stop mechanism, I won't authorize the experiment." |
+| **R3** | **STOP and ASK when blast radius is undefined or unbounded.** The blast radius must be explicitly scoped: namespace, label selector, traffic percentage, or user segment — never `*` or `all`. | Trigger: experiment config contains `namespace: "*"` OR `selector: {}` OR `percent: 100` OR `blastRadius: null` OR no label selector on the fault injection | STOP. Ask: "What is the blast radius? Specify namespace, label selector, percentage of traffic, or user segment. I need explicit scope before proceeding." |
+| **R4** | **DETECT and WARN when steady-state hypothesis is unfalsifiable.** "The system is resilient" is not a hypothesis. Every hypothesis must have measurable thresholds. | Trigger: hypothesis text matches `grep -i "resilient\|works fine\|handles failure\|stays up"` without numeric thresholds (P50/P95/P99, error rate %, throughput) | WARN: "This hypothesis is unfalsifiable. Rewrite with numeric thresholds, e.g.: 'P99 latency < 500ms AND error rate < 1% AND throughput > 1000 req/s during 30% packet loss for 120s.'" |
+| **R5** | **DETECT and WARN when abort conditions lack numeric thresholds.** "If things look bad" is not an abort condition. Every abort trigger must be numeric and measurable. | Trigger: abort section contains `grep -iv "[0-9]\+%"\|"[0-9]\+ms"\|"[0-9]\+s"` — no numeric values found in abort criteria | WARN: "Add numeric abort thresholds: error rate > X%, P99 latency > Yms, duration > Zs. Without numbers, 'abort when it looks bad' means 'abort after the outage.'" |
+| **R6** | **STOP and ASK when the target environment is ambiguous.** Production, staging, canary, or dev? The environment determines every safety parameter. | Trigger: experiment plan does not mention `staging` OR `production` OR `canary` OR `dev` OR `namespace:` explicitly | STOP. Ask: "Which environment? Staging, production, or canary? If production: what time window? Is on-call notified? Is the abort command tested?" |
+| **R7** | **REFUSE to inject faults without first verifying observability coverage.** You must confirm the injected fault is visible on dashboards within 2 minutes before proceeding to production. | Trigger: no pre-experiment observability check: `grep -rn "prometheus\|grafana\|datadog\|metrics" --include="*.yaml" --include="*.json" experiment-config/` returns 0 AND no mention of dashboard/alerts in experiment plan | STOP. Respond: "Inject the fault in staging for 30 seconds first. If it's not visible on dashboards within 2 minutes, fix observability. Chaos without visibility is vandalism." |
 ## The Expert's Mindset
 
 Masters of chaos engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -581,25 +598,16 @@ Chaos engineering is inherently cross-team — you break things that other teams
 
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Production outage during staging chaos experiment | Blast radius not contained; experiment targeted shared staging cluster with cross-environment dependencies | Always use dedicated chaos namespace; configure network policies to isolate experiment scope; implement automatic rollback on P1 alert | Chaos experiments must include blast radius as a first-class design parameter — never assume staging isolation |
-| Experiment caused data corruption in stateful service | Fault injection targeted stateful service without read-only mode; no rollback plan defined before experiment | Define abort conditions (max failure duration, error rate threshold, user impact limit) and test rollback in staging before any production experiment | Without a rollback plan, an experiment is just an outage with a fancy name |
-| Team panic during first GameDay — nobody followed the runbook | No pre-GameDay training; team didn't know how to use runbooks or interpret dashboards under pressure | Conduct tabletop exercises first; train on runbooks in low-stakes environment; start with scheduled GameDays before surprise ones | GameDays test people and processes first, infrastructure second |
-| Fault injection had no effect — supposed to kill pods but service kept running | Experiment assumed Kubernetes config but service ran on Nomad; wrong infrastructure target | Verify infrastructure assumptions by running inject commands in dry-run mode; maintain an up-to-date infrastructure inventory | "It works on my cluster" is not a verified assumption — validate the target before injecting faults |
-| Alert fatigue post-experiment — monitoring flagged false positives for days | Experiment altered baseline metrics; dashboards and alerts not reset after experiment ended | Reset monitoring baselines after each experiment; add chaos experiment tag to metrics for filtering; document expected metric deviations | An experiment isn't over until monitoring returns to steady state — reset baselines before declaring success |
-
-### Route to Other Skills
-
-| If the Request Is About | Route To |
-|--------------------------|----------|
-| Defining SLOs, error budgets, or monitoring dashboards | `site-reliability-engineer` |
-| Incident detection, response playbook validation, on-call coordination | `incident-responder` |
-| Infrastructure provisioning, deployment orchestration, environment management | `devops-engineer` |
-| Dashboard tuning, alert configuration, anomaly detection | `observability-engineer` |
-| Resilience architecture, circuit breaker design, service dependency mapping | `system-architect` |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `Error: admission webhook.*denied\|chaos-mesh.*forbidden` + `kubectl auth can-i create chaosengine --as=system:serviceaccount:chaos-testing:chaos-operator -n chaos-testing` returns `no` | Chaos experiment stuck in `Pending` — never starts injecting faults | RBAC misconfiguration: the chaos operator service account lacks permissions to create/mutate pods, network policies, or stress processes in the target namespace | Grant RBAC: `kubectl create clusterrole chaos-operator --verb=create,delete,get,list,patch,update,watch --resource=pods,networkpolicies,stresschaos`. Bind to service account. Verify: `kubectl auth can-i create podchaos --as=system:serviceaccount:chaos-testing:chaos-operator` | 1. Check experiment status: `kubectl get chaosengine -n chaos-testing -o yaml \| grep -A5 "status:"` 2. Audit RBAC: `kubectl auth can-i --list --as=system:serviceaccount:chaos-testing:chaos-operator` 3. Apply missing permissions from chaos-mesh RBAC template: `kubectl apply -f https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/helm/chaos-mesh/templates/rbac.yaml` 4. Re-run: `kubectl apply -f experiment.yaml && kubectl wait --for=condition=Completed chaosengine/experiment --timeout=120s` |
+| `Error: chaos-daemon.*connection refused\|chaos-daemon.*dial unix.*connect: no such file` + `kubectl get pods -n chaos-testing -l app.kubernetes.io/component=chaos-daemon` shows 0/1 Ready | Fault injection targets available but daemon can't communicate with chaos-daemon sidecar on target node | Chaos daemon pod not running on target node — daemonset not scheduled or crashlooping. Chaos-mesh uses per-node daemon for fault injection; without it, no faults can be injected | Check daemonset: `kubectl get ds -n chaos-testing chaos-daemon`. Check tolerations match node taints. Verify host PID namespace: `kubectl get pod <chaos-daemon> -o yaml \| grep hostPID`. Restart daemonset if stuck: `kubectl rollout restart ds/chaos-daemon -n chaos-testing` | 1. Verify daemonset coverage: `kubectl get pods -n chaos-testing -l app.kubernetes.io/component=chaos-daemon -o wide \| grep <target-node>` 2. Check daemon logs: `kubectl logs -n chaos-testing ds/chaos-daemon --tail=50` 3. Verify hostPID=true: `kubectl get ds chaos-daemon -n chaos-testing -o yaml \| grep -A1 hostPID` 4. If missing, patch: `kubectl patch ds chaos-daemon -n chaos-testing -p '{"spec":{"template":{"spec":{"hostPID":true}}}}'` |
+| `Error: cannot delete pod.*statefulset\|pod terminated but rebuilt instantly\|replicaset rescaled` + `grep -rn "replicas:" deployment/ -A2` shows replicas=3 | Pod kill experiment runs but service doesn't degrade — StatefulSet controller or HPA immediately recreates pods faster than fault can cause impact | Chaos experiment targeting the wrong layer — killing Pods in a StatefulSet/ReplicaSet with 3+ replicas is absorbed by the controller before any user impact is felt. The experiment proves controller resilience, not service resilience | Reduce replica count during experiment OR target the service endpoint directly. Better: inject latency/errors at the application layer instead of killing infrastructure. Use `NetworkChaos` (latency injection) or `HTTPChaos` (error injection) for realistic failure simulation | 1. Verify target is correct: `kubectl get deployment <svc> -o yaml \| grep replicas` 2. If replicas > 1, switch to application-layer fault: `kind: HTTPChaos` with `abort: true` or `delay: 5000ms` 3. If must use PodChaos, set `mode: all` OR temporarily scale down: `kubectl scale deployment <svc> --replicas=1` before experiment 4. Re-verify: `kubectl get chaosengine -o yaml \| grep -A10 "status:"` — must show `injection-affected` > 0 |
+| `Error: experiment duration exceeded\|chaos-engine timeout\|context deadline exceeded` + `grep -rn "duration:" experiment.yaml` shows duration: 600s | Experiment ran for 10 minutes but never completed — steady-state check failed to detect recovery; experiment timed out waiting for system to return to baseline | The steady-state hypothesis was too strict — requiring P99 < 50ms when baseline was 45ms. Natural variance caused the check to fail repeatedly, keeping the experiment running until timeout | Relax hypothesis thresholds: use P95 instead of P99, allow ±10% variance from baseline. Set `duration` to be the minimum needed to observe behavior (60-120s for infra faults, 300s for stateful). Always include a hard `deadline` in experiment spec | 1. Check why experiment didn't complete: `kubectl describe chaosengine <name> -n chaos-testing \| grep -A20 "Events:"` 2. Review hypothesis: `grep -A10 "steadyState\|hypothesis" experiment.yaml` 3. Adjust thresholds: widen from baseline ±5% to ±15%, use P95 instead of P99 4. Set deadline: `duration: 120s` with `spec.scheduler.cron: ""` (one-shot) 5. Re-run with shorter duration: `kubectl apply -f experiment.yaml && kubectl wait --for=condition=Completed --timeout=180s chaosengine/<name>` |
+| `Error: cannot list resource.*nodes.*cluster scope\|nodes is forbidden` + `kubectl get nodes` succeeds but chaos operator can't access node-level resources | AZ failure or node-level chaos experiment fails — chaos operator has namespace-scoped RBAC but target is cluster-scoped (nodes, persistentvolumes) | Chaos operator was granted namespace-scoped Role instead of ClusterRole. Node-level faults (kernel panic, disk failure, AZ partition) require cluster-scoped permissions | Grant ClusterRole: `kubectl create clusterrole chaos-node-access --verb=get,list,watch,update,patch --resource=nodes`. Bind: `kubectl create clusterrolebinding chaos-node --clusterrole=chaos-node-access --serviceaccount=chaos-testing:chaos-operator` | 1. Verify permission scope: `kubectl auth can-i get nodes --as=system:serviceaccount:chaos-testing:chaos-operator` 2. If `no`, check current bindings: `kubectl get clusterrolebinding -o yaml \| grep chaos-operator` 3. Apply cluster-scoped RBAC from chaos-mesh docs 4. Test with dry-run: `kubectl apply -f node-chaos.yaml --dry-run=client` 5. Apply and verify: `kubectl apply -f node-chaos.yaml && kubectl get chaosengine -o yaml \| grep "status:.*Running"` |
+| `Error: failed to apply tc rules\|tc: command not found\|network chaos daemon not ready` + `kubectl logs -n chaos-testing ds/chaos-daemon \| grep -i "tc\|traffic.control\|iptables"` | NetworkChaos (latency/loss) experiment runs but has no observable effect — `curl` from test pod still shows <1ms latency when 500ms was injected | Target pod is not in the same network namespace as the chaos-daemon. The daemon uses `tc` (traffic control) on the pod's network interface, but if the pod uses `hostNetwork: true` or a CNI plugin that bypasses tc, no traffic is affected | Verify pod network mode: `kubectl get pod <target> -o yaml \| grep hostNetwork`. If `hostNetwork: true`, target the node instead of the pod. For CNI issues, switch to `kind: HTTPChaos` or `kind: DNSChaos` which work at application layer. Use `iptables`-based injection as fallback | 1. Check network mode: `kubectl get pod <target> -o yaml \| grep -E "hostNetwork\|hostPID"` 2. Test network chaos from sidecar: `kubectl exec -n chaos-testing <chaos-daemon> -- tc qdisc show dev eth0` 3. From target pod: `kubectl exec <target> -- ping -c5 <other-pod>` — baseline latency 4. Inject latency: `kubectl apply -f network-delay.yaml` 5. Re-ping: `kubectl exec <target> -- ping -c5 <other-pod>` — must show increased latency 6. If no effect, switch to DNS chaos: `kind: DNSChaos` with `patterns: [{name: "svc.cluster.local", type: "error"}]`
 
 ## Proactive Triggers
 <!-- QUICK: 30s — when to proactively notify stakeholders -->
@@ -615,27 +623,22 @@ Chaos engineering is inherently cross-team — you break things that other teams
 | Steady state hypothesis invalidated by infrastructure change | Service Owners, DevOps | Baseline metrics shifted; hypothesis rewrite and experiment revalidation required |
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Chaos Engineering principles communicated to engineering leadership; executive buy-in obtained.
-- [ ] **[S2]**  Steady state hypothesis defined for each service: measurable indicators of healthy behavior with specific metric thresholds.
-- [ ] **[S3]**  Fault injection catalog built covering: pod kills, network latency/loss, resource exhaustion, dependency failures, AZ failure, security faults.
-- [ ] **[S4]**  Experiment design template standardized: hypothesis, fault, blast radius, duration, abort conditions, rollback.
-- [ ] **[S5]**  Blast radius controls implemented: traffic %, user segment, infrastructure scope, time-bounded, auto-termination.
-- [ ] **[S6]**  Chaos tooling selected and deployed (Chaos Mesh, Litmus, Gremlin, AWS FIS, or Steadybit) with proper RBAC/scope controls.
-- [ ] **[S7]**  GameDay playbook documented: pre-GameDay prep, execution timeline, roles, post-GameDay follow-up process.
-- [ ] **[S8]**  At least one successful GameDay conducted in staging; findings documented and remediated.
-- [ ] **[S9]**  At least one successful GameDay conducted in production with limited blast radius (canary, 1 pod, 1 AZ).
-- [ ] **[S10]**  Circuit breakers, retries, and bulkheads implemented and verified via targeted chaos experiments.
-- [ ] **[S11]**  Observability verified: injected faults are detectable within 2 minutes on dashboards, logs, and alerts.
-- [ ] **[S12]**  Pre-experiment observability check documented and executed for each new experiment type.
-- [ ] **[S13]**  Resilience scoring system established per service; low-scoring services prioritized for hardening.
-- [ ] **[S14]**  Automated chaos scheduled in staging on every merge to main (functional + resilience CI).
-- [ ] **[S15]**  Scheduled production chaos experiments running weekly during low-traffic windows; results tracked per experiment.
-- [ ] **[S16]**  Abort mechanism tested: kill switch stops all active experiments within 30 seconds.
-- [ ] **[S17]**  SLO-based experiment gating implemented: chaos stops if error budget burn rate exceeds threshold.
-- [ ] **[S18]**  Experiment catalog maintained with status (designed → tested-staging → tested-prod → automated).
-- [ ] **[S19]**  Blast radius progressive expansion documented: each experiment's current level in the progressive model.
-- [ ] **[S20]**  Organization maturity level assessed and target level defined for the next quarter.
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Chaos tooling deployed and operator running — Chaos Mesh, Litmus, or Gremlin agent active on all target nodes | `kubectl get pods -n chaos-testing -l app.kubernetes.io/component=chaos-daemon -o json \| jq '.items \| length'` → must equal `kubectl get nodes --no-headers \| wc -l` | Helm: `helm upgrade --install chaos-mesh chaos-mesh/chaos-mesh -n chaos-testing --create-namespace --set chaosDaemon.runtime=containerd` |
+| **[S2]** | RBAC scoped correctly — chaos operator has namespace-limited permissions, not cluster-admin | `kubectl auth can-i --list --as=system:serviceaccount:chaos-testing:chaos-operator \| grep -E "\[\*\]" \| wc -l` → must be 0 (no wildcard permissions) | Apply scoped RBAC: `kubectl create role chaos-operator -n chaos-testing --verb=get,list,create,delete,patch --resource=pods,networkpolicies,stresschaos` |
+| **[S3]** | Kill switch tested: abort all active experiments within 30 seconds | `time kubectl delete chaosengine --all -n chaos-testing && kubectl wait --for=delete chaosengine --all -n chaos-testing --timeout=30s` → must complete < 30s | Shell alias: `alias chaos-stop='kubectl delete chaosengine --all -n chaos-testing --grace-period=0 --force'` |
+| **[S4]** | Steady-state hypothesis defined for target service with measurable numeric thresholds | `grep -c "P99\|P95\|error_rate\|throughput\|latency" experiment.yaml` → must be ≥ 3 (three distinct metrics) | Template: copy `templates/steady-state-hypothesis.yaml` into experiment spec with P50/P95/P99, error rate %, throughput req/s |
+| **[S5]** | Abort conditions defined with numeric thresholds (error rate > X%, latency > Yms, duration > Zs) | `grep -E "[0-9]+%\|[0-9]+ms\|[0-9]+[sm]" experiment.yaml \| wc -l` → must be ≥ 2 | Insert abort block: `spec.abortConditions: [{metric: "error_rate", threshold: "5%", duration: "30s"}]` |
+| **[S6]** | Blast radius scoped explicitly — namespace, label selector, percentage, NOT wildcard | `grep -E "namespace:.*\*\|selector:.*\{\}\|percent:.*100\|mode:.*all" experiment.yaml` → must return 0 matches | Set label selector: `selector: {namespaces: ["chaos-testing"], labelSelectors: {app: "target-svc"}}` and `mode: "one"` or `mode: "fixed-percent", value: "10"` |
+| **[S7]** | Pre-experiment observability verified — dashboards show service metrics, alerts configured | `curl -s http://prometheus:9090/api/v1/query?query=up{job="target-svc"} \| jq '.data.result[0].value[1]'` → must return `"1"` | Run pre-flight: `scripts/chaos-preflight.sh <service> <namespace>` — checks dashboard, alerts, metrics endpoint, logs |
+| **[S8]** | GameDay playbook documented with roles, timeline, communication plan, and abort procedure | `grep -c "role:\|timeline:\|communication:\|abort:" game-day-playbook.md` → must be ≥ 4 | Copy and customize: `templates/game-day-playbook.md` with specific service names, on-call contacts, dashboard URLs |
+| **[S9]** | At least one chaos experiment passes in staging CI on every merge to main | `kubectl get chaosengine -n staging -o json \| jq '[.items[] \| select(.status.conditions[0].type=="Completed")] \| length'` → must be > 0 for last 24h | GitHub Actions: `.github/workflows/chaos-staging.yml` — runs `kubectl apply -f experiments/ && scripts/wait-for-completion.sh` |
+| **[S10]** | Experiment rollback tested in staging — fault injected, then aborted within 60s, system returns to baseline | `scripts/chaos-rollback-test.sh <experiment>.yaml staging` → exit code 0 and all metrics within baseline ±10% | Script: inject fault → wait 30s → abort → wait 30s → query Prometheus for P95 comparison → pass/fail |
+| **[S11]** | Chaos experiment catalog maintained with status per experiment (designed → tested-staging → tested-prod → automated) | `grep -c "status:.*tested-prod" experiments/catalog.yaml` → must be ≥ 1 (at least one prod-verified experiment) | Catalog script: `scripts/catalog-status.sh` — reads `experiments/catalog.yaml`, outputs JSON with status counts |
+| **[S12]** | Experiment results tracked — MTTR per failure mode measured, resilience score computed per service | `curl -s http://chaos-dashboard:8080/api/resilience-scores \| jq '.[] \| select(.score < 70)'` → must return 0 services below 70% | Dashboard: deploy `chaos-dashboard` with Prometheus metrics → compute score = (1 - MTTR/SLO) × 100 per service |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
@@ -672,18 +675,18 @@ Chaos engineering is inherently cross-team — you break things that other teams
 10. **GameDay debrief must produce tracked action items:** Every finding gets an owner, severity, ticket number, and due date. Learning without action is wasted effort.
 
 ## Anti-Patterns
-<!-- STANDARD: 3min — patterns that predictably fail -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| Anti-Pattern | Why It Fails | Correct Approach |
-|---|---|---|
-| Running chaos experiments only before big launches | Panic-driven chaos produces rushed experiments with incomplete rollback plans; teams associate chaos with stress | Schedule experiments continuously on a calendar; decouple experiments from release anxiety |
-| "Throwing the kitchen sink" — injecting all faults at once | Cannot isolate which fault caused the failure; debugging takes hours; teaches nothing about individual resilience | Inject exactly one fault per experiment; understand single-fault behavior before combining |
-| Disabling monitoring during experiments to avoid alert fatigue | Defeats the purpose — if you can't detect the fault, your monitoring is broken; fix monitoring, don't silence it | Tag experiments for alert deduplication; fix gaps in observability; never silence alerts as a workaround |
-| Skipping the GameDay retrospective because "we learned enough during the exercise" | Tacit knowledge stays in individuals' heads; no tracked action items; same failures repeat next quarter | Require a written retro with owner, severity, and ticket number for every finding within 48 hours |
-| Running experiments without telling on-call | On-call declares SEV-1 for a chaos experiment; trust in chaos program destroyed; experiments get banned | Notify on-call 24+ hours in advance with expected symptoms and abort command; no surprises |
-| Testing only infrastructure faults (pod kill, network) | Application-level failures (corrupt responses, slow endpoints, bad config deployments) cause more incidents than infra failures | Expand catalog to include application faults: latency injection, malformed responses, config rollbacks |
-| Gamifying chaos with "who broke production" culture | Blame culture suppresses reporting; teams hide failures; chaos becomes political not engineering | Frame experiments as learning opportunities; celebrate findings not blame; leadership models blameless culture |
-| Treating chaos engineering as a one-time certification | Resilience decays as code changes; last year's experiments don't test this year's architecture | Automate experiments in CI/CD; rerun on every deploy; treat resilience as continuous verification |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Running chaos experiments only before big launches — panic-driven chaos produces rushed experiments with no rollback plan | Schedule experiments continuously on a calendar. Decouple experiments from release anxiety. Run weekly low-intensity chaos in staging CI. | `grep -rn "chaos\|gameday\|experiment" .github/workflows/ --include="*.yml" \| wc -l` → if 0, no CI-integrated chaos | GitHub Actions schedule trigger: `.github/workflows/chaos-weekly.yml` with `schedule: [{cron: "0 4 * * 3"}]` (Wed 4 AM) running baseline chaos in staging |
+| Injecting all faults at once ("kitchen sink") — cannot isolate which fault caused the failure | Inject exactly one fault per experiment. Understand single-fault behavior before combining. Run 3+ successful single-fault experiments before multi-fault. | `grep -c "kind:" experiment.yaml` → if > 1, multiple fault types in one experiment | Pre-commit hook: `scripts/validate-experiment.sh` — fails if `grep -c "kind:" $1` returns > 1 |
+| Disabling monitoring during experiments to avoid alert fatigue | Tag experiments for alert deduplication. Fix gaps in observability. Never silence alerts — route them to the experiment channel instead. | `grep -rn "silence\|mute\|suppress\|maintenance.mode" --include="*.yaml" --include="*.yml" experiment-config/` → finds alert-suppression configs | AlertManager rule: route chaos-tagged alerts to `#chaos-experiments` Slack channel with `severity: warning` label, not `severity: critical` |
+| Skipping the GameDay retrospective because "we learned enough during the exercise" | Require a written retro with owner, severity, and ticket number for every finding within 48 hours. Template: `templates/gameday-retro.md`. | `grep -rn "retro\|postmortem\|post-game" gameday/ --include="*.md" \| wc -l` → if 0, retro not written | GitHub Actions: 48h after GameDay, check for retro PR; if none, auto-create issue: `gh issue create --title "GameDay retro missing" --body "48h post-GameDay, no retro found"` |
+| Running experiments without notifying on-call — on-call declares SEV-1 for a chaos experiment | Notify on-call 24+ hours in advance with expected symptoms, dashboard links, and abort command. Send reminder 1h before experiment. | `grep -rn "on-call\|oncall\|notify\|escalation" experiment.yaml game-day-playbook.md \| wc -l` → if 0, no on-call notification plan | Pre-experiment script: `scripts/notify-oncall.sh` — queries PagerDuty/Opsgenie for current on-call, sends Slack/email with experiment details and abort command |
+| Testing only infrastructure faults (pod kill, network) — application-level failures cause more incidents | Expand catalog to include application faults: latency injection, malformed responses, config rollbacks, error injection at the HTTP/API layer. | `grep -E "kind:\s*(PodChaos\|NetworkChaos\|StressChaos\|IOChaos)" experiments/catalog.yaml \| wc -l` vs `grep -E "kind:\s*(HTTPChaos\|DNSChaos\|JVMChaos)" experiments/catalog.yaml \| wc -l` → ratio of infra:app faults should be < 3:1 | Catalog template: `templates/experiment-catalog.yaml` — pre-populated with 42 experiments split 50/50 between infra and application faults |
+| Treating chaos engineering as a one-time certification — resilience decays as code changes | Automate experiments in CI/CD. Rerun on every deploy. Treat resilience as continuous verification, not a checkpoint. | `grep -rn "chaos\|experiment" .github/workflows/ci.yml --include="*.yml" \| wc -l` → if 0, chaos not in CI pipeline. `grep -rn "chaos\|experiment" .github/workflows/deploy.yml` → if 0, not in deploy pipeline | CI integration: add `chaos-staging` job to `.github/workflows/ci.yml` that runs `make chaos-test` after deploy job. Deploy gate: `chaos-approval` environment with required reviewer before production chaos. |
+| Gamifying chaos with "who broke production" culture — blame culture suppresses reporting | Frame experiments as learning opportunities. Celebrate findings, not blame. Leaderboards track MTTR improvement, not "who caused incidents." | `grep -rn "blame\|fault\|who.broke\|you.broke" --include="*.md" --include="*.yaml" gameday/ experiment-config/` → must return 0 matches | Dashboard: display "Resilience Improvement" leaderboard — most improved P95 latency during chaos, fastest MTTR, most gameday findings remediated — never "most experiments passed" |
 
 ## Cost-Effective Decision Table
 

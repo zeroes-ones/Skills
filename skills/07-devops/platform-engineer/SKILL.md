@@ -33,37 +33,55 @@ implementation (Backstage, Port, Cortex), scaffolding toolchains, ephemeral envi
 APIs, service catalogs, scorecards, and the platform-as-product operating model.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("backstage/packages/app/src/")` OR `file_exists("catalog-info.yaml")` | Go to "Core Workflow > Phase 3" (Developer Portal) — Backstage/portal detected |
+| A2 | `file_contains("*.tf", "module.*platform\|module.*golden")` OR `file_exists("modules/")` | Go to "Core Workflow > Phase 4" (Self-Service Infrastructure) — IaC modules detected |
+| A3 | `file_exists(".github/workflows/")` AND `grep -rn "reusable_workflow\|workflow_call" .github/workflows/` | Go to "Core Workflow > Phase 2" (Golden Path Design) — reusable CI templates detected |
+| A4 | `file_exists("scaffold/")` OR `file_exists("cookiecutter.json")` OR `file_exists(".copier-answers.yml")` | Go to "Sub-Skills > scaffolding-toolchains" — scaffolding tooling detected |
+| A5 | `file_contains("docker-compose*.yml", "backstage\|developer-portal")` OR `file_contains("package.json", "@backstage/create-app")` | Go to "Core Workflow > Phase 3" (Developer Portal) — Backstage bootstrap detected |
+| A6 | `file_exists("Dockerfile")` AND `file_contains("Dockerfile", "FROM.*backstage\|FROM.*developer-hub")` | Go to "Core Workflow > Phase 3" (Developer Portal) — portal Docker deployment detected |
+| A7 | `file_exists(".platform/")` OR `file_exists("platform-config.yaml")` | Go to "Core Workflow > Phase 1" (IDP Architecture) — platform config root detected |
+| A8 | `grep -rn "scorecard\|techdocs\|service-catalog" entity.yaml catalog-info.yaml` → found | Go to "Core Workflow > Phase 3" (Developer Portal) — scorecard/catalog config detected |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Design an Internal Developer Platform (IDP) → Jump to "Core Workflow > Phase 1" (IDP Architecture)
-│   ├── Platform as product → Go to "Best Practices > Platform as Product"
-│   └── Build vs buy decision → See "Decision Trees > Build vs Buy"
 ├── Create golden paths / paved roads → Jump to "Core Workflow > Phase 2" (Golden Path Design)
-│   ├── Service template/scaffolding → Go to "Sub-Skills > scaffolding-toolchains"
-│   └── Self-service IaC modules → Go to "Sub-Skills > self-service-infrastructure"
 ├── Set up Backstage (or Port/Cortex) → Go to "Core Workflow > Phase 3" (Developer Portal)
-├── Build self-service infrastructure → Go to "Sub-Skills > self-service-infrastructure" and "Core Workflow > Phase 4"
+├── Build self-service infrastructure → Go to "Sub-Skills > self-service-infrastructure"
 ├── Design a developer portal → Jump to "Core Workflow > Phase 3" (Developer Portal)
 ├── Set up scaffolding / project templates → Go to "Sub-Skills > scaffolding-toolchains"
 ├── Need infrastructure building blocks → Invoke `devops-engineer` skill instead
 ├── Need container orchestration → Invoke `docker-kubernetes` skill instead
 ├── Need cloud architecture guidance → Invoke `cloud-architect` skill instead
 ├── Need observability for platform → Invoke `observability-engineer` skill instead
-└── Not sure where to start? → "Decision Trees > Platform Maturity Assessment" — understand current state before building
+└── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never build platform features without developer input.** The platform exists to serve developers, not to satisfy platform engineers' architectural ambitions. Validate every feature with real users before building.
-- **Golden paths must be the easiest path, not the only path.** Teams must be able to escape the paved road when they have legitimate needs the platform doesn't cover. The platform reduces cognitive load, not removes choice.
-- **Platform adoption is earned, not mandated.** If developers are forced to use your platform, you've already failed. Build something so useful they choose it voluntarily.
-- **Self-service means zero tickets.** If a developer needs to open a Jira ticket and wait 3 days to provision a database, you don't have a platform — you have a bottleneck with a portal in front of it.
-- **Always measure developer experience (DX).** Track time-to-first-deploy, time-to-provision, platform NPS, and ticket volume. Platform success is measured in developer productivity, not platform feature count.
-- **Admit what you don't know.** If you haven't interviewed the developers who will use this platform, say so. Recommendations without user research are guesses.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to build platform features without validated developer input.** The platform exists to serve developers, not platform engineers' architectural ambitions. Every feature must trace to ≥ 3 developer pain points. | Trigger: No `user-research/` directory or no `NPS-survey*.md` file and user hasn't cited specific developer feedback in the request | STOP. Respond: "Have you validated this with developers? Identify ≥ 3 developers experiencing this pain point before building. Run a quick survey or shadow a team for 1 day." |
+| **R2** | **REFUSE to mandate platform adoption or remove escape hatches.** Golden paths must be the easiest path, not the only path. Teams must be able to leave the paved road for specialized needs. | Trigger: `grep -rn "mandatory\|required.*use\|must.*use.*platform\|block.*non-platform\|prevent.*custom" docs/policies/` → coercive language forcing platform use | STOP. Respond: "Golden paths must guide, not mandate. Teams with legitimate needs must have escape hatches. Replace mandatory language with 'recommended' and document the escape-hatch process." |
+| **R3** | **REFUSE to design self-service that requires a human ticket.** If a developer needs to open a Jira ticket and wait 3 days to provision a database, it's not self-service — it's a bottleneck with a portal. | Trigger: `grep -rn "create.*ticket\|file.*request\|open.*JIRA\|manual.*approval\|requires.*approval" docs/` in self-service documentation | STOP. Respond: "Self-service means zero human tickets. The provisioning flow must be: click → provision → done, under 5 minutes. Replace manual approval with automated policy enforcement." |
+| **R4** | **REFUSE to build a 'big bang' platform migration without backward compatibility.** A migration that requires all teams to switch simultaneously is a deployment blockade. | Trigger: `grep -rn "big.bang\|cutover\|all.*teams.*must\|simultaneous.*migration\|flag.*day" docs/migration*.md,README.md` → big-bang migration language | STOP. Respond: "Plan migrations as gradual rollouts with backward compatibility. Run old and new systems in parallel. Test with one early-adopter team first. Allow teams to migrate at their own pace." |
+| **R5** | **STOP and ASK when developer experience (DX) metrics are absent.** You can't improve what you don't measure. Platform success = developer productivity, not feature count. | Trigger: No `DORA-metrics*` file, no `time-to-first-deploy*` tracking, no `NPS-survey*` in the project | STOP. Ask: "What are your current DX baselines? Measure: (1) time-to-first-deploy, (2) time-to-provision, (3) deploy frequency, (4) platform NPS. Can you provide any of these?" |
+| **R6** | **DETECT and WARN about templates/configs without versioning.** Golden paths without semver mean every service runs a different, unknowable version — security updates can't be rolled out. | Trigger: `grep -L "version:\|semver\|template_version" templates/**/Chart.yaml templates/**/package.json` → templates missing version field | WARN: "Version your golden path templates with semver. Track adoption by template version. Use Renovate/Dependabot to auto-update dependencies. Publish migration guides between major versions." |
+| **R7** | **DETECT and WARN about ephemeral environments without TTLs.** Zombie preview environments cost money indefinitely and create security risks. | Trigger: `grep -rn "ttl\|time_to_live\|expires\|auto_destroy" --include="*.tf" --include="*.yaml" --include="*.yml"` returns empty in environment provisioning code | WARN: "Set TTL on all ephemeral environments (default 72h, max 7 days). Implement automated cleanup after PR merge/close. Add a cost dashboard showing per-PR environment cost. Zombie environments cost $15K+/month at scale." |
 
 ## The Expert's Mindset
 
@@ -355,47 +373,50 @@ Common chains:
 
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Platform team approves every deploy — 50 deploys/day queue behind 2 platform engineers | Self-service by default: golden paths automate approval; human review reserved for architecture changes and incidents; platform enforces policy, not gates every deploy |
-| Golden path covers every edge case — template has 40 parameters, developers afraid to use it | Golden path covers the 80% use case; leave escape hatches for specialized needs; teams that leave the path own their consequences; thinnest viable template wins |
-| Platform built in isolation for 12 months — launched to find it solves problems nobody has | Ship the thinnest viable platform in weeks, not months; validate every feature with 3-5 developer design partners; NPS survey before building, not after launching |
-| Developer portal is a static wiki — "documentation-driven platform" with no automation | Portal must be the interface to automation: click-to-provision, self-service catalog, automated workflows; documentation tells you what to do; the portal does it for you |
-| Platform team has no PM, no roadmap, no NPS — priorities set by whoever shouts loudest in Slack | Platform-as-product: hire or designate a PM, maintain public roadmap, measure NPS quarterly, prioritize by developer-hours-saved; platform competes for adoption |
-| Ephemeral environments never get cleaned up — $15K/month in zombie preview environments | Enforce TTL on all ephemeral environments (default 72 hours); automated cleanup after PR merge/close; cost dashboard shows per-PR environment cost |
-| Platform deprecation is "we removed the old API, good luck" — 12 teams broken, 0 days notice | Deprecation policy: announce 90 days before, emit warnings at 60 days, sunset at 0; automated migration tooling where possible; human support for stuck teams |
-| Template versioning is "copy the latest" — every service runs a different version of the golden path | Version golden path templates with semver; auto-update dependencies via Renovate; publish migration guides between major versions; track adoption by template version |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Platform team approves every deploy — 50 deploys/day queue behind 2 platform engineers | Self-service by default: golden paths automate approval; human review reserved for architecture changes and incidents; platform enforces policy, not gates every deploy | `grep -rn "required.*approver\|manual.*approval\|approval.*required" .github/**/**.yml` → manual approval gates in CI | CI check: merge queue auto-merge for changes within golden path templates; human approval only for `terraform plan` with >10 resource changes |
+| Golden path covers every edge case — template has 40 parameters, developers afraid to use it | Golden path covers the 80% use case; leave escape hatches for specialized needs; thinnest viable template wins | `grep -c "variable\|parameter\|input" templates/**/*.tf templates/**/cookiecutter.json` → >15 declared parameters | Template lint: error if variable count > 15; `cookiecutter --no-input` should scaffold a deployable service with defaults only |
+| Platform built in isolation for 12 months — launched to find it solves problems nobody has | Ship the thinnest viable platform in weeks, not months; validate every feature with 3-5 developer design partners | `git log --oneline --since="3 months ago" \| wc -l` > 200 AND no `user-research/` directory exists | Gate: no feature > 2 weeks without user validation; require `user-research/validation-*.md` linked in PR description |
+| Developer portal is a static wiki — "documentation-driven platform" with no automation | Portal must be the interface to automation: click-to-provision, self-service catalog, automated workflows | `grep -rn "href\|link\|wiki\|docs" backstage/packages/app/src/components/` AND `grep -L "fetch\|api\|create\|provision\|terraform"` → links-only components | Portal check: every catalog entity must have `spec.type: 'website'` OR an automation action (`click-to-deploy`). Pure docs pages flagged. |
+| Platform team has no PM, no roadmap, no NPS — priorities set by whoever shouts loudest in Slack | Platform-as-product: hire or designate a PM, maintain public roadmap, measure NPS quarterly, prioritize by developer-hours-saved | `grep -L "roadmap\|NPS\|product.manager\|dev-hours-saved" docs/README.md CONTRIBUTING.md` | CI check: require `ROADMAP.md` in repo root with `Last updated: YYYY-MM-DD`; stale after 90 days → block non-bugfix merges |
+| Ephemeral environments never get cleaned up — $15K/month in zombie preview environments | Enforce TTL on all ephemeral environments (default 72 hours); automated cleanup after PR merge/close | `grep -rn "ttl\|time_to_live\|expires_at" --include="*.tf"` returns empty | Infra policy: every `environment` resource must declare `ttl` tag; cron job `cleanup-zombie-envs.sh` runs hourly |
+| Platform deprecation is "we removed the old API, good luck" — 12 teams broken, 0 days notice | Deprecation policy: announce 90 days before, emit warnings at 60 days, sunset at 0; automated migration tooling | `grep -rn "deprecated\|DEPRECATED\|removed\|BREAKING" CHANGELOG.md` AND `git log --oneline --since="90 days ago" --grep="deprecat" \| wc -l` = 0 | Check: every `BREAKING CHANGE` in conventional commits must reference a migration guide URL; block release if `migration_guide: null` |
+| Template versioning is "copy the latest" — every service runs a different version of the golden path | Version golden path templates with semver; auto-update dependencies via Renovate; track adoption by template version | `grep -rn "version:" templates/**/Chart.yaml \| sort \| uniq -c` → multiple different versions in production | Template policy: `renovate.json` configured to auto-bump template dependencies; dashboard tracks adoption by `template_version` label |
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Platform migration broke all teams' deployments for 3 days | Migration was planned as a "big bang" cutover with no backward compatibility layer. All teams had to migrate simultaneously or be left behind. | Plan platform changes as a gradual migration with backward compatibility. Run old and new systems in parallel during the transition period. Allow teams to migrate at their own pace within a defined window. Test the migration path with one early-adopter team before rolling out to all teams. | A platform migration without a parallel run is a deployment blockade. Always provide a migration path, not a migration deadline. |
-| Shared development cluster becomes unusable during peak hours | All teams share a single Kubernetes cluster with no resource quotas or namespace limits. One team's CI pipeline consumes all available CPU, blocking everyone else. | Implement resource quotas (ResourceQuota) per namespace. Use cluster autoscaling to add nodes on demand. Isolate CI workloads to a separate cluster or dedicated node pool. Implement priority classes so production workloads always preempt batch jobs. | Shared infrastructure without isolation guarantees contention. Every team should have a resource budget that no other team can consume. |
-| API deprecation broke 12 downstream services — no notice was sent | Platform team removed an internal API without notifying consumers. There was no deprecation tracking system or consumer registry. | Maintain a service catalog that tracks API consumers. Implement a deprecation policy: announce (90 days before), warn in API responses (60 days), sunset (0 days). Send deprecation notices through the developer portal, Slack, and email — never rely on a single channel. | The platform team knows when APIs change; downstream teams don't. Deprecation without notification is unilateral system breakage. |
-| Golden path template is 8 months out of date — all new services start with security vulnerabilities | Template was created once and never updated. New frameworks, libraries, and security practices were never backported. | Treat golden path templates as living software products, not static documents. Assign ownership for each template. Run automated dependency updates on templates. Version templates and test them quarterly against the latest security baseline. | A stale golden path is worse than no golden path — it gives false confidence while shipping known vulnerabilities. |
-| Developer NPS dropped from 45 to -12 after platform portal launch | Platform team spent 6 months building a full Backstage portal without any developer input. The portal was slow, had confusing navigation, and didn't solve developers' actual pain points. | Validate every platform feature with real developers before building. Run design sprints with 3-5 developer design partners. Ship the thinnest viable version — a 10-line reusable workflow deployed today beats a full portal launched in 6 months. | The biggest platform risk is building the wrong thing for 6 months. Validate with users before investing in implementation. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "migration.*fail\|incompatible.*version\|breaking.*change" deploy*.log` + `git log --oneline --since="7 days ago" --grep="migrat"` | Platform migration broke all teams' deployments for 3 days | Migration was "big bang" with no backward compatibility layer; all teams forced to migrate simultaneously | Plan gradual migration: run old+new in parallel; allow teams to migrate at own pace; test with one early-adopter team first | 1. `grep -rn "parallel\|compat\|old.*new\|dual.*run" docs/migration*` verify parallel-run strategy exists 2. `kubectl get deployments -l platform-version` check version distribution 3. Schedule migration windows per team 4. Monitor: `platform_migration_progress{team="X"} >= 0` gauge |
+| `grep -rn "CPUThrottling\|OOMKill\|resource.*exhaust\|cannot.*schedule" kubelet*.log` + `grep -L "ResourceQuota\|LimitRange" **/namespace*.yml` | Shared development cluster becomes unusable during peak hours | No resource quotas or namespace limits; one team's CI consumes all CPU, blocking everyone else | Implement ResourceQuota per namespace; cluster autoscaling; isolate CI to separate node pool; PriorityClasses for production | 1. `kubectl top pods -A \| sort -k3 -h` find resource hogs 2. `kubectl apply -f resource-quota.yml -n <team>` 3. `kubectl create priorityclass high-priority --value=1000` 4. `kubectl get events --field-selector type=Warning \| grep "FailedScheduling"` verify no blocking |
+| `grep -rn "deprecated.*removed\|404.*api\|no.*route\|unknown.*endpoint" proxy*.log` + `git log --oneline --grep="remove.*api\|delete.*endpoint"` | API deprecation broke 12 downstream services — no notice sent | Platform team removed internal API without notifying consumers; no deprecation tracking or consumer registry | Maintain service catalog tracking API consumers; deprecation policy: announce 90d → warn 60d → sunset 0d; multi-channel notification | 1. `grep -rn "deprecated\|DEPRECATED" CHANGELOG.md` check announcement 2. `curl -H "Accept: application/json" api.example.com/deprecated` returns warning header 3. `grep -rn "depends_on.*api" catalog-info.yaml` find consumers 4. Notify via Slack + email + portal banner |
+| `grep -rn "CVE-\|vulnerability\|outdated\|security.*scan.*fail" trivy*.log` + `git diff HEAD~30 templates/` shows unchanged template files | Golden path template is 8 months out of date — all new services start with security vulnerabilities | Template created once and never updated; frameworks, libraries, security baselines never backported | Treat templates as living software: assign ownership, auto-update deps (Renovate), version with semver, test quarterly against latest security baseline | 1. `grep "version:" templates/**/Chart.yaml \| sort \| uniq -c` check version spread 2. `npx npm-check-updates` on template deps 3. `trivy image <template-image>` scan for known CVEs 4. Set `renovate.json` to auto-bump template dependencies weekly |
+| `grep -rn "NPS.*-[0-9]\|-12\|score.*drop\|negative.*feedback" surveys/*.csv` + `curl -w "%{time_total}" -o /dev/null -s https://portal.internal` > 3000ms | Developer NPS dropped from 45 to -12 after platform portal launch | 6-month build with zero developer input; portal slow, confusing, didn't solve actual pain points | Validate every feature with 3-5 developer design partners before building; ship thinnest viable version (2-week cycle); run design sprints | 1. `curl -s "https://portal.internal/api/health"` check latency 2. `grep -c "click\|provision\|deploy" portal-access.log` count automated actions vs. page views 3. Survey: "What's your #1 frustration?" 4. Prioritize top-3 fixes; next release < 2 weeks |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Golden path template produces a deployable service in < 1 hour from scaffold
-- [ ] **[S2]**  Service catalog auto-discovers 100% of production services with owner and on-call metadata
-- [ ] **[S3]**  Self-service infrastructure modules covered: compute, database, cache, queue, object storage, secrets
-- [ ] **[S4]**  CI/CD pipeline template enforces lint → test → build → security scan → deploy with quality gates
-- [ ] **[S5]**  Platform availability SLA published and monitored (target: 99.9% during business hours)
-- [ ] **[S6]**  Ephemeral environments auto-provision on PR open and auto-destroy within 48 hours of merge/close
-- [ ] **[S7]**  Cost tags applied automatically by all golden path templates (`Environment`, `Service`, `Team`, `CostCenter`)
-- [ ] **[S8]**  Platform changelog updated with every release; breaking changes communicated 30+ days in advance
-- [ ] **[S9]**  Quarterly developer NPS survey completed with action items tracked to resolution
-- [ ] **[S10]**  Scorecard health metrics defined and visible: CI status, dependency freshness, coverage, SLO compliance, security scans
-- [ ] **[S11]**  Platform on-call rotation established with runbooks for common incidents (portal down, template failure, module error)
-- [ ] **[S12]**  Onboarding guide reduces time-to-first-deploy to < 1 day for new engineers
-- [ ] **[S13]**  Deprecation tracker shows migration status for all deprecated features
-- [ ] **[S14]**  Brownfield migration playbook exists for services not yet on golden paths
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-## Footguns
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Golden path template produces a deployable service in < 1 hour from scaffold | `time cookiecutter gh:org/golden-path-template --no-input && cd <svc> && make deploy` → total elapsed < 3600s | Optimize template: pre-built base images, cached deps, parallelized steps; target < 20 min |
+| **[S2]** | Service catalog auto-discovers 100% of production services with owner and on-call metadata | `curl -s https://backstage.internal/api/catalog/entities?filter=kind=component \| jq '[.[] \| select(.metadata.annotations."backstage.io/techdocs-ref" == null)] \| length'` → 0 | Backstage GitHub Discovery plugin: auto-register repos with `catalog-info.yaml`; require `spec.owner` and `annotations.pagerduty.com/service-id` |
+| **[S3]** | Self-service infrastructure modules covered: compute, database, cache, queue, object storage, secrets | `ls modules/ \| sort` → contains: `compute/`, `database/`, `cache/`, `queue/`, `storage/`, `secrets/` | Create missing modules: `terraform-module-scaffold --type=database --providers=aws,rds,postgresql` |
+| **[S4]** | CI/CD pipeline template enforces lint → test → build → security scan → deploy with quality gates | `grep -rn "lint\|test\|build\|scan\|deploy" .github/workflows/golden-path.yml` → all 5 stages present | `gh workflow init golden-path --template=ci-cd --stages=lint,test,build,scan,deploy` |
+| **[S5]** | Platform availability SLA published and monitored (target: 99.9% during business hours) | `grep -rn "slo\|sla\|99.9\|availability" docs/sla.md` AND `curl -s prometheus:9090/api/v1/query?query=platform_uptime_ratio` → returns value | Add `slo-platform-availability.yml` with `objective: 99.9`; create Grafana SLA dashboard |
+| **[S6]** | Ephemeral environments auto-provision on PR open and auto-destroy within 48 hours of merge/close | `grep -rn "pull_request.*opened\|pr.*open" .github/workflows/preview*.yml` AND `grep -rn "ttl\|48h\|172800" .github/workflows/cleanup*.yml` | GitHub Action: `on: pull_request: types: [opened, synchronize]` → `terraform apply`; `on: pull_request: types: [closed]` → `terraform destroy` |
+| **[S7]** | Cost tags applied automatically by all golden path templates (`Environment`, `Service`, `Team`, `CostCenter`) | `grep -rn "Environment\|CostCenter\|tags.*=" templates/**/*.tf` → all 4 mandatory tags in every resource | Add `default_tags { Environment = var.environment; Service = var.service_name; Team = var.team; CostCenter = var.cost_center }` to provider block |
+| **[S8]** | Platform changelog updated with every release; breaking changes communicated 30+ days in advance | `grep -rn "BREAKING CHANGE\|breaking.change" CHANGELOG.md \| tail -5` AND `git log --oneline --since="30 days ago" --grep="BREAKING"` → breaking changes have 30+ day notice | Enforce conventional commits; `release-please` auto-generates CHANGELOG.md; CI blocks release if `BREAKING CHANGE:` has no migration guide link |
+| **[S9]** | Quarterly developer NPS survey completed with action items tracked to resolution | `ls surveys/ \| grep "NPS-$(date +%Y)"` → file exists AND `grep -c "action_item\|TODO" surveys/NPS-$(date +%Y)*.md` ≥ 3 | Schedule: first week of Jan/Apr/Jul/Oct; send Typeform/survey via Slack; publish results + action items in `ROADMAP.md` within 2 weeks |
+| **[S10]** | Scorecard health metrics defined and visible: CI status, dependency freshness, coverage, SLO compliance, security scans | `grep -rn "scorecard\|Scorecard\|health.*check" backstage/packages/app/src/plugins/` → scorecard plugin configured | Enable Backstage Tech Insights plugin; define checks: `ci-passing`, `deps-fresh-30d`, `coverage-80`, `slo-green`, `no-critical-cves` |
+| **[S11]** | Platform on-call rotation established with runbooks for common incidents (portal down, template failure, module error) | `grep -rn "platform.*on.call\|platform.*runbook\|portal.*down\|template.*error" docs/runbooks/` → ≥ 3 runbooks | Create runbooks: `portal-down.md`, `template-failure.md`, `module-provision-error.md`; link in PagerDuty service |
+| **[S12]** | Onboarding guide reduces time-to-first-deploy to < 1 day for new engineers | `time bash -c 'source docs/onboarding.md 2>&1 \| tail -1'` → elapsed < 86400s (run as simulated new hire) | Maintain `QUICKSTART.md`: 1. Install CLI 2. `platform login` 3. `platform scaffold go-service` 4. `git push` 5. Service deployed. Target: 30 minutes. |
+| **[S13]** | Deprecation tracker shows migration status for all deprecated features | `grep -rn "deprecated\|DEPRECATED" CHANGELOG.md \| wc -l` → tracked; `curl -s https://backstage.internal/api/deprecations \| jq '. \| length'` → ≥ 0 | Backstage Deprecation plugin: auto-track deprecated APIs; dashboard shows teams still using deprecated features with migration deadline |
+| **[S14]** | Brownfield migration playbook exists for services not yet on golden paths | `grep -rn "brownfield\|migration.*playbook\|existing.*service" docs/brownfield-migration.md` → documented steps | Create `docs/brownfield-migration.md`: 1. Inventory (what runs where) 2. Compatibility layer (wrap existing configs) 3. Incremental adoption (add golden-path CI, then IaC, then portal) 4. Co-investment model (platform team contributes 20% of migration effort) |
 <!-- DEEP: 10+min — war stories from production platform engineering -->
 
 | Footgun | What Happened | Root Cause | How to Prevent |

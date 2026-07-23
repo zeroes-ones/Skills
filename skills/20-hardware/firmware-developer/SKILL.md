@@ -48,51 +48,37 @@ chain:
 Develop, build, and deploy production firmware from boot ROM to application — BSP, HAL, device drivers, OTA infrastructure, factory firmware, and CI/CD. Firmware is software that cannot be hot-patched. A bug deployed to 100K field devices is a physical recall costing millions. Treat every commit as irreversible.
 
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
-```
-What are you trying to do?
-├── BUILD firmware infrastructure
-│   ├── Set up CMake + GCC/LLVM toolchain → "Core Workflow" Phase 1
-│   ├── Design linker script & memory map → "Core Workflow" Phase 1
-│   ├── Create Board Support Package (BSP) → "Core Workflow" Phase 2
-│   └── Cross-compilation in containers → references/build-system-design.md
-├── WRITE firmware code
-│   ├── Device driver (SPI/I2C/UART/CAN/USB) → "Core Workflow" Phase 2
-│   ├── DMA + interrupt handler design → references/device-driver-patterns.md
-│   ├── HAL (Hardware Abstraction Layer) → "Decision Trees > HAL vs Direct Register"
-│   └── Boot flow design → "Core Workflow" Phase 3
-├── DEPLOY or update
-│   ├── OTA update infrastructure → "Core Workflow" Phase 4
-│   ├── Delta update design → references/ota-infrastructure.md
-│   ├── Rollback protection → "Decision Trees > OTA Rollout Strategy"
-│   └── Artifact signing pipeline → references/ota-infrastructure.md
-├── TEST or debug
-│   ├── Manufacturing test firmware → "Core Workflow" Phase 5
-│   ├── Firmware CI/CD pipeline → "Core Workflow" Phase 6
-│   ├── Field crash dump analysis → "Error Decoder"
-│   └── Remote log retrieval → references/field-debugging.md
-├── CROSS-SKILL ROUTING
-│   ├── Need embedded MCU/peripheral/RTOS work? → Invoke `embedded-engineer`
-│   ├── Need hardware architecture decisions? → Invoke `hardware-architect`
-│   ├── Need security review of bootloader/OTA? → Invoke `security-reviewer`
-│   ├── Need QA/HIL testing infrastructure? → Invoke `qa-engineer`
-│   └── Need security architecture (secure boot, key management)? → Invoke `security-engineer`
-└── Not sure? → Describe the MCU, RTOS, and connectivity requirements
-```
-Do not read the entire skill. Follow the route above and read only the sections it points to.
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("CMakeLists.txt", "(arm-none-eabi\|xtensa\|riscv\|TOOLCHAIN)")` OR `file_exists("*.ld")` AND `file_contains("*.ld", "(FLASH\|RAM\|\.text\|\.data)")` | This is your skill. Jump to **Core Workflow** — Phase 1: Build System & Toolchain. |
+| A2 | `file_contains("*.c", "(HAL_GPIO_WritePin\|LL_GPIO\|gpio_set\|nrf_gpio)")` AND `file_contains("*.c", "(SPI_Init\|I2C_Init\|UART_Init\|CAN_Init)")` | Jump to **Core Workflow** — Phase 2: Device Drivers & BSP. |
+| A3 | `file_contains("*", "(bootloader\|boot\.s\|boot\.c\|startup\.s)")` AND `file_contains("*", "(DFU\|firmware.update\|OTA\|dual.bank)")` | Jump to **Core Workflow** — Phase 3: Boot Flow & OTA. |
+| A4 | `file_exists("*.s|*.S")` AND `file_contains("*.s", "(vector.table\|Reset_Handler\|NMI_Handler)")` | Jump to **Core Workflow** — Phase 2: Board Support Package. |
+| A5 | `file_contains("*", "(manufacturing.test\|factory.firmware\|production.test)")` | Jump to **Core Workflow** — Phase 5: Manufacturing Test Firmware. |
+| A6 | `file_contains("*.yaml|*.yml", "(gitlab-ci\|github.actions\|circleci)")` AND `file_contains("*", "(firmware\|arm-none-eabi\|toolchain)")` | Jump to **Core Workflow** — Phase 6: CI/CD Pipeline. |
+| A7 | `file_contains("*", "(HardFault\|MemManage\|BusFault\|UsageFault\|linker.*overflow)")` | Jump to **Error Decoder**. |
+| A8 | `file_contains("*", "(MCU.*peripheral\|RTOS.*config\|bare.metal\|FreeRTOS)")` AND NOT `file_contains("*", "(bootloader\|linker.script\|build.system)")` | Invoke **embedded-engineer** for MCU-level concerns. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 ## Ground Rules — Read Before Anything Else
-<!-- QUICK: 30s — these rules apply to every response -->
-<!-- STANDARD: 3min — firmware failures are physical and irreversible -->
+<!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
-- **Never ship firmware without a rollback path.** Every OTA must include: (a) A/B partition with verified boot, (b) auto-revert after N failed boots, (c) hardware recovery mode (ROM bootloader, serial DFU) that works even if the bootloader is dead. SWD-only recovery = time bomb.
-- **The linker script is not boilerplate.** Memory layout bugs produce the hardest failures: `.data` overflows into `.bss`, stack collides with heap, ISR vector at wrong offset. Review the linker script line by line with `arm-none-eabi-objdump -h` output. This is your most important code review.
-- **Never use `-O0` in production.** Unoptimized firmware is 3-5× larger and slower. But `-O2`/`-Os` can eliminate delay loops, reorder MMIO accesses, optimize away `volatile` reads. Every release must pass tests at BOTH `-Os` AND `-O2`. Regression at optimization level is always a missing `volatile` or memory barrier.
-- **Build reproducibility is a requirement, not a luxury.** Same commit + same toolchain + same flags = bit-identical binary. Without this, you cannot audit what's in the field. Pin compiler version, commit `.cmake` config, store artifacts with git SHA in filename.
-- **Admit when the problem is hardware.** A driver that "sometimes misses interrupts" after 3 weeks is probably a hardware issue: floating IRQ line, insufficient decoupling, ground bounce. Escalate to embedded-engineer with scope traces, not another driver rewrite. You are not debugging code — you are debugging physics.
-
-<!-- DEEP: 10+min — war story -->
-*Smart lock company pushed a firmware update to 100% of 40K-unit fleet simultaneously. The update added a security handshake that was 200ms slower. This coincided with the BLE connection interval, creating a race condition that locked users out. By the time they halted, 40K locks were bricked. Fix: physical recall with SWD reflash at dealer locations. Cost: $2.3M. Lesson: staged rollout with boot-success-rate monitoring catches this at 1%.*
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|---------------------|
+| G1 | **REFUSE to ship firmware without rollback path.** | `file_contains("*", "(OTA\|firmware.*release\|production.build)")` AND NOT `file_contains("*", "(A/B\|dual.bank\|rollback\|fallback\|revert)")` | STOP. Every OTA must have: A/B partition with verified boot, auto-revert after N failed boots, hardware recovery mode. SWD-only recovery = time bomb. |
+| G2 | **STOP if linker script has never been reviewed line-by-line with objdump.** | `file_exists("*.ld")` AND NOT `file_exists("*objdump-h*")` | HALT. Review linker script with `arm-none-eabi-objdump -h`. Check: .data overflow into .bss, stack/heap collision, ISR vector offset. |
+| G3 | **DETECT `-O0` in production build config.** | `grep -n "\-O0\|Og " CMakeLists.txt toolchain.cmake` | STOP. Never use `-O0` in production. Both `-Os` and `-O2` must pass tests. Optimization-level regression = missing `volatile` or memory barrier. |
+| G4 | **REFUSE to ship if build is not bit-for-bit reproducible.** | `diff <(sha256sum build/output.bin) <(sha256sum build-verify/output.bin)` returns mismatch | STOP. Same commit + same toolchain + same flags must = bit-identical binary. Pin compiler version with SHA256. Remove `__DATE__`/`__TIME__`. |
+| G5 | **STOP if problem is repeatedly patched in firmware instead of escalated to hardware.** | `file_contains("*", "(driver.rewrite\|firmware.patch\|workaround #)")` AND `grep -c "workaround\|patch #" src/* | awk '$1>2'` | HALT. Escalate to **hardware-architect** with scope traces. More than 2 firmware workarounds for same issue = hardware problem. |
+| G6 | **DETECT generated code committed without review.** | `file_contains("*", "(generated.by\|auto.generated\|CubeMX\|STM32CubeIDE)")` AND NOT `file_contains("*", "reviewed:")`  | WARN. Generated code must pass same PR review. Wrong clock divisor in generated code = bricked devices. |
+| G7 | **STOP if printf pulls 20KB into flash on 64KB device.** | `arm-none-eabi-nm --size-sort build/firmware.elf | grep printf` AND `arm-none-eabi-size build/firmware.elf | awk '$1>45000'` | ALERT. Replace `printf` with `mpaland/printf` (1.4KB) or `iprintf`. Audit linker map for `_sbrk`, `malloc`, `__aeabi_`. |
 
 
 ## The Expert's Mindset
@@ -299,55 +285,52 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 10. **First 100ms after power-on are most dangerous.** Rails stabilizing, oscillators locking, BOD not armed. External supervisor IC (TPS3839) holds MCU in reset until rails stable. Firmware delays peripheral init 10ms after clock lock.
 
 ## Anti-Patterns
+<!-- QUICK: 30s -- machine-detectable anti-patterns with auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Committing generated code (pin mux, clock config) to version control without review | Generated code goes through same PR review as hand-written code; reviewers verify against datasheet — a wrong clock divisor can brick remote devices |
-| Using `volatile` defensively on every shared variable instead of proper synchronization | Use `volatile` only for MMIO registers, ISR-modified variables, and DMA descriptors; use memory barriers and atomic operations for multi-core/ISR thread safety |
-| Removing assertions from release builds to "save flash" | Keep assertions in release: a 200-byte assert handler that logs file+line+reset reason before reboot is worth 10× its flash cost in field debugging time |
-| Linking against newlib without understanding the heap pull-in | Audit linker map diff after every dependency change — `printf("%f")` pulls 15KB into flash; use `iprintf` or `mpaland/printf` (1.4KB) for embedded |
-| Shipping firmware without versioned flash layout | Magic number + layout version at known offset (0x0800F000); bootloader checks compatibility and refuses to boot mismatched layout |
-| Trusting the compiler to optimize away unused code without verifying | Post `arm-none-eabi-nm --size-sort` diff in every CI run; a stray `__weak` override or template instantiation can silently add 10KB |
-| Building firmware without reproducible build verification | CI must produce bit-identical `.bin` from same commit; non-reproducible = cannot ship; check for timestamps, random seeds, build path embedding |
-| Deploying OTA updates to entire fleet simultaneously | Staged rollout: 1% → 5% → 25% → 100% with auto-halt on elevated crash rate or boot failure; fleet-wide brick requires physical recall | 
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| Committing generated code (pin mux, clock config) without review | Generated code goes through same PR review; reviewers verify against datasheet | `grep -l "generated.by\|auto.generated\|CubeMX" src/** && grep -L "reviewed:" src/**` | WARN. Require "Reviewed-by:" comment in generated files before merge. |
+| Using `volatile` defensively on every shared variable | Only for MMIO registers, ISR-modified variables, DMA descriptors | `grep -rn "volatile" src/*.[ch] | grep -v "MMIO\|ISR\|DMA\|hardware.reg" | wc -l` > 10 | WARN. Flag and require justification for each non-MMIO/ISR/DMA volatile. |
+| Removing assertions from release builds to "save flash" | Keep assertions: 200-byte assert handler with file+line+reset reason | `grep -L "configASSERT\|assert\|NDEBUG" build/*release*` | STOP. Assertion handler MUST be present in release. Auto-inject assert handler if missing. |
+| Linking against newlib without understanding heap pull-in | Audit linker map diff after every dependency change | `arm-none-eabi-nm --size-sort build/firmware.elf | grep -E "_sbrk\|malloc\|__aeabi_"` | WARN. Post linker map diff in CI. Block merge if `.heap` grows >1KB without justification. |
+| Shipping firmware without versioned flash layout | Magic number + version at known offset (0x0800F000); bootloader checks compatibility | `grep -L "flash.layout\|magic.*0x\|layout.*version\|FLASH_LAYOUT" bootloader/src/*` | STOP. Auto-inject magic number and layout version into flash layout header. |
+| Trusting compiler to optimize away unused code without verification | Post `arm-none-eabi-nm --size-sort` diff in every CI run | `arm-none-eabi-nm --size-sort build/*.elf | grep -E "__weak\|WEAK"` AND no CI diff check | WARN. Auto-post nm diff on every PR. Flag any symbol >1KB without corresponding source change. |
+| Building firmware without reproducible build verification | CI must produce bit-identical `.bin` from same commit | `diff <(sha256sum build/output.bin) <(sha256sum build-verify/output.bin)` != 0 | STOP. Non-reproducible = cannot ship. Auto-check for `__DATE__`, `__TIME__`, random seeds, build path embedding. |
+| Deploying OTA to entire fleet simultaneously | Staged: 1%→5%→25%→100% with auto-halt on elevated crash rate | `grep -q "100%\|entire.fleet\|all.devices" deploy/ota-config*` AND NOT `grep -q "1%\|5%\|staged\|canary" deploy/ota-config*` | STOP. Auto-inject staged rollout config. Block 100% deployment without canary monitoring. | 
 
 ## Error Decoder
-<!-- QUICK: 30s -- exact error → root cause → fix -->
-<!-- DEEP: 10+min -- war stories from production hardware failures -->
+<!-- QUICK: 30s -- exact error → root cause → fix with auto-recovery -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| `arm-none-eabi-gcc: unrecognized '-mcpu=cortex-m33'` | GCC too old — M33 support added in GCC 8 | Pin GCC 12.3.rel1+. Someone updated base image. | Pin GCC version in toolchain file. Someone updating base image breaks builds. |
-| `section '.bss' will not fit in region 'RAM'` | RAM overflow — .data + .bss + heap + stacks > physical | `arm-none-eabi-nm --size-sort \| tail -20`. Move large buffers to `.noinit`, reduce heap, replace `printf` (20KB) with minimal formatter. | nm --size-sort to find large buffers. Replace printf to save 20KB. |
-| Device resets immediately after OTA | New firmware `.data` LMA overlaps bootloader flash region | Check linker script: bootloader region excluded from app flash origin. Compare `objdump -h` old vs new. | Check linker script — bootloader region must be excluded from app flash origin. |
-| `HardFault_Handler` during `memcpy` to DMA buffer | Buffer not in non-cacheable memory — CPU cache and DMA disagree | Add buffer to `.nocache` linker section. `SCB_CleanInvalidateDCache()` before DMA, `SCB_InvalidateDCache()` after. | DMA buffers must be in non-cacheable memory. Flush cache before/after DMA. |
-| Image 50% larger than previous build | Dependency pulled in `malloc`, `printf`, or exception handling | `grep 'malloc\|_sbrk\|__aeabi_' build/firmware.map`. Remove dependency or link `-nostdlib` with minimal stubs. | malloc, printf, and exception handling add significant size. Link -nostdlib if possible. |
-| OTA signature verification fails, download succeeded | Endianness mismatch — x86 (LE) sig vs big-endian MCU | Use `mbedtls_mpi_read_binary()` (big-endian), not `_le` variant. Verify byte order explicitly in both signer and verifier. | Endianness mismatch between signing machine (x86 LE) and MCU (big-endian). |
-| Debug (`-Og`) works; release (`-Os`) crashes on boot | Missing `volatile` or memory barrier — compiler reordered/eliminated "redundant" MMIO read | Add `volatile` to register struct. Add `__DSB()` after critical writes. Diff assembly between `-Og` and `-Os` at crash site. | Compiler optimizations reorder or eliminate MMIO reads. Use volatile and memory barriers. |
-| Build not reproducible: SHA256 differs between runs | `__DATE__`/`__TIME__` macros, random seed, non-deterministic linker ordering | Replace with git SHA + build ID. Set linker `SORT_NONE`? Check `.cmake` toolchain for non-deterministic flags. | Remove __DATE__/__TIME__. Use deterministic linker ordering. |
-| Firmware OTA update bricked entire fleet | Staged rollout wasn't used — 100% of devices received update simultaneously; bootloader had no rollback mechanism | Implement staged rollout: 1%, 5%, 20%, 50%, 100% with boot-success monitoring at each stage. Dual-bank flash with fallback image. | A smart lock startup bricked 40K devices in one push. The fix required physical reflash at dealer locations. Cost: $2.3M. |
-| GPIO pin conflict from shared driver assumption | Two peripheral drivers both claimed same GPIO for chip select — second driver silently reconfigured it | Implement a GPIO registry: every pin assigned to exactly one driver at init time. Assert on double-claim. Document pin mux. | A custom PCB had the SD card CS and the display CS on the same GPIO. The display driver would fail randomly after the SD card was used. |
-| Race condition on interrupt handler causing random crashes | Shared global variable written from ISR and main loop without volatile or critical section | All ISR-main shared data must be volatile, accessed atomically or within critical section. Use message queue pattern, not shared globals. | A motor controller occasionally jumped to full speed. Root cause: ISR set a new target speed that the main loop read non-atomically — half old, half new value. |
-| Flash wear from excessive writes — device failed after 3 months | Logging system wrote to same flash sector every 5 minutes; sector endurance (10K cycles) exhausted in 90 days | Implement wear leveling. Move frequent writes to SPI NOR (100K cycles) or FRAM (10^13 cycles). Use internal flash for infrequent updates only. | An environmental sensor stopped recording after 87 days. Root cause: the data log sector had 25K+ erase cycles. Wear leveling would have extended life to 10+ years. |
-| Production test fails 30%, all pass on re-test | Test firmware not executing full power-on self-test before measurement; residual state from previous test | Always execute a known device reset + POST before each production test. Include a reference measurement (precision resistor) at start of test sequence. | A contract manufacturer tested 10K units; 3K failed initially but passed retest. The $250K in rework was unnecessary — the test sequence didn't reset the ADC between units. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `arm-none-eabi-gcc: error: unrecognized command line option '-mcpu=cortex-m33'` | Build fails with unrecognized CPU | GCC too old — M33 support added in GCC 8 | Pin GCC 12.3.rel1+. Check base image version. | **Loop 1:** (1) Detect: `-mcpu=` unrecognized. (2) `arm-none-eabi-gcc --version`. (3) Assert version >= 12.3. (4) Update Docker image tag in CI. (5) Verify build passes. |
+| `arm-none-eabi-ld: section '.bss' will not fit in region 'RAM'` | RAM overflow at link time | .data + .bss + heap + stacks > physical RAM | `arm-none-eabi-nm --size-sort \| tail -20`. Move large buffers to `.noinit`, reduce heap, replace printf. | **Loop 2:** (1) Detect: linker RAM overflow. (2) nm --size-sort to find top consumers. (3) Move largest static buffers to `.noinit`. (4) Replace printf with minimal formatter. (5) Re-link: verify RAM <90%. |
+| Scope shows device resets within 1s of OTA boot | Device resets immediately after OTA | New firmware `.data` LMA overlaps bootloader flash region | Check linker script: bootloader region excluded from app flash origin. Compare `objdump -h` old vs new. | **Loop 3:** (1) Detect: boot-loop after OTA. (2) `objdump -h app.elf \| grep -E "\.text\|\.data"`. (3) Verify LMA > bootloader end address. (4) Adjust linker script ORIGIN. (5) Re-sign and verify boot succeeds. |
+| `HardFault_Handler` during `memcpy` to DMA buffer | HardFault during DMA memcpy | Buffer not in non-cacheable memory — CPU cache and DMA disagree | Add buffer to `.nocache` linker section. `SCB_CleanInvalidateDCache()` before DMA, `SCB_InvalidateDCache()` after. | **Loop 4:** (1) Detect: HardFault with PC in memcpy near DMA. (2) Dump SCB->CFSR for precise fault. (3) Move buffer to `.nocache` section. (4) Add cache clean/invalidate around DMA. (5) Run DMA stress test for 10K transactions. |
+| `arm-none-eabi-size build/firmware.elf \| awk '{print $1+$2}'` > 1.5× previous | Image 50% larger than previous build | Dependency pulled in malloc, printf, or exception handling | `grep 'malloc\|_sbrk\|__aeabi_' build/firmware.map`. Remove dependency or link `-nostdlib`. | **Loop 5:** (1) Detect: binary size > 1.3× baseline. (2) Diff linker map against previous build. (3) Identify new symbols > 1KB. (4) Remove unnecessary dependency or switch to minimal stub. (5) Re-verify size within 10% of baseline. |
+| `openssl dgst -verify` fails but download succeeded | OTA signature verification fails | Endianness mismatch: x86 (LE) sig vs big-endian MCU | Use `mbedtls_mpi_read_binary()` (big-endian), not `_le` variant. Verify byte order in signer AND verifier. | **Loop 6:** (1) Detect: signature verify failure on valid download. (2) Hex-dump first 32 bytes of signature on both sides. (3) Check for byte reversal pattern. (4) Switch to correct endianness API. (5) Verify with known-good test vector. |
+| `-Og` passes all tests; `-Os` crashes on boot | Debug works; release crashes | Missing `volatile` or memory barrier — compiler reordered MMIO read | Add `volatile` to register struct. Add `__DSB()` after critical writes. Diff assembly at crash site. | **Loop 7:** (1) Detect: release-only crash. (2) Diff assembly: `-Og` vs `-Os` at boot sequence. (3) Find reordered/eliminated MMIO access. (4) Add volatile + DSB. (5) Verify both `-Og` AND `-Os` pass 100× boot cycles. |
+| CI: `sha256sum build/output.bin` differs between two runs of same commit | Build not reproducible | `__DATE__`/`__TIME__` macros, random seed, non-deterministic linker | Replace with git SHA + build ID. Set linker `--no-undefined`. Audit `.cmake` for non-deterministic flags. | **Loop 8:** (1) Detect: bit-identical build fails. (2) `grep -r "__DATE__\|__TIME__" src/`. (3) Replace with `GIT_SHA` + `BUILD_ID`. (4) Set `LDFLAGS += -Wl,--no-undefined`. (5) Re-run: 3 consecutive builds must produce identical SHA256. |
 
 ## Production Checklist
-<!-- QUICK: 30s — binary pass/fail. All must pass before release. -->
+<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
 
-- [ ] **[F1]** Build reproducible: same SHA + Docker image = bit-identical `.bin`; toolchain pinned in Dockerfile with SHA256
-- [ ] **[F2]** Linker script reviewed: FLASH/RAM match datasheet, partitions verified with `objdump -h`, >20% headroom
-- [ ] **[F3]** Bootloader: Ed25519/ECDSA signature verification; unsigned/corrupt/wrong-key rejected; boot reason logged from reset cause register
-- [ ] **[F4]** A/B OTA with auto-rollback: boot attempt counter in persistent storage, 3-failure revert; power-loss tested at every 10% of download
-- [ ] **[F5]** All drivers have timeout handling: no unbounded `while(flag)`; watchdog serviced in dedicated task with health check-ins
-- [ ] **[F6]** Stack high-water marks <80% after 24h stress; `configASSERT` and stack overflow detection enabled in RELEASE builds
-- [ ] **[F7]** DMA buffers aligned to cache line, non-cacheable memory; cache clean/invalidate before/after DMA transactions
-- [ ] **[F8]** Flash layout versioned (magic + version at known offset); bootloader checks layout compatibility at boot
-- [ ] **[F9]** Factory firmware: all peripheral self-tests + serialization <60s; output machine-parseable (JSON over UART)
-- [ ] **[F10]** CI: PR → build + unit + HIL smoke; merge → full HIL; release → signing + upload; HIL failure blocks pipeline
-- [ ] **[F11]** OTA staged rollout: 1%→5%→25%→100% with crash-rate and boot-success monitoring; auto-halt on >1% degradation
-- [ ] **[F12]** Secure element or OTP for private key storage; no keys in firmware binary; bootloader public key hash in OTP
-- [ ] **[F13]** Assertion handler in RELEASE builds: logs file+line+reset reason, reboots; no silent corruption allowed
-- [ ] **[F14]** External reset supervisor holds MCU in reset until all rails stable; firmware delays peripheral init 10ms after clock lock
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|----------------|--------------------|----------|
+| F1 | Build reproducible: same SHA + Docker image = bit-identical `.bin`; toolchain pinned with SHA256 | `diff <(sha256sum build-a/output.bin | cut -d' ' -f1) <(sha256sum build-b/output.bin | cut -d' ' -f1) && test $? -eq 0` | Check for `__DATE__`/`__TIME__`. Replace with GIT_SHA. Pin toolchain in Dockerfile with SHA256. |
+| F2 | Linker script reviewed: FLASH/RAM match datasheet, partitions verified with objdump, >20% headroom | `arm-none-eabi-objdump -h build/firmware.elf | grep -E "\.text|\.bss|\.data" && test -f docs/linker-review.md` | Auto-generate linker review checklist. Compare objdump output against datasheet. |
+| F3 | Bootloader: Ed25519/ECDSA signature verification; unsigned/corrupt/wrong-key rejected; boot reason logged | `grep -q "mbedtls_pk_verify\|ed25519\|ecdsa" bootloader/src/*.[ch] && grep -q "RCC_CSR\|reset.*cause" bootloader/src/*.[ch]` | Auto-inject signature verify stub with mbedTLS. Add reset cause register to boot log. |
+| F4 | A/B OTA with auto-rollback: boot attempt counter, 3-failure revert; power-loss tested at every 10% | `grep -q "boot.attempt\|revert\|fallback" bootloader/src/*.[ch] && test -f test/ota-powerloss-report.log` | Generate boot attempt counter. Auto-create OTA power-loss test script. |
+| F5 | All drivers have timeout handling: no unbounded `while(flag)`; watchdog serviced in dedicated task with health check-ins | `grep -rn "while(.*!.*)" src/drivers/ | grep -v "timeout\|break\|cnt\|count"` | WARN: flag every unbounded while-loop. Auto-inject timeout counter. |
+| F6 | Stack high-water marks <80% after 24h stress; assert and stack overflow detection enabled in RELEASE | `grep -q "configASSERT\|stack.*overflow.*hook" FreeRTOSConfig.h && test -f test/stack-report.csv` | Auto-enable configASSERT and stack overflow hook if missing. |
+| F7 | DMA buffers aligned to cache line, non-cacheable memory; cache clean/invalidate before/after DMA | `grep -q "__attribute__.*aligned\|\.nocache\|SCB_CleanInvalidate\|SCB_Invalidate" src/drivers/*dma*` | Auto-insert cache line alignment and clean/invalidate calls around DMA. |
+| F8 | Flash layout versioned (magic + version at known offset); bootloader checks layout compatibility | `grep -q "MAGIC\|FLASH_LAYOUT_VERSION\|layout.*compat" bootloader/src/flash_layout.h` | Auto-generate magic number (0xB00710AD) and layout version header. |
+| F9 | Factory firmware: all peripheral self-tests + serialization <60s; output machine-parseable (JSON over UART) | `grep -q "self.test\|factory.test\|POST" src/factory/*.[ch] && test -f test/factory-timing-report.log` | Generate JSON-over-UART factory test output format. |
+| F10 | CI: PR → build+unit+HIL smoke; merge → full HIL; release → signing+upload; HIL failure blocks pipeline | `test -f .github/workflows/firmware-ci.yml && grep -q "release\|sign\|HIL\|hil" .github/workflows/firmware-ci.yml` | Generate CI pipeline YAML with build, test, HIL, sign stages. |
+| F11 | OTA staged rollout: 1%→5%→25%→100% with crash-rate and boot-success monitoring; auto-halt on >1% degradation | `grep -q "staged\|canary\|rollout\|auto.halt\|degradation" deploy/ota-config*` | Auto-inject staged rollout config with auto-halt thresholds. |
+| F12 | Secure element or OTP for private key storage; no keys in firmware binary; bootloader public key hash in OTP | `strings build/firmware.bin | grep -q "BEGIN.*PRIVATE\|-----BEGIN EC" && echo "FAIL"` | WARN: auto-scan binary for embedded keys. Block release if found. |
+| F13 | Assertion handler in RELEASE builds: logs file+line+reset reason, reboots; no silent corruption | `grep -q "assert.*handler\|assert.*fail\|vApplicationAssert" src/*.[ch] && nm build/firmware.elf | grep -q "assert"` | Auto-inject assertion handler with file+line logging + reset. |
+| F14 | External reset supervisor holds MCU in reset until all rails stable; firmware delays peripheral init 10ms after clock lock | `grep -q "reset.*supervisor\|external.*reset\|delay.*clock\|10.*ms\|HAL_Delay(10)" src/init*` | Inject 10ms delay after clock lock before peripheral init. |
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s — who to talk to, when, what to share -->

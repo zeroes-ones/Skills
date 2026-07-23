@@ -42,32 +42,51 @@ deployment strategies (rolling, blue-green, canary, feature-flagged), SLSA suppl
 release management (semantic release, changelog, approval workflows), and DORA metrics tracking.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists(".github/workflows/")` OR `file_exists(".gitlab-ci.yml")` | Go to "Core Workflow" — Phase 1 (Pipeline Architecture) for platform-specific setup |
+| A2 | `file_contains(".github/workflows/", "continue-on-error")` OR `grep -rl "needs:" .github/workflows/` shows sequential-only jobs | Jump to "Core Workflow" — Phase 2 (Build Optimization) for caching/parallelism |
+| A3 | `file_contains("Dockerfile", "FROM")` AND `file_contains(".github/workflows/", "docker/build-push-action")` | Jump to "Core Workflow" — Phase 3 (Deployment) for container deployment strategy |
+| A4 | `grep -rn "SAST\|trivy\|snyk\|dependency-review" .github/workflows/` returns matches | Jump to "Core Workflow" — Phase 4 (Security Gates) to review/strengthen |
+| A5 | `gh run list --limit 5 --json conclusion` shows any `failure` status | Go to "Decision Trees" — then "Production Checklist" for pipeline debugging |
+| A6 | `file_exists("terraform/")` OR `file_exists("main.tf")` | Invoke `devops-engineer` skill instead |
+| A7 | `file_exists("Chart.yaml")` OR `file_exists("kustomization.yaml")` | Invoke `docker-kubernetes` skill instead |
+| A8 | No pipeline files found anywhere in repo | Jump to "Core Workflow" — Phase 1 (Pipeline Architecture) for greenfield setup |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Create a new CI/CD pipeline from scratch → Jump to "Core Workflow" — Phase 1 (Pipeline Architecture)
-├── Optimize slow builds (caching, parallelism, sharding) → Jump to "Core Workflow" — Phase 2 (Build Optimization)
-├── Set up deployments (rolling, blue-green, canary) → Jump to "Core Workflow" — Phase 3 (Deployment)
-├── Add security scanning (SAST, SCA, secrets) to pipeline → Jump to "Core Workflow" — Phase 4 (Security Gates)
-├── Debug a failing pipeline → Go to "Decision Trees" — then "Production Checklist"
-├── Need infrastructure provisioning → Invoke `devops-engineer` skill instead
-├── Need release management → Invoke `release-manager` skill instead
-├── Need container orchestration → Invoke `docker-kubernetes` skill instead
-├── Need quality engineering → Invoke `qa-engineer` skill instead
+├── Create a new CI/CD pipeline from scratch
+├── Optimize slow builds (caching, parallelism, sharding)
+├── Set up deployments (rolling, blue-green, canary)
+├── Add security scanning (SAST, SCA, secrets) to pipeline
+├── Debug a failing pipeline
+├── Need a specific pipeline platform (GitHub Actions, GitLab CI, CircleCI, Jenkins)
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never build without understanding the deployment target.** A pipeline that works for Kubernetes won't work for Lambda. Ask: where does this deploy, how, and what's the rollback strategy?
-- **Pipeline failures must have clear error messages.** "Build failed" is not actionable. Every failure must surface: what failed, which step, which file, which line, and what to do about it.
-- **Secrets must never be in logs.** Mask all secrets in pipeline output. A leaked API key in a public CI log is a security incident, not a debugging convenience.
-- **Cache invalidation must be explicit.** Cache keys must include a content hash or version. A stale cache that passes CI is worse than no cache — it creates false confidence.
-- **Always design for pipeline security.** Use OIDC instead of long-lived credentials. Pin action versions by SHA, not tags. Sign artifacts and generate SBOMs.
-- **Admit what you don't know.** If you're unfamiliar with a specific CI platform's capabilities or a deployment target's constraints, say so and point to the docs.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to generate a pipeline without knowing the deployment target** — a Kubernetes pipeline for a Lambda app is a guaranteed failure. | Trigger: `file_exists("serverless.yml")` OR `file_contains("package.json", "\"aws-lambda\"")` but pipeline YAML references `docker/build-push-action` OR `kubectl` | STOP. Respond: "This project appears to target [detected platform] but the pipeline uses [different platform] patterns. Where does this deploy — Kubernetes, Lambda, VMs, or PaaS?" |
+| **R2** | **REFUSE to include `continue-on-error: true` on test or scan steps** — it silently swallows failures and trains developers to trust a broken signal. | Trigger: `grep -rn "continue-on-error:\s*true" .github/workflows/` returns matches | STOP. Remove the directive. Respond: "`continue-on-error: true` on [step] was removed — silent failures are worse than loud ones. If this step must be non-blocking, split it into a separate workflow with explicit pass/fail reporting." |
+| **R3** | **REFUSE to use `:latest` or mutable tags for deployment images** — every deploy using `:latest` ships a mystery artifact with no rollback target. | Trigger: `grep -rn "image:.*:latest\b" .github/workflows/ . --include="*.yaml" --include="*.yml"` returns matches | STOP. Respond: "Found `:latest` tag in [file:line]. Replace with commit SHA digest (`${{ github.sha }}`) or immutable version tag. `:latest` is a moving target — you cannot roll back to 'latest from 3 hours ago.'" |
+| **R4** | **REFUSE to embed secrets as plaintext in pipeline YAML or workflow files** — exposed secrets in CI config are a security incident waiting to happen. | Trigger: `grep -rnE "(password|secret|token|key|api_key)\s*:\s*['\"]?\w{8,}" .github/workflows/` returns matches | STOP. Respond: "Detected potential plaintext secret in [file:line]. Use CI secrets manager (`${{ secrets.XXX }}`) and OIDC federation. Never hardcode credentials in pipeline YAML." |
+| **R5** | **STOP and ASK when deploying directly from a feature branch to production with no staging gate** — bypassing staging eliminates the last safety net before production. | Trigger: `file_contains(".github/workflows/", "branches: \[.*feature")` AND `file_contains(".github/workflows/", "environment: production")` in the same workflow | STOP. Ask: "This workflow deploys from feature branches directly to production. Should we: (a) add a staging environment gate, (b) restrict production deploys to `main`/`release/*` branches only, or (c) document an explicit exception?" |
+| **R6** | **DETECT and WARN about missing DORA metrics instrumentation** — pipelines without observability make it impossible to measure improvement. | Trigger: `grep -rn "deployment_frequency\|lead_time\|MTTR\|change_failure_rate\|dora" .github/workflows/` returns zero matches AND `file_exists(".github/workflows/")` | WARN: "No DORA metrics instrumentation detected. Add deployment tracking (deploy frequency, lead time, change failure rate, MTTR) — pipeline observability is essential for continuous improvement." |
+| **R7** | **DETECT and WARN about unpinned third-party actions** — unpinned actions are a supply-chain risk; a compromised tag can inject malicious code. | Trigger: `grep -rnE "uses:\s+[^@]+@v[0-9]" .github/workflows/` returns matches (actions referenced by tag, not SHA) | WARN: "Found actions pinned by version tag instead of commit SHA in: [list files]. Pin all third-party actions to full-length commit SHA for supply-chain security. Tags are mutable — SHAs are immutable." |
 
 ## The Expert's Mindset
 
@@ -784,17 +803,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Validate locally before pushing** — `act` for GitHub Actions, `gitlab-ci-local` for GitLab CI. Catch syntax errors before CI runtime.
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Using `:latest` tags for deployment images — every deploy ships a mystery artifact | Tag images with commit SHA (`${{ github.sha }}`); promote immutable artifacts through environments; build once, deploy many |
-| `continue-on-error: true` on test or scan steps to "unblock" a stuck pipeline | Fix failing tests or quarantine flaky ones in a separate non-blocking workflow; never silence test failures — they're the signal |
-| Single monolithic pipeline with 25+ sequential stages — 45-minute feedback loop | Split into independent workflows: lint + test (on PR), build + scan (on merge to main), deploy (on release tag); parallelize where topology allows |
-| Secrets stored as repository-level variables (plaintext) instead of CI secrets manager | Use CI secrets manager with environment-scoped secrets + OIDC for cloud authentication; never store secrets as plaintext variables — rotate any that were exposed |
-| Pipeline deploys directly from a feature branch to production with no staging gate | Enforce branch protection: only `main`/`release/*` branches deploy to production; all deploys go through staging with automated smoke tests first |
-| Hardcoded environment URLs, credentials, and configuration baked into pipeline YAML | Extract environment configuration to deployment environments with variable substitution; use environment protection rules to gate production deploys |
-| No pipeline observability — DORA metrics unknown, lead time is a mystery, failure rate guessed | Instrument pipeline with DORA metrics: deployment frequency, lead time for changes, change failure rate, MTTR; dashboard visible to entire engineering org |
-| Manual approval gates without timeout or escalation — deployment blocked for days waiting for one person | Auto-approve after 4-hour timeout with fallback to secondary approver; deploy window SLA prevents indefinite blocking; approval is a signal review, not a bottleneck |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Using `:latest` tags for deployment images — every deploy ships a mystery artifact | Tag images with commit SHA (`${{ github.sha }}`); promote immutable artifacts through environments; build once, deploy many | `grep -rn "image:.*:latest\b" .github/workflows/` → finds mutable tags in pipeline config | `actionlint` rule + pre-commit hook that blocks `:latest` in workflow files |
+| `continue-on-error: true` on test or scan steps to "unblock" a stuck pipeline | Fix failing tests or quarantine flaky ones in a separate non-blocking workflow; never silence test failures | `grep -rn "continue-on-error:\s*true" .github/workflows/` → finds silently swallowed failures | `actionlint` rule banning `continue-on-error: true`; CI check that fails the build if detected |
+| Single monolithic pipeline with 25+ sequential stages — 45-minute feedback loop | Split into independent workflows: lint + test (on PR), build + scan (on merge to main), deploy (on release tag) | `grep -rn "needs:" .github/workflows/ \| wc -l` → > 15 dependency edges indicates over-sequential pipeline | Pipeline template validator: if stage count > 15 AND parallelism < 3, block and require refactor |
+| Secrets stored as repository-level variables (plaintext) instead of CI secrets manager | Use CI secrets manager with environment-scoped secrets + OIDC for cloud authentication | `grep -rnE "(password\|secret\|token\|key)\s*:\s*['\"]?\w{8,}" .github/workflows/` → finds hardcoded secrets | `trufflehog` / `gitleaks` pre-commit hook + CI scan blocking plaintext secrets |
+| Pipeline deploys from feature branch directly to production with no staging gate | Enforce branch protection: only `main`/`release/*` deploy to production; all deploys go through staging with automated smoke tests | `grep -rn "branches:.*feature" .github/workflows/` AND same file contains `environment: production` → finds direct feature→prod path | GitHub branch protection rule + required environments with approval gate |
+| Hardcoded environment URLs, credentials, and configuration baked into pipeline YAML | Extract environment configuration to deployment environments with variable substitution; use environment protection rules | `grep -rnE "https?://(staging\|prod\|dev)\." .github/workflows/` → finds hardcoded env URLs | `actionlint` rule + pre-commit check for hardcoded URLs in workflow files |
+| No pipeline observability — DORA metrics unknown, lead time a mystery, failure rate guessed | Instrument pipeline with DORA metrics: deployment frequency, lead time for changes, change failure rate, MTTR | `grep -rn "deployment_frequency\|lead_time\|MTTR\|change_failure_rate" .github/workflows/` → returns zero matches = no DORA instrumentation | Pipeline template that auto-injects DORA metric collection; CI check that warns on missing instrumentation |
+| Manual approval gates without timeout or escalation — deployment blocked for days waiting for one person | Auto-approve after 4-hour timeout with fallback to secondary approver; deploy window SLA prevents indefinite blocking | `grep -rn "environment: production" .github/workflows/` → check if approval timeout/fallback configured in environment settings | Environment protection rule with required reviewers + 4-hour auto-approve fallback enforced at repo level |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -825,14 +845,15 @@ When this skill is invoked, the agent may need to drill into these specialized a
 
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Pipeline shows green — production deploy contained broken code | Test runner exited with exit code 0 despite test failures because `continue-on-error: true` was set on the test step during a debugging session and never reverted. | Never use `continue-on-error` in CI pipelines — it silently swallows failures. If a step must be non-blocking, split it into a separate workflow or use `if: always()` with explicit pass/fail reporting. | Silent failure is worse than loud failure. A pipeline that always reports green trains developers to trust a broken signal. |
-| Deployment pushed stale Docker image — 3-day-old code with known bug | Docker image was tagged `:latest` and cached by CI. The build step skipped the build because cache key didn't include commit SHA. | Never use `:latest` for deployment images. Tag images with commit SHA (`${{ github.sha }}`). Invalidate cache on every new commit — cache key must include commit SHA or git ref. | Cache is great for speed, dangerous for correctness. Always verify that a cache hit actually represents the right content. |
-| API keys leaked in CI build logs — exposed on public repo | Secrets were passed as environment variables in the pipeline configuration and a test step printed all env vars as debugging output. | Use Secret scanning (GitHub secret scanning, truffleHog, gitleaks) to detect leaked secrets in pipeline output. Configure secret masking in CI platform. Never log environment variables — use structured logging with explicit allowlist of safe-to-log values. | Every pipeline output that contains secrets is a potential security incident. Mask secrets by default, audit logs for accidental exposure, and treat CI log access as sensitive. |
-| Canary deployment rolled back — metric analysis showed no difference because canary never received traffic | Ingress controller's traffic splitting used cookie-based routing but the canary test script didn't include the routing cookie. All canary traffic defaulted to the stable service. | Verify that canary traffic isolation is working before comparing metrics. Inject a synthetic canary user with a known routing cookie and verify the request reaches the canary. Add canary-health-check endpoint that returns the service version. | Deployment strategy correctness is not the same as deployment strategy verification. Always prove the traffic isolation works before trusting the metrics. |
-| Pipeline takes 45 minutes — developers start skipping CI locally | Dependency caching disabled. Every build redownloads node_modules from scratch. No test sharding. | Implement dependency caching with lockfile-hash keys. Shard tests across parallel jobs. Use Docker layer caching for image builds. Target: pipeline complete in < 15 minutes. | If CI takes too long, developers will find ways to bypass it. Pipeline performance is a developer productivity issue, not just an infrastructure cost. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "exit code 0" .github/workflows/ && grep -rn "continue-on-error:\s*true" .github/workflows/` | Pipeline shows green — production deploy contained broken code | Test runner exited 0 despite failures because `continue-on-error: true` was set during debugging and never reverted | Never use `continue-on-error` in CI pipelines. If a step must be non-blocking, split into a separate workflow or use `if: always()` with explicit pass/fail reporting | 1. `grep -rn "continue-on-error:\s*true" .github/workflows/` 2. Remove directive 3. Run the workflow 4. Fix any newly-surfaced failures |
+| `grep -rn "image:.*:latest" .github/workflows/ && gh run list --limit 5 --json conclusion` shows `failure` | Deployment pushed stale Docker image — 3-day-old code with known bug | Docker image tagged `:latest` and cached by CI; build skipped because cache key didn't include commit SHA | Tag images with commit SHA (`${{ github.sha }}`); invalidate cache on every new commit — cache key must include commit SHA or git ref | 1. `grep -rn "image:.*:latest"` to find mutable tags 2. Replace with `${{ github.sha }}` 3. Add cache key with SHA 4. Rebuild and verify digest |
+| `grep -rnE "(SECRET\|TOKEN\|PASSWORD\|KEY)" ci-output.log 2>/dev/null \| head -5` returns matches | API keys leaked in CI build logs — exposed on public repo | Secrets passed as env vars and a test step printed all env vars as debugging output | Config secret masking in CI platform; run `trufflehog`/`gitleaks` in pipeline; never log environment variables — use structured logging with explicit allowlist | 1. `trufflehog filesystem .` to find all secrets 2. Rotate exposed credentials immediately 3. Add secret scanning to CI pipeline 4. Configure secret masking in CI platform |
+| `grep -rn "canaryWeight: 100\|stableWeight: 0" k8s/` | Canary deployment rolled back — metric analysis showed no difference because canary never received traffic | Ingress traffic splitting used cookie-based routing but canary test script didn't include the routing cookie; all traffic went to stable | Verify canary traffic isolation before comparing metrics; inject synthetic canary user with known routing cookie; add canary-health-check endpoint returning service version | 1. Add canary-health-check endpoint 2. Inject synthetic user with routing cookie 3. Verify traffic reaches canary 4. Re-run canary analysis |
+| `grep -rn "cache-key\|restore-keys" .github/workflows/` returns zero matches AND `gh run list --limit 10 --json duration` shows > 15 min average | Pipeline takes 45+ minutes — developers start skipping CI locally | Dependency caching disabled; every build redownloads from scratch; no test sharding | Implement dependency caching with lockfile-hash keys; shard tests across parallel jobs; use Docker layer caching for image builds; target < 15 minutes | 1. Add `actions/cache` with `hashFiles('package-lock.json')` key 2. Add `restore-keys` fallback 3. Shard tests with `matrix` 4. Measure pipeline duration drop |
 
 
 ## What Good Looks Like
@@ -840,53 +861,25 @@ When this skill is invoked, the agent may need to drill into these specialized a
 > Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback. Builds are reproducible and hermetic — the same commit always produces the same artifact. Artifacts are immutable and promoted through environments with zero manual steps. The pipeline enforces quality gates at every stage and blocks deployment on failure. Developers trust the pipeline implicitly: a green build means "ready to ship," and a red build tells them exactly what to fix, where, and why.
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-### Pipeline Architecture
-- [ ] **[S1]**  Pipeline stages defined: lint → test → build → scan → deploy → verify
-- [ ] **[S2]**  Fan-in/fan-out used for parallel execution where beneficial
-- [ ] **[S3]**  Path filters skip irrelevant workflows in monorepo
-- [ ] **[S4]**  Concurrency groups cancel redundant PR runs
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-### Security & Secrets
-- [ ] **[S5]**  All third-party actions pinned to full-length commit SHA
-- [ ] **[S6]**  OIDC federation for cloud authentication — no static credentials
-- [ ] **[S7]**  Environment protection rules on production: required reviewers + restricted branches
-- [ ] **[S8]**  Secrets scoped per environment; never shared across environments
-- [ ] **[S9]**  SLSA provenance generated for all releases (Level 3 target)
-- [ ] **[S10]**  SBOM (SPDX/CycloneDX) generated and attached to releases
-- [ ] **[S11]**  Signed commits enforced via branch protection rules
-
-### Build Optimization
-- [ ] **[S12]**  Dependency caching with lockfile-hash keys; `restore-keys` fallback configured
-- [ ] **[S13]**  Docker BuildKit with GitHub Actions cache backend (`type=gha`)
-- [ ] **[S14]**  Test sharding for suites > 5 minutes
-- [ ] **[S15]**  Self-hosted runners or larger runners for resource-heavy builds
-- [ ] **[S16]**  Cache warming scheduled to keep caches fresh
-
-### Quality Gates
-- [ ] **[S17]**  SonarQube quality gate: no new bugs/vulnerabilities/smells
-- [ ] **[S18]**  Code coverage ≥ 80% (enforced, not advisory)
-- [ ] **[S19]**  Container CVE scan: 0 critical, < 5 high (block deploy on critical)
-- [ ] **[S20]**  Lighthouse scores/Bundle size budget enforced for frontend
-
-### Deployment
-- [ ] **[S21]**  Artifacts built once, promoted across environments (never rebuilt)
-- [ ] **[S22]**  Immutable image tags (SHA digest, not `:latest`)
-- [ ] **[S23]**  OCI annotations: commit SHA, build timestamp, pipeline URL
-- [ ] **[S24]**  Automated rollback tested: health check failure → revert to previous version
-- [ ] **[S25]**  Deployment status visible in PR via Checks API
-
-### Release Management
-- [ ] **[S26]**  Semantic release configured with conventional commits enforcement
-- [ ] **[S27]**  Automated changelog generation from conventional commit messages
-- [ ] **[S28]**  Production release requires manual approval in deployment environment
-- [ ] **[S29]**  Image retention policy: delete stale feature-branch images after N days
-
-### Monitoring
-- [ ] **[S30]**  DORA metrics tracked: deploy frequency, lead time, MTTR, change failure rate
-- [ ] **[S31]**  Pipeline duration trending dashboard with alert on degradation
-- [ ] **[S32]**  Flaky test detection and reporting (separate flaky from actual failures)
-- [ ] **[S33]**  CI minutes/quota monitoring with alert before exhaustion
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Pipeline stages defined: lint → test → build → scan → deploy → verify | `gh workflow list --json name \| jq '.[].name' \| grep -cE "lint\|test\|build\|scan\|deploy\|verify"` → ≥ 5 | Generate pipeline template with all 6 stages |
+| **[S2]** | Fan-in/fan-out used for parallel execution where beneficial | `grep -rn "needs:" .github/workflows/ \| wc -l` → ≥ 3 AND `grep -rn "strategy.*matrix" .github/workflows/ \| wc -l` → ≥ 1 | Convert sequential jobs to parallel dependency graph |
+| **[S3]** | Path filters skip irrelevant workflows in monorepo | `grep -rn "paths:" .github/workflows/ \| wc -l` → ≥ 1 OR project is not a monorepo | Add `paths:` filters to each workflow |
+| **[S4]** | Concurrency groups cancel redundant PR runs | `grep -rn "concurrency:" .github/workflows/ \| wc -l` → ≥ 1 | Add `concurrency: ci-${{ github.ref }}` to workflows |
+| **[S5]** | All third-party actions pinned to full-length commit SHA | `grep -rnE "uses:\s+[^@]+@v[0-9]" .github/workflows/ \| wc -l` → 0 | Use `actionlint` to auto-pin actions to SHA |
+| **[S6]** | OIDC federation for cloud authentication | `grep -rn "id-token:\s*write" .github/workflows/ \| wc -l` → ≥ 1 OR no cloud deploy in pipeline | Add OIDC permissions + configure cloud provider trust |
+| **[S7]** | Environment protection rules on production | `gh api repos/:owner/:repo/environments/production --jq '.protection_rules'` → non-empty | Add required reviewers + branch restriction via `gh api` |
+| **[S8]** | Secrets scoped per environment; never shared across environments | `gh secret list --env production \| wc -l` → ≥ 1 AND no plaintext secrets in workflow files | Move shared secrets to environment-scoped secrets |
+| **[S9]** | SLSA provenance generated for all releases | `grep -rn "slsa-github-generator\|SLSA" .github/workflows/ \| wc -l` → ≥ 1 | Add `slsa-github-generator/.github/workflows/generator_generic_slsa3.yml` |
+| **[S10]** | SBOM (SPDX/CycloneDX) generated and attached to releases | `grep -rn "spdx\|cyclonedx\|sbom" .github/workflows/ \| wc -l` → ≥ 1 | Add `anchore/sbom-action` to release workflow |
+| **[S11]** | Signed commits enforced via branch protection | `gh api repos/:owner/:repo/branches/main/protection/required_signatures --jq '.enabled'` → `true` | Enable via `gh api --method POST` |
+| **[S12]** | Dependency caching with lockfile-hash keys | `grep -rn "actions/cache\|cache-" .github/workflows/ \| wc -l` → ≥ 1 | Add `actions/cache@<sha>` with `restore-keys` fallback |
+| **[S13]** | Docker BuildKit with registry cache backend | `grep -rn "cache-from\|cache-to.*type=registry" .github/workflows/ \| wc -l` → ≥ 1 | Add `cache-from: type=gha` and `cache-to: type=gha,mode=max` |
+| **[S14]** | Test sharding for suites > 5 minutes | `grep -rn "matrix\|shard\|split" .github/workflows/ \| wc -l` → ≥ 1 | Add `strategy.matrix.shard` with `jest --shard` |
+| **[S15]** | Automated rollback tested: health check failure → revert to previous | `grep -rn "rollback\|revert\|rollback" .github/workflows/ \| wc -l` → ≥ 1 | Add rollback step using previous deployment tag/commit |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production CI/CD pipelines -->

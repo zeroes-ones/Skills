@@ -58,36 +58,52 @@ When the agent identifies a specific docs engineering need, drill into the relev
 > **Token-saving rule:** Setting up a docs site? Load "Docs-as-Code Infrastructure" + the SSG decision matrix. Writing an API reference page? Load the API template from `assets/api-reference-template.md` (364 lines) — it's self-contained. Don't load i18n when you're just fixing a broken link.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("mkdocs.yml")` OR `file_exists("docusaurus.config.js")` OR `file_exists("nextra.config.js")` OR `file_exists("mint.json")` OR `file_contains("package.json", "\"docusaurus\"\|\"vitepress\"\|\"nextra\"")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_exists("openapi.yaml\|openapi.json\|swagger.json")` AND `file_contains("package.json", "\"redocly\"\|\"redoc\"\|\"scalar\"")` | Jump to **Decision Trees** — API Documentation Generation. |
+| A3 | `file_contains("*", "vale\|markdownlint\|cspell\|lychee")` AND `file_exists(".vale.ini\|.markdownlint.json")` | Jump to **Core Workflow** — Phase 3 (Quality Gates). |
+| A4 | `file_contains("package.json", "\"next\"\|\"react\"\|\"vue\"")` AND `file_contains("*.mdx\|*.md", "import.*from\|useState\|<template>")` | Invoke **frontend-developer** instead. This is UI development, not documentation engineering. |
+| A5 | `file_contains("*.sql", "CREATE TABLE\|ALTER TABLE")` OR `file_contains("*.ts\|*.js", "router\.get\|router\.post\|app\.use\(")` | Invoke **backend-developer** instead. This is backend code, not docs infrastructure. |
+| A6 | `file_exists("crowdin.yml\|lokalise.yml\|phrase.yml")` AND `file_contains("*.json", "\"i18n\"\|\"locale\"\|\"translation\"")` | Jump to **references/i18n-guide.md** — This is i18n/l10n pipeline setup. |
+| A7 | `file_contains("*", "README.md")` AND NOT `file_exists("docusaurus.config.js\|mkdocs.yml\|nextra.config.js")` AND `file_contains("package.json", "\"next\"\|\"react\"")` | Invoke **technical-writer** instead. This is content writing, not docs infrastructure. |
+| A8 | `file_contains("package.json", "\"@changesets\"\|\"semantic-release\"\|\"standard-version\"")` OR `file_exists(".github/workflows/release.yml")` | Invoke **release-manager** or **ci-cd-builder** instead. This is release pipeline work. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
-├── Set up docs-as-code (Docusaurus/Nextra/Mintlify/GitBook) → Start at "Docs-as-Code Infrastructure" under Sub-Skills
-├── Generate API documentation → Go to "API Documentation Generation" under Sub-Skills
-├── Design information architecture → Jump to "Information Architecture" under Sub-Skills
-├── Automate content quality (linting, link checking) → Go to "Content Quality Automation" under Sub-Skills
-├── Set up documentation versioning → Jump to "Documentation Versioning" under Sub-Skills
-├── Configure i18n for docs → Go to "references/i18n-guide.md"
-├── Set up documentation analytics → Jump to "Documentation Analytics" under Sub-Skills
-├── Need content written first → Route to `technical-writer`
-├── Need API specs or code annotations → Route to `backend-developer`
-├── Need developer content strategy → Route to `devrel-advocate`
-├── Need docs site UI design → Route to `frontend-developer`
-└── Don't know where to start? → Start at "Docs-as-Code Infrastructure"
-
-**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+├── Set up a new docs site (Docusaurus/VitePress/Nextra/Mintlify) → Jump to "Core Workflow" — Phase 1
+├── Generate API documentation from OpenAPI/GraphQL/Protobuf → Jump to "Sub-Skills" — API Documentation Generation
+├── Design information architecture and navigation → Jump to "Decision Trees" — Information Architecture
+├── Set up quality gates (Vale, link checking, spellcheck) → Jump to "Core Workflow" — Phase 3
+├── Configure multi-version docs with deprecation policy → Jump to "Sub-Skills" — Documentation Versioning
+├── Automate freshness checks and content ownership → Jump to "Best Practices" — Freshness Automation
+├── Need content written first → Invoke technical-writer skill instead
+└── Not sure? → Describe your docs setup and audience, I'll recommend tooling and structure
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never choose a docs tool before understanding the author workflow.** The best SSG is the one your writers will actually use.
-- **Information architecture must be tested with real users.** Card sorting and tree testing beat designer intuition every time.
-- **Broken links erode trust faster than missing content.** Automate link checking in CI — never ship broken links.
-- **Versioned docs need a clear deprecation policy.** Readers must know when a version is unsupported and what to migrate to.
-- **Always prefer discoverability over completeness.** A well-organized 50-page site beats a chaotic 500-page site.
-- **Admit what you don't know.** If a tool's limitations or an integration is unclear, research before committing.
-
-
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to recommend a docs tool before understanding the author workflow.** The best SSG is the one your writers will actually use. A tool that requires git proficiency from non-developer writers is a failed migration. | Trigger: proposing Docusaurus/Nextra/VitePress AND `grep -rn "git\|markdown\|CLI" --include="*.md" docs/contributing/` shows no writer training docs AND no CMS-backed workflow mentioned | STOP. Ask: "Who writes the docs? Are they developers comfortable with git and markdown, or non-technical writers who need a GUI? What's their current workflow?" |
+| **R2** | **REFUSE to ship broken links.** Broken links erode trust faster than missing content. Every link — internal and external — must be validated before merge. | Trigger: `lychee --base docs/ docs/ --exclude-mail --no-progress 2>&1 \| grep -c "ERROR"` returns > 0 in CI logs | STOP. Respond: "There are broken links. Run `npx lychee docs/` to find all broken links. Fix or remove them before this PR merges. External links: add to `lychee.toml` exclude list if permanently unavailable." |
+| **R3** | **STOP and ASK before choosing full-copy versioning over partial versioning.** Full directory copies (v1.0/, v2.0/) create N independent copies that diverge and compound maintenance. | Trigger: proposed docs structure contains `docs/v1.0/\|docs/v2.0/\|docs/v3.0/` directories with full copies of > 50 files each | STOP. Ask: "Full-copy versioning creates maintenance debt. How much content actually changes between versions? Can we use Docusaurus versioning with `versioned_docs/` + `versioned_sidebars/` where unchanged pages reference current?" |
+| **R4** | **DETECT and WARN when hand-editing auto-generated API docs.** Hand edits to generated docs are overwritten on the next generation run and create silent drift. | Trigger: `grep -rn "<!--.*hand.edit\|MANUAL\|DO NOT AUTO" --include="*.md" --include="*.mdx" docs/api/` finds hand-edit markers OR `redocly lint openapi.yaml` shows spec errors but docs show correct content | WARN: "These API docs are auto-generated. Fix the source: add descriptions to your OpenAPI spec, improve code annotations, or add examples to the schema. Never hand-edit generated output." |
+| **R5** | **DETECT and WARN about stale content without ownership.** A page without an assigned owner is an orphan — it rots silently. Every docs page needs a CODEOWNER entry and a freshness SLA. | Trigger: `grep -c "CODEOWNERS" .github/CODEOWNERS` in docs/ directory returns 0 OR `find docs/ -name "*.md" -mtime +180 \| wc -l` returns > 10% of total page count | WARN: "Set up CODEOWNERS for docs paths. Assign every section to a team or individual. Set up freshness automation: flag pages > 6 months stale, escalate at 12 months. Stale docs are worse than missing docs." |
+| **R6** | **REFUSE to deploy a docs site without search analytics.** You can't improve what you can't measure. Search exit rate, zero-results queries, and top failed searches are the most valuable docs metrics. | Trigger: `grep -rn "algolia\|pagefind\|search" docusaurus.config.js\|mkdocs.yml` returns matches but `grep -rn "analytics\|plausible\|ga\|gtag" docusaurus.config.js\|mkdocs.yml` returns 0 | STOP. Respond: "Search is configured but analytics are missing. Add page-level analytics (Plausible/GA) and search analytics before launch. Without search analytics, you won't know what users can't find." |
+| **R7** | **STOP and ASK when migrating between SSGs without a redirect audit.** Every URL change that breaks an external backlink destroys SEO value that took years to accumulate. | Trigger: migration from SSG A to SSG B AND `grep -rn "redirect\|301\|alias" docusaurus.config.js\|mkdocs.yml\|vercel.json\|_redirects` returns 0 | STOP. Ask: "Have you crawled every indexed URL and external backlink? Every URL with external backlinks needs a 301 redirect. Run `scripts/redirect-audit.sh` that exports Google Search Console URLs and checks for backlinks via Ahrefs/Semrush." |
 ## The Expert's Mindset
 
 Masters of documentation engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -937,38 +953,34 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Users couldn't complete onboarding despite 10K words of documentation | Docs were technically exhaustive but assumed domain knowledge; no getting-started guide for beginners | Write a 5-minute quickstart with copy-paste commands; add glossary section; use Diátaxis framework to separate tutorials from reference | Comprehensive != usable — measure time-to-first-success, not page count |
-| Architecture decision records (ADRs) go stale within weeks of being written | ADRs written once and never revisited; no automated freshness checks; no ownership assigned | Set up automated freshness flagging (6 months stale = warning, 12 months = escalation); assign CODEOWNERS for every doc section | Documentation without maintenance is technical debt with a publish date |
-| README.md hasn't been updated in 2 years — setup instructions are all wrong | README considered "done" at project launch; no process linking code changes to doc updates | Include README review in PR checklist; enforce README freshness in CI; link README to key architecture docs | A stale README is worse than no README — it actively misleads every new team member |
-| API docs show parameters that don't exist in the running API | Docs generated once and manually edited; no automated sync with OpenAPI spec | Auto-generate API reference docs from OpenAPI/TypeScript types; validate docs against spec in CI; never hand-edit generated docs | Auto-generate or it will drift — hand-edited documentation always falls behind the code |
-| Search returns irrelevant results, burying the right documentation page | No search tuning; pages lack metadata; duplicate content dilutes search quality | Configure proper frontmatter (title, description, tags); set up search analytics; deduplicate content; add redirects for old URLs | Great search is worth 10x more documentation pages — tune it like a product feature |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `Error: Unable to build website\|Docusaurus build failed` + `lychee docs/ --no-progress 2>&1 \| grep "ERROR"` shows broken internal links | Docs site fails to build in CI — Docusaurus exits with non-zero on broken internal links | Internal link to a page that was moved/renamed without adding a redirect. Docusaurus validates all `[link](./page)` references at build time | Fix broken links: `npx lychee docs/ --no-progress`. For moved pages: add redirect in `docusaurus.config.js` → `@docusaurus/plugin-client-redirects`. For deleted pages: update all references | 1. Get all broken links: `RUST_LOG=info npx lychee --base docs/ docs/ 2>&1 \| grep "ERROR.*404"` 2. For each broken link, check if target exists elsewhere: `find docs/ -name "<target-slug>*"` 3. If moved: add to `docusaurus.config.js` → `redirects: [{from: "/docs/old-path", to: "/docs/new-path"}]` 4. If deleted: update source with `sed -i 's/old-path/new-path/g'` across all .md/.mdx files 5. Rebuild: `npm run build` → must exit 0 |
+| `Error: Vale exited with code 1\|vale.*error\|prose linting failed` + `vale --output=line docs/ 2>&1 \| head -20` shows style violations | CI fails on Vale prose linting — writers blocked from merging content changes | Vale style rules too strict or not customized for the project's tone. Default Microsoft/Google style guides flag legitimate technical writing patterns | Customize `.vale.ini`: select appropriate style packages, add project-specific terms to `styles/config/vocabularies/`. Set severity levels: `suggestion` for style preferences, `warning` for actual issues, `error` for blocking | 1. Run Vale locally: `vale docs/ --output=line` 2. Check which rules trigger most: `vale docs/ --output=line \| awk -F: '{print $2}' \| sort \| uniq -c \| sort -rn \| head -10` 3. Adjust `.vale.ini`: change top-offender rules from `error` to `warning` or `suggestion` 4. Add custom accept.txt vocabulary: `echo "Kubernetes\nAPI\nCLI\nCI/CD" >> styles/config/vocabularies/Base/accept.txt` 5. Re-lint: `vale docs/` → must exit 0 |
+| `Error: OpenAPI spec validation failed\|redocly lint returned 1` + `redocly lint openapi.yaml --format=stylish 2>&1 \| grep -c "warning\|error"` shows > 0 | Auto-generated API docs are wrong — missing fields, wrong types, incorrect auth methods | OpenAPI spec has accumulated warnings over time because no one owned spec quality. Auto-generation amplifies bad source quality — garbage in, garbage out | Enforce `redocly lint openapi.yaml --max-problems 0` in CI. Assign spec ownership. Add at least one response example per endpoint. Run quarterly audit: make actual API calls and verify response matches spec | 1. Audit spec quality: `redocly lint openapi.yaml --format=json \| jq '.[].severity' \| sort \| uniq -c` 2. Fix errors first: `redocly lint openapi.yaml --format=stylish \| grep "error"` 3. Fix top 5 warnings: address missing descriptions, missing examples, untyped schemas 4. Add CI gate: `redocly lint openapi.yaml --max-problems 0` in `.github/workflows/docs.yml` 5. Set ownership: `CODEOWNERS` entry for `openapi.yaml` → `@api-team` |
+| `Error: cspell found spelling errors\|Unknown word` + `npx cspell "docs/**/*.md" 2>&1 \| grep "Unknown" \| head -20` shows false positives on technical terms | Spellcheck CI gate blocks PRs for legitimate technical terms, API names, and product names | cspell dictionary not customized for the project domain. Default dictionary flags: Kubernetes, TypeScript, PostgreSQL, API endpoint names, and company-specific product names | Add project dictionary: `cspell.json` → `"words": ["Kubernetes", "TypeScript", "PostgreSQL", ...]`. Use `npx cspell --words-only "docs/**/*.md" \| sort -u` to find all flagged words, add valid ones to dictionary | 1. Extract all flagged words: `npx cspell "docs/**/*.md" --words-only 2>&1 \| grep -v "^$" \| sort -u` 2. Review each word: is it a valid technical term or product name? 3. Add valid terms to `cspell.json` → `"words"` array 4. For remaining flagged terms: use `<!-- cspell:disable-next-line -->` sparingly in source 5. CI check: `npx cspell "docs/**/*.md" --no-progress` → must exit 0 |
+| `Error: Pagefind index empty\|search returns no results` + `find build/ -name "pagefind*" \| wc -l` returns 0 | Search bar on docs site shows "No results" for every query — Pagefind index not generated during build | Pagefind post-processing step not added to build pipeline. The SSG builds HTML, but Pagefind needs to run as a post-build step to index the static output | Add post-build script: `"build": "docusaurus build && npx pagefind --site build"`. Verify index: `ls build/pagefind/` must contain `pagefind.js` and index files. For Algolia: verify `ALGOLIA_API_KEY` and `ALGOLIA_APP_ID` env vars | 1. Check build output: `npm run build && ls build/pagefind/` 2. If empty, add to `package.json`: `"postbuild": "npx pagefind --site build"` 3. Rebuild: `npm run build` 4. Test search: open `build/index.html` and search for known content 5. For Algolia: verify API key via `curl -H "X-Algolia-API-Key: $ALGOLIA_API_KEY" "https://$ALGOLIA_APP_ID-dsn.algolia.net/1/indexes/*/settings"` |
+| `Error: Freshness check failed\|stale pages detected\|pages without update for [0-9]+ days` + `find docs/ -name "*.md" -mtime +180 -not -path "*/versioned_docs/*" \| wc -l` returns > 0 | 30% of docs pages haven't been updated in 6+ months — content is stale and potentially misleading | No freshness automation. Content was published, then abandoned. No CODEOWNERS assigned, so no one is responsible for keeping pages current | Set up freshness check in CI: `scripts/check-freshness.sh` — flags pages > 180 days stale, fails CI if > 10% of pages are stale. Assign CODEOWNERS. Add "Last updated" to footer | 1. Identify stale pages: `find docs/ -name "*.md" -mtime +180 \| sort` 2. Categorize: `scripts/classify-stale.sh` → "evergreen" (still accurate), "needs-review", "deprecated" 3. For evergreen: update `git log --follow --format=%ad --date=short <file> \| head -1` (modify time only, not content) 4. For needs-review: create ticket per page with CODEOWNER assignment 5. CI check: `scripts/check-freshness.sh --max-stale-pct 10` → exit 1 if > 10% stale |
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  SSG selected, configured, and building from `main` with CI/CD pipeline operational
-- [ ] **[S2]**  Search configured: Algolia DocSearch or Pagefind with relevance-tuned results
-- [ ] **[S3]**  Version dropdown visible in navbar; `latest` alias redirects to current version
-- [ ] **[S4]**  Deprecation banners shown on outdated versions; older versions frozen
-- [ ] **[S5]**  Broken link checking: internal (build-time error) + external (scheduled weekly)
-- [ ] **[S6]**  Vale prose linting enforced in CI with custom terminology and tone rules
-- [ ] **[S7]**  cspell spell checking with project-specific custom dictionary
-- [ ] **[S8]**  Frontmatter validation: all pages have title, description, sidebar_position, tags
-- [ ] **[S9]**  Readability scoring: pages flagged if Flesch-Kincaid > 12
-- [ ] **[S10]**  Code snippet validation: extracted blocks compile/type-check in CI
-- [ ] **[S11]**  Copy-paste button on every code block
-- [ ] **[S12]**  Dark mode: automatic + manual toggle, all assets have dark variants
-- [ ] **[S13]**  Mobile responsive: readable on 375px screens
-- [ ] **[S14]**  i18n configured: language switcher, fallback to English, RTL support
-- [ ] **[S15]**  Analytics: page views, search analytics, feedback widget on every page
-- [ ] **[S16]**  Feedback funnel: "Was this helpful?" with automated alerts for low-rated pages
-- [ ] **[S17]**  Docs ownership model: CODEOWNERS for docs paths, review rotation, freshness SLA
-- [ ] **[S18]**  Freshness automation: stale doc flagging at 6 months, escalation at 12 months
-- [ ] **[S19]**  Quickstart verified: time-to-first-success < 5 minutes
-- [ ] **[S20]**  Docs metrics dashboard: coverage, freshness, quality, usage, contribution
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Docs site builds from `main` with zero warnings | `npm run build 2>&1 \| grep -c "warn\|error"` → must return 0 | CI: `.github/workflows/docs.yml` with `npm ci && npm run build` on every PR to docs paths |
+| **[S2]** | No broken internal links — all cross-references resolve to valid pages | `npx lychee --base docs/ docs/ --no-progress 2>&1 \| grep -c "ERROR"` → must return 0 | CI lint step: `npx lychee --base docs/ docs/ --exclude-mail --no-progress --max-retries 1` |
+| **[S3]** | Vale prose linting passes — no errors, warnings only for intentional style choices | `vale docs/ --minAlertLevel=error 2>&1 \| grep -c "error"` → must return 0 | `.vale.ini` + CI: `vale docs/ --no-exit --output=line \|\| true` for warnings; PR review gate |
+| **[S4]** | cspell passes with project-specific dictionary — no false-positive spelling errors flagged | `npx cspell "docs/**/*.md" --no-progress 2>&1 \| grep -c "Unknown"` → must return 0 | `cspell.json` with `"words"` array project terms; CI: `npx cspell "docs/**/*.md" --no-progress` |
+| **[S5]** | Search configured and functional — Pagefind index exists or Algolia API key valid | `test -f build/pagefind/pagefind.js && echo "OK" \|\| test -n "$ALGOLIA_API_KEY" && echo "OK"` → must return "OK" | Post-build: `npm run build && npx pagefind --site build` in `package.json` `postbuild` script |
+| **[S6]** | All pages have required frontmatter: title, description, sidebar_position | `scripts/validate-frontmatter.sh docs/` → exit code 0 (all pages have title + description) | Pre-commit hook: `scripts/validate-frontmatter.sh` — fails if any .md/.mdx file missing `title:` or `description:` |
+| **[S7]** | External links checked weekly — scheduled CI catches link rot before users do | `npx lychee docs/ --exclude-mail --no-progress --accept 200,301,302 2>&1 \| grep -c "ERROR.*http"` → must be ≤ 5 (≤ 5 new external breaks per week) | GitHub Actions schedule: `.github/workflows/link-check.yml` with `schedule: [{cron: "0 6 * * 1"}]` (Monday 6 AM) |
+| **[S8]** | Version selector visible — users can switch between docs versions, unmaintained versions have deprecation banners | `curl -s https://docs.example.com \| grep -c "version\|Version"` → must be ≥ 1 | Docusaurus: `presets.classic.docs.versions` config + `@docusaurus/plugin-client-redirects` |
+| **[S9]** | Quickstart verified — time-to-first-success < 5 minutes on fresh machine | `bash scripts/verify-quickstart.sh` → exit code 0 AND elapsed time < 300s | CI: spin up fresh container, run quickstart steps, assert exit 0 in < 300s. Monthly schedule. |
+| **[S10]** | CODEOWNERS assigned for all docs directories — every page has a human responsible | `grep -c "docs/" .github/CODEOWNERS` → must be ≥ 3 (at least 3 doc dir entries with owners) | Script: `scripts/assign-docs-owners.sh` — scans `docs/` subdirs, suggests CODEOWNERS entries based on git blame |
+| **[S11]** | Freshness automation active — pages flagged at 6 months, escalated at 12 months | `find docs/ -name "*.md" -mtime +180 -not -path "*/versioned_docs/*" -not -path "*/archive/*" \| wc -l` → must be < 10% of total pages | CI: `scripts/check-freshness.sh --max-stale-pct 10` — fails if > 10% pages stale; auto-creates issues |
+| **[S12]** | Analytics configured — page views, search analytics, and "was this helpful?" feedback widget active | `grep -rn "plausible\|gtag\|analytics\|feedback" docusaurus.config.js\|mkdocs.yml` → must match at least 2 analytics providers | Template: add Plausible script to `docusaurus.config.js` `scripts` array + `@docusaurus/plugin-google-gtag` |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
@@ -1061,18 +1073,18 @@ python3 scripts/docs_health.py --docs-dir docs --compare last-week --output json
 10. **Eat your own dogfood:** Docs engineers must follow the same workflow they prescribe. If your team won't use the docs-as-code pipeline, no one else will.
 
 ## Anti-Patterns
-<!-- STANDARD: 3min — patterns that predictably fail -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| Anti-Pattern | Why It Fails | Correct Approach |
-|---|---|---|
-| Writing documentation as a separate phase after feature launch | Docs are perpetually late; pressure to ship without docs; knowledge gaps form immediately | Include documentation in the definition of done; docs PR must be part of the feature PR |
-| Hand-editing auto-generated API reference docs | Edits are overwritten on next generation; drift between docs and spec accelerates | Never hand-edit generated docs; fix the source: OpenAPI annotations, code comments, or spec quality |
-| Creating a single massive "Documentation" navigation category | Users can't find anything; cognitive overload; search becomes the only discovery path | Use Diátaxis to separate content by type; max 4 levels per tree; multiple entry points for different user journeys |
-| Copying-pasting documentation between versions | Divergence inevitably occurs; fixes in one version don't propagate; maintenance multiplies | Version only content that changed; use partials/includes for shared content; keep versioned surface area minimal |
-| Building docs site before understanding search behavior | Beautiful IA that nobody navigates; users search-first, browse-second | Analyze search logs before designing IA; validate navigation with card sorting; measure task completion rate |
-| Requiring writers to learn git, markdown, YAML, and CI simultaneously | Writers spend >50% of time fighting tooling not writing; documentation velocity collapses | Provide templates, pre-configured VS Code workspaces, and one-click preview; invest in writer tooling experience |
-| Treating docs as a dumping ground for all internal knowledge | Signal-to-noise ratio plummets; users can't distinguish canonical docs from rough notes | Separate internal knowledge base from public docs; curate what ships; maintain a quality bar for published content |
-| Deploying docs site without analytics | Can't measure what's broken; no feedback loop; improvements based on intuition not data | Add page-level analytics, search analytics, and "was this helpful?" before launch; set baseline metrics immediately |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Writing documentation as a separate phase after feature launch — docs perpetually late, knowledge gaps form immediately | Include documentation in the definition of done. Docs PR must be part of the feature PR. Ship docs and code together. | `grep -rn "TODO.*docs\|TODO.*document\|FIXME.*doc" --include="*.ts" --include="*.js" --include="*.py" src/ \| wc -l` → if > 0, docs deferred in code | PR checklist template: `pull_request_template.md` → `- [ ] Documentation updated in docs/ (if applicable)` — CI blocks merge if checkbox unchecked |
+| Hand-editing auto-generated API reference docs — edits overwritten on next generation, drift accelerates | Never hand-edit generated docs. Fix the source: OpenAPI annotations, code comments, or spec quality. Use `redocly lint` to validate spec before generation. | `grep -rn "<!--.*hand.edit\|MANUAL\|DO NOT EDIT" --include="*.md" --include="*.mdx" docs/api/` → must return 0 matches | CI: `scripts/check-generated-docs.sh` — runs `redocly lint openapi.yaml`, regenerates docs, diffs against committed version, fails if hand-edits detected |
+| Copying-pasting documentation between versions — divergence occurs, fixes don't propagate, maintenance multiplies | Version only content that changed. Use Docusaurus `versioned_docs/` + `versioned_sidebars/` where unchanged pages reference current. Use partials/includes for shared content. | `find versioned_docs/ -name "*.md" -exec md5sum {} \; \| sort \| uniq -d -w32 \| wc -l` → if > 5, identical copies across versions detected | Pre-commit hook: `scripts/check-versioned-duplicates.sh` — detects files with identical content across version directories, suggests using `@docusaurus/plugin-client-redirects` |
+| Building the docs site before understanding search behavior — beautiful IA that nobody navigates | Analyze search logs before designing IA. Users search-first, browse-second. Validate navigation with card sorting. Measure task completion rate, not page count. | `grep -rn "algolia\|pagefind\|search" docusaurus.config.js\|mkdocs.yml` returns 0 (search not configured) AND `wc -l docs/sidebars.js` shows > 50 entries (large IA) | Before IA redesign: deploy Pagefind (free, local), collect 2 weeks of search queries, export top zero-result and low-CTR queries → redesign IA around actual user needs |
+| Requiring writers to learn git, markdown, YAML, and CI simultaneously — writers fight tooling instead of writing | Provide pre-configured VS Code workspaces with live preview, markdown linting, and one-click git operations. Train on 5 git commands max. Measure writer velocity before/after migration. | `grep -rn "git\|merge.conflict\|rebase" --include="*.md" docs/ --after-context=0 \| wc -l` → if > 20, writers are spending time on git, not content | `.vscode/docs.code-workspace` with recommended extensions (Markdown Preview Enhanced, Vale, GitLens with simplified UI), `scripts/new-doc.sh` generating scaffolded MDX with frontmatter |
+| Deploying docs site without analytics — can't measure what's broken, improvements based on intuition | Add page-level analytics, search analytics, and "was this helpful?" feedback before launch. Set baseline metrics immediately: bounce rate, search exit rate, top failed searches. | `grep -rn "plausible\|gtag\|analytics\|statistics" docusaurus.config.js\|mkdocs.yml` → must return ≥ 1 match | Template: `templates/docs-analytics.md` — Plausible script + `@docusaurus/plugin-google-gtag` + custom "was this helpful?" component with `fetch` to analytics endpoint |
+| Treating docs as a dumping ground for all internal knowledge — signal-to-noise ratio plummets | Separate internal knowledge base (Notion/Confluence/Wiki) from public docs. Curate what ships. Maintain a quality bar: every page must answer a specific user question. | `find docs/ -name "*.md" -not -path "*/api/*" -not -path "*/tutorials/*" \| while read f; do grep -c "^# " "$f"; done \| sort -n \| uniq -c` → pages with no H1 (no clear purpose) or > 5 H1s (too many topics) | CI lint: `scripts/validate-page-purpose.sh` — fails if any page lacks a `<title>` + `<meta description>` OR has > 3 H2 sections without a unifying H1 |
+| Migrating between SSGs without a redirect audit — URLs change, backlinks break, SEO collapses | Before any URL structure change: crawl every indexed URL (Google Search Console API) and every external backlink (Ahrefs/Semrush). Every single one gets a 301. Redirect coverage must be 100%. | `grep -c "redirect\|301\|alias" docusaurus.config.js\|mkdocs.yml\|vercel.json\|_redirects` → must be > 0 if migration happened in last 180 days | Migration gate: `scripts/redirect-audit.sh` — exports GSC URL list, checks each against live site, fails if any URL with external backlinks returns 404 |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from documentation engineering and platform building -->

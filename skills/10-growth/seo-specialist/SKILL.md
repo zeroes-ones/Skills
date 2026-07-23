@@ -25,46 +25,59 @@ localization), JavaScript SEO (SSR/SSG, dynamic rendering), link building strate
 and algorithm update response.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("robots.txt", "Disallow:")` OR `file_exists("sitemap.xml")` OR `file_contains("*", "<link rel=\"canonical\"")` | This is your skill. Jump to **Core Workflow** — Phase 1 (Technical SEO Audit). |
+| A2 | `file_contains("*", "application/ld+json")` OR `file_contains("*", "json-ld")` OR `file_exists("schema.json")` | Jump to **Core Workflow** — Phase 4 (Structured Data / JSON-LD). |
+| A3 | `file_contains("*", "lighthouse")` OR `file_contains("*", "web-vitals")` OR `file_contains("package.json", "\"web-vitals\"")` | Jump to **Core Workflow** — Phase 2 (Core Web Vitals Optimization). |
+| A4 | `file_contains("*", "hreflang")` OR `file_contains("*", "x-default")` OR `file_contains("*", "lang=\"")` | Jump to **Core Workflow** — Phase 5 (International SEO / Hreflang). |
+| A5 | `file_contains("*", "getServerSideProps\|SSR\|server-side")` AND `file_contains("*", "<div id=\"root\">")` | Jump to **Core Workflow** — Phase 6 (JavaScript SEO / SPA Rendering). |
+| A6 | `file_exists("sitemap_index.xml")` OR `file_contains("*", "crawl-budget\|crawl budget")` | Jump to **Decision Trees** — Crawl Budget Optimization. |
+| A7 | `file_contains("*", "disavow\|backlink\|link-building")` OR `file_exists("disavow.txt")` | Jump to **Core Workflow** — Phase 7 (Link Building & Authority). |
+| A8 | `file_contains("*", "canonical\|rel=\"canonical\"")` AND `file_contains("*", "noindex\|<meta.*robots")` | Jump to **Decision Trees** — Indexing & Canonical Strategy. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
-├── Technical SEO audit
-│   ├── Site migration or traffic drop → Start at "Core Workflow > Phase 1"
-│   └── Routine health check → Jump to "Sub-Skills > Technical SEO Audit"
-├── Structured data / JSON-LD / schema markup
-│   └── Rich results implementation → Go to "Core Workflow > Phase 4"
-├── Core Web Vitals optimization
-│   └── LCP/INP/CLS remediation → Jump to "Core Workflow > Phase 2"
-├── Crawl budget & indexing
-│   └── Crawl efficiency issues → Go to "Decision Trees > Crawl Budget Optimization"
-├── E-E-A-T content strategy
-│   └── Building topical authority → Go to "Core Workflow > Phase 3"
-├── International SEO (hreflang)
-│   └── Multi-language/country expansion → Jump to "Core Workflow > Phase 5"
-├── JavaScript SEO
-│   └── SPA/JS-rendered content → Go to "Core Workflow > Phase 6"
-├── Link building
-│   └── Authority gap vs competitors → Jump to "Core Workflow > Phase 7"
-├── Rank tracking & monitoring
-│   └── Proactive alerting setup → Go to "Core Workflow > Phase 8"
-├── Cross-skill: Align keyword strategy with `content-strategist` → Open that skill
-├── Cross-skill: Coordinate structured data implementation with `frontend-developer` → Open that skill
-├── Cross-skill: Sync SEO-safe experiment rules with `growth-engineer` → Open that skill
-├── Cross-skill: Review campaign page SEO with `marketing-manager` → Open that skill
-└── Don't know where to start? → Start at "Core Workflow > Phase 1"
+├── Technical SEO audit (site migration, traffic drop, or health check) → Start at "Core Workflow > Phase 1"
+├── Structured data / JSON-LD / schema markup → Go to "Core Workflow > Phase 4"
+├── Core Web Vitals optimization (LCP/INP/CLS) → Jump to "Core Workflow > Phase 2"
+├── Crawl budget & indexing issues → Go to "Decision Trees > Crawl Budget Optimization"
+├── E-E-A-T content strategy & topical authority → Go to "Core Workflow > Phase 3"
+├── International SEO (hreflang, multi-language) → Jump to "Core Workflow > Phase 5"
+├── JavaScript SEO (SPA, JS-rendered content) → Go to "Core Workflow > Phase 6"
+├── Link building & authority gap analysis → Jump to "Core Workflow > Phase 7"
+├── Rank tracking & monitoring setup → Go to "Core Workflow > Phase 8"
+├── Cross-skill: keyword strategy → Invoke content-strategist skill
+├── Cross-skill: structured data implementation → Invoke frontend-developer skill
+├── Cross-skill: SEO-safe experiment rules → Invoke growth-engineer skill
+├── Cross-skill: campaign page SEO → Invoke marketing-manager skill
+└── Not sure? → Start at "Core Workflow > Phase 1"
+```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never promise ranking improvements with specific timelines.** SEO outcomes depend on competitors, algorithm updates, and indexation speed — none of which you control.
-- **SEO recommendations must be backed by data, not gut feel.** Every recommendation needs a supporting data point: crawl logs, CrUX data, GSC trends, or SERP analysis.
-- **Google algorithm details are guesses — always qualify with "based on observed patterns."** Unless Google has explicitly documented a behavior, present it as an observation, not a fact.
-- **Technical fixes without content strategy waste developer time.** A perfectly crawled site with thin content still won't rank. Bundle technical and content recommendations together.
-- **Always verify before recommending.** Test with actual tools (Screaming Frog, PageSpeed Insights, Rich Results Test) — don't theorize about what might be wrong.
-- **Admit what you don't know.** If you can't access crawl data, search console, or analytics, say so. Don't guess at root causes.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to promise ranking improvements with specific timelines.** SEO outcomes depend on competitors, algorithm updates, and indexation speed — none of which you control. | Trigger: generated output contains "will rank #1" OR "will increase traffic by X%" OR a date range like "within 3 months" coupled with ranking claims | STOP. Respond: "I cannot promise specific ranking outcomes or timelines. SEO depends on competitors, algorithm updates, and indexation speed. Instead, here are the data-driven changes recommended based on your crawl logs, CrUX data, and GSC trends — and the observable signals to watch for improvement." |
+| **R2** | **REFUSE to make recommendations without data evidence.** Every SEO recommendation must be backed by crawl logs, CrUX data, GSC trends, or SERP analysis — never gut feel. | Trigger: generated output contains "should","consider","might help","try" without a preceding data reference (GSC, CrUX, Screaming Frog, Ahrefs, SERP) | STOP. Respond: "I need data before making this recommendation. Share your GSC coverage report, CrUX field data, crawl export, or SERP analysis so I can ground every recommendation in evidence. I won't prescribe without diagnosing first." |
+| **R3** | **REFUSE to present algorithm behavior as fact unless Google has documented it.** Qualify all Google behavior with "based on observed patterns" unless citing official documentation. | Trigger: generated output contains "Google does" OR "Google will" OR "the algorithm" without "based on observed" OR a link to developers.google.com/search | STOP. Insert qualifier: "Based on observed patterns (and unless Google has documented this, it's an observation, not a fact)..." |
+| **R4** | **REFUSE to recommend technical fixes without content strategy.** A perfectly crawled site with thin content still won't rank. Bundle technical and content recommendations together. | Trigger: generated output contains only technical fixes (sitemap, robots.txt, canonical, CWVs, schema) with zero content recommendations (keyword targeting, content gaps, E-E-A-T, topic clusters) | STOP. Append: "These technical fixes address crawlability — but without content strategy, crawlable is not rankable. Let me also assess your content: keyword targeting, topic clusters, E-E-A-T signals, and content gaps against the SERP." |
+| **R5** | **STOP and refuse to theorize without verification data.** Do not speculate about what might be wrong. Test with Screaming Frog, PageSpeed Insights, Rich Results Test, or GSC URL Inspection before recommending. | Trigger: generated output says "might be caused by" OR "could be" OR "possibly" without referencing an actual tool output or test result | STOP. Respond: "I won't theorize about root causes. Let me verify: run Screaming Frog on the affected pages, PageSpeed Insights for CWVs, Rich Results Test for schema, and GSC URL Inspection for rendering. Share the results and I'll give you evidence-based recommendations." |
+| **R6** | **DETECT and WARN when crawler access is unavailable.** If you can't access GSC, crawl data, or analytics, do not guess at root causes — admit the limitation. | Trigger: user asks for diagnosis AND conversation has no reference to GSC data, crawl exports, CrUX reports, or analytics dashboards | WARN. Respond: "I cannot diagnose root causes without data. I need at minimum: GSC coverage report export, a Screaming Frog crawl, or CrUX field data. Without these, I'd be guessing — and guessing wastes your time. Share what you can access." |
+| **R7** | **DETECT and WARN about algorithm update panic reactions.** Core updates roll out over 2 weeks. Do not recommend changes during the rollout based on real-time fluctuations. | Trigger: user reports traffic drop AND mentions a core/algorithm update AND asks for immediate fixes before the update has fully rolled out (< 14 days since announcement) | WARN. Respond: "Core updates take ~2 weeks to fully roll out. Changes made during the rollout are noise — you're reacting to incomplete signals. Wait for the rollout to complete, then analyze: which pages lost traffic? which queries? is the drop proportional to pre-update quality? Diagnose before you prescribe." |
 
 
 ## The Expert's Mindset
@@ -830,18 +843,17 @@ Debugging in PageSpeed Insights:
 - **Algorithm updates happen every 3-6 months** — Don't panic-react. Wait for the update to finish rolling out (usually 2 weeks), then analyze.
 
 ## Anti-Patterns
-<!-- STANDARD: 3min -- common failure modes and their correct alternatives -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| **Indexability by assumption**: Assuming Google can index everything because "we built it with Next.js" — never verifying in GSC URL Inspection that rendered HTML matches visual DOM | Run GSC URL Inspection on every new page template before launch. Compare "View Source" (what Googlebot sees) with the visual page. If critical content is missing from View Source, fix SSR/hydration before the page goes live |
-| **The set-it-and-forget-it sitemap**: XML sitemap generated once at launch, never updated — 6 months later, it lists 40 deleted pages, is missing 200 new pages, and Google has stopped trusting it | Automate sitemap generation in CI/CD: rebuild on every deploy, validate that all listed URLs return 200, keep file size <50MB or split into sitemap index, resubmit to GSC automatically. A stale sitemap is worse than no sitemap — it trains Googlebot to ignore your signals |
-| **Keyword cannibalization by accumulation**: Publishing 5 blog posts targeting "best CRM for startups" over 2 years because nobody checks the existing content library before writing | Maintain a keyword-to-URL mapping document. Before publishing any new content, check: does a page already target this keyword? If yes, update the existing page instead of creating a new one. If the existing page is outdated, 301 redirect it to the new comprehensive guide |
-| **The schema-validate-and-forget**: JSON-LD schema validated at deployment, passes Rich Results Test, then never checked again — 3 months later, a CMS update broke the schema and nobody noticed until rich results disappeared from SERPs | Add schema validation to CI/CD pipeline: validate on every deploy. Add schema monitoring: weekly GSC Enhancements report check. Set up automated alerts for new schema errors. Schema is a living asset, not a deploy-once checklist item |
-| **Core Web Vitals by Lighthouse alone**: Optimizing until Lighthouse scores 100/100 on a MacBook Pro, but real users on mobile 4G are still getting 4-second LCP — lab data != field data | Always optimize against CrUX (Chrome User Experience Report) field data — that's what Google uses for ranking. Lighthouse is useful for debugging but irrelevant for ranking. If CrUX says LCP is 4.2s and Lighthouse says 1.8s, CrUX is right and Lighthouse is measuring the wrong thing |
-| **The JavaScript-everything trap**: Building the entire site as a Single Page Application with client-side rendering — title, meta, content, navigation all rendered by JS. Googlebot can render JS but it's slow, expensive, and unreliable | Critical content must be in the server-rendered HTML: title, meta description, canonical, hreflang, H1, body text, internal navigation. JS can enhance the experience but the core SEO signals must survive a `curl` request. If `curl https://yoursite.com` returns an empty `<div id="root">`, your SEO is broken |
-| **The disavow hammer**: Seeing spammy backlinks in Ahrefs and immediately disavowing them all — Google ignores most low-quality links naturally, and over-disavowing can signal to Google that you're trying to manipulate your link profile | Only disavow when: (a) you have a manual action in GSC, (b) you have a clear pattern of toxic link attacks (hundreds of links from the same domain, all with exact-match anchors), or (c) you purchased links in the past and need to disavow them. For all other cases, Google's algorithms already discount low-quality links |
-| **Algorithm update panic**: Google announces a core update, organic traffic drops 8% in the first 3 days, and the SEO team immediately starts rewriting content and changing title tags based on guesswork | Wait for the update to finish rolling out (usually 2 weeks). Analyze impact: which pages lost traffic? which queries? is the drop proportional to the page's pre-update quality? Core updates reward or penalize overall site quality — individual page tweaks during the rollout are noise. Diagnose before you prescribe |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| **Indexability by assumption**: Assuming Google can index everything because "we built it with Next.js" — never verifying in GSC URL Inspection that rendered HTML matches visual DOM | Run GSC URL Inspection on every new page template before launch. Compare "View Source" (what Googlebot sees) with the visual page. If critical content is missing from View Source, fix SSR/hydration before the page goes live | `grep -rn "getServerSideProps\|getStaticProps" --include="*.tsx" --include="*.jsx" \| wc -l` → if 0 and `.tsx/.jsx` files > 10, likely no SSR; also: `curl -s https://yoursite.com \| grep "<div id=\"__next\">" \| wc -l` → if > 0, check rendered HTML vs View Source | Pre-commit hook: `scripts/check-server-render.sh` — curl each page template and fail if `<title>`, `<meta name="description">`, or `<h1>` are missing from raw HTML |
+| **The set-it-and-forget-it sitemap**: XML sitemap generated once at launch, never updated — 6 months later, it lists 40 deleted pages, is missing 200 new pages, and Google has stopped trusting it | Automate sitemap generation in CI/CD: rebuild on every deploy, validate that all listed URLs return 200, keep file size <50MB or split into sitemap index, resubmit to GSC automatically | `grep -rn "lastmod\|lastmod" --include="*.xml" sitemap.xml \| head -1` → check if lastmod date is > 30 days old; `curl -s https://yoursite.com/sitemap.xml \| grep "<loc>" \| wc -l` vs `grep -rn "<loc>" --include="*.xml" \| wc -l` → counts should match indexed pages | CI pipeline: `scripts/validate-sitemap.sh` — (a) fetch sitemap, (b) curl every `<loc>` — fail if any returns non-200, (c) fail if lastmod > 7 days ago |
+| **Keyword cannibalization by accumulation**: Publishing 5 blog posts targeting "best CRM for startups" over 2 years because nobody checks the existing content library before writing | Maintain a keyword-to-URL mapping document. Before publishing any new content, check: does a page already target this keyword? If yes, update the existing page instead of creating a new one | `grep -rn "focus.*keyword\|target.*keyword\|primary.*keyword" --include="*.md" --include="*.mdx" content/ \| sort \| uniq -c \| awk '$1 > 1'` → finds keywords used on multiple pages | CI check: `scripts/check-keyword-cannibalization.sh` — scan frontmatter for duplicate `keyword:` or `focus_keyword:` fields; fail the build if duplicates found |
+| **The schema-validate-and-forget**: JSON-LD schema validated at deployment, passes Rich Results Test, then never checked again — 3 months later, a CMS update broke the schema | Add schema validation to CI/CD pipeline on every deploy. Add schema monitoring: weekly GSC Enhancements report check. Set up automated alerts for new schema errors | `grep -rn "application/ld+json" --include="*.html" --include="*.tsx" \| wc -l` → if > 0 pages have schema but no CI validation; `curl -s https://yoursite.com/page \| python3 -c "import sys,json; json.load(sys.stdin)" 2>&1` → validate JSON-LD is parseable JSON | CI: `scripts/validate-schema.sh` — extract `<script type="application/ld+json">` blocks, pipe to `jq .` for JSON validity, then pipe to Google Rich Results Test API; fail build on any error |
+| **Core Web Vitals by Lighthouse alone**: Optimizing until Lighthouse scores 100/100 on a MacBook Pro, but real users on mobile 4G are still getting 4-second LCP — lab data != field data | Always optimize against CrUX (Chrome User Experience Report) field data — that's what Google uses for ranking. Lighthouse is useful for debugging but irrelevant for ranking | `grep -rn "lighthouse\|PageSpeed" --include="*.md" --include="*.yml" \| grep -v "CrUX\|field.data\|chrome.ux"` → finds Lighthouse references without CrUX; `lighthouse https://yoursite.com --output json \| jq '.audits'` returns lab data only — check if field data is also collected | Pre-commit: require CrUX API call in performance monitoring scripts. CI: `scripts/check-cwvs.sh` — fetch `chromeUXReport` via PageSpeed Insights API; fail if p75 LCP > 2.5s OR INP > 200ms OR CLS > 0.1 per CrUX field data |
+| **The JavaScript-everything trap**: Building the entire site as a Single Page Application with client-side rendering — title, meta, content, navigation all rendered by JS | Critical content must be in the server-rendered HTML: title, meta description, canonical, hreflang, H1, body text, internal navigation. If `curl https://yoursite.com` returns an empty `<div id="root">`, your SEO is broken | `curl -s https://yoursite.com \| grep -c "<div id=\"root\">"` → if 1 and `<title>` count is 0, JS-only rendering; `grep -rn "render()\|hydrateRoot\|createRoot" --include="*.tsx" --include="*.jsx" \| wc -l` → if > 0 and no SSR setup | CI: `scripts/check-ssr.sh` — curl each page, fail if raw HTML is missing `<title>`, `<meta name="description">`, `<h1>`, or contains `<div id="root"></div>` with empty content |
+| **The disavow hammer**: Seeing spammy backlinks in Ahrefs and immediately disavowing them all — Google ignores most low-quality links naturally, and over-disavowing can signal manipulation | Only disavow when: (a) you have a manual action in GSC, (b) a clear pattern of toxic link attacks (hundreds from same domain, exact-match anchors), or (c) you purchased links in the past | `grep -rn "disavow" --include="*.txt" \| wc -l` → check disavow file size; if > 50 domains and no manual action in GSC, likely over-disavowing; `grep -rn "domain:" disavow.txt \| wc -l` → more than 50 lines without a GSC manual action is a red flag | Pre-disavow gate: `scripts/should-disavow.sh` — check GSC Manual Actions API before allowing disavow upload; if no manual action exists, require 2-person approval to disavow |
 
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
@@ -987,67 +999,36 @@ Run skills in the order shown:
 
 <!-- DEEP: 10+min -->
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Organic traffic drops 40% after site redesign | New design introduced lazy-loading for all images and removed semantic heading structure -- Googlebot couldn't render content properly | Restore semantic HTML structure (h1-h6 hierarchy), preload LCP images, verify rendered HTML matches visual DOM via GSC URL Inspection. | Before any redesign, run a crawl of the current site as a baseline. After launch, compare rendered HTML -- not visual appearance. What Googlebot sees is what ranks. |
-| 5 blog posts competing for the same keyword, none ranking above position 12 | Over 2 years, multiple writers created similar posts targeting "best CRM for startups" without checking existing content | Merge all 5 posts into one comprehensive guide (pillar page). 301 redirect the 4 weaker URLs to the pillar. Update internal links. | Keyword cannibalization is silent traffic death. Audit your content for overlapping targets quarterly. One authoritative page always outranks five mediocre ones. |
-| International site shows wrong language in Google SERP for French users | Hreflang tags were one-directional (en to fr but not fr to en) and x-default was missing -- Google fell back to English for all queries | Implement bidirectional hreflang: every locale page must link to every other locale variant. Add x-default as the fallback. Validate in GSC International Targeting report. | Hreflang must be fully bidirectional and self-referencing. Broken hreflang is worse than no hreflang -- it confuses Google into ignoring your signals entirely. |
-| Backlink profile suddenly shows hundreds of spammy links | Site was hit by negative SEO attack -- competitor built 500+ toxic links pointing to the site | Disavow the toxic domain list via Google's Disavow Tool. File a reconsideration request if a manual action was issued. Monitor backlink profile weekly for 90 days. | Disavow is a scalpel, not a hammer. Google ignores most low-quality links naturally. Only disavow when you have a manual action or a clear pattern of toxic link attacks. |
-| Key landing pages show "discovered - currently not indexed" in GSC | Pages depend on client-side JavaScript to render critical content and metadata -- Googlebot's crawl budget exhausted before rendering completed | Implement SSR/SSG for landing pages or move critical content (title, meta, H1, body text) to server-rendered HTML. Reduce JS bundle size. | If Googlebot can't see it in View Source, it doesn't exist for SEO. Test every page with GSC URL Inspection before publishing. SSR is not optional for SEO-critical pages. |
-| Site migration from `oldsite.com` to `newsite.com` completed — 301 redirects in place, sitemap submitted, GSC change of address filed. Organic traffic dropped 60% and hasn't recovered after 3 months. | The migration team redirected all pages to the new homepage instead of 1:1 page-to-page mapping. Google saw every old URL pointing to the same new URL and treated it as a soft-404 pattern. | Before any domain migration: (1) crawl the old site and generate a complete URL inventory, (2) map EVERY old URL to its exact new equivalent (not to the homepage), (3) implement 1:1 301 redirects, (4) verify every redirect returns the correct destination with a crawler before launch, (5) monitor the "Indexed Pages" report in GSC weekly for 90 days post-migration. | Homepage redirects during migration are the #1 cause of post-migration traffic collapse. Google interprets mass homepage redirects as content deletion, not relocation. Every URL must preserve its identity across the migration — a page about "pricing" must redirect to the new pricing page, not the new homepage. The mapping spreadsheet is the most important artifact of any migration. |
-| SEO audit tool reports 50,000 "404 errors" — panic ensues, team spends a sprint building redirects for all of them | The pages returning 404 are legitimate deleted content (old blog posts, discontinued products, expired landing pages). 404 is the CORRECT response for deleted content — it tells Google "this page is gone and it's not coming back." Redirecting to unrelated pages creates soft-404s. | Before fixing any 404: ask "should this page still exist?" If yes → restore or redirect to equivalent content. If no → 404 is correct. Only fix 404s for pages that (a) have backlinks, (b) receive traffic, or (c) were accidentally deleted. For the rest, 404 is the honest answer. | 404 is not a bug — it's an HTTP status code with semantic meaning. A 404 tells search engines the page is gone. Redirecting deleted content to irrelevant pages confuses Google and users. Not every 404 needs a redirect — only the ones where something of value was lost. |
-| Site has 200,000 URLs but only 50,000 are indexed — crawl budget analysis shows Googlebot spends 70% of its crawl on 5,000 duplicate URLs generated by session IDs in the query string | The site appends `?session_id=xyz` to every internal link for tracking purposes — each unique session ID creates a "new" URL that Googlebot crawls, wasting budget on infinite duplicate content | (1) Add `Disallow: /*?session_id=*` to robots.txt, (2) Add `<link rel="canonical" href="[clean URL]">` on all pages (self-referencing), (3) Configure the analytics tool to use `#` fragment identifiers or `postMessage` instead of query parameters, (4) Monitor crawl stats in GSC for 30 days — crawl budget should shift from session-ID URLs to real content. | Session IDs in URLs are crawl budget destruction. Every unique session ID creates a URL that looks unique to Googlebot — and it will crawl all of them. Query parameters meant for tracking must be excluded via robots.txt or replaced with fragment-based tracking. The crawl budget you waste on session IDs is budget stolen from your real pages. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `curl -s https://yoursite.com | grep "<title>" | wc -l` returns 0 OR `grep -rn "getServerSideProps" --include="*.tsx"` returns 0 with `.tsx` pages > 10 | Organic traffic drops 40% after site redesign | New design introduced lazy-loading or CSR for all content — Googlebot couldn't render critical SEO elements (title, meta, H1, body) from the server-rendered HTML | Restore semantic HTML structure (h1-h6 hierarchy), preload LCP images, verify rendered HTML matches visual DOM via GSC URL Inspection. Implement SSR/SSG for SEO-critical pages | 1. Run: `curl -s https://yoursite.com/page | grep -c "<title>\|<h1>\|<meta name=\"description\">"` — must return >= 3 2. If < 3: `grep -rn "getServerSideProps\|getStaticProps" pages/` — implement SSR for missing pages 3. Verify: GSC URL Inspection → "View Crawled Page" → HTML tab must show title, meta, h1 4. Set CI gate: `scripts/check-ssr.sh` fails build if critical tags missing from raw HTML |
+| `grep -rn "focus_keyword\|target_keyword" content/ | sort | uniq -c | awk '$1 > 1'` finds duplicates | 5 blog posts competing for the same keyword "best CRM for startups", none ranking above position 12 | Over 2 years, multiple writers created similar posts targeting the same keyword without checking existing content — keyword cannibalization diluting authority | Merge all posts into one comprehensive pillar page. 301 redirect the 4 weaker URLs to the pillar. Update internal links. Run `grep -rn "best CRM for startups" content/` to find all internal references | 1. Identify cannibalized keywords: `grep -rn "focus_keyword:" content/ | sort | uniq -c | awk '$1 > 1'` 2. Pick the strongest page (most backlinks + highest GSC clicks) as the canonical 3. Merge content from weaker pages into the pillar 4. Add 301 redirects in `redirects.conf`: `rewrite ^/old-post /pillar-page permanent;` 5. Run `nginx -t && nginx -s reload` 6. Submit updated sitemap to GSC |
+| `grep -rn "hreflang" --include="*.html" --include="*.tsx" | wc -l` shows one-directional links OR `grep -rn "x-default" --include="*.html" --include="*.tsx"` returns 0 | International site shows wrong language in Google SERP for French users | Hreflang tags are one-directional (en→fr but not fr→en) and x-default is missing — Google fell back to English for all queries | Implement bidirectional hreflang: every locale page must link to every other locale variant (including self). Add x-default as the fallback. Validate in GSC International Targeting report | 1. Check bidirection: curl en page → extract hreflang → verify fr points back to en: `curl -s https://site.com/en | grep "hreflang"` 2. Check x-default: `curl -s https://site.com/fr | grep "x-default" | wc -l` must be 1 3. Run `scripts/validate-hreflang.sh` — for each locale pair, verify A→B and B→A both exist 4. Resubmit sitemap with hreflang annotations to GSC |
+| `grep -c "domain:" disavow.txt` returns > 50 domains OR GSC reports "unnatural links" manual action | Backlink profile suddenly shows hundreds of spammy links; manual action issued | Site was hit by negative SEO attack — competitor built 500+ toxic links pointing to the site. Or: purchased Fiverr backlinks triggered Penguin detection | Only disavow when manual action exists or clear toxic pattern (same domain, exact-match anchors). File disavow via Google's Disavow Tool. File reconsideration request with evidence of removal attempts. Monitor backlink profile weekly | 1. Check GSC Manual Actions: `curl -s "https://searchconsole.googleapis.com/v1/... "` → if no manual action, DO NOT disavow 2. If manual action: export toxic links from Ahrefs/SEMrush 3. Contact webmasters for removal (document attempts) 4. Create disavow file: `domain:spammysite.com` 5. Upload via GSC Disavow Tool 6. Submit reconsideration request with evidence 7. Monitor GSC for 90 days |
+| `grep -rn "location.*301\|redirect.*homepage\|rewrite.*\/ " --include="*.conf" --include="*.ts" | grep -v "1:1\|page-to-page"` shows mass homepage redirects | Site migration completed — 301 redirects, sitemap submitted, GSC change of address filed. Organic traffic dropped 60% and hasn't recovered | Migration team redirected all old pages to the new homepage instead of 1:1 page-to-page mapping. Google saw every old URL pointing to the same new URL and treated it as a soft-404 pattern | Before migration: (1) crawl old site for complete URL inventory, (2) map EVERY old URL to its exact new equivalent (not homepage), (3) implement 1:1 301s, (4) verify every redirect returns correct destination, (5) monitor GSC Indexed Pages weekly for 90 days | 1. Crawl old domain: `screamingfrog --crawl https://oldsite.com --output old-urls.csv` 2. Generate 1:1 mapping: `python3 scripts/map-urls.py old-urls.csv new-urls.csv > redirect-map.csv` 3. Validate: `curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L https://oldsite.com/page` → must return new equivalent URL with 301 4. Implement in nginx: `rewrite ^/old-page$ https://newsite.com/new-page permanent;` — ONE per line, never to homepage 5. Submit change of address in GSC 6. Monitor: `scripts/check-migration-health.sh` weekly for 90 days — alert if indexed pages drop > 5% |
+| `grep -rn "404\|status.*404" --include="*.csv" crawl-report.csv | wc -l` returns > 1000 | SEO audit tool reports 50,000 "404 errors" — panic ensues, team builds redirects for all of them | Pages returning 404 are legitimate deleted content (old blog posts, discontinued products, expired landing pages). 404 is the CORRECT response for deleted content — not every 404 needs a redirect | Before fixing any 404: ask "should this page still exist?" If yes → restore or redirect. If no → 404 is correct. Only fix 404s for pages that (a) have backlinks, (b) receive traffic, or (c) were accidentally deleted | 1. Export 404 list from crawl 2. Filter by backlink count: `grep -rn "404" crawl.csv | awk -F',' '$5 > 0'` → pages with backlinks 3. Filter by traffic: cross-reference with GSC Performance report — pages with clicks in last 90 days 4. For pages with backlinks OR traffic: create 301 to most relevant existing page 5. For pages with neither: leave as 404 6. Add helpful 404 page with search and navigation |
+| `curl -s https://yoursite.com/page?session_id=test | grep "canonical"` returns self-referencing canonicals with query params OR `grep -rn "session_id\|jsessionid\|phpsessid" --include="*.ts" --include="*.js"` finds query param tracking | Site has 200,000 URLs but only 50,000 indexed — crawl budget analysis shows Googlebot spends 70% of crawl on 5,000 duplicate session-ID URLs | Site appends `?session_id=xyz` to every internal link for tracking — each unique session ID creates a "new" URL that Googlebot crawls, wasting budget on infinite duplicate content | (1) Add `Disallow: /*?session_id=*` to robots.txt, (2) Add self-referencing canonical on all pages (without query params), (3) Replace query-param tracking with `#` fragments or `postMessage`, (4) Monitor crawl stats in GSC for 30 days | 1. Find tracking params: `grep -rn "session_id\|utm_\|fbclid\|gclid" --include="*.ts" --include="*.js" src/` 2. Add to robots.txt: `Disallow: /*?session_id=*` 3. Verify: `curl -s https://yoursite.com/robots.txt | grep "session_id"` 4. Add canonical: ensure `<link rel="canonical" href="https://yoursite.com/page">` (clean URL, no params) 5. Switch to fragment tracking: change `?session_id=` to `#session_id=` 6. Monitor: GSC → Settings → Crawl Stats → check "Pages crawled per day" shifts from session-ID URLs to real content after 30 days |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-### Technical Foundation
-- [ ] **[S1]**  XML sitemap(s) valid, compressed, submitted to GSC — only canonical, indexable URLs
-- [ ] **[S2]**  robots.txt configured — blocks staging/dev, allows crawling, doesn't block CSS/JS
-- [ ] **[S3]**  All indexable pages have unique `<title>` (50-60 chars) and meta description (150-160 chars)
-- [ ] **[S4]**  Canonical tags: self-referencing, absolute URLs, consistent trailing slash policy
-- [ ] **[S5]**  Redirects: all single-hop 301s, no redirect chains, no redirect loops
-- [ ] **[S6]**  HTTPS everywhere — HSTS header with `max-age=31536000; includeSubDomains; preload`
-- [ ] **[S7]**  404 pages return actual 404 status code (not soft 404), with helpful navigation
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-### Structured Data
-- [ ] **[S8]**  JSON-LD schema deployed on homepage: Organization + WebSite + SitelinksSearchBox
-- [ ] **[S9]**  Article schema on all blog posts with author Person entity
-- [ ] **[S10]**  Product schema on product pages with Offer, price, availability
-- [ ] **[S11]**  BreadcrumbList schema on all pages deeper than homepage
-- [ ] **[S12]**  FAQ/HowTo schema on eligible pages
-- [ ] **[S13]**  Zero errors in GSC Enhancements report
-- [ ] **[S14]**  Schema validated: Rich Results Test → Schema Markup Validator → GSC
-
-### Core Web Vitals
-- [ ] **[S15]**  LCP < 2.5s (75th percentile) — CrUX + Lighthouse lab data confirmed
-- [ ] **[S16]**  INP < 200ms (75th percentile) — interaction responsiveness verified
-- [ ] **[S17]**  CLS < 0.1 (75th percentile) — visual stability confirmed
-- [ ] **[S18]**  Images optimized: WebP/AVIF, srcset, preloaded LCP, explicit dimensions
-- [ ] **[S19]**  Critical CSS inlined, non-critical CSS deferred, JS deferred/async
-- [ ] **[S20]**  No interstitials or intrusive popups per Google guidelines
-
-### Content & International
-- [ ] **[S21]**  E-E-A-T signals present: author bios, credentials, contact info, trust signals
-- [ ] **[S22]**  Topic clusters: pillar pages + linked cluster content with descriptive anchors
-- [ ] **[S23]**  Content gap analysis complete for top 20 target keywords
-- [ ] **[S24]**  Hreflang: bidirectional, self-referencing, x-default, zero GSC errors (if multi-language)
-- [ ] **[S25]**  Localized keyword research per locale (not translated English keywords)
-
-### JavaScript SEO
-- [ ] **[S26]**  Critical content rendered server-side (SSR/SSG) — visible in View Source
-- [ ] **[S27]**  Meta tags (title, description, canonical, hreflang) in server-rendered HTML
-- [ ] **[S28]**  Internal navigation uses `<a href>` or framework Link components
-- [ ] **[S29]**  Infinite scroll implements History API pushState or pagination with rel=next/prev
-
-### Monitoring
-- [ ] **[S30]**  GSC integrated: manual weekly check + API dashboard for daily metrics
-- [ ] **[S31]**  Rank tracking: top 50 keywords daily, 50-500 weekly
-- [ ] **[S32]**  Core Web Vitals dashboard: CrUX data + lab data trended over time
-- [ ] **[S33]**  Algorithm update monitoring: volatility alerts (SERP tracking tool)
-- [ ] **[S34]**  Backlink monitoring: new links detected, toxic links flagged, broken backlinks tracked
-- [ ] **[S35]**  SEO on-call: 24-hour response SLA for >20% traffic drop or manual action
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | XML sitemap(s) valid, compressed, submitted to GSC — only canonical, indexable URLs | `curl -s https://yoursite.com/sitemap.xml | xmllint --noout -` → must return 0; `curl -s https://yoursite.com/sitemap.xml | grep "<loc>" | wc -l` → must be > 0 | CI: `scripts/validate-sitemap.sh` — validate XML, check all `<loc>` return 200, resubmit to GSC via API |
+| **[S2]** | robots.txt configured — blocks staging/dev, allows crawling, doesn't block CSS/JS | `curl -s https://yoursite.com/robots.txt | grep -c "Disallow: /css/\|Disallow: /js/"` → must return 0; `curl -s https://yoursite.com/robots.txt | grep "Disallow: /"` → must not block root | CI: `scripts/check-robots.sh` — fail if CSS/JS directories are blocked; `curl -s https://yoursite.com/robots.txt | grep -E "^Disallow: /(css\|js\|assets)/"` must return nothing |
+| **[S3]** | All indexable pages have unique `<title>` (50-60 chars) and meta description (150-160 chars) | `curl -s https://yoursite.com/page | grep -oP '<title>\K[^<]+' | wc -c` → 50-60 chars; `grep -rn "<title>" --include="*.html" | sort | uniq -d` → must return 0 for uniqueness | CI: `scripts/check-meta.sh` — crawl all pages, check title length 50-60, description 150-160, no duplicates; fail if violations |
+| **[S4]** | Canonical tags: self-referencing, absolute URLs, consistent trailing slash policy | `curl -s https://yoursite.com/page | grep -oP 'rel="canonical" href="\K[^"]+'` → must match the page URL (self-referencing) and use absolute `https://` | CI: `scripts/check-canonical.sh` — curl each page, extract canonical, verify it matches page URL (absolute, same protocol, same trailing slash policy) |
+| **[S5]** | Redirects: all single-hop 301s, no redirect chains, no redirect loops | `curl -s -o /dev/null -w "%{http_code} %{url_effective}" -L https://yoursite.com/old-page` → must return 301 for first hop; `curl -s -o /dev/null -w "%{num_redirects}" -L https://yoursite.com/old-page` → must be 1 | CI: `scripts/check-redirects.sh` — crawl all known old URLs, verify single-hop 301, detect chains > 1 hop |
+| **[S6]** | HTTPS everywhere — HSTS header with `max-age=31536000; includeSubDomains; preload` | `curl -sI https://yoursite.com | grep -i "strict-transport-security"` → must contain `max-age=31536000` and `includeSubDomains` | CI: `scripts/check-https.sh` — curl all domains, fail if non-HTTPS, fail if HSTS missing or max-age < 31536000 |
+| **[S7]** | 404 pages return actual 404 status code (not soft 404), with helpful navigation | `curl -s -o /dev/null -w "%{http_code}" https://yoursite.com/nonexistent-page` → must return 404 | CI: `scripts/check-404.sh` — curl known nonexistent URLs, verify 404 status code, verify response body contains navigation links |
+| **[S8]** | JSON-LD schema deployed on homepage: Organization + WebSite + SitelinksSearchBox | `curl -s https://yoursite.com | grep -c "application/ld+json"` → must be >= 1; `curl -s https://yoursite.com | python3 -c "import sys,json,re; [json.loads(m.group(1)) for m in re.finditer(r'<script[^>]*type=\"application/ld\+json\"[^>]*>(.*?)</script>', sys.stdin.read(), re.DOTALL)]"` → must parse as valid JSON | CI: `scripts/validate-schema.sh` — extract JSON-LD blocks, validate JSON, check @type includes Organization/WebSite |
+| **[S9]** | Article schema on all blog posts with author Person entity | `curl -s https://yoursite.com/blog/post | python3 scripts/check-schema-type.py Article` → must return 0 | CI: crawl all /blog/* URLs, validate Article schema presence, fail if missing on blog pages |
+| **[S10]** | Zero errors in GSC Enhancements report | GSC API: fetch enhancements report → `jq '.rows[].issues'` must be empty | Weekly cron: `scripts/check-gsc-enhancements.sh` — call GSC API, alert if new errors detected |
+| **[S11]** | LCP < 2.5s (75th percentile) — CrUX field data confirmed | `curl -s "https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=$API_KEY" -d '{"origin":"https://yoursite.com","metrics":["largest_contentful_paint"]}' | jq '.record.metrics.largest_contentful_paint.percentiles.p75'` → must be < 2500 | CI: `scripts/check-cwvs.sh` — fetch CrUX API for LCP/INP/CLS p75, fail if any threshold exceeded |
+| **[S12]** | Images optimized: WebP/AVIF, srcset, preloaded LCP, explicit dimensions | `curl -s https://yoursite.com/page | grep -c "srcset\|sizes"` → must be > 0 for pages with images; `curl -s https://yoursite.com/page | grep -c "<link rel=\"preload\".*image"` → LCP image must be preloaded | CI: `scripts/check-images.sh` — Lighthouse audit for image optimization, fail if any image lacks srcset or explicit width/height |
 
 ## When NOT to Use This Skill (Overkill)
 

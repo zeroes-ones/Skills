@@ -30,7 +30,23 @@ output:
 Generate evidence-based user understanding that drives product and design decisions. Move teams from opinion-based to insight-based development through rigorous qualitative and quantitative research methods.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.md", "persona")` AND `file_contains("*.md", "interview\|participant")` | Research-backed personas exist. Jump to **Production Checklist**. |
+| A2 | `file_exists("discussion-guide.md")` OR `file_exists("test-script.md")` | Research instrument exists. Jump to **Core Workflow → Phase 1 (Research Planning)**. |
+| A3 | `file_exists("transcripts/")` OR `file_exists("recordings/")` | Raw research data exists. Jump to **Core Workflow → Phase 5 (Synthesis & Reporting)**. |
+| A4 | `file_contains("*.md", "journey.map\|emotion.curve\|touchpoint")` | Journey mapping in progress. Jump to **Core Workflow → Phase 3 (Journey Mapping)**. |
+| A5 | `file_contains("*.md", "usability.test\|task.scenario\|think.aloud")` | Usability test being planned. Jump to **Core Workflow → Phase 4 (Usability Testing)**. |
+| A6 | `file_contains("*.csv", "N=\|participant\|interview")` OR `file_contains("*.md", "sample.size\|N=")` | Quantitative data exists. Jump to **Decision Trees → Qual vs Quant Method**. |
+| A7 | `file_contains("*.md", "competitive\|benchmark\|heuristic.evaluation")` | Competitive UX analysis in scope. Jump to **Sub-Skills → competitive-ux-benchmarking**. |
+| A8 | `file_contains("*.md", "screener\|recruit\|participant.pool")` | Recruitment being set up. Jump to **Core Workflow → Phase 1 (Recruitment)**. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 ```
 What are you trying to do?
 ├── Understand users (personas, journey maps, mental models) → Jump to "Core Workflow" — Phase 2 & 3
@@ -41,20 +57,22 @@ What are you trying to do?
 ├── Need design recommendations from research → `ui-ux-designer`
 ├── Need feature prioritization or roadmap planning? → `product-manager`
 ├── Need product-market fit or competitive positioning? → `product-strategist`
-├── Need accessibility testing with disabled participants? → `accessibility-auditor`
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
 
-These rules apply to *every* response this skill produces.
+These are hard-gate constraints. Violate any one and the output is invalid.
 
-- **Never report findings without sample size and methodology.** Every insight must state: how many participants, what method, and when the study was conducted. Do: "4 of 5 participants (moderated usability test, June 2026) failed to locate the settings menu." Don't: "Users can't find settings."
-- **Persona details must come from research, not assumptions.** Personas without at least 3 real-user interviews are archetypes, not personas — label them accordingly. Do: "Based on 8 interviews with oncology nurses..." Don't: "Our primary persona is Busy Brenda, a working mom."
-- **Don't recommend without testing.** Design recommendations must trace to observed behavior (task failure, quote, heatmap, analytics). Do: "Recommend repositioning the CTA because 4/5 participants scrolled past it (video timestamps: 3:12, 5:47, 8:03, 11:22)." Don't: "The CTA should be more prominent."
-- **Always triangulate findings across methods.** Never make a product decision based on one research method alone — confirm with at least two data sources.
-- **Admit what you don't know.** If recruitment is incomplete, sample size is below threshold, or a demographic segment is missing, say so and tell the user to run additional studies or consult the analytics team.
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Never report a finding without sample size (N), methodology, and study date — every insight must be traceable to raw evidence | `file_contains(output, "user.*found\|participant.*said\|research.shows")` AND NOT `file_contains(output, "N=|participant.*of|moderated\|unmoderated\|survey\|interview")` | REFUSE. Append: "Finding lacks methodology trace. Every insight must state: N=X, method=Y, date=Z. E.g., '4 of 5 participants (moderated usability test, June 2026).'" |
+| G2 | Never label as "Persona" any profile backed by fewer than 3 real-user interviews — label as "Provisional Archetype" with N count | `file_contains(output, "Persona")` AND NOT `file_contains(output, "interview\|participant.*[3-9]\|[1-9][0-9]")` | STOP. Append: "Persona requires 3+ real-user interviews. Current profile has insufficient evidence — label as 'Provisional Archetype (N=<count>)' and note the validation gap." |
+| G3 | Never make a design recommendation without citing observed behavior — task failure count, video timestamp, quote, heatmap, or analytics data point | `file_contains(output, "recommend\|should change\|redesign\|move")` AND NOT `file_contains(output, "participant.*failed\|timestamp\|quote\|heatmap\|analytics\|observed")` | DETECT. Append: "Recommendation lacks behavioral evidence. Cite at least one: task failure count, video timestamp, direct quote, heatmap, or analytics data." |
+| G4 | Never base product decisions on a single research method — require triangulation from 2+ data sources (qual + quant + behavioral) | `file_contains(output, "conclusion\|decision\|verdict\|go with\|ship it")` AND NOT `file_contains(output, "triangulat\|second.method\|confirm.*with\|cross-referenc")` | STOP. Append: "Single-method conclusion detected. Triangulate with 2+ methods: interviews + analytics, or usability test + survey, or behavioral observation + support data." |
+| G5 | Never use leading questions in test scripts — "Click the blue button" replaces "Try to complete the purchase." Pilot-test scripts before live sessions | `file_contains(output, "click the\|press the\|select the\|look for the\|you should")` AND NOT `file_contains(output, "pilot.test\|dry.run\|script.validation")` | REFUSE. Append: "Test script contains leading language. Replace directive prompts with task-based scenarios. Run a pilot session to validate." |
+| G6 | Never delay reporting severity-3 or severity-4 findings beyond 24 hours — critical issues must escalate immediately, not wait for the final report | `file_contains(output, "severity.*[3-4]\|critical\|showstopper\|blocker")` AND NOT `file_contains(output, "escalat\|within.*24\|immediate\|alerted\|notified")` | DETECT. Append: "Critical finding detected without escalation protocol. Severity 3-4 findings must be reported to stakeholders within 24 hours with video evidence — do not wait for the final report." |
 
 ## The Expert's Mindset
 
@@ -220,16 +238,16 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| Recruiting "would-be" users who have never performed the target behavior — "I'd use this if it existed" instead of "I tried to do this last week and failed" | Recruit participants who performed the target behavior within the last 3 months. Behavioral recency is the single best predictor of useful research insights. "Would-be" users provide aspirational feedback, not behavioral evidence |
-| Running one large usability study with 20 participants instead of 4 rounds of 5 participants each | Run iterative small studies: test with 5 participants, fix the top 3 issues, test again with 5 new participants. Five participants uncover ~85% of usability issues in a single round — the marginal value of participant 6-20 in one study is near zero |
-| Creating personas from assumptions and calling them "personas" — "Power User Pat" is actually the engineering team's ideal self-image | Label assumption-based profiles as "Archetypes" and interview-backed profiles as "Personas." Require 3+ real-user interviews before a persona can be used in prioritization decisions. Personas without interviews carry less weight in roadmap decisions |
-| Presenting research findings as a 50-slide deck that nobody reads, 3 weeks after the last session | Share a 3-minute highlights reel with video evidence within 48 hours of the last session. The full report is supplementary. Stakeholders absorb video evidence 10x faster than written reports — and they'll actually watch it |
-| Asking leading questions in usability tests: "Click the blue checkout button in the top right" | Use task-based scenarios: "You've decided to buy this item. Go ahead." Test the script with a pilot participant to catch leading language before the actual sessions. Task completion + time-on-task + error count — not just completion rate |
-| Triangulating nothing — making product decisions based on one research method alone | Triangulate 2-3 methods minimum: interviews + analytics + usability testing. Each method reveals different dimensions. Qualitative surfaces the "why," quantitative surfaces the "how many," and behavioral testing surfaces the "actually" |
-| Research reveals a critical finding but it's buried in a report for 3 weeks until the "final presentation" | Escalate severity 3-4 findings within 24 hours with video evidence. Do not wait for the final report. The cost of delaying a critical insight is measured in sprints of building the wrong thing |
-| Research plan ignores accessibility — no participants with disabilities, no assistive technology testing, no WCAG-relevant tasks | Include participants who use assistive technologies in every study where feasible. Add accessibility-specific tasks to test scripts. Coordinate with `accessibility-auditor` to define success criteria. Research that excludes users with disabilities produces designs that exclude users with disabilities |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|----------------------|------------------|
+| Recruiting "would-be" users who have never performed the target behavior — "I'd use this if it existed" instead of "I tried to do this last week and failed" | Recruit participants who performed the target behavior within the last 3 months. Behavioral recency is the single best predictor of useful research insights | `grep -c "would.*use\|might.*try\|could.*see" screener-responses.csv` — aspirational language in recruitment | Add screener question: "When did you last [target behavior]?" Auto-reject any response >90 days old or containing "I would" / "I might" |
+| Running one large usability study with 20 participants instead of 4 rounds of 5 participants each | Run iterative small studies: test with 5 participants, fix the top 3 issues, test again with 5 new participants. 5 participants uncover ~85% of usability issues in a single round | `grep "N=.*[2-9][0-9]" research-plan.md` — single large-N study instead of iterative rounds | Enforce maximum N=5 per round. If study plan has N>5 without iteration checkpoints, flag as inefficient and suggest 4×5 design |
+| Creating personas from assumptions and calling them "personas" — "Power User Pat" is actually the engineering team's ideal self-image | Label assumption-based profiles as "Archetypes" and interview-backed profiles as "Personas." Require 3+ real-user interviews before a persona can be used in prioritization | `grep -L "N=.*interview\|participant.*ID" personas/*.md` — persona files with no interview evidence | Require persona template to include a "Validation" field: N=X, participant IDs, method, date. Auto-reject persona docs missing this field |
+| Presenting research findings as a 50-slide deck that nobody reads, 3 weeks after the last session | Share a 3-minute highlights reel with video evidence within 48 hours of the last session. The full report is supplementary | `wc -l findings-report.md \| awk '{if ($1>200) exit 1}'` — report exceeding reasonable length | Auto-extract key findings into a 1-page executive summary; flag reports >2 pages for condensation |
+| Asking leading questions in usability tests: "Click the blue checkout button in the top right" | Use task-based scenarios: "You've decided to buy this item. Go ahead." Test the script with a pilot participant to catch leading language | `grep -c "click the\|press the\|select the\|look for" test-script.md` — directive language count | Scan test scripts for imperative verbs ("click," "press," "select," "look") before sessions. Flag any script with >3 directive verbs per task |
+| Triangulating nothing — making product decisions based on one research method alone | Triangulate 2-3 methods minimum: interviews + analytics + usability testing. Each method reveals different dimensions | `grep -c "method\|data.source\|triangulate" findings-report.md \| awk '{if ($1<2) exit 1}'` — fewer than 2 methods referenced | Require findings report template to include a "Methods Triangulated" section with minimum 2 entries before submission |
+| Research reveals a critical finding but it's buried in a report for 3 weeks until the "final presentation" | Escalate severity 3-4 findings within 24 hours with video evidence. Do not wait for the final report | `grep "severity.*[3-4]" findings-log.md \| grep -v "escalated\|reported.*date\|notified"` — critical findings without escalation timestamp | Auto-tag findings with severity level; trigger Slack/email alert if severity-3+ finding is >24h old without escalation |
+| Research plan ignores accessibility — no participants with disabilities, no assistive technology testing, no WCAG-relevant tasks | Include participants who use assistive technologies in every study where feasible. Add accessibility-specific tasks to test scripts | `grep -c "accessibility\|screen.reader\|assistive\|WCAG\|disability" research-plan.md \| awk '{if ($1<1) exit 1}'` — no accessibility references in plan | Require research plan template to include an "Accessibility & Inclusion" section; block plan approval if empty |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -306,15 +324,15 @@ Common chains:
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Stakeholder rejects spec | Spec solves wrong problem or misses context | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing before solution. | Stakeholders reject research when it answers a question they didn't ask. Align on the problem first — the most rigorous study is useless if it addresses the wrong decision. |
-| Dev estimates don't match spec | Spec has hidden complexity, missing edge cases | Every screen needs loading/empty/error/edge states defined. Ambiguity → estimate buffer. | Unvalidated design assumptions are the biggest source of estimate blowup. Usability test early prototypes to surface edge cases before they become engineering surprises. |
-| Users don't use the feature | Built what was asked, not what was needed | Outcome-based specs: "increase X by Y%" not "build Z". User research before writing. | Users are terrible at predicting what they will use. Observation of actual behavior beats stated preference every time. Watch what users do, not what they say they will do. |
-| Scope creep during build | Spec didn't define explicit non-goals | "Out of scope" section is non-negotiable. Refer back when scope tries to expand. | Every feature added mid-build is one that was not tested with users. Scope creep without validation creates complexity nobody asked for. Protect the research schedule as fiercely as the build schedule. |
-| No adoption after launch | Success metric not validated before building | Define success metric before writing first user story. Validate with prototype before building. | Adoption problems are almost always research gaps. If you did not observe users successfully completing the core task in a prototype, do not expect them to do it in production. |
-| Cross-team dependency blocks delivery | Spec assumed dependencies would be available | Map all dependencies with owners and dates in the spec. Flag red dependencies to PM weekly. | Research timelines are fragile because they depend on recruiter capacity, participant availability, and stakeholder reviews. Buffer each dependency by 30% or accept delays. |
-| PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. | Research evidence is the best arbitration tool. When PM and Eng disagree, the team with user data wins. Invest in research that settles priority debates with facts, not opinions. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|-------------------|---------|-----------|-----|----------------------|
+| `Warning: sample size N=2 is below minimum threshold for statistical significance` or `R: power.t.test() returns power < 0.8` | Research findings are dismissed by stakeholders as "anecdotal" — decisions revert to HIPPO (Highest Paid Person's Opinion) | Study ran with convenience sample (2-3 participants) and findings presented as generalizable. No power analysis conducted before recruitment | Run power analysis before study design. Minimum N=5 for qualitative usability, N=30 for quantitative surveys, N=12 for interview saturation. Document power/saturation in the research plan | 1. Check N against method-specific minimums. 2. If below threshold: label findings "Directional — N=X, requires validation." 3. Recommend follow-up study with required sample size. Loop until N meets threshold |
+| `Consent form not signed` or `Recording failed — file is 0 bytes` | Raw data is unusable or legally non-compliant — entire study must be discarded and re-run | Recording setup not tested with a dry-run participant. Consent forms collected verbally without documentation. GDPR/HIPAA compliance gap | Run a full dry-run session before the first live participant. Test recording hardware + backup. Collect signed digital consent (DocuSign/Hellosign) — verbal consent is not auditable | 1. Run pre-session checklist: recording test, consent signed, backup recorder active. 2. If any check fails: abort session, reschedule. 3. After each session: verify recording file > 0 bytes. Loop until all sessions have valid recordings + consent |
+| `Inter-rater reliability κ < 0.4` (Fleiss' Kappa from coding analysis) | Different researchers coding the same transcripts reach different conclusions — analysis is unreliable | Single researcher conducted all coding without peer review. Coding scheme not defined before analysis. Confirmation bias in theme extraction | Define coding scheme before analysis begins. Use 2+ independent coders. Calculate inter-rater reliability (κ ≥ 0.6 minimum). Discuss and resolve disagreements before reporting themes | 1. Have 2 coders independently code 20% of transcripts. 2. Calculate κ. 3. If κ < 0.6: refine coding definitions, re-train coders, re-code. Loop until κ ≥ 0.6 |
+| `Task completion: 100%` but `Time-on-task: 4.2× benchmark` | Usability test "passes" but users take 4× longer than expected — friction is hidden by completion metric | Test measured only completion rate, not time-on-task or error count. Leading prompts masked real friction. Users completed tasks but struggled silently | Add time-on-task benchmarking (compare to expert baseline ×2 threshold). Track error count and hesitation events (>4s pauses). Use unmoderated testing to eliminate facilitator bias | 1. Run unmoderated test with same tasks. 2. Compare time-on-task vs moderated results. 3. If delta >30%: facilitator was leading — discard moderated data. 4. Report unmoderated metrics. Loop until moderated/unmoderated delta < 15% |
+| `Survey response rate: 3% (N=47 from 1,500 sent)` | Survey results are statistically meaningless — 3% response rate = 97% non-response bias, results represent only the most motivated users | Survey sent to entire user base with no incentive, no follow-up, and a 30-question length. Non-response bias dwarfs any finding | Target 20%+ response rate. Use: personalized invitations, 2 reminders, incentive (gift card), and keep surveys under 10 questions. Weight results against known population demographics to detect non-response bias | 1. Calculate response rate and compare against demographic baseline. 2. If rate < 15% or demographic skew: results are directional only. 3. Recommend targeted re-survey with incentive and fewer questions. Loop until rate ≥ 15% and demographics are within 10% of baseline |
+| `Participant P4 withdrew after 12 minutes citing "the tasks don't match my job"` | Screener failed — recruited participants don't match target user profile, wasting session slots and budget | Screener designed around demographics (age, location, title) instead of behavior (tools used, tasks performed, frequency). Job titles don't predict behavior | Design screeners around behavioral criteria: "When did you last [specific task]? What tool did you use? How often do you [task] per week?" Demographics are secondary filters, not primary | 1. After each session: ask participant if tasks matched their real work. 2. If mismatch rate >20%: pause recruitment. 3. Redesign screener with behavioral questions. 4. Re-screen remaining pool. Loop until task-match rate ≥ 80% |
+| `Stakeholder: "This research is interesting but we already made the decision"` (meeting transcript) | Research was commissioned too late — findings arrive after the decision window closed and have zero impact | Research timeline not aligned with product decision calendar. Study commissioned during build phase instead of discovery phase. Findings delivered after sprint commitment | Map research timeline to decision calendar before study begins. Research must complete before the "decide" gate, not the "build" gate. For decisions already made: pivot to post-launch validation | 1. At study kickoff: identify the decision this research informs and its deadline. 2. If deadline < study duration: descope to a faster method (guerrilla test, 3-day diary study). 3. If decision already made: reframe as post-launch validation study. Loop until research timeline precedes decision gate |
 
 
 ## What Good Looks Like
@@ -324,16 +342,19 @@ Common chains:
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Research objective and key questions documented and reviewed by stakeholders
-- [ ] **[S2]**  Participant screener validated — recruits match target behavior, not just demographics
-- [ ] **[S3]**  Discussion guide or test script drafted with time allocations per section
-- [ ] **[S4]**  Consent forms signed and recording setup tested with a dry-run participant
-- [ ] **[S5]**  Personas backed by at least 3 real-user interviews each
-- [ ] **[S6]**  Journey map covers all touchpoints and includes emotion curve and pain points
-- [ ] **[S7]**  Usability issues severity-rated (1–4 scale) with video evidence timestamps
-- [ ] **[S8]**  Findings report includes prioritized recommendations with owner assignments
-- [ ] **[S9]**  Highlights reel shared with stakeholders before the full report
-- [ ] **[S10]**  Raw data, transcripts, and analysis artifacts archived for future reference
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Research objective and key questions documented and reviewed by stakeholders with written sign-off | `grep -c "research.objective\|key.question\|stakeholder.sign.off" research-plan.md` | N/A — stakeholder alignment requires human review meeting |
+| S2 | Participant screener validated — recruits match target behavior (not just demographics), with behavioral recency filter (≤90 days) | `grep -c "behavioral\|task.frequency\|last.*performed\|screener" research-plan.md` | Auto-add behavioral screening questions template; flag screeners with only demographic criteria |
+| S3 | Discussion guide or test script drafted with time allocations per section and pilot-tested with a colleague for leading language | `grep -c "time.allocation\|min.*section\|pilot.test\|dry.run" research-plan.md` | Scan script for directive verbs; auto-flag sections with >3 imperative commands per task block |
+| S4 | Consent forms signed (digital, auditable) and recording setup tested with a dry-run — recording file verified >0 bytes | `find recordings/ -name "*.mp4" -o -name "*.mov" \| xargs -I{} stat -f%z {} \| awk '{if ($1==0) exit 1}'` | Auto-delete 0-byte recording files and flag session for re-run; generate consent status dashboard |
+| S5 | Personas backed by at least 3 real-user interviews each — labeled as "Persona" vs "Provisional Archetype" with N count | `grep -c "N=.*[3-9]\|N=.*[1-9][0-9]" personas/*.md \| awk -F: '{if ($2<1) exit 1}'` | Auto-parse N count from persona docs; append "Provisional Archetype" label if N<3 |
+| S6 | Journey map covers all touchpoints, includes emotion curve with data-source annotations, pain points, and moments of truth | `grep -c "touchpoint\|emotion.curve\|pain.point\|moment.of.truth" journey-map.md` | N/A — emotion curve annotation requires qualitative coding of user sentiment |
+| S7 | Usability issues severity-rated (1–4 scale) with video evidence timestamps and task-failure counts | `grep -cP "severity.*[1-4]|timestamp.*\d{1,2}:\d{2}|task.failure" findings-report.md` | Auto-extract severity ratings from findings; flag any finding missing severity + timestamp |
+| S8 | Findings report includes prioritized recommendations with owner assignments, severity levels, and evidence citations (quote/video/analytics) | `grep -c "owner\|assignee\|responsible" findings-report.md \| awk '{if ($1<1) exit 1}'` | Auto-populate an owner column from project team roster; flag findings with no assignee |
+| S9 | Highlights reel (≤3 min) shared with stakeholders before the full report — confirmed viewed by ≥80% of decision-makers | `ls highlights/ \| grep -c ".mp4\|.mov" \| awk '{if ($1<1) exit 1}'` | Auto-generate timestamped clip list from severity-3+ findings; flag if no reel file exists |
+| S10 | Raw data, transcripts, and analysis artifacts archived in a searchable repository with participant IDs mapped to findings | `find archive/ -name "*.csv" -o -name "*.txt" -o -name "transcript*" \| wc -l \| awk '{if ($1<1) exit 1}'` | Auto-zip and timestamp raw data into archive directory; generate manifest with file inventory |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from UX research gone wrong -->

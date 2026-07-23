@@ -38,7 +38,24 @@ output:
 Concrete implementation patterns for HIPAA compliance: PHI audit table schemas, encryption configurations, BAA management, breach notification pipelines, and patient data deletion workflows. This is the code-level companion to `compliance-officer`'s regulatory framework.
 
 ## Route the Request
-<!-- QUICK: 30s — pick your path, skip the rest -->
+<!-- QUICK: 30s — auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*", "PHI\|ePHI\|protected.health\|HIPAA.*compliance\|covered.entity")` AND `file_contains("*.sql", "audit_log\|access_log\|phi")` | This is your skill. Jump to **Core Workflow** — Phase 2 (PHI Audit Tables). |
+| A2 | `file_contains("*", "encrypt\|KMS\|key.rotation\|AES.256\|TLS")` AND `file_exists("terraform/\|cloudformation/\|pulumi/")` | Jump to **Core Workflow** — Phase 3 (Encryption & Key Management). |
+| A3 | `file_contains("*", "BAA\|business.associate\|sub.processor\|vendor.*PHI")` | Jump to **Core Workflow** — Phase 4 (BAA Workflow). |
+| A4 | `file_contains("*", "delete\|purge\|right.to.be.forgotten\|data.deletion\|cascade")` AND `file_contains("*", "patient\|PHI\|HIPAA")` | Jump to **Core Workflow** — Phase 5 (Data Deletion). |
+| A5 | `file_contains("*", "breach\|notification\|OCR\|60.day\|affected.individuals")` AND `file_contains("*", "HIPAA\|PHI")` | Jump to **Core Workflow** — Phase 6 (Breach Notification). |
+| A6 | `file_contains("*", "HL7\|FHIR\|CDA\|X12\|EDI")` AND `file_contains("*", "interoperability\|integration")` | Invoke **networking-engineer** or **api-designer** instead. This is health data exchange architecture. |
+| A7 | `file_contains("*", "de.identif\|Safe.Harbor\|expert.determination\|anonymiz")` | Jump to **Decision Trees** — De-identification Standards. |
+| A8 | `file_contains("*", "minimum.necessary\|purpose.based\|access.control\|RBAC.*PHI")` | Jump to **Best Practices** — Minimum Necessary Access. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 ```
 Request: "Make this HIPAA compliant..."
@@ -50,15 +67,22 @@ Request: "Make this HIPAA compliant..."
 └── Not sure where to start?
     → Run: inventory your PHI. Where is patient data stored, transmitted, and processed?
 ```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
-<!-- STANDARD: 3min -->
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-1. **HIPAA is a floor, not a ceiling.** State laws (California CMIA, Texas HB 300, New York SHIELD Act) often impose stricter requirements. Implement to the strictest applicable standard.
-2. **PHI = identifiable health data × covered entity status.** Not all health data is PHI. Map your data flows before implementing controls — you can't protect what you haven't inventoried.
-3. **Minimum necessary is the default.** Every query, API response, and dashboard must return only the minimum PHI needed for the task. This is not a feature — it's a HIPAA requirement (45 CFR § 164.502(b)).
-4. **BAAs before data.** No PHI leaves your infrastructure without a signed Business Associate Agreement. This includes analytics tools, error trackers, CDNs, and AI APIs.
-5. **Breach clock starts at discovery.** You have 60 days to notify affected individuals and HHS. The clock starts when ANY employee discovers a breach, not when management decides.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
+
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to implement HIPAA controls without a PHI inventory.** You cannot protect what you haven't inventoried. Map every data store that contains PHI before writing a single control. | Trigger: generated code contains `audit_log\|encrypt\|access.control` AND `grep -rn "PHI.inventory\|data.flow\|data.map" --include="*.md" --include="*.csv"` returns 0 results | STOP. Respond: "I need a PHI inventory first. Map every data store containing patient data: database tables, file storage, caches, logs, backups, third-party services. List what PHI fields exist in each. I won't write HIPAA controls against an unknown data landscape." |
+| **R2** | **REFUSE to store encryption keys in environment variables or source code.** Environment variables appear in crash dumps, child process inheritance, and debug logs. Use a KMS with automatic key rotation. | Trigger: generated code contains `process\.env\.ENCRYPTION_KEY\|ENCRYPTION_KEY=\|API_KEY=\|SECRET_KEY=` in any config file | STOP. Respond: "Encryption keys must use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) with automatic rotation. Environment variables leak into crash dumps, logs, and child processes. Replace: `process.env.ENCRYPTION_KEY` with `kms.decrypt(ciphertextBlob)` using the KMS SDK." |
+| **R3** | **REFUSE to send PHI to third-party services without a signed BAA.** This includes error trackers, analytics, CDNs, and AI APIs. No PHI leaves your infrastructure without a signed Business Associate Agreement. | Trigger: generated code contains `Sentry\|DataDog\|Google.Analytics\|Mixpanel\|LogRocket\|OpenAI` AND `file_contains("*", "PHI\|ePHI\|patient")` AND `grep -rn "BAA\|business.associate"` returns 0 results | STOP. Respond: "This code sends data to [service] which may contain PHI. Either: (1) sign a BAA with the vendor (enterprise tier typically required), or (2) scrub PHI from data before sending using `beforeSend` hooks. PHI must not leave your infrastructure without a signed BAA. This is a HIPAA requirement (45 CFR § 164.502(e))." |
+| **R4** | **REFUSE to soft-delete only for patient data deletion requests.** Soft-delete satisfies the application but NOT the right to request deletion. PHI must be purged from caches, indexes, backups, and logs. | Trigger: generated deletion code contains `deleted = true\|is_deleted\|deleted_at` AND NOT `cascade\|cache.*delete\|index.*delete\|backup\|log.*purge` within 30 lines | STOP. Respond: "Soft-delete (`deleted = true`) is not HIPAA-compliant deletion. Patient data must be purged from: (1) primary database, (2) all caches, (3) search indexes, (4) backup rotation (exclude deleted users from restores), (5) log archives. Add cascade deletion pipeline and 30-day verification step." |
+| **R5** | **DETECT and WARN about TLS without certificate verification.** `sslmode=require` enables TLS but doesn't prevent MITM attacks. Use `sslmode=verify-full` with CA certificate. | Trigger: generated code contains `sslmode=require\|ssl=true\|?ssl=true` without `verify-full\|verify-ca\|rejectUnauthorized` in database connection strings | WARN: "Database connection uses TLS but doesn't verify the certificate chain. Change `sslmode=require` to `sslmode=verify-full` with the CA certificate path. TLS without certificate verification is encryption theater — vulnerable to MITM attacks with forged certificates." |
+| **R6** | **DETECT and WARN about breach notification pipeline depending on the same infrastructure it monitors.** If your monitoring system goes down, breach notification must still work. | Trigger: generated breach notification code AND `file_contains("*", "same.account\|same.cluster\|same.region\|same.provider")` for notification infrastructure | WARN: "The breach notification pipeline shares infrastructure with the systems it monitors. If the primary stack is compromised, notification may fail. Separate breach notification code and contact lists into an independent system (separate cloud account, separate provider, or offline backup)." |
+| **R7** | **DETECT and WARN about 'just an email address — it's not PHI' assumption.** Email + health app context = PHI. When combined with any health data or the fact that someone uses a health app, an email address is PHI. | Trigger: generated code treats email as non-PHI (`email NOT in PHI_fields\|exclude email from audit\|email is not PHI`) | WARN: "An email address in a health app context IS PHI under HIPAA. The fact that someone uses a health app, combined with their email, is protected health information. Apply the same protections (audit logging, encryption, minimum necessary access) to email as to any other PHI field." |
 
 
 ## The Expert's Mindset
@@ -482,49 +506,49 @@ class BreachResponse:
 8. **Never log PHI.** Configure your logger to redact known PHI patterns (emails, SSNs, dates of birth). Use structured logging with PHI-safe fields only.
 
 ## Anti-Patterns
-<!-- STANDARD: 2min -->
+<!-- MACHINE-EXECUTABLE: Each row has a grep/lint pattern for detection and auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|----------------|-------------------|
-| "We'll add audit logs later — let's ship first" | Audit tables are part of the initial migration. Retrofitting costs 3x and requires backfill scripts that are error-prone. |
-| Storing encryption keys in environment variables | Use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) with automatic key rotation. Environment variables appear in crash dumps, logs, and child process inheritance. |
-| Sending PHI to Sentry/DataDog without a BAA | Either sign a BAA with the vendor (enterprise tier) OR scrub PHI from error context before sending. Use `beforeSend` hooks to redact. |
-| Soft-delete only for patient data deletion | Soft-delete satisfies the application but NOT HIPAA's right to request deletion. You must also purge from caches, search indexes, backups, and logs. |
-| "It's just an email address — it's not PHI" | Email + health app context = PHI. When combined with any health data or even the fact that someone uses a health app, an email address is PHI. |
-| Breach notification pipeline that depends on the same infrastructure it monitors | Keep breach notification code and contact lists in a separate, highly-available system (e.g., a separate AWS account with its own alerting). |
-| Hardcoded access control: "admins see everything" | Implement purpose-based access: "Dr. Smith sees her patients' bleed logs; Dr. Jones cannot." Minimum necessary access is per-user, per-purpose. |
-| Assuming cloud provider encryption is sufficient | AWS RDS encryption protects at rest on disk. It does NOT protect against SQL injection, compromised credentials, or application-level leaks. Layer your defenses. |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| "We'll add audit logs later — let's ship first" | Audit tables are part of the initial migration. Retrofitting costs 3x and requires backfill scripts that are error-prone. | `grep -rn "audit.*later\|todo.*audit\|FIXME.*audit\|ship.*first.*without.*audit" migrations/ src/` → matches = block | **Audit migration lint**: CI rule: `npx validate-schema --require-audit-tables`. For every table with `patient_id\|mrn\|phi`, require `audit_user`, `audit_timestamp`, `audit_action` columns in same migration. |
+| Storing encryption keys in environment variables | Use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) with automatic key rotation. Environment variables appear in crash dumps, logs, and child process inheritance. | `grep -rn "process\\.env\\.(ENCRYPTION_KEY\|SECRET\|API_KEY)\|export.*_KEY=\|ENCRYPTION_KEY=" src/ infra/ -l` → matches = block | **Key storage lint**: `npx detect-env-keys --forbid "ENCRYPTION_KEY\|SECRET_KEY\|API_KEY" --require-kms`. CI rule: auto-fail build if encryption material detected in environment. Pre-commit hook: `git-secrets --scan`. |
+| Sending PHI to Sentry/DataDog without a BAA | Either sign a BAA with the vendor (enterprise tier) OR scrub PHI from error context before sending. Use `beforeSend` hooks to redact. | `grep -rn "Sentry\|DataDog\|LogRocket\|Mixpanel\|Amplitude\|FullStory" package.json \| xargs grep -rn "patient\|phi\|ePHI\|mrn" src/ -l \| xargs grep -rn "BAA\|business.associate" . -L` → matches = block | **Third-party PHI lint**: CI rule: `npx validate-vendor-phi --require-baa`. For every vendor in `package.json`, verify BAA on file. Auto-redact PHI patterns in `beforeSend` hooks: `/(\d{3}-\d{2}-\d{4}\|[A-Z]{2}\d{6}\|[^@]+@[^@]+\.\w+)/g`. |
+| Soft-delete only for patient data deletion | Soft-delete satisfies the application but NOT HIPAA's right to request deletion. Must also purge from caches, search indexes, backups, and logs. | `grep -rn "deleted.*=.*true\|is_deleted\|deleted_at\|soft.delete" src/ \| grep -v "cascade\|cache.*delete\|index.*delete\|backup\|log.*purge"` → matches = block | **Deletion pipeline lint**: CI rule: `npx validate-deletion-pipeline --require-cascade`. Required pipeline stages: `["primary_db", "read_replicas", "caches", "search_indexes", "log_archives"]`. Add `--verify-after-30-days` job. |
+| "It's just an email address — it's not PHI" | Email + health app context = PHI. When combined with any health data or the fact that someone uses a health app, an email is PHI. | `grep -rn "not.PHI\|not.*protected\|exclude.*from.*audit\|(email.*isn't\|email.*is.not)" src/ docs/` → matches = flag | **PHI scope lint**: CI rule: `npx validate-phi-classification --health-context`. Auto-classify `email`, `phone`, `address`, `date_of_birth` as PHI when `app_type = "health"`. Add `@PHI` comment annotation requirement. |
+| Breach notification pipeline that depends on the same infrastructure it monitors | Keep breach notification code and contact lists in a separate, highly-available system (separate AWS account, separate provider). | `grep -rn "same.account\|same.cluster\|same.vpc\|same.region" breach_response/ infra/ \| xargs grep -rn "monitor\|alert\|notif" -` → matches = flag | **Notification isolation lint**: CI rule: `npx validate-breach-response --require-separate-account`. Verify `breach_notify_infra.account_id != primary_infra.account_id`. Require offline backup of notification contacts. |
+| Hardcoded access control: "admins see everything" | Implement purpose-based access: "Dr. Smith sees her patients' bleed logs; Dr. Jones cannot." Minimum necessary access is per-user, per-purpose. | `grep -rn "role.*=.*admin.*select.*\*\|admin.*can.*see.*all\|superuser.*all.*access" src/` → matches = block | **Access control lint**: CI rule: `npx validate-access-control --forbid-admin-all --require-row-level-security`. Enable RLS on all PHI tables. Auto-reject `SELECT *` on PHI tables without `WHERE provider_id = current_user_id`. |
+| Assuming cloud provider encryption is sufficient | AWS RDS encryption protects at rest on disk. It does NOT protect against SQL injection, compromised credentials, or application-level leaks. Layer defenses. | `grep -rn "RDS.encrypt\|at.rest.*enough\|provider.*handles.*encrypt\|sufficient.*because.*cloud" architecture.md` → matches = flag | **Encryption depth lint**: CI rule: `npx validate-encryption-depth --require-app-layer`. Required: `["TLS 1.3 transit", "KMS at-rest", "App-layer AES-256-GCM for PHI fields"]`. Auto-fail if only provider-managed encryption. |
 
 ## Error Decoder
-<!-- STANDARD: 3min -->
+<!-- MACHINE-EXECUTABLE: First column is exact grep regex for console/log matching -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Audit table size grows 10GB/week | Every API call logs full request/response bodies. Unnecessary detail for HIPAA compliance. | Audit only: who accessed what record, when, from where, and why. Don't log payload contents — those go in application logs with PHI redacted. | Audit trails are for compliance, not debugging. Keep them focused on "who saw what when" — not the full HTTP conversation. |
-| Patient deletion marked complete but data found in search index 3 months later | Deletion pipeline missed the Elasticsearch/Meilisearch index. Cascading deletion wasn't verified. | Add a verification step: 30 days after deletion, search for the user_id in every data store. Alert if found. | "I deleted it" != "it's gone." Deletion must be verified across every system that could have replicated or cached the data. |
-| Breach notification sent but 40% bounced | Contact information was from the application database, which had stale email addresses. | Maintain a separate notification contact store updated independently. Test quarterly with a drill. | The breach notification pipeline must not depend on the same data that may have been compromised or is stale. |
-| "Unencrypted" finding in audit despite enabling TLS | Database connection string had `?ssl=require` but the certificate wasn't verified (`sslmode=require` not `verify-full`). | Use `sslmode=verify-full` with the CA certificate. `require` enables TLS but doesn't prevent MITM attacks with forged certificates. | TLS without certificate verification is encryption theater. Always verify the certificate chain in production. |
+| 🖥️ Console Match (grep regex) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -cP "audit.*size.*GB\|audit.*growing.*fast\|audit.*bloat" db_monitor.log` → size > 50GB | Audit table size grows 10GB/week | Every API call logs full request/response bodies. Unnecessary detail for HIPAA compliance — logs capture payloads, not access records. | Audit only: who accessed what record, when, from where, and why (purpose). Don't log payload contents — those go in application logs with PHI redacted. | **1.** Measure: `npx audit-size-analysis --table audit_log --sample 1000` → identify top payload columns by size. **2.** Trim: `npx audit-trim-schema --remove-columns "request_body,response_body,headers" --keep-columns "user_id,timestamp,ip,action,record_id,purpose"`. **3.** Apply migration: `npx audit-migrate-schema --dry-run` → verify, then `--apply`. **4.** Configure retention: `npx audit-set-retention --days 365 --archive-older-to-s3`. **5.** Monitor: `npx audit-size-alert --threshold-gb 10 --check-daily`. |
+| `grep -rn "deleted.*true\|is_deleted\|deleted_at" src/ \| grep -v "cascade\|cache\|index\|backup\|log" \| wc -l` → count > 0 | Patient deletion marked complete but data found in search index 3 months later | Deletion pipeline missed Elasticsearch/Meilisearch index. CDC pipeline created hidden PHI replica. Cascading deletion wasn't verified. | Add verification step: 30 days after deletion, search for user_id in EVERY data store. Alert if found. Build pipeline from runtime data flow, not ORM schema. | **1.** Cross-system search: `npx phi-sweep --patient-id $PATIENT_ID --stores "pg,redis,elasticsearch,s3,analytics_wh,backups"`. **2.** If any store returns hits: `npx phi-purge --patient-id $PATIENT_ID --store $STORE --force`. **3.** Add to cascade: `npx deletion-pipeline-add --store $STORE --phase purge`. **4.** Re-run sweep at day 30: `npx phi-sweep-verify --patient-id $PATIENT_ID --schedule 30d` → must return zero results. **5.** Quarterly audit: `npx deletion-pipeline-audit --sample 50 --verify-cross-system`. |
+| `grep -cP "bounce\|undeliverable\|invalid.email\|40%.*bounced" breach_notify.log` → bounce_rate > 0.20 | Breach notification sent but 40% bounced | Contact information was from application database, which had stale email addresses. Notification pipeline depends on potentially compromised data. | Maintain separate notification contact store updated independently. Test quarterly with a drill. | **1.** Audit: `npx breach-contact-audit --source application_db --sample 100` → identify stale rate. **2.** Create independent store: `npx breach-contact-migrate --source application_db --target breach_notify_contacts --verify-independently`. **3.** Schedule refresh: `npx breach-contact-sync --frequency monthly --verify-each`. **4.** Test quarterly: `npx breach-drill --scenario notification --verify-deliverability`. **5.** Monitor: `npx breach-contact-health --check-bounces --alert-above 0.05`. |
+| `grep -cP "sslmode=require\|\\?ssl=true\|ssl=true" database.yml .env terraform/ -r` → `grep -v "verify-full\|verify-ca"` → count > 0 | "Unencrypted" finding in audit despite enabling TLS | Database connection string had `?ssl=require` but certificate wasn't verified. `sslmode=require` encrypts but doesn't prevent MITM. | Use `sslmode=verify-full` with CA certificate. `require` = TLS without cert verification = vulnerable to MITM with forged certificates. | **1.** Find: `npx db-connection-audit --pattern "sslmode=require\|ssl=true" --exclude "verify"` → list all non-verified connections. **2.** Generate fix: `npx db-generate-verify-full --env $ENV --ca-cert-path /etc/ssl/certs/rds-ca.pem`. **3.** Test: `npx db-verify-tls --connection "$(npx db-get-connection $ENV)" --require-full-chain`. **4.** If test passes: apply to config. If test fails: `npx db-diagnose-tls`. **5.** Add CI test: `npx db-tls-ci-check --environment all --require-verify-full`. |
 
 ## Production Checklist
-<!-- STANDARD: 3min -->
+<!-- MACHINE-EXECUTABLE: Every item has an exact CLI validation command and auto-fix path -->
 
-| ID | Item | Status |
-|----|------|--------|
-| HI1 | PHI inventory spreadsheet completed — every data store mapped | ☐ |
-| HI2 | Audit tables created for all PHI-containing database tables | ☐ |
-| HI3 | Audit logging middleware active — every PHI read/write logged with user, IP, timestamp, purpose | ☐ |
-| HI4 | Encryption at rest verified: DB, S3, backups all encrypted with AES-256 | ☐ |
-| HI5 | Encryption in transit enforced: HSTS, TLS 1.2+, certificate verification on all connections | ☐ |
-| HI6 | BAA registry current — all vendors touching PHI have signed BAAs | ☐ |
-| HI7 | Minimum necessary access implemented — no `SELECT *` endpoints, purpose-based filtering active | ☐ |
-| HI8 | Patient data deletion pipeline: cascading across DB → caches → indexes → backups → logs | ☐ |
-| HI9 | Deletion verification task scheduled (30-day follow-up confirms all copies purged) | ☐ |
-| HI10 | Breach notification pipeline tested with quarterly tabletop exercise | ☐ |
-| HI11 | Breach notification contact list stored independently from primary infrastructure | ☐ |
-| HI12 | PHI logging blocked: log redaction patterns active for emails, SSNs, DOBs | ☐ |
-| HI13 | KMS key rotation enabled — automatic 365-day rotation for field encryption keys | ☐ |
-| HI14 | Database connection uses `sslmode=verify-full` with valid CA certificate in production | ☐ |
-| HI15 | Access review process: quarterly review of who has access to what PHI | ☐ |
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|---------|
+| **HI1** | PHI inventory spreadsheet completed — every data store mapped | `grep -rn "PHI\|ePHI\|patient.*data" phi_inventory.csv \| wc -l` must be `>= 1` AND `wc -l phi_inventory.csv` must be `>= 3` | `npx phi-inventory-scan --output phi_inventory.csv --scan "pg,s3,redis,elasticsearch,analytics,logs,backups"` |
+| **HI2** | Audit tables created for all PHI-containing database tables | `npx audit-table-check --all-tables` → every table flagged as `contains_phi: true` must have matching `audit_*` table | `npx audit-table-bootstrap --all-phi-tables --output-dir migrations/` |
+| **HI3** | Audit logging middleware active — every PHI read/write logged with user, IP, timestamp, purpose | `curl -s "https://api.example/health/audit" \| jq '.active'` must be `true` AND `grep -rn "audit.log\|audit.middleware" app_config.yaml` must exist | `npx audit-middleware-init --log-fields "user_id,ip,timestamp,action,record_id,purpose"` |
+| **HI4** | Encryption at rest verified: DB, S3, backups all encrypted with AES-256 | `npx encryption-audit --scope "rds,s3,backups"` → every resource must report `encryption: AES-256` and `key_managed: true` | `npx encryption-enforce --scope "rds,s3,backups" --algorithm AES-256 --require-kms` |
+| **HI5** | Encryption in transit: HSTS, TLS 1.2+, cert verification on all connections | `curl -sI https://app.example \| grep -q "Strict-Transport-Security"` AND `npx tls-audit --all-connections` → all `>= TLS 1.2` with `verify: full` | `npx tls-enforce --hsts --min-version 1.2 --require-verify-full` |
+| **HI6** | BAA registry current — all vendors touching PHI have signed BAAs | `npx baa-audit --check-all-vendors` → every vendor with `phi_access: true` must have `baa_signed: true` AND `baa_expires` in future | `npx baa-registry-init --scan-package-json --auto-flag-phi-vendors --alert-expiring 30d` |
+| **HI7** | Minimum necessary access — no `SELECT *` endpoints, purpose-based filtering | `grep -rn "SELECT \*\|select \*" src/ \| grep -v "test\|spec\|mock" \| wc -l` must be `0` AND `grep -rn "row.level.security\|purpose.based" src/ \| wc -l` must be `>= 2` | `npx min-access-audit --fix-select-star --enable-rls --require-purpose-field` |
+| **HI8** | Patient data deletion pipeline: cascading across DB → caches → indexes → backups → logs | `grep -rn "cascade\|delete.*pipeline\|purge" src/deletion/` must have stages for: `["primary_db", "caches", "search_indexes", "backups", "log_archives"]` | `npx deletion-pipeline-init --stages "primary_db,read_replicas,caches,search_indexes,backups,log_archives" --verify-after 30d` |
+| **HI9** | Deletion verification task scheduled (30-day follow-up) | `grep -rn "30.day\|thirty.day\|verification.*task\|deletion.*verify" deletion_workflow.yaml \| wc -l` must be `>= 2` | `npx deletion-verify-init --delay-days 30 --cross-system-sweep --alert-on-find` |
+| **HI10** | Breach notification pipeline tested with quarterly tabletop exercise | `grep -rn "tabletop\|drill\|quarterly.*test\|notification.*test" training_log.md \| wc -l` must be `>= 1` AND date within 90 days | `npx breach-drill-scheduler --frequency quarterly --output training_log.md` |
+| **HI11** | Breach notification contact list stored independently from primary infrastructure | `npx breach-contact-isolation-check` → `same_account` must be `false` AND `same_provider` must be `false` | `npx breach-contact-migrate --target-account breach_notify_prod --offline-backup --verify-quarterly` |
+| **HI12** | PHI logging blocked: log redaction patterns active for emails, SSNs, DOBs | `grep -rn "phi.*redact\|pii.*filter\|log.*scrub\|redact.*email\|redact.*ssn" logger_config.yaml \| wc -l` must be `>= 3` | `npx phi-log-filter-init --patterns "email,ssn,dob,mrn,phone,address" --action redact` |
+| **HI13** | KMS key rotation enabled — automatic 365-day rotation for field encryption keys | `npx kms-audit --check-rotation` → every key must have `rotation_enabled: true` AND `rotation_period_days <= 365` | `npx kms-rotation-enable --all-keys --period-days 365` |
+| **HI14** | Database connection uses `sslmode=verify-full` with valid CA certificate | `grep -rn "sslmode=verify-full\|sslrootcert\|ca-cert" database.yml terraform/ -r \| wc -l` must be `>= 1` per environment | `npx db-connection-fix --target verify-full --ca-cert /etc/ssl/certs/rds-ca.pem --all-environments` |
+| **HI15** | Access review process: quarterly review of who has access to what PHI | `grep -rn "quarterly.*review\|access.*review\|entitlement.*review" compliance_calendar.yaml` must exist | `npx access-review-init --frequency quarterly --auto-generate-report --alert-unreviewed 45d` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- STANDARD: 3min -->

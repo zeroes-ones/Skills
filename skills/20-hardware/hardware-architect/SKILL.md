@@ -33,38 +33,37 @@ chain:
 Hardware architecture and electronic system-level design — from SoC selection through PCB stackup to compliance testing. Covers the critical architectural decisions that determine a product's cost, performance, power consumption, and time-to-market.
 
 ## Route the Request
-<!-- QUICK: 30s -- ASCII decision tree to determine which skill handles the request -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-```
-Request involves hardware design?
-├── PCB layout, system architecture, SoC selection, memory/power/bus design
-│   └── → Use hardware-architect (this skill)
-├── Firmware running on an already-selected MCU — device drivers, RTOS, peripheral config
-│   └── → Use embedded-engineer
-├── Low-level device driver implementation, bootloader, HAL
-│   └── → Use firmware-developer
-├── Mechanical enclosure, thermal simulation (CFD), industrial design
-│   └── → Mechanical engineer (not in library — consider general engineering guidance)
-├── Electrical system design — schematics, component selection, power distribution
-│   └── → Electrical engineer (not in library — consider general engineering guidance)
-├── System-level architecture, product requirements, cost/power/performance tradeoffs
-│   └── → Invoke `system-architect` for cross-disciplinary architecture decisions
-├── Performance analysis, signal integrity, power integrity, thermal simulation
-│   └── → Invoke `performance-engineer` for SI/PI simulation and EMC pre-compliance
-├── Hardware documentation, architecture specifications, compliance test plans
-│   └── → Invoke `documentation-engineer` for architecture specs and design decision logs
-└── Unclear / need help routing
-    └── → Default to hardware-architect and re-route if it's pure firmware
-```
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("*.kicad_sch")` OR `file_exists("*.sch")` OR `file_contains("*", "(PCB.layout\|pcb.stackup\|layer.count\|impedance.control)")` | This is your skill. Jump to **Core Workflow** — Phase 1: Requirements & Architecture. |
+| A2 | `file_exists("*.kicad_pcb")` OR `file_exists("*.brd")` AND `file_contains("*", "(BGA\|DDR\|high.speed.serial\|differential.pair)")` | Jump to **Core Workflow** — Phase 2: PCB Architecture & Stackup. |
+| A3 | `file_exists("BOM*.csv|BOM*.xlsx|bill.of.materials*")` AND `file_contains("BOM*", "(supply.chain\|lead.time\|alternate\|second.source)")` | Jump to **Decision Trees** — Component Selection & BOM Risk. |
+| A4 | `file_contains("*", "(thermal.simulation\|CFD\|junction.temp\|heatsink\|thermal.via)")` OR `file_contains("*", "(85.*C\|105.*C\|125.*C\|ambient.*temp)")` | Jump to **Core Workflow** — Phase 3: Thermal Design. |
+| A5 | `file_contains("*", "(EMC\|EMI\|FCC\|CE.mark\|radiated.emission\|conducted.emission\|ESD.*test)")` | Jump to **Error Decoder** — EMC-related rows. |
+| A6 | `file_contains("*", "(power.tree\|power.sequencing\|voltage.rail\|regulator\|LDO\|PMIC)")` AND NOT `file_contains("*", "PCB.*layout\|stackup")` | Jump to **Core Workflow** — Phase 4: Power Architecture. |
+| A7 | `file_contains("*", "(MCU.*C\|FPGA\|SoC.*selection\|processor.*selection)")` AND `file_contains("*", "(interface\|peripheral\|IO.count\|GPIO)")` | Jump to **Decision Trees** — SoC/Processor Selection. |
+| A8 | `file_contains("*", "(schematic.*review\|layout.*review\|design.*review\|DFM.*check)")` | Jump to **Production Checklist** — pre-fab signoff items. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 
 ## Ground Rules — Read Before Anything Else
-<!-- MANDATORY: Read before executing any task -->
+<!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
-1. **Design for manufacturing from day one** — a beautiful prototype that can't be produced is art, not engineering.
-2. **BOM cost is a design constraint, not an afterthought** — every component decision impacts unit economics at scale.
-3. **Thermal design is electrical design** — heat kills electronics. Thermal budget is as critical as power budget.
-4. **Regulatory certification (FCC, CE, UL) adds 3-6 months** — plan for it from the start, not as a post-design checkbox.
-5. **Every connector, every component, every trace needs a reason to exist** — if you can't justify it, remove it.
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|---------------------|
+| G1 | **REFUSE to commit to PCB fabrication without pin mux review by firmware team.** | `file_exists("*.kicad_pcb")` OR `file_exists("*.brd")` AND NOT `file_exists("*pin-mux-review*")` | STOP. Every pin assignment must pass firmware team review before schematic freeze. Pin conflict = PCB respin ($15K-50K + 4-6 weeks). |
+| G2 | **STOP if BOM uses single-source components without documented alternatives.** | `grep -c "single.source\|sole.source\|no.alternate" BOM*.csv` > 0 | HALT. Mark every BOM line: single-source (risk), multi-source (safe), EOL-risk. For single-source, identify and document alternative. |
+| G3 | **DETECT datasheet typical power used for budgeting instead of max + derating.** | `file_contains("*", "typical.*µA\|typical.*mA\|datasheet.*typical\|typ\..*current")` AND NOT `file_contains("*", "max.*current\|derating\|20%.*margin")` | STOP. Budget using MAX numbers + 20% regulator derating. Measure actual at -20°C, 25°C, 60°C on first prototype. |
+| G4 | **REFUSE to skip thermal simulation because "enclosure has vents."** | `file_exists("*thermal*")` AND `file_contains("*thermal*", "passive\|natural.convection\|vents.*enough")` AND NOT `file_exists("*thermal-simulation*")` | HALT. Run thermal simulation before PCB layout. Model worst-case: max ambient + max power + 20% margin. Identify hot components. |
+| G5 | **STOP if EMC pre-compliance is deferred until after PCB fabrication.** | `user_message_contains("EMC.*after\|compliance.*later\|certification.*post")` AND `file_exists("*.kicad_pcb")` | HALT. EMC pre-compliance at prototype/breadboard stage. Budget for at least 1 EMC-related respin. Include EMC engineer in layout review. |
+| G6 | **DETECT chip selection without evaluating 3+ alternatives in scored matrix.** | `file_contains("*", "selected.*processor\|chose.*SoC\|pick.*MCU")` AND NOT `file_contains("*", "(selection.matrix\|scored\|alternative.*compared\|3.*option)")` | STOP. Create scored selection matrix: interfaces, power, cost, ecosystem, lifecycle, second-source. Score 3+ options before commit. |
+| G7 | **REFUSE to ship without DFT (Design for Test) provisions.** | `file_exists("*.kicad_sch")` AND NOT `grep -q "test.point\|debug.header\|UART.*debug\|bootloader.*LED" *.kicad_sch` | STOP. Add test points for every power rail, critical signal, programming interface, UART debug header, bootloader-status LED. |
 
 
 ## The Expert's Mindset
@@ -284,55 +283,53 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 - **Have a BOM risk plan.** Mark every component: single-source (risk), multi-source (safe), or EOL-risk (obsolete). For single-source parts, have an alternative part identified before the design review. Lead times > 20 weeks should trigger a back-up plan.
 
 ## Anti-Patterns
+<!-- QUICK: 30s -- machine-detectable anti-patterns with auto-prevention -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Selecting an SoC because "it's what we've always used" without evaluating alternatives | Create a scored selection matrix: interfaces, power, cost, ecosystem maturity, lifecycle guarantee, second-source availability — score 3+ options before committing |
-| Using datasheet typical current for power budgeting without measurement | Budget using max numbers + 20% regulator derating; measure actual current on first prototype at -20°C, 25°C, 60°C across all power modes |
-| Skipping thermal simulation because "the enclosure has vents" | Run thermal simulation before PCB layout; model worst-case: max ambient + max power + 20% margin; identify hot components and plan heatsinking |
-| Selecting single-source components without documented alternatives | Mark every BOM line: single-source (risk), multi-source (safe), EOL-risk; for single-source, identify alternative and document in design review |
-| Running EMC pre-compliance after PCB fabrication | Run EMC pre-compliance at prototype/breadboard stage; include EMC engineer in PCB layout review; budget for at least 1 EMC-related respin |
-| Designing without DFT (Design for Test) provisions | Add test points for every power rail, critical signal, and programming interface; include UART debug header and bootloader-status LED on every board |
-| Selecting clock source without analyzing accuracy requirements | Match clock to interface requirements: USB/CAN need ±0.25% (crystal required); UART at 115200 needs ±2%; internal oscillator at ±5% is not enough for most protocols |
-| Committing to PCB fabrication before pin mux review with firmware team | Every pin assignment must pass firmware team review before schematic freeze — pin conflict discovered after fab = PCB respin ($15K-50K + 4-6 weeks) |
-
-<!-- DEEP: 10+min -- hardware architecture failures in the wild -->
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|---|---|---|---|
+| Selecting SoC "because we've always used it" | Scored selection matrix: interfaces, power, cost, ecosystem, lifecycle, second-source — 3+ options | `file_contains("*", "(same.as|always.used|standard.choice|default).*chip\|MCU\|SoC\|processor")` AND NOT `file_exists("*selection-matrix*")` | STOP. Auto-generate selection matrix template. Require 3+ scored options. |
+| Using datasheet typical current for power budgeting | Max numbers + 20% regulator derating; measure at -20°C, 25°C, 60°C on prototype | `grep -rn "typ\." docs/power* BOM* \| grep -i "µA\|mA\|current"` | WARN. Replace typical with max values. Add 20% derating to budget. |
+| Skipping thermal simulation because "enclosure has vents" | Run simulation before PCB layout; worst-case: max ambient + max power + 20% margin | `grep -q "vents\|natural.convection\|passive.cooling" docs/thermal*` AND NOT `test -f sim/thermal-*` | STOP. Generate thermal simulation checklist. Require junction temp verification. |
+| Selecting single-source components without alternatives | Mark BOM: single-source (risk), multi-source (safe), EOL-risk; document alternative | `grep "single.source\|sole.source\|no.alternate" BOM*.csv` | WARN. Auto-flag single-source lines. Generate alternative search query per component. |
+| EMC pre-compliance after PCB fab | Run at prototype/breadboard; include EMC engineer in layout review; budget 1 respin | `file_exists("*.kicad_pcb")` AND NOT `file_exists("*emc*report*")` AND NOT `file_exists("*pre-compliance*")` | STOP. Generate EMC pre-compliance checklist. Require test date before fab signoff. |
+| Designing without DFT provisions | Test points for every power rail, critical signal, programming interface, UART debug, bootloader LED | `grep -c "test.point\|TP[0-9]" *.kicad_sch` < 5 | WARN. Auto-generate DFT checklist. Flag missing test points by net class. |
+| Selecting clock without analyzing accuracy requirements | Match clock to interface: USB/CAN ±0.25% (crystal required); UART 115200 ±2%; internal OSC ±5% not enough for most | `grep "HSE\|LSE\|HSI\|LSI\|internal.osc\|external.crystal" docs/clock*` AND NOT `grep "ppm\|accuracy\|tolerance.*%" docs/clock*` | STOP. Auto-generate clock accuracy matrix per interface. Verify ppm against requirements. |
+| Committing to PCB fab before pin mux review with firmware | Every pin assignment must pass firmware review before schematic freeze | `file_exists("*.kicad_sch")` AND NOT `file_exists("*pin-mux-review*")` AND `file_exists("*.kicad_pcb")` | BLOCK fab release. Auto-generate pin mux checklist for firmware team signoff. |
 
 ## Error Decoder
+<!-- DEEP: 10+min -- hardware architecture failures with auto-recovery -->
 
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Device crashes randomly in the field | Watchdog timer not configured or reset incorrectly | Configure the hardware watchdog timer with a proper reset handler. The watchdog must be kicked (reset) only in the main loop after all critical subsystems have reported healthy. Never kick the watchdog in an interrupt handler — it masks the crash. | Never kick watchdog in interrupt handler — it masks the crash. |
-| I2C bus locks up after 24 hours of operation | No bus recovery mechanism on lock condition | Implement I2C bus recovery: if the bus is busy for >100ms without a stop condition, toggle SCL 9 times to reset slave devices. Add a bus health monitor that detects lockups and triggers re-initialization. Missing this is the #1 cause of "works in the lab, fails in the field." | 9-clock-pulse recovery is essential. Works in lab, fails in field without it. |
-| Firmware OTA update bricks 5% of devices | No rollback mechanism in bootloader | Every OTA update requires: dual-bank flash with a confirmed-good fallback image, CRC check before applying the update, and a bootloader that boots the previous image if the new one fails to start. If the bootloader can't roll back, every OTA is a potential bricking event. | No rollback = potential bricking of every device. Dual-bank flash is mandatory. |
-| ADC readings drift with temperature | No temperature compensation in firmware | Add a temperature sensor near the ADC reference. Read temperature at each conversion cycle and apply a compensation curve. If the ADC has an internal temperature sensor, use it. ADC drift without compensation can be 10-50% across the operating temperature range. | ADC drift can be 50% across temp range. Compensate or use external reference. |
-| Production test fails 30% of units, all pass in re-test | Test fixture has poor contact or timing issues | Review test fixture: pogo pin alignment, contact resistance, settling time after power-up. Add a "pretest" sequence that checks fixture contact before running tests. The first test after a power cycle should be a known-good reference measurement. | Test fixture contact issues are #1 cause of false failures. Reference measurement first. |
-| Interrupt latency causes missed events | Shared interrupt priority or long critical sections | Assign interrupt priorities carefully: time-critical interrupts (timers, communication) get highest priority. Limit critical section duration to <10μs. Use a real-time trace (logic analyzer or Segger SystemView) to measure worst-case interrupt latency. If latency exceeds your timing budget, restructure critical sections. | Measure worst-case latency with logic analyzer. <10μs critical sections. |
-| Power budget exceeded by 40% | Sleep mode not configured for peripherals | Every peripheral must be in its lowest power state when not in use. GPIO pins should not float (internal pull-up/down or driven). Use the MCU's lowest sleep mode that can wake from the required source. Measure actual current at the PSU, not the datasheet typical — it's always higher. | Always measure actual current at PSU. Datasheet typical is always lower. |
-| Chip selection limited by supply chain — lead time 52 weeks | Selected niche IC without checking availability; sole-source component with no alternative | Always identify 2+ sources for every critical component before schematic release. Check lead times at selection, not at BOM release. Document alternates in design review. | A hardware startup designed their PCB around a specific STM32 MCU with 52-week lead time. By the time they were ready for production, the chip was unobtainable. Redesign cost: $120K and 6 months. |
-| Thermal design causing throttling under load — performance drops 40% | No thermal simulation done; heat sink undersized for worst-case ambient temperature | Run thermal simulation before PCB layout. Model worst-case: max ambient temp + max power draw. Include 20% margin. Test in thermal chamber before production signoff. | A security camera would throttle after 30 minutes in direct sunlight (45°C ambient). The SoC junction temp hit 110°C. Fix required a heatsink redesign and a 3-month production delay. |
-| Power budget exceeded by 30% | Used datasheet "typical" power numbers instead of maximum; didn't account for regulator inefficiency | Budget power using max (not typical) numbers from datasheets. Add 20% regulator derating. Include all power domains. Measure at the battery terminal, not the PMIC output. | An IoT device claimed 2-year battery life on a CR2032. Real life: 4 months. Root cause: datasheet said BLE SoC was 5µA sleep but real was 12µA, and the voltage regulator was 85% efficient, not 95%. |
-| PCB respin required for EMC failure — 8-week delay | EMC pre-compliance done too late (after PCB fab); fixes required layout changes | Run EMC pre-compliance at breadboard/prototype stage. Include EMC engineer in PCB layout review. Budget for at least 1 EMC-related spin. | A consumer device passed EMC pre-compliance on the dev kit but failed on the production PCB. Root cause: the PCB layout had a long return path on the high-speed trace. Cost: $40K respin + 8 weeks delay. |
-| Production yield 60% — 40% of boards failed functional test | Test coverage was incomplete; boundary scan and in-circuit test not implemented | Implement boundary scan (JTAG) for solder joint verification. Add ICT test points. Achieve >90% test coverage before production signoff. | A medical device had 40% failure rate at contract manufacturer. Root cause: a single BGA ball on the main SoC wasn't soldered (head-in-pillow defect). Boundary scan would have caught it. Cost: $500K in scrapped boards. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep "RESET\|reset\|watchdog" field-log.txt \| wc -l` > 10/day | Device crashes randomly in the field | Watchdog not configured or kicked from ISR masking the crash | Configure hardware WDT. Kick only in main loop after ALL subsystems report healthy. | **Loop 1:** (1) Detect: reset count > 10/day. (2) Log reset cause register (RCC_CSR/SYSRESETREQ). (3) Move watchdog kick from ISR to main loop. (4) Add subsystem health heartbeat flags. (5) 24h field soak: 0 unexpected resets. |
+| Logic analyzer: SDA low > 100ms, no STOP condition | I2C bus locks up after 24 hours | No bus recovery mechanism on lock condition | Toggle SCL 9×. Bus health monitor detecting lockups >100ms. Re-initialize if locked. | **Loop 2:** (1) Detect: SDA low > 100ms. (2) 9-pulse SCL to release slave. (3) Re-init I2C peripheral. (4) If repeated, GPIO power-cycle slave. (5) Log recovery events; > 3/hour = hardware issue. |
+| `grep "OTA\|update.*fail\|brick" fleet-monitor.log` > 0 after rollout | OTA update bricks 5% of devices | No rollback mechanism in bootloader — every OTA is potential brick | Dual-bank flash with confirmed-good fallback. CRC check before apply. Bootloader boots previous image if new fails. | **Loop 3:** (1) Detect: boot failure rate > 1% after OTA. (2) Auto-halt rollout. (3) Bootloader auto-reverts to previous image. (4) Investigate crash dumps from failed devices. (5) Re-deploy fix as canary 1%. |
+| DMM: VREF drifts >10mV over 4h thermal chamber run | ADC readings drift with temperature | No temperature compensation in firmware for VREF | Temp sensor near ADC reference. Read at each conversion. Apply compensation polynomial. | **Loop 4:** (1) Detect: ADC drift > 5% across temp. (2) Log VREF at -20°C, 25°C, 60°C. (3) Fit 3-point compensation polynomial. (4) Apply in firmware. (5) Re-verify: drift < 2% full range. |
+| `grep "retest\|false.fail\|re-test" production-test*.csv` shows > 10% retest rate | Production test fails 30%, all pass in retest | Test fixture poor contact or timing issues | Review pogo pin alignment, contact resistance, settling time. Add pretest sequence for fixture contact. | **Loop 5:** (1) Detect: retest pass rate > 20%. (2) Measure contact resistance on each pogo pin. (3) Add settling delay (100ms) after power-on. (4) First test = known-good reference measurement. (5) Verify: first-pass yield > 95%. |
+| Logic analyzer: IRQ latency > 50µs in worst case | Interrupt latency causes missed events | Shared IRQ priority or long critical sections | Assign priorities: time-critical (timers, comms) highest. Critical sections < 10µs. | **Loop 6:** (1) Detect: max IRQ latency > timing budget. (2) Segger SystemView trace to find longest critical section. (3) Restructure > 10µs sections. (4) Re-measure: worst-case latency < budget. |
+| `grep "current\|power\|mA" lab-report.txt \| awk '$NF > budget*1.4'` | Power budget exceeded by 40% | Sleep mode not configured for peripherals; GPIOs floating | Every peripheral to lowest power state when idle. No floating GPIOs. Measure at PSU, not datasheet. | **Loop 7:** (1) Detect: measured current > 1.3× budget. (2) Dump GPIO config for all pins in sleep. (3) Configure floating pins as analog input. (4) Disable unused peripheral clocks. (5) Re-measure: within 1.1× budget. |
+| `grep "lead.time\|unavailable\|allocated\|EOL" BOM*.csv` | Chip lead time 52 weeks — unobtainable | Selected niche IC without checking availability; sole-source | Identify 2+ sources for every critical component before schematic release. Check lead times at selection. | **Loop 8:** (1) Detect: BOM item lead time > 26 weeks or EOL. (2) Search Octopart/Findchips for alternates. (3) Document pin-compatible alternative or redesign option. (4) Update BOM risk rating. (5) Verify: 0 critical single-source items. |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail. All must pass before PCB fab. -->
+<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
 
-- [ ] **[H1]** SoC/processor selected with documented rationale, alternatives considered, and second-source option identified
-- [ ] **[H2]** Memory architecture documented: memory map, type, size, timing requirements for each region
-- [ ] **[H3]** Power tree calculated with 30% margin and simulation or bench measurement confirming estimates
-- [ ] **[H4]** Power sequencing defined: rail order, ramp timing, and sleep mode configuration
-- [ ] **[H5]** Critical nets identified for length matching: DDR, high-speed serial, differential pairs
-- [ ] **[H6]** PCB stackup defined: layer count, layer order, dielectric material, target impedance
-- [ ] **[H7]** Decoupling strategy documented: bulk capacitance per rail, high-frequency decoupling per IC, placement
-- [ ] **[H8]** Thermal simulation completed: junction temperature of all hot components within spec under worst-case ambient
-- [ ] **[H9]** Derating review completed for all critical components (caps, resistors, MOSFETs, connectors)
-- [ ] **[H10]** Pre-compliance EMC test scheduled or completed: radiated emissions, conducted emissions, ESD
-- [ ] **[H11]** Certification plan documented: required certifications per target market, budget, timeline
-- [ ] **[H12]** BOM risk assessment completed: single-source parts identified with backup alternatives
-- [ ] **[H13]** Test points included for: all power rails, critical signals, programming interface, UART debug
-- [ ] **[H14]** Schematics peer-reviewed, layout constraints documented for layout engineer handoff
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|----------------|--------------------|----------|
+| H1 | SoC/processor selected with documented rationale, alternatives considered, second-source identified | `test -f docs/soc-selection-matrix.md && grep -c "Option [1-3]" docs/soc-selection-matrix.md | awk '{exit $1<3}'` | Generate selection matrix template. Require 3+ scored options. |
+| H2 | Memory architecture documented: memory map, type, size, timing for each region | `test -f docs/memory-architecture.md && grep -q "DDR\|FLASH\|SRAM\|SDRAM\|NAND\|NOR" docs/memory-architecture.md` | Auto-generate memory map table from datasheet. |
+| H3 | Power tree calculated with 30% margin and simulation or bench measurement confirming | `test -f docs/power-tree.md && grep -q "30%.*margin\|derating\|max.*current" docs/power-tree.md` | Generate power tree diagram. Verify 30% margin on every rail. |
+| H4 | Power sequencing defined: rail order, ramp timing, sleep mode configuration | `test -f docs/power-sequencing.md && grep -q "VDD_CORE\|VDD_IO\|VDD_DRAM\|ramp\|sequence" docs/power-sequencing.md` | Auto-generate power sequencing diagram from PMIC datasheet. |
+| H5 | Critical nets identified for length matching: DDR, high-speed serial, differential pairs | `grep -q "length.match\|differential.pair\|impedance\|DDR\|PCIe\|USB3\|HDMI" docs/routing-constraints.md` | Generate routing constraints document from interface specs. |
+| H6 | PCB stackup defined: layer count, layer order, dielectric material, target impedance | `test -f docs/pcb-stackup.md && grep -q "layer.*[4-9]\|FR4\|Megtron\|impedance.*[0-9][0-9].*ohm" docs/pcb-stackup.md` | Generate stackup calculator output. Verify impedance targets. |
+| H7 | Decoupling strategy documented: bulk per rail, HF per IC, placement guidelines | `test -f docs/decoupling-strategy.md && grep -q "bulk\|10uF\|100nF\|1uF\|placement\|ESR" docs/decoupling-strategy.md` | Generate per-IC decoupling checklist from datasheet recommendations. |
+| H8 | Thermal simulation completed: junction temp of all hot components within spec at worst-case ambient | `test -f sim/thermal-report.pdf && grep -q "Tj_max\|junction\|margin.*[0-9].*°C\|pass" sim/thermal-report*` | Generate thermal simulation checklist. Alert if Tj margin < 10°C. |
+| H9 | Derating review completed for all critical components (caps, resistors, MOSFETs, connectors) | `test -f docs/derating-review.md && grep -q "voltage.*derating\|power.*derating\|temp.*derating" docs/derating-review.md` | Generate derating calculator per component class. |
+| H10 | Pre-compliance EMC test scheduled or completed: radiated emissions, conducted emissions, ESD | `test -f test/emc-precompliance-report* && grep -q "radiated\|conducted\|ESD\|margin.*dB" test/emc-precompliance-report*` | Generate EMC pre-compliance test plan. Block fab release without scheduled test date. |
+| H11 | Certification plan documented: required certifications per target market, budget, timeline | `test -f docs/certification-plan.md && grep -q "FCC\|CE\|UL\|ISED\|budget\|timeline" docs/certification-plan.md` | Generate certification plan template per target market. |
+| H12 | BOM risk assessment completed: single-source parts identified with backup alternatives | `test -f BOM-risk-assessment.csv && grep -c "single.source" BOM-risk-assessment.csv | awk '{print $1}'` | Auto-flag single-source items. Generate Octopart search for alternates. |
+| H13 | Test points included for: all power rails, critical signals, programming interface, UART debug | `grep -c "TP[0-9]\|test.point\|TEST_POINT" *.kicad_sch | awk '{exit $1<8}'` | Auto-generate test point checklist per net class. |
+| H14 | Schematics peer-reviewed, layout constraints documented for layout engineer handoff | `test -f docs/schematic-review-checklist.md && test -f docs/layout-constraints.md` | Generate schematic review checklist. Auto-extract constraints from interface specs. |
 
 ## Cross-Skill Integration
 <!-- QUICK: 30s -- table of who to talk to when -->

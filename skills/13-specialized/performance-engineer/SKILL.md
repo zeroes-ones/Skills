@@ -58,34 +58,51 @@ When the agent identifies a specific performance bottleneck, drill into the rele
 > **Token-saving rule:** If P95 is high and APM shows 65% DB time, load only "Database Query Optimization" and "Caching Strategy." Don't load frontend or profiling sub-skills. The profiling guide alone is 450 lines — only load it when the bottleneck is confirmed CPU/memory-bound.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.js", "k6\|http.get\|http.post\|export default function")` OR `file_exists("artillery.yml\|locustfile.py\|load-test.js")` OR `file_contains("*.go", "pprof.StartCPUProfile\|runtime/pprof")` OR `file_contains("*.py", "memory_profiler\|py-spy\|line_profiler")` | This is your skill. Jump to **Core Workflow** — Phase 1. |
+| A2 | `file_contains("*.sql", "EXPLAIN ANALYZE\|CREATE INDEX\|pg_stat_user_indexes")` OR `file_contains("*.ts", "\\.findAll\|\\.query\|N\\+1")` | Invoke **database-designer** instead. You need index review and query optimization. |
+| A3 | `file_exists("docker-compose.yml\|terraform/")` AND `file_contains("*.conf\|*.yml", "nginx\|haproxy\|proxy_read_timeout\|upstream")` | Invoke **devops-engineer** instead. This is infrastructure/CDN/caching setup. |
+| A4 | `file_exists("prometheus.yml\|grafana/\|datadog-agent/")` OR `file_contains("*.yml", "prometheus\|datadog\|opentelemetry\|newrelic")` | Invoke **observability-engineer** instead. This is APM/dashboards/alerting work. |
+| A5 | `file_contains("*.tsx\|*.jsx\|*.vue", "useState\|useEffect\|<template>")` AND `file_contains("lighthouse\|webpack-bundle-analyzer\|Core Web Vitals")` | Jump to **Frontend Performance** — bundle analysis and Core Web Vitals. |
+| A6 | `file_contains("package.json", "\"express\"\|\"fastapi\"\|\"flask\"\|\"django\"")` AND `file_contains("*.ts\|*.py", "router\.(post\|get)\|app\.(post\|get)")` | Invoke **backend-developer** instead. This is backend code, not performance engineering. |
+| A7 | `file_contains("*.js\|*.py\|*.go", "redis\|memcached\|cache\.set\|cache\.get\|CacheManager")` | Jump to **Caching Strategy** under Sub-Skills. |
+| A8 | `file_contains("*.js", "autocannon\|artillery\.\|new http\.\|wrk ")` OR `file_exists("k6-results/\|benchmark-results/")` | Jump to **Load Testing** under Sub-Skills. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
-├── Performance profiling (flame graphs, CPU/memory/I/O) → Start at "CPU & Memory Profiling" under Sub-Skills
-├── Load testing (k6/wrk/Artillery) → Go to "Load Testing" under Sub-Skills
-├── Frontend optimization (Core Web Vitals, bundle analysis) → Jump to "Frontend Performance" under Sub-Skills
-├── Database query optimization → Go to "Database Query Optimization" under Sub-Skills
-├── Design caching strategy → Jump to "Caching Strategy" under Sub-Skills
-├── Set up performance budgets → Go to "Performance Budgets" under Sub-Skills
-├── Define SLOs for performance → Jump to "Performance Budgets" and references/
-├── Need code-level profiling guidance → Route to `backend-developer`
-├── Need database schema or index review → Route to `database-designer`
-├── Need APM instrumentation or SLO dashboards → Route to `observability-engineer`
-├── Need CDN, caching, or auto-scaling setup → Route to `devops-engineer`
-└── Don't know where to start? → Start at "CPU & Memory Profiling"
-
-**Do not read the entire skill.** Follow the route above and read only the sections it points to.
+├── Profile a performance bottleneck (flame graphs, CPU/memory/I/O) → Jump to "CPU & Memory Profiling" under Sub-Skills
+├── Run or design a load test (k6/wrk/autocannon) → Jump to "Load Testing" under Sub-Skills
+├── Optimize frontend (Core Web Vitals, bundle analysis, LCP/INP/CLS) → Jump to "Frontend Performance" under Sub-Skills
+├── Diagnose a memory leak in production → Jump to "Error Decoder" then "CPU & Memory Profiling"
+├── Set up performance budgets and CI enforcement → Jump to "Performance Budgets" under Sub-Skills
+├── Define SLOs with burn-rate alerts → Jump to "Production Checklist" — items S12, S14
+└── Not sure? → Describe the performance problem in plain language and I'll route you
+```
+Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never optimize without a baseline measurement.** You can't improve what you haven't measured.
-- **Load test results without p95/p99 are misleading.** Averages hide the tail latency that kills user experience.
-- **Performance budgets must be enforced in CI, not just documented.** A budget in a wiki is a wish. A budget that breaks the PR is a guarantee.
-- **Every optimization must be measured, not assumed to help.** Run the benchmark before and after — intuition is often wrong.
-- **Always profile before optimizing.** Don't guess the bottleneck — let the flame graph tell you.
-- **Admit what you don't know.** If you can't reproduce the performance issue, say so — don't ship speculative fixes.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to optimize without a baseline measurement.** Do not suggest or apply any optimization unless P50/P95/P99 latency, throughput, and error rate have been captured for the target endpoint or component. | Trigger: user requests optimization AND `grep -rn "p95\|p99\|baseline\|benchmark\|before" --include="*.json" --include="*.md"` returns 0 results in the working tree | STOP. Respond: "I need a baseline first. Run `k6 run --duration 30s --vus 50 load-test.js` or capture the current P50/P95/P99 latency before I touch anything. Without a baseline, optimization is guessing." |
+| **R2** | **REFUSE to accept load test results that report only averages.** Averages mask tail latency. P99 can be 10× P50 while the average looks fine. Any load test report without P95/P99 is incomplete and misleading. | Trigger: generated output or analysis references "average response time" or "mean latency" without `p(95)` or `p(99)` in the same context | STOP. Re-run load test with percentile reporting: `k6 run --summary-trend-stats "avg,min,med,max,p(95),p(99)"`. Add `--out json=results.json` for machine parsing. |
+| **R3** | **REFUSE to add caching without measuring hit rate first.** Cache that misses >70% adds latency (network hop + serialization) to most requests. | Trigger: generated code adds `redis.set(` or `cache.put(` or recommends "add Redis" AND `grep -rn "hit.rate\|hit_rate\|cache.hit" --include="*.py" --include="*.ts"` returns 0 | STOP. Add: "Before deploying this cache, run in shadow mode for 24h to measure hit rate. Remove if hit rate < 50%. Track via `redis-cli INFO stats \| grep keyspace_hits`." |
+| **R4** | **REFUSE to add database indexes without checking existing ones.** Duplicate indexes waste write I/O and confuse the query planner. | Trigger: generated code contains `CREATE INDEX` or `add_index` AND `grep -rn "pg_stat_user_indexes\|idx_scan\|unused" --include="*.sql"` returns 0 in the conversation | STOP. Run first: `SELECT schemaname, tablename, indexrelname, idx_scan FROM pg_stat_user_indexes WHERE idx_scan < 50 ORDER BY idx_scan;`. Drop unused indexes before adding new ones. |
+| **R5** | **STOP and ASK when the performance context is missing.** Do not assume expected QPS, infrastructure specs, deployment topology, or traffic patterns. | Trigger: generating load test config, scaling recommendation, or capacity plan without explicit confirmation of: target QPS, instance type, region, number of instances, and traffic mix | STOP. Ask: "What's the expected peak QPS? Instance type and count? Single-region or multi-region? What's the traffic mix (read/write ratio, endpoint distribution)?" |
+| **R6** | **DETECT and WARN about load tests running on localhost.** Localhost results are 10-50× optimistic compared to production (TLS, cross-AZ, load balancer overhead). | Trigger: generated k6/artillery/wrk config contains `http://localhost` or `http://127.0.0.1` as the target URL | WARN: Add comment `# WARNING: localhost results overestimate capacity by 10-50×. Divide QPS by 10 for realistic production estimate.` and insert `# TODO: Replace with production-equivalent endpoint (TLS + LB + cross-AZ)` |
+| **R7** | **DETECT and WARN about synchronous broadcast loops.** Fan-out to N clients in a single-threaded event loop blocks all other handlers. | Trigger: generated code contains `forEach.*\.send\|for.*\.send\|wss.clients.forEach` OR `broadcast` without batching/sharding | WARN: Insert comment `// WARNING: Synchronous broadcast to N clients blocks the event loop for O(N) time. Refactor to worker shards with Redis pub/sub:` and skeleton sharding code. |
 
 
 ## The Expert's Mindset
@@ -862,37 +879,37 @@ Performance is not a solo activity — it requires instrumentation from develope
 
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Optimized database queries for hours but the real bottleneck was the network | Started optimizing without profiling; assumed database was the bottleneck based on intuition not data | Always profile before optimizing — use flame graphs and CPU profiles; measure P50/P95/P99 latency before and after every change | The most expensive optimization is the one targeting the wrong bottleneck — profile first, optimize second |
-| Added Redis cache but response times got 3x slower | Cache miss rate exceeded 90%; serialization overhead dwarfed savings from the rare cache hit | Measure cache hit rate before and after deployment; set a minimum hit rate threshold (e.g., >70%); implement cache warming for cold starts | A cache that misses 90% of the time isn't an optimization — it's a performance tax with extra infrastructure cost |
-| Spent 3 months optimizing for 60 FPS on a form page nobody complained about | 60 FPS target chosen arbitrarily; users couldn't perceive the difference from 30 FPS in this context | Set performance budgets based on user-perceptible metrics (INP, CLS, LCP) not arbitrary frame rate targets; validate with real user monitoring | Not every pixel needs 60 FPS — optimize what users actually perceive not what looks impressive in a flame graph |
-| Mobile app performance regressed with every release caught only by user complaints | No CI performance regression testing; regressions discovered weeks after deployment | Add Lighthouse CI or k6 in the CI pipeline; set performance budgets as CI gating checks; test on representative low-end devices | Performance is a feature — if you're not testing for regressions in CI you are shipping regressions to users |
-| Load test showed 10K RPS capacity but production crashed at 2K | Load test used idealized conditions — local network, warm cache, single endpoint — not realistic traffic patterns | Design load tests with realistic traffic mix, cache miss rates, and network latency; test on production-scale infrastructure not developer laptops | A benchmark in a perfect environment means nothing — test the way your users actually use the system |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `Error: timeout\|ETIMEDOUT\|query took [0-9]{5,}ms` + `grep -rn "\.findAll\|\.query\|\.execute" src/ -A 3` shows ORM calls in loops | Dashboard page took 45s to load — timed out. P95 went from 200ms to 45s after adding a "related items" feature | N+1 query problem: loaded 1,000 users, then looped to load orders for each, then looped to load line items — 1 + 1,000 + 20,000 = 21,001 queries for one page load | Use eager loading (`include`, `prefetch_related`, `JOIN FETCH`). Batch queries. Add an N+1 detector that logs a warning when >5 queries execute within a single request handler. | 1. Enable query logging: `log_queries=true` or `SQLALCHEMY_ECHO=True` 2. Count queries per request: wrap handler in `before`/`after` counter 3. Assert: `expect(queryCount).toBeLessThan(10)` in integration test 4. Add CI gate: `npm test -- --testNamePattern="query-count"` |
+| `Error: ECONNRESET\|socket hang up\|health check failed` + `grep -rn "forEach.*\.send\|for.*\.send\|clients.*forEach" src/` finds synchronous broadcast | WebSocket fan-out to 50K clients caused 30s latency spikes — health checks failed, PagerDuty fired at 3 AM | Synchronous broadcast iterating all connections in a single tick: `wss.clients.forEach(c => c.send(data))`. Node event loop is single-threaded — 500ms broadcast blocks all handlers. | Shard connections across worker processes (1 per CPU core). Use Redis pub/sub: publish once per channel, each worker sends only to its subset. For one-way flows, use SSE. Batch broadcasts (collect for 50ms, send once). | 1. Refactor: `redis.publish('events', JSON.stringify(data))` instead of `forEach.send()` 2. Each worker subscribes: `redis.subscribe('events')` → send to local shard 3. Batch: collect events for 50ms, flush once 4. Load test: `autocannon -c 5000 -d 60` → health check must stay green |
+| `FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed` + `grep -rn "new Array\|\.push\|Buffer\.alloc" src/ -c` shows unbounded growth patterns | Node.js process OOM-killed at 2GB RSS within 90 min — 10K WebSocket connections each held a growing buffer | No max connection limit. Each ws connection accumulated data in a buffer that was never trimmed. No `setMaxListeners` or backpressure handling. GC couldn't keep up with allocation rate. | Set `server.maxConnections = 10000`. Add idle timeout (5 min) that terminates inactive sockets. Monitor `process.memoryUsage().rss`. Heap snapshots every 10 min in staging — diff to detect leak source. | 1. Add `--max-old-space-size=4096` to Node flags 2. Add `server.maxConnections = 10000` 3. Heap snapshot every 10 min: `v8.writeHeapSnapshot()` → compare diffs 4. Monitor: `setInterval(() => { if(process.memoryUsage().rss > 0.8*limit) gracefulShutdown() }, 5000)` |
+| `nginx 502 Bad Gateway` + `grep "proxy_read_timeout" nginx.conf` shows 60s | SSE endpoint disconnected every 60s — clients reconnecting in a loop, 3× load on server | `proxy_read_timeout` defaulted to 60s. nginx terminated the SSE stream because no data frame arrived within the timeout. `EventSource` auto-reconnected, doubling traffic. | Send SSE keepalive comments every 15s: `: heartbeat\n\n`. Set `proxy_read_timeout 300s;`. Disable response buffering: `proxy_buffering off;`. Add `X-Accel-Buffering: no` header. | 1. Add heartbeat: `setInterval(() => res.write(': heartbeat\n\n'), 15000)` 2. nginx: `proxy_read_timeout 300s; proxy_buffering off;` 3. Test: `curl -N -H "Accept: text/event-stream" http://localhost/events` → must stay connected > 60s |
+| `Error: getaddrinfo\|ECONNREFUSED\|ETIMEDOUT` + `grep -rn "fetch(\|axios(\|request(" src/ -A 5 \| grep -v "timeout"` finds calls without timeout | External API call blocked request handler for 30s — thread pool exhaustion cascaded across all endpoints | An endpoint called an external service with no timeout configured. Default OS timeout is 30s on Linux — one slow external call blocks one thread, 200 slow calls exhaust the pool. | Add explicit timeouts: `httpx.Timeout(5.0)`, `axios({ timeout: 5000 })`, `AbortSignal.timeout(5000)`. Implement circuit breaker (opossum, resilience4j). Use async I/O everywhere. | 1. Grep: `grep -rn "fetch(\|axios(\|request(" src/ -A 5 \| grep -v "timeout"` 2. Add `timeout: 5000` to every call 3. Install circuit breaker: `npm install opossum` 4. Test: `tc qdisc add dev eth0 root netem delay 10000ms` → system must degrade gracefully |
+| `wrk.*localhost\|k6.*localhost\|autocannon.*localhost` + `grep -rn "localhost\|127.0.0.1" load-test* benchmark*` finds localhost targets | Load test measured 15K QPS at 3ms P99 — production crashed at 2K QPS at 380ms P99 | Localhost has microseconds of latency. Production adds TLS (2ms), load balancer (10ms), cross-AZ DB (15ms). Test payload was 2 bytes; production payload is 5KB JSON. Results are 10-50× optimistic. | Load test against production-equivalent staging: full TLS, LB, cross-AZ topology. Use production-realistic payload sizes. If localhost is unavoidable, divide results by 10-50× for a rough production estimate. | 1. Replace `localhost` with production-equivalent staging URL 2. Capture real payload sizes: `grep -o 'Content-Length: [0-9]*' access.log \| awk '{sum+=$2; n++} END {print sum/n}'` 3. Use that payload size in load test 4. Add 15ms latency: `toxiproxy-cli toxic add -n latency -t latency -a latency=15` |
+| `Cache hit rate: [0-4][0-9]%` OR `keyspace_misses` is > `keyspace_hits` | Redis cache deployment made response times 3× slower — every request pays serialization cost + network hop for a miss | Cache miss rate >90%. Serialization/deserialization overhead (0.5-2ms per call) + Redis network round-trip (0.5ms) dwarfs the rare cache hit savings. | Measure hit rate in shadow mode before production rollout. Set minimum hit rate threshold (>70%). Implement cache warming for cold starts. Remove caches with <50% hit rate after 48h. | 1. Shadow mode: deploy cache, log hits/misses, DO NOT serve from cache 2. After 24h: `redis-cli INFO stats \| grep -E "keyspace_hits\|keyspace_misses"` 3. If miss rate >50%: remove cache, re-evaluate TTLs and eviction policy 4. Alert: `keyspace_misses / (keyspace_hits + keyspace_misses) > 0.5` → page on-call |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Performance baselines established: P50/P95/P99 latency, throughput, error rate per critical endpoint
-- [ ] **[S2]**  Profiling completed (CPU + memory + I/O) on production-similar staging; top 5 bottlenecks documented
-- [ ] **[S3]**  Load test suite built (k6/wrk2/Artillery) covering: baseline, load, stress, soak, spike scenarios
-- [ ] **[S4]**  Load test results: capacity ceiling, breaking point, scaling behavior
-- [ ] **[S5]**  Database slow queries (EXPLAIN ANALYZE) identified; missing indexes added; N+1 queries eliminated
-- [ ] **[S6]**  Connection pooling configured and tuned for database and external services
-- [ ] **[S7]**  Read replica routing implemented with replication lag monitoring
-- [ ] **[S8]**  Core Web Vitals measured via RUM; LCP < 2.5s, INP < 200ms, CLS < 0.1
-- [ ] **[S9]**  Bundle analyzed and optimized (code splitting, tree shaking, image/font optimization)
-- [ ] **[S10]**  Performance budgets defined and enforced in CI
-- [ ] **[S11]**  Automated load testing runs in CI on PRs; regressions caught before merge
-- [ ] **[S12]**  Multi-layer caching strategy: browser (Cache-Control), CDN (stale-while-revalidate), application (Redis), DB buffer pool
-- [ ] **[S13]**  CDN configuration optimized: cache hit ratio > 80%, TTLs appropriate, edge functions efficient
-- [ ] **[S14]**  SLOs defined with burn-rate alerts; APM and RUM dashboards operational
-- [ ] **[S15]**  Async/non-blocking I/O used for all external calls; timeouts set on every downstream call
-- [ ] **[S16]**  Memory leak detection automated — heap snapshots running in staging, trend monitored
-- [ ] **[S17]**  GC logs active and reviewed for pause time anomalies
-- [ ] **[S18]**  Race condition detection enabled in tests (Go -race, ThreadSanitizer)
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+<!-- Run: `bash scripts/checklist-perf.sh` for automated pass/fail on all items. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Performance baselines established: P50/P95/P99 latency, throughput, error rate per critical endpoint | `k6 run --duration 30s --vus 50 scripts/baseline.js --summary-export baseline.json && python3 -c "import json,sys; d=json.load(open('baseline.json')); assert 'p(95)' in str(d)"` → must return 0 | CI: `k6 run scripts/baseline.js --out json=baseline.json` in `.github/workflows/perf-baseline.yml` |
+| **[S2]** | Profiling completed (CPU + memory + I/O) on production-similar staging; top 5 bottlenecks documented | `grep -rn "pprof\|py-spy\|flamegraph\|memray\|clinic" scripts/ --include="*.sh" --include="*.md"` → must match > 0 files with profiling commands | Script: `scripts/profile-top-endpoints.sh` — runs pprof/py-spy on top 5 endpoints and saves flame graphs to `profiles/` |
+| **[S3]** | Load test suite built covering baseline, load, stress, soak, spike scenarios | `ls scripts/load-*.js 2>/dev/null \| wc -l` → must be >= 5 | `k6 new scripts/load-stress.js` — template with configurable VUs, duration, and thresholds |
+| **[S4]** | Load test P95 latency < target at 2× expected peak QPS | `k6 run --duration 60s scripts/load-stress.js 2>&1 \| python3 -c "import sys,json; d=json.load(sys.stdin); p95=d['metrics']['http_req_duration']['p(95)']; assert p95 < 500, f'P95={p95}ms exceeds 500ms'"` → exit 0 | CI gate: fail PR build if P95 exceeds threshold. Adjust: increase instances, add index, or add cache. |
+| **[S5]** | Database slow queries identified; missing indexes added; N+1 queries eliminated | `psql $DATABASE_URL -c "SELECT query, calls, mean_time, total_time FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"` → must have EXPLAIN ANALYZE on top 3 | `psql $DATABASE_URL -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_<table>_<col> ON <table>(<col>);"` — from slow query analysis |
+| **[S6]** | Connection pooling configured and tuned for database and external services | `grep -rn "pool_size\|max_connections\|pool.max\|pgbouncer" config/ --include="*.yml" --include="*.toml" --include="*.env"` → must match pooling config | Template: `config/pgbouncer.ini` with `pool_mode=transaction, max_client_conn=1000, default_pool_size=25` |
+| **[S7]** | External HTTP calls have explicit timeouts < 10s | `grep -rn "fetch(\|axios(\|request(\|httpx\." src/ --include="*.ts" --include="*.js" --include="*.py" -A 10 \| grep -c "timeout"` → timeout count must equal call count | ESLint: `no-restricted-syntax` — forbid `fetch(` without `signal: AbortSignal.timeout(5000)` within 5 lines |
+| **[S8]** | Core Web Vitals measured via RUM; LCP < 2.5s, INP < 200ms, CLS < 0.1 | `curl -s "https://webvitals.googleapis.com/v1/projects/$PROJECT/reports:query" --data '{"metrics":["LCP","INP","CLS"],"threshold":"p75"}' \| python3 -c "import json,sys; d=json.load(sys.stdin); assert d['LCP']['p75']<2500 and d['INP']['p75']<200 and d['CLS']['p75']<0.1"` | `npm install web-vitals` — RUM collector: copy `templates/rum-collector.ts` into `src/monitoring/` |
+| **[S9]** | Bundle analyzed and optimized: code splitting, tree shaking, image/font optimization | `npx webpack-bundle-analyzer dist/stats.json -m static -r bundle-report.html` → total bundle < 500KB gzipped for initial route | `npx webpack --config webpack.prod.js` with `optimization.splitChunks`, `MinimizerPlugin`, and `ImageMinimizerPlugin` |
+| **[S10]** | Performance budgets defined and enforced in CI | `grep -rn "performanceBudget\|budget\|maxAssetSize\|maxEntrypointSize" --include="*.json"` → must match budget config | `npx lighthouse-ci` in `.github/workflows/perf.yml` with `assert: { "categories:performance": [">= 0.90"], "resource-summary:script:size": ["< 500000"] }` |
+| **[S11]** | Automated load testing runs in CI on PRs; regressions caught before merge | `grep -rn "k6 run\|artillery run\|autocannon" .github/workflows/ --include="*.yml"` → must match load test step | CI template: `.github/workflows/perf-regression.yml` — runs 60s k6 benchmark, compares P95 against main branch, fails if >20% regression |
+| **[S12]** | Memory leak detection automated — heap snapshots running in staging, trend monitored | `grep -rn "heapdump\|writeHeapSnapshot\|memwatch\|memray" scripts/ --include="*.sh"` → must match heap monitoring | `npm install heapdump` + cron: `node -e "require('heapdump').writeSnapshot()"` every 10 min, compare diffs with `scripts/diff-heap.sh` |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
@@ -987,18 +1004,17 @@ python3 scripts/perf_scan.py --service checkout --compare-before --output json
 10. **Don't optimize what's not slow:** If all endpoints are P95 <200ms and LCP <2s, stop optimizing. Set baselines, monitor, and ship features instead.
 
 ## Anti-Patterns
-<!-- STANDARD: 3min — patterns that predictably fail -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| Anti-Pattern | Why It Fails | Correct Approach |
-|---|---|---|
-| Optimizing without profiling — guessing the bottleneck | 80% chance of fixing the wrong thing; can make performance worse (e.g., adding cache where DB is already fast) | Profile first: APM trace → flame graph → EXPLAIN ANALYZE → identify top contributor to P95 before touching code |
-| Caching everything "just in case" | Redis cluster with 5% hit rate adds latency (network hop) to 95% of requests; infrastructure cost without benefit | Cache only queries responsible for top-3 DB load; measure hit rate after deployment; remove caches with <50% hit rate |
-| Optimizing P50 (average) and declaring victory | Average hides the worst experiences; P99 could be 10x P50; users with bad experiences churn silently | Track and optimize P95 minimum; P99 tells the story of your worst user experience; set SLOs on P95/P99 not average |
-| Spreading optimization effort across 20 endpoints simultaneously | No single endpoint improves enough to matter; context switching wastes time; can't prove any fix worked | Fix one bottleneck, measure, then move to next; one endpoint's P95 from 2s→200ms is better than 20 endpoints from 2s→1.9s |
-| Load testing only on developer laptops with idealized conditions | Localhost network has microseconds of latency; production has milliseconds; results are optimistic by 10-100x | Load test on production-scale infrastructure; include realistic network latency (toxiproxy); use production traffic mix not single endpoint |
-| Adding indexes without checking existing ones | Duplicate or overlapping indexes waste write I/O; index maintenance slows INSERTs; storage bloat | Run EXPLAIN ANALYZE first; check `pg_stat_user_indexes` for unused indexes; drop before adding; measure write impact |
-| Tuning JVM GC flags from a blog post | Default GC settings are good for 95% of workloads; cargo-culted flags often hurt more than help; no measurement baseline | Profile GC behavior first (GC logs, allocation profiling); change one flag at a time; compare before/after with measurable metrics |
-| Starting with distributed systems before vertical scaling | Distributed systems add network latency, serialization, consistency problems; costs 10x in engineering time | Vertical scale first: bigger instance, connection pooling, query optimization; only go horizontal when vertical ceiling is hit |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Optimizing without profiling — guessing the bottleneck from intuition | Profile first: APM trace → flame graph → `EXPLAIN ANALYZE` → identify top contributor to P95 before touching code. Measure before/after with structured benchmarks. | `grep -rn "probably\|maybe\|I think.*slow\|should be faster" --include="*.md" --include="*.txt"` → finds optimization guesses without profiling data | Pre-commit hook: `scripts/check-baseline.sh` — fails if `baseline.json` is missing or older than the code change. Reject any optimization PR without a before/after benchmark. |
+| Adding Redis cache for every database query "just in case" | Cache only queries responsible for top-3 DB load. Measure hit rate in shadow mode for 24h before production cutover. Remove caches with <50% hit rate — they add latency without benefit. | `grep -rn "redis\.set\|cache\.put\|cache\.set" src/ --include="*.ts" --include="*.js" --include="*.py" -c \| awk -F: '$2 > 10'` → finds excessive cache inserts suggesting unmeasured caching | eslint `no-restricted-imports`: require `@lib/cache` wrapper that enforces hit-rate logging and <50% auto-removal after 48h |
+| Reporting "average latency = 45ms" as proof of good performance | Track and report P50, P95, P99 (minimum). P95 = what most users experience. P99 = your worst user. Set SLOs on P95 and P99 — never on average. | `grep -rn "average\|mean\|avg" load-test* k6* --include="*.md" --include="*.txt" \| grep -i "latency\|response\|duration"` → finds performance reports using averages instead of percentiles | k6 config: enforce `summaryTrendStats: ["avg","min","med","max","p(90)","p(95)","p(99)"]` and CI check: fail if output references "average" without P95 |
+| Load testing on localhost with idealized payloads (2-byte "hello" body) | Load test against production-equivalent staging: full TLS, LB, cross-AZ topology. Use production-realistic payload sizes. Include background load from other endpoints. | `grep -rn "localhost\|127.0.0.1" k6/*.js artillery/*.yml load-test* --include="*.js" --include="*.yml"` → finds localhost targets in load test configs | CI lint: `scripts/check-loadtest-targets.sh` — fail if any load test config contains `localhost`, `127.0.0.1`, or has `body: '"hello"'` or similar trivial payloads |
+| Adding database indexes without checking `pg_stat_user_indexes` for unused/overlapping indexes first | Run `SELECT * FROM pg_stat_user_indexes WHERE idx_scan < 50` to find unused indexes. Drop before adding new ones. Check for overlapping indexes (e.g., `(a,b)` covers `(a)`). Measure write I/O impact. | `grep -rn "CREATE INDEX\|add_index\|addIndex" --include="*.sql" --include="*.ts" -B 5 \| grep -v "pg_stat_user_indexes\|idx_scan\|EXPLAIN"` → finds index creation without prior index audit | Pre-commit hook: `scripts/check-index-audit.sh` — fails if `CREATE INDEX` appears without a preceding `pg_stat_user_indexes` query in the same PR |
+| Copying JVM GC flags or Node.js `--max-old-space-size` from a blog post without profiling GC behavior first | Profile GC behavior first (`-Xlog:gc*`, `--trace-gc`, Chrome DevTools memory panel). Default GC settings work for 95% of workloads. Change one flag at a time and measure. | `grep -rn "XX:\+Use\w+GC\|-XX:MaxGCPauseMillis\|--max-old-space-size\|--max-semi-space-size" Dockerfile* scripts/ --include="*.sh"` → finds cargo-culted GC flags | eslint/no-shell: require GC flag changes to be accompanied by before/after GC log output in the PR description. CI rejects flag-only changes without profiling evidence. |
+| Scaling horizontally (Kubernetes cluster, service mesh, Redis cluster) before trying a bigger EC2 instance | Vertical scale first: upgrade instance size, add connection pooling, optimize queries. A $50/month instance upgrade beats $5K/month of engineering on distributed systems. Only go horizontal when vertical ceiling is actually hit. | `grep -rn "kubernetes\|k8s\|helm\|istio\|consul" docker-compose* deployment/ --include="*.yml" \| wc -l` → if >50 lines of orchestration config but `grep -rn "instance.type\|instance_type\|flavor" terraform/` shows `t3.small` or similar smallest tier | Architecture gate: require a `vertical_scale_attempt.md` documenting that instance size was already maxed out before approving horizontal scaling PRs |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production performance engineering -->

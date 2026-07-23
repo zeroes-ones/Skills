@@ -35,35 +35,51 @@ landing zone design, multi-account/ multi-project governance, networking topolog
 managed service selection, serverless patterns, and the Well-Architected Framework.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("main.tf")` OR `file_exists("cdktf.json")` AND `file_contains("main.tf", "aws_\|azurerm_\|google_")` | Jump to "Core Workflow" — Phase 1 (Architecture Design) for greenfield review |
+| A2 | `file_contains("./**/migration*", "on-prem\|lift-and-shift\|rehost")` OR `file_exists("migration-plan.md")` | Jump to "Core Workflow" — Phase 2 (Migration Planning) |
+| A3 | `grep -rn "cost\|pricing\|savings_plan\|reserved_instance" . --include="*.tf" --include="*.md"` returns matches | Go to "Multi-Cloud vs Single-Cloud Cost" and "Serverless Cost Traps" |
+| A4 | `grep -rn "multi.region\|disaster_recovery\|failover\|cross.region" . --include="*.tf"` returns matches | Jump to "Core Workflow" — Phase 3 (Resilience & DR) |
+| A5 | `file_exists("well-architected-review.md")` OR `file_exists("wafr/")` | Jump to "Is This Overkill? Checklist" then "Production Checklist" |
+| A6 | `file_exists(".github/workflows/")` AND `file_contains(".github/workflows/", "terraform\|pulumi")` | Invoke `devops-engineer` skill instead |
+| A7 | `file_exists("Chart.yaml")` OR `file_exists("k8s/")` OR `file_contains("Dockerfile", "FROM")` AND `file_exists("terraform/")` | Invoke `docker-kubernetes` skill instead |
+| A8 | No infrastructure-as-code files found anywhere | Jump to "Core Workflow" — Phase 1 (Architecture Design) — start with requirements gathering |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Design a new cloud architecture (greenfield) → Jump to "Core Workflow" — Phase 1 (Architecture Design)
-├── Migrate on-premises workloads to cloud → Jump to "Core Workflow" — Phase 2 (Migration Planning)
-├── Optimize cloud costs (FinOps, right-sizing) → Go to "Multi-Cloud vs Single-Cloud Cost" and "Serverless Cost Traps"
-├── Set up multi-region or HA architecture → Jump to "Core Workflow" — Phase 3 (Resilience & DR)
-├── Review existing architecture (Well-Architected) → Jump to "Is This Overkill? Checklist" then "Production Checklist"
-├── Need infrastructure automation → Invoke `devops-engineer` skill instead
-├── Need container orchestration → Invoke `docker-kubernetes` skill instead
-├── Need reliability engineering → Invoke `site-reliability-engineer` skill instead
-├── Need internal developer platform → Invoke `platform-engineer` skill instead
-└── Not sure? → Start with the WAFR question checklist in Core Workflow Phase 1
-├── Need CI/CD for cloud deployments → Invoke ci-cd-builder skill instead
-├── Need security controls or IAM deep-dive → Invoke security-engineer skill instead
+├── Design a new cloud architecture (greenfield)
+├── Migrate on-premises workloads to cloud
+├── Optimize cloud costs (FinOps, right-sizing)
+├── Set up multi-region or HA architecture
+├── Review existing architecture (Well-Architected)
+├── Compare cloud providers for a specific workload
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never recommend without understanding workload patterns.** A solution for a steady-state monolith is wrong for a spiky event-driven system. Ask about traffic patterns, data volumes, and growth projections before recommending.
-- **Cost estimates are estimates — say so.** Cloud pricing changes, committed use discounts apply, and data transfer costs are notoriously hard to predict. Always include a ±20% caveat and the assumptions behind the number.
-- **Always consider multi-region implications.** A single-region architecture is fine until the region goes down. Every design must at minimum document the multi-region trade-offs: cost, latency, complexity, RPO/RTO.
-- **IAM must be least-privilege.** Start with no permissions, add only what's needed, and use resource-based policies and conditions. A wildcard `s3:*` is a resume-generating event waiting to happen.
-- **Always provide the "why," not just the "what."** "Use RDS Proxy" is unhelpful. "Use RDS Proxy because your Lambda functions open 50+ connections per invocation, exhausting the database connection pool in under 10 seconds" is actionable.
-- **Admit what you don't know.** If a cloud provider's service has undocumented behavior or a specific region has limitations you're unsure about, say so and recommend the provider's support or docs.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to recommend architecture without understanding workload patterns** — a steady-state monolith architecture fails for a spiky event-driven system. | Trigger: no `file_contains` match for "traffic\|rps\|DAU\|concurrent\|spike\|batch\|event" in any project docs AND user hasn't described load profile | STOP. Ask: "Before designing: what are the traffic patterns (steady vs spiky), expected DAU/requests-per-second, data volumes, and growth projections?" |
+| **R2** | **REFUSE to produce cost estimates without explicit caveats** — cloud pricing changes and data transfer costs are notoriously hard to predict. | Trigger: outgoing response contains `$[0-9]` dollar figures but no "±" or "caveat" / "assumes" qualifier within the same paragraph | STOP. Append: "±20% variance expected. This estimate assumes [region], [instance family], on-demand pricing, and no data-transfer spikes. Actual costs depend on usage patterns." |
+| **R3** | **REFUSE to design a single-region architecture without documenting multi-region trade-offs** — a single region is a documented single point of failure. | Trigger: architecture output mentions only one region (`us-east-1`, `europe-west1`, etc.) with no multi-region analysis section | STOP. Add: "Multi-region trade-off analysis: [RPO/RTO targets], [cost delta: +X%], [latency impact: +Y ms], [complexity: cross-region replication vs. warm standby vs. active-active]. Recommendation: [single-region is acceptable because...] OR [multi-region warranted because...]" |
+| **R4** | **REFUSE to design IAM with wildcard permissions** — `s3:*`, `ec2:*`, or `AdministratorAccess` are ticking time bombs. | Trigger: `grep -rnE "(s3|ec2|dynamodb|rds|lambda):\*" . --include="*.tf" --include="*.json"` returns matches | STOP. Respond: "Found wildcard IAM permission in [file:line]. Replace `[service]:*` with least-privilege actions. Start with no permissions, add only what's needed, and use resource-based conditions. Wildcard IAM is a resume-generating event." |
+| **R5** | **STOP and ASK when the project has no IaC but user requests architecture review** — cloud architecture without codified infrastructure drifts immediately. | Trigger: `glob("**/*.tf")` returns empty AND `glob("**/Pulumi.yaml")` returns empty AND user requests architecture design/review | STOP. Ask: "This project has no infrastructure-as-code (no `.tf` or `Pulumi.yaml`). Should we: (a) generate Terraform/CDK templates for the design, (b) produce ADRs and diagrams first then IaC later, or (c) review an existing click-ops deployment?" |
+| **R6** | **DETECT and WARN about default VPC usage with public subnets** — resources in public subnets without strict security groups are exposed to the internet. | Trigger: `file_contains("main.tf", "default_vpc\|aws_default_vpc")` OR `grep -rn "subnet.*public\|public.*subnet" . --include="*.tf"` with no corresponding `aws_network_acl` or restrictive `aws_security_group` | WARN: "Default VPC or public subnets detected without restrictive NACLs/security groups. Resources may be internet-exposed. Design custom VPC with private subnets, NAT gateway for egress, and VPC endpoints for cloud services." |
+| **R7** | **DETECT and WARN when Reserved Instances or Savings Plans exist without utilization tracking** — unused commitments are dead money. | Trigger: `file_contains("main.tf", "reserved_instance\|savings_plan\|capacity_reservation")` AND `grep -rn "utilization\|coverage\|RI.*track" . --include="*.tf" --include="*.md"` returns zero matches | WARN: "Reserved Instances/Savings Plans detected but no utilization tracking found. Track RI/SP coverage monthly — unused commitments silently drain budget. Prefer Savings Plans over standard RIs for workload flexibility." |
 
 ## The Expert's Mindset
 
@@ -343,17 +359,18 @@ When this skill is invoked, drill into these specialized areas as needed:
 - **Region selection**: prioritize latency, data residency, service availability, and cost in that order.
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Single AWS account for everything — production, staging, dev, sandbox all share one blast radius | Separate production and non-production at the account/project level; use AWS Organizations/GCP resource hierarchy for policy isolation |
-| `AdministratorAccess` policy attached to every developer and service role — "we'll lock it down later" | Start with no permissions, add only what's needed; use IAM Access Analyzer to validate; enforce permission boundaries via SCPs |
-| Default VPC with all resources in public subnets — "it works, don't touch it" | Design custom VPC with private subnets, NAT gateway for egress, VPC endpoints for AWS services, and security group least-privilege rules per service |
-| Multi-region DR plan exists only on a Confluence page — never tested, never executed | Test failover quarterly with game days; automate DNS failover; maintain cross-region read replicas; document MTD (maximum tolerable downtime) per service |
-| Reserved Instances purchased for "future capacity" before workload is stable — utilization at 20% | Right-size workloads first (90-day observation), then commit; prefer Savings Plans over standard RIs for workload flexibility; track RI utilization monthly |
-| Architecture decisions made as one-off Slack conversations with no written record | Document every architecture decision as an ADR (Architecture Decision Record) with context, options considered, trade-offs, and outcome; store ADRs in repo |
-| Multi-cloud strategy adopted "just in case" with < $50M ARR and no multi-cloud expertise on team | Single cloud provider until $100M+ ARR or regulatory mandate; multi-cloud doubles operational complexity and halves your negotiation leverage |
-| All traffic routed through public internet between services — no PrivateLink, no VPC peering | Use VPC endpoints (PrivateLink) for AWS services, VPC peering or transit gateway for inter-VPC traffic; keep service-to-service traffic off the public internet |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Single AWS account for everything — production, staging, dev, sandbox all share one blast radius | Separate production and non-production at the account/project level; use AWS Organizations/GCP resource hierarchy for policy isolation | `grep -rn "provider.*aws\|provider.*azurerm\|provider.*google" main.tf \| wc -l` → 1 provider block = single-account risk | AWS Control Tower / GCP Resource Manager with mandatory multi-account structure enforced by SCP |
+| `AdministratorAccess` policy attached to every developer and service role — "we'll lock it down later" | Start with no permissions, add only what's needed; use IAM Access Analyzer; enforce permission boundaries via SCPs | `grep -rnE "(s3\|ec2\|dynamodb\|rds\|lambda):\*" . --include="*.tf" --include="*.json"` → finds wildcard IAM actions | AWS IAM Access Analyzer + SCP denying `*:*` at org level; `checkov` / `tfsec` blocking wildcard policies in CI |
+| Default VPC with all resources in public subnets — "it works, don't touch it" | Design custom VPC with private subnets, NAT gateway for egress, VPC endpoints for cloud services | `grep -rn "aws_default_vpc\|default.*vpc" . --include="*.tf"` → finds default VPC usage | `tfsec` / `checkov` rules: `aws-vpc-no-default-vpc`, `aws-vpc-no-public-ingress`; CI fails on default VPC references |
+| Multi-region DR plan exists only on a Confluence page — never tested, never executed | Test failover quarterly with game days; automate DNS failover; maintain cross-region read replicas | `file_exists("dr-plan.md")` OR `file_exists("runbooks/")` AND `grep -rn "dr.*test\|failover.*test\|game.*day" .` returns zero matches → untested DR | Scheduled CI job that runs `terraform plan` on DR region config monthly; automated Route 53 health check failover test |
+| Reserved Instances purchased for "future capacity" before workload is stable — utilization at 20% | Right-size workloads first (90-day observation), then commit; prefer Savings Plans over standard RIs | `grep -rn "aws_reserved_instance\|reserved_instance" . --include="*.tf"` exists but `grep -rn "utilization\|coverage" .` returns zero matches → RI without tracking | Cloud Custodian policy: alert when RI utilization < 60% for 30+ days; auto-tag RIs with workload ID |
+| Architecture decisions made as one-off Slack conversations with no written record | Document every architecture decision as ADR with context, options considered, trade-offs, and outcome | `glob("**/adr/**/*.md")` returns empty → no ADR directory | `.github/adr-template.md` scaffold; CI check requiring `adr/` directory with ≥ 1 ADR for any `main.tf` change |
+| Multi-cloud strategy adopted "just in case" with < $50M ARR and no multi-cloud expertise on team | Single cloud provider until $100M+ ARR or regulatory mandate; multi-cloud doubles operational complexity | `grep -rn "provider.*aws" main.tf` AND `grep -rn "provider.*azurerm\|provider.*google" main.tf` both exist → multi-cloud detected | CI check: if multi-cloud providers detected AND ARR < $50M (from project config), warn and require documented multi-cloud justification |
+| All traffic routed through public internet between services — no PrivateLink, no VPC peering | Use VPC endpoints (PrivateLink) for cloud services, VPC peering or transit gateway for inter-VPC traffic | `grep -rn "aws_vpc_endpoint\|private_link\|vpc_peering" main.tf` returns zero matches AND `grep -rn "aws_security_group" main.tf` allows `0.0.0.0/0` ingress → public-only networking | `tfsec` rule: `aws-vpc-no-public-ingress` for sensitive ports (5432, 3306, 6379); CI blocks public DB/cache ingress |
 
 ## Is This Overkill? Checklist
 
@@ -417,14 +434,16 @@ When this skill is invoked, drill into these specialized areas as needed:
 
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Monthly bill jumped from $5K to $47K — no one noticed for 3 weeks | No budget alerts configured. A developer provisioned a GPU instance for "experimentation" and left it running 24/7 for 3 weeks at $2K/day. | Set budget alerts at 50%, 80%, 100%, and 120% of monthly forecast for every account/project. Enforce tagging so every resource is attributable to a team. Build an automated "leaked resource" finder that detects and alerts on untagged or unusually expensive resources. | Cloud spend is exponential, not linear. Without budget alerts, a single unchecked resource can cost more in 3 weeks than the entire infrastructure for 6 months. |
-| Single-region deployment — region-wide outage took the entire app offline for 8 hours | Architecture relied on a single AWS region. When that region had an availability zone power event, all services went down simultaneously. | Design for multi-region from the start, even if you only deploy to one region. At minimum: document the multi-region failover plan, maintain cross-region DB replicas, and have a DNS failover runbook. For critical services, deploy active-standby or active-active across at least 2 regions. | Single-region is not an architecture — it's a known single point of failure. Regions are the blast radius boundary, not availability zones. |
-| IAM policy with `s3:*` — contractor exfiltrated 50K customer records | Developer created an overly permissive IAM policy to "make it work" and never tightened it. The policy allowed all S3 actions on all buckets. | Every IAM policy must start with no permissions and add only what's needed. Use IAM Access Analyzer to validate policies. Implement Service Control Policies to deny wildcard actions organization-wide. Audit unused permissions quarterly. | A permissive IAM policy is not a shortcut — it's a ticking time bomb. Treat wildcard actions with the same severity as hardcoded passwords. |
-| Reserved Instance coverage shows 40% savings on paper — actual savings are 0% because RIs attached to terminated instances | RIs were purchased for a specific instance type and region, but the workload migrated to a different instance family 2 months later. The RIs were still being paid for but had zero utilization. | Use Savings Plans instead of RIs for any workload that might change instance families. Match committed RIs to workloads that have been running > 90 days with no expected changes. Track RI utilization monthly. | Commitment discounts lock in savings only if the workload doesn't change. The more flexibility your architecture requires, the more you should favor flexible commitment instruments. |
-| Development team can't provision a database — 2-week wait for cloud ticket | Every cloud resource required a ticket to the infrastructure team. The infrastructure team was bottlenecked processing 50+ tickets per week. | Design a self-service infrastructure platform with golden path templates. Teams should provision a standard database in < 15 minutes via IaC with policy guardrails. Create a catalog of approved infrastructure modules with automated provisioning. | If developers wait days for infrastructure, they'll either leave or work around you. Self-service with guardrails is faster AND more secure than ticket-based access. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "cost\|budget\|spend" cloud-bill.csv 2>/dev/null && python3 -c "import csv; rows=list(csv.DictReader(open('cloud-bill.csv'))); print(max(float(r['cost']) for r in rows))"` shows 10× normal | Monthly bill jumped 9× — no one noticed for 3 weeks | No budget alerts configured; a GPU instance was provisioned for "experimentation" and left running 24/7 at $2K/day | Set budget alerts at 50%, 80%, 100%, 120% of monthly forecast per account; enforce tagging so every resource is attributable; build automated "leaked resource" finder | 1. `aws ce get-cost-and-usage --time-period` to find spike source 2. `aws ec2 describe-instances --filters "Name=tag:Owner,Values=*"` to identify owner 3. Terminate leaked resource 4. Set up budget alert for next month |
+| `grep -rn "us-east-1\|eu-west-1" main.tf | wc -l` shows exactly 1 region with no `multi_region` or `cross_region` references | Single-region deployment — region-wide outage took entire app offline for 8 hours | Architecture relied on a single cloud region; when that region had an AZ power event, all services went down simultaneously | Design for multi-region from the start: document failover plan, maintain cross-region DB replicas, DNS failover runbook; at minimum deploy warm standby in second region | 1. `aws route53 list-resource-record-sets` to check DNS failover config 2. `aws rds describe-db-instances` to check cross-region read replicas 3. Create failover runbook 4. Schedule quarterly game day |
+| `grep -rnE "(s3\|ec2\|dynamodb\|rds\|lambda):\*" main.tf` returns matches | IAM policy with `s3:*` — contractor exfiltrated 50K customer records | Developer created overly permissive IAM policy to "make it work" and never tightened it; policy allowed all S3 actions on all buckets | Every IAM policy must start with no permissions and add only what's needed; use IAM Access Analyzer; implement SCPs denying wildcard actions org-wide; audit unused permissions quarterly | 1. Replace wildcard with explicit action list 2. `aws iam generate-service-last-accessed-details` to find unused permissions 3. `aws iam create-policy-version` with least-privilege 4. Add SCP denying `*:*` at org level |
+| `grep -rn "reserved_instance\|savings_plan" main.tf && aws ce get-reservation-utilization --time-period | jq '.Total.UtilizationPercentage'` shows < 20% | Reserved Instance coverage shows 40% savings on paper — actual savings are 0% because RIs attached to terminated instances | RIs purchased for specific instance type and region but workload migrated to different instance family 2 months later | Use Savings Plans instead of RIs for any workload that might change instance families; match RIs to workloads running > 90 days with no expected changes; track RI utilization monthly | 1. `aws ce get-reservation-utilization` to find unused RIs 2. `aws ce get-reservation-purchase-recommendation` for SP alternative 3. Convert to Savings Plans where possible 4. Set monthly utilization review |
+| `grep -rn "aws_iam_role\|aws_iam_user" main.tf | wc -l` > 50 AND `grep -rn "self_service\|catalog\|backstage\|scaffolder" . --include="*.md"` returns zero matches | Development team can't provision a database — 2-week wait for cloud ticket | Every cloud resource required a ticket to infrastructure team which was bottlenecked processing 50+ tickets/week | Design self-service infrastructure platform with golden path templates; teams provision standard database in < 15 minutes via IaC with policy guardrails; create catalog of approved infrastructure modules | 1. Create Terraform module catalog 2. Add Backstage scaffolder template for DB provisioning 3. Set up TFC workspace per team 4. Measure time-to-provision dropping from weeks to minutes |
+| `grep -rn "0.0.0.0/0" main.tf | wc -l` > 5 AND `grep -rn "aws_vpc_endpoint\|private_link" main.tf` returns zero matches | All inter-service traffic over public internet — no PrivateLink, no VPC peering | Security groups allow `0.0.0.0/0` ingress; services communicate via public IPs | Use VPC endpoints (PrivateLink) for cloud services, VPC peering or transit gateway for inter-VPC traffic; keep service-to-service traffic off the public internet | 1. `aws ec2 describe-security-groups --filters Name=ip-permission.cidr,Values=0.0.0.0/0` 2. Replace public CIDR with VPC CIDR or security group references 3. Add VPC endpoints for S3/DynamoDB 4. Verify via `traceroute` traffic stays private |
 
 
 ## What Good Looks Like
@@ -432,17 +451,20 @@ When this skill is invoked, drill into these specialized areas as needed:
 > Architecture decisions are documented as ADRs with clear trade-off analysis, and every decision traces back to a business requirement. Infrastructure is defined as code, environments are identical, and disaster recovery is tested quarterly. Costs are predictable and within budget. The system scales automatically under load and degrades gracefully under failure — no single component failure takes down the user experience. The architecture diagram matches reality, and any engineer can reason about the system by reading the ADRs and looking at the IaC.
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Multi-account/multi-project isolation with separate production and non-production environments
-- [ ] **[S2]**  Networking: non-overlapping CIDRs, private subnets for workloads, NAT Gateway for egress, VPC Flow Logs enabled
-- [ ] **[S3]**  IAM: SSO configured, no long-lived access keys, break-glass roles, permission boundaries enforced
-- [ ] **[S4]**  Encryption: data at rest with CMK, TLS 1.2+ in transit, S3 bucket policies block public access
-- [ ] **[S5]**  Logging: CloudTrail/Audit Logs enabled organization-wide, centralized to a security account
-- [ ] **[S6]**  Backups: automated backups for all data stores, cross-region replication for critical data, restore tested quarterly
-- [ ] **[S7]**  Cost: budgets set with alerts, tagging strategy enforced, RI/SP coverage for baseline workloads
-- [ ] **[S8]**  DR: RPO/RTO defined, failover runbook documented and tested, multi-region for tier-1 services
-- [ ] **[S9]**  Well-Architected Framework review completed within the last 6 months
-- [ ] **[S10]**  Incident response plan covers cloud-specific scenarios and is tested annually
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Multi-account/multi-project isolation with separate production and non-production environments | `grep -rn "provider.*aws" main.tf \| wc -l` → ≥ 2 (separate accounts) OR `grep -rn "project_id\|subscription_id" main.tf \| sort -u \| wc -l` → ≥ 2 | Create separate provider aliases per environment |
+| **[S2]** | Networking: non-overlapping CIDRs, private subnets for workloads, NAT Gateway for egress, VPC Flow Logs | `grep -rnE "cidr_block.*10\.\|cidr.*172\.\|cidr.*192\." main.tf \| wc -l` → ≥ 1 AND `grep -rn "vpc_flow_log\|flow_log" main.tf \| wc -l` → ≥ 1 | Generate VPC module with private subnets + flow logs |
+| **[S3]** | IAM: SSO configured, no long-lived access keys, break-glass roles, permission boundaries | `grep -rn "aws_iam_access_key\|access_key" main.tf \| wc -l` → 0 AND `grep -rn "permissions_boundary" main.tf \| wc -l` → ≥ 1 | Replace access keys with OIDC roles; add permission boundaries |
+| **[S4]** | Encryption: data at rest with CMK, TLS 1.2+ in transit, S3 bucket policies block public access | `grep -rn "kms_key_id\|kms_key_arn" main.tf \| wc -l` → ≥ 1 AND `grep -rn "block_public_\|restrict_public" main.tf \| wc -l` → ≥ 1 | Add `aws_s3_bucket_public_access_block` + CMK to all data stores |
+| **[S5]** | Logging: CloudTrail/Audit Logs enabled org-wide, centralized to security account | `grep -rn "cloudtrail\|aws_cloudtrail\|audit_log" main.tf \| wc -l` → ≥ 1 | Add `aws_cloudtrail` with org-wide + log validation |
+| **[S6]** | Backups: automated backups for all data stores, cross-region replication, restore tested quarterly | `grep -rn "backup_retention_period\|backup_window\|backup_vault" main.tf \| wc -l` → ≥ 1 AND `grep -rn "cross_region_replication\|replica\|replication" main.tf \| wc -l` → ≥ 1 | Add `aws_backup_plan` + cross-region replica for critical data stores |
+| **[S7]** | Cost: budgets set with alerts, tagging strategy enforced, RI/SP coverage for baseline workloads | `grep -rn "budgets_budget\|budget_alert" main.tf \| wc -l` → ≥ 1 AND `grep -rn "tags\s*=" main.tf \| wc -l` → ≥ 1 | Add `aws_budgets_budget` with 50/80/100% alerts + mandatory tag policy |
+| **[S8]** | DR: RPO/RTO defined, failover runbook documented and tested, multi-region for tier-1 services | `grep -rn "rpo\|rto\|recovery_time\|recovery_point" . --include="*.md" \| wc -l` → ≥ 2 AND `grep -rn "dr.*test\|failover.*test" .github/workflows/ \| wc -l` → ≥ 1 | Create DR runbook template + scheduled DR test workflow |
+| **[S9]** | Well-Architected Framework review completed within the last 6 months | `find . -name "wafr*" -mtime -180 \| wc -l` → ≥ 1 | Run WAFR tool: `aws wellarchitected list-lenses` |
+| **[S10]** | Incident response plan covers cloud-specific scenarios and tested annually | `grep -rn "incident.*response\|ir.*plan" . --include="*.md" \| wc -l` → ≥ 1 | Generate IR plan template + schedule annual game day |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production cloud architecture -->

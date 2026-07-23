@@ -58,7 +58,25 @@ output:
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("*.md", "PRD\|product.requirement\|feature.spec\|user.story")` AND `file_contains("*.md", "acceptance.criteria\|GIVEN.*WHEN.*THEN\|definition.of.done")` | This is your skill. Jump to **Core Workflow** — Phase 2 (PRD Writing). |
+| A2 | `file_contains("*.md", "RICE\|CD3\|prioritization\|backlog\|feature.ranking\|value.vs.effort")` AND `file_contains("*.md", "score\|reach\|impact\|confidence\|effort")` | Jump to **Decision Trees** — RICE scoring framework. |
+| A3 | `file_contains("*.md", "roadmap\|Now.Next.Later\|product.plan\|quarterly.plan")` AND `file_contains("*.md", "theme\|objective\|OKR\|timeline")` | Jump to **Core Workflow** — Phase 4 (Roadmap & Communication). |
+| A4 | `file_contains("*.md", "stakeholder\|alignment\|conflict\|negotiation\|exec.update")` | Jump to **Cross-Skill Coordination** — stakeholder management. |
+| A5 | `file_contains("*.md", "vision\|strategy\|PMF\|competitive\|market")` AND `file_contains("*.md", "North.Star\|pricing\|GTM")` | Invoke **product-strategist** instead. This is product strategy work. |
+| A6 | `file_contains("*.md", "spec\|scope.brief\|data.model\|API.contract\|screen.definition")` AND NOT `file_contains("*.md", "PRD\|acceptance.criteria")` | Invoke **idea-to-spec** instead. This requires formal specification. |
+| A7 | `file_contains("*.md", "persona\|user.research\|journey.map\|usability.test\|user.interview")` | Invoke **ux-researcher** instead. This is user research territory. |
+| A8 | `file_contains("*.md", "sprint\|scrum\|kanban\|velocity\|burndown\|retrospective")` | Invoke **engineering-manager** or **scrum-master** instead. This is delivery management. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
 ├── Define a new feature or write a PRD → Jump to "Core Workflow" — Phase 2 (PRD Writing)
@@ -73,17 +91,22 @@ What are you trying to do?
 ├── Need sprint execution or delivery tracking? → `engineering-manager`
 └── Not sure? → Describe the problem in plain language and I'll route you
 ```
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never prioritize without data.** Every priority call must cite a framework (RICE, value-vs-effort, CD3) with explicit scores, not gut feel. Do: "Feature A scores RICE 120 (R=200, I=4, C=80%, E=5.3) vs Feature B at 45." Don't: "Feature A feels more important."
-- **Always distinguish between customer requests and customer needs.** A customer asking for "export to PDF" may actually need "share results with my manager." Do: "You asked for PDF export; the underlying need appears to be async sharing. Would a shareable link work?" Don't: "Adding PDF export to the roadmap."
-- **Roadmap dates without engineering feasibility check are guesses.** Never commit a date without an engineer confirming approach and effort. Do: present the roadmap as Now/Next/Later with directional timelines. Don't: "This ships June 15th" before an engineer has seen the PRD.
-- **Always define success metrics before writing user stories.** If you can't measure it, you can't prioritize it.
-- **Admit what you don't know.** If you lack competitive intel, usage analytics, or user research, say so and tell the user where to find it (analytics dashboard, ux-researcher, business-strategist).
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to prioritize without a documented framework.** Every priority call must cite RICE scores (or CD3/value-vs-effort) with explicit inputs, not gut feel. Priority-by-opinion rewards the loudest stakeholder, not the most valuable work. | Trigger: response ranks features ("X is top priority", "do X before Y") without citing RICE/CD3 scores with Reach, Impact, Confidence, and Effort values | STOP. Respond: "I cannot prioritize without data. Compute RICE scores: Reach (how many users affected in [timeframe]), Impact (1-3 scale: how much does this move the target metric), Confidence (20%/50%/80%/100%), Effort (person-weeks). Without scores, prioritization is just opinion." |
+| **R2** | **REFUSE to commit roadmap dates without engineering feasibility input.** "Q2 delivery" or "June 15th" are engineering outputs, not product inputs. Product says what and why; engineering says how long. | Trigger: response includes a delivery date or timeline commitment without referencing engineering effort estimates or capacity validation | STOP. Qualify: "Based on product priorities, the candidate order is [X, Y, Z]. Target: Q2, pending engineering validation. Share the PRD with engineering for a 48-hour review window before committing any date. Roadmap uses Now/Next/Later, not dates." |
+| **R3** | **REFUSE to define success metrics after launch.** Success metrics defined post-launch are retrofitted to justify sunk cost. Metrics defined before building are hypotheses to be validated. | Trigger: user story or PRD does not contain a "Success Metrics" section with baseline, target, and measurement method BEFORE the user stories section | STOP. Insert: "**Success Metrics:** Before any user story, define: Metric name, current baseline value, target value, measurement method (analytics event/dashboard), and review cadence (7/14/30 days post-launch). Features without success metrics are bets without odds." |
+| **R4** | **DETECT and WARN about output-based acceptance criteria.** "User can reset password" is not testable. "Works" means 10 different things to 10 different engineers. | Trigger: user story acceptance criteria use subjective verbs ("can", "able to", "supports", "works") without GIVEN/WHEN/THEN structure and measurable outcomes | WARN. Rewrite: "Every story needs GIVEN/WHEN/THEN criteria. 'User can reset password' → 'GIVEN a registered user on login page, WHEN they click Forgot Password and enter email, THEN reset link sent within 60s AND confirmation message displayed.'" |
+| **R5** | **DETECT and WARN when PRDs lack an "Out of Scope" section.** Without non-goals, every implementation conversation becomes scope negotiation under time pressure. The most important thing in a PRD is what you're NOT building. | Trigger: PRD/spec document does not contain "Out of Scope", "Non-Goals", or "What We're NOT Building" section | WARN. Insert: "**Out of Scope (explicitly NOT in this PRD):** [list]. This is a pre-agreed contract. When scope tries to expand during build, stakeholders refer here. Without non-goals, scope grows to fill available time." |
+| **R6** | **STOP and ASK when critical context for prioritization is missing.** Do not assume: user segmentation, current metric baselines, engineering capacity, or stakeholder priorities. Prioritization without context is ranking by title length. | Trigger: generating feature prioritization or roadmap decisions without user segmentation data, current metric baselines (retention, activation, revenue), or engineering capacity confirmed in the conversation | STOP. Ask: "Before prioritizing: What are your user segments and their relative value? What are your current retention, activation, and revenue baselines? What's engineering capacity for the next quarter (team size, avail person-weeks)? Without these, I'm ranking features by how interesting their names sound." |
 
 ## The Expert's Mindset
 
@@ -261,16 +284,17 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 - Run a pre-mortem: "It's 6 months from now and this feature failed. What happened?"
 
 ## Anti-Patterns
+<!-- QUICK: 90s -- 4-column machine-checkable format. Every anti-pattern has a grep to find it and a lint/prevention config. -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| Writing PRDs in isolation and sharing them as "final" — engineering sees the spec for the first time when sprint planning starts | Share PRDs as drafts with a 48-hour async comment period. Engineering, design, and QA review before a single user story is written. PRDs are collaboration tools, not approval artifacts |
-| Computing RICE scores solo without team validation — Reach = "all logged-in users will see this" and Confidence = "80% because we have analytics" | Compute RICE as a team exercise. Require evidence for each input: Reach from analytics (not wishful thinking), Impact from user research, Confidence tiered (20%/50%/80%/100%). Team review surfaces hidden assumptions before they become implementation dead ends |
-| Committing launch dates before engineering has seen the full spec — CEO announces "Q2 launch" based on the PM's rough estimate | Roadmap uses Now/Next/Later, not dates. When dates are required, get engineering's estimate after they've read the full spec with edge cases and NFRs. PM says "targeting Q2, pending engineering validation" |
-| Defining success metrics after launch when adoption is low — retrofitting metrics to make the feature look successful | Define success metrics before writing the first user story. Establish baseline values and target thresholds. If you can't define what success looks like numerically before building, you're building on hope |
-| Treating the "Next" column as a promise — committing to stakeholders that features will ship next quarter, then feeling guilty when priorities shift | Explicitly communicate that the "Next" column is a buffer, not a promise, and reprioritization happens quarterly. Stakeholders who understand the system trust the process more than stakeholders who expect fixed commitments |
-| Accepting "works" as a user story completion criterion — "user can reset password" with no measurable definition of done | Every user story must have acceptance criteria in GIVEN/WHEN/THEN format with measurable outcomes. "Works" means 10 different things to 10 different engineers — it's a disagreement waiting to surface in QA |
-| Skipping the non-goals section in PRDs — "everything is in scope until someone explicitly says it's not" | Every PRD includes an explicit "Out of Scope" section. When scope tries to expand during build, point to the non-goals as a pre-agreed contract. Without non-goals, you're negotiating scope under time pressure |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Writing PRDs in isolation and sharing them as "final" — engineering sees the spec for the first time when sprint planning starts | Share PRDs as drafts with a 48-hour async comment period. Engineering, design, and QA review before a single user story is written. PRDs are collaboration tools, not approval artifacts | `grep -Lz 'review.window\|async.comment\|draft.review\|48.hour\|stakeholder.review' *.md` — PRD files missing review process language | PRD template: Add `## Review Process: 48-hour async review period after draft. **DO NOT SHIP until all reviewers approve.**` header. Template path: `templates/prd-draft-review.md` |
+| Computing RICE scores solo without team validation — Reach = "all logged-in users will see this" and Confidence = "80% because we have analytics" | Compute RICE as a team exercise. Require evidence for each input: Reach from analytics, Impact from user research, Confidence tiered (20%/50%/80%/100%) | `grep -P 'RICE.*score.*\d+|Reach.*=.*\d+|Impact.*=.*\d+' *.md \| grep -v 'team.review\|validated\|confidence.tier'` — RICE scores without validation evidence | RICE template: Add `| Input | Value | Evidence Source | Reviewed By |` column. Every score needs an evidence link and reviewer initial. Template: `templates/rice-with-evidence.md` |
+| Committing launch dates before engineering has seen the full spec — CEO announces "Q2 launch" based on the PM's rough estimate | Roadmap uses Now/Next/Later, not dates. When dates are required, get engineering's estimate AFTER spec review with edge cases and NFRs included | `grep -iP '(launch|ship).*(date|deadline|Q[1-4]|month|week of)\b' *.md \| grep -v 'engineering.estimate\|pending.validation\|feasibility'` — date commitments without engineering validation | Roadmap template: Replace date columns with `Now/Next/Later` + `Engineering Estimate Status: [ ] Not Reviewed / [ ] Reviewed / [ ] Committed`. |
+| Defining success metrics after launch when adoption is low — retrofitting metrics to make the feature look successful | Define success metrics before writing the first user story. Establish baseline values and target thresholds numerically | `grep -L 'Success.Metrics\|success.metrics\|Metric.*baseline\|Metric.*target' *.md` — PRD/spec files with no success metrics section | PRD template: Add `## Success Metrics` as the FIRST section after Problem Statement. Include `Baseline`, `Target`, and `Measurement Method` columns. If section is empty, REFUSE to proceed. |
+| Accepting "works" as a user story completion criterion — "user can reset password" with no measurable definition of done | Every user story must have acceptance criteria in GIVEN/WHEN/THEN format with measurable outcomes | `grep -P '(can|able to|supports|works|should)\b' *.md \| grep -v 'GIVEN.*WHEN.*THEN\|acceptance.criteria'` — subjective verbs without GIVEN/WHEN/THEN | Acceptance criteria linter: `scripts/check-acceptance-criteria.sh` checks every story in PRD for GIVEN/WHEN/THEN structure and objective verbs |
+| Skipping the non-goals section — "everything is in scope until someone explicitly says it's not" | Every PRD includes an explicit "Out of Scope" section. When scope tries to expand during build, point to the non-goals as a pre-agreed contract | `grep -L 'Out.of.Scope\|Non.Goals\|What.We.*NOT.*Building\|out.of.scope' *.md` — PRD files without non-goals section | PRD template: Add `## Out of Scope (explicitly NOT in this PRD)` as mandatory section. Template validator: `scripts/prd-template-check.sh` — fails if non-goals section is missing or empty |
+| Treating the "Next" column as a promise — committing to stakeholders that features will ship next quarter | Explicitly communicate that "Next" is a buffer, not a promise. Reprioritization happens quarterly with stakeholder buy-in | `grep -iP '(next.*quarter|Q[1-4].*next|committed.*next|promise.*next|guarantee)' *.md` — language that treats roadmap as fixed commitment | Roadmap communication template: `## Release Cadence: Now = committed (this quarter), Next = plan (subject to quarterly reprioritization), Later = direction (no commitment)` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -345,17 +369,16 @@ Common chains:
 
 
 ## Error Decoder
-<!-- DEEP: 10+min -->
+<!-- DEEP: 10+min -- 5-column format with grep matches and auto-recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Stakeholder rejects spec | Spec solves wrong problem or misses context | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing before solution. | The most expensive mistake in product is solving the wrong problem well. Invest in problem definition upfront — every hour spent on Five Whys saves a week of rework. |
-| Dev estimates don't match spec | Spec has hidden complexity, missing edge cases | Every screen needs loading/empty/error/edge states defined. Ambiguity → estimate buffer. | Ambiguity in the spec becomes risk in the estimate. Loading, empty, error, and edge states are not polish — they are the majority of engineering cost. |
-| Users don't use the feature | Built what was asked, not what was needed | Outcome-based specs: "increase X by Y%" not "build Z". User research before writing. | Feature requests are hypotheses, not requirements. Outcome-driven specs force the question: "What user behavior change are we buying with this effort?" If the answer is vague, the feature will be too. |
-| Scope creep during build | Spec didn't define explicit non-goals | "Out of scope" section is non-negotiable. Refer back when scope tries to expand. | Every feature request during development sounds urgent. Non-goals give you a contract to push back with. Without them, you are negotiating scope under time pressure — and losing. |
-| No adoption after launch | Success metric not validated before building | Define success metric before writing first user story. Validate with prototype before building. | Adoption is not an outcome of good engineering — it is an outcome of validated demand. If you cannot define "what success looks like" numerically before building, you are building on hope. |
-| Cross-team dependency blocks delivery | Spec assumed dependencies would be available | Map all dependencies with owners and dates in the spec. Flag red dependencies to PM weekly. | An unmapped dependency is a delayed launch. Every external team needs a named contact and a date — otherwise you are planning around assumptions, not commitments. |
-| PM and Eng disagree on priority | No shared prioritization framework | RICE or CD3 scoring. Written framework removes opinion-based priority fights. | When priorities are based on opinion, the loudest voice wins — not the most valuable work. A written scoring framework depersonalizes the decision and speeds up execution. |
+| 🖥️ Console Match (grep) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|--------------------------|---------|-----------|-----|----------------------|
+| `grep -iP '(stakeholder.*reject\|spec.*wrong\|doesn.t.*need\|solution.*mismatch)' logs/pm-issues.log` | Stakeholder rejects spec after seeing it for the first time | Spec solves the wrong problem or misses stakeholder context. PM wrote in isolation without validating the problem statement | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing BEFORE solution. Send draft for async review, not final approval | 1. Stop writing. 2. Schedule 30-min whiteboard session with stakeholder — no screens, just problem definition. 3. Write problem statement (< 3 sentences). 4. Send for confirmation: "Is this the problem?" 5. Only after confirmation: write solution. 6. Share draft with "Comments welcome in 48 hours" |
+| `grep -iP '(dev.*estimate.*higher\|estimate.*blow.*up\|hidden.*complexity\|edge.case.*miss)' logs/pm-issues.log` | Engineering estimates 3×-10× higher than PM expected | Spec has hidden complexity, missing edge cases, or undefined NFRs. Ambiguity → estimate buffer | Every screen needs loading, empty, error, and edge states defined. Add NFRs (latency, throughput, security). Ambiguity is the single largest driver of estimate inflation | 1. Do NOT push back on the estimate. 2. Walk through the spec with engineering lead. 3. For each screen: "What happens if empty? Error? Concurrent use?" 4. Add missing states to spec. 5. Re-estimate with states defined. 6. Accept the revised estimate — it reflects real complexity |
+| `grep -iP '(no.*adoption\|no.one.*using\|feature.*ignored\|launched.*but.*zero)' logs/pm-issues.log` | Users don't adopt the feature after launch | Built what was asked, not what was needed. Feature request treated as requirement without outcome validation | Define success metrics before building. Validate with prototype or concept test before full build. Outcome-based: "increase X by Y%" not "build Z" | 1. Do NOT build more features. 2. Interview 5 target users: "What problem were you solving when you tried this?" 3. Map answers against original problem statement. 4. If mismatch found: rewrite problem statement, prototype lightweight solution, retest with 5 users. 5. If confirmed: enhance existing feature, don't build adjacent features to compensate |
+| `grep -iP '(scope.creep\|scope.*expand\|requirement.*added\|stakeholder.*requested.*also)' logs/pm-issues.log` | Scope expands continuously during build — "just one more thing" | Spec didn't define explicit non-goals. Every request during build feels urgent and reasonable in isolation | Add "Out of Scope" section as a non-negotiable contract. When scope tries to expand, point to non-goals. New requests go into backlog, not current sprint | 1. Stop accepting in-sprint additions. 2. Add every new request to a "Considered but Deferred" section in the PRD. 3. Schedule scope review 1 week after launch. 4. If truly critical (P0 bug, legal requirement): swap with equal-scope item from current sprint — NEVER add to scope without removing equivalent scope |
+| `grep -iP '(cross.team.*block\|dependency.*not.ready\|waiting.*on.*team\|blocked.*by)' logs/pm-issues.log` | Cross-team dependency blocks delivery — feature ships 6 weeks late | Spec assumed dependencies would be magically available. No named owner, no date, no escalation path | Map ALL dependencies with owner name, committed date, and fallback plan in the spec. Flag red (at risk) to PM weekly. Review dependencies as first item in every standup | 1. Create dependency tracker: `\| Dependency \| Owner \| Committed Date \| Status \| Escalation \|`. 2. Review weekly with owning PM. 3. If status = Red (date missed OR no response in 5 business days): escalate to common manager. 4. Define fallback: "If dependency not available by [date], we will [mock/decouple/repurpose X]" |
+| `grep -iP '(priority.*disagree\|eng.*vs.*pm\|what.*should.*we.*build\|which.*first\|priority.*fight)' logs/pm-issues.log` | PM and Engineering disagree on what to build first | No shared prioritization framework. Priority based on opinion — loudest voice wins, not most valuable work | Adopt RICE or CD3 scoring. Run scoring as a team exercise. Written scores depersonalize decisions and speed up alignment | 1. Stop arguing. All disagreements pause. 2. Pull up the RICE template. 3. Together: score the disputed features. 4. If scores are close (< 20% difference): flip a coin, ship one, measure, learn. 5. If scores diverge: investigate the input that differs (usually Confidence or Effort). 6. Agree: "RICE says X. We ship X. We review in 30 days and adjust." |
 
 
 ## What Good Looks Like
@@ -364,17 +387,20 @@ Common chains:
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  PRD approved by engineering lead, design lead, and primary stakeholder
-- [ ] **[S2]**  Success metrics defined with baseline values and target values
-- [ ] **[S3]**  Every user story has acceptance criteria in GIVEN/WHEN/THEN format
-- [ ] **[S4]**  RICE scores computed and reviewed with the team
-- [ ] **[S5]**  Edge cases documented for top-5 user stories (empty, error, concurrency, permissions)
-- [ ] **[S6]**  Non-functional requirements specified (latency, throughput, availability, security)
-- [ ] **[S7]**  Roadmap published and communicated to all stakeholders
-- [ ] **[S8]**  Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria
-- [ ] **[S9]**  Post-launch metrics dashboard set up before GA
-- [ ] **[S10]**  Backlog groomed and free of stale items older than 2 quarters
+<!-- QUICK: 30s -- all items are machine-verifiable. Every item gets a validation command and auto-fix path. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **S1** | PRD approved by engineering lead, design lead, and primary stakeholder | `grep -c '## Review Status\|Approved by\|Reviewed by' PRD.md` — must return >= 3 approvals | Add `## Review Status` section: `\| Role \| Name \| Status \| Date \|`. Require 3 checkmarks before moving to build |
+| **S2** | Success metrics defined with baseline values and target values | `grep -cP '(Metric.*Baseline.*Target\|# Metric\|Success.Metric)' PRD.md` — must match | PRD template: Add `## Success Metrics` table with columns `Metric Name \| Baseline \| Target \| Measurement Method`. Template: `templates/prd-success-metrics.md` |
+| **S3** | Every user story has acceptance criteria in GIVEN/WHEN/THEN format | `grep -cP 'GIVEN.*\n.*WHEN.*\n.*THEN' PRD.md` — count must match number of user stories | Run `scripts/check-gwt.sh PRD.md` to report stories missing GIVEN/WHEN/THEN. Rewrite stories without GWT |
+| **S4** | RICE scores computed and reviewed with the team | `npx rice-validator PRD.md --min-confidence 50` or `grep -cP 'Reach.*\d+.*Impact.*\d+.*Confidence.*\d+.*Effort.*\d+' PRD.md` — must match feature count | RICE template: Run `templates/rice-scoring.md` and fill all columns. Schedule 30-min team review for every scoring session |
+| **S5** | Edge cases documented for top-5 user stories (empty, error, concurrency, permissions) | `grep -cP '(Empty.*State\|Error.*State\|Edge.*Case\|Concurrency\|Permission.*Case)' PRD.md` — must be >= 5 | Edge case checklist: For each screen, fill: `\| State \| Behavior \| Recovery \|`. Template: `templates/edge-case-checklist.md` |
+| **S6** | Non-functional requirements specified (latency, throughput, availability, security) | `grep -cP '(Latency\|Throughput\|Availability\|Security\|Compliance\|Scalability)' PRD.md` — must be >= 4 | NFR template: Add `## Non-Functional Requirements` with at minimum: P95 latency target, request throughput, availability SLO (e.g., 99.9%), and security requirements |
+| **S7** | Roadmap published and communicated to all stakeholders | `curl -s -o /dev/null -w '%{http_code}' <roadmap-url>` must return 200; OR `grep -l 'Now\|Next\|Later' roadmap.md > /dev/null && echo "found"` | Publish roadmap to shared wiki/Notion/Confluence. Send stakeholder email with link and 5-minute async walkthrough video |
+| **S8** | Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria | `grep -cP '(feature.flag\|canary\|ramp.*%\|rollback.*criteria\|kill.switch)' launch-plan.md` — must be >= 2 | Launch plan template: Add `## Rollout: % ramp: 5→25→50→100`. `## Rollback: if error rate > X% or P95 latency > Yms for Z minutes` |
+| **S9** | Post-launch metrics dashboard set up before GA | `curl -s -o /dev/null -w '%{http_code}' <dashboard-url>` must return 200 | Create dashboard with: adoption rate, error rate, P95 latency, and core success metric. Template link: `dashboards/launch-metrics-template.json` |
+| **S10** | Backlog groomed and free of stale items older than 2 quarters | `grep -cP '(created\|updated).*(202[3-4])' backlog.md` — items older than 6 months must return 0 after purge | Run `scripts/backlog-health.sh` — auto-closes items with no activity in 180 days. Stale backlog = stale thinking |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from product management execution -->
