@@ -84,6 +84,20 @@ Competent database designers model the data. Masters model **how the data will b
 - **Use a materialized view instead of denormalizing.** When you need read performance but want to keep the source schema normalized, a materialized view gives you the best of both: normalized source, denormalized query surface, and a refresh strategy you control.
 - **Skip foreign keys in a high-write append-only table.** Foreign keys validate on every INSERT. For an event log or audit table receiving 10K writes/sec, FK validation becomes the bottleneck. Enforce referential integrity at the application layer for these extreme cases — document the tradeoff explicitly.
 
+## Operating at Different Levels
+
+Database design skill scales from single-table decisions to org-wide data strategy. The cost of a wrong decision scales with the data volume.
+
+| Level | Database Design Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Designs tables from an entity model. Learns normalization, indexing basics. Writes correct migrations. |
+| **L2 — Practitioner** | Designs schemas for a service independently. Chooses appropriate data types, constraints, and indexes. Handles migrations safely. |
+| **L3 — Senior** | Designs the data architecture for a product. SQL vs NoSQL selection with trade-off analysis. Partitioning, replication, and performance strategy. |
+| **L4 — Staff** | Sets data architecture standards for the organization. Database selection criteria, schema governance, data lifecycle policies. "This is how we model data here." |
+| **L5 — Principal** | Creates data modeling methodologies adopted across the industry. "Here's a new way to think about data consistency at scale." |
+
+**Usage**: Say "as an L3 database designer, design the schema for..." Default: **L2** (service-level schema design, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
