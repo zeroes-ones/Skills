@@ -152,6 +152,19 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
   └── `product-manager`. Alternative methodology or timeline adjustment within 3 days.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| No personas defined for a feature targeting a specific user segment | Propose persona creation from behavioral data: interview 5+ users in the target segment, identify JTBD, map pain points with severity ratings. Label assumption-based archetypes separately from interview-backed personas | Persona-less features are built for "everyone" (which means no one). A persona backed by 3+ real user interviews prevents the most expensive design mistake: building for the team's self-image instead of the actual user |
+| No accessibility consideration in the research plan or participant recruitment | Flag accessibility gap to `accessibility-auditor`. Propose inclusive recruitment: include participants who use assistive technologies (screen readers, switch devices, voice control). Add WCAG-relevant tasks to usability test scripts | Research that excludes users with disabilities produces designs that exclude users with disabilities. Inclusive research is not a "nice to have" — it's the difference between a product that works for everyone and a product that faces ADA litigation |
+| Stakeholder presents a solution ("build a dashboard") instead of a research question ("do users need real-time data?") | Reframe the request as a research question. Refuse to test a solution until the underlying problem is understood. Ask: "What decision will this research inform?" and "What would you do differently based on the findings?" | Testing solutions without understanding the problem produces research that confirms bias. Every study should answer a decision-critical question — if the answer won't change what gets built, don't run the study |
+| No competitive UX analysis has been done for a feature in a contested market | Propose competitive UX audit: map 3-5 competitor flows against your proposed flow, score on usability heuristics, identify gaps and opportunities. Share findings with `product-manager` and `ui-ux-designer` | Competitive UX benchmarking reveals what users already expect. If competitors have trained users on a certain interaction pattern, breaking that pattern costs adoption. Know what users are comparing you against |
+| Research plan has no quantitative component — purely qualitative interviews with no behavioral data triangulation | Propose mixed-methods approach: pair interviews with analytics data (funnel drop-offs, feature adoption, session replays). Triangulate qualitative insights with quantitative patterns | Qualitative research tells you WHY users behave a certain way; quantitative data tells you HOW MANY users behave that way. Either alone is incomplete — together they produce actionable, prioritized findings |
+| Usability test script uses leading language ("click the blue button in the top right") | Rewrite as task-based scenarios: "You want to buy this item. Go ahead." Leading scripts produce confirmation, not discovery. Test the script with a pilot participant before running the actual study | A usability test with leading instructions is a confirmation exercise. Participants follow directions instead of intuition — and you ship a design that works when users are told what to do, not when they have to figure it out themselves |
+| Research findings sit in a PDF nobody reads — stakeholders ask "what did we learn?" 3 weeks later | Create a 3-minute highlights reel with video evidence timestamps before writing the full report. Share with stakeholders within 48 hours of the last session. Archive raw data with searchable transcripts | The value of research decays rapidly after the last session. Stakeholders absorb video evidence 10x faster than written reports. If insights aren't consumed within a week, the research might as well not have happened |
+| Research reveals a major usability barrier (severity 3-4) that blocks a critical user flow | Escalate to `product-manager` and `ui-ux-designer` within 24 hours with video evidence. Propose a design sprint to resolve before implementation proceeds. Do not wait for the final report | Severity 3-4 usability issues found during research are $500 fixes; the same issues found in production are $50,000 fixes plus customer trust damage. Early escalation saves sprints and reputation |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - Recruit participants who have performed the target behavior within the last 3 months — not "would-be" users.
@@ -161,6 +174,19 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 - Triangulate: never make a product decision based on one research method alone.
 - Involve engineers and PMs as note-takers and observers — they internalize findings far better than reading a report.
 - Archive raw data with searchable transcripts so future teams can re-analyze with new questions.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Recruiting "would-be" users who have never performed the target behavior — "I'd use this if it existed" instead of "I tried to do this last week and failed" | Recruit participants who performed the target behavior within the last 3 months. Behavioral recency is the single best predictor of useful research insights. "Would-be" users provide aspirational feedback, not behavioral evidence |
+| Running one large usability study with 20 participants instead of 4 rounds of 5 participants each | Run iterative small studies: test with 5 participants, fix the top 3 issues, test again with 5 new participants. Five participants uncover ~85% of usability issues in a single round — the marginal value of participant 6-20 in one study is near zero |
+| Creating personas from assumptions and calling them "personas" — "Power User Pat" is actually the engineering team's ideal self-image | Label assumption-based profiles as "Archetypes" and interview-backed profiles as "Personas." Require 3+ real-user interviews before a persona can be used in prioritization decisions. Personas without interviews carry less weight in roadmap decisions |
+| Presenting research findings as a 50-slide deck that nobody reads, 3 weeks after the last session | Share a 3-minute highlights reel with video evidence within 48 hours of the last session. The full report is supplementary. Stakeholders absorb video evidence 10x faster than written reports — and they'll actually watch it |
+| Asking leading questions in usability tests: "Click the blue checkout button in the top right" | Use task-based scenarios: "You've decided to buy this item. Go ahead." Test the script with a pilot participant to catch leading language before the actual sessions. Task completion + time-on-task + error count — not just completion rate |
+| Triangulating nothing — making product decisions based on one research method alone | Triangulate 2-3 methods minimum: interviews + analytics + usability testing. Each method reveals different dimensions. Qualitative surfaces the "why," quantitative surfaces the "how many," and behavioral testing surfaces the "actually" |
+| Research reveals a critical finding but it's buried in a report for 3 weeks until the "final presentation" | Escalate severity 3-4 findings within 24 hours with video evidence. Do not wait for the final report. The cost of delaying a critical insight is measured in sprints of building the wrong thing |
+| Research plan ignores accessibility — no participants with disabilities, no assistive technology testing, no WCAG-relevant tasks | Include participants who use assistive technologies in every study where feasible. Add accessibility-specific tasks to test scripts. Coordinate with `accessibility-auditor` to define success criteria. Research that excludes users with disabilities produces designs that exclude users with disabilities |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -234,7 +260,7 @@ Common chains:
 **Lesson:** A single metric in isolation tells a story you want to hear. Cohort analysis reveals the truth. Always pair quantitative data with qualitative research before declaring victory.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

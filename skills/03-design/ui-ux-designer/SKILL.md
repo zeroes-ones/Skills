@@ -156,6 +156,18 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
   └── `frontend-developer` fixes directly. `ui-ux-designer` informed via design review. No escalation needed.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Component spec only documents default state — no loading, empty, error, or edge-case states | Flag immediately: block handoff to engineering until all 7 states are defined (default, hover, focus, active, disabled, loading, error) plus empty and edge cases. Components without states are not production-ready — they're design explorations | The empty state reveals more UX complexity than the happy path. A component spec without states forces every engineer to invent their own error handling and loading indicators, producing 5 different implementations of the same pattern |
+| No mobile breakpoints or responsive behavior specified for a consumer-facing design | Propose responsive design: define breakpoints at content-breakage points (not device classes), specify layout behavior at 320px, 768px, 1024px, and 1440px. Test by resizing continuously, not at preset breakpoints. Coordinate with `mobile-developer` for platform-specific patterns | Responsive design is not about supporting 4 breakpoints — it's about working at every viewport width. Designs that only work at desktop resolution ship broken experiences to 60%+ of users |
+| No dark mode consideration in a design that will be used in low-light environments | Alert: dark mode is not a color swap — it's a redesign of every surface relationship. Design dark mode tokens in parallel with light mode. Validate contrast for all text-on-dark-background combinations. Coordinate with `frontend-developer` for CSS custom property toggling strategy | Retrofitting dark mode doubles design and engineering cost. If you design light mode first and dark mode later, you will design every screen twice. Dark mode is a first-class design constraint, not an afterthought |
+| Design token handoff to `frontend-developer` — are tokens in the right format? | Verify: tokens exported as JSON with semantic naming (not `blue-500` but `color-primary`). Validate against a schema. Ensure Figma tokens and code tokens use the same names. Export via Style Dictionary to CSS custom properties. Provide migration guide for any renamed tokens | The gap between Figma tokens and code tokens is where design drift lives. A token named `blue-500` in Figma and `primary` in code means designers and developers speak different languages — and the miscommunication shows up in production |
+| Platform-specific design needed — iOS vs Android patterns differ | Coordinate with `mobile-developer` to define: navigation placement (iOS tab bar bottom vs Android nav bar top), gesture conventions (iOS swipe-back vs Android back button), typography scale differences (SF Pro vs Roboto), and component equivalents (iOS UIPicker vs Android Spinner). Design per platform, not pixel-perfect identical | Users compare your app against every other app on their device, not against your iOS and Android screenshots side by side. Following platform conventions creates a native-feeling experience; ignoring them creates friction |
+| Animation spec exceeds performance budget or lacks `prefers-reduced-motion` fallback | Flag: simplify animation to use GPU-accelerated properties (transform, opacity). Add `prefers-reduced-motion` media query with a static alternative. Test on a low-end device, not just the designer's M3 Max. Every animation must answer: "What does this movement communicate?" — if the answer is "it looks nice," remove it | Motion is the most dangerous design tool — it can cause dizziness, nausea, and seizures in users with vestibular disorders. Every animation without a reduced-motion fallback is an accessibility violation waiting to happen |
+| Design-to-dev handoff: are all Figma frames annotated and ready for engineering? | Before sending to engineering, verify every frame has: spacing tokens, color tokens, typography tokens, responsive behavior, interaction states, ARIA annotations, and character limits. Schedule a recorded walkthrough with the developer. If the developer has to guess any measurement, state, or behavior, the handoff is incomplete | An unannotated Figma file is a Rorschach test — every developer sees something different. The cost of annotating a hover state is 30 seconds; the cost of rebuilding a component that doesn't match the design is 3 hours |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - Name design tokens semantically from day one — renaming is exponentially expensive later.
@@ -165,6 +177,19 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 - Use `prefers-reduced-motion` as a design constraint; animations that can't gracefully degrade shouldn't exist.
 - Version the design system — tag releases and maintain a migration guide for breaking changes.
 - Involve an engineer in component design reviews before finalizing specs — feasibility checks prevent redesigns.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Designing components with ideal content — perfect 12-character titles, balanced images, no extremes | Stress-test every component with minimum content (1 character), maximum content (200+ characters), zero content (empty state), and error content (network failure, validation error). Real user data breaks beautiful mockups within the first week of production |
+| Handing off a Figma file with no design tokens, no annotations, and no interaction states — "it's obvious" | Annotate every frame with: spacing tokens, color tokens, typography tokens, breakpoint behavior, and all interaction states (default, hover, focus, active, disabled, loading, error). If the developer has to guess any measurement, state, or behavior, the handoff is incomplete |
+| Designing at 1440px only and calling it "responsive" because "the developer will figure out mobile" | Design mobile-first or design mobile in parallel. Define breakpoints at content-breakage points (not device classes). Test by resizing continuously. A desktop-only design handed to engineering produces a broken mobile experience that takes 2x longer to fix than to design correctly from the start |
+| Building a design system in Figma with no engineering partnership — components look perfect but are impossible to implement | Co-design with engineering: designers own visual specs, engineers own implementation feasibility. Every new component is reviewed by an engineer before it enters the design system. A design system without engineering buy-in is a design portfolio, not a tool |
+| Using hardcoded color values (`#1A73E8`) throughout designs instead of semantic tokens (`color-primary`) | Use semantic design tokens for every color, spacing, and typography value. `#1A73E8` means nothing; `color-primary` means "the primary brand color" and can be updated in one place. Hardcoded values are technical debt that accrues every time the palette changes |
+| Designing dark mode as an afterthought — "we'll just invert the colors later" | Design dark mode tokens in parallel with light mode tokens. Dark mode is not an inversion — shadows become highlights, some colors need elevation adjustments, and the visual hierarchy shifts. Designing dark mode after the fact costs 2x the time of designing both palettes together |
+| Ignoring platform conventions — designing iOS with Material components or forcing identical layouts on iOS and Android | Follow platform conventions: iOS uses bottom tab bars, swipe-back gestures, SF Pro typography; Android uses top navigation bars, back button, Roboto typography. Users don't compare cross-platform screenshots — they compare your app against every other app on their device |
+| Specifying animations with "spring, 0.5s" and no easing curve, no reduced-motion fallback, no performance consideration | Define animation tokens: duration (instant/fast/base/slow in ms), easing (ease-out for enter, ease-in for exit), GPU-accelerated properties only (transform, opacity). Always provide `prefers-reduced-motion: reduce` alternative. Test on a low-end device, not just the designer's workstation |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -263,7 +288,7 @@ Common chains:
 **Lesson:** Responsive design isn't about supporting 4 breakpoints — it's about working at every viewport width between 320px and 4K. Test by resizing, not by switching device presets.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

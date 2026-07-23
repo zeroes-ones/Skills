@@ -778,6 +778,19 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
   └── Direct fix by team that owns the asset. `brand-guidelines` informed. No escalation needed.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| No design tokens file exists — colors, spacing, and typography are hardcoded in Figma and code | Propose token generation: extract all hardcoded values, deduplicate, assign semantic names, export as JSON. Coordinate with `ui-ux-designer` and `frontend-developer` to establish a single source of truth consumed by both Figma (via Tokens Studio) and code (via Style Dictionary) | Design tokens are the operating system of brand consistency. Without them, every new screen, component, and marketing asset is an opportunity for brand drift. Token generation is a one-time investment that pays back perpetually |
+| Logo used at wrong size, stretched, or placed on a busy/noisy background in production | Flag to `frontend-developer` and `product-manager` with screenshot evidence. Check: is the correct variant available? Is the clear-space rule documented? Is the minimum-size threshold published? Fix the root cause (missing variant, unclear guideline, hard-to-find asset) not just the instance | A stretched logo is the most visible brand failure — it signals "we don't care about details" to every user who sees it. The fix is always systemic: make the right asset easy to find and the wrong asset hard to use |
+| Color contrast fails WCAG 2.2 AA on any text-on-brand-background combination | Alert `accessibility-auditor` and `ui-ux-designer`. Audit the entire brand palette for contrast compliance. Adjust problematic color pairs — brand identity must work within accessibility constraints, not against them. Document accessible variants of every brand color | Brand colors that fail contrast are not brand assets — they're brand liabilities. An inaccessible brand is a broken brand. The brand's visual identity must be legible to all users, or it's not an identity — it's an exclusion |
+| New sub-brand or product brand created without brand architecture review | Flag to `product-strategist` and `marketing-manager`. Run brand architecture decision: Branded House (master brand leads) vs House of Brands (standalone) vs Endorsed (master brand endorsement). Document the architecture model before any visual identity work begins | Brand architecture decisions are strategic, not visual. A sub-brand created without architecture review fragments the portfolio and confuses customers. The visual identity follows the architecture — not the other way around |
+| Typography token updated without testing at all breakpoints and content extremes | Flag to `ui-ux-designer`. Require testing at: 320px mobile, 768px tablet, 1440px desktop, 4K. Test with minimum content (1 word), maximum content (200+ characters), and zero content. Type scales that look beautiful at one size often break at extremes | Typography is the most ubiquitous brand element — every page, every button, every label uses it. A type scale change that breaks at mobile affects 60%+ of user sessions. Validate before publishing |
+| Icon set inconsistent — different stroke weights, corner radii, or grid sizes across the product | Audit the icon library for consistency: all icons must use the same grid (24×24), same stroke weight, same corner radius, same optical sizing. Flag violations. If multiple icon families are needed (UI icons vs illustration icons), document the separation explicitly | Icon inconsistency is the "death by a thousand cuts" of brand degradation. Users may not consciously notice that the settings icon has 2px strokes while the profile icon has 1.5px — but they feel the lack of polish |
+| Brand asset request from external partner (co-marketing, integration partner, press) with no co-branding guidelines | Pause approval until co-branding rules are defined: logo placement hierarchy, minimum clear space between logos, color restrictions, "Powered by" vs "In partnership with" language. Coordinate with `legal-advisor` for trademark usage terms | Unauthorized co-branding creates legal exposure and brand dilution. Partners will use your logo in the most prominent position unless you define the rules upfront. Co-branding guidelines protect both brand equity and legal standing |
+| Interaction with `frontend-developer` for design token handoff | When brand tokens change, coordinate the pipeline: brand-guidelines defines semantic tokens → Style Dictionary transforms to platform-specific formats (CSS custom properties, Swift, Kotlin) → frontend-developer consumes via npm package or CDN. Every token change must include a migration guide with before/after values and deprecation timeline | The gap between a brand token update in Figma and the same token in production code is where brand drift lives. A defined pipeline with automated token distribution eliminates "the old blue" from surviving in code for 6 months after the brand refresh |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Tokenize everything:** Colors, spacing, typography, motion — every design decision becomes a named token in a single source of truth (design-tokens.json).
@@ -786,6 +799,19 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 - **Show, don't just tell:** Every guideline needs a visual example. ✅ Do this / ❌ Not this. Words without images will be misinterpreted.
 - **Brand evolves, guidelines don't drift:** 90% of the brand is stable. The 10% that changes (new illustration style, new social template) is added without removing the old — archive old, mark as deprecated.
 - **Accessibility IS brand:** An inaccessible brand is a broken brand. Contrast, legible typography, motion respect — these are brand quality measures, not compliance burdens.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Defining brand colors in Figma only — no design tokens file, no CSS custom properties, no code integration | Generate a design tokens JSON file as the single source of truth. Consume tokens in Figma (via Tokens Studio), code (via Style Dictionary → CSS custom properties/Swift/Kotlin), and documentation (auto-generated token reference). One token change propagates everywhere |
+| Creating a beautiful 100-page brand guidelines PDF that nobody reads because it's buried in a shared drive | Build a self-serve brand portal (Figma library + token reference + asset CDN + do/don't examples). Teams should find the right logo, color, or font in under 30 seconds without opening Slack. If the brand portal requires a password someone forgot, it doesn't exist |
+| Launching a logo that only works at 200px — no favicon variant, no icon-only mark, no responsive sizes | Design the complete logo system before launch: primary (horizontal + stacked), icon-only (32px mark), favicon (16px), responsive variants per breakpoint. Define minimum sizes, clear-space rules, and exclusion zones for every variant |
+| Brand governance as a bottleneck — every asset needs brand team approval before publication | Build self-serve templates with locked brand elements. Marketers, developers, and partners use templates where they can't change the logo, colors, or fonts. Brand review is reserved for net-new asset types, not every social media post |
+| Color palette looks beautiful on white but fails WCAG AA contrast on brand backgrounds and in dark mode | Validate every text-on-background combination in the brand palette against WCAG 2.2 AA (4.5:1 normal text, 3:1 large text). Design accessible variants of brand colors. Dark mode palette designed in parallel, not retrofitted. If the brand can't be accessible, the palette is wrong |
+| "Better UX" used as justification for brand decisions with no user evidence | Base brand decisions on audience research: "Our target users value clarity over cleverness" or "A/B testing showed the simpler logo variant had 23% higher brand recall." Brand is a user experience — validate brand decisions with the same rigor as product decisions |
+| Motion guidelines specify "delightful animations" with no timing, no easing, no reduced-motion respect | Define motion tokens: duration scale (100ms instant, 200ms fast, 300ms base, 500ms slow), easing curves (ease-out for enter, ease-in for exit), and mandatory `prefers-reduced-motion` fallback. "Delightful" is not a spec — it's a wish |
+| Typography scale chosen for aesthetics without testing at real content extremes — looks perfect with 3-word titles, breaks with 15-word titles | Stress-test typography with minimum content (1 word), maximum content (200+ characters), and zero content at every breakpoint (320px–4K). If the type scale breaks with real-world content lengths, it's not production-ready |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -885,7 +911,7 @@ Common chains:
 **Lesson:** A logo that only works at one size isn't a logo system — it's a single asset. Design every logo variant from favicon to billboard before launch. Engineers will create their own (worse) versions if you don't.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

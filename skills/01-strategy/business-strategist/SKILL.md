@@ -318,6 +318,19 @@ Tactical business decision (segment targeting, campaign optimization, channel mi
   └── Functional lead handles. `business-strategist` consulted. No escalation needed.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| No TAM/SAM/SOM analysis done — business case relies on "the market is huge" without quantification | Propose market sizing: bottom-up TAM/SAM/SOM with documented assumptions. For fundraising: TAM is the story, SOM is the target. Investors discount top-down ("1% of $100B market") by 70-90%. Bottom-up ("X customers × Y ACV = $Z") survives due diligence | "The market is huge" is not a strategy — it's a platitude. Without TAM/SAM/SOM, you cannot prioritize segments, allocate GTM resources, or convince investors. Bottom-up sizing forces you to name real customers and real budgets |
+| Business model unclear — pricing, distribution, and revenue mechanics are undefined or contradictory | Run Business Model Canvas exercise: 9 blocks (value proposition, customer segments, channels, customer relationships, revenue streams, key resources, key activities, key partners, cost structure). If any block says "TBD," the business model is a hypothesis, not a plan | An undefined business model produces undefined results. The Business Model Canvas forces coherence — if your revenue model is subscription but your customer relationship is "self-service," one of those is wrong. Surface contradictions before they surface in your bank account |
+| No competitive moat identified — "better UX" or "first mover advantage" cited as the only differentiator | Flag immediately: "Better UX" is not a moat — it's a baseline expectation. Document switching costs (what happens when a customer tries to leave?), network effects (does each new user make the product more valuable?), and data advantages (what data do you have that competitors don't?). If none of these exist, you don't have a business — you have a feature | Companies without moats get competed to zero. If a well-funded competitor can replicate your product in 6 months, your only moat is execution speed — and speed is not a business strategy, it's a sprint |
+| Revenue concentration >30% from one customer — existential risk not flagged | Diversify before fundraising. No single customer should represent >15% of revenue. If >30%, document the customer relationship, contract renewal date, and churn risk. Investors discount concentrated revenue by 30-50% — a $10M ARR business with 40% concentration trades at $6M valuation | Revenue concentration is the silent killer of SaaS valuations. One customer leaving = bankruptcy risk. Diversification is not a growth tactic — it's survival infrastructure. Diversify before you need to, not when you have to |
+| Financial model uses top-down projections: "1% of a $10B market = $100M revenue" | Rebuild bottom-up: start with unit assumptions (conversion rates, ASP, churn, CAC). Model 3 scenarios (best/base/worst). Document every assumption explicitly. Top-down models die in the first 5 minutes of investor due diligence | Top-down models are PowerPoint math — they impress until someone asks "how?" Bottom-up models survive scrutiny because every number traces back to a customer conversation or market benchmark. Investors can argue with your TAM; they can't argue with your unit economics |
+| Pricing strategy set once and never revisited — no A/B testing, no willingness-to-pay research, no competitive pricing intelligence | Establish pricing review cadence: test with 10 customers at launch, iterate quarterly. Use Van Westendorp or Gabor-Granger for willingness-to-pay. Monitor competitive pricing monthly. Pricing is a process, not a decision — the right price today is wrong in 12 months | Pricing is the highest-leverage growth lever. A 1% price improvement drops straight to the bottom line — it's equivalent to a 10% increase in sales volume for most businesses. Companies that "set and forget" pricing leave millions on the table |
+| No coordination with `product-manager` for market validation — business strategy and product roadmap are disconnected | Schedule joint review: does the business model assume features the product team hasn't prioritized? Does the product roadmap build things the business model doesn't monetize? Align product strategy with revenue model quarterly | Business strategy and product strategy are two sides of the same coin. A business model that assumes enterprise sales while the product is built for self-serve PLG is a contradiction that wastes engineering capacity and marketing budget |
+| Fundraising materials prepared without `fp-and-a-analyst` review — model has circular references or unrealistic assumptions | Coordinate model review: every assumption must have a source (customer interview, benchmark, industry report). Line items must reconcile. Run sensitivity analysis: which assumptions, if they move 20%, change the outcome? Raise when the model is defensible, not when it's pretty | Investor due diligence finds every weak assumption. A model that breaks under 20% sensitivity analysis will break in the first partner meeting. Defensibility is not about being right — it's about knowing exactly where you might be wrong and having a plan for both cases |
+
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
 When this skill is invoked, the agent may need to drill into these specialized areas:
@@ -371,8 +384,28 @@ When this skill is invoked, the agent may need to drill into these specialized a
 9. **Document assumptions, review them monthly:** Every model has assumptions. Write them down explicitly. Review monthly — which assumptions held, which didn't, and what changed. This is how you build forecasting accuracy.
 10. **Strategy without execution tracking is fiction:** Every strategic initiative needs an owner, a deadline, and a dashboard metric. Review weekly. A beautiful strategy document that nobody executes is worse than no strategy at all.
 
+## Anti-Patterns
 
-### War Story 1 — The Six-Month Head Start That Wasn't
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Building financial projections by taking "1% of a $100B market" — top-down models that die in the first 5 minutes of investor due diligence | Build bottom-up: start with unit assumptions (conversion rates, ASP, churn, CAC). Model 3 scenarios (best/base/worst). Document every assumption with a source — customer interview, benchmark, or industry report. Bottom-up models survive scrutiny because every number has a name attached |
+| Citing "better UX" as the competitive moat — investors ask "what happens when a well-funded competitor copies your UX in 6 months?" | Document switching costs (migration pain, data lock-in, integration depth), network effects (marketplace liquidity, collaboration features), and data advantages (proprietary datasets, ML models trained on unique data). A moat is structural, not aspirational — it's the reason customers can't leave even if they want to |
+| Setting pricing once and leaving it for years — "we charge $49/month because that's what we launched with" | Treat pricing as a process: launch with a hypothesis, test with 10+ customers, iterate quarterly. Use Van Westendorp or Gabor-Granger methods for willingness-to-pay. Monitor competitive pricing monthly. The right price today is wrong in 12 months — build pricing review into your operating cadence |
+| Fundraising when you have 3 months of runway — desperation is visible and expensive | Raise when you have momentum: 3+ months of 15%+ MoM growth and 18+ months of runway. Desperation gives investors negotiating leverage. The best time to raise is when you don't need the money — the second best time is 6 months before you run out |
+| Treating TAM as "the truth" instead of a narrative device — spending weeks perfecting a TAM number that changes with every market report | TAM tells the story of market opportunity; SOM is where your GTM lives. Spend 80% of your sizing effort on SOM — a realistic, bottom-up calculation of what you can capture in Year 1-3. Investors care about TAM for narrative; they invest based on SOM execution |
+| Launching GTM on 4 channels simultaneously — content + paid + outbound + partnerships — with no channel that's working well | Pick one channel with the highest LTV/CAC at your stage. Saturate it before adding a second. Multi-channel GTM before single-channel success multiplies mediocrity, not revenue. Founders who try 4 channels simultaneously succeed at none of them |
+| Revenue concentration >30% from one customer — "they love us, they'd never leave" | Diversify before fundraising. No single customer >15% of revenue. If concentration is high, document the customer relationship, contract renewal date, and churn risk. Investors discount concentrated revenue by 30-50% — a $10M business with 40% concentration trades at $6M |
+| No coordination with `cto-advisor` — business strategy assumes technology capabilities that don't exist or aren't on the roadmap | Align business model with technology strategy: can the architecture support the pricing model? Can the platform scale to the SOM? Schedule quarterly business-technology alignment reviews. A business strategy that assumes "AI-powered" when the team has no ML engineers is not a strategy — it's science fiction |
+
+### Service Interaction Designs
+
+**business-strategist → cto-advisor: technology strategy alignment with business model**
+The business model and technology strategy must co-evolve. Quarterly alignment review: does the pricing model (usage-based, per-seat, hybrid) require specific architecture (metering, tenant isolation)? Does the GTM channel (PLG vs sales-led) require specific platform capabilities (self-serve onboarding vs SSO/SAML)? Does the business moat (data advantages, network effects) require specific technology investments (data pipeline, ML infrastructure, API platform)? Technology constraints that limit business model execution must be surfaced before they become revenue blockers.
+
+**business-strategist → product-manager: market validation feedback loop**
+Business strategy defines the market opportunity; product management validates it. Every assumption in the business model (willingness-to-pay, churn rate, conversion funnel) must be tested by the product team with real users. Schedule monthly business-product sync: which assumptions held, which didn't, and what changed? Product discovery that invalidates a business assumption is not a failure — it's a cheaper way to learn than launching a product nobody wants.
+
+## Sub-Skills
 **Symptom:** A Series A startup spent $2.4M building a marketplace in a market they believed was "wide open." Six months before launch, a well-funded competitor entered. By launch day, the competitor had 3x the supply-side inventory.
 **Root cause:** Market timing analysis assumed zero competitive response during the build phase. The "head start" was actually building in public while competitors watched.
 **Fix:** Adopted a "stealth launch" playbook: build MVP in 8 weeks with a scrappy team, launch to a waitlist of 500 pre-vetted users, iterate based on real supply/demand data. Abandoned the 18-month roadmap approach.
@@ -391,7 +424,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 **Lesson:** "I'd buy that" is not a signal. "Here's my credit card" is. Run willingness-to-pay tests before building. A $10K validation sprint is cheaper than a $2M product that nobody uses.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
