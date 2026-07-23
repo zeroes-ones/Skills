@@ -116,10 +116,10 @@ War story, edge cases, failure narrative here.
 
 ### 2. Error Decoders
 ```markdown
-### Error Decoder
-| Error Message | Root Cause | Fix |
-|--------------|------------|-----|
-| "Error X" | What actually went wrong | Exact command/code fix |
+## Error Decoder
+| Error Message | Root Cause | Fix | Lesson |
+|--------------|------------|-----|--------|
+| "Error X" | What actually went wrong | Exact command/code fix | How to prevent it |
 ```
 
 ### 3. Time Estimates on Workflow Steps
