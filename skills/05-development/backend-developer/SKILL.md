@@ -119,6 +119,7 @@ Competent developers make things work. Masters make things **unbreakable under l
 - **Connection pool math is deterministic.** `pool_size = (expected_qps × avg_query_ms) / 1000`. If this exceeds your database's max_connections, you have a scaling problem before you write a line of code.
 - **Idempotency is not a feature — it's insurance.** Every payment, order, and write endpoint needs an idempotency key. Retries without idempotency = duplicates. Every retry mechanism without idempotency is a bug.
 - **Backpressure propagates.** A slow database makes slow APIs makes slow clients makes angry users. Every layer in the stack needs a timeout shorter than the layer above it. The database timeout must be shorter than the API timeout must be shorter than the client timeout.
+- **Every refactor must remove dead code — not just reorganize it.** When you touch a module to refactor, actively hunt for unused routes, dead code paths, commented-out blocks, deprecated wrappers, and legacy compatibility shims. A refactor's diff should be net-negative in lines. Dead code left behind is a tax on every future reader.
 
 ### When to Break Your Own Rules
 - **Skip the abstraction for one-off scripts.** A 50-line migration script doesn't need repository pattern, dependency injection, or a service layer. It needs to run once and be correct.
