@@ -32,13 +32,14 @@ chain:
     - firmware-developer
     - documentation-engineer
 ---
-# Hardware Architect
 
+# Hardware Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Hardware architecture and electronic system-level design — from SoC selection through PCB stackup to compliance testing. Covers the critical architectural decisions that determine a product's cost, performance, power consumption, and time-to-market.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -59,6 +60,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
@@ -70,7 +72,6 @@ If no auto-route matched, use this intent tree:
 | G5 | **STOP if EMC pre-compliance is deferred until after PCB fabrication.** | `user_message_contains("EMC.*after\|compliance.*later\|certification.*post")` AND `file_exists("*.kicad_pcb")` | HALT. EMC pre-compliance at prototype/breadboard stage. Budget for at least 1 EMC-related respin. Include EMC engineer in layout review. |
 | G6 | **DETECT chip selection without evaluating 3+ alternatives in scored matrix.** | `file_contains("*", "selected.*processor\|chose.*SoC\|pick.*MCU")` AND NOT `file_contains("*", "(selection.matrix\|scored\|alternative.*compared\|3.*option)")` | STOP. Create scored selection matrix: interfaces, power, cost, ecosystem, lifecycle, second-source. Score 3+ options before commit. |
 | G7 | **REFUSE to ship without DFT (Design for Test) provisions.** | `file_exists("*.kicad_sch")` AND NOT `grep -q "test.point\|debug.header\|UART.*debug\|bootloader.*LED" *.kicad_sch` | STOP. Add test points for every power rail, critical signal, programming interface, UART debug header, bootloader-status LED. |
-
 
 ## The Expert's Mindset
 
@@ -91,6 +92,7 @@ Masters of hardware architect don't just build — they build **the right thing,
 ### When to Break Your Own Rules
 - **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -107,6 +109,7 @@ Masters of hardware architect don't just build — they build **the right thing,
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
 - Selecting a processor/SoC for your next embedded product — ARM Cortex-M vs -R vs -A, RISC-V, FPGA, or ASIC
@@ -121,6 +124,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Use `/embedded-engineer` instead when:** You're implementing firmware on a chosen MCU — writing device drivers, configuring peripherals, optimizing for power. Hardware-architect picks the platform; embedded-engineer builds on it.
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s — who to talk to, when, what to share -->
 
 Hardware architecture decisions cascade through the entire product development lifecycle. A wrong SoC selection costs 6+ months and $100K+ in respins. Every architectural decision must be validated with downstream teams before committing to silicon.
@@ -175,6 +179,7 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 | >2 field returns show same component failure (same batch, same failure mode) | Suspect component quality issue or design margin problem; halt production if failure rate suggests systemic defect; initiate root cause analysis with supplier | Pattern of identical failures is never coincidence — every day of continued production compounds the liability |
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Processor Architecture Selection
@@ -250,6 +255,7 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 **SRAM:** Fastest, lowest power, most expensive ($10-50+/MB). For cache, < 1MB scratchpad. **SDRAM:** Good balance for MCU applications with > 64KB needs. **DDR:** For application processors. LPDDR for battery-powered. **NOR Flash:** For XIP (eXecute In Place). No boot RAM needed. 1-256MB. **NAND Flash:** For storage. TLC/QLC for density, SLC for reliability. eMMC handles bad block management and wear leveling for you.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 
@@ -277,67 +283,8 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 **Steps:** 1) Identify required certifications: FCC Part 15 (USA), CE (EU), UKCA, ISED (Canada), VCCI (Japan) — plus industry-specific (medical: IEC 60601, automotive: ISO 26262, industrial: IEC 61000) 2) Pre-compliance testing: evaluate radiated emissions, conducted emissions, ESD, surge, and immunity in-house before sending to certified lab. Pre-compliance catches 80% of issues at 10% of the cost. 3) Plan certification timeline: lab reservation (4-8 weeks lead), testing (1-2 weeks), remediation (variable, often 4-8 weeks). FCC certification typically 8-16 weeks from first submission. 4) Budget: FCC/CE pre-compliance $3-5K, full compliance $15-30K per product variant. Add 50% for first product.
 **What good looks like:** Compliance plan with required certifications per target market, test house booked, pre-compliance schedule budgeted, and timeline mapped backward from launch date.
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from hardware engineering experience -->
-
-- **Measure power, don't estimate.** Datasheet typical currents assume perfect conditions. Your firmware driving every peripheral will be 20-50% higher. Measure actual current on the first prototype — build a power measurement test point into every design.
-- **Derate every component.** 50V capacitor on a 12V rail: OK. 25V capacitor on a 12V rail with 10% tolerance: 2.5V headroom — reliability risk. Derate capacitors 50% (use 16V on 5V, 25V on 12V). Derate resistors 20%. Derate MOSFETs 50% on Vds and Id.
-- **Start thermal simulation before the PCB layout.** A 10°C rise in junction temperature reduces component lifetime by 50% (Arrhenius). Identify hot components (regulators, processors, power amplifiers) early and plan for heatsinking, airflow, and thermal vias.
-- **Clock generation is a design choice, not an afterthought.** External crystal: most accurate (±10-50ppm), but requires PCB area and two load capacitors. Internal oscillator: saves pins and BOM, but ±1-5% accuracy — too loose for USB, CAN, or high-speed serial without PLL.
-- **Test at temperature extremes.** Products that work at 25°C but fail at -20°C or +60°C are the most common field failure pattern. Test all critical interfaces (DDR timing, USB negotiation, ADC accuracy) at minimum and maximum rated temperature.
-- **Design for test (DFT) saves development time.** Add test points for every power rail, critical signal, and programming interface. Include a UART debug header. Add an LED that the bootloader toggles — when the device won't boot, that LED tells you whether the bootloader ran.
-- **Have a BOM risk plan.** Mark every component: single-source (risk), multi-source (safe), or EOL-risk (obsolete). For single-source parts, have an alternative part identified before the design review. Lead times > 20 weeks should trigger a back-up plan.
-
-## Anti-Patterns
-<!-- QUICK: 30s -- machine-detectable anti-patterns with auto-prevention -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|---|---|---|---|
-| Selecting SoC "because we've always used it" | Scored selection matrix: interfaces, power, cost, ecosystem, lifecycle, second-source — 3+ options | `file_contains("*", "(same.as|always.used|standard.choice|default).*chip\|MCU\|SoC\|processor")` AND NOT `file_exists("*selection-matrix*")` | STOP. Auto-generate selection matrix template. Require 3+ scored options. |
-| Using datasheet typical current for power budgeting | Max numbers + 20% regulator derating; measure at -20°C, 25°C, 60°C on prototype | `grep -rn "typ\." docs/power* BOM* \| grep -i "µA\|mA\|current"` | WARN. Replace typical with max values. Add 20% derating to budget. |
-| Skipping thermal simulation because "enclosure has vents" | Run simulation before PCB layout; worst-case: max ambient + max power + 20% margin | `grep -q "vents\|natural.convection\|passive.cooling" docs/thermal*` AND NOT `test -f sim/thermal-*` | STOP. Generate thermal simulation checklist. Require junction temp verification. |
-| Selecting single-source components without alternatives | Mark BOM: single-source (risk), multi-source (safe), EOL-risk; document alternative | `grep "single.source\|sole.source\|no.alternate" BOM*.csv` | WARN. Auto-flag single-source lines. Generate alternative search query per component. |
-| EMC pre-compliance after PCB fab | Run at prototype/breadboard; include EMC engineer in layout review; budget 1 respin | `file_exists("*.kicad_pcb")` AND NOT `file_exists("*emc*report*")` AND NOT `file_exists("*pre-compliance*")` | STOP. Generate EMC pre-compliance checklist. Require test date before fab signoff. |
-| Designing without DFT provisions | Test points for every power rail, critical signal, programming interface, UART debug, bootloader LED | `grep -c "test.point\|TP[0-9]" *.kicad_sch` < 5 | WARN. Auto-generate DFT checklist. Flag missing test points by net class. |
-| Selecting clock without analyzing accuracy requirements | Match clock to interface: USB/CAN ±0.25% (crystal required); UART 115200 ±2%; internal OSC ±5% not enough for most | `grep "HSE\|LSE\|HSI\|LSI\|internal.osc\|external.crystal" docs/clock*` AND NOT `grep "ppm\|accuracy\|tolerance.*%" docs/clock*` | STOP. Auto-generate clock accuracy matrix per interface. Verify ppm against requirements. |
-| Committing to PCB fab before pin mux review with firmware | Every pin assignment must pass firmware review before schematic freeze | `file_exists("*.kicad_sch")` AND NOT `file_exists("*pin-mux-review*")` AND `file_exists("*.kicad_pcb")` | BLOCK fab release. Auto-generate pin mux checklist for firmware team signoff. |
-
-## Error Decoder
-<!-- DEEP: 10+min -- hardware architecture failures with auto-recovery -->
-
-| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep "RESET\|reset\|watchdog" field-log.txt \| wc -l` > 10/day | Device crashes randomly in the field | Watchdog not configured or kicked from ISR masking the crash | Configure hardware WDT. Kick only in main loop after ALL subsystems report healthy. | **Loop 1:** (1) Detect: reset count > 10/day. (2) Log reset cause register (RCC_CSR/SYSRESETREQ). (3) Move watchdog kick from ISR to main loop. (4) Add subsystem health heartbeat flags. (5) 24h field soak: 0 unexpected resets. |
-| Logic analyzer: SDA low > 100ms, no STOP condition | I2C bus locks up after 24 hours | No bus recovery mechanism on lock condition | Toggle SCL 9×. Bus health monitor detecting lockups >100ms. Re-initialize if locked. | **Loop 2:** (1) Detect: SDA low > 100ms. (2) 9-pulse SCL to release slave. (3) Re-init I2C peripheral. (4) If repeated, GPIO power-cycle slave. (5) Log recovery events; > 3/hour = hardware issue. |
-| `grep "OTA\|update.*fail\|brick" fleet-monitor.log` > 0 after rollout | OTA update bricks 5% of devices | No rollback mechanism in bootloader — every OTA is potential brick | Dual-bank flash with confirmed-good fallback. CRC check before apply. Bootloader boots previous image if new fails. | **Loop 3:** (1) Detect: boot failure rate > 1% after OTA. (2) Auto-halt rollout. (3) Bootloader auto-reverts to previous image. (4) Investigate crash dumps from failed devices. (5) Re-deploy fix as canary 1%. |
-| DMM: VREF drifts >10mV over 4h thermal chamber run | ADC readings drift with temperature | No temperature compensation in firmware for VREF | Temp sensor near ADC reference. Read at each conversion. Apply compensation polynomial. | **Loop 4:** (1) Detect: ADC drift > 5% across temp. (2) Log VREF at -20°C, 25°C, 60°C. (3) Fit 3-point compensation polynomial. (4) Apply in firmware. (5) Re-verify: drift < 2% full range. |
-| `grep "retest\|false.fail\|re-test" production-test*.csv` shows > 10% retest rate | Production test fails 30%, all pass in retest | Test fixture poor contact or timing issues | Review pogo pin alignment, contact resistance, settling time. Add pretest sequence for fixture contact. | **Loop 5:** (1) Detect: retest pass rate > 20%. (2) Measure contact resistance on each pogo pin. (3) Add settling delay (100ms) after power-on. (4) First test = known-good reference measurement. (5) Verify: first-pass yield > 95%. |
-| Logic analyzer: IRQ latency > 50µs in worst case | Interrupt latency causes missed events | Shared IRQ priority or long critical sections | Assign priorities: time-critical (timers, comms) highest. Critical sections < 10µs. | **Loop 6:** (1) Detect: max IRQ latency > timing budget. (2) Segger SystemView trace to find longest critical section. (3) Restructure > 10µs sections. (4) Re-measure: worst-case latency < budget. |
-| `grep "current\|power\|mA" lab-report.txt \| awk '$NF > budget*1.4'` | Power budget exceeded by 40% | Sleep mode not configured for peripherals; GPIOs floating | Every peripheral to lowest power state when idle. No floating GPIOs. Measure at PSU, not datasheet. | **Loop 7:** (1) Detect: measured current > 1.3× budget. (2) Dump GPIO config for all pins in sleep. (3) Configure floating pins as analog input. (4) Disable unused peripheral clocks. (5) Re-measure: within 1.1× budget. |
-| `grep "lead.time\|unavailable\|allocated\|EOL" BOM*.csv` | Chip lead time 52 weeks — unobtainable | Selected niche IC without checking availability; sole-source | Identify 2+ sources for every critical component before schematic release. Check lead times at selection. | **Loop 8:** (1) Detect: BOM item lead time > 26 weeks or EOL. (2) Search Octopart/Findchips for alternates. (3) Document pin-compatible alternative or redesign option. (4) Update BOM risk rating. (5) Verify: 0 critical single-source items. |
-
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|----------------|--------------------|----------|
-| H1 | SoC/processor selected with documented rationale, alternatives considered, second-source identified | `test -f docs/soc-selection-matrix.md && grep -c "Option [1-3]" docs/soc-selection-matrix.md | awk '{exit $1<3}'` | Generate selection matrix template. Require 3+ scored options. |
-| H2 | Memory architecture documented: memory map, type, size, timing for each region | `test -f docs/memory-architecture.md && grep -q "DDR\|FLASH\|SRAM\|SDRAM\|NAND\|NOR" docs/memory-architecture.md` | Auto-generate memory map table from datasheet. |
-| H3 | Power tree calculated with 30% margin and simulation or bench measurement confirming | `test -f docs/power-tree.md && grep -q "30%.*margin\|derating\|max.*current" docs/power-tree.md` | Generate power tree diagram. Verify 30% margin on every rail. |
-| H4 | Power sequencing defined: rail order, ramp timing, sleep mode configuration | `test -f docs/power-sequencing.md && grep -q "VDD_CORE\|VDD_IO\|VDD_DRAM\|ramp\|sequence" docs/power-sequencing.md` | Auto-generate power sequencing diagram from PMIC datasheet. |
-| H5 | Critical nets identified for length matching: DDR, high-speed serial, differential pairs | `grep -q "length.match\|differential.pair\|impedance\|DDR\|PCIe\|USB3\|HDMI" docs/routing-constraints.md` | Generate routing constraints document from interface specs. |
-| H6 | PCB stackup defined: layer count, layer order, dielectric material, target impedance | `test -f docs/pcb-stackup.md && grep -q "layer.*[4-9]\|FR4\|Megtron\|impedance.*[0-9][0-9].*ohm" docs/pcb-stackup.md` | Generate stackup calculator output. Verify impedance targets. |
-| H7 | Decoupling strategy documented: bulk per rail, HF per IC, placement guidelines | `test -f docs/decoupling-strategy.md && grep -q "bulk\|10uF\|100nF\|1uF\|placement\|ESR" docs/decoupling-strategy.md` | Generate per-IC decoupling checklist from datasheet recommendations. |
-| H8 | Thermal simulation completed: junction temp of all hot components within spec at worst-case ambient | `test -f sim/thermal-report.pdf && grep -q "Tj_max\|junction\|margin.*[0-9].*°C\|pass" sim/thermal-report*` | Generate thermal simulation checklist. Alert if Tj margin < 10°C. |
-| H9 | Derating review completed for all critical components (caps, resistors, MOSFETs, connectors) | `test -f docs/derating-review.md && grep -q "voltage.*derating\|power.*derating\|temp.*derating" docs/derating-review.md` | Generate derating calculator per component class. |
-| H10 | Pre-compliance EMC test scheduled or completed: radiated emissions, conducted emissions, ESD | `test -f test/emc-precompliance-report* && grep -q "radiated\|conducted\|ESD\|margin.*dB" test/emc-precompliance-report*` | Generate EMC pre-compliance test plan. Block fab release without scheduled test date. |
-| H11 | Certification plan documented: required certifications per target market, budget, timeline | `test -f docs/certification-plan.md && grep -q "FCC\|CE\|UL\|ISED\|budget\|timeline" docs/certification-plan.md` | Generate certification plan template per target market. |
-| H12 | BOM risk assessment completed: single-source parts identified with backup alternatives | `test -f BOM-risk-assessment.csv && grep -c "single.source" BOM-risk-assessment.csv | awk '{print $1}'` | Auto-flag single-source items. Generate Octopart search for alternates. |
-| H13 | Test points included for: all power rails, critical signals, programming interface, UART debug | `grep -c "TP[0-9]\|test.point\|TEST_POINT" *.kicad_sch | awk '{exit $1<8}'` | Auto-generate test point checklist per net class. |
-| H14 | Schematics peer-reviewed, layout constraints documented for layout engineer handoff | `test -f docs/schematic-review-checklist.md && test -f docs/layout-constraints.md` | Generate schematic review checklist. Auto-extract constraints from interface specs. |
-
 ## Cross-Skill Integration
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 
 | Step | Skill | What It Produces |
@@ -349,27 +296,6 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 | **After** | `documentation-engineer` | Hardware architecture document, memory map, power tree → forms the hardware section of the product documentation |
 | **After** | `qa-engineer` | Test requirements (thermal testing, EMC pre-compliance, HALT) → test plan input |
 
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo
-Single developer, dev kits and breadboards, hobbyist EDA (KiCad/EAGLE). Focus: proof of concept, basic functionality. Skip: full compliance testing, DFM optimization. Coordination: with hardware architect on component selection for manufacturability.
-
-### Small Team
-Small engineering team, custom PCB, professional EDA (Altium/OrCAD). Focus: first production run, basic EMC pre-compliance. Coordination: with firmware on HAL API contracts, with test on production fixture design.
-
-### Medium Team
-Cross-functional hardware team (HW, FW, ME, test), contract manufacturing. Focus: DFM, full compliance certification (FCC/CE/UL). Coordination: with supply chain on BOM cost optimization, with ops on NPI, with QA on reliability testing.
-
-### Enterprise
-Multi-product platform architecture, global regulatory compliance, automated test infrastructure. Focus: supply chain resilience, silicon validation. Coordination: with manufacturing partners globally, with regulatory affairs on country-specific certifications, with security on hardware root of trust.
-
-### Transition Triggers
-| From → To | Trigger |
-|-----------|---------|
-| Solo → Small | First 100-unit production run; customer requires CE/FCC marking |
-| Small → Medium | Product expansion to multiple SKUs; >10 engineering headcount |
-| Medium → Enterprise | Operating in 5+ regulated jurisdictions; automotive/medical safety-critical certification |
-
 ## What Good Looks Like
 
 A well-designed hardware architecture is invisible when it's right — the product works reliably across temperature, meets power targets on the first spin, and passes EMC with margin. Specifically:
@@ -378,29 +304,6 @@ A well-designed hardware architecture is invisible when it's right — the produ
 - **EMC passes with margin on the first compliance test.** Pre-compliance caught the issues (bad clock routing, missing ferrites, poorly filtered I/O) before the expensive lab test.
 - **Memory map is stable from day one.** No firmware rewrites because the memory architecture changed. The map had headroom for growth.
 - **The hardware architecture document is the single source of truth.** A new engineer can read it and understand every decision: why this SoC, why this memory topology, why this regulator topology, why this stackup. The alternatives section explains what was rejected and why.
-
-
-## Footguns
-<!-- DEEP: 10+min — war stories from hardware architecture -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Selected a "perfect" SoC that went EOL 6 months into production — 12,000 units in backlog, no pin-compatible replacement, 9-month redesign | A hardware architect selected an NXP i.MX 6SoloX for an IoT gateway in 2021. The selection matrix scored it highest on peripheral count, power, and BOM cost. The product launched in Q1 2022. In Q3 2022, NXP issued a PDN (Product Discontinuance Notice) — the part had been NRND (Not Recommended for New Designs) since Q2 2020, 9 months BEFORE the selection. Nobody checked lifecycle status. The last-time-buy window was 6 months, and the contract manufacturer could only secure 2,000 units. The redesign to an i.MX 8M Mini took 9 months, including schematic, layout, EMC re-certification, and firmware porting. Revenue loss: $3.2M. | The component selection process had no lifecycle status check. The architect searched for "i.MX 6SoloX datasheet" on Google, found the product page (which didn't prominently display NRND status), and used the part. The procurement team assumed engineering had checked lifecycle. | **Check lifecycle status BEFORE adding any component to the BOM.** Every distributor (Digi-Key, Mouser, Avnet) shows lifecycle status. For MCUs/SoCs: check the manufacturer's product longevity program commitment (NXP: 10-15 years for i.MX, ST: 10 years for STM32, TI: "select products"). Add a BOM review gate: every part must have documented lifecycle status, minimum 5-year availability from planned production end. Prefer parts in manufacturers' "longevity" programs. |
-| DDR3 layout passed SI simulation at 25°C — failed in production at 0°C because PCB dielectric constant shifted 12%, breaking timing margin by 85ps | A 4-layer PCB with DDR3-800 was simulated in HyperLynx at 25°C with the FR-4 dielectric constant (Dk) at the manufacturer's nominal 4.2. Simulation showed 180ps of timing margin — comfortable against the 165ps requirement. The first 500 production boards worked at room temperature. When deployed in outdoor enclosures at winter temperatures (-5°C to 5°C), 30% of boards experienced intermittent DDR3 training failures. Root cause: FR-4 Dk increased from 4.2 at 25°C to 4.7 at 0°C (a 12% increase), which increased propagation delay by ~85ps on the longest traces — consuming half the timing margin. Boards that were marginal at room temperature became failures in the cold. | The simulation used a single Dk value at room temperature. FR-4's dielectric constant is temperature-dependent: Dk changes ~0.01-0.02 per °C. A 25°C swing = Dk delta of 0.25-0.5. The timing budget assumed ideal conditions — no temperature derating, no manufacturing variation, no aging effects. | **Simulate at Dk_min and Dk_max, not nominal.** Request the PCB manufacturer's Dk vs. temperature curve for your specific laminate (Isola FR408HR, Panasonic Megtron 6, etc.). Run SI simulations at -40°C, 25°C, and 85°C. Add a timing margin budget: subtract 10% for temperature, 5% for manufacturing variation (etch factor, dielectric thickness tolerance), and 5% for aging. If margin is negative at any corner, re-route or reduce clock speed. |
-| Power tree: 3.3V rail had 500mV ripple at 2A load because the LDO dropout voltage spec was read at 100mA — at full load, the LDO wasn't regulating at all | A hardware architect selected an LDO with "300mV dropout at 2A" from the datasheet's first page. The input was 3.8V (LiPo battery), output was 3.3V — 500mV of headroom, seemed fine. In production, the 3.3V rail measured 3.3V at light load (MCU in sleep, 50mA) but dropped to 3.0V with 450mV of 100kHz ripple at full load (MCU + GSM + sensors, 1.8A). The dropout spec was 300mV TYPICAL at 2A — the MAXIMUM dropout across temperature (-40°C to 85°C) was 650mV. At 3.8V input with 650mV dropout, the output couldn't maintain 3.3V above 1.5A. The ripple was the LDO cycling in and out of dropout at the GSM transmit burst rate (217Hz on GSM). | The architect used the typical value from the front page, not the maximum value from the electrical characteristics table. The dropout voltage increases with temperature (higher Rds(on) in the pass transistor). The input voltage wasn't derated for battery end-of-charge (3.4V for LiPo), where there's only 100mV of headroom against the max dropout. | **Always design to MAX specs, not typical.** For every power component: (1) read the full electrical characteristics table, not the front-page summary; (2) derate input voltage for battery end-of-charge and connector/wire losses; (3) add 20% margin to the max dropout spec for aging. If `V_in_min - V_out < V_dropout_max × 1.2`, the LDO won't regulate — use a buck converter or a different LDO with lower dropout. Simulate in SPICE with the manufacturer's model at -40°C, 25°C, and 85°C corners. |
-| EMC compliance test at $6K/day — failed radiated emissions at 480MHz because a 24MHz clock trace ran under a connector with no guard ring | A medical device went to a certified EMC lab for FCC Part 15 testing. The 24MHz HSE clock trace ran 15mm on layer 3, directly under a DB-9 connector on the top layer. The connector acted as an antenna, radiating the 20th harmonic (480MHz) at 12dB above the Class B limit. The fix: cut the trace, run a bodge wire around the connector, add copper tape with conductive adhesive for shielding. Retest cost: $6,000 + 3 weeks schedule delay. The original layout had passed the SI review (signal looked clean) but never had an EMC review. | The SI review checked the clock waveform at the load, not the radiated field 3 meters away. The trace ran under a connector because "it was the shortest path" and the PCB designer prioritized signal integrity over EMC. No pre-compliance scan was done with a near-field probe before sending to the certified lab. | **Run a pre-compliance EMC scan BEFORE the $6K lab visit.** Use a near-field probe (H-field and E-field) and a spectrum analyzer ($2K investment that pays for itself on the first avoided retest). Scan every clock trace, every switching regulator, and every connector for emissions. If a clock harmonic is within 6dB of the limit with a near-field probe, it WILL fail at 3 meters. For clock traces: (1) route on inner layers between reference planes, (2) add guard traces/vias on both sides, (3) never route under connectors or near board edges, (4) add series termination to slow edge rates. |
-| Chose a 0.5mm pitch QFN package because it was $0.12 cheaper than QFP — 8% of boards failed functional test because the CM couldn't inspect solder joints, rework costs exceeded BOM savings by 20× | A hardware architect selected a QFN-32 package for an STM32 MCU at $1.87/unit vs. the QFP-32 at $1.99/unit — $0.12 savings × 50,000 units/year = $6,000 annual savings. The contract manufacturer's AOI (Automated Optical Inspection) couldn't inspect QFN joints because they're under the package — X-ray inspection was required but only sampled at 5%. 8% of boards had open or marginal QFN solder joints that passed AOI but failed functional test. Rework cost per board: $38 (diagnosis + rework + retest). Annual rework cost: 4,000 failed boards × $38 = $152,000. The $6,000 BOM savings cost $152,000 in rework. | The component selection criteria included unit price, availability, and electrical specs — but NOT manufacturability. Nobody asked the CM: "Can you inspect this package? What's your defect rate for QFN vs. QFP?" The CM had the capability on paper but not the process control in practice. | **Include DFM (Design for Manufacturing) in the component selection matrix.** For each package option, ask your CM: (1) what inspection method? (2) typical first-pass yield? (3) rework process and cost? Add a column to your selection matrix: "CM yield risk." Prefer packages with inspectable leads (QFP, SOIC) over hidden-lead packages (QFN, BGA, LGA) unless you've verified your CM's process capability with data from the last 3 production runs. The per-unit BOM savings must exceed the per-unit rework cost × expected defect rate. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can read a datasheet and select a part but don't know why two identical-spec LDOs behave differently — one oscillates at 200mA because its output capacitor ESR is wrong | You've taken a design from concept through FCC/CE/ISED certification and into production; your power tree estimates are within 15% of bench measurements; your first PCB spin boots without bodge wires | A contract manufacturer hands you a board that "works sometimes" — you find the marginal timing violation, the ground bounce issue, and the ESD susceptibility in a 2-hour bench session without schematics |
-| You route a PCB by connecting pins but don't understand why a 50mm trace at 100MHz is a transmission line, not a wire | You can calculate impedance, length-match to within 2mm, and know when a signal needs termination — and your layouts pass EMC on the first lab visit | You review a competitor's teardown and identify every cost-reduction opportunity, every EMC compromise, and the design philosophy behind their architecture — in 30 minutes |
-| You select components by searching "popular MCU for IoT" on Google | You maintain a personal component database with lifecycle status, second-source alternatives, and per-unit pricing at 1K/10K/100K volumes — updated quarterly | A chip shortage hits (like the 2020-2022 STM32 crisis) — you have a pin-compatible alternative designed into the BOM as an alternate population option, and production switches within 4 weeks |
-
-**The Litmus Test:** Can you review a 12-layer PCB layout for a high-speed digital design and identify every signal integrity, power integrity, and EMI risk — before it goes to fab — without running a simulation? If you need the SI tool to find the obvious problems (missing termination, reference plane splits, antenna loops under connectors), you're not L3 yet.
 
 ## Deliberate Practice
 
@@ -419,7 +322,14 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## References
-<!-- STANDARD: 3min -->
 
-- **system-architect, embedded-engineer, firmware-developer** and others — for upstream design decisions, specifications, and architectural context that inform Hardware architecture design and component specification
-- **embedded-engineer, firmware-developer, documentation-engineer** and others — downstream skills that consume outputs from this skill for implementation and execution
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

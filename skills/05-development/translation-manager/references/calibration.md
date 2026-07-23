@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can upload strings to a TMS but translations come back with broken ICU placeholders — you fix them manually in the JSON file after each sync | Your pipeline catches 100% of ICU syntax errors, placeholder mismatches, length violations, and forbidden characters before any translation reaches a developer's branch | You reduced translation costs by 40% while improving average LQA scores from 78/100 to 94/100 across 20 locales — and you can attribute the savings to specific TM leverage improvements and MT engine optimizations |
+| You use Google Translate for "quick checks" and assume "the TMS handles quality" — you've never run an LQA audit | You run automated LQA scoring on every translation sync and block deployment if scores drop below 90/100. Your quality gate is more reliable than human spot-checking | You onboard a new locale (language + region) end-to-end — TMS config, MT engine selection, glossary population, CI integration, QA validation — in under 4 hours, and the first production build has zero technical translation defects |
+| Your TM is a dumping ground — every translated string goes in, nothing comes out because match rates are below 30% | Your TM has >70% leverage across all locales, a clean taxonomy of source keys, and you can trace every TM entry back to the source string that produced it | You merge two companies' translation memories (120,000 segments, 3 different source language codes, 2 different TMS platforms) with zero data loss, zero duplicates, and full traceability — and the merged TM has 82% leverage within 1 month |
+
+**The Litmus Test:** Inherit a localization pipeline that has: (a) a corrupted TM with 40% duplicate entries, (b) MT-only workflow with no glossary enforcement, (c) no CI quality gates, and (d) 8 locales with LQA scores averaging 62/100. In 2 weeks: rebuild the TM to <5% duplication, configure glossary enforcement on MT, add CI quality gates that catch ICU errors and placeholder mismatches, and raise the average LQA score to >85/100. Measure everything — if you can't quantify the before/after improvement, you're not L3.

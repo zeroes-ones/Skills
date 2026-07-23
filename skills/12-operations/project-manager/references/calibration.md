@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can build a Gantt chart and a RAID log but every project you've managed was late, and you attribute it to "scope creep" or "unrealistic expectations" rather than your planning | You've delivered 3+ projects within 10% of estimated budget and schedule, and you can show the data — actual vs planned for schedule, budget, scope, and quality across each project | A sponsor asks "should we kill this project?" and you give a recommendation with expected value calculation in 30 seconds — and you've killed 2 projects that needed killing, saving the company >$3M in sunk costs |
+| Your status reports say "on track" until the week before the deadline when you reveal it's actually 6 weeks behind — and you think that's normal | You can walk into a status meeting and explain exactly which 3 workstreams are at risk, by how much, and what the recovery plan is — and your risk assessment is validated by independent review | A VP hands you a project in crisis — 6 months late, team demoralized, sponsor threatening cancellation — and you turn it around within 90 days, shipping within a revised window that you set on day 30 |
+| You treat the project plan as a document you create at the beginning and update only when asked — the plan is a PDF, not a living artifact | You update the critical path weekly based on actual progress, and you can tell any stakeholder within 60 seconds where the project is relative to its baseline | You manage a $15M portfolio of 4-6 concurrent projects and can explain the trade-offs between them — if one slips, you know exactly which other project's resources to reallocate and why |
+
+**The Litmus Test:** A CEO hands you a project that's 8 months late, $4M over budget, with a team that's stopped attending status meetings because "nothing ever changes." Can you produce a recovery plan within 5 business days that identifies what to cut, what to resequence, and what to reset — and can you execute it? If you've never rescued a failing project, you're not L3. Masters have a graveyard of projects they've killed or turned around.

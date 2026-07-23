@@ -1,0 +1,20 @@
+# Production Checklist
+
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[EM1]** | Weekly 1:1 cadence established with every direct report — no cancellations in last 4 weeks | `scripts/check-1-1-cadence.sh` → parses calendar, verifies 1+ per week per report, flags cancellations | Calendar audit cron: weekly check + Slack reminder to reschedule missed 1:1s within 24h |
+| **[EM2]** | Career ladder or growth framework defined for team | `grep -rn "level guide\|career ladder\|competency\|growth framework" --include="*.md" \| wc -l` → must be >= 1 | Template: `templates/career-ladder.md` — partner with people-ops |
+| **[EM3]** | Performance review cycle running — every engineer has received written feedback within last 6 months | `scripts/check-performance-reviews.sh` → verifies review doc exists for each report, dated within 180 days | Calendar: recurring 6-month review cycle with auto-reminders |
+| **[EM4]** | Hiring pipeline active — job descriptions outcome-based, interview panels calibrated, debrief documented | `grep -rn "hiring rubric\|interview loop\|debrief template" --include="*.md" \| wc -l` → must return >= 3 files | Template: `templates/hiring-rubric.md` — includes Culture Contribution score |
+| **[EM5]** | Onboarding program documented — 0-30-60-90 day plan, buddy system, first-week ship-to-production | `grep -rn "onboarding\|0-30-60-90\|buddy\|first.*week\|ship.to.prod" --include="*.md" \| wc -l` → must be >= 4 matches | Template: `templates/onboarding-plan.md` |
+| **[EM6]** | Team charter exists and reviewed within last quarter — mission, scope, stakeholders, working agreements | `find . -name "team-charter*.md" -mtime -90` → must return file | Template: `templates/team-charter.md` — quarterly review reminder |
+| **[EM7]** | Bus factor above 2 for every critical system or component | `scripts/check-bus-factor.sh` → parses CODEOWNERS + system map, flags areas with <2 owners | Alert: notify EM + director when bus factor falls below 2 |
+| **[EM8]** | Stakeholder communication rhythm — weekly written updates, monthly roadmap reviews | `find . -name "*weekly-update*\|*status-update*" -mtime -7` → must return file | Template: `templates/weekly-update.md` — pre-formatted for director forwarding |
+| **[EM9]** | Escalation paths clear — team knows when/how to escalate, you know when to escalate to director | `grep -rn "escalation\|when to escalate\|escalation path" --include="*team-charter*\|*onboarding*"` → must match | Template: `templates/escalation-guide.md` — included in team charter |
+| **[EM10]** | Running document maintained for each direct report — wins, growth areas, feedback, commitments | `scripts/check-running-docs.sh` → verifies one running-doc per report, updated within 30 days | Template: `templates/running-doc.md` — auto-populated with commit/PR activity |
+| **[EM11]** | Team morale signals monitored — 1:1 candidness, retro engagement, PR review turnaround | `scripts/check-morale-signals.sh` → scores: 1:1 length trend, retro participation rate, PR review median time | Dashboard: `scripts/morale-dashboard.sh` — trend chart, alerts on 2+ consecutive declining signals |
+| **[EM12]** | Capacity planning against available (not theoretical) capacity — on-call, interview, meeting load factored | `scripts/check-capacity-plan.sh` → compares committed story points vs. available capacity (headcount × 0.6) | Template: `templates/capacity-plan.md` — auto-calculates available capacity from headcount |
+| **[EM13]** | Peer EM calibration happening at least quarterly | `find . -name "*EM-calibration*\|*manager-calibration*" -mtime -90` → must return file | Calendar: recurring quarterly calibration session with agenda template |
+| **[EM14]** | Personal development plan for yourself — growth goals, not the exception to your own rules | `grep -rn "personal development\|growth goal\|my.*development" --include="*running-doc*" \| grep "EM_NAME"` → must match | Template: `templates/em-personal-growth.md` — quarterly self-review |

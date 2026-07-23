@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| Your content policy is a list of banned keywords — and you add new keywords reactively every time a journalist writes about something you missed | Your policies are defined by behaviors and context (not keywords), reviewed by domain experts, and tested with moderators for inter-rater reliability > 0.6 before launch | Your content policy framework is cited by other platforms as a model for medical content moderation, has survived regulatory scrutiny in multiple jurisdictions, and has been in place for 3+ years with only minor updates |
+| You measure enforcement rate (% of flagged content actioned) and consider high numbers success | You report net accuracy (correct actions minus overturned actions), track overturn rate by policy category, and publish both numbers in your transparency report | You've designed a transparency reporting framework adopted by an industry working group (e.g., Digital Trust & Safety Partnership), and your overturn-rate methodology is the basis for an emerging standard |
+| Your policy taxonomy was written by policy experts and reviewed only by other policy experts | Your policy framework is co-designed with the moderators who apply it, the clinicians who advise on edge cases, and the community members whose content it governs | You've navigated a high-profile content policy crisis (media coverage, regulatory inquiry, or user revolt) and emerged with stronger policies AND stronger community trust — and you can describe exactly what you changed and why |
+
+**The Litmus Test:** A user posts "I was prescribed [Drug X] for [Condition Y] but I'm worried about [Side Effect Z]. Does anyone have experience with this?" Your content policy system flags it as "potential medical advice solicitation." Do you remove it, approve it, or route it for review? If your answer depends on which drug and which condition — and you can articulate the principles that govern the decision in under 30 seconds — you're building a policy framework. If your answer is "the system decides" or you need to check a 47-page taxonomy, you've built a bureaucracy that mistakes complexity for wisdom.

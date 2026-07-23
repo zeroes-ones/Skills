@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| Your partner program description is "we have a partner portal where they can download our logo and a datasheet" — and 80% of partners never log in after onboarding | You can name your top 10 partners, their revenue contribution last quarter, their primary contact's biggest frustration, and the one thing you're doing this month to deepen each relationship | You walk into a company with no partner program, no channel revenue, and no partner team — and within 24 months, partners are generating >30% of new revenue with a documented, tiered program that would survive you leaving |
+| You measure your job by partner count and portal logins rather than partner-sourced pipeline and revenue | You've terminated 3 underperforming partners this year — and all 3 terminations were clean, professional, and preserved the door for a future relationship under different terms | A CEO asks you "should we go channel-first, direct-first, or marketplace-first in APAC?" and you deliver a go-to-market model with partner candidates, economic projections, and a 12-month launch plan — and it works |
+| Your partner agreements are forwarded to legal without your review of commercial terms, and you've never negotiated margin, territory, or IP ownership directly with a partner | Every partner in your portfolio has a Joint Business Plan updated within the last 90 days — and you review QBR scorecards with partners before sending them, because no partner should see a surprise on a slide | A partner program you designed 3 years ago is still growing partner-sourced revenue >25% YoY — and the partners who joined in year 1 have higher NPS and revenue than partners who joined in year 3, proving the program compounds |
+
+**The Litmus Test:** Take over a partner program with 50 partners, 0 documented processes, and a 90-day deadline to present a partner-sourced pipeline number to the board. If you can classify every partner into a tier, produce a revenue forecast from the top 10, and present a 12-month partner strategy — all without the previous partner manager's help — you're L3.

@@ -37,13 +37,14 @@ chain:
   - trust-safety-engineer
 token_budget: 3800
 ---
-# Patient Community Safety
 
+# Patient Community Safety
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Safety frameworks for health communities where patients discuss treatment experiences, share medical information, and support each other. Different from general social app safety — the threat model includes medical misinformation that can cause physical harm, vulnerable patient populations, and regulatory liability for platform operators.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -77,7 +78,9 @@ What are you trying to do?
 └── Not sure? → Describe your community (condition, size, vulnerability profile) and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
+
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -91,6 +94,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN about crisis detection systems without a maximum false positive budget.** A crisis system with 90% precision at 200 flags/day produces 20 false positives daily. Over months, moderator alarm fatigue destroys attention. Set max 10 crisis flags per moderator per day. | Trigger: generated output describes `crisis.detection\|self.harm.flag\|suicide.detection` AND NOT `false.positive.budget\|max.flags.per.moderator\|alarm.fatigue\|flag.cap` within 30 lines | WARN: "This crisis detection system has no false positive budget. Configure: max 10 crisis flags per moderator per day. If volume exceeds this, raise the confidence threshold. A system that flags everything catches nothing — because the human in the loop stops paying attention. Measure 'time-to-dismiss' for false positives — if it's dropping, alarm fatigue is setting in." |
 | **R6** | **DETECT and WARN about block/visibility features that can be weaponized for coordinated silencing.** Block features, when used by coordinated groups, become harassment tools. Monitor for: 20+ accounts created within 48 hours all blocking the same users. Design engagement algorithms to account for 'suspicious disengagement.' | Trigger: generated output describes `block.user\|hide.content\|visibility.control\|mute` without `abuse.vector\|coordinated.block\|weaponization\|suspicious.disengagement` within 30 lines | WARN: "User-controlled visibility features are abuse vectors. Add: (1) coordinated blocking detection (20+ new accounts blocking same users within 48h → flag), (2) 'suspicious disengagement' handling in ranking algorithms, (3) appeal mechanism for users whose reach suddenly drops due to coordinated blocking. A block feature without abuse detection is a harassment tool." |
 | **R7** | **STOP and ASK before collecting mental health symptom data without specific, unbundled consent.** "We may share your data for research" is not informed consent for selling de-identified datasets to pharmaceutical companies. Health data consent must specify: who, what purpose, and opt-in per use case. | Trigger: generated output proposes `data.collection\|symptom.tracking\|mood.data\|health.data` AND NOT `specific.consent\|per.purpose.opt.in\|unbundled\|pharma.disclosure` within 30 lines | STOP. Ask: "This design collects sensitive health data. The consent flow must: (1) specify each data use purpose separately, (2) disclose if data may be shared with pharmaceutical companies or researchers, (3) allow opt-in per purpose (not bundled), (4) never combine ZIP + age + gender + diagnosis in shared datasets (re-identifiable with public data). A consent that's legally compliant but feels like a betrayal is a trust breach." |
+
 ## The Expert's Mindset
 
 Master patient community safetys operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
@@ -110,6 +114,7 @@ Master patient community safetys operate at the intersection of trust, safety, a
 ### When to Break Your Own Rules
 - **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
 - **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -126,6 +131,7 @@ Master patient community safetys operate at the intersection of trust, safety, a
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s — scan the bullet list to decide -->
 
 - Launching a patient community or health forum — safety infrastructure before first user
@@ -137,6 +143,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - A community member shares suicidal ideation or reports a severe adverse event
 
 ## Decision Trees
+
 <!-- STANDARD: 3min -->
 
 ### Content Risk Classification
@@ -194,6 +201,7 @@ Detected content issue...
 ```
 
 ## Core Workflow
+
 <!-- STANDARD: 5min -->
 
 ### Phase 1: Threat Modeling (~1 week)
@@ -201,6 +209,60 @@ Detected content issue...
 Health communities have a different threat model than general social apps. Map yours specifically:
 
 ```markdown
+
+## Cross-Skill Coordination
+
+<!-- STANDARD: 3min -->
+
+| Upstream Skill | What to Expect | Communication Trigger |
+|---------------|----------------|---------------------|
+| `trust-safety-engineer` | Abuse detection infrastructure, automated harm detection, anti-bot measures | When building automated moderation pipelines |
+| `content-policy-manager` | Community guidelines, medical misinformation definitions, escalation frameworks | When defining what content violates policy |
+| `medical-content-reviewer` | Clinical accuracy review, evidence-based medicine standards, treatment claim validation | When escalating content for clinical review |
+| `crisis-response-manager` | Crisis escalation frameworks, adverse event protocols, emergency response | When crisis content is detected |
+
+| Downstream Skill | What to Deliver | Communication Trigger |
+|-----------------|-----------------|---------------------|
+| `community-operations-manager` | Safety protocols, moderation workflows, crisis response procedures | When operationalizing community safety |
+| `content-policy-manager` | Health-specific threat models, vulnerable population protections | When writing/updating community guidelines |
+| `crisis-response-manager` | Health crisis detection patterns, patient-specific response protocols | When building crisis response infrastructure |
+| `trust-safety-engineer` | Health community abuse patterns, medical misinformation detection code | When implementing automated safety systems |
+
+## Proactive Triggers
+
+<!-- STANDARD: 2min — surface these WITHOUT being asked -->
+
+- **Treatment recommendation without evidence** → "You should stop taking [medication] and try [alternative]." Flag immediately. Prescriptive medical advice from non-clinicians is the #1 harm vector. 🔴
+- **New user sends DMs to multiple patients** → A 1-day-old account messaging 5+ community members. Classic predatory pattern. Auto-flag and rate-limit. 🔴
+- **External link to supplement/treatment seller** → Links to unverified treatment products. Check against FDA warning letters, FTC actions. Quarantine pending review. 🔴
+- **Self-harm language in any context** → "I can't do this anymore," "I want to end it." Not a moderation decision — this is a crisis response. Surface resources immediately. 🔴
+- **"Doctors are hiding this cure" narrative** → Anti-established-medicine content. High engagement bait, high harm potential. Flag for clinical review. 🟡
+- **"DM me for the real solution"** → Attempt to move conversation off-platform for predatory purposes. Auto-flag. High confidence = immediate suspension. 🟡
+- **Identifiable photo in medical context** → Patient photo + condition details = PHI. Offer anonymization option. Remove if not anonymized. 🟡
+- **Vulnerable population targeted** → Account targeting pediatric, mental health, or rare disease communities with unsolicited treatment advice. Enhanced scrutiny. 🟠
+
+## What Good Looks Like
+
+<!-- STANDARD: 3min -->
+
+A patient can share their treatment experience without fear of harassment. Medical misinformation is detected and removed before it spreads — automated systems catch prescriptive claims within minutes. When a community member is in crisis, resources surface immediately — not hours later when a moderator checks the queue. Patients know WHY content was removed because every moderation action includes a clear explanation. Vulnerable populations (pediatric, mental health, rare disease) have enhanced protections by default. The community guidelines are living documents, updated as new threat patterns emerge. Safety metrics are tracked, reviewed quarterly, and improving. Patients trust the platform because safety is visible, consistent, and fair — not because nothing bad ever happens, but because when it does, the response is swift, transparent, and compassionate.
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
+
 ## Health Community Threat Model for [Platform Name]
 
 ### Assets to Protect
@@ -433,6 +495,7 @@ class HealthCrisisProtocol:
 ### Phase 5: Vulnerable Population Protection (~1 week)
 
 ```markdown
+
 ## Default Protections by Population
 
 ### Pediatric Patients (under 18)
@@ -462,161 +525,15 @@ class HealthCrisisProtocol:
 - Large text, clear language in safety communications
 ```
 
-## Cross-Skill Coordination
-<!-- STANDARD: 3min -->
-
-| Upstream Skill | What to Expect | Communication Trigger |
-|---------------|----------------|---------------------|
-| `trust-safety-engineer` | Abuse detection infrastructure, automated harm detection, anti-bot measures | When building automated moderation pipelines |
-| `content-policy-manager` | Community guidelines, medical misinformation definitions, escalation frameworks | When defining what content violates policy |
-| `medical-content-reviewer` | Clinical accuracy review, evidence-based medicine standards, treatment claim validation | When escalating content for clinical review |
-| `crisis-response-manager` | Crisis escalation frameworks, adverse event protocols, emergency response | When crisis content is detected |
-
-| Downstream Skill | What to Deliver | Communication Trigger |
-|-----------------|-----------------|---------------------|
-| `community-operations-manager` | Safety protocols, moderation workflows, crisis response procedures | When operationalizing community safety |
-| `content-policy-manager` | Health-specific threat models, vulnerable population protections | When writing/updating community guidelines |
-| `crisis-response-manager` | Health crisis detection patterns, patient-specific response protocols | When building crisis response infrastructure |
-| `trust-safety-engineer` | Health community abuse patterns, medical misinformation detection code | When implementing automated safety systems |
-
-## Proactive Triggers
-<!-- STANDARD: 2min — surface these WITHOUT being asked -->
-
-- **Treatment recommendation without evidence** → "You should stop taking [medication] and try [alternative]." Flag immediately. Prescriptive medical advice from non-clinicians is the #1 harm vector. 🔴
-- **New user sends DMs to multiple patients** → A 1-day-old account messaging 5+ community members. Classic predatory pattern. Auto-flag and rate-limit. 🔴
-- **External link to supplement/treatment seller** → Links to unverified treatment products. Check against FDA warning letters, FTC actions. Quarantine pending review. 🔴
-- **Self-harm language in any context** → "I can't do this anymore," "I want to end it." Not a moderation decision — this is a crisis response. Surface resources immediately. 🔴
-- **"Doctors are hiding this cure" narrative** → Anti-established-medicine content. High engagement bait, high harm potential. Flag for clinical review. 🟡
-- **"DM me for the real solution"** → Attempt to move conversation off-platform for predatory purposes. Auto-flag. High confidence = immediate suspension. 🟡
-- **Identifiable photo in medical context** → Patient photo + condition details = PHI. Offer anonymization option. Remove if not anonymized. 🟡
-- **Vulnerable population targeted** → Account targeting pediatric, mental health, or rare disease communities with unsolicited treatment advice. Enhanced scrutiny. 🟠
-
-## Best Practices
-<!-- STANDARD: 3min -->
-
-1. **Tiered moderation: automated → clinical review → human judgment.** Automation catches patterns. Clinical reviewers validate medical accuracy. Human moderators handle nuanced cases. No single layer is sufficient.
-2. **Crisis content is NEVER just removed.** A post about suicidal ideation that gets deleted by an algorithm leaves the person MORE isolated. Surface resources, escalate to crisis team, preserve the content for welfare follow-up.
-3. **Personal experience ≠ medical advice.** "This worked for me" is different from "You should do this." Label personal experiences. Remove prescriptive advice from non-clinicians.
-4. **Adverse events are regulatory reports, not content to moderate.** If a user reports a severe drug reaction, you have pharmacovigilance obligations. Flag for MedWatch/FDA reporting. Do NOT remove.
-5. **Repeat education before punishment.** First-time well-meaning misinformers get education + content removal. Repeat offenders get escalating consequences. Scammers get banned immediately.
-6. **Vulnerable populations get enhanced defaults.** Pediatric, mental health, and rare disease communities should have stricter privacy defaults, DM restrictions, and content filtering ON by default.
-7. **Transparency builds trust.** When content is removed, tell the user why. "This post was removed because it made a medical claim that could not be verified. Our clinical review team determined..." Opacity breeds conspiracy theories.
-8. **Safety metrics are community health metrics.** Track: misinformation prevalence, time-to-detection, crisis response time, user reports per 1K posts. These ARE your community health dashboard.
-
-## Anti-Patterns
-<!-- MACHINE-EXECUTABLE: Each row has a grep/lint pattern for detection and auto-prevention -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| "We'll use the same moderation as Reddit/Facebook" | Health communities need clinical review escalation + medical misinformation detection. General social moderation isn't sufficient for content that can cause physical harm | `grep -rn "standard.moderation\|generic\|off.the.shelf\|one.size" safety_config.yaml` → matches = flag | **Health-context lint**: CI rule `npx validate-safety-config safety_config.yaml --require "clinical_review\|misinformation_detection\|crisis_protocol"` |
-| Auto-deleting crisis content without human follow-up | Crisis content gets: immediate resource surface → human review → welfare follow-up. Automation triggers response, not deletion | `grep -rn "auto.delete\|auto.remove\|auto.hide.*crisis\|auto.hide.*suicide" moderation_rules.yaml` → matches = block | **Crisis response lint**: CI rule `npx validate-moderation-rules moderation_rules.yaml --forbid-auto-delete "suicide\|self.harm\|crisis"` |
-| "Free speech" absolutism in health communities | "Free speech" doesn't include telling someone to stop their chemotherapy. Health communities have a duty of care that overrides absolute free expression | `grep -rn "free.speech\|absolute.free.expression\|no.censorship" guidelines.md` → matches without `duty.of.care\|harm.prevention\|clinical.safety` = flag | **Duty-of-care lint**: CI rule `npx validate-guidelines guidelines.md --require-duty-of-care --health-context` |
-| Moderating without clinical expertise available | At minimum, have a clinical advisor on retainer for content appeals. At scale, hire clinical content reviewers. Non-clinicians shouldn't make final medical accuracy determinations | `grep -rn "clinical.advisor\|medical.review\|clinical.reviewer" moderation_team.yaml` → 0 matches = fail | **Clinical expertise gate**: CI rule `npx validate-moderation-team moderation_team.yaml --require-clinical-advisor --min-advisors 1` |
-| One-size-fits-all safety for all community segments | Pediatric, mental health, rare disease, and elderly communities each need tailored protections. What's safe for a general health forum may be unsafe for teens with eating disorders | `grep -rn "pediatric\|adolescent\|mental.health\|eating.disorder" safety_config.yaml` → 0 matches when `grep -rn "segment\|sub.community" community_config.yaml` shows segments exist = fail | **Segment-specific safety lint**: CI rule `npx validate-safety-config --per-segment --require "pediatric\|mental_health\|rare_disease" protections for each segment type` |
-| Removing adverse event reports as "negative content" | Adverse event reports are legally required to be preserved and reported. Removing them can violate FDA regulations. Flag for pharmacovigilance, not moderation | `grep -rn "delete.*adverse\|remove.*side.effect\|hide.*reaction" moderation_rules.yaml` → matches = block | **PV-protection lint**: CI rule `npx validate-moderation-rules moderation_rules.yaml --require-pv-flag "adverse.event\|side.effect\|reaction\|hospitalized"` |
-| Waiting for user reports to detect problems | By the time a user reports harmful medical advice, 100 people have already seen it. Automated detection must catch prescriptive medical claims BEFORE they spread | `grep -rn "user.report\|community.flag\|report.based" detection_strategy.md` when NOT accompanied by `automated.detection\|proactive\|pre.report` = flag | **Proactive detection gate**: CI rule `npx validate-detection-strategy detection_strategy.md --require-proactive --max-detection-latency "5 minutes"` |
-| Moderator wellness treated as an HR perk rather than operational requirement | Mandatory exposure time limits (max 2 hours/day on graphic queues), content rotation, wellness check-ins, counseling access, and exit pathways with no career penalty | `grep -rn "moderator.wellness\|exposure.limit\|content.rotation\|trauma.support" moderator_program.md` → matches < 4 = fail | **Moderator safety lint**: CI rule `npx validate-moderator-program moderator_program.md --require-wellness --min-elements 4` |
-## Error Decoder
-<!-- MACHINE-EXECUTABLE: First column is exact grep regex for console/log matching -->
-
-| 🖥️ Console Match (grep regex) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -cP "crisis.flag\|suicide.detect\|self.harm.detect" crisis_queue.csv` → `daily_volume > 200` AND `grep -cP "dismiss.time\|review.duration" moderator_metrics.csv` → `avg_dismiss_ms < 500` | 200+ crisis flags/day, moderators dismissing in <500ms — alarm fatigue: real crises being dismissed along with false positives | Crisis detection threshold set to maximize recall at expense of precision. 90% precision at 200 flags/day = 20 false positives daily. Over months, moderator attention destroyed | Set max 10 crisis flags per moderator per day. Raise confidence threshold if volume exceeds this. Rotate crisis review duty weekly. Measure time-to-dismiss — if dropping, enforce mandatory review time (minimum 30 seconds per flag) | **1.** Measure crisis queue health: `npx measure-crisis-queue --metrics "daily_volume,avg_dismiss_ms,precision"`. **2.** If `daily_volume > 10 * moderator_count`: `npx raise-crisis-threshold --target-daily 10`. **3.** Enforce minimum review time: `npx enforce-min-review-time --seconds 30 --queue crisis`. **4.** Rotate reviewers: `npx rotate-crisis-reviewers --frequency weekly`. **5.** Monitor weekly: `npx monitor-alarm-fatigue --alert-on dismiss_ms_drop_20pct` |
-| `grep -cP "blocked.*user\|coordinated.*block\|mass.block" incident_log.json` → `count > 0` AND `grep -cP "coordinated.block.detection\|suspicious.disengagement" safety_config.yaml` → `0` | Coordinated group mass-blocked LGBTQ+ patients — their posts disappeared from community feeds and trending algorithms | Block feature treated as personal safety tool, not abuse vector. 200 coordinated accounts blocked all active LGBTQ+ members. Trending algorithm penalized blocked users' reduced engagement | Add coordinated blocking detection. Design engagement algorithms to exclude suspicious disengagement. Provide appeal mechanism for users whose reach drops suddenly due to coordinated blocking | **1.** Detect coordinated blocks: `npx detect-coordinated-blocks --threshold 20 --window-hours 48`. **2.** If detected: `npx freeze-blocked-users-reach --incident-id $ID` → preserve their pre-block reach in ranking. **3.** Remove blocking accounts: `npx bulk-suspend --account-ids blocked_accounts.json --reason coordinated_harassment`. **4.** Restore visibility: `npx restore-reach --user-ids targeted_users.json`. **5.** Deploy detection permanently: `npx deploy-coordinated-block-detection --production` |
-| `grep -cP "adverse.event\|side.effect\|reaction.*severe\|ER.visit" removed_content.csv` → `count > 0` | Adverse event reports removed as "negative content" — potential FDA regulatory violation | Moderation workflow doesn't distinguish adverse events from negative sentiment. No pharmacovigilance flagging. Content moderators making PV decisions without training | Flag all potential adverse events for PV review BEFORE any moderation action. Preserve original content in PV archive. Route to pharmacovigilance team, not moderation queue | **1.** Audit removed content for AEs: `grep -cP "(severe.reaction\|side.effect\|hospitalized\|ER.visit\|almost.died\|anaphylaxis)" removed_content.csv` → if `> 0`, flag. **2.** Restore content: `npx restore-content --ids ae_removed.csv --reason potential_adverse_event`. **3.** Route to PV: `npx route-to-pv --content-ids ae_removed.csv --priority high`. **4.** Update workflow: `npx add-pv-flag-rule --keywords "adverse.event,side.effect,reaction" --action "flag_not_remove"`. **5.** Train moderators: `npx train-moderators --module pharmacovigilance --cases 20` |
-| `grep -cP "teen\|adolescent\|minor\|under.18" community_config.yaml` → `count > 0` AND `grep -cP "DM.restriction\|adult.contact\|enhanced.privacy" community_config.yaml` → `0` | Pediatric community running with adult-default safety settings — DMs open, adult contact unrestricted, privacy defaults permissive | Platform used same safety configuration for all communities. No age-appropriate defaults. Pediatric community treated identically to general health forum | Apply enhanced defaults: DM restrictions ON, adult contact from unknown users blocked, profile visibility restricted, content sharing disabled by default. Add age verification gate for adult members interacting with pediatric spaces | **1.** Audit pediatric safety: `npx audit-pediatric-safety --community-id $(cat .community_id)`. **2.** Enable DM restrictions: `npx set-defaults --community-id $(cat .community_id) --dm_restricted true --adult_contact_blocked true`. **3.** Add age verification: `npx add-age-verification-gate --community-id $(cat .community_id)`. **4.** Audit existing adult members: `npx audit-adult-members --community-id $(cat .community_id) --review-dm-history`. **5.** Publish updated safety notice to community |
-| `grep -cP "I want to die\|kill myself\|end it all" auto_removed.csv` → `false_positive_rate > 0.40` | 40%+ of posts auto-removed for self-harm keywords are recovery discussions, survivor stories, or crisis counselor responses | General-purpose classifier trained on non-health social media. "I used to want to kill myself every day, but therapy saved my life" = removed. Crisis counselor replies with hotline numbers = removed | Deploy health-context classifier. Build golden dataset from YOUR community. Distinguish: active ideation (Tier 1: plan + timeframe + means), past reference (Tier 3: recovery), support/counseling (not harmful). Validate with clinical advisors before deployment | **1.** Audit false positives: `grep -cP "(used to\|recovery\|survivor\|therapy.saved\|hotline)" auto_removed.csv` → if `> 0.20`, disable classifier. **2.** Build golden dataset: `npx create-golden-dataset --community-id $(cat .community_id) --size 10000 --labels "active_ideation,past_reference,recovery,support,not_harmful"`. **3.** Train health-context model: `npx train-classifier --dataset golden_dataset.json --context health`. **4.** Validate with clinicians: `npx clinical-validation --model health_context_v1 --reviewers 3`. **5.** Deploy in shadow mode for 2 weeks before enforcement |
-| `grep -cP "access.locked\|account.suspended\|ATO.block" incident_log.json` → `hospital_ip > 0` AND `grep -cP "emergency.access\|read.only.mode\|caregiver" acl_config.yaml` → `0` | Caregiver locked out of patient portal while patient in surgery — treatment decision delayed 24 hours | ATO detection treated "new device + hospital IP" as suspicious. No emergency access path for caregivers. Phone verification impossible when patient is in surgery | Distinguish "new device + hospital IP range" = caregiver in medical emergency, not attacker. Implement read-only emergency access mode: view results/meds without full account access, triggered by security questions | **1.** Audit ATO blocks at medical IPs: `grep -cP "hospital\|medical.center\|clinic" ato_block_log.json` → if `> 0`, flag. **2.** Implement emergency access: `npx add-emergency-access-mode --read-only --auth security_questions`. **3.** Whitelist medical IP ranges: `npx add-ato-exception --ip-range hospital_ranges.json --context medical_emergency`. **4.** Test: `npx test-emergency-access --scenario caregiver_hospital`. **5.** Deploy: `npx deploy-emergency-access --production` |
-## Production Checklist
-<!-- MACHINE-EXECUTABLE: Every item has an exact CLI validation command and auto-fix path -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **PS1** | Health community threat model documented — assets, threat actors, attack vectors | `grep -cP "threat.model\|asset\|threat.actor\|attack.vector" threat_model.md` must be `>= 4` | `npx init-threat-model --domain health_community --output threat_model.md` |
-| **PS2** | Automated medical misinformation detection deployed — prescriptive claim patterns detected proactively | `curl -s http://localhost:${PORT}/api/detection/misinfo/status \| jq '.precision'` must be `>= 0.85` AND `jq '.proactive'` must be `true` | `npx deploy-misinfo-detection --mode shadow --min-precision 0.85 --health-context` |
-| **PS3** | Clinical review escalation workflow active — < 24h for non-urgent, < 2h for harmful | `curl -s http://localhost:${PORT}/api/clinical-review/sla \| jq '.max_hours_harmful'` must be `<= 2` AND `jq '.max_hours_routine'` must be `<= 24` | `npx init-clinical-review --sla "harmful:2h,routine:24h" --require-advisor` |
-| **PS4** | Crisis keyword detection deployed — < 5 minute response time | `curl -s http://localhost:${PORT}/api/crisis/detection/latency \| jq '.p95_seconds'` must be `<= 300` | `npx deploy-crisis-detection --max-latency 300 --keywords crisis_keywords.yaml` |
-| **PS5** | Crisis protocol documented — suicide, adverse event, child safety, emergency | `grep -cP "suicide\|adverse.event\|child.safety\|emergency\|CSAM" crisis_protocol.md` must be `>= 4` | `npx init-crisis-protocol --scenarios "suicide,adverse_event,child_safety,CSAM,emergency"` |
-| **PS6** | Crisis resources surfaced automatically — country-specific hotlines, text lines | `curl -s http://localhost:${PORT}/api/crisis/resources \| jq '.resources_by_country \| length'` must be `>= 5` | `npx init-crisis-resources --countries "US,UK,CA,AU,IN" --hotlines --text-lines` |
-| **PS7** | Vulnerable population protections configured — pediatric, mental health, rare disease | `grep -cP "pediatric\|mental.health\|eating.disorder\|rare.disease" safety_config.yaml` must be `>= 3` AND each must have `enhanced_defaults: true` | `npx init-vulnerable-population-safety --segments "pediatric,mental_health,rare_disease" --enhanced-defaults` |
-| **PS8** | Adverse event reporting pipeline integrated with FDA MedWatch | `curl -s http://localhost:${PORT}/api/pv/pipeline/status \| jq '.medwatch_integrated'` must be `true` | `npx init-pv-pipeline --medwatch --require-clinical-review` |
-| **PS9** | Content removal transparency — users told WHY content was removed, with appeal process | `curl -s http://localhost:${PORT}/api/moderation/removal-notice \| jq '.includes_reason'` must be `true` AND `jq '.includes_appeal_link'` must be `true` | `npx init-removal-transparency --include-reason --include-appeal-link` |
-| **PS10** | Safety metrics dashboard — misinformation prevalence, time-to-detection, crisis response time | `curl -s http://localhost:${PORT}/api/safety/dashboard \| jq '.metrics \| length'` must be `>= 5` | `npx init-safety-dashboard --metrics "misinfo_prevalence,ttd,crisis_response,false_positive_rate,appeal_rate"` |
-| **PS11** | Clinical advisor retained — available for content appeals and policy decisions | `curl -s http://localhost:${PORT}/api/clinical-advisor/status \| jq '.on_retainer'` must be `true` AND `jq '.response_sla_hours'` must be `<= 24` | `npx init-clinical-advisor --sla-hours 24 --specialties "primary_care,psychiatry,oncology"` |
-| **PS12** | Community guidelines published — medical misinformation, personal experience vs advice, crisis resources | `grep -cP "medical.misinformation\|personal.experience\|crisis.resource\|adverse.event" guidelines.md` must be `>= 4` | `npx init-community-guidelines --domains "misinfo,personal_experience,crisis,adverse_events" --health-context` |
-| **PS13** | User reporting system tested — one-click report for medical misinformation, crisis, harassment | `curl -s -X POST http://localhost:${PORT}/api/report/test \| jq '.report_types'` must include `["misinfo","crisis","harassment"]` | `npx init-reporting-system --types "misinfo,crisis,harassment" --one-click` |
-| **PS14** | Quarterly safety audit — review detection effectiveness, false positive rates, missed incidents | `grep -cP "quarterly.audit\|safety.review\|false.positive" audit_schedule.yaml` must be `>= 3` AND `curl -s http://localhost:${PORT}/api/audit/last \| jq '.days_ago'` must be `<= 90` | `npx init-safety-audit --frequency quarterly --auto-schedule --metrics "precision,recall,fpr,missed_incidents"` |
-## Footguns
-<!-- DEEP: 10+min — war stories from patient community safety -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| A patient in a rare disease community posted about an experimental treatment trial in Mexico — it was a stem cell scam that cost patients $35,000 and caused 3 deaths | In March 2023, a member of a rare disease support community for ALS patients posted about a clinic in Tijuana offering "curative stem cell therapy" with "92% success rate." The post included the clinic's phone number and a testimonial from a supposed patient. Over 4 months, 12 community members traveled to the clinic, paying $35,000 each. Three died from infections related to the unsterile procedure. The platform had no medical misinformation detection, no treatment claim verification process, and no policy against promoting unlicensed medical facilities. | The platform treated the community as a neutral discussion space — "we don't evaluate medical claims." But in a rare disease community, desperate patients are specifically targeted by scammers. The platform's neutrality was exploited as a marketing channel for unlicensed treatments. | **Every health community needs active fraud detection for treatment claims.** Red flags: claims of cures for incurable conditions, specific success-rate numbers without published studies, clinics in jurisdictions with weak medical regulation, requests for upfront payment. Partner with organizations like the FDA's Health Fraud Branch or NORD (National Organization for Rare Disorders) to maintain a known-scam registry. When in doubt, remove first and verify later — a deleted post can be restored; a patient who traveled to a scam clinic can't be brought back. |
-| A moderator in an eating disorder recovery community was secretly promoting pro-ana content via DM to vulnerable members — the platform discovered it after 11 months when a parent sued | A 28-year-old moderator for a major eating disorder support community was privately messaging teenage members with "thinspiration" content, diet pill recommendations, and encouragement to "stay dedicated to your goals." The messages were outside the public community and invisible to the platform's content moderation tools. 11 months later, a 15-year-old's parents discovered the messages and sued the platform. The moderator had passed the platform's background check — they had no prior offenses because private DMs had never been monitored. | The platform assumed moderation risk ended at the public community boundary. Private messages between moderators and users were invisible. The background check screened for criminal history, not predatory behavior patterns — there was no behavioral monitoring for moderators who disproportionately initiated private conversations with vulnerable users. | **Monitor moderator behavior, not just moderator content.** Track: what percentage of a moderator's interactions are private DMs vs public posts? What's the age distribution of users they DM? Set alerts for moderators whose private-message ratio exceeds 3 standard deviations above the moderation team average. Conduct quarterly random audits of moderator DMs with consent (built into the moderator agreement). A moderator badge is a trust signal to vulnerable users — bad actors specifically seek moderator positions to exploit that trust. |
-| A crisis detection system flagged 200 posts/day as "suicidal" — 180 were false positives. Moderators developed alarm fatigue and started ignoring ALL crisis alerts, including the 20 real ones. | A mental health community deployed an AI crisis detection system in January 2024. The system had 90% precision — meaning 20 of 200 daily flags were genuine crises. Moderators had to review all 200 flags. Within 3 months, alarm fatigue set in. Moderators started clicking "dismiss" without reading. In April, a genuine crisis post — a user posting their suicide note in real time — was dismissed along with the noise. The user made an attempt (survived). The post had been flagged and dismissed in 4 seconds by a moderator who later said "I assumed it was another false positive like all the others." | The crisis detection threshold was set to maximize recall at the expense of precision. 90% precision sounds good in isolation — but at 200 flags/day, it produces 20 false positives per day. Over months, the false positive volume destroys moderator attention. The system was optimized for the metric (recall) rather than the human workflow (sustainable review volume). | **Design crisis detection for the human who has to review it.** Set a maximum false positive budget: no more than 10 crisis flags per moderator per day. If the system produces more flags than that, raise the confidence threshold — even if it means missing some true crises. A system that flags everything catches nothing, because the human in the loop stops paying attention. Measure "time-to-dismiss" for false positives — if it's dropping over time, your moderators are developing alarm fatigue. Rotate crisis review duty weekly to prevent desensitization. |
-| A patient community's "block user" feature was weaponized by coordinated groups to mass-block LGBTQ+ cancer survivors, silencing their posts from community feeds | A cancer support community had a standard block feature: if a user blocks another user, they no longer see each other's content. In June 2023, a coordinated group from an external anti-LGBTQ+ forum created 200 accounts and systematically blocked every active LGBTQ+ member in the community. The blocked users' posts no longer appeared in the feeds of the 200 accounts — but more damagingly, the community's "trending" algorithm weighted engagement, and the blocked users' posts received less engagement because 200 active-looking accounts were no longer seeing or interacting with them. The posts of LGBTQ+ survivors effectively disappeared from the community's discovery surfaces. | The platform didn't consider the block feature as a vector for coordinated harm. Standard abuse detection looked for content violations (harassment, threats) — not for coordination patterns that used legitimate features for illegitimate purposes. The trending algorithm amplified the effect by treating reduced engagement as a signal of lower quality. | **Treat any user-controlled visibility feature as a potential abuse vector.** Monitor for coordinated blocking: if 20+ accounts created within 48 hours all block the same set of users, flag for investigation. Design engagement algorithms to account for "suspicious disengagement" — if a user's engagement drops suddenly due to new accounts blocking them, don't penalize their content in rankings. A block feature that can be weaponized is a coordinated harassment tool wearing the mask of a safety feature. |
-| The platform collected detailed mental health symptom data "for research" — then sold anonymized datasets to pharmaceutical companies without patient consent | A mental health tracking app collected daily mood ratings, medication adherence data, and symptom journal entries from 400,000 users. The privacy policy stated data could be used "to improve our services and for research purposes." In February 2024, an investigative journalist discovered the company had sold "anonymized" datasets to 3 pharmaceutical companies for $2.1M total. The datasets included zip code, age, gender, diagnosis, and medication history — a combination that re-identified 87% of users when cross-referenced with public voter registration data. Patients joined the app seeking support; they became unwitting participants in pharmaceutical market research. | The company interpreted "research purposes" to include commercial pharmaceutical research without separately disclosing this. The "anonymization" was pseudonymization (removing names but keeping quasi-identifiers). The consent flow bundled data-sharing permissions into a single opt-in that users clicked through without reading — it was legally compliant, but patients felt betrayed. | **Health data consent must be specific, not bundled.** "We may share your data for research" is not informed consent — specify: "We may sell de-identified data to pharmaceutical companies for drug development research." Let users opt in/out of each data use separately. Never use zip code + age + gender + diagnosis in the same dataset — this combination is re-identifiable with public data. A privacy policy that's legally compliant but feels like a betrayal when discovered IS a trust breach — the legal department may say you're fine, but your patients will say you're not. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| Your safety system is reactive — you address issues after a user reports them or a journalist writes about them | Your detection system catches 85%+ of policy violations before user reports, your false positive rate is under 5%, and your crisis response time is under 15 minutes | You've built a safety infrastructure where the community self-regulates 60%+ of minor violations through user reporting and peer moderation, freeing your team to focus on novel threat patterns |
-| Your privacy policy is a template you copied from a competitor and your consent flow bundles everything into one checkbox | Your consent flows are granular (separate opt-ins for data sharing, research, marketing), your data sharing is disclosed in plain language, and your anonymization methods are validated against re-identification risk | You've designed a privacy framework that goes beyond legal compliance — your patients actively praise your data practices in app store reviews, and privacy regulators cite your consent flow as a positive example in guidance documents |
-| You assume a feature designed for safety (blocking, reporting, crisis flags) can't be abused | You threat-model every safety feature for abuse vectors: "how could a coordinated group use this to silence or harm our most vulnerable users?" | You've discovered and mitigated a novel abuse vector in a patient community, published a case study, and other platforms have adopted your mitigation strategy |
-
-**The Litmus Test:** Spend 2 hours in your patient community as a vulnerable user — create an account, join a support group for a stigmatized condition, and post something vulnerable. How long before you encounter harmful content? How easy is it to report? Does anything happen when you do? If you can't do this because you're afraid of what you'll find, you already know the answer. A patient community's safety isn't measured by the absence of lawsuits — it's measured by whether a newly diagnosed patient, at their most vulnerable moment, finds support or exploitation. If you wouldn't let your own family member join your community unsupervised, you have work to do.
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-<!-- STANDARD: 3min -->
-
-### Solo (1 developer, patient community MVP)
-**Description:** Building MVP health community. < 100 users. No dedicated safety team.
-**Approach:** Published community guidelines. Basic keyword detection (prescriptive patterns + crisis keywords). Manual review of all flagged content. Crisis protocol: surface 988/crisis resources. Clinical advisor: on-call consultant for content appeals.
-**Time investment:** ~1 week to set up. ~2 hours/week ongoing.
-
-### Small Team (2-10 developers, growing community, 1K-50K users)
-**Description:** Active community. Real moderation volume. Starting to see bad actors.
-**Approach:** Automated detection for all risk levels. Part-time clinical reviewer. Tiered moderation: auto-flag → clinical review → human mod. User reporting system. Crisis protocol: automated detection + human follow-up within 1 hour. Vulnerable population protections active. Safety metrics dashboard.
-**Time investment:** ~1 month to set up. ~10 hours/week ongoing.
-
-### Medium Team (10-50 developers, large community, 50K-500K users)
-**Description:** Large, established community. Multiple conditions/segments. Regulatory scrutiny.
-**Approach:** Machine learning-assisted detection. Full-time clinical review team. 24/7 crisis response. Automated adverse event reporting to FDA. Community health metrics with SLAs. Dedicated trust & safety team. Transparency reports published quarterly. External safety audit annually.
-**Time investment:** Dedicated trust & safety team (2-4 FTE).
-
-### Enterprise (50+ developers, global community, 500K+ users)
-**Description:** Multi-country, multi-language health community. Multiple regulatory jurisdictions.
-**Approach:** AI-powered detection with multi-language support. Global clinical review team across time zones. Country-specific crisis resources and protocols. Automated pharmacovigilance reporting to FDA, EMA, PMDA, etc. Safety research program. External safety advisory board. Real-time safety dashboards. Regulatory compliance across jurisdictions.
-**Time investment:** Large trust & safety organization (10-20+ FTE).
-
-## What Good Looks Like
-<!-- STANDARD: 3min -->
-
-A patient can share their treatment experience without fear of harassment. Medical misinformation is detected and removed before it spreads — automated systems catch prescriptive claims within minutes. When a community member is in crisis, resources surface immediately — not hours later when a moderator checks the queue. Patients know WHY content was removed because every moderation action includes a clear explanation. Vulnerable populations (pediatric, mental health, rare disease) have enhanced protections by default. The community guidelines are living documents, updated as new threat patterns emerge. Safety metrics are tracked, reviewed quarterly, and improving. Patients trust the platform because safety is visible, consistent, and fair — not because nothing bad ever happens, but because when it does, the response is swift, transparent, and compassionate.
-
-## Deliberate Practice
-
-```mermaid
-graph LR
-    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
-```
-
-| Level | Practice | Frequency |
-|-------|----------|-----------|
-| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
-| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
-| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
-| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
-
-**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
-
 ## References
-<!-- STANDARD: 3min -->
 
-- **trust-safety-engineer** — Abuse detection infrastructure, automated harm detection, anti-bot measures
-- **content-policy-manager** — Community guidelines, medical misinformation definitions, escalation frameworks
-- **medical-content-reviewer** — Clinical accuracy review, evidence-based medicine, treatment claim validation
-- **crisis-response-manager** — Crisis escalation frameworks, adverse event protocols, emergency response coordination
-- **community-operations-manager** — Community health metrics, ambassador programs, operational workflows
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

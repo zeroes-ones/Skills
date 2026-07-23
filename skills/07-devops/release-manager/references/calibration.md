@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You schedule releases by sending a calendar invite titled "PROD DEPLOY - DO NOT BOOK." You don't know what a canary deployment is | Every release goes through a defined pipeline: canary → 10% → 50% → 100% with automated rollback on error rate thresholds. You haven't attended a 2:00 AM deployment call in over a year | You've reduced the organization's change failure rate from 23% to under 5%, and deployments happen during business hours because the process is so reliable that nobody fears a Tuesday 2:00 PM release |
+| You approve a go/no-go based on whether the team "feels good" about the release. You've never seen a pre-flight checklist | Go/no-go decisions are data-driven: all pre-flight checks pass, test results are within thresholds, and dependencies show green health. The decision is automated — human approval is only required for exceptions | You've designed a progressive delivery system where 95% of releases are fully automated — canary analysis, regional rollout, automated rollback — and the system has safely deployed 2,000+ production releases without a single customer-impacting incident |
+| Your rollback plan is "revert the PR and deploy again" — you don't know that your database migration isn't reversible, and rolling back the code without rolling back the schema will corrupt data | Every deployment has a tested rollback runbook that covers code, schema, and config. The rollback has been tested in staging within the last 2 weeks and takes less than 5 minutes | You've led a release where a Sev1 was detected 3 minutes into a canary, the automated rollback completed in 90 seconds with zero customer impact, and the postmortem identified the gap that let the bug reach canary — which was fixed before the next release cycle |
+
+**The Litmus Test:** Can you manage a release train with 40 services deploying to 4 regions, detect a regression in the canary phase within 3 minutes, roll back the affected services without touching the other 36, and complete the full rollout for the healthy services — all during a 2-hour window with 3 separate incident declarations in unrelated dependencies?

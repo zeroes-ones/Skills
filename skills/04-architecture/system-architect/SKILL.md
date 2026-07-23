@@ -43,13 +43,14 @@ chain:
   - staff-engineer
   - technical-program-manager
 ---
-# System Architect
 
+# System Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -98,6 +99,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -112,6 +114,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **STOP and WARN about synchronous inter-service calls without timeouts, circuit breakers, retries, and bulkheads.** One slow downstream service saturates all request threads → cascading failure across the entire system. Every synchronous dependency is a bet that the downstream will respond within your timeout — and that bet must have a circuit breaker. | Trigger: proposing inter-service HTTP/gRPC calls without configuring: `timeout` (p95×2, max 30s), `circuit_breaker` (open at 50% error rate), `retry` (max 3, exponential backoff + jitter), `bulkhead` (separate thread pool) | STOP. Insert: "**Resilience Required:** Every sync call must configure: `timeout = p95_latency × 2` (max 30s), circuit breaker open at 50% error rate with 30s half-open probe, retries: max 3 with exponential backoff (100ms, 200ms, 400ms) + jitter (±25%), bulkhead: dedicated thread pool per downstream. Without these: 1 slow dependency = all users affected. This is the #1 cause of cascading production failures." |
 
 ## The Expert's Mindset
+
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
 ### The Mental Model Shift
@@ -148,6 +151,7 @@ Architecture decisions compound — a decision made at L2 has L4 consequences. U
 **Usage**: Say "as an L4 architect, review the system design for..." Default: **L3** (multi-service design, independent architectural decisions).
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new system or service from scratch
 - Evaluating microservices vs monolith vs modular monolith trade-offs
@@ -159,6 +163,7 @@ Architecture decisions compound — a decision made at L2 has L4 consequences. U
 - Multi-tenancy strategy design (database-per-tenant, schema-per-tenant, shared)
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Monolith vs Microservices
 ```
@@ -293,22 +298,8 @@ Common chains:
 - **Business to architecture**: cto-advisor → system-architect → api-designer — Strategy defines constraints, architecture designs the system, API formalizes service contracts
 - **Product to operations**: product-manager → system-architect → devops-engineer — Product defines requirements, architect designs for scale and reliability, DevOps implements infrastructure
 
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-When this skill is invoked, drill into these specialized areas as needed:
-
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| `architecture-assessment` | New project, acquisition, modernization | This file — Phase 1 & 2 |
-| `c4-modeling` | Communicating architecture to different audiences | This file — Phase 2: Architecture Design |
-| `adr-writing` | Every significant technical decision | This file — Phase 3: Trade-off Analysis |
-| `scalability-design` | Growth planning, performance issues | This file — Scalability Decision Tree |
-| `resilience-design` | Mission-critical, high-availability | This file — Phase 4: Resilience |
-| `integration-architecture` | Multi-system, multi-vendor | This file — Communication Patterns |
-| `data-architecture` | Data-heavy, analytics, compliance | `references/complexity-cost-model.md` |
-| `security-architecture` | Compliance, threat modeling | `security-engineer` skill |
-
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Requirements & Constraints Gathering
 1. Identify functional requirements (use cases, user journeys, data flows).
@@ -395,166 +386,12 @@ Architecture guidance, review, or approval for team-level design
 | Designing multi-region failover for a system with 99.99% availability target | Before implementing active-active, propose quantifying the cost: inter-region data transfer ($0.02/GB), cross-region replication lag (typically 500ms-2s), and conflict resolution strategy (last-write-wins vs CRDTs). Discuss whether 99.99% justifies active-active (4+ regions) or whether a warm standby with 5-minute RTO achieves the same SLO at 40% of the cost. Document the failover runbook and test it quarterly | Active-active multi-region is the most expensive architectural decision you can make — not just infra costs, but operational complexity. Conflict resolution for multi-master writes is an unsolved problem for most domains. Many teams pay for active-active but run active-standby because they never resolved write conflicts. Be honest about whether you actually need writes in multiple regions |
 | Planning the observability stack (service mesh + APM + tracing) for a distributed system | Before selecting tools, propose the three pillars with specific instrumentation: (1) distributed tracing with OpenTelemetry — propagate trace context across ALL service boundaries (HTTP, gRPC, message queues, DB calls), sample at 10% for success, 100% for errors; (2) structured logging with correlation IDs — every log line has `trace_id` and `span_id`; (3) RED metrics (Rate, Errors, Duration) per endpoint per service. Discuss SLO-based alerting: alert on error budget burn rate | Observability bolted on after incidents is useless — you can't add tracing during an outage. Without propagated trace context, a 5-second P99 latency spike is a mystery: is it service A's DB query? Service B's network call? Service C's serialization? Distributed tracing answers in one query. Without it, you're grep'ing logs across 10 services at 3 AM |
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- **Evolvable architecture**: Start with modular monolith; extract microservices only when bounded contexts are clear and independent scaling is needed.
-- **Loose coupling, high cohesion**: Services communicate through well-defined APIs and events; avoid shared databases across services.
-- **Design for failure**: Every dependency can fail — implement retries, circuit breakers, fallbacks, and dead-letter queues.
-- **Observability from day one**: Distributed tracing (OpenTelemetry), structured logging, metrics (RED: Rate, Errors, Duration), health checks (liveness/readiness).
-- **Infrastructure as Code**: Terraform/Pulumi/CloudFormation for all infrastructure; GitOps (ArgoCD/Flux) for deployment.
-- **Security by design**: Defense in depth, zero-trust networking, least-privilege IAM, encryption at rest and in transit, secrets management (Vault/Secrets Manager).
-- **Cost awareness**: Model cloud costs early (compute, data transfer, storage, managed services); architect for cost optimization (spot instances, auto-scaling, serverless where appropriate).
-
-## Anti-Patterns
-<!-- QUICK: 90s -- 4-column machine-checkable format. Every anti-pattern has a grep to find it and a lint/prevention config. -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Designing an event-driven architecture without dead-letter queues and message replay — events silently lost during consumer outages | Every event consumer gets a DLQ with alerting, message inspectability, replay capability, and 7-30 day retention. Without DLQ, consumer outage = permanent data loss | `grep -rn 'SQS\|SNS\|EventBridge\|PubSub\|Kafka\|RabbitMQ\|message.queue' *.tf *.yaml \| grep -v 'dead.letter\|DLQ\|deadLetter\|maxReceiveCount\|redrive'` — queues without DLQ | Terraform policy: `scripts/check-dlq.sh` — every queue resource must have `redrive_policy` or `dead_letter_config`. Block merge if missing |
-| Sharing a single database across multiple services — Service A adds a column, Service B's queries break | Each service owns its data store exclusively. Services communicate through APIs or events, never direct DB access. Shared DB = schema-as-API = coupling | `grep -rn 'database\|DATABASE_URL\|connection.string' **/*.ts **/*.py **/*.go \| sort \| uniq -c \| sort -rn \| awk '$1 > 1'` — same DB connection string used by 2+ services | Architecture lint: `scripts/check-db-ownership.sh` — each database must be accessed by exactly 1 service. Alert if multiple services connect to the same DB |
-| Using synchronous HTTP calls for every inter-service communication without timeouts, circuit breakers, or bulkheads | Configure: per-call timeout (p95×2, max 30s), circuit breaker (50% error → open, 30s half-open probe), retry (max 3, exp backoff+jitter), bulkhead (separate thread pool per downstream) | `grep -rn 'http\.get\|http\.post\|fetch\|axios\|got\|requests\.(get\|post)' src/ \| grep -v 'timeout\|circuit.breaker\|retry\|bulkhead\|resilience'` — HTTP calls without resilience config | Resilience template: `templates/resilience-config.yaml` — enforces timeout+CB+retry+bulkhead on all inter-service calls. CI validates every HTTP client has resilience middleware |
-| Implementing saga orchestration without compensating transactions — partial failures leave system in inconsistent state | Every saga step needs a compensating action (undo). Order checkout: reserve inventory → charge payment → ship. If ship fails: refund payment AND release inventory | `grep -rn 'saga\|orchestrat\|workflow' src/ \| grep -v 'compensat\|rollback\|undo\|reverse\|cancel\|refund'` — saga without compensations | Saga template: `templates/saga-with-compensations.md` — requires compensating action definition for each step. CI validates every saga step has a paired compensation |
-| Adopting CQRS without defining the eventual consistency window — users see stale data for minutes | Define acceptable staleness window (e.g., "read models consistent within 2s of write"). Monitor replication lag. UX must handle staleness: disable edits or show optimistic updates | `grep -rn 'CQRS\|read.model\|projection\|materialized.view' src/ \| grep -v 'staleness\|eventual.*consistency\|replication.*lag\|consistent.*within'` — CQRS without staleness SLA | CQRS template: `templates/cqrs-staleness-sla.md` — requires staleness SLA, monitoring, and UX strategy defined. CI: CQRS patterns without staleness doc = block |
-| Building a BFF that becomes a monolithic gateway aggregating all logic — defeating the purpose of client-specific APIs | Keep BFFs thin: only aggregate and transform downstream data. No business logic, validation, or authorization in BFF. Extract logic into dedicated services | `grep -rn 'BFF\|backend.for.frontend\|bff/' src/ \| grep -v 'aggregat\|transform\|proxy\|passthrough'` — BFF code with business logic signs (validation, auth, calculations) | BFF lint: `scripts/check-bff-thinness.sh` — BFF service must not contain: auth middleware (delegate to gateway), business validation (delegate to domain service), or workflow logic (delegate to orchestrator) |
-| Deploying a service mesh (Istio/Linkerd) without enabling distributed tracing and authorization policies | Configure day one: mTLS STRICT, AuthorizationPolicy (deny-all + allow-known), distributed tracing at 10% sampling, retry budgets, circuit breaker at 50% error rate | `kubectl get peerauthentication -A -o json \| jq '.items[].spec.mtls.mode' \| grep -v STRICT` — any non-STRICT mTLS | OPA Gatekeeper: `require-mtls-strict.rego` + `require-authz-policy.rego`. Mesh deployment without policies = blocked |
-| Choosing microservices for a greenfield 5-person team "so we're ready to scale" — 15 services, 3-day deploys | Start with modular monolith. Extract services when: (1) bounded contexts proven, (2) independent scaling measured as needed, (3) team topology aligns. Default for <20 engineers = monolith | `grep -c 'service\|microservice' docker-compose.yaml \| awk '{if ($1 > 5) exit 1}'` — > 5 services for team size < 10 | Architecture ADR template checks: if team_size < 20 AND service_count > team_size/3 → WARN and request "Modular Monolith Justification" document |
-
-## When Monolith Wins
-
-Scalability ceiling of a well-built modular monolith: **100K-1M DAU, 50+ engineers.**
-
-```
-Team < 20 engineers? → Monolith.
-DB CPU < 50% sustained? → Monolith.
-Single technology stack? → Monolith.
-Revenue < $20M ARR? → Monolith.
-Deploying < daily? → Monolith.
-All features in one bounded context? → Monolith.
-
-Check 3+ boxes? Don't even think about microservices.
-```
-
-Shopify ran a monolith past 1M merchants. GitHub: monorepo to 30M+ users.
-
-## Architecture Fitness Functions
-
-Automated tests verifying architecture doesn't degrade — run in CI:
-
-| Category | What to Test | Example Threshold |
-|----------|-------------|-------------------|
-| **Coupling** | No circular deps between modules | `import-linter` / `madge` |
-| **Cohesion** | Module size ≤ 500 lines | Custom script |
-| **Performance** | P95 latency ≤ 200ms for critical paths | k6 / Locust |
-| **API compatibility** | No breaking OpenAPI changes | `openapi-diff` |
-| **Security** | No hardcoded keys, no HIGH CVEs | Trivy / Semgrep |
-
-## Scalability Decision Tree
-
-```
-DB CPU > 70% sustained?
-├── YES → Add read replicas → Still high? → Shard by tenant.
-└── NO → Don't shard.
-
-P95 latency > 200ms?
-├── YES → Profile → Add cache (Redis) → Optimize queries → Make async.
-└── NO → You're fine.
-
-CI > 15 minutes?
-├── YES → Parallelize tests → Split into smaller jobs → Consider service extraction.
-└── NO → Ship features.
-
->2 teams colliding in same codebase?
-├── YES → Extract one bounded context at a time.
-└── NO → Keep the monolith.
-
-Service handles < 100 req/s? → It's a library, not a service. Merge back.
-Cache hit rate < 50%? → Remove the cache. It's adding latency.
-```
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo (1 person, 0-100 users)
-- **What changes**: Architecture = a single monolith on a PaaS (Vercel, Railway, Render). No C4 diagrams. No ADRs. No microservices. Database = one managed Postgres. Decisions = you make them and document in a `decisions.md`.
-- **What to skip**: Microservices. Event-driven architecture. C4 modeling. ADR templates. Capacity planning. FMEA. Multi-region. Service mesh. Kubernetes.
-- **Coordination**: You are the architect + developer. No coordination needed.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Monolith with clear module boundaries. C4 Context + Container diagrams. Lightweight ADRs for key decisions. Managed services for infra (RDS, S3, SQS). Simple observability (logs + metrics + basic alerts). Capacity estimation for 6 months.
-- **What to skip**: Microservices (module boundaries in monolith are enough). Event sourcing. CQRS. Service mesh. Formal SLOs (>99.5% is fine). Multi-cloud. Chaos engineering.
-- **Coordination**: Architecture discussion in weekly eng sync. ADRs in shared repo. Quarterly architecture review (2 hours).
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Modular monolith or first microservices (3-5 services max). C4 all four levels. Formal ADR process with templates. Event-driven for async boundaries. SLOs defined (99.9% target). Capacity planning with growth modeling. FMEA for critical paths. Observability: tracing + metrics + structured logging + dashboards. Circuit breakers and retry policies.
-- **What to skip**: Full microservices (>10 services without dedicated platform team). Multi-cloud. Active-active multi-region. Formal architecture review board.
-- **Coordination**: Monthly architecture review. ADRs with async comment period (3 days). Quarterly capacity planning review. Bi-weekly tech lead sync.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Microservices with platform team. Architecture review board with formal governance. C4 + UML for complex domains. Architecture fitness functions in CI. Multi-region active-active or warm standby. Formal SLOs with error budgets. Chaos engineering program. Capacity planning with financial modeling. Dedicated architecture team.
-- **What's full production**: Architecture governance framework. Technology radar with lifecycle management. Annual architecture strategy. Cross-BU architecture alignment. M&A architecture integration playbook.
-- **Coordination**: ARB bi-weekly. Architecture strategy quarterly with CTO. Cross-team architecture sync monthly. Incident post-mortem architecture review per incident.
-
-### Transition Triggers
-- **Solo → Small**: Monolith codebase becomes unwieldy (>50K LOC). Need dedicated architecture decisions.
-- **Small → Medium**: 3+ teams working in the same codebase causes merge conflicts. First service extraction justified (independent deploy + scale needs).
-- **Medium → Enterprise**: 10+ services require platform team. Multi-region or compliance (SOC 2, HIPAA) required. >50 engineers.
-
-
-## Error Decoder
-<!-- QUICK: 60s -- match console error to fix. First column is a grep pattern for exact match. -->
-
-| 🖥️ Console Match (grep) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------|---------|-----------|-----|----------------------|
-| `grep -rn "team.*[0-9].*[0-9]+.*(micro)?service" adr/ \| awk -F: '{services=$NF; if(services > team_size*2)}'` | Team of 5 with 15 microservices — every deploy took 3 days of coordination, debugging required tracing across 5 service boundaries | Architecture chose microservices for greenfield project with 5-person team "to be scalable" | Consolidate into modular monolith with clear bounded contexts. 1 deploy, 1 repo, 1 team. Result: deploy time 3 days → 15 min | **Step 1:** List all services, their owners, and dependencies (`scripts/service-inventory.sh`). **Step 2:** Identify bounded contexts — services that always change together. **Step 3:** Merge co-changing services into modules in a single deployable. **Step 4:** Extract only services with proven independent scaling needs. **Step 5:** Validate: `deploy_time < 30min`, `engineer:service ratio >= 3:1` |
-| `grep -rn "EventBridge\|SNS\|SQS\|PubSub\|KafkaProducer\|publish" src/ \| grep -v "DLQ\|dead.letter\|deadLetter\|redrive\|maxReceive\|error.queue"` | Critical events silently disappeared — orders placed but customers never received confirmation | Event-driven system with no dead-letter queue. Notification service was briefly down, 2,300 events published into the void | Implement DLQ for every subscription. Add message persistence with replay. Monitor DLQ depth with alerts. Add end-to-end tracing for all event flows | **Step 1:** Add DLQ to every consumer subscription (`scripts/add-dlq.sh` — configures `maxReceiveCount: 3`, retention: 14 days). **Step 2:** Create CloudWatch/Prometheus alert: `DLQDepth > 0` → PagerDuty. **Step 3:** Build message inspector UI to view and replay DLQ messages. **Step 4:** Run integration test: kill consumer → publish events → verify DLQ → restore consumer → replay → verify processing |
-| `grep -rn "max-age\|Cache-Control\|s-maxage\|maxAge\|cache.*TTL\|CacheTTL\|cache.*age" . \| grep -E "[0-9]{5,}"` — TTL > 3600s on mutable data | Dashboard showed stale data for 8 hours after critical price update | CDN cache with 24-hour TTL for endpoint where data changes hourly. No invalidation hook on write | Reduce CDN TTL to match data freshness requirements (≤ data change interval/2). Add cache invalidation on write. Implement stale-while-revalidate. Monitor cache hit-rates | **Step 1:** Audit all cache TTLs: `scripts/audit-cache-ttl.sh` → flag any TTL > data-change-frequency. **Step 2:** Set TTL = min(data_change_interval/2, freshness_SLA). **Step 3:** Add cache invalidation hook on write path. **Step 4:** Add GRPC/HTTP header `Cache-Status` and monitor `stale` responses. **Step 5:** Add synthetic test: write → read → verify freshness within SLA |
-| `grep -rn "session\|cookie\|auth.*cache\|shared.*cache\|in.memory.*cache" src/ \| grep -v "user.id\|tenant.id\|scope\|isolat\|per.user\|per.tenant"` | After "Go to checkout," users saw items from another person's cart | Session affinity on LB but shared in-memory cache without user-id scoping — two users on same pod saw each other's data | Add user-id scope to all cache keys. Ensure all cached data isolated per session. Add integration tests simulating multiple concurrent users on same instance | **Step 1:** Audit all cache keys: `scripts/audit-cache-keys.sh` → flag keys without user-id/tenant-id. **Step 2:** Rewrite cache keys to include `user_id` or `tenant_id`. **Step 3:** Add integration test: 10 concurrent users on same instance → verify data isolation. **Step 4:** Deploy and verify with canary: route 1% of users → check for cross-user data leaks |
-| `grep -rn "latency\|p[0-9][0-9]\|response.time" metrics/ \| awk '{if ($2 > budget*2) print}'` — P95 > 2x budget | P95 latency jumped from 200ms to 12s after migrating from monolith to 8 microservices | Single DB query became 5 cross-service REST calls, each adding 50-200ms overhead. Network latency amplified 5x | Measure latency budget per hop before splitting. Merge services in same bounded context. Add circuit breakers. Add distributed tracing *before* the split, not after | **Step 1:** Trace a single request end-to-end (`scripts/trace-request.sh <request-id>`) → identify hop count and per-hop latency. **Step 2:** If hop count × median hop latency > budget, merge services or add async communication. **Step 3:** Set circuit breaker thresholds per hop. **Step 4:** Establish SLO for end-to-end latency. **Step 5:** Run load test before/after merge → confirm latency back within budget |
-| `grep -rn "circuit.breaker\|CircuitBreaker\|resilience4j.*open\|hystrix.*open\|istio.*503\|envoy.*reset" logs/` — circuit breaker open events | System degraded under load — one slow downstream caused all upstream services to time out, cascading failure across 12 services | No circuit breakers configured. One slow payment service saturated all request threads in the API gateway. Thread pool exhaustion spread to all upstream callers | Add circuit breaker per downstream: open at 50% error rate, half-open with 1 probe after 30s. Add bulkhead: dedicated thread pool per downstream. Add timeout: P95 × 2 (max 30s) | **Step 1:** Open affected circuit manually: `kubectl exec <pod> -- curl -X POST localhost:8080/actuator/circuitbreakers/<name>/open`. **Step 2:** Diagnose root cause of the slow downstream. **Step 3:** Once fixed, close circuit: `curl -X POST localhost:8080/actuator/circuitbreakers/<name>/close`. **Step 4:** Tune thresholds: if CB opened < 30s after start of incident → thresholds correct. If > 30s → lower threshold |
-
-
 ## What Good Looks Like
 
 > Every stakeholder — from the junior developer to the CTO — can look at the C4 diagrams and understand how the system fits together without asking "what does this arrow mean?" Architecture Decision Records capture the context, options considered, and trade-offs for every key decision, so the rationale behind choosing event sourcing over CRUD is still crystal clear two years and three team rotations later. Non-functional requirements are expressed as measurable SLOs, not vague adjectives: 99.95% availability with p99 latency under 200ms for the checkout path, backed by production telemetry that proves compliance. The failure mode analysis has been walked through with the whole team, and when the payment gateway actually went down during Black Friday, the circuit breaker opened in under 100ms, the dead-letter queue absorbed every message, and zero orders were lost — exactly as the runbook said.
 
-## Production Checklist
-<!-- QUICK: 60s -- machine-verifiable binary pass/fail items. Every item has an exact command. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|---------|
-| **S1** | C4 Context and Container diagrams created and reviewed | `find . -name "*.puml" -o -name "*.md" \| xargs grep -l "C4_\|C4Context\|C4Container\|structurizr\|systemContext\|Container.*Diagram" \| wc -l \| awk '{if ($1>0) print "PASS"; else print "FAIL: No C4 diagrams found"}'` | Template: `templates/c4-context-diagram.puml` — generates C4 Context with PlantUML. Run: `plantuml templates/c4-context-diagram.puml` |
-| **S2** | Architecture Decision Records documented for all key decisions | `find adr/ -name "*.md" 2>/dev/null \| wc -l \| awk '{if ($1>=5) print "PASS: "$1" ADRs"; else print "FAIL: Only "$1" ADRs — need >= 5"}'` | Template: `templates/adr.md` (context, options considered, decision, consequences). `scripts/init-adr.sh` — creates numbered ADR directory |
-| **S3** | Non-functional requirements captured with measurable SLOs | `grep -rn "SLO\|SLI\|availability.*99\.\|latency.*p[0-9][0-9]\|error.*budget" . \| wc -l \| awk '{if ($1>=3) print "PASS: "$1" SLO references"; else print "FAIL: Need measurable SLOs (availability, latency, error budget)"}'` | Template: `templates/slo-template.yaml` — defines availability, latency (P50/P95/P99), error rate SLOs |
-| **S4** | Scalability model with peak QPS, latency budgets, and data growth projections | `grep -rn "QPS\|throughput\|RPS\|peak.*load\|capacity.*plan\|data.*growth\|scale.*estimate" . \| wc -l \| awk '{if ($1>=5) print "PASS"; else print "FAIL: No scalability model found"}'` | Template: `templates/scalability-model.md` — QPS projections, latency budgets, storage growth, cost estimates |
-| **S5** | Failure mode analysis conducted (FMEA, fault tree, or chaos engineering plan) | `grep -rn "FMEA\|failure.mode\|fault.tree\|chaos.*engineer\|blast.radius\|single.*point.*failure\|SPOF" . \| wc -l \| awk '{if ($1>=5) print "PASS"; else print "FAIL: No failure mode analysis found"}'` | Template: `templates/fmea-worksheet.md` — failure mode, effect, severity, likelihood, detection, mitigation |
-| **S6** | Data storage strategy documented (primary store, cache, search, analytics) | `grep -rn "data.store\|database.*strategy\|storage.*strategy\|primary.*store\|data.*architecture" . \| wc -l \| awk '{if ($1>=3) print "PASS"; else print "FAIL: No data storage strategy documented"}'` | Template: `templates/data-storage-strategy.md` — primary OLTP, cache (Redis/etc.), search (Elasticsearch), analytics (data warehouse) |
-| **S7** | Authentication, authorization, and secrets management strategy defined | `grep -rn "OAuth\|JWT\|OIDC\|SAML\|mTLS\|RBAC\|ABAC\|secret.*manager\|vault\|auth.*strategy\|identity.*provider" . \| wc -l \| awk '{if ($1>=5) print "PASS"; else print "FAIL: Auth strategy incomplete"}'` | Template: `templates/auth-strategy.md` — authN method, authZ model (RBAC/ABAC), secrets management tool, key rotation policy |
-| **S8** | Observability stack planned (tracing, metrics, logging, alerting) | `grep -rn "otel\|opentelemetry\|jaeger\|prometheus\|grafana\|loki\|datadog\|alert.*rule\|dashboard\|golden.*signal" . \| wc -l \| awk '{if ($1>=5) print "PASS"; else print "FAIL: Observability stack not defined"}'` | Template: `templates/observability-stack.yaml` — traces (Jaeger/OTel), metrics (Prometheus), logs (Loki/ELK), alerts (RED + USE) |
-| **S9** | Deployment and rollback strategy documented (blue-green, canary, rolling) | `grep -rn "blue.green\|canary\|rolling.*deploy\|rollback\|Argo.*Rollouts\|Flagger\|Spinnaker\|deployment.*strategy" . \| wc -l \| awk '{if ($1>=3) print "PASS"; else print "FAIL: Deployment strategy not documented"}'` | Template: `templates/deployment-strategy.md` — strategy type, rollout steps, rollback trigger, rollback procedure |
-| **S10** | Capacity planning and cost estimation completed for 12-month horizon | `grep -rn "cost.*estim\|capacity.*plan\|monthly.*cost\|infra.*budget\|cloud.*cost\|12.month\|annual.*cost" . \| wc -l \| awk '{if ($1>=3) print "PASS"; else print "FAIL: No capacity/cost plan"}'` | Template: `templates/capacity-cost-plan.md` — compute, storage, network, support costs with 12-month projection |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from production architecture decisions -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Microservices split by noun (User Service, Order Service, Product Service) — every request needed data from 3+ services, and p99 latency jumped from 50ms to 2,400ms as the fan-out exploded | An e-commerce platform decomposed their monolith into microservices by database entity: `user-service`, `order-service`, `product-service`, `inventory-service`, `pricing-service`. The "Order Details" page required data from all 5. Under the monolith, it was one SQL query: 50ms. Under microservices, it was 5 sequential gRPC calls with service A calling B calling C: 2,400ms p99. The team then added a GraphQL federation layer to parallelize the calls — which added 3 more services (gateway, subgraph proxies). Total services: 11. P99 latency: 1,800ms. Still 36× worse than the monolith. The architecture was redesigned 18 months later at a cost of $1.2M in engineering time. | Services were split by data ownership (one service per database table) instead of by business capability (one service per user journey). The "entity-based decomposition" pattern creates distributed joins — every use case spans multiple services because business processes naturally involve multiple entities. The monolith was split along the wrong axis. | **Decompose by business capability, not by database entity.** An "Order Fulfillment" service owns orders, inventory, and shipping — not an "Order Service" that only owns the `orders` table. Use Domain-Driven Design event storming to find natural boundaries: which entities change together? Which are read together? If two entities are always queried in the same API call, they belong in the same service boundary. Validate: write the top 10 API calls in the new architecture and measure the number of inter-service calls each requires. If any requires > 2, redraw the boundaries. |
-| Event-driven architecture with Kafka — but no dead letter queue configured, and 2.3M events were silently dropped over 17 days because the consumer deserialization failed on a new field added to the schema | A logistics platform adopted Kafka with an event-driven architecture. The `OrderShipped` event schema evolved: a new `carrier_tracking_url` field was added to the Avro schema. The `notification-service` consumer used an older schema version and couldn't deserialize events with the new field. The default Kafka consumer error handler was `LogAndContinue` — it logged a warning and skipped the message. For 17 days, 2.3M `OrderShipped` events were consumed, deserialization failed, and the events were silently dropped. 2.3M customers never received shipping confirmation emails. The support team noticed when "where is my order?" tickets spiked 400% week-over-week. | The consumer's error handling was "log and skip" — the worst possible choice for an event-driven system. Schema evolution happened unilaterally (producer added field, didn't coordinate with consumers). No dead letter queue captured failed events for replay. No monitoring existed for consumer lag or deserialization error rates. | **Every event consumer must have a dead letter queue (DLQ) and separate error handling for deserialization failures vs business logic failures.** Deserialization failures: stop the consumer, alert, page on-call — schema incompatibility means all subsequent messages will also fail. Business logic failures: retry with exponential backoff, then DLQ. Monitor: consumer lag, DLQ depth, deserialization error rate. For schema evolution: use a schema registry (Confluent, Apicurio) with compatibility checks. Never add a required field without coordinating with all consumers. |
-| C4 diagrams drawn once during the initial architecture review — 18 months later, reality had diverged so completely that 3 of the 7 documented services no longer existed and 2 new critical services were undocumented | A startup's founding engineering team created C4 Container and Component diagrams during their Series A architecture review. They were beautiful: hand-drawn in Structurizr, peer-reviewed, exported to the engineering wiki. Eighteen months and 4 reorgs later, a new architect joined and asked for the system diagrams. The wiki showed 7 services. Reality had 9: 3 of the original 7 had been decommissioned, 2 new services had been built and were handling 40% of production traffic, and 1 service had been split into 3 but still appeared as a single box. The diagrams were worse than useless — they actively misled. An incident investigation was delayed by 45 minutes because the on-call engineer followed a diagram showing a dependency that had been removed 11 months prior. | Diagrams were treated as a one-time deliverable (produce and forget) instead of a living artifact that must evolve with the system. Nobody was accountable for keeping them current. The Structurizr DSL files lived in a separate repo that nobody touched after the initial review. New services were built without updating the diagrams because "that's architecture team work." | **Treat architecture diagrams as code that must pass CI.** Store diagrams in the same repo as the services they describe (e.g., `docs/architecture/`). Add a CI check: on every PR that adds or removes a service, fail if the C4 diagram isn't updated. Use Structurizr DSL or PlantUML — text-based formats that can be diff'd in code review. Run quarterly "architecture reviews" where the team walks the production infrastructure and updates the diagrams live. The rule: if a diagram can't be generated from production data, it's already stale. |
-| "We'll scale horizontally later" — the single-write-master database became the bottleneck at 18 months, but by then the schema had 47 tables with deep foreign key chains that couldn't be sharded | A SaaS startup's CTO made the classic decision: "MySQL with a read replica. We'll shard when we hit 100K users." The schema grew organically: 47 tables with foreign keys spanning 4 levels deep. Queries routinely joined across 6 tables. At 80K users, the write master hit 80% CPU during peak hours. The team explored sharding — but with foreign keys crossing every proposed shard boundary, every major query would need distributed joins. The "just add Citus" migration couldn't work because Citus requires colocating joined tables on the same shard key. The "just add Vitess" migration required rewriting 40% of application queries. The fix: an emergency 3-month project to denormalize, add caches, and split read/write paths — while the database was melting down every afternoon. | "Scale later" decisions assume the schema won't accumulate complexity that makes scaling harder. Every foreign key, every cross-table join, every aggregate query becomes a sharding blocker. By 18 months, the schema had organically grown into a shape that made horizontal scaling nearly impossible without a rewrite. | **Design for sharding from day one, even if you don't implement it.** Pick a shard key for every major table. Avoid cross-shard foreign keys. Denormalize data that's read together into the same shard. Test: can you run your top 10 queries against a single shard without hitting another shard? If no, your sharding strategy is already broken. Run a "sharding drill" at 6 months and 12 months: provision 3 database instances, distribute data by your planned shard key, and measure how many queries fail or need rewriting. |
-| Architecture Decision Record written and stored in Confluence — 18 months later, nobody could find it, and the team made the exact same mistake again because the original rationale was lost | An engineering team spent 2 weeks evaluating PostgreSQL vs CockroachDB for a new service. They wrote a 3-page ADR with benchmarks, tradeoffs, and the final decision (PostgreSQL with the caveat "revisit when we need multi-region writes"). The ADR was stored in Confluence under `/Engineering/Architecture/Decisions/2024-03-postgres-vs-cockroachdb`. Eighteen months later, needs changed: the service now needed multi-region writes. The new team (3 of 5 original members had left) spent 3 weeks re-evaluating databases from scratch, unaware the original ADR existed. They reached the same conclusion — except this time they chose CockroachDB, not knowing that the original team had ruled it out because of a specific stored procedure incompatibility that was still present. The migration to CockroachDB failed 6 weeks in when they hit the exact stored procedure bug the original team had documented. | ADRs are useless if they're not discoverable. Confluence is a document graveyard — content is written once and never found again. The team assumed "it's in Confluence, it's discoverable" — but Confluence search is notoriously bad for technical content, and nobody browses `/Engineering/Architecture/Decisions/` before making decisions. | **Store ADRs in the repository alongside the code they govern.** Directory: `docs/adr/0001-use-postgres-for-user-service.md`. Use a numbered, searchable format. Add a CI check: PRs that modify the architecture must reference an ADR or create one. Use `adr-tools` CLI to manage the decision log. At the top of every ADR: "Status: Superseded by ADR-0014" or "Status: Accepted — Revisit by 2025-06." The rule: a decision isn't final until it's in `docs/adr/` and the team has reviewed it in a PR. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You propose "use microservices" or "use a monolith" without asking "what are the top 5 queries this system must serve, and what are their latency budgets?" | You can design the same system as a monolith, microservices, and event-driven architecture — and articulate the specific tradeoffs of each with quantified estimates (latency, complexity, team topology, operational cost) | A CTO asks you "should we rewrite or refactor?" and you deliver a recommendation backed by production data, risk analysis, and a phased migration plan — and 12 months later the organization completed the transition on time and budget |
-| You draw architecture diagrams in a visual tool (draw.io, Lucidchart) and export them as PNGs that can't be diff'd, versioned, or updated without redoing the entire diagram from scratch | Your architecture diagrams are generated from text-based DSL (Structurizr, PlantUML, C4-PlantUML) stored in the repo, diff'd in PRs, and regenerate on every commit — you haven't touched a visual diagram tool in 2 years | You post-mortem a major incident and 6 months later, your architectural recommendations have prevented the entire class of failure from recurring — and you can prove it with incident data showing a 70% reduction in related Sev1 events |
-| You make architecture decisions alone and announce them in Slack — "we're moving to Kafka, starting next sprint" | Every architecture decision has an ADR with: context, options considered, tradeoffs, decision, consequences, and a revisit date — and it's approved by at least 2 senior engineers who weren't part of the evaluation | You're brought into a struggling project as an "architecture SWAT" — in 2 weeks, you diagnose the root architectural problem, propose a remediation that the team can implement in 3 months, and 6 months later the system is stable |
-
-**The Litmus Test:** Can you receive a 2-page PRD for a system you've never seen, produce C4 Context + Container diagrams, 3 prioritized ADRs, a non-functional requirements document with quantified SLOs, and a 12-month cost projection — all in under 6 hours — and have the CTO approve it without requesting a single structural change?
-
 ## Deliberate Practice
+
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
 ### The Architecture Improvement Loop
@@ -574,12 +411,5 @@ Cache hit rate < 50%? → Remove the cache. It's adding latency.
 **Redesign a system you built 2 years ago using what you know now.** Would you make the same decisions? If yes: you haven't grown enough. If no: write down why. Your old architectures are a record of your thinking at that time. Revisiting them is the fastest way to see your own growth.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- [Complexity Cost Model](references/complexity-cost-model.md) — Complexity cost formula, monolith vs microservices cost comparison, architecture fitness functions
-- [C4 Model](https://c4model.com/) — Simon Brown
-- [Architecture Decision Records](https://adr.github.io/) — adr.github.io
-- [Designing Data-Intensive Applications](https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/) — Martin Kleppmann
-- [Building Microservices](https://www.oreilly.com/library/view/building-microservices-2nd/9781492034018/) — Sam Newman
-- [System Design Interview](https://github.com/donnemartin/system-design-primer) — donnemartin/system-design-primer
-- [The Twelve-Factor App](https://12factor.net/)
-- [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+- **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)
+- **When Monolith Wins**: See [when-monolith-wins.md](references/when-monolith-wins.md)

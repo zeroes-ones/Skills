@@ -1,0 +1,20 @@
+# Production Checklist
+
+<!-- QUICK: 30s — all must pass before presenting to anyone -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Revenue model has both top-down AND bottom-up build — reconcile within 10% | `grep -L "top.down\|bottom.up\|TAM\|quota" model*` → missing dual build | Auto-append "⚠️ Missing dual method — add bottoms-up [reps × quota × attainment] tab" |
+| S2 | Every cost line traces to a driver (headcount, customer count, usage) — no flat % growth | `grep -P "cost.*\d+%.*growth\|grows.*\d+%(?!.*headcount\|customer\|usage)" model*` → driverless cost | Auto-replace: insert "DRIVER: [specify]" comment on any flat-% cost line |
+| S3 | Cash flow statement built from balance sheet (indirect method), not P&L — ending cash ties to balance sheet cash | `grep -L "indirect\|cash flow.*from.*balance\|Δ.*working capital" model*` → P&L-only cash flow | Auto-insert indirect cash flow bridge sheet with ΔAR, ΔAP, ΔDeferred Revenue rows |
+| S4 | Headcount costs fully loaded: salary × 1.25-1.35× for benefits + taxes + equipment + software | `grep -P "headcount.*cost.*\d{4,}(?!.*1\.[2-9])" model*` → salary-only headcount cost | Auto-multiply all headcount cells ×1.30; flag cells where multiplier <1.25 |
+| S5 | SaaS metrics calculated using SaaS-industry-standard formulas — no custom definitions | `grep -i "ARR\|NRR\|LTV\|CAC" *` AND missing `grep -i "ARR = \|NRR = \|definition" *` | Auto-append methodology appendix: "ARR = annualized GAAP subscription revenue; NRR = (start + expansion - churn - downgrade)/start" |
+| S6 | Three scenarios modeled: base, upside (specific catalyst), downside (specific risk) | `ls *scenario* *case* 2>/dev/null \| wc -l` < 3 → insufficient scenarios | Auto-generate 3-tab scenario workbook: Base (50% weight), Upside (25% with named catalyst), Downside (25% with named risk) |
+| S7 | Fundraise model includes: use of funds waterfall, dilution path through next 2 rounds, option pool refresh | `grep -L "use of funds\|dilution\|option pool" fundraise*` → incomplete fundraise model | Auto-add: use of funds tab, dilution waterfall through Series C, option pool refresh row |
+| S8 | Sensitivity tables on at least 2 key drivers (CAC + churn, or growth + burn) | `grep -L "sensitivity\|data table\|what.if" model*` → no sensitivity analysis | Auto-generate 2-way data table: rows=CAC (80%-120%), cols=churn (80%-120%), output=ARR at Year 3 |
+| S9 | Board financials fit on one printed page: revenue waterfall, KPI dashboard, cash + runway, headcount | `file_exists("board_deck*")` → check page count > 1 for financials section | Auto-consolidate: revenue waterfall + KPI dashboard + cash/runway + headcount into single-page executive summary |
+| S10 | Model is version-controlled with date in filename — not `_vFinal_FINAL` | `ls model* \| grep -v "[0-9]\{4\}-[0-9]\{2\}"` → unversioned or ambiguous version | Auto-rename: `model_v7.xlsx` → `model_2026-07-23.xlsx` with ISO date stamp |
+| S11 | Peer benchmarks included: gross margin, opex ratios, ARR/FTE vs. public SaaS comps | `grep -L "benchmark\|peer\|comparable\|comp set" model*` → no benchmark data | Auto-append benchmark table with public SaaS comp quartiles for gross margin, opex %, ARR/FTE |
+| S12 | Deferred revenue modeled separately — cash collected ≠ GAAP revenue (ASC 606) | `grep -L "deferred revenue\|ASC 606\|unearned revenue\|cash collected" model*` → missing deferred rev | Auto-add deferred revenue schedule: cash collected this period, revenue recognized, Δ deferred balance |
+| S13 | Gross margin split by product line if multiple revenue streams exist | `grep "revenue.*stream\|product.*line" *` AND `grep -L "gross margin.*by product\|GM.*split" *` → missing product-level GM | Auto-pivot: add product-line gross margin breakdown if >1 revenue stream detected |
+| S14 | Runway shown in months at current burn AND at 20% burn reduction scenario | `grep -L "runway.*months\|cash.*runway\|months.*cash" model*` → missing runway calc | Auto-calculate: runway_months_current = cash / monthly_burn; runway_months_reduced = cash / (burn × 0.80) |

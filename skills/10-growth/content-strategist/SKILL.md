@@ -34,12 +34,12 @@ chain:
 ---
 
 # Content Strategist
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end content strategy system covering planning, creation, governance, and measurement. Designed for product-led and SaaS organizations building authority through topical depth, structured content operations, and data-driven iteration.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -96,7 +96,6 @@ These rules apply to *every* response this skill produces.
 | **R6** | **DETECT content debt >20% of inventory and block net-new creation** | Trigger: Content audit reveals >20% of published pages driving zero organic traffic for 6+ consecutive months | DETECT. Flag loudly: "Your inventory has {n} zombie pages ({pct}% of total) generating zero traffic for 6+ months. Schedule a cleanup sprint — merge, refresh, or deprecate — before creating anything new. Dead content drags down your site's overall quality signal." |
 | **R7** | **REFUSE to publish content without a documented target keyword cluster** | Trigger: Content brief submitted for review without `keyword_cluster` or `primary_keyword` field populated | STOP. Respond: "This content piece has no keyword target. Every piece must map to a documented keyword cluster — otherwise it's competing blind. Share the keyword research before I review the content." |
 
-
 ## The Expert's Mindset
 
 Master content strategists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
@@ -116,6 +115,7 @@ Master content strategists understand that strategy is not about predicting the 
 ### When to Break Your Own Rules
 - **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -132,6 +132,7 @@ Master content strategists understand that strategy is not about predicting the 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Building a new content program from scratch — defining pillars, audience personas, and editorial workflows
 - Running a content audit to identify gaps, consolidation opportunities, and refresh candidates
@@ -143,6 +144,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Optimizing a content marketing funnel from awareness through conversion and retention
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Content Format Selection
 ```
@@ -295,6 +297,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use Freelance:** <4 pieces/week, general topics — cost-effective, flexible, no benefits overhead.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Strategy Foundation
@@ -326,30 +329,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 3. **Content Refresh Program** — Quarterly: identify pages with declining traffic, update with current data/examples, improve depth, expand keyword coverage, re-publish with new date. Track uplift 30/60/90 days post-refresh.
 4. **Repurposing Engine** — From each high-performing long-form piece, generate: Twitter thread, LinkedIn carousel, email newsletter version, podcast talking points, YouTube script, infographic. Maximize ROI per research investment.
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- Always write for search intent first, search engines second. Google rewards content that satisfies user needs.
-- Use the "inverted pyramid" structure: key takeaway first, supporting details next, background last.
-- Every piece of content should have exactly one primary CTA. Too many choices reduce conversion.
-- Maintain a content debt backlog alongside the editorial calendar — schedule at least one refresh per sprint.
-- Interview subject matter experts before writing technical content; record and transcribe to capture nuance.
-- Repurpose content based on data, not hunches — only promote pieces that have already validated with the target audience.
-- Use the "skyscraper technique" for competitive topics: find the best existing content, make something 10x better, then promote it.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|---|---|---|---|
-| Building editorial calendar from keyword targets alone without writer capacity planning | Schedule only what your team can actually produce — one great post beats four rushed posts; map every assignment to a named writer with estimated hours | `grep -c "TBD\|\"\"\|unassigned" editorial-calendar.*` → >0 unassigned entries | Calendar template requires `assigned_to` and `estimated_hours` fields; reject entries with null values at input |
-| Publishing all content at top-of-funnel (awareness) with no consideration or decision-stage content | Balance 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert); every piece needs a conversion goal tied to funnel stage | `grep -o "TOFU\|MOFU\|BOFU" content-plan.* \| sort \| uniq -c` → if TOFU >60%, flag imbalance | Content tracker enforces funnel-stage distribution; warn when any single stage exceeds 50% of queue |
-| Letting content accumulate as digital debt — 80% of posts from 2 years ago drive zero traffic but remain published | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete; merge thin posts; 301 redirect consolidated pages | `grep "last_updated.*202[0-4]" content-inventory.* \| wc -l` → stale count >30% of inventory | Automated stale-content scanner: pages >18 months old with <10 visits/quarter auto-tagged for review sprint |
-| Repurposing content by copy-pasting the same text across platforms without format adaptation | Tailor each format to its platform: blog → Twitter thread (bite-sized takeaways), LinkedIn (professional narrative with opinion), video (visual demo) | `diff blog-post.md twitter-thread.md \| grep "^>" \| wc -l` → <50% structural difference indicates copy-paste | Repurposing checklist gate: must answer "How does this format differ from source material?" before publish; block if similarity >60% |
-| Letting multiple writers use their own style with no tone-of-voice guidelines — brand sounds like different companies | Create 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples; enforce via editorial review checklist; use Vale linter | `vale --config .vale.ini content/ \| grep -c "warning\|error"` → >0 violations detected | Vale linter in CI pipeline; PR merge blocked if tone violations detected; weekly brand voice audit across all channels |
-| Publishing content because "we haven't posted this week" without a documented content mission or audience need | Every piece maps to a documented customer journey stage, target keyword cluster, and measurable conversion goal — no content for content's sake | `grep -L "journey_stage\|keyword_cluster\|conversion_goal" content/*.md` → files missing required metadata | CMS publish button disabled until `journey_stage`, `keyword_cluster`, and `conversion_goal` fields are populated |
-| Treating content ROI as "pageviews" without connecting to pipeline or revenue | Track content-sourced and content-influenced pipeline; attribute to revenue, not traffic; multi-touch attribution when possible | `grep -L "pipeline_influence\|revenue_attributed" dashboard-config.*` → dashboard missing pipeline columns | Dashboard template requires pipeline-attribution columns; pageviews-only dashboards rejected at config review |
-| Ignoring content that is already performing — always creating new instead of optimizing existing | Before creating new content, refresh top-performing posts with updated data, better depth, more internal links — a refreshed post compounds faster than a new one | `grep "traffic_change.*-\[2-9\]\[0-9\]%" performance-report.*` → declining high-performers detected | Automated decline alert: pages dropping >20% organic traffic over 90 days auto-queued for refresh sprint before any net-new content creation |
-
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 Content strategy sits between marketing, product, SEO, and brand. Content produced in silos underperforms; coordination amplifies reach and relevance.
 
@@ -423,27 +404,6 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 | Content team blocked by CMS or publishing tooling for > 2 weeks | Escalate to engineering/product; request temporary workaround (e.g., publish to staging URL, use alternative CMS); quantify opportunity cost | Blocked publishing is an operational emergency, not a nice-to-have — each week of delay compounds missed traffic and lead generation |
 | Brand voice inconsistency flagged in public by audience — "did someone else write this?" | Audit recent content for voice alignment; reinforce tone-of-voice guide with editorial team; add Vale linter to CI | Brand voice inconsistency erodes trust faster than grammatical errors — audience notices before internal review does |
 
-## Scale Depth
-<!-- QUICK: 30s -- find your team size column -->
-### Solo (1 person, 0-100 users)
-Founder or solo marketer writing everything. Content strategy = a Notion doc. Publish 1-2 posts/week on company blog. Distribution: Twitter/LinkedIn + email to small list. SEO: basic keyword research (free tools), no cluster strategy. No editorial calendar beyond Google Calendar. Measure: page views + email signups. Cost: $0-200/month (CMS hosting, email tool free tier). Overkill: content agency, topic cluster tools, T-shaped writers, multi-channel attribution.
-
-### Small (2-10 people, 100-10K users)
-Hire 1-2 content writers or a fractional editor. Editorial calendar in Airtable/Notion. Publish 2-4 pieces/week. SEO: keyword research (Ahrefs/Semrush), topic clusters, pillar pages. Content refresh cycle established. Distribution: newsletter, social scheduling (Buffer/Hootsuite), syndication. Basic attribution: UTM + CRM tracking. Cost: $3K-10K/month. Overkill: in-house video production, dedicated content operations role.
-
-### Medium (10-50 people, 10K-1M users)
-Content team (3-5): editor, writers, content strategist, freelance pool. CMS with workflows and approvals. SEO: advanced (enterprise Ahrefs, Clearscope/MarketMuse). Content Ops: content management platform (Contentful/Sanity). Multi-channel: blog, newsletter, podcast, webinars, gated assets. Attribution: multi-touch, pipeline influence modeling. A/B test headlines, CTAs, formats. Cost: $15K-50K/month.
-
-### Enterprise (50+ people, 1M+ users)
-Content department (10+): specialists per channel, content ops manager, managing editor. Multi-language, multi-region content operations. AI-assisted content creation + human editorial review. Content supply chain: request → brief → draft → review → publish → distribute → measure. Full attribution: content-sourced vs content-influenced pipeline. Brand-level editorial standards. Cost: $100K-500K+/month.
-
-### Transition Triggers
-| From → To | Trigger | What to Change |
-|-----------|---------|----------------|
-| Solo → Small | >2 posts/week consistently for 3 months, or content requests > 1/day | Hire fractional writer/editor; add SEO tool (Ahrefs/Semrush); implement editorial calendar |
-| Small → Medium | >4 posts/week, 3+ content channels active, or content ROI > $50K/month | Build in-house team; implement CMS workflows; add attribution model |
-| Medium → Enterprise | Multi-language needs, >10 content creators, or content influences >$1M pipeline/month | Dedicate content ops; invest in AI tools; build content supply chain |
-
 ## What Good Looks Like
 
 > Every piece of content maps to a documented stage of the customer journey, a target keyword cluster, and a measurable conversion goal — no one publishes because "we haven't posted this week." The editorial calendar runs three months ahead, aligned with product launches and campaigns, and the content supply chain moves a brief from request to publish without bottlenecking on a single reviewer. Organic traffic compounds month over month because pillar pages earn backlinks naturally, and content ROI is reported in pipeline dollars, not pageviews.
@@ -462,161 +422,6 @@ Run skills in the order shown:
 # Chain B: seo-specialist → content-strategist → technical-writer
 ```
 
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-| Sub-Skill | When to Use | Context |
-|-----------|-------------|---------|
-| **Content Audit & Inventory** | Traffic declining or content bloat >100 pieces | Screaming Frog, Google Analytics, GSC — categorize: keep/refresh/consolidate/delete |
-| **Topic Cluster Architecture** | Building SEO authority for a new or competitive niche | Pillar + cluster model, keyword mapping, internal linking structure — Ahrefs, Semrush |
-| **Editorial Calendar Design** | >2 writers contributing, multiple deadlines/week | Airtable, Notion, CoSchedule — align with product launches, campaigns, events |
-| **Tone-of-Voice & Style Guidelines** | Multi-writer team, inconsistent brand voice across channels | Brand voice charter, style guide, writing templates, editorial review process |
-| **Content Repurposing** | High-performing long-form content exists; want to maximize ROI | Blog → social threads, video scripts, newsletter, slides, infographics, podcast episodes |
-| **Content ROI Measurement** | Justifying content budget or optimizing content investment | Multi-touch attribution, pipeline influence, content scoring — tools: Google Analytics, HubSpot, Salesforce |
-| **B2B vs B2C Content Strategy** | Differentiating approach by audience type | B2B: case studies, whitepapers, webinars, LinkedIn. B2C: blog, video, social, email nurture |
-| **AI-Assisted Content Production** | Scaling output while maintaining quality and brand voice | ChatGPT, Claude, Jasper — draft, research, summarize; human editing for accuracy + voice |
-
-
-<!-- DEEP: 10+min -->
-## Error Decoder
-
-| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `calendar.compliance: assigned_to=NULL for 17 of 30 entries` | Content calendar has 30 scheduled posts but only 5 were published this quarter | Calendar was built from keyword targets alone without writer capacity planning — each post needs 8 hours of research, writing, and editing | Reduce to 10 posts per quarter with confirmed writer assignments. Add buffer: plan for 2 weeks of editing per post. Track capacity, not just deadlines. | 1. Reject calendar entries with null `assigned_to` → 2. Auto-shrink calendar to match confirmed writer capacity → 3. Weekly capacity audit: if slip >2 weeks, cut 25% of remaining quarter's volume → 4. Alert editor with capacity-vs-commitments report |
-| `funnel.distribution: TOFU=85% MOFU=10% BOFU=5%` | Blog traffic dropped 50% after 6 months of consistent publishing | All content was written for top-of-funnel keywords (awareness) — no consideration or decision-stage content to capture readers ready to convert | Map every upcoming piece to a funnel stage. Balance: 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert). Add CTAs that match intent at each stage. | 1. Run funnel distribution audit monthly via `grep` on content metadata → 2. Flag if any stage <15% of total → 3. Auto-reject new TOFU pieces until MOFU/BOFU catch up → 4. Rebalance queue with conversion-goal-weighted prioritization |
-| `inventory.stale: 142 of 178 pages with traffic=0 for 6+ consecutive months` | Content audit found 80% of posts from 2 years ago still published but driving zero traffic | No content refresh or deprecation process — pages accumulate like digital debt, diluting site authority with thin content | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete. Merge thin posts into comprehensive resources. 301 redirect consolidated pages. | 1. Automated stale-content scan runs monthly → 2. Auto-tag pages with 0 traffic for 6 months → 3. Generate cleanup sprint ticket with page list → 4. Block net-new content creation if stale ratio >30% of inventory → 5. Require cleanup completion before unlocking new content pipeline |
-| `repurpose.diff: source_vs_output_similarity=94%` | Repurposing existing content generated almost no engagement despite heavy promotion | Repurposed content was a direct copy-paste of the original blog post into a LinkedIn article — no format adaptation for the platform | Tailor each format to its platform: blog becomes Twitter thread (bite-sized takeaways), blog becomes LinkedIn (professional narrative with opinion), blog becomes video (visual demo). | 1. Pre-publish diff check: compute structural similarity between source and output → 2. Require >40% content difference → 3. Block publish if similarity >60% → 4. Flag for format-specific adaptation checklist → 5. Track engagement per repurposed format; kill formats with <1% engagement rate |
-| `tone.consistency: 3 distinct brand voices detected across 12 recent pieces (variance >2σ from baseline)` | Brand voice is inconsistent across blog, newsletter, and social media — audience asks "did someone else write this?" | No tone-of-voice guidelines existed — each writer used their own style, and the brand sounded like 3 different companies | Create a 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples. Enforce via editorial review checklist and Vale linter in CI. | 1. Vale lint on every PR → 2. Block merge if tone violations detected → 3. Weekly brand voice audit across all channels → 4. Flag writers with >3 violations per piece for coaching → 5. Re-baseline voice model quarterly as brand evolves |
-
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **S1** | Content mission statement is documented and visible to all content creators | `grep -c "content.mission\|mission.statement" content-mission.md \|\| echo "MISSING"` → must return ≥1 | Generate mission-statement template from persona docs and ICP; gate: publish pipeline blocked until mission doc exists |
-| **S2** | Topic cluster map exists with pillar pages and cluster relationships defined | `grep -c "pillar_page\|cluster_page" topic-cluster-map.*` → must return ≥3 cluster relationships | Validate cluster relationships are bidirectional (pillar↔cluster cross-links); flag orphan cluster pages with no pillar parent |
-| **S3** | Editorial calendar covers next 90 days with assignments, deadlines, and distribution plan | `python -c "import csv; from datetime import date,timedelta; rows=list(csv.DictReader(open('calendar.csv'))); cutoff=date.today()+timedelta(days=90); print(sum(1 for r in rows if r.get('date','')>=str(cutoff)))"` → must return ≥ planned count | Auto-shrink calendar to match confirmed writer capacity if unassigned entries >20%; notify editor of gap |
-| **S4** | Content brief template is standardized and used for every assigned piece | `grep -L "target_audience\|keyword_cluster\|conversion_goal" briefs/*.md` → must return empty (no incomplete briefs) | CMS enforces brief template fields; publish blocked if any required field is empty |
-| **S5** | Tone of voice guidelines are published and include do/don't examples for each voice attribute | `vale --config .vale.ini --minAlertLevel warning content/ \| grep -c "warning"` → must return 0 | PR merge blocked if Vale tone violations detected; auto-suggest corrections inline |
-| **S6** | Review workflow is defined with SLAs per stage and tracked | `grep -c "sla_hours\|stage_duration\|review_deadline" review-workflow.*` → must return ≥3 SLA definitions | Auto-escalate reviews exceeding SLA by 2x to next-level editor; notify content lead |
-| **S7** | Content inventory is maintained with status, owner, last-updated, and performance data | `wc -l < content-inventory.csv` → must be ≥ number of published pages | Auto-populate inventory from CMS API weekly; flag rows with missing `owner` or `last_updated` fields |
-| **S8** | Quarterly content audit process is in place — identifies gaps, refreshes, consolidations, and deletions | `find . -name "audit-*" -mtime -90 \| wc -l` → must return ≥1 recent audit | Generate audit ticket automatically on first day of each quarter; block net-new content if stale ratio >30% with no active cleanup sprint |
-| **S9** | Content performance dashboard shows funnel-stage metrics and month-over-month trends | `curl -s https://dashboard-api/metrics \| jq '.funnel_stages \| length'` → must return ≥3 stages | Auto-configure funnel-stage filters from content metadata; alert if dashboard query returns <3 distinct stages |
-| **S10** | Keyword cannibalization is monitored and addressed within each content cluster | `grep -c "cannibaliz\|duplicate_target" seo-audit-report.*` → must return ≥0 with no unresolved flags | Weekly cannibalization scan via GSC API; auto-flag clusters with >1 page targeting same primary keyword; generate merge ticket |
-| **S11** | All published content has structured data (Article, HowTo, or FAQ schema as applicable) | `curl -s https://site.com/page \| grep -c 'application/ld+json'` → must return ≥1 per page | CI pipeline validates JSON-LD presence on every page template; deploy blocked if Article/HowTo/FAQ page missing schema |
-| **S12** | Internal linking strategy is enforced — every new post links to pillar page and 3+ relevant cluster posts | `grep -oP 'href="/[^"]*"' new-post.md \| wc -l` → must return ≥4 internal links (pillar + 3 cluster) | Pre-publish check: require ≥1 pillar link + ≥3 cluster links; block publish if insufficient; suggest relevant pages from inventory |
-| **S13** | Accessibility baseline met: proper heading hierarchy, alt text, sufficient color contrast in embedded graphics | `pa11y-ci --sitemap https://site.com/sitemap.xml 2>&1 \| grep -c "error"` → must return 0 | Block publish if a11y errors detected on content pages; auto-flag for remediation with specific element references |
-| **S14** | Content refresh triggers are automated: pages dropping >20% traffic over 90 days flagged for review | `grep "traffic_drop.*>20%" alerts-config.* \| wc -l` → must return ≥1 active alert rule | Auto-create refresh ticket when organic traffic drops >20% in 90 days; assign to content owner; escalate if untouched for 14 days |
-
-## MVP vs Growth vs Scale
-
-| Phase | Team Size | Content Volume | Priority | Content Approach |
-|-------|-----------|---------------|----------|-----------------|
-| **MVP (0→1)** | 1-3 devs, no content hire | 3-5 foundational pages | Educate early adopters | 1 long-form pillar post + 3 cluster posts + blog. Write in-house (founders or engineers). No calendar. Google Docs → publish. |
-| **Growth (1→10)** | 3-10 devs, 1 content strategist + 1-2 writers | 2-4 posts/week | Build organic pipeline | Topic clusters, editorial calendar, content briefs, freelance writers. CMS (Ghost/WordPress). Quarterly audits. |
-| **Scale (10→N)** | 10+ devs, content team (3-8) | 5-10 posts/week + programmatic | Defend authority, expand TAM | Multi-format (blog, video, podcast, newsletter, social). Content ops platform. Programmatic SEO. Editorial governance. |
-
-**MVP content rule:** Write the 3 pieces your top competitor has that you don't. Make them 2x better. Ship in 2 weeks. Done.
-
-## Cost-Effective Decision Table
-
-| Decision | Free/Cheap Option | Paid Upgrade | When to Upgrade |
-|----------|------------------|--------------|-----------------|
-| CMS / publishing | Ghost (self-hosted, $9/mo VPS) or GitHub Pages + Markdown | WordPress VIP ($2K+/mo) or Contentful ($489/mo) | Need multi-author workflows, localization, or non-dev editors |
-| Keyword research | Google autocomplete + AlsoAsked.com (free tier) | Ahrefs ($99/mo) or SEMrush ($129/mo) | Publishing >4 posts/month with strategic keyword targeting |
-| Content optimization | Manual SERP analysis (look at top 10 yourself) | Clearscope ($170/mo) or MarketMuse ($149/mo) | >8 posts/month and need data-driven briefs at scale |
-| Editorial calendar | Notion / Airtable (free) | CoSchedule ($29/mo) or Asana Premium | Team >4 writers needing calendar + assignment management |
-| Freelance writers | Upwork / personal network ($0.10-0.30/word) | Content agency or in-house hire ($60K-120K/yr) | >8 posts/month or need deep domain expertise |
-| Content analytics | Google Analytics 4 + Looker Studio (free) | ChartMogul + Mixpanel or Amplitude | Need attribution to pipeline/revenue, not just traffic |
-
-**Annual content budget by phase:** MVP: $0-1K (time only). Growth: $15K-60K (freelancers + tools). Scale: $120K-500K+ (team + tools + multimedia).
-
-## Scalability Decision Tree
-
-```
-Do you have >50 unoptimized posts that drive no traffic?
-├── YES → Content audit first. Categorize: keep/refresh/consolidate/delete. Don't write new.
-└── NO → Good. Proceed.
-
-Is your publishing cadence causing quality issues (rushed, thin content)?
-├── YES → Cut cadence by 50%. Double quality. 1 deep post > 4 shallow posts for SEO.
-└── NO → Cadence is fine.
-
-Are you ranking page 2 (positions 11-20) for 15+ target keywords?
-├── YES → "Quick-win" refresh sprint: update those pages with fresher data, better depth, more internal links.
-└── NO → Focus on new content in underserved topic areas.
-
-Is keyword cannibalization visible (2+ pages ranking for same keyword, neither in top 3)?
-├── YES → Merge cannibalized pages into one comprehensive page. 301 redirect the weaker one.
-└── NO → Good targeting discipline.
-
-Are you producing content in 1 format only (all blog posts)?
-├── YES → Repurpose top 3 performers: blog → LinkedIn post → email newsletter → Twitter thread. Zero new research cost.
-└── NO → Already multi-format. Focus on format that drives most conversions.
-```
-
-
-**What good looks like:** A 30-day content calendar published with each piece assigned to a writer, a reviewer, and a distribution channel — not just topics, but drafts are due 5 days before publish for editorial review. Topic cluster model maps every primary keyword to a pillar page and 5-8 supporting articles; internal links connect them. Every content piece has a specific CTA tied to a tracked conversion goal (signup, demo request, PDF download). Content audit within the last 90 days shows what's performing, what's stale, and what needs updating — with a timeline for each action.
-## When NOT to Use This Skill (Overkill)
-
-- **Product hasn't launched yet**: Content strategy before you know who your users are is writing blind. Wait until you have 50+ paying/users customers and can interview them.
-- **Organic isn't your primary channel**: If you're a sales-led enterprise company closing 5 deals/year, content marketing won't move the needle. Invest in sales enablement docs instead.
-- **You have 1 writer (and it's you)**: A 12-month editorial calendar, content brief template system, and quarterly audit process are overkill. Write 1 good post per week. Publish. Learn. Iterate.
-- **Your topic is ultra-niche (TAM <10K people)**: Content strategy at scale assumes a large addressable market. If your audience is 500 CTOs at Fortune 500, do 1:1 outreach, not content marketing.
-- **You're in a regulated industry where all content needs legal review (pharma, finance)**: Standard content velocity advice doesn't apply. Plan for 2-4 week legal review cycles and lower cadence.
-
-## Token-Efficient Workflow
-
-```
-# Step 1: Quick audit — which content to refresh first?
-# Run a script that queries GA4/GSC API, outputs prioritized list as JSON
-python3 scripts/content_audit.py --site example.com --min-age 180 --output json
-# Returns: [{"url":"/blog/x","traffic_change":-40,"priority":"high"}, ...]
-
-# Step 2: Decision tree → pick action
-# Traffic drop >30% + age >6 months → REFRESH (update data, expand, republish)
-# Ranking position 4-15 → QUICK WIN (improve title, meta, internal links)
-# Traffic <10 visits/month + age >12 months → DELETE or CONSOLIDATE
-
-# Step 3: Execute the single action. Verify with exit codes.
-# Check if a page has proper heading structure
-curl -s https://example.com/blog/x | python3 -c "
-import sys, re
-html = sys.stdin.read()
-h1 = len(re.findall(r'<h1[^>]*>', html))
-h2 = len(re.findall(r'<h2[^>]*>', html))
-print(f'H1:{h1} H2:{h2}')
-sys.exit(0 if h1 == 1 else 1)
-"
-
-# Step 4: Verify impact — re-run audit after 30 days
-python3 scripts/content_audit.py --site example.com --url /blog/x --compare-30d
-```
-
-**Principle:** Automated audit scripts output JSON. Agent reads structured data, not prose. Decision tree maps every audit finding to exactly one action. No deliberation loops.
-
-## Footguns
-<!-- DEEP: 10+min — war stories from content strategy and editorial operations -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Published 200 blog posts targeting high-volume keywords over 18 months — zero conversions because the content attracted researchers and students, not buyers with purchasing authority | A B2B SaaS content team at $5M ARR published 200 blog posts in 2022-2023 targeting keywords like "what is data integration" (12K monthly searches). Traffic grew to 80K monthly visits. But conversion rate was 0.02% — 16 trial signups from 80,000 visitors. The content attracted information-seekers (students writing papers, junior analysts doing research) who had zero purchase intent. Pipeline from content was $0. The team had built a traffic machine, not a pipeline machine. | Keyword selection prioritized search volume over buyer intent. "What is data integration" is a top-of-funnel research query — the searcher wants a definition, not a vendor. High-intent keywords ("best data integration tools," "Fivetran alternatives," "data integration pricing") had lower search volume (500-2K/month) but 10-50× higher conversion rates. | **Map every content topic to a funnel stage and buyer persona before assigning it.** High-volume informational keywords → ungated, educational content for SEO authority (top of funnel). Mid-volume comparison/alternative keywords → gated comparison guides and buyer's guides (middle of funnel). Low-volume high-intent keywords → product pages, case studies, and "talk to sales" CTAs (bottom of funnel). Measure conversions, not traffic. A 500-visit page that generates 5 demos is worth 100× more than a 50,000-visit page that generates 0. |
-| Hired 5 freelance writers with no content briefs, style guide, or editorial review process — 80 articles produced in 3 months, all off-brand, $45K spent, entire library had to be rewritten | A growth-stage startup hired 5 freelance writers in Q1 2023 to scale content production. Each writer was given a keyword and a word count — no brief, no style guide, no examples of on-brand content. In 3 months, they produced 80 articles. The CMO reviewed them in April: every article was factually shallow (no original research, no customer examples, no data), tonally inconsistent (some academic, some BuzzFeed-casual), and SEO-deficient (no internal links, no structured data, no headings hierarchy). The entire library was scrapped. $45K in writer fees + 3 months of calendar time was lost. | The content operation scaled writers before scaling process. Content briefs, style guides, and editorial review are the assembly line — without them, you're paying for raw materials (words) that can't become finished products (publishable articles). | **Never assign a piece of content without a brief.** Minimum brief contents: (a) target keyword + search intent, (b) audience/persona, (c) 3-5 questions the article must answer, (d) 3 competitor articles to beat, (e) recommended structure/headings, (f) internal links to include, (g) CTA and conversion goal, (h) 1-2 credible external sources to cite. Require a draft from 1 writer before hiring 4 more — validate the process, then scale. |
-| Ran a "content refresh" project that updated 60 blog posts by changing the publish date and adding 100 words — Google detected "freshness abuse," traffic dropped 40%, and the domain got a manual action warning | A content team needed to improve SEO performance in Q4 2023. Their strategy: "refreshing" 60 old blog posts. In practice, each "refresh" was: change publish date to current month, add 100 words of generic text, and resubmit to Google. Within 3 weeks, Google detected the pattern. Traffic to the refreshed pages dropped 40%. Google Search Console showed a "manual action" warning for "thin content with artificial freshness signals." Recovery took 4 months and required genuinely rewriting 47 of the 60 pages. | The team optimized for the signal (freshness) without delivering the substance (actually updated content). Google's freshness algorithm evaluates whether the content substantively changed — not whether the date changed. The pattern of 60 pages getting "updated" simultaneously was algorithmically obvious. | **A content refresh must make the page substantively better, not just newer.** Minimum refresh standards: (a) replace all outdated statistics/data with current year data, (b) add 1-2 new sections addressing questions that have emerged since original publish, (c) update screenshots/examples to current product version, (d) improve the page against the current top-3 ranking pages ("what do they cover that we don't?"). Refresh in batches of 5-10 max — never 60 at once. A refreshed page should earn its new date. |
-| Built 25 topic clusters around keywords with 0-10 monthly search volume — 150 articles ranking #1-3 for terms nobody searches | A content strategist at a developer tools company researched 25 topic clusters using a keyword tool that defaulted to "broad match" volume. They built 6 articles per cluster — 150 articles total over 12 months. The content ranked #1-3 for target keywords, so the project was declared a success. But organic traffic barely moved. Investigation revealed all 25 "pillar" keywords had actual search volume of 0-10/month — the tool had inflated volumes by grouping related queries. The company had built a content empire in a ghost town. | Keyword volume data was never validated. The strategist trusted a single tool's broad-match estimates instead of cross-referencing with Google Keyword Planner (which shows exact-match impression data) and Google Trends. "API monitoring for Node.js developers" looked like 2,400/month in the tool — actual volume was 30/month. | **Cross-validate keyword volume with at least 2 tools before building content.** Use Google Keyword Planner (free, requires ad account) for impression data. Check Google Trends for relative interest over time. For B2B keywords under 100/month, validate by searching the term yourself: are there ads on the SERP? Do the top 3 results have recent dates? If no one is advertising and the top results are from 2019, the keyword has no commercial intent and likely negligible volume. |
-| Tracked content success by page views for 2 years — then discovered that the top 10 blog posts (70% of traffic) generated 3% of pipeline, while 1 comparison page (2% of traffic) generated 40% of pipeline | A content team's primary KPI was "monthly blog traffic." After 2 years of optimization, blog traffic hit 200K/month — but the pipeline was flat. A detailed attribution analysis revealed: the top 10 blog posts (140K monthly visits, 70% of traffic) generated 3% of content-attributed pipeline. One comparison page — "Product A vs Competitor B" — had 4K monthly visits (2% of traffic) but generated 40% of pipeline because it captured high-intent comparison shoppers. The team had been optimizing the wrong content for 2 years. | A single vanity metric (page views) drove content decisions. The team never segmented content performance by funnel stage or business outcome. High-traffic informational posts were impressive in board presentations but irrelevant to revenue. | **Report content performance by funnel stage, not just total traffic.** Dashboard: (a) Top-of-funnel content → measured by traffic + rankings (brand awareness), (b) Middle-of-funnel content → measured by email captures + return visits (nurturing), (c) Bottom-of-funnel content → measured by demo requests + trials + pipeline (conversion). If bottom-of-funnel content is generating more pipeline per post than top-of-funnel, shift resources there — even if the traffic numbers are smaller. The board doesn't care about 200K visits; they care about 200 demos. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You report "blog posts published" and "page views" to leadership — and can't answer the question "how much pipeline did content generate last quarter?" | You can audit a 200-page content library in 2 weeks, categorize every page as keep/refresh/consolidate/delete, and project the traffic impact of your recommendations — and actual results are within 30% of projection | You inherit a content library with 500 pages, 0 strategy, and no conversion tracking — and within 12 months it's a structured, revenue-attributed content engine generating >30% of company pipeline |
-| Your editorial calendar is a list of topics you "think would be interesting" — no keyword research, no audience validation, no distribution plan per piece | You've killed a topic cluster mid-build because competitor research showed the keyword had negligible commercial intent — and you redirected the $15K of writer budget to high-conversion comparison content that generated pipeline within 30 days | A CEO asks you "should we invest in content, paid ads, or events for our next growth phase?" and you deliver a model with CAC, LTV, channel capacity, and 18-month ROI projections per channel — using actual data from your content attribution |
-| You've never conducted a content audit or deleted a page — your site has 400 blog posts, 200 of which get <10 visits/month and have outdated information | Every piece of content you commission has a brief specifying audience, funnel stage, conversion goal, and target keyword — and writers say your briefs make their job easier, not harder | The content strategy you built 2 years ago is still the operating system for a team of 8 — because the topic cluster architecture, editorial standards, and attribution model you designed scaled from 50 to 500 articles without breaking |
-
-**The Litmus Test:** You're dropped into a company with 300 published articles, no content strategy, and a CEO who says "content doesn't work for us — we've published for 2 years and seen zero pipeline." Can you audit the library, identify the 10 pages that should generate pipeline but don't, fix them, and produce a pipeline number within 90 days? If the CEO changes their mind about content marketing based on your work, you're L3.
-
 ## Deliberate Practice
 
 ```mermaid
@@ -634,10 +439,20 @@ graph LR
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- [Content Marketing Institute — B2B Content Marketing Benchmarks](https://contentmarketinginstitute.com/)
-- [HubSpot — Topic Clusters and Pillar Pages](https://blog.hubspot.com/marketing/topic-clusters-seo)
-- [Backlinko — Skyscraper Technique](https://backlinko.com/skyscraper-technique)
-- [Google — Search Quality Evaluator Guidelines](https://static.googleusercontent.com/media/guidelines.raterhub.com/en//searchqualityevaluatorguidelines.pdf)
-- [Clearscope — Content Optimization](https://www.clearscope.io/)
-- [Animalz — Content Strategy Blog](https://www.animalz.co/blog/)
+
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Cost-Effective Decision Table**: See [cost-decisions.md](references/cost-decisions.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
+- **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+- **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
+- **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)
+

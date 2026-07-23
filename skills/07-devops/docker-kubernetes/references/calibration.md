@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You `docker run` from a blog post without reading the Dockerfile. You've never looked at a container's `docker history` or know what layers are | Every container in production has an SBOM, pinned base image digests, and passes Trivy/Grype scan in CI. You can read a Dockerfile and predict the layer count and total image size within 10% | You've migrated an organization of 50+ services from EC2 to Kubernetes with zero downtime, and the platform automatically right-sizes CPU/memory requests based on 30-day actual usage trends |
+| You set requests = limits because you read it's "best practice" — you don't know what CFS throttling is or why your 99th percentile latency is 40x worse under load | You know the difference between compressible (CPU) and incompressible (memory) resources. Your services have `requests = 80th percentile actual usage` and `limits = 2x requests` for CPU, and you monitor throttling per-container | You've tuned a 200-node production cluster where no pod has been OOMKilled in 6 months, no node has exceeded 70% CPU, and the cluster's bin-packing efficiency is above 85% — and you can prove all three with Grafana dashboards |
+| You install Helm charts with `helm install stable/mysql` and don't know what RBAC permissions the chart requested — you trust the internet | You read every Helm chart's values.yaml before deploying; you've caught and fixed insecure defaults (privileged containers, hostNetwork, writable rootfs) in 3 community charts this year | You've built a Helm chart library used by 40+ teams, with automated testing (helm-unittest + terratest), a schema validation that rejects invalid values files at PR time, and a chart museum with versioned, signed artifacts |
+
+**The Litmus Test:** Can you receive a "cluster down" page at 2:00 AM, SSH into the control plane node with a broken API server, diagnose the problem from etcd logs and kubelet journals without `kubectl` working, and restore the cluster to serving production traffic in under 30 minutes?

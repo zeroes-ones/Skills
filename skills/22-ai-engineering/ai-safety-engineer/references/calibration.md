@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You implement a keyword blocklist and call it "content safety" — and you've never tested it in a language other than English | You have automated safety evals that run on every deployment, multilingual guardrails that detect harmful intent (not just keywords), and a red team that includes external testers | Your safety system has been in production for 18+ months without a single high-severity incident, your false positive rate per demographic cohort is published and within 1% equity, and regulators have cited your safety documentation as an industry best practice |
+| Your red team found zero jailbreaks and you consider that a success | Your red team finds jailbreaks consistently, you fix them before launch, and you run a public bug bounty that has surfaced vulnerabilities your internal team missed | You've contributed a novel jailbreak technique or defense to the academic literature (a peer-reviewed paper, not a blog post), and safety teams at other companies cite your work in their threat models |
+| You discover a safety issue during a manual spot-check and fix it — but you have no idea how long it's been live | Your monitoring detects safety regressions within 24 hours and your rollback procedure restores the previous safe model in under 10 minutes | You've designed a multi-layered safety architecture where a single layer failure is caught by the next layer — and you've proven it with a chaos engineering exercise where you deliberately disabled the input guardrail and the output guardrail caught 100% of the resulting harmful generations |
+
+**The Litmus Test:** Take your production AI system. Disable one safety layer at random (input guardrail, output guardrail, or content classifier). Does another layer catch the failures before they reach users? If any single layer failure results in harmful output reaching users, your safety architecture is a chain, not a mesh — and chains break. If you can't confidently answer this question because you've never tested it, you're deploying hope, not safety.

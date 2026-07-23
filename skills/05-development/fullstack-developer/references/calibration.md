@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can build a CRUD app but don't know what happens when the database connection pool is empty — you assume "the cloud handles that" | You can open Chrome DevTools, trigger a user flow, trace the request through the Network tab → API route → database query log → back, and identify which layer adds the most latency — then fix it | Your fullstack app handles 1,000 concurrent users on a $20/month single VPS without error rates exceeding 0.1% — and you can explain exactly which bottlenecks you'd hit at 10,000 users |
+| You store secrets in `.env.local` and copy them manually between environments — you've accidentally committed a `.env` file at least twice | You have a secrets management pipeline: secrets never touch developer machines, they're injected at runtime via Vault/Infisical/Doppler, and a pre-commit hook blocks any file containing `SECRET\|KEY\|TOKEN` | You define the secrets management standard for your org — developers push code, and secrets are automatically provisioned per-environment with automatic rotation every 90 days |
+| You test your app by clicking through the happy path in Chrome and calling it done — "the error states will be handled later" | Your E2E tests cover the happy path, error path (API down), empty state (no data), and edge cases (long strings, special characters, concurrent requests) for every critical flow | You ship a feature on Friday at 5 PM and go camping for the weekend with no cell service — and no one pages you because the monitoring, alerts, and graceful degradation you built handle every failure mode |
+
+**The Litmus Test:** Build an auth system from scratch — signup, login, session refresh, password reset, email verification — with NO frameworks (no NextAuth, no Auth0, no Clerk). You must handle: token storage (httpOnly cookie vs localStorage tradeoffs), CSRF protection, refresh token rotation with replay detection, and rate limiting. Deploy it on a $6/month VPS. If you reach for Auth0 because "it's too complicated," you don't understand what Auth0 is doing — and that's fine, but you're not L3.

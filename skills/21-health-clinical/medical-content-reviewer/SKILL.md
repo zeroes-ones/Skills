@@ -36,14 +36,15 @@ chain:
   - patient-health-educator
   alternatives:
   - compliance-officer
-------
-# Medical Content Reviewer
+---
 
+# Medical Content Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ensure every piece of health content in your app is clinically accurate, evidence-based, and legally defensible. This skill covers medical accuracy review workflows, misinformation detection, evidence quality assessment, disclaimer drafting, and adverse event trigger identification — specifically for digital health apps and patient communities.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -80,6 +81,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- QUICK: 30s -->
 These rules apply to *every* response this skill produces. Medical content review is a clinical responsibility, not an editorial one.
 
@@ -91,7 +93,6 @@ These rules apply to *every* response this skill produces. Medical content revie
 | **R4** | **REFUSE to delete community content solely because it contradicts standard of care.** Treatment decisions are between patients and providers. Content differing from standard of care should be flagged with context, not censored. | Trigger: `file_contains("*", "delete")` OR `file_contains("*", "remove")` AND `file_contains("*", "contradicts")` AND NOT `file_contains("*", "dangerous")` AND NOT `file_contains("*", "immediate.harm")`. | STOP. Respond: "This content differs from standard of care but does not meet the threshold for removal. Instead: (1) flag for clinical review, (2) add context: 'This is different from what your doctor may have recommended. Always talk to your doctor before changing your treatment.' Only remove if it poses immediate risk of harm." |
 | **R5** | **DETECT and gate all AI-generated health content behind mandatory clinical review.** AI may hallucinate DOIs, quote superseded guidelines, or make errors a non-clinician would miss. AI content published without clinical review is a patient safety incident. | Trigger: `file_contains("*", "AI-generated")` OR `file_contains("*", "GPT")` OR `file_contains("*", "LLM")` AND `file_contains("*", "health")` AND NOT `file_contains("*", "clinically.reviewed")` AND NOT `file_contains("*", "reviewed.by")`. | FLAG. Respond: "AI-generated health content detected without clinical review gate. I will NOT publish this. Required before publication: (1) human clinician review, (2) verification of every citation (check DOIs resolve), (3) validation of all claims against current guidelines, (4) AI-content disclaimer added. Gate enforced." |
 | **R6** | **REFUSE to delete an adverse event report — AE deletion does not delete the reporting obligation.** If a patient reports a serious side effect or device malfunction, that may be a reportable AE to the FDA. Deleting the post doesn't delete the legal duty to report. | Trigger: `file_contains("*", "side.effect")` OR `file_contains("*", "reaction")` OR `file_contains("*", "malfunction")` AND `file_contains("*", "delete")` OR `file_contains("*", "remove.post")`. | STOP. Respond: "This content describes a potential adverse event. DO NOT DELETE IT. Instead: (1) log the AE in the AE tracking system, (2) determine FDA reportability (serious + unexpected = 15-day report), (3) follow the AE reporting workflow, (4) only after reporting obligations are met: redact PII and gate content behind a clinical context notice. Deleting the post does not delete the reporting obligation." |
-
 
 ## The Expert's Mindset
 
@@ -112,6 +113,7 @@ Master medical content reviewers carry a dual responsibility: technical excellen
 ### When to Break Your Own Rules
 - **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -128,6 +130,7 @@ Master medical content reviewers carry a dual responsibility: technical excellen
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
 - Before publishing any new patient-facing health education content (article, video, infographic, FAQ)
@@ -140,6 +143,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Auditing existing app content for outdated or inaccurate medical information
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s — table of who to talk to when -->
 Medical content review operates at the intersection of clinical accuracy, regulatory compliance, and patient safety. Every content approval carries clinical liability — coordination with clinical, regulatory, and content teams ensures evidence-based content that is legally defensible and medically safe.
 
@@ -190,9 +194,10 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 | Medical misinformation detected at scale (>100 posts across multiple threads) | Activate misinformation response protocol: triage → pattern analysis → clinical risk assessment → policy update → community notification within 24 hours | Misinformation at scale normalizes dangerous beliefs — speed of response determines whether it becomes "common knowledge" in the community |
 | Content review backlog exceeds 48 hours for high-risk content (treatment, dosing, procedures) | Escalate to medical director; bring in additional reviewers; prioritize by clinical risk — low-risk lifestyle content can wait, treatment content cannot | A 48-hour delay on treatment content review means patients may see unverified claims for 2 days — that's unacceptable for high-risk content |
 | Off-label use discussed in patient community without clinical context | Do NOT delete; add moderator note with balanced information: "This medication is FDA-approved for [indication]. Some doctors prescribe it off-label for [other use]. Here's what the evidence says. Talk to your doctor." | Patients discuss off-label use because they're seeking options — suppressing the conversation drives it underground; balanced context serves safety |
-| Reviewer disagreement on content accuracy between two qualified clinicians | Route to third reviewer (medical director or specialist) within 48 hours; document the disagreement and resolution; use as training case for future reviews | Disagreement between qualified reviewers is not failure — it surfaces genuine clinical nuance that patients benefit from understanding | 
+| Reviewer disagreement on content accuracy between two qualified clinicians | Route to third reviewer (medical director or specialist) within 48 hours; document the disagreement and resolution; use as training case for future reviews | Disagreement between qualified reviewers is not failure — it surfaces genuine clinical nuance that patients benefit from understanding |
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Community Content Triage
@@ -252,6 +257,7 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 **Dangerous claims (remove immediately):** "Stop taking your factor — I switched to herb X and I'm cured." "Here's how to compound your own factor at home." "Children don't need prophylaxis; it's overprescribed." These cause direct harm. **Off-label but not dangerous (flag with context):** "My doctor prescribed X for my chronic synovitis" — off-label but may be legitimate. Add context, don't remove.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 ### Phase 1 (~20 min): Clinical Accuracy Review of Published Content
@@ -274,61 +280,8 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 
 **What good looks like:** AE detection workflow documented and understood by content moderation team. AE log maintained. Reportable AEs submitted within regulatory timelines. Privacy maintained throughout (no patient identity shared unless required by regulation).
 
-## Best Practices
-<!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -- rules extracted from health content review experience -->
-
-- **One clinician reviewer is not enough for high-risk content.** For any content about treatment decisions, dosing, or procedural instructions, have two independent reviewers. Disagreements go to a third reviewer (medical director or specialist). A single reviewer can miss subtle errors.
-- **Update content when guidelines change.** WFH (World Federation of Hemophilia) guidelines are updated every 4-5 years. NHF MASAC recommendations are updated annually. Set a content review schedule aligned with guideline update cycles. Outdated guidelines in patient-facing content are a liability.
-- **Distinguish between "not approved by FDA" and "not proven."** Many treatments used in hemophilia care are used off-label (e.g., emicizumab was used off-label for some indications before full approval). Off-label ≠ unsafe. Flag off-label use with context, not alarm.
-- **Language matters in health content.** "Prophylaxis prevents bleeds" is accurate. "Prophylaxis guarantees you won't bleed" is not. Always include appropriate qualifiers: may, can, some patients, in clinical trials, depending on your specific condition. Absolute statements in health content are almost always wrong.
-- **Community content about side effects is both a risk and an opportunity.** Risk: unverified claims may scare patients away from effective treatments. Opportunity: real-world side effect patterns that clinical trials missed may be detected early. Treat community side effect discussion as safety surveillance, not noise.
-- **AI-generated health content must meet the same standard as human-written content.** Never publish AI-generated health content without clinical review. The AI may cite papers that don't exist (hallucinated DOIs), quote guidelines that have been superseded, or make subtle errors that a non-clinician would miss.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Single clinician reviews high-risk content (treatment, dosing, procedures) without second review | Two independent reviewers for all treatment/dosing/procedure content; disagreements go to medical director or specialist for tie-breaking | `grep -r 'reviewed.by' --include='*.md' \| grep -c 'reviewed.by'` — flag files where count = 1 for high-risk topics | Pre-commit hook: reject files tagged `high-risk` with <2 `reviewed.by` signatures |
-| Publishing content with absolute statements about health outcomes | Always include appropriate qualifiers: "may," "can," "some patients," "in clinical trials" — absolute statements in health content are almost always wrong | `grep -rn 'guarantees\|always\|never\|cures\|eliminates\|100%' --include='*.md' --include='*.html'` | Pre-commit hook: block absolute health claims; suggest qualifier: "may," "can," "some patients" |
-| Treating all off-label drug discussions as policy violations | Distinguish between "not FDA-approved" and "not proven"; add balanced clinical context rather than deleting — patients discuss off-label use because they're seeking options | `grep -r 'off.label\|off-label' --include='*.md' \| grep 'violation\|delete\|remove'` — flag off-label → deletion path | CI gate: off-label content flagged for deletion must pass clinical review override; auto-escalate to medical director |
-| Content review schedule not aligned with guideline update cycles | Map all content to governing guidelines (WFH: every 4-5 years; NHF MASAC: annually); schedule re-review when guidelines update; flag content referencing superseded guidance | `grep -r 'guideline\|MASAC\|WFH\|ISTH' --include='*.md' \| grep -v '202[4-6]\|revision.date'` — flag guideline references without recent dates | Scheduled CI job: scan all content quarterly against guideline registry; auto-flag content >6 months past guideline update |
-| AI-generated health content published without human clinical verification | Every AI-generated health output must pass human clinical review; verify every citation (AI hallucinates DOIs); check all claims against current guidelines before publication | `grep -r 'AI-generated\|GPT\|LLM' --include='*.md' \| grep -v 'clinically.reviewed\|reviewed.by'` — flag AI content missing review gate | Pre-publish gate: block deployment of any file tagged `ai-generated` unless accompanied by `clinically.reviewed` metadata |
-| Dismissing community side-effect discussions as anecdotal noise | Treat community side-effect reports as safety surveillance data: log patterns, track frequencies, escalate clusters — patient-reported signals have detected issues clinical trials missed | `grep -r 'anecdotal\|just.noise\|ignore' --include='*.md' \| grep 'side.effect\|AE\|reaction'` — flag dismissive language about AE reports | Auto-escalation rule: any side-effect discussion with ≥5 unique patient reports in 30 days → trigger safety signal review |
-| Content flagged as medically inaccurate but left online pending "review cycle" | Remove or gate inaccurate content immediately if it poses clinical risk; the review cycle can wait — patient safety cannot | `grep -r 'flagged\|inaccurate\|pending.review' --include='*.md' \| grep -v 'removed\|gated\|hidden'` — flag content that's flagged but still publicly visible | Auto-gate rule: any content with `accuracy_risk = high` → immediately set visibility to `clinician_only` until review complete |
-| Using complex medical terminology in patient-facing content without plain-language alternatives | Every clinical term must have a plain-language equivalent on first use; target 6th-8th grade reading level; validate with health literacy assessment tool | `grep -rn 'thrombocytopenia\|prophylaxis\|hemarthrosis\|synovitis\|inhibitor.titer' --include='*.md' \| grep -v 'also called\|also known as\|meaning\|plain.language'` — flag undefined medical terms | Pre-commit hook: `flesch-kincaid --max 8` on patient-facing content; block if score >8th grade; auto-suggest plain-language alternatives |
-
-## Error Decoder
-<!-- DEEP: 10+min -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------------|---------|------------|-----|----------------------|
-| `harm.level.*1` OR `patient.harmed` OR `adverse.outcome` in audit log | Patient follows bad advice from community post and is harmed | Misinformation detection missed the post or escalated too slowly | Audit detection rules for that content type. Add the trigger term to detection library. Re-train moderation team on harm levels. Ensure all Level 1 triage is sub-5 minute response time. | 1. `grep 'detection.rule'` for the missed content category → 2. Identify missing trigger term → 3. `add-detection-rule --term "<term>" --level 1` → 4. `run-retroactive-scan --term "<term>" --window 90d` → 5. Flag any additional matches → 6. Verify SLA: `check-triage-sla --level 1 --threshold 300` (seconds) |
-| `disclaimer.insufficient` OR `regulatory.liability` in legal review | Legal flags a disclaimer as insufficient for regulatory liability | Disclaimer doesn't specify it's not medical advice or doesn't include AE reporting info | Use the disclaimer language from Phase 3 verbatim. Have legal review all disclaimer text before publication. Add AE reporting notice on any page that mentions specific medications. | 1. `grep 'disclaimer'` on flagged page → 2. Verify contains "This is not medical advice" → 3. Verify contains AE reporting contact → 4. `apply-disclaimer-template --type health-content --include-ae-notice` → 5. Re-submit for legal review → 6. Log review approval date |
-| `error.found.in.published` OR `retroactive.fix` | Clinician reviewer finds an error in content that was already reviewed and published | Single-reviewer process missed an edge case | Add second reviewer requirement. Implement pre-publication hold: content cannot publish until 2 reviewers sign off. Retroactively fix all published content in that category. | 1. Identify the edge case the single reviewer missed → 2. Fix the content immediately → 3. `grep -r 'reviewed.by'` — find all content with only 1 reviewer → 4. `add-reviewer-gate --min-reviewers 2 --content-type <type>` → 5. Re-review all single-reviewed content in that category → 6. Audit all published content in same category |
-| `pharma.complaint` OR `product.label.contradiction` | Pharma partner complains that community content contradicts their product label | Community personal experiences may not match FDA label — which is expected and legal | Add contextual disclaimer on the specific thread. Do not remove the post unless it's actually dangerous. | 1. Verify the post is a personal experience (not a false factual claim) → 2. `apply-disclaimer-template --type community-experience --product <name>` → 3. Add: "This member's experience may differ from the FDA-approved labeling. Always follow your healthcare provider's guidance." → 4. Do NOT delete unless content is dangerous → 5. Document pharma complaint + response for audit trail |
-| `AI.harm.report` OR `user.harmed.by.AI` | User reports that AI-generated health advice caused them harm | AI-generated content wasn't clinically reviewed before publication | Immediately remove ALL AI-generated health content from the app. Implement mandatory clinical review gate before any AI content is published. Add AI content disclaimer when restored. | 1. `set-visibility --all ai-generated --to clinician_only` → 2. Audit the specific AI output that caused harm → 3. `add-review-gate --type ai-health-content --required` → 4. Review and fix all AI health content before restoring → 5. Add `ai-generated` disclaimer to every restored piece → 6. Implement permanent CI gate: block deployment of any AI health content without `clinically.reviewed` metadata |
-| `viral.side.effect` OR `treatment.discontinuation.spike` | Community post about a side effect goes viral, causing treatment discontinuation | No context was added to the post, and no clinician response was provided | Proactive protocol: when a side-effect post gains traction, have a clinician respond publicly within 24 hours. | 1. `detect-viral-content --threshold 1000 views/24h --topic side-effect` → 2. Auto-escalate to clinical response team → 3. `post-clinician-response --template side-effect-context` → 4. Template: "We understand this member experienced X. If you're experiencing a side effect, talk to your doctor. Do not stop your medication without consulting them." → 5. Monitor treatment adherence metrics for 7 days → 6. If adherence drop >5%: trigger proactive outreach to affected patients |
-
-## Production Checklist
-<!-- QUICK: 30s -- all must pass before clinical content review is operational -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| [M1] | Clinical content review workflow documented: claim extraction → source verification → classification → action | `grep -r 'claim.extraction\|source.verification\|classification\|action' --include='*.md'` — must have all 4 steps | Run `review-workflow-bootstrap --template clinical-content` to auto-generate workflow doc |
-| [M2] | Review covered by at least 1 clinician (2 for treatment/dosing/procedural content) | `grep -c 'reviewed.by' <content-file>` — must be ≥1 (≥2 for high-risk) | `add-reviewer-requirement --min 1 --high-risk-min 2` to enforce reviewer counts in metadata |
-| [M3] | Misinformation detection rule library built with minimum 20 rules across all 4 harm levels | `grep -c 'rule:' misinformation-rules.yaml` — must be ≥20; `grep 'level:' \| sort \| uniq -c` — must cover levels 1-4 | Run `misinfo-rule-scaffold --min-rules 20` to auto-generate starter rules from content corpus |
-| [M4] | Disclaimers placed on all health education pages, community threads, and AI-generated content | `grep -rL 'disclaimer\|not.medical.advice' --include='*.html' --include='*.md' health-content/` — list files missing disclaimers | Run `disclaimer-audit --target health-content/` to auto-inject missing disclaimer templates |
-| [M5] | Legal reviewed and approved all disclaimer and liability language | `grep -r 'legal.approved\|legal.review.date' disclaimers/` — every disclaimer must have approval metadata | `add-legal-review-check --path disclaimers/` to flag unapproved disclaimers; block deployment |
-| [M6] | Adverse event detection workflow documented: triggers identified, reporting obligations understood, AE log active | `grep -r 'AE.workflow\|adverse.event.triggers\|reporting.obligation' --include='*.md'` — must document all 3 | Run `ae-workflow-bootstrap --regulator FDA` to auto-generate AE detection + reporting workflow |
-| [M7] | Content review schedule aligned with clinical guideline update cycles (WFH, NHF MASAC, ISTH) | `grep -r 'review.schedule\|next.review' --include='*.md' \| grep -v '202[5-6]'` — flag content with stale review dates | Run `review-schedule-sync --guidelines WFH,MASAC,ISTH` to auto-align review dates with guideline cycles |
-| [M8] | AI-generated health content gate: mandatory clinical review before publication | `grep -r 'ai-generated' --include='*.md' \| grep -v 'clinically.reviewed'` — must return empty (all AI content reviewed) | CI gate: block deployment of any file with `ai-generated` tag lacking `clinically.reviewed` metadata |
-| [M9] | Community content triage response SLAs defined: Level 1 < 5 min, Level 2 < 24h, Level 3-4 < 72h | `grep -r 'sla\|response.time\|triage.sla' --include='*.yaml' --include='*.md'` — must define SLAs for all 4 levels | Run `sla-config-bootstrap --template community-triage` to auto-generate SLA config with monitoring |
-| [M10] | Audit trail maintained for all clinical content reviews (claim, source, classification, action, reviewer) | `grep -r 'audit.log\|AuditEvent\|review.audit' --include='*.py' --include='*.ts'` — must log all 5 fields | Run `audit-trail-bootstrap --template clinical-review` to auto-configure audit logging |
-| [M11] | Second reviewer required for high-risk content (treatment decisions, dosing, procedures) | `grep 'high.risk\|treatment\|dosing\|procedure' content-metadata.yaml \| grep -v 'reviewers.*2'` — flag high-risk with <2 reviewers | Pre-commit hook: reject high-risk content with <2 `reviewed.by` metadata entries |
-| [M12] | Cultural and language adaptation reviewed for diverse patient populations | `grep -r 'cultural.adaptation\|localization.review' --include='*.md' \| grep -v 'complete\|approved'` — flag unreviewed adaptations | Run `cultural-adaptation-audit --languages all` to auto-flag unadapted content; generate adaptation checklist |
-
 ## Cross-Skill Integration
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 
 | Step | Skill | What It Produces |
@@ -341,63 +294,12 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 | **After** | `legal-advisor` | Disclaimer language, AE reporting obligations, liability review → legal sign-off |
 | **After** | `product-manager` | Clinical accuracy findings → informs feature decisions (e.g., community Q&A redesign) |
 
-## Scale Depth
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how this skill changes as the company grows -->
-
-### Solo (0-10 users, 1 person)
-**Description:** Single reviewer checks all content manually
-**When to use:** Accuracy above all — don't publish bad info
-**Approach:** One clinician reviews everything; manual checklist; no tooling
-
-### Small Team (10-100 users, 2-5 people)
-**Description:** Review team + style guide, basic content management
-**When to use:** Scale review throughput, build consistency
-**Approach:** Multiple reviewers; documented guidelines; editorial calendar; version control
-
-### Medium Team (100-10K users, 5-20 people)
-**Description:** Specialized reviewers by content type, automated checks
-**When to use:** Deep expertise, automated first-pass screening
-**Approach:** Cardiology reviewer vs. endocrinology reviewer; automated fact-checking; AE signal detection
-
-### Enterprise (10K+ users, 20+ people)
-**Description:** Clinical review board, regulatory-grade process, published content governance
-**When to use:** Institutional credibility, regulatory defense
-**Approach:** Medical director + review board; SOPs for every content type; FDA/EMA-compliant process; content audit trail
-
-### Transition Triggers
-- Move from Solo to Small Team when: Single reviewer becomes a bottleneck; multiple content types require specialized review; manual process can't keep up with content volume
-- Move from Small Team to Medium Team when: Review team struggles with content volume; need specialized domain reviewers; automated first-pass screening becomes necessary for efficiency
-- Move from Medium Team to Enterprise when: Regulatory compliance requires formal governance; auditability and institutional credibility become paramount; medical director oversight and FDA/EMA-compliant processes are needed
-
 ## What Good Looks Like
+
 - **Every piece of health content published in the app has been clinically reviewed** with documented source citations. A user reading "Factor VIII prophylaxis reduces bleeds by 87%" sees a footnote linking to the clinical trial. No unverified claims exist in the app.
 - **A community post claiming "essential oils cured my hemophilia" is detected and removed within 3 minutes** — the misinformation detection rules catch it, a reviewer confirms it's Level 1 dangerous content, and the user who posted it receives a private message explaining why and offering verified information.
 - **A concerning pattern of patients reporting similar side effects triggers a safety signal investigation.** The AE log reveals 8 reports of the same issue in 2 months. The clinical team investigates and contacts the manufacturer. Patients are not harmed because the signal was detected early.
 - **The app's health content passes a legal audit** with no liability gaps. Disclaimers are present where they should be. AI-generated content is clearly labeled. The adverse event reporting workflow is documented and followed. The company is protected against claims of practicing medicine without a license.
-
-
-## Footguns
-<!-- DEEP: 10+min — war stories from medical content review -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Community post "My son's inhibitor disappeared after I switched him to a raw food diet — ask me how!" stayed up for 72 hours because misinformation rules flagged "essential oils" and "homeopathy" but not dietary cure claims | A parent posted in a hemophilia community claiming a raw food diet eliminated their child's factor VIII inhibitor — a documented, life-threatening complication where the immune system destroys infused clotting factor. The post received 340 upvotes and 87 comments before removal. Three parents reported discontinuing immune tolerance induction therapy to "try the diet first." The misinformation detection rulebook had 20 patterns covering supplements and alternative medicine, but none for "dietary cure for immune-mediated condition." The post was only flagged when a hematologist member reported it. | The detection rules were built from a list of known pseudoscience categories (essential oils, homeopathy) rather than harm patterns. "Diet cured my [condition]" didn't match any existing rule because it's a claim structure, not a pseudoscience category. | **Build misinformation detection rules from harm patterns, not just content categories.** A harm-pattern rule: "Any claim that a non-medical intervention eliminated or cured [diagnosed condition] without clinical evidence." This catches dietary cures, energy healing, and future pseudoscience categories you haven't encountered yet. Review the rulebook quarterly against actual removed content — if a post that was eventually removed wasn't caught by any rule, write a new harm-pattern rule for it. |
-| AI-generated "Ask Dr. AI" feature went live without clinical review gate — answered a patient's question about factor dosing with a recommendation 40% above the standard weight-based calculation | A health app deployed an LLM-powered Q&A feature where patients could ask medical questions. The prompt engineering was done by the ML team; clinical review was "on the roadmap." A patient with hemophilia B asked: "I weigh 72 kg and take 50 IU/kg of BeneFIX. Is this right?" The AI responded: "Based on your weight, you would need approximately 5,040 IU per dose" — it multiplied 72 × 50 correctly to 3,600, then added 40% with a hallucinated "loading dose adjustment." The actual standard dosing is 50 IU/kg = 3,600 IU. The patient administered 5,000 IU, experienced no adverse event, but the incident was reported by the patient's HTC when they mentioned the AI's advice during a clinic visit. The feature was taken offline within 2 hours of the report. The company self-reported to FDA. | AI content was treated as an engineering feature, not a clinical content publication. No clinical review gate existed. The ML team had no medical training and couldn't evaluate whether the output was clinically dangerous. | **All AI-generated health content must pass through a clinical review gate before any patient sees it.** The gate has three levels: (1) automated safety check — does the output contain dosing numbers? If yes, flag for human review. (2) Clinical reviewer evaluates accuracy against standard guidelines. (3) Post-publication monitoring: track patient reports about AI content. No AI health feature launches without all three. The ML team cannot self-certify clinical safety. |
-| Legal disclaimer "This is not medical advice" placed at the bottom of a page recommending specific factor dosing — court ruled the disclaimer didn't negate the substantive medical advice in the body of the content | A health app published an article titled "How to Dose Factor VIII for a Joint Bleed" with specific dose calculations by weight and bleed severity. The footer said "This content is for informational purposes only and does not constitute medical advice." A patient followed the article's dosing table for an ankle bleed, under-dosed by 30% because they misread their weight category, and experienced a target joint deterioration requiring 6 months of physical therapy. The patient sued. The court ruled: "A disclaimer does not immunize the publisher when the substantive content provides specific medical instructions — the content IS medical advice regardless of the label." The case settled for $380K. | The team believed a disclaimer transforms medical advice into general information. It doesn't. Courts evaluate the substance of content, not the legal labels attached to it. If you provide specific dosing instructions, you are giving medical advice regardless of your disclaimer. | **Disclaimers protect against informational content being misinterpreted as medical advice — they do NOT protect specific treatment instructions.** Audit all content: does it say "do X dose for Y condition"? If yes, either (a) remove the specific instruction and replace with "talk to your doctor about dosing," or (b) accept that you are giving medical advice and ensure it meets the standard of care, is reviewed by a licensed clinician, and your liability insurance covers it. No disclaimer makes a dosing table safe. |
-| Single clinician reviewed 100% of content for 18 months — after they went on medical leave, a backlog of 47 unreviewed articles accumulated, and 3 contained outdated treatment protocols reflecting guidelines from 2018 | A patient education platform relied on one part-time hematologist to review all clinical content. The review process had no backup. When the hematologist took a 3-month medical leave, content continued to publish on schedule — bypassing review because "the pipeline can't stop." Of 47 articles published during the gap, 3 referenced treatment protocols from the 2018 WFH guidelines that were superseded by the 2023 edition: one recommended a lower prophylaxis dose than current standard, one omitted extended half-life products as a treatment option, and one used outdated inhibitor management algorithms. These articles were live for 5 months before a second reviewer was hired and caught the errors. An estimated 2,400 patients read the outdated content. | Single point of failure in clinical review. No mechanism to pause publication when review capacity is unavailable. No content version tracking linked to guideline edition dates. | **Clinical content review requires minimum 2 reviewers — not for every article, but for the system to have redundancy.** Each article is tagged with the guideline edition it references. A quarterly audit checks: are any published articles referencing a guideline edition older than the current one? If yes, flag for re-review. The publication pipeline has an emergency stop: if no clinical reviewer is available, content does NOT publish. Patient safety > content calendar. |
-| Pharma-sponsored content about a new extended half-life product published without sponsor disclosure — patients trusted it as independent education, and 3 switched products based on the article | A pharma company sponsored a series of patient education articles about extended half-life factor products. The sponsorship agreement included editorial independence: the pharma company couldn't control content. But the articles didn't disclose the sponsorship. An article titled "Is Extended Half-Life Factor Right for You?" presented one product's PK data prominently while summarizing competitors' data in a footnote. Three patients asked their HTCs to switch to the featured product. An advocacy organization flagged the missing disclosure. The company added disclosures retroactively but lost credibility with patient advocates and the medical advisory board. | The editorial team believed "we maintained editorial independence, so no disclosure is needed." Independence and transparency are separate requirements. Patients have a right to know who funded the content, even if the funder didn't influence it. | **Every sponsored, partnered, or grant-funded health content piece must carry a disclosure in the header, not the footer.** Format: "This article was developed with support from [company]. The sponsor had no editorial control over content." If the sponsor provided data, add: "Clinical data for [product] was provided by the sponsor and independently reviewed by our medical team." No disclosure = no publication, regardless of editorial independence. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can spot obvious misinformation ("essential oils cure cancer") but can't distinguish between a GRADE A recommendation (multiple RCTs) and a GRADE C recommendation (expert opinion only) — and you cite them with equal weight | You've built a misinformation detection rulebook with 30+ harm-pattern rules that catches >95% of flagged content on first pass, and your false-positive rate is under 3% (posts incorrectly flagged as dangerous) | A health publisher asks you to audit their 3,000-article content library for clinical accuracy — you produce a prioritized remediation list with correct classification of harm levels, and your top 10 findings all receive "this should have been caught" agreement from their medical director |
-| You review content but can't name the specific clinical guideline, edition year, and recommendation strength behind every factual claim you approve | You can review a community post with a drug claim, identify the 4 AE elements within 60 seconds, and trigger the pharmacovigilance workflow before the post reaches 10 views | You design the clinical review process for a company's IPO readiness audit — the external auditor reviews 200 randomly selected content items and finds zero clinical errors, zero missing citations, and zero undisclosed pharma relationships |
-| Your default action for questionable content is "delete it" — you haven't developed the judgment to distinguish between "removable dangerous advice" and "patient experience that disagrees with FDA labeling but is legally protected speech" | Your reviews have caught at least one clinical error that, if published, would have directly harmed a patient — and you can describe the specific error, the harm pathway, and the correction you made | You're deposed as an expert witness in a case about patient harm from online health content — and your testimony about clinical review standards is cited in the court's ruling as the standard of care for digital health platforms |
-
-**The Litmus Test:** A community member posts: "My doctor says I have a factor VIII inhibitor, but I've been taking St. John's Wort for 6 months and my last Bethesda assay was 0.0 BU. My doctor doesn't know about the St. John's Wort. Should I tell her?" Within 60 seconds you identify that this post (a) contains a potentially dangerous treatment-discontinuation signal, (b) requires a clinician response — not just removal, and (c) needs an AE flag because the patient reports a drug-herb interaction affecting a lab result. If you can write the exact moderator response that balances safety, empathy, and regulatory compliance in under 3 minutes, you're L3. If you default to "delete and warn," you're not there yet.
 
 ## Deliberate Practice
 
@@ -416,7 +318,14 @@ graph LR
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
-<!-- STANDARD: 3min -->
 
-- **ai-safety-engineer, clinical-informatics-specialist, compliance-officer** and others — for upstream design decisions, specifications, and architectural context that inform Medical content accuracy review and clinical validation
-- **ai-safety-health-reviewer, content-policy-manager, medical-illustrator** and others — downstream skills that consume outputs from this skill for implementation and execution
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+

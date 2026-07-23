@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You write tests because the process says so — but you don't feel the design feedback, and you've never refactored a design because a test was "too hard to write" | You notice when code is hard to test ("why do I need 7 mocks for this?") and you refactor the DESIGN before writing more tests — because hard-to-test code is badly designed code | Teams you've coached ship with >40% fewer defects than before you started — and you have pre/post DORA metrics to prove it, not just anecdotes |
+| You mock every dependency without thinking — databases, file systems, other modules, even utility functions in the same file | You distinguish between "collaborators" (dependencies that should be mocked — external APIs, payment gateways) and "internals" (dependencies that should be real — database queries within the same bounded context) | You've designed a testing strategy adopted by multiple teams where TDD, BDD, contract testing, and property-based testing all coexist with clear boundaries — and new hires are productive in test-first mode within their first sprint |
+| Your test suite takes longer than 10 seconds to run and you think "that's normal for a real project" | Your unit test suite runs in under 5 seconds — fast enough that you never hesitate to run it. Integration tests run separately. You know TDD's speed is ITS primary design feedback mechanism. | You've inherited a legacy codebase with zero tests and 6 months later it has 80%+ coverage, mutation score >70%, a test suite that runs in <2 minutes, and the team practices TDD by choice, not mandate |
+
+**The Litmus Test:** Can you demonstrate TDD on a non-trivial problem (not FizzBuzz, not a string reverser) in front of a skeptical team of senior engineers — and have them agree that the resulting code is better designed than what they would have written test-after? If you can't name which design patterns TDD naturally pushes you toward (dependency injection, hexagonal architecture, composition over inheritance), you don't understand the DESIGN half of test-driven development.

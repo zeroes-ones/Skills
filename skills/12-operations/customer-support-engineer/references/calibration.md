@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can answer tickets from a queue but can't explain why your CSAT is 3.2 while a teammate handling similar tickets scores 4.8 — and your instinct is "my customers are more difficult" | You've designed a triage system that reduced escalation rate by 40% and have 6 months of data showing the before/after — including ticket volume, resolution time, and CSAT trends | A support leader shows you their metrics dashboard and you identify the 2 process changes that will reduce ticket volume by 30% within 90 days — and you've done this at 3+ companies with verifiable results |
+| You rely on the ticket queue as your only source of truth and can't answer "what are our top 3 customer pain points this quarter?" without running a query | You've built a customer health dashboard that surfaces trends proactively — you predicted a churn risk for an enterprise account 4 weeks before they submitted a cancellation request and retention saved $300K ARR | A VP of Engineering asks "is our support team a strategic asset or a cost center?" — you answer with revenue retention attributable to support, self-serve deflection ROI, and product insights generated from support data |
+| You follow the escalation playbook for every SEV1 but can't explain why a particular incident took 4 hours when the SLA says 2 hours — and you blame "engineering was slow" | You've run 5+ postmortems that produced specific process changes, and you can point to 3 incidents that would have been SEV1s but were caught early because of improvements you implemented | You walk into a support team that's drowning and within 2 weeks you've identified the single biggest bottleneck — then you fix it and metrics improve within 30 days — and you've done this so many times it feels routine |
+
+**The Litmus Test:** A SaaS company has 50 support agents, 8,000 tickets/month, CSAT of 3.1, and engineering is threatening to stop accepting escalations because support is "crying wolf." You have 90 days to turn it around. If you need more than 3 days to identify the root causes and produce an action plan, you're not L3 yet.

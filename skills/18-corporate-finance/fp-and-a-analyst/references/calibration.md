@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can fill in a template model but can't explain why SaaS companies use ARR and NRR instead of GAAP revenue and retention, or why cash flow matters more than EBITDA | You can build a 3-statement model from a blank spreadsheet with driver-based assumptions for every line item — someone else can trace every number to its source without asking "where did this come from?" | An investor hands you a 30-tab model from a portfolio company and asks "what's wrong with this business?" — you identify the 2–3 fatal assumptions in under 20 minutes, and 12 months later the company's actuals prove you right |
+| You use "industry benchmarks say 3% churn" without knowing the specific report, its methodology, or whether the companies surveyed look anything like yours | You present a model to the board where every SaaS metric reconciles to GAAP financials within 2%, and you can defend every assumption with either (a) company-specific historical data or (b) a named, relevant benchmark source | A CEO changes their hiring plan, pricing strategy, or fundraising amount based on your model's output — and 6 months later the variance between your model and actuals is under 10% on revenue and cash |
+| You produce models that the CEO glances at once and never opens again because they're too complex to understand or too generic to be useful | Your model becomes the company's operating system — the CEO opens it before every board meeting, the VP of Sales references it for quota-setting, and the VP of Engineering uses it for headcount planning | You design the FP&A function and financial systems for a company going public — every model, forecast, and variance analysis survives SEC comment letters and analyst scrutiny without a material restatement |
+
+**The Litmus Test:** Can you look at a SaaS P&L for 5 minutes and identify whether the company is growing efficiently or buying growth? If you need more than 5 minutes, or if you can't point to the specific line items (burn multiple, CAC payback, magic number) that tell the story, you're not L3 yet.

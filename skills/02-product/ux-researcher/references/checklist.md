@@ -1,0 +1,16 @@
+# Production Checklist
+
+<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Research objective and key questions documented and reviewed by stakeholders with written sign-off | `grep -c "research.objective\|key.question\|stakeholder.sign.off" research-plan.md` | N/A — stakeholder alignment requires human review meeting |
+| S2 | Participant screener validated — recruits match target behavior (not just demographics), with behavioral recency filter (≤90 days) | `grep -c "behavioral\|task.frequency\|last.*performed\|screener" research-plan.md` | Auto-add behavioral screening questions template; flag screeners with only demographic criteria |
+| S3 | Discussion guide or test script drafted with time allocations per section and pilot-tested with a colleague for leading language | `grep -c "time.allocation\|min.*section\|pilot.test\|dry.run" research-plan.md` | Scan script for directive verbs; auto-flag sections with >3 imperative commands per task block |
+| S4 | Consent forms signed (digital, auditable) and recording setup tested with a dry-run — recording file verified >0 bytes | `find recordings/ -name "*.mp4" -o -name "*.mov" \| xargs -I{} stat -f%z {} \| awk '{if ($1==0) exit 1}'` | Auto-delete 0-byte recording files and flag session for re-run; generate consent status dashboard |
+| S5 | Personas backed by at least 3 real-user interviews each — labeled as "Persona" vs "Provisional Archetype" with N count | `grep -c "N=.*[3-9]\|N=.*[1-9][0-9]" personas/*.md \| awk -F: '{if ($2<1) exit 1}'` | Auto-parse N count from persona docs; append "Provisional Archetype" label if N<3 |
+| S6 | Journey map covers all touchpoints, includes emotion curve with data-source annotations, pain points, and moments of truth | `grep -c "touchpoint\|emotion.curve\|pain.point\|moment.of.truth" journey-map.md` | N/A — emotion curve annotation requires qualitative coding of user sentiment |
+| S7 | Usability issues severity-rated (1–4 scale) with video evidence timestamps and task-failure counts | `grep -cP "severity.*[1-4]|timestamp.*\d{1,2}:\d{2}|task.failure" findings-report.md` | Auto-extract severity ratings from findings; flag any finding missing severity + timestamp |
+| S8 | Findings report includes prioritized recommendations with owner assignments, severity levels, and evidence citations (quote/video/analytics) | `grep -c "owner\|assignee\|responsible" findings-report.md \| awk '{if ($1<1) exit 1}'` | Auto-populate an owner column from project team roster; flag findings with no assignee |
+| S9 | Highlights reel (≤3 min) shared with stakeholders before the full report — confirmed viewed by ≥80% of decision-makers | `ls highlights/ \| grep -c ".mp4\|.mov" \| awk '{if ($1<1) exit 1}'` | Auto-generate timestamped clip list from severity-3+ findings; flag if no reel file exists |
+| S10 | Raw data, transcripts, and analysis artifacts archived in a searchable repository with participant IDs mapped to findings | `find archive/ -name "*.csv" -o -name "*.txt" -o -name "transcript*" \| wc -l \| awk '{if ($1<1) exit 1}'` | Auto-zip and timestamp raw data into archive directory; generate manifest with file inventory |

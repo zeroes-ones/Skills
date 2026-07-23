@@ -39,12 +39,12 @@ chain:
 ---
 
 # Accountant — Startup Accounting & Bookkeeping
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 GAAP-compliant accounting for venture-backed startups. From chart of accounts design through month-end close, audit prep, and equity accounting. Think like a controller who's survived their first Big 4 audit — every entry must be supportable, every reconciliation must tie, and nothing ships without review.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -58,7 +58,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **REFUSE to classify expenses by vendor name instead of economic substance.** "AWS payment" tells you nothing — is it hosting infrastructure, data storage, or a Marketplace purchase? | Trigger: `grep -E "(to\|paid to\|payment to) (Amazon\|Google\|Microsoft\|vendor)"` in JE descriptions AND no GL account classification present | STOP. Respond: "Expense classification blocked by Rule R5. Classify by economic substance, not vendor name. For each vendor payment: what was actually purchased? Map to the correct GL account (e.g., hosting → COGS, storage → IT infrastructure, SaaS → software expense)." |
 | **R6** | **REFUSE to use 'miscellaneous expense' or 'sundry' as a catch-all GL account.** Miscellaneous should be <1% of total expenses. Any recurring item deserves its own account. | Trigger: `grep -c "miscellaneous\|sundry\|other expense\|misc" trial_balance.csv \| awk '{if ($1/total_expenses > 0.01) print "EXCEEDS 1%"}'` | STOP. Respond: "Miscellaneous expense exceeds 1% threshold (Rule R6). Break out recurring items into specific GL accounts. Items appearing >3 times in miscellaneous must be assigned dedicated accounts." |
 | **R7** | **STOP and flag if intercompany balances are not eliminated before consolidation.** Unreconciled intercompany accounts are the #1 cause of delayed multi-entity closes. | Trigger: Output includes consolidated financials AND `grep -c "intercompany\|elimination\|IC\|due to/from"` across entity trial balances > 0 AND `grep -c "eliminated\|netted\|consolidated"` returns 0 | STOP. Respond: "Consolidation blocked by Rule R7. Intercompany balances detected but no elimination entries found. Reconcile and eliminate all intercompany transactions before consolidation: due to/from, intercompany revenue/expense, intercompany loans." |
-
 
 ## The Expert's Mindset
 
@@ -79,7 +78,9 @@ Master accountants understand that their domain is not about numbers or policies
 ### When to Break Your Own Rules
 - **Bend policy for the outlier.** Rules are for the 95%. The top 5% need exceptions — give them.
 - **Trust intuition when data is noisy.** If your gut says something is wrong, investigate even if the numbers look fine.
+
 ## Route the Request
+
 <!-- QUICK: 30s — auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -134,6 +135,7 @@ Do not read the entire skill. Follow the route above and read only the sections 
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s — scan to decide if this skill fits -->
 
 - Designing a SaaS-specific chart of accounts
@@ -164,6 +166,7 @@ Common chains:
 - **Fundraising diligence:** accountant → fp-and-a-analyst → investor-relations — GAAP financials → fundraise model → data room
 
 ## Decision Trees
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### Revenue Recognition Path (ASC 606)
@@ -226,6 +229,7 @@ What's your stage and complexity?
 **What good looks like:** Month-end close completed in 5 business days. Every balance sheet account reconciled — the reconciliation sheet shows book balance, bank/statement balance, and every reconciling item with an explanation. Revenue recognition entries are traceable to signed contracts. An auditor can walk into your office unannounced and complete a surprise audit in 2 weeks because everything is already organized.
 
 ## Core Workflow
+
 <!-- STANDARD: 3min -->
 
 ### Phase 1: Accounting Setup (~2 hours, one-time)
@@ -262,65 +266,9 @@ What's your stage and complexity?
 
 ### Phase 3: Payroll & Equity Accounting (~2 hours per payroll cycle)
 1. **Payroll entry:** Dr Salary Expense (gross) + Employer Tax Expense, Cr Cash (net pay), Cr Payroll Tax Payable, Cr Benefits Payable. Never record only the net pay hitting the bank — that understates expenses by 15-25%.
-2. **Employer taxes:** Social Security 6.2% (up to wage base $168,600 for 2026), Medicare 1.45% (no cap), FUTA 0.6% (on first $7,000), SUTA (varies by state, typically 2-4% on first $10K-30K).
-3. **Benefits accounting:** Health insurance premiums, 401(k) match, life insurance, commuter benefits — each posts to the P&L as benefits expense AND to the balance sheet as a payable until remitted.
-4. **Contractor vs employee:** Misclassifying an employee as a 1099 contractor triggers IRS penalties ($50+ per form), back taxes, and potential class-action lawsuits. Use the IRS 20-factor test. When in doubt, classify as W-2.
+2. **Employer taxes:**
 
-### Phase 4: AP/AR & Compliance (~30 min daily)
-1. **AP process:** Invoice received → 3-way match (PO, receiving report, invoice) → approval per delegation of authority → payment per terms. Net-30 is standard. Never pay without approval — segregation of duties: the person who approves cannot be the person who enters the invoice or initiates payment.
-2. **AR process:** Invoice upon contract signing. Follow up at net-15 (friendly reminder), net-30 (call), net-45 (escalate to sales rep), net-60 (stop service threat). SaaS companies that bill annually should have DSO < 15 days.
-3. **1099 tracking:** Any US contractor paid >$600 in a calendar year gets a 1099-NEC. Collect W-9 before first payment — chasing contractors for W-9s in January is a nightmare. File by January 31.
-4. **Sales tax:** File monthly or quarterly per each state's schedule. Use Avalara/TaxJar to automate rates and filing. Never manually calculate sales tax rates — rate tables change quarterly and manual errors trigger audits.
-
-### Phase 5: Audit Preparation (~2-3 weeks before fieldwork)
-<!-- DEEP: 10+min — real audit horror stories and what they cost -->
-1. **PBC list.** Auditors will request: trial balance, general ledger detail, bank reconciliations (all 12 months), AP/AR aging, fixed asset rollforward, debt agreements, equity transactions (board consents, 409A reports, option grants), revenue contracts (sample of top 20 by value), payroll reports, sales tax filings, minutes from all board meetings.
-2. **Prepare supporting schedules.** For every material balance sheet line, create a rollforward: Beginning Balance + Additions - Deductions = Ending Balance. Tie to the trial balance.
-3. **Revenue walkthrough.** Prepare a memo walking through a sample customer contract from signature → invoicing → cash receipt → revenue recognition → deferred revenue tracking. Show your ASC 606 analysis for each performance obligation.
-4. **Equity rollforward.** List every option grant, exercise, and forfeiture during the audit period. Tie grant dates and fair values to board consents and 409A reports. Reconcile fully diluted share count.
-5. **Pre-audit meeting.** Walk the auditor through your business model, accounting policies, internal controls, and any unusual transactions. Asking "what would you flag?" before fieldwork starts saves weeks of back-and-forth.
-
-## Equity Accounting (ASC 718)
-<!-- STANDARD: 3min -->
-
-### The 409A → Option Grant → Expense Chain
-
-1. **409A valuation** (every 12 months or after material event): Independent firm determines fair market value of common stock. This sets the strike price for options. Early-stage FMV is typically $0.10-$2.00/share.
-2. **Option grant:** Board approves grant with: number of shares, strike price (= 409A FMV), vesting schedule (standard: 4-year, 1-year cliff, monthly thereafter), exercise period (10 years from grant).
-3. **Fair value calculation:** Use Black-Scholes or binomial model. Inputs: stock price (= 409A FMV), strike price, expected term (use simplified method if no history: (vesting term + contractual term) / 2), risk-free rate (US Treasury matching expected term), volatility (use public company comparables), dividend yield (0% for startups).
-4. **Expense recognition:** Total fair value / vesting period = monthly SBC expense. Dr SBC Expense, Cr APIC. Straight-line over vesting period. For performance-based vesting, assess probability each period.
-5. **Option exercises:** Dr Cash (strike × shares), Dr APIC (remaining SBC not yet amortized), Cr Common Stock + APIC. Early exercises (83(b) election) — employee pays tax on spread at exercise, not at liquidity.
-
-**DEEP: 10+min — War story:** A Series B startup got a $2.00/share 409A in January. By June, they had a term sheet at $15/share (Series C). They granted options at the $2.00 strike in July — but didn't get a new 409A. The IRS audited and determined the FMV at grant date was actually $8.00 based on the term sheet progression. Result: all July grants were discounted options with $6/share of compensation income to employees AND a $500K penalty for the company. Rule: new 409A before any option grant where > 6 months since last valuation OR any material event (fundraise term sheet, major customer win, revenue 2x).
-
-## Best Practices
-<!-- STANDARD: 3min -->
-<!-- DEEP: 10+min — practices forged from audit findings, IRS notices, and restatements -->
-
-- **Close monthly, not quarterly.** A 3-month gap in reconciliations means 90 days of errors compounding. By the time you find a problem, you've been making decisions on wrong numbers for a quarter.
-- **Separate duties.** The person who opens the mail should NOT record cash receipts. The person who approves invoices should NOT enter them. The person who reconciles the bank should NOT sign checks. At < 5 people, the CEO reviews all disbursements as compensating control.
-- **Deferred revenue is sacred.** Never recognize deferred revenue to "smooth" earnings. That's not smoothing — it's fraud. ASC 606 is clear: performance obligation satisfied = revenue recognized. Period.
-- **Accrue as you go, not at quarter-end.** If you know about a vendor invoice or a commission payment, accrue it in the same month the expense was incurred. "We'll catch it next month" creates a rolling error that never gets fixed.
-- **Document your policies in writing.** If it's not written down, it doesn't exist for audit purposes. An accounting policy memo (5 pages, signed by CEO) saves 20+ hours of auditor Q&A.
-- **SBC is an expense — show it separately.** Put SBC on its own P&L line, not buried in department opex. Investors and acquirers will calculate EBITDA - SBC anyway. Transparency builds trust.
-- **Reconcile equity quarterly with Carta.** The cap table in Carta/Pulley must match your balance sheet. Founders issuing side letters for "extra equity" without updating the cap table is the #1 cause of equity reconciliation nightmares.
-- **Sales tax nexus monitoring is ongoing.** Your obligation changes when you hire a remote employee in a new state, open an office, exceed a state's revenue threshold, or attend a trade show. Review nexus quarterly.
-- **1099s are January 31, not "whenever you get around to it."** Late filing penalty: $60/form (up to $630/year for small businesses). Intentional disregard: $630/form, no cap. The IRS does not accept "we were busy fundraising" as an excuse.
-- **Your auditor is not your accountant.** Auditors test what you've done. They do not prepare your financials, fix your reconciliations, or tell you what entries to make. Going into an audit with messy books costs 3-5x more in audit fees.
-
-## Anti-Patterns
-<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Relying solely on GL account strings without validation rules | Implement validation checks on all GL postings — validate account-code combinations before journal entry creation | `grep "Dr\|Cr" journal_entry.csv \| awk -F',' '{if ($2 == "" \|\| $2 !~ /^[0-9]{4,6}-/) print "INVALID ACCOUNT: " $0}'` → unvalidated GL codes | Auto-validate: before posting, check every account code against chart_of_accounts.csv. Reject any code not found. Require `account_code_validated: true` flag. |
-| Classifying expenses based on vendor name rather than nature of transaction | Classify expenses by economic substance — look past the vendor name to what was actually purchased | `grep -i "Amazon\|Google\|Microsoft\|vendor\|paid to" gl_entries.csv \| grep -v "gl_account\|classification\|category"` → vendor-based, not substance-based | Auto-prompt: for every vendor payment, require `economic_substance` field populated. Block posting if `vendor_name` present but `gl_classification` missing. |
-| Manual recurring journal entries each period without automation | Set up recurring/reversing templates for repeat entries (accruals, depreciation, prepaid amortization) to eliminate manual error | `grep -c "recurring\|template\|automated\|repeating" je_schedule.csv` == 0 → all manual | Auto-generate: detect entries posted identically in 3+ consecutive months. Propose auto-reversing template. Flag remaining manual repeat entries for review. |
-| Reconciling balance sheet accounts quarterly instead of monthly | Reconcile all material balance sheet accounts monthly to catch errors when they're small and fresh | `grep "last_reconciled" balance_sheet_accounts.csv \| awk -F',' '{if ($2 < date - 30) print "STALE: " $1}'` → accounts not reconciled in 30+ days | Auto-flag: mark any unreconciled account >30 days with `[OVERDUE]`. Block close completion until reconciliation count == 8 and all within 30 days. |
-| Treating all adjusting entries as "in-scope" for the same review threshold | Risk-tier adjusting entries — apply heightened review to manual top-side entries above materiality | `grep "adjusting\|top-side\|manual JE" je_log.csv \| awk -F',' '{if ($3 > materiality_threshold && $4 != "reviewed") print "UNREVIEWED: " $0}'` → large entries without review | Auto-tier: classify all adjusting entries by amount. Flag entries > materiality for controller review. Require `reviewed_by` and `review_date` for entries above threshold before posting. |
-| Using "miscellaneous expense" or "sundry" as a catch-all | Create specific GL accounts for recurring non-standard items — miscellaneous should be <1% of total expenses | `grep -c "miscellaneous\|sundry\|other expense" trial_balance.csv \| awk '{if ($1/total_expenses > 0.01) print "EXCEEDS 1% THRESHOLD"}'` → misc >1% | Auto-breakout: identify recurring items within miscellaneous account. Generate dedicated GL accounts for items appearing >3 times. Cap miscellaneous at 1% of total expenses — block posting if exceeded. |
-| Deferring intercompany reconciliation to quarter-end close | Reconcile intercompany balances weekly during close to avoid last-minute out-of-balance surprises | `grep "IC_\|intercompany\|due to\|due from" trial_balance_*.csv \| awk -F',' '{sum[$1]+=$2} END {for (acct in sum) if (sum[acct] != 0) print "UNBALANCED: " acct " = " sum[acct]}'` → nonzero net IC | Auto-flag: weekly check for nonzero intercompany net balances. Insert `[INTERCOMPANY OUT OF BALANCE BY $X]` banner. Block consolidation until all IC nets to zero. |
-| Sharing Excel workbooks with embedded credentials or unprotected macros | Use secure shared platforms with access controls and version history; never embed credentials in spreadsheets | `grep -i "password\|api_key\|token\|secret\|credential" *.xlsx \| grep -v "masked\|redacted"` → exposed credentials | Auto-scan: check all spreadsheets before sharing for credential patterns. Block export/send if unredacted credentials detected. Replace with `[REDACTED]` placeholder. |
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Coordination
 
@@ -373,85 +321,9 @@ What's your stage and complexity?
 | Audit evidence request received without prior notice | Pull requested support within 2 hours and confirm completeness with auditor | Responsiveness builds auditor trust and can reduce substantive testing scope |
 | Bank feed disruption >4 hours during business day | Switch to manual import protocol and notify all entities relying on auto-feed | Delayed bank data cascades into cash positioning, reconciliation, and payment runs |
 
-## Error Decoder
-<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep "total_debits\|total_credits" trial_balance.csv \| awk -F',' '{debits+=$2; credits+=$3} END {if (debits != credits) print "IMBALANCE: " debits - credits}'` returns nonzero | Balance sheet doesn't balance | Retained earnings not updated, intercompany entries not eliminated, or a journal entry only hit one side | Start at trial balance. Check total debits = total credits. Check retained earnings: Ending RE = Beginning RE + Net Income - Dividends. Verify each JE has equal debits and credits. | **Loop 1:** (1) Detect: debits != credits. (2) Binary-search: split trial balance in half to isolate the unbalanced section. (3) Check retained earnings rollforward: `grep "retained earnings" \| awk` to verify Beginning + NI - Div = Ending. (4) Auto-suggest: if intercompany entities exist, check `grep "IC_\|intercompany" \| awk '{sum+=$2} END {if (sum!=0) print "IC IMBALANCE: " sum}'`. |
-| `grep "deferred revenue" balance_sheet.csv \| awk -F',' '{if ($2 > last_month * 1.2 && $3 < last_month * 0.9) print "GROWING DEFERRED, FLAT REVENUE"}'` returns match | Deferred revenue balance growing but revenue flat | Annual prepays not being unwound monthly | Set up a recurring JE: Dr Deferred Revenue, Cr Revenue for each active contract's monthly recognized amount. Build a deferred revenue waterfall schedule. | **Loop 2:** (1) Detect: deferred_revenue_growth > 20% AND revenue_growth < 5%. (2) Auto-audit: compare deferred revenue waterfall to trial balance. (3) Generate: recurring unwinding JEs for each contract. (4) Validate: `grep "deferred revenue" \| awk` must show correct monthly reduction matching revenue recognition schedule. |
-| `diff <(grep "bank" gl_balance.csv) <(grep "ending balance" bank_statement.csv) \| grep "^>"` returns output | Bank rec won't tie after 3 attempts | Deposits in transit or outstanding checks from prior period not cleared, OR bank feed imported transactions twice | Print last month's final reconciliation. Check each reconciling item — did it clear this month? If a deposit "in transit" from last month never hit the bank, investigate. | **Loop 3:** (1) Detect: `diff bank_gl.csv bank_stmt.csv` shows mismatch. (2) Load last month's final reconciliation. (3) Check each prior-period reconciling item: `grep "in transit\|outstanding" last_month_rec.csv \| while read item; do grep "$item" this_month_bank.csv; done`. (4) Auto-flag uncleared items >60 days old for investigation. |
-| `grep "payroll\|salary\|wages" pnl.csv \| awk -F',' '{gross=$2; net=$3; burden=($2-$3)/$2*100; if (burden < 10 \|\| burden > 20) print "BURDEN ANOMALY: " burden "%"}'` returns match | Payroll expense on P&L ≠ cash paid to employees | Employer taxes, benefits, and accruals not posted. Employer burden should be 12-18% of gross for US employees. | JE must include: Dr Salary (gross), Dr Employer Tax, Dr Benefits Exp → Cr Cash (net pay), Cr Tax Payable, Cr Benefits Payable. | **Loop 4:** (1) Detect: employer burden <10% or >20%. (2) Auto-audit: check JE line items — is Employer Tax present? Is Benefits Expense present? (3) Generate: missing payroll JE lines. (4) Validate: `grep "payroll" pnl.csv \| awk` recalculates burden after correction; must be 12-18%. |
-| `grep "SBC\|stock-based\|option expense" pnl.csv` returns empty AND `grep "option grant\|ISO\|NSO" equity_log.csv` returns matches | SBC expense missing from P&L | Options not being valued or amortization schedule not set up | Build an option amortization schedule: grant date, shares, fair value, total value, vesting start/end, monthly amort = total / vesting_months. Sum across all grants = monthly SBC expense. | **Loop 5:** (1) Detect: equity_log has grants but P&L has no SBC expense. (2) Auto-build: amortization schedule from grant data. (3) Generate: monthly SBC JE (Dr SBC Expense, Cr APIC). (4) Validate: `grep "SBC expense" pnl.csv` must show nonzero amount matching sum of all grant amortizations. |
-| `grep "audit_fee\|audit invoice" expenses.csv \| awk -F',' '{if ($3 > budget * 1.5) print "FEE OVERRUN: " $3/budget * 100 "%"}'` returns >150% | Audit fee 2x what you budgeted | Books not audit-ready — auditor spending time doing accounting work instead of auditing | Pre-audit: reconcile everything, prepare all schedules, document all policies. Submit PBC in one organized folder. | **Loop 6:** (1) Detect: audit_fee > 1.5x budget. (2) Audit-readiness check: `grep -c "reconciled" close_checklist.md` must == 8. `file_exists("PBC_index.md")` must be true. (3) Auto-generate: missing PBC schedules. (4) Flag: disorganized PBC = 2x fees. Generate organized folder structure matching auditor request list. |
-| `grep "revenue" pnl.csv \| awk -F',' '{if ($2 > ARR * 1.2) print "REVENUE SPIKE"}'` AND `grep "ASC 606\|performance obligation" contract_review/*.md \| wc -l` == 0 | Revenue recognition error from ASC 606 misinterpretation | Contract treated as point-in-time when it should be over-time, OR annual prepay recognized upfront instead of ratably | Review every contract with ASC 606 checklist at signing: performance obligations, SSP, timing. Involve accounting before contract execution. | **Loop 7:** (1) Detect: revenue spike >20% above trend with no corresponding contract review memos. (2) Auto-audit: check each new material contract (>$50K) for ASC 606 determination memo. (3) Generate: ASC 606 checklist for each unreviewed contract. (4) Validate: `grep -c "ASC 606 determined\|recognition method:" contract_review/*.md` must equal contract count. |
-| `grep "intercompany\|due to\|due from" trial_balance_entity*.csv \| awk -F',' '{sum[$1]+=$2} END {for (a in sum) if (sum[a]!=0) print "UNBAL IC: " a " = " sum[a]}'` returns output | Month-end close missed by 5 days | Unreconciled intercompany accounts across entities — transactions posted to wrong entity | Set up intercompany reconciliation process with matching rules. Use intercompany elimination software. Close entities in a defined sequence. | **Loop 8:** (1) Detect: intercompany nets to nonzero across entities. (2) Auto-identify: which entity pairs are out of balance. (3) Generate: IC reconciliation template with matching rules for each unbalanced pair. (4) Block: consolidation close until all IC nets to zero. Flag entities with most IC drift for process review. |
-
-
-## Production Checklist
-<!-- QUICK: 30s — binary pass/fail items. Each has a mechanical validation command. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[S1]** | All bank and credit card accounts reconciled to statements — no unexplained differences | `grep "bank\|credit card" reconciliation_status.csv \| awk -F',' '{if ($3 == "no" \|\| $4 > 5) print "UNRECONCILED: " $1 " diff=$" $4}'` → must be empty | Auto-flag unreconciled accounts. Generate reconciliation template with book balance, statement balance, and reconciling items. Require resolution before close. |
-| **[S2]** | Deferred revenue waterfall ties to contract listing — every active contract has a schedule | `diff <(grep "deferred revenue" trial_balance.csv \| awk '{print $2}') <(grep "total" deferred_revenue_waterfall.csv \| awk '{print $2}')` → must return no difference | Auto-compare waterfall total to trial balance. Flag mismatch. Generate waterfall entries for contracts missing schedules. |
-| **[S3]** | AP aging reviewed — nothing >90 days past due without an explanation | `grep "AP" aging_report.csv \| awk -F',' '{if ($4 > 90 && $5 == "") print "UNEXPLAINED AGED AP: " $1 " " $4 " days"}'` → must be empty | Auto-flag items >90 days without explanation. Generate AP aging review with mandatory explanation field. Notify treasury-manager. |
-| **[S4]** | AR aging reviewed — collection action taken on anything >60 days | `grep "AR" aging_report.csv \| awk -F',' '{if ($4 > 60 && $5 == "") print "NO COLLECTION ACTION: " $1 " " $4 " days"}'` → must be empty | Auto-generate collection email templates for overdue accounts. Flag accounts >60 days for AM/CS escalation. |
-| **[S5]** | Fixed asset rollforward prepared — additions, disposals, depreciation all supported | `file_exists("fixed_asset_rollforward.xlsx")` AND `grep -c "addition\|disposal\|depreciation\|ending balance" fixed_asset_rollforward.xlsx` → must be >= 4 | Generate fixed asset rollforward template. Auto-calculate depreciation from asset register. Flag missing support for additions/disposals. |
-| **[S6]** | Payroll reconciled to Gusto/ADP — gross pay, employer taxes, benefits all match | `diff <(grep "payroll" gl.csv \| awk '{print $2,$3,$4}') <(grep "gross\|employer_tax\|benefits" payroll_provider_report.csv \| awk '{print $2,$3,$4}')` → must return no difference | Auto-compare GL payroll entries to provider report. Generate reconciliation with variance report. Flag mismatches >$100 for investigation. |
-| **[S7]** | SBC amortization schedule updated — new grants added, forfeitures removed, expense posted | `grep "SBC expense" pnl.csv \| awk '{if ($2 == 0 && system("grep -c \"option grant\" equity_log.csv") > 0) print "MISSING SBC"}'` → must return nothing | Auto-detect option grants without corresponding SBC expense. Generate amortization schedule. Create recurring SBC JE (Dr SBC Expense, Cr APIC). |
-| **[S8]** | Sales tax filings submitted for all registered jurisdictions — filing dates confirmed | `grep "sales_tax" filing_calendar.csv \| awk -F',' '{if ($3 < date && $4 != "filed") print "OVERDUE: " $1 " due " $3}'` → must be empty | Auto-check filing calendar against current date. Flag overdue jurisdictions. Generate filing reminders with nexus threshold warnings. |
-| **[S9]** | 1099 tracking current — W-9s collected from all US contractors | `grep "contractor" vendor_list.csv \| awk -F',' '{if ($3 > 600 && $4 == "") print "MISSING W-9: " $1 " paid $" $3}'` → must be empty | Auto-flag contractors paid >$600 without W-9 on file. Generate W-9 request email. Track collection status. |
-| **[S10]** | Flux analysis written — every P&L line >10% variance vs prior month has explanation | `grep "P&L" flux_analysis.md \| awk -F',' '{if ($4 > 10 && $5 == "") print "UNEXPLAINED VARIANCE: " $1 " " $4 "%"}'` → must be empty | Auto-detect P&L lines with >10% variance. Generate flux analysis template with variance explanation prompts. Flag unexplained items. |
-| **[S11]** | Accounting period locked — no further entries without controller approval | `grep "period_lock" accounting_system.log \| awk '{if ($2 != "locked") print "PERIOD OPEN: entries still possible"}'` → must return empty | Auto-lock prior period after close completion. Require controller approval for any post-lock entry. Log all post-lock changes. |
-| **[S12]** | Financial package distributed: P&L, balance sheet, cash flow statement, flux analysis | `file_exists("financial_package/monthly/$(date +%Y-%m)*.pdf")` AND `grep -c "P&L\|balance sheet\|cash flow\|flux" financial_package_index.md` → must be >= 4 | Auto-compile financial package from close outputs. Generate distribution list. Flag if not distributed by Day 5. |
-| **[S13]** | Equity reconciliation: Carta/Pulley cap table matches balance sheet equity accounts | `diff <(grep "total shares\|fully diluted" carta_export.csv) <(grep "equity\|common stock\|APIC" balance_sheet.csv)` → must return no difference | Auto-compare cap table totals to balance sheet equity. Generate reconciliation report. Flag discrepancies >1% for investigation. |
-| **[S14]** | Accounting policies memo reviewed and signed by CEO within last 12 months | `grep "last_reviewed\|signed_by" accounting_policies.md \| awk -F',' '{if ($2 < date - 365) print "EXPIRED: last reviewed " $2}'` → must be empty | Auto-flag expired policy memo. Generate review reminder with policy change prompts. Require CEO signature before close certification. |
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo
-Freelance/outsourced bookkeeper, spreadsheets or QuickBooks Simple Start. Focus on accurate transaction recording and tax compliance. Skip: intercompany eliminations, deferred tax accounting, complex consolidations. Coordination: external CPA handles tax filings; founder reviews P&L quarterly.
-
-### Small Team
-First in-house accountant, QuickBooks/Xero, month-end close process. Focus: reliable monthly financials, basic internal controls. Coordination: with FP&A for budget vs actuals, with operations for inventory/COGS tracking.
-
-### Medium Team
-Finance team (staff accountant, AP/AR, payroll), ERP migration (NetSuite/Intacct). Focus: scalable close process, audit readiness. Coordination: with FP&A on flux analysis, with legal on equity administration, with sales on revenue recognition.
-
-### Enterprise
-Controller + audit committee, SOX/internal controls, SEC reporting. Focus: public-company readiness, audit defense. Coordination: with investor relations on earnings prep, with legal on SEC filings, with tax on provision calculations.
-
-### Transition Triggers
-| From → To | Trigger |
-|-----------|---------|
-| Solo → Small | Month-end close taking >10 business days; investor requests reliable financials |
-| Small → Medium | First external audit; >50 employees; multiple legal entities |
-| Medium → Enterprise | IPO filing; SOX compliance requirement; global operations |
-
 ## What Good Looks Like
 
 Month-end close is completed on business day 5. The financial package (P&L, balance sheet, cash flow, flux analysis, SaaS metrics) is distributed before 10 AM. Every reconciliation has a signed-off worksheet with book balance, statement balance, and reconciling items listed individually. An auditor's PBC request is fulfilled by sharing a single organized folder — no files are "being prepared." The deferred revenue waterfall reconciles to the trial balance to the penny. The equity rollforward matches Carta exactly. A new controller starting Monday could take over the close process without a single phone call because everything is documented, labeled, and organized.
-
-## Footguns
-<!-- DEEP: 10+min — war stories from startup accounting -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Recognized $1.2M annual prepay as revenue in January — financials showed a "great month," but the P&L was overstated by $1.1M and the Board made hiring decisions based on fake numbers | A customer paid $1.2M upfront for a 12-month SaaS contract. The founder-bookkeeper recorded the full amount as January revenue. The board saw a $1.4M revenue month and approved 8 new hires. By March, the finance team realized the error. The restatement showed January revenue was actually $100K — the company was deeply unprofitable and had hired for revenue that didn't exist. | Cash-basis thinking: "money in the bank = revenue." Under ASC 606, revenue is recognized ratably over the service period. The $1.2M should have been recorded as $100K/month for 12 months, with $1.1M sitting as a deferred revenue liability on the balance sheet. | **Never record a prepayment as revenue.** On receipt: Debit Cash $1.2M, Credit Deferred Revenue (liability) $1.2M. Each month: Debit Deferred Revenue $100K, Credit Revenue $100K. Build a deferred revenue waterfall schedule — every active contract gets a row with total value, start date, end date, and monthly recognition. The waterfall must reconcile to the deferred revenue balance on your balance sheet every month. |
-| Equity rollforward didn't reconcile to Carta for 8 months — Series A cap table was wrong, 3 employees exercised options at incorrect strike prices | The company tracked equity in spreadsheets. When they implemented Carta, they imported a "best guess" of outstanding options. The spreadsheet had 3 option grants at $0.50 strike price, but the actual board-approved grants were at $0.85. Carta showed $0.50. Three employees exercised at $0.50, saving $3,500 each. The 409A valuation was based on the spreadsheet data, potentially undervaluing the company. | The equity spreadsheet was maintained by the founder's assistant with no accounting review. Grants were added by copying the last row without verifying against board consents. When Carta was implemented, nobody compared the import against the original signed grant documents. | **Reconcile equity monthly to source documents, not to last month's record.** Every month: compare your cap table to (a) board consent documents, (b) signed option grant notices, (c) the 409A valuation report. Use Carta/Pulley from day 1 — retroactive equity cleanup costs 10× more than starting clean. Add a control: any new option grant must have a signed board consent AND a grant notice before it enters the cap table. |
-| Missed sales tax nexus in 14 states — discovered during due diligence, $380K liability including penalties and interest | The startup sold SaaS to customers in all 50 states. The founder assumed "SaaS isn't taxable" because their home state (Oregon) has no sales tax. During Series B due diligence, the acquirer's tax team identified economic nexus in 14 states (thresholds: $100K revenue or 200 transactions). The company owed 3 years of back taxes, plus penalties and interest. The deal almost died. | The "SaaS isn't taxable" assumption was dangerously wrong. As of 2024, 30+ states tax SaaS. Nexus triggers vary by state — some use $100K revenue, some use 200 transactions, some use both. The company crossed these thresholds 2 years before anyone noticed. | **Run a nexus study before you reach $1M ARR.** For every state where you have customers: (a) what's the economic nexus threshold? (b) is SaaS taxable? (c) do you have physical nexus (employees, contractors, offices)? Use a sales tax automation tool (Avalara, TaxJar, Anrok) that monitors nexus thresholds in real time. File voluntary disclosure agreements (VDAs) before states discover you — most states waive penalties for voluntary disclosure. |
-| Classified all engineers as R&D for the R&D tax credit — IRS audit found that 40% of claimed wages were for bug fixes and maintenance, not qualified research | The startup claimed $280K in R&D tax credits based on 100% of their engineering payroll. During an IRS audit, the examiner asked for time tracking that distinguished between "developing new functionality" (qualified) and "fixing bugs / maintaining existing features" (not qualified). The company had no time tracking. The IRS disallowed 40% of the credit and assessed a 20% accuracy-related penalty. | The R&D tax credit requires "qualified research activities" — developing new or improved products/processes where the solution wasn't readily apparent. Bug fixes, routine maintenance, and minor modifications don't qualify. The company treated "all engineering = R&D" without documentation to support the claim. | **Document R&D activities contemporaneously, not retroactively.** Engineers should tag tickets as "R&D" at creation time with a 1-sentence description of the technical uncertainty. Example: "Investigating whether WebRTC can handle 50 simultaneous video streams without a media server — the technical feasibility was uncertain at the outset." This is the single sentence that turns a bug fix into R&D. Budget 20% of claimed wages for IRS documentation — if you can't document it, you can't claim it. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can close the books but can't explain the business story behind a 30% spike in COGS or a sudden drop in gross margin | You complete month-end close in 5 business days with all 8 reconciliations signed off, and the flux analysis explains every variance > 10% with a business narrative | An auditor spends 2 weeks reviewing your work and finds zero material adjustments — not because you're lucky, but because your documentation, support, and reconciliations leave no room for interpretation |
-| You record transactions correctly but can't tell the CEO whether the company has 6 months or 18 months of runway | You can look at the financials and immediately identify the 3 numbers the CEO needs to know: current burn rate, months of runway, and the single biggest risk to cash | You design the accounting system for a company going public — every process, control, and reconciliation survives SEC review without restatement |
-
-**The Litmus Test:** Can you produce a complete financial package (P&L + Balance Sheet + Cash Flow + Flux Analysis + SaaS Metrics) for the last 3 months, with every number traceable to a source document, without asking anyone for help? If you need the founder to "check the numbers," you're not ready for L3.
 
 ## Deliberate Practice
 
@@ -469,16 +341,30 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
-## References
-<!-- QUICK: 30s — deeper reading and templates -->
+## Equity Accounting (ASC 718)
 
-- **Templates:** `assets/chart-of-accounts-saas.xlsx` — SaaS-specific chart of accounts, ready to import into QuickBooks/Xero
-- **Templates:** `assets/month-end-close-checklist.xlsx` — 50-item close checklist with signoff columns and flux thresholds
-- **Templates:** `assets/deferred-revenue-waterfall.xlsx` — Contract-level deferred revenue schedule with automated monthly unwind
-- **Templates:** `assets/payroll-je-template.xlsx` — Payroll journal entry template with employer burden calculator
-- **References:** `references/asc-606-saas-guide.md` — Revenue recognition for SaaS: performance obligations, SSP, contract modifications, practical expedients
-- **References:** `references/asc-718-equity-guide.md` — Stock-based compensation accounting: 409A, Black-Scholes inputs, amortization schedules, modification accounting
-- **References:** `references/sales-tax-nexus-guide.md` — State-by-state economic nexus thresholds, marketplace facilitator rules, international VAT/GST primer
-- **References:** `references/audit-pbc-checklist.md` — Complete PBC list with examples, timing, and common auditor follow-up questions
-- **Books:** Accounting for SaaS (Ben Murray/The SaaS CFO), GAAP Guide, PPC's Guide to Audits of Small Businesses
-- **Related skills:** `fp-and-a-analyst` (financial modeling and SaaS metrics), `treasury-manager` (cash management and banking), `compliance-officer` (regulatory filings), `legal-advisor` (entity structure and option plans)
+<!-- STANDARD: 3min -->
+
+### The 409A → Option Grant → Expense Chain
+
+1. **409A valuation** (every 12 months or after material event): Independent firm determines fair market value of common stock. This sets the strike price for options. Early-stage FMV is typically $0.10-$2.00/share.
+2. **Option grant:** Board approves grant with: number of shares, strike price (= 409A FMV), vesting schedule (standard: 4-year, 1-year cliff, monthly thereafter), exercise period (10 years from grant).
+3. **Fair value calculation:** Use Black-Scholes or binomial model. Inputs: stock price (= 409A FMV), strike price, expected term (use simplified method if no history: (vesting term + contractual term) / 2), risk-free rate (US Treasury matching expected term), volatility (use public company comparables), dividend yield (0% for startups).
+4. **Expense recognition:** Total fair value / vesting period = monthly SBC expense. Dr SBC Expense, Cr APIC. Straight-line over vesting period. For performance-based vesting, assess probability each period.
+5. **Option exercises:** Dr Cash (strike × shares), Dr APIC (remaining SBC not yet amortized), Cr Common Stock + APIC. Early exercises (83(b) election) — employee pays tax on spread at exercise, not at liquidity.
+
+**DEEP: 10+min — War story:** A Series B startup got a $2.00/share 409A in January. By June, they had a term sheet at $15/share (Series C). They granted options at the $2.00 strike in July — but didn't get a new 409A. The IRS audited and determined the FMV at grant date was actually $8.00 based on the term sheet progression. Result: all July grants were discounted options with $6/share of compensation income to employees AND a $500K penalty for the company. Rule: new 409A before any option grant where > 6 months since last valuation OR any material event (fundraise term sheet, major customer win, revenue 2x).
+
+## References
+
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

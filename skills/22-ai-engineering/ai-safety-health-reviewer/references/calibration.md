@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You think "clinical validation" means testing on the USMLE question bank and reporting accuracy against board-certified physicians | You've conducted or reviewed a clinical validation study using real EHR data, with pre-specified subgroup analyses by language, ethnicity, and comorbidity burden | You've led an FDA submission for an AI/ML SaMD that received clearance — and the FDA reviewer complimented your clinical validation methodology |
+| You evaluate a health AI for accuracy but not for the harm caused by its errors — a false negative on cancer screening is different from a false negative on acne detection | Your safety evaluations weight errors by clinical severity: missing a pulmonary embolism = 100× the weight of misclassifying a benign skin lesion, and your benchmarks report harm-weighted accuracy | You've designed a clinical risk matrix adopted by multiple digital health companies that maps AI failure modes to patient harm categories with documented severity weights accepted by clinicians and regulators |
+| You assume a model that works at an academic medical center will work at a community hospital — "a lung is a lung" | You validate on multi-site, multi-scanner, multi-demographic data before deployment and refuse to deploy at sites where performance drops below clinical thresholds | You've published a post-market surveillance report showing your AI's performance across 50+ sites over 24 months — with honest treatment of the 3 sites where it underperformed and was withdrawn |
+
+**The Litmus Test:** A health AI startup asks you to review their product before an FDA pre-submission meeting. They hand you their clinical validation report. Can you identify the 3 most critical gaps in 2 hours? If you can't explain to an FDA reviewer why your validation methodology proves the product is safe AND effective for the intended use population, you haven't done the work. If you've never read an FDA Warning Letter to understand what failure looks like, start there — they're publicly available and more educational than any textbook.

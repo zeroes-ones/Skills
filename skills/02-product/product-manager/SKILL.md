@@ -58,13 +58,14 @@ chain:
   - ux-researcher
   - ux-writer
 ---
-# Product Manager
 
+# Product Manager
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -102,6 +103,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -165,6 +167,7 @@ PM skill manifests in the scope and complexity of the problems you own — from 
 **Usage**: Say "as an L3 PM, write the PRD for..." or "as an L4 PM, prioritize across these product lines." Default: **L2** (feature-area ownership).
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document
 - The backlog is bloated and needs objective prioritization (RICE scoring)
@@ -174,6 +177,7 @@ PM skill manifests in the scope and complexity of the problems you own — from 
 - A feature is stalled because requirements are ambiguous or contradictory
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Prioritization Method Selection
 
@@ -203,6 +207,7 @@ Strategic vs tactical feature?
 - Already-solved problem (e.g., "add forgot password")? → Reuse existing pattern. Minimal spec.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Problem Discovery
 Interview stakeholders and users. Separate expressed solutions from underlying problems. Draft the problem statement in one sentence: "[User] struggles to [outcome] because [constraint]." Define success criteria — choose one North Star metric and 2–3 supporting KPIs. Identify the target cohort with behavioral segmentation (not just demographics). Document the current-state workflow and quantify the pain with data where possible (time spent, error rate, churn).
@@ -220,6 +225,7 @@ Build a Now/Next/Later roadmap — avoid date-based roadmaps beyond the current 
 Attend standups to unblock the team on requirements ambiguity. Triage incoming bugs and feature requests against the current roadmap. Run sprint demos and validate that acceptance criteria are met — not just functionally, but experientially. Collect launch metrics and compare against the success criteria in the PRD. Schedule a post-launch retro to capture product learnings within 2 weeks of GA.
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 Product management is a multiplier role — you don't build, design, or sell, but your coordination (or lack thereof) determines whether those functions produce value or waste.
 
@@ -279,159 +285,9 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 | Product-manager → fullstack-developer: feature breakdown into technical tasks | Walk through the PRD with engineering before sprint planning. Identify: API contract dependencies (contract-first or implementation-first?), database migration requirements, frontend component inventory, state management needs. Break features into tasks the fullstack developer can estimate independently | Fullstack developers need the complete picture — frontend, backend, and database. A PRD that only describes UI behavior without API contracts or data models forces developers to guess at integration points. The PM doesn't need to write the API spec, but they must flag when one is needed |
 | No coordination with `cto-advisor` for technical feasibility — feature requires architecture change nobody approved | Before committing to a feature with architectural implications, run a technical feasibility review with `cto-advisor` and `system-architect`. Document in an ADR. Business commitments without engineering validation are not commitments — they're wishes dressed as promises | Architecture decisions made under sprint pressure are the most expensive kind. A feature that requires a new service or data pipeline must be validated at the architecture level before it enters the backlog. CTO review is not a bottleneck — it's insurance against 2-quarter rewrites |
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- Write the PRD before writing the first line of code — and share it asynchronously for 48-hour comment period.
-- Use the RICE framework consistently; subjectivity is inevitable but consistency surfaces the right conversations.
-- Separate outcome roadmaps from output roadmaps — track what users do, not what the team ships.
-- Accept that the "Next" column is a buffer, not a promise — reprioritize quarterly without guilt.
-- Every user story must have a measurable completion criterion — "works" is not a criterion.
-- Keep PRDs under 10 pages; appendices carry supplementary detail so the core remains skimmable.
-- When stakeholders disagree, escalate the decision criteria, not the decision.
-- Run a pre-mortem: "It's 6 months from now and this feature failed. What happened?"
-
-## Anti-Patterns
-<!-- QUICK: 90s -- 4-column machine-checkable format. Every anti-pattern has a grep to find it and a lint/prevention config. -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Writing PRDs in isolation and sharing them as "final" — engineering sees the spec for the first time when sprint planning starts | Share PRDs as drafts with a 48-hour async comment period. Engineering, design, and QA review before a single user story is written. PRDs are collaboration tools, not approval artifacts | `grep -Lz 'review.window\|async.comment\|draft.review\|48.hour\|stakeholder.review' *.md` — PRD files missing review process language | PRD template: Add `## Review Process: 48-hour async review period after draft. **DO NOT SHIP until all reviewers approve.**` header. Template path: `templates/prd-draft-review.md` |
-| Computing RICE scores solo without team validation — Reach = "all logged-in users will see this" and Confidence = "80% because we have analytics" | Compute RICE as a team exercise. Require evidence for each input: Reach from analytics, Impact from user research, Confidence tiered (20%/50%/80%/100%) | `grep -P 'RICE.*score.*\d+|Reach.*=.*\d+|Impact.*=.*\d+' *.md \| grep -v 'team.review\|validated\|confidence.tier'` — RICE scores without validation evidence | RICE template: Add `| Input | Value | Evidence Source | Reviewed By |` column. Every score needs an evidence link and reviewer initial. Template: `templates/rice-with-evidence.md` |
-| Committing launch dates before engineering has seen the full spec — CEO announces "Q2 launch" based on the PM's rough estimate | Roadmap uses Now/Next/Later, not dates. When dates are required, get engineering's estimate AFTER spec review with edge cases and NFRs included | `grep -iP '(launch|ship).*(date|deadline|Q[1-4]|month|week of)\b' *.md \| grep -v 'engineering.estimate\|pending.validation\|feasibility'` — date commitments without engineering validation | Roadmap template: Replace date columns with `Now/Next/Later` + `Engineering Estimate Status: [ ] Not Reviewed / [ ] Reviewed / [ ] Committed`. |
-| Defining success metrics after launch when adoption is low — retrofitting metrics to make the feature look successful | Define success metrics before writing the first user story. Establish baseline values and target thresholds numerically | `grep -L 'Success.Metrics\|success.metrics\|Metric.*baseline\|Metric.*target' *.md` — PRD/spec files with no success metrics section | PRD template: Add `## Success Metrics` as the FIRST section after Problem Statement. Include `Baseline`, `Target`, and `Measurement Method` columns. If section is empty, REFUSE to proceed. |
-| Accepting "works" as a user story completion criterion — "user can reset password" with no measurable definition of done | Every user story must have acceptance criteria in GIVEN/WHEN/THEN format with measurable outcomes | `grep -P '(can|able to|supports|works|should)\b' *.md \| grep -v 'GIVEN.*WHEN.*THEN\|acceptance.criteria'` — subjective verbs without GIVEN/WHEN/THEN | Acceptance criteria linter: `scripts/check-acceptance-criteria.sh` checks every story in PRD for GIVEN/WHEN/THEN structure and objective verbs |
-| Skipping the non-goals section — "everything is in scope until someone explicitly says it's not" | Every PRD includes an explicit "Out of Scope" section. When scope tries to expand during build, point to the non-goals as a pre-agreed contract | `grep -L 'Out.of.Scope\|Non.Goals\|What.We.*NOT.*Building\|out.of.scope' *.md` — PRD files without non-goals section | PRD template: Add `## Out of Scope (explicitly NOT in this PRD)` as mandatory section. Template validator: `scripts/prd-template-check.sh` — fails if non-goals section is missing or empty |
-| Treating the "Next" column as a promise — committing to stakeholders that features will ship next quarter | Explicitly communicate that "Next" is a buffer, not a promise. Reprioritization happens quarterly with stakeholder buy-in | `grep -iP '(next.*quarter|Q[1-4].*next|committed.*next|promise.*next|guarantee)' *.md` — language that treats roadmap as fixed commitment | Roadmap communication template: `## Release Cadence: Now = committed (this quarter), Next = plan (subject to quarterly reprioritization), Later = direction (no commitment)` |
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo (1 person, 0-100 users)
-- **What changes**: PM = you talking to users and writing todos. No PRDs. No roadmap beyond "what's next." Success metric = revenue or active users. Prioritization = whatever keeps the lights on.
-- **What to skip**: PRDs. OKRs. RICE. NPS. Roadmap presentations. Stakeholder management (you're the only stakeholder).
-- **Coordination**: Talk to users. Ship. Repeat.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Lightweight PRDs (<5 pages). Simple roadmap (Now/Next/Later). North Star metric identified. Basic OKRs. Customer interviews structured (not ad-hoc). Prioritization = value vs effort. Feature flags for safer launches.
-- **What to skip**: Full RICE/CD3. Competitive analysis program. Product ops. Beta programs. Post-launch metrics dashboards.
-- **Coordination**: Weekly product sync with eng lead. Monthly roadmap review with CEO. Bi-weekly customer interview debriefs.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Full PRD template. RICE prioritization. OKRs cascading. Dedicated PM per product area. Launch plans with rollout and rollback. Beta program management. Post-launch metrics dashboard. Stakeholder communication cadence. Competitive win/loss analysis.
-- **What to skip**: Product portfolio management (unless multi-product). Product ops as dedicated function. Formal product council.
-- **Coordination**: Bi-weekly product review. Monthly roadmap review with stakeholders. Quarterly OKR review. Pre-launch go/no-go meetings.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Multi-product portfolio with P&L. Product ops team. Product council with formal gates. Advanced analytics team. Pricing science. PLG team. M&A product integration. International product strategy. Accessibility and compliance built into PRD template.
-- **What's full production**: Quarterly business review (QBR). Product portfolio review monthly. Product council bi-weekly. Launch governance with stage gates. Product analytics embedded in every team.
-- **Coordination**: QBR with exec team. Monthly portfolio review. Bi-weekly product council. Weekly PLG + growth review.
-
-### Transition Triggers
-- **Solo → Small**: Second PM needed because you can't cover all features + users. >500 active users.
-- **Small → Medium**: 3+ PMs with overlapping stakeholder groups. >10K users or second product line.
-- **Medium → Enterprise**: Multi-product with independent P&L. IPO preparation. >100K users.
-
-
-### Cross-skills Integration
-
-| Step | Skill | What it produces |
-|------|-------|------------------|
-| **Before** | idea-to-spec | Structured PRD, API contracts, screen inventory |
-| **This** | product-manager | Prioritized backlog, RICE scores, roadmap, stakeholder alignment |
-| **After** | scrum-master | Sprint-ready user stories, capacity planning, delivery tracking |
-
-Common chains:
-- **New product**: idea-to-spec → product-manager → scrum-master — from spec to sprint-ready backlog
-- **Feature work**: business-strategist → product-manager → ux-researcher — from strategic context to evidence-based prioritization
-
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| `problem-discovery` | Stakeholder/user interviews, problem framing | Phase 1 — problem statement, success metrics, cohort segmentation |
-| `prd-writing` | Feature definition, requirements documentation | Phase 2 — executive summary, user stories, NFRs, edge cases |
-| `rice-prioritization` | Backlog grooming, roadmap decisions | Phase 3 — Reach × Impact × Confidence / Effort scoring |
-| `roadmap-communication` | Stakeholder updates, executive reviews | Phase 4 — Now/Next/Later, problem-focused, stakeholder summaries |
-| `delivery-partnership` | Sprint execution, unblocking, launch validation | Phase 5 — standups, demos, launch metrics, post-launch retro |
-| `okr-setting` | Goal cascading, measurable outcomes | `ceo-strategist` — North Star alignment, KPI definition |
-| `competitive-analysis` | Market positioning, feature gap analysis | `business-strategist` — win/loss, feature comparison |
-
-
-### War Story 1 — The 50-Page PRD Nobody Read
-**Symptom:** A PM spent 3 weeks writing a 50-page PRD for a new onboarding flow. Engineering spent 2 days reading it, asked 30 clarifying questions, and built something different from what the PM intended. The feature took 2x longer than estimated.
-**Root cause:** The PRD was written in isolation, shared as a "final" document, and assumed the reader would fill in the gaps. No early review cycles, no async comment period, no acceptance criteria in a testable format.
-**Fix:** Adopted the "Minimum Viable PRD" approach: 5-page maximum, executive summary first, GIVEN/WHEN/THEN acceptance criteria for every story, async review mandatory before any sync meeting. PRDs became collaboration tools instead of approval artifacts.
-**Lesson:** PRD quality isn't measured by page count — it's measured by how few questions engineers need to ask after reading it.
-
-### War Story 2 — The RICE Score That Lied
-**Symptom:** A team used RICE scoring religiously. The highest-scored feature had a RICE of 320 — 3x the next candidate. They built it over 2 quarters. It got 50 users in the first month, not the 5,000 they modeled.
-**Root cause:** The Reach estimate was based on "all logged-in users will see this" (50K/month) rather than "users who need and will act on this" (200/month). Confidence was set at 80% because "we have analytics" — but the analytics didn't measure intent.
-**Fix:** Introduced confidence tiering: 20% (gut), 50% (qualitative data), 80% (quantitative proxy), 100% (proven in market). Any feature with Confidence < 80% required a validation sprint before full build. Punted 60% of the backlog.
-**Lesson:** RICE is only as good as its inputs. A feature with RICE 100 at 80% confidence beats RICE 300 at 20% confidence every time. Invest in confidence accuracy.
-
-### War Story 3 — The Ship Date That Was Set Before Engineering Saw the Spec
-**Symptom:** The CEO committed a "Q2 launch" date to the board based on the PM's estimate. Engineering saw the PRD in April, estimated 6 months. The PM was blamed for the miss. The launch slipped by 2 quarters.
-**Root cause:** The PM estimated without engineering input. The spec was incomplete (no edge cases, no error states, no non-functional requirements). Engineering's real estimate was 4x the PM's guess.
-**Fix:** Established a "no dates without engineering review" policy. Roadmap uses Now/Next/Later. PMs can say "we're targeting Q2, pending engineering validation." Built a spec review step: engineering estimates after they've read the full spec, not after a 5-minute pitch.
-**Lesson:** Dates set without engineering input are not estimates — they're wishes. Always get engineering's estimate after they've read the full spec.
-
-
-## Error Decoder
-<!-- DEEP: 10+min -- 5-column format with grep matches and auto-recovery loops -->
-
-| 🖥️ Console Match (grep) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------|---------|-----------|-----|----------------------|
-| `grep -iP '(stakeholder.*reject\|spec.*wrong\|doesn.t.*need\|solution.*mismatch)' logs/pm-issues.log` | Stakeholder rejects spec after seeing it for the first time | Spec solves the wrong problem or misses stakeholder context. PM wrote in isolation without validating the problem statement | Run "Five Whys" with stakeholder before writing. Confirm problem statement in writing BEFORE solution. Send draft for async review, not final approval | 1. Stop writing. 2. Schedule 30-min whiteboard session with stakeholder — no screens, just problem definition. 3. Write problem statement (< 3 sentences). 4. Send for confirmation: "Is this the problem?" 5. Only after confirmation: write solution. 6. Share draft with "Comments welcome in 48 hours" |
-| `grep -iP '(dev.*estimate.*higher\|estimate.*blow.*up\|hidden.*complexity\|edge.case.*miss)' logs/pm-issues.log` | Engineering estimates 3×-10× higher than PM expected | Spec has hidden complexity, missing edge cases, or undefined NFRs. Ambiguity → estimate buffer | Every screen needs loading, empty, error, and edge states defined. Add NFRs (latency, throughput, security). Ambiguity is the single largest driver of estimate inflation | 1. Do NOT push back on the estimate. 2. Walk through the spec with engineering lead. 3. For each screen: "What happens if empty? Error? Concurrent use?" 4. Add missing states to spec. 5. Re-estimate with states defined. 6. Accept the revised estimate — it reflects real complexity |
-| `grep -iP '(no.*adoption\|no.one.*using\|feature.*ignored\|launched.*but.*zero)' logs/pm-issues.log` | Users don't adopt the feature after launch | Built what was asked, not what was needed. Feature request treated as requirement without outcome validation | Define success metrics before building. Validate with prototype or concept test before full build. Outcome-based: "increase X by Y%" not "build Z" | 1. Do NOT build more features. 2. Interview 5 target users: "What problem were you solving when you tried this?" 3. Map answers against original problem statement. 4. If mismatch found: rewrite problem statement, prototype lightweight solution, retest with 5 users. 5. If confirmed: enhance existing feature, don't build adjacent features to compensate |
-| `grep -iP '(scope.creep\|scope.*expand\|requirement.*added\|stakeholder.*requested.*also)' logs/pm-issues.log` | Scope expands continuously during build — "just one more thing" | Spec didn't define explicit non-goals. Every request during build feels urgent and reasonable in isolation | Add "Out of Scope" section as a non-negotiable contract. When scope tries to expand, point to non-goals. New requests go into backlog, not current sprint | 1. Stop accepting in-sprint additions. 2. Add every new request to a "Considered but Deferred" section in the PRD. 3. Schedule scope review 1 week after launch. 4. If truly critical (P0 bug, legal requirement): swap with equal-scope item from current sprint — NEVER add to scope without removing equivalent scope |
-| `grep -iP '(cross.team.*block\|dependency.*not.ready\|waiting.*on.*team\|blocked.*by)' logs/pm-issues.log` | Cross-team dependency blocks delivery — feature ships 6 weeks late | Spec assumed dependencies would be magically available. No named owner, no date, no escalation path | Map ALL dependencies with owner name, committed date, and fallback plan in the spec. Flag red (at risk) to PM weekly. Review dependencies as first item in every standup | 1. Create dependency tracker: `\| Dependency \| Owner \| Committed Date \| Status \| Escalation \|`. 2. Review weekly with owning PM. 3. If status = Red (date missed OR no response in 5 business days): escalate to common manager. 4. Define fallback: "If dependency not available by [date], we will [mock/decouple/repurpose X]" |
-| `grep -iP '(priority.*disagree\|eng.*vs.*pm\|what.*should.*we.*build\|which.*first\|priority.*fight)' logs/pm-issues.log` | PM and Engineering disagree on what to build first | No shared prioritization framework. Priority based on opinion — loudest voice wins, not most valuable work | Adopt RICE or CD3 scoring. Run scoring as a team exercise. Written scores depersonalize decisions and speed up alignment | 1. Stop arguing. All disagreements pause. 2. Pull up the RICE template. 3. Together: score the disputed features. 4. If scores are close (< 20% difference): flip a coin, ship one, measure, learn. 5. If scores diverge: investigate the input that differs (usually Confidence or Effort). 6. Agree: "RICE says X. We ship X. We review in 30 days and adjust." |
-
-
 ## What Good Looks Like
 
 > You've just completed the product management exercise. Your PRD fits under 10 pages and the executive summary tells a VP everything they need in three sentences. Every user story has measurable acceptance criteria — nobody in engineering has to ask "how do I know when this is done." RICE scores are computed with documented inputs, and the team reviewed them together, surfacing hidden assumptions before they became implementation dead ends. Your roadmap uses Now/Next/Later and describes problems, not solutions — engineering owns the how. The launch plan includes a rollout strategy with feature flags and rollback criteria, and the post-launch dashboard is live before the first user sees the feature.
-
-
-## Production Checklist
-<!-- QUICK: 30s -- all items are machine-verifiable. Every item gets a validation command and auto-fix path. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **S1** | PRD approved by engineering lead, design lead, and primary stakeholder | `grep -c '## Review Status\|Approved by\|Reviewed by' PRD.md` — must return >= 3 approvals | Add `## Review Status` section: `\| Role \| Name \| Status \| Date \|`. Require 3 checkmarks before moving to build |
-| **S2** | Success metrics defined with baseline values and target values | `grep -cP '(Metric.*Baseline.*Target\|# Metric\|Success.Metric)' PRD.md` — must match | PRD template: Add `## Success Metrics` table with columns `Metric Name \| Baseline \| Target \| Measurement Method`. Template: `templates/prd-success-metrics.md` |
-| **S3** | Every user story has acceptance criteria in GIVEN/WHEN/THEN format | `grep -cP 'GIVEN.*\n.*WHEN.*\n.*THEN' PRD.md` — count must match number of user stories | Run `scripts/check-gwt.sh PRD.md` to report stories missing GIVEN/WHEN/THEN. Rewrite stories without GWT |
-| **S4** | RICE scores computed and reviewed with the team | `npx rice-validator PRD.md --min-confidence 50` or `grep -cP 'Reach.*\d+.*Impact.*\d+.*Confidence.*\d+.*Effort.*\d+' PRD.md` — must match feature count | RICE template: Run `templates/rice-scoring.md` and fill all columns. Schedule 30-min team review for every scoring session |
-| **S5** | Edge cases documented for top-5 user stories (empty, error, concurrency, permissions) | `grep -cP '(Empty.*State\|Error.*State\|Edge.*Case\|Concurrency\|Permission.*Case)' PRD.md` — must be >= 5 | Edge case checklist: For each screen, fill: `\| State \| Behavior \| Recovery \|`. Template: `templates/edge-case-checklist.md` |
-| **S6** | Non-functional requirements specified (latency, throughput, availability, security) | `grep -cP '(Latency\|Throughput\|Availability\|Security\|Compliance\|Scalability)' PRD.md` — must be >= 4 | NFR template: Add `## Non-Functional Requirements` with at minimum: P95 latency target, request throughput, availability SLO (e.g., 99.9%), and security requirements |
-| **S7** | Roadmap published and communicated to all stakeholders | `curl -s -o /dev/null -w '%{http_code}' <roadmap-url>` must return 200; OR `grep -l 'Now\|Next\|Later' roadmap.md > /dev/null && echo "found"` | Publish roadmap to shared wiki/Notion/Confluence. Send stakeholder email with link and 5-minute async walkthrough video |
-| **S8** | Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria | `grep -cP '(feature.flag\|canary\|ramp.*%\|rollback.*criteria\|kill.switch)' launch-plan.md` — must be >= 2 | Launch plan template: Add `## Rollout: % ramp: 5→25→50→100`. `## Rollback: if error rate > X% or P95 latency > Yms for Z minutes` |
-| **S9** | Post-launch metrics dashboard set up before GA | `curl -s -o /dev/null -w '%{http_code}' <dashboard-url>` must return 200 | Create dashboard with: adoption rate, error rate, P95 latency, and core success metric. Template link: `dashboards/launch-metrics-template.json` |
-| **S10** | Backlog groomed and free of stale items older than 2 quarters | `grep -cP '(created\|updated).*(202[3-4])' backlog.md` — items older than 6 months must return 0 after purge | Run `scripts/backlog-health.sh` — auto-closes items with no activity in 180 days. Stale backlog = stale thinking |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from product management execution -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Shipped a major feature with no success metrics defined — 8 months later, the CEO asked "was that worth it?" and nobody could answer | A PM launched a dashboard redesign after 14 sprints of work across 3 teams. The launch post celebrated "cleaner UI, faster load times, 4.8 stars on the app store." Eight months later, the CEO asked whether the redesign had moved any business metric. The PM checked: activation rate was flat, retention unchanged, NPS within margin of error. $620K of engineering time had produced a prettier product that changed nothing. No baseline was captured before the redesign, so "nothing changed" could mean "it would have been worse" or "it was wasted effort." | Shipping without a measurement plan. The PM defined "success" as "launch on time" — a process metric, not an outcome metric. The business goal was framed as "modernize the UI" rather than "increase trial-to-paid conversion by 15%." | **Define success metrics before the first line of code.** Every feature needs: (1) a baseline measurement from the 30 days before launch, (2) a target (+X% by Y weeks post-launch), (3) a counter-metric to watch for harm (e.g., "conversion goes up but support tickets double"). Write these in the PRD. If you can't define a business metric the feature will move, ask whether the feature is worth building. |
-| RICE "Reach" score used total registered users (280,000) instead of monthly active users (6,200). A feature "for everyone" was actually relevant to 2.2% of the user base — and the prioritization had it as #1 | A PM scored a "social sharing" feature at Reach: 280,000 (all registered users × 100%). It ranked #1 in RICE, above "offline mode" which scored Reach: 6,200 (MAU). But social sharing required users to be actively using the app (MAU), and offline mode was actually relevant to 280,000 registered users who traveled. After launch: 1,400 shares in 3 months (0.5% of registered users). Offline mode was delayed by 2 quarters and had 4,100 DAU within 30 days of launch. | RICE inputs were gamed by picking the denominator that made a pet feature look good. "All users" for the feature you want to build, "daily users" for the one you don't. The PM didn't define a consistent reach metric before scoring. | **Standardize Reach to a single definition: users who will encounter this feature in a typical week.** Not registered users (most are dormant), not "target market" (most won't see it). Publish the reach definition before scoring begins. If two PMs score the same feature with different reach numbers, stop and reconcile — the disagreement means the definition isn't clear enough. |
-| Backlog had 430 items, 340 created over 18 months ago. "Priority" was a field everyone ignored. The team pulled the top 5 items from the backlog and 3 of them were obsolete. | A PM inherited a backlog that had grown without pruning for 2 years. Items were added by support ("customer wants dark mode"), sales ("prospect asked for SSO"), and execs ("we should do AI"). No one ever subtracted. When the new PM asked "which of these are still relevant?", the answer was silence. The team spent a sprint researching 15 backlog items and killed 11 of them. The other 4 had been "P1" for 18 months — if they were truly P1, they would have been built by now. | Backlog accumulation without curation. Adding is easy (2 minutes to write a ticket), pruning is hard (requires stakeholder conversations to say "we're never building this"). The backlog became a graveyard of ideas that everyone assumed someone else would prioritize. | **Prune the backlog quarterly.** Rule: any item older than 6 months without a status update gets closed. If it's important, someone will reopen it. Every item needs a "last reviewed" date and a "decision" field (build/defer/kill). If an item has been deferred 3 times, it's a kill — you're never building it and admitting that is kinder than pretending. Target: backlog under 100 items for a 2-pizza team. |
-| Stakeholder update email said "on track" for 7 consecutive weeks — the feature was actually 4 weeks behind because PM reported engineering estimates as commitments | A PM sent weekly status to the VP of Product: "Authentication migration: on track. Target: June 15." Engineering had said "probably 8 weeks" in the planning meeting. The PM translated that to "committed to June 15." When the team hit an unexpected PostgreSQL migration issue in week 3, the PM kept reporting "on track" hoping they'd catch up. By week 6, the gap was 4 weeks and the VP found out from an engineer in the hallway. The trust damage took 6 months to repair. | Reporting estimates as commitments. "Probably 8 weeks" means "my 50th percentile guess is 8 weeks, my 90th percentile is 12 weeks." Treating it as deterministic hides real uncertainty. The PM valued presenting good news over sharing accurate information. | **Report as a range with confidence, not a single date.** "Best case: June 15 (30% confidence). Likely: June 29 (70% confidence). Worst case: July 13 (95% confidence)." Update the range weekly — if the worst case moves right, say so immediately. Never use the word "on track" — say "as of this week, the 70% confidence date is still June 29" or "the 70% confidence date moved to July 6 because of [specific reason]." |
-| Feature flag was meant to be temporary — it controlled the checkout flow for 14 months until removing it broke the payments system for 22 minutes | A PM launched a new checkout with a feature flag so they could roll back quickly. The flag worked perfectly. The old checkout was never removed — "just in case." Fourteen months and 37 deploys later, a new engineer saw the flag and thought "this is dead code" and removed it. The flag's removal triggered a code path that hadn't been tested in 11 months — the payments service received `null` for the tax calculation field and returned `500` for every transaction. 22 minutes of downtime, $8,400 in lost transactions. | Feature flags with no kill date become permanent complexity. The flag was added with a rollout plan but no removal plan. "Just in case" became "forever" because removing a flag that works feels riskier than leaving it. | **Every feature flag needs a removal ticket filed on the day it's created.** The ticket has: (1) a target removal date (30 days post-full-rollout), (2) an owner, (3) a checklist (remove flag, remove old code path, update tests, verify in staging). If the removal date passes without action, the flag turns into a P2 bug — it's now tech debt with a known risk. Track active flags on a dashboard visible to the whole team — if you have more than 10 active flags, you have a flag hygiene problem. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-Use this to diagnose where you actually are, not where you want to be.
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You write user stories as "As a user, I want X" without acceptance criteria — engineering fills in the blanks from their own assumptions | Every user story in your backlog has 3+ GIVEN/WHEN/THEN acceptance criteria, edge cases are enumerated, and a developer who's never attended a planning meeting can implement it correctly | A feature you defined and shipped 12 months ago has the exact adoption curve you predicted in the PRD — within 10% on both timeline and magnitude |
-| You prioritize by "what the loudest stakeholder asked for most recently" | You compute RICE scores with documented inputs for every feature, the team reviews scores together, and you can explain to any stakeholder exactly why their request is #14, not #3 | You inherit a backlog with 400 items and within 1 week you close 250 of them — and nobody complains because you've articulated the strategy that justifies every kill |
-| You see your job as "write tickets and run standups" | Your launch plan includes a rollout strategy with feature flags, canary percentages, rollback criteria, and a post-launch dashboard that's live before the first user sees the feature | An engineer tells you "I thought this feature was a bad idea but the data proved me wrong" — because you designed the measurement plan that made the evidence undeniable |
-
-**The Litmus Test:** Can you kill a feature that your CEO personally requested, with data, in a way that makes the CEO say "you're right, thanks for saving us from that"? If you can only say no to peers but not to power, you're not L3 yet. Masters advocate for the product, not for their career.
 
 ## Deliberate Practice
 
@@ -459,10 +315,15 @@ After every launch: what did you predict would happen? What actually happened? W
 **Watch a user use your product in silence.** Don't guide. Don't explain. Just watch. One hour of silent observation reveals more than 50 survey responses. Do this before writing any PRD.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- **idea-to-spec** — for bootstrapping the spec artifact from a raw concept
-- **ux-researcher** — for persona validation and usability testing before PRD finalization
-- **ui-ux-designer** — for design system and interaction pattern alignment
-- _Inspired_ by Marty Cagan — for product discovery habits
-- _Escaping the Build Trap_ by Melissa Perri — for outcome-driven product management
-- RICE Scoring by Intercom (Sean McBride) — for the original prioritization framework
+
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+

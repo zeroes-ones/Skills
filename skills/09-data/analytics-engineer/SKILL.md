@@ -38,7 +38,6 @@ chain:
 ---
 
 # Analytics Engineer
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Bridge raw data and actionable business insight. This skill covers dbt project design and patterns
@@ -88,6 +87,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -99,7 +99,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R3** | **DETECT and BLOCK self-service BI without field descriptions.** A Looker explore or Metabase question without field documentation creates more confusion than it solves. | Trigger: grep `description:` across all dimension/measure definitions. If `<50%` of fields have non-empty descriptions, trigger fires. | STOP. Respond: "Self-service requires documentation. {N} of {M} fields lack descriptions. I will add descriptions for all fields before publishing. Confirm you want me to proceed with documenting all fields." |
 | **R4** | **REFUSE to write deeply nested SQL (>3 levels of subquery) in dbt models.** Favor CTEs. Deep nesting is unreadable and unmaintainable during incidents. | Trigger: Before committing a dbt model — grep for `SELECT.*FROM.*\\(.*SELECT` nested beyond 2 levels. If 3+ levels of nested subqueries detected, trigger fires. | STOP. Respond: "This model contains {N} levels of nested subqueries. dbt models must use CTEs for readability. I will refactor to CTEs before committing. Proceed with refactor?" |
 | **R5** | **STOP and admit uncertainty when data volume assumptions change the recommendation.** If you haven't seen the query plan or don't know the row count, say so — don't guess. | Trigger: Before recommending a materialization strategy or query pattern — check if row count / table size was provided. If `file_contains("**/*.{md,sql,yml}", "row.count|table.size|bytes|partition.size|rows")` returns no data, trigger fires. | STOP. Respond: "My recommendation depends on data volume. Without row counts or table sizes, I'm guessing. Please provide: approximate row count, daily growth rate, and query latency requirements. Until then, I'll flag all assumptions explicitly." |
-
 
 ## The Expert's Mindset
 
@@ -120,6 +119,7 @@ Masters of analytics engineer don't just build — they build **the right thing,
 ### When to Break Your Own Rules
 - **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
 - **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -136,6 +136,7 @@ Masters of analytics engineer don't just build — they build **the right thing,
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a dbt project: model layering (staging → intermediate → marts), incremental strategies, snapshot design
 - Defining a company-wide metric layer: single source of truth for "DAU," "Revenue," "Churn Rate"
@@ -147,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Migrating from "Excel hell" or legacy BI to a modern analytics stack
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### dbt Materialization Strategy
 ```
@@ -316,6 +318,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to build Exploratory:** Self-service analysis — interactive filters, drill-down capabilities, flexible date ranges, multi-dimensional pivots.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): dbt Project Design & Patterns
@@ -384,310 +387,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
            tests: [not_null, {accepted_values: {values: ['pending', 'completed', 'cancelled']}}]
    ```
 
-6. **Macros for DRY Code**:
-   ```sql
-   -- macros/cents_to_dollars.sql
-   {% macro cents_to_dollars(column_name, precision=2) %}
-   ROUND({{ column_name }} / 100.0, {{ precision }})
-   {% endmacro %}
-   -- Usage: {{ cents_to_dollars('amount_cents') }} AS amount_dollars
-   ```
-
-<!-- DEEP: 10+min -->
-### Phase 2 (~30 min): Metric Layer & Semantic Models
-
-1. **Metric Definition Framework** — The single source of truth:
-
-   | Metric Type | Example | Definition |
-   |---|---|---|
-   | **Simple** | Revenue | `SUM(order_amount)` — direct aggregation |
-   | **Ratio** | Conversion Rate | `COUNT(DISTINCT purchasers) / COUNT(DISTINCT visitors)` |
-   | **Cumulative** | MTD Revenue | `SUM(revenue) FOR month TO DATE` |
-   | **Derived** | ARPU | `Revenue / Active Users` |
-
-2. **Semantic Model** — Define once, use everywhere:
-   ```yaml
-   # dbt Semantic Layer / MetricFlow
-   semantic_models:
-     - name: orders
-       model: ref('fct_orders')
-       entities:
-         - name: order_id
-           type: primary
-         - name: customer_id
-           type: foreign
-       dimensions:
-         - name: order_date
-           type: time
-           type_params: {time_granularity: day}
-         - name: status
-           type: categorical
-       measures:
-         - name: revenue
-           agg: sum
-           expr: order_amount
-         - name: order_count
-           agg: count
-           expr: order_id
-
-   metrics:
-     - name: monthly_revenue
-       type: simple
-       label: Monthly Revenue
-       type_params:
-         measure: revenue
-   ```
-
-3. **Metric Governance** — Prevent the "five definitions of DAU" problem:
-   ```
-   Metric Registry (Git-based):
-   metrics/
-   ├── revenue.yaml         # One canonical definition
-   ├── active_users.yaml    # DAU, WAU, MAU — with date dimension
-   ├── churn_rate.yaml      # Formula: (lost_customers / start_customers) × 100
-   └── conversion_rate.yaml # Funnel step N+1 / Funnel step N
-   ```
-
-<!-- DEEP: 10+min -->
-### Phase 3 (~20 min): BI Architecture
-
-1. **BI Tool Decision**:
-
-   | Tool | Model Layer | Version Control | Best For |
-   |---|---|---|---|
-   | **Looker** | LookML (git-based) | Native | Engineering-heavy, complex data models |
-   | **Metabase** | GUI-based | Limited (export/import) | Business users, quick setup |
-   | **Lightdash** | dbt-native | Git (dbt repo) | dbt-centric teams |
-   | **Superset** | SQL Lab + Virtual Datasets | Limited | OSS, complex viz |
-
-2. **Semantic Layer vs Direct Query**:
-   ```
-   Semantic Layer (Looker/Lightdash):
-   ✅ Consistent metric definitions across all dashboards
-   ✅ Row-level security enforced at the semantic layer
-   ✅ Query optimization (aggregate awareness, caching)
-   ❌ Upfront investment in model definition
-
-   Direct Query (Metabase/Superset):
-   ✅ Fast to build — SQL editor to dashboard in minutes
-   ❌ Metric definitions duplicated across dashboards
-   ❌ RLS must be implemented at DB level or per-question
-   ```
-
-3. **Caching Strategy**:
-   - Looker: `persist_for` parameter — cache query results for N hours
-   - dbt: materialized tables (pre-computed) vs views (live)
-   - BI Engine (BigQuery): in-memory acceleration for Looker
-   - dbt incremental: rebuild only new partitions
-
-4. **Row-Level Security (RLS)**:
-   ```yaml
-   # Looker LookML — restrict by user attribute
-   access_filter:
-     field: orders.region
-     user_attribute: allowed_regions
-
-   # BigQuery — policy tag
-   CREATE ROW ACCESS POLICY region_filter ON fct_orders
-   GRANT TO ("group:analysts@company.com")
-   FILTER USING (region = SESSION_USER());
-   ```
-
-<!-- DEEP: 10+min -->
-### Phase 4 (~15 min): A/B Testing & Experimentation
-
-1. **Experiment Design Process**:
-   ```
-   1. Hypothesis: "Adding one-click checkout increases conversion by 5%"
-   2. Primary metric: Conversion rate (purchases / visitors)
-   3. Guardrail metrics: Revenue per user (shouldn't drop), Page load time (shouldn't rise)
-   4. Sample size calculation: α=0.05, β=0.2 (80% power), MDE=5%
-   5. Randomization unit: User ID (hashed, consistent across sessions)
-   6. Duration: [calculated from sample size ÷ daily traffic]
-   7. Analysis: 2-sample z-test for proportions, t-test for continuous metrics
-   ```
-
-2. **Sample Size Calculator** (for proportions):
-   ```python
-   from scipy import stats
-
-   def sample_size_proportion(p_baseline, mde, alpha=0.05, power=0.8):
-       z_alpha = stats.norm.ppf(1 - alpha / 2)
-       z_beta = stats.norm.ppf(power)
-       p_alt = p_baseline * (1 + mde)
-       p_pooled = (p_baseline + p_alt) / 2
-       n = (z_alpha * (2 * p_pooled * (1 - p_pooled))**0.5 +
-            z_beta * (p_baseline * (1 - p_baseline) + p_alt * (1 - p_alt))**0.5)**2 / (p_alt - p_baseline)**2
-       return int(n)
-
-   # Baseline 10% conversion, 5% relative lift (→ 10.5%), 80% power
-   # Result: ~50,000 users per variant
-   ```
-
-3. **Statistical Analysis**:
-   ```
-   For proportions (conversion rate):  z-test for 2 proportions
-   For continuous (revenue per user): Welch's t-test (unequal variance)
-   For non-normal (time to purchase): Mann-Whitney U test
-   For multiple metrics:              Bonferroni/Holm correction or multivariate test
-
-   Key rule: Pre-register primary metric BEFORE experiment starts.
-   Never: "Let's check 30 metrics and report significant ones."
-   ```
-
-4. **CUPED (Variance Reduction)**:
-   ```sql
-   -- Use pre-experiment data to reduce variance
-   WITH pre_experiment AS (
-     SELECT user_id, AVG(metric_value) AS pre_avg
-     FROM user_metrics
-     WHERE date BETWEEN '2026-07-01' AND '2026-07-14'  -- 2 weeks pre-experiment
-     GROUP BY 1
-   )
-   SELECT
-     variant,
-     AVG(metric_value - θ * pre_avg) AS cuped_adjusted_metric  -- θ = covariance / variance
-   FROM experiment_results
-   JOIN pre_experiment USING (user_id)
-   GROUP BY 1;
-   -- CUPED can reduce required sample size by 50%+
-   ```
-
-5. **SRM Check (Sample Ratio Mismatch)**:
-   ```sql
-   -- Expected: 50/50 split. Check with chi-squared test.
-   SELECT
-     variant,
-     COUNT(*) AS users,
-     COUNT(*) * 1.0 / SUM(COUNT(*)) OVER() AS ratio
-   FROM experiment_assignments
-   GROUP BY 1;
-   -- If p < 0.01: SRM detected — STOP experiment, investigate assignment bug
-   ```
-
-6. **Experiment Decision Framework**:
-   ```
-   Significant positive + Guardrails OK       → SHIP
-   Significant positive + Guardrail degraded  → INVESTIGATE (tradeoff analysis)
-   Not significant at required duration       → INCONCLUSIVE (extend or discard)
-   Significant negative                       → DISCARD (document learning)
-   SRM detected                                → INVALID (fix bug, re-randomize)
-   ```
-
-<!-- DEEP: 10+min -->
-### Phase 5 (~25 min): SQL Optimization
-
-1. **CTE vs Subquery Decision**:
-   ```sql
-   -- ✅ CTE: Readable, reusable, self-documenting
-   WITH monthly_revenue AS (
-     SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS revenue
-     FROM orders GROUP BY 1
-   ),
-   monthly_growth AS (
-     SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) AS prev_revenue
-     FROM monthly_revenue
-   )
-   SELECT *, (revenue - prev_revenue) / prev_revenue * 100 AS growth_pct
-   FROM monthly_growth;
-
-   -- ✅ Subquery: Simple, one-off filter
-   SELECT * FROM orders WHERE customer_id IN (SELECT customer_id FROM vip_customers);
-
-   -- ❌ Anti-pattern: Deeply nested subqueries (hard to read, same performance as CTE)
-   ```
-
-2. **Window Functions** — Smarter aggregations:
-   ```sql
-   -- Running total
-   SUM(revenue) OVER (PARTITION BY region ORDER BY order_date ROWS UNBOUNDED PRECEDING)
-
-   -- Percentile rank
-   PERCENT_RANK() OVER (PARTITION BY category ORDER BY revenue)
-
-   -- Moving average (7-day)
-   AVG(revenue) OVER (ORDER BY order_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)
-   ```
-
-3. **Query Plan Reading** — Identify bottlenecks:
-   ```
-   Look for in query plan:
-   - Full table scan (no partition filter) → Add WHERE clause or partition filter
-   - Broadcast join (small table sent to all nodes) → Check if table is unexpectedly large
-   - Shuffle (data movement between nodes) → Co-locate join keys or bucket by join key
-   - Spill to disk → Increase memory or reduce data per node
-
-   Snowflake: Use QUERY_PROFILE in Snowsight
-   BigQuery: Execution details → Slot time, shuffle bytes
-   PostgreSQL: EXPLAIN ANALYZE
-   ```
-
-4. **Materialization Strategy**:
-   ```sql
-   -- dbt: choose materialization based on access pattern
-
-   -- Views: Always fresh, cheap storage, recomputed on query
-   --   Best: Staging models, small datasets
-
-   -- Tables: Pre-computed, fast queries, takes storage
-   --   Best: Dashboard sources, complex joins queried 100x/day
-
-   -- Incremental: Append-only, partition-aware
-   --   Best: Fact tables, event streams, daily aggregations
-   ```
-
-<!-- DEEP: 10+min -->
-### Phase 6 (~25 min): Data Visualization & Storytelling
-
-1. **Chart Selection Framework**:
-
-   | Relationship | Chart Type | Example |
-   |---|---|---|
-   | **Comparison** | Bar chart, column chart | Revenue by region |
-   | **Change over time** | Line chart, area chart | DAU over 90 days |
-   | **Distribution** | Histogram, box plot | Order value distribution |
-   | **Part-to-whole** | Stacked bar, treemap, pie (≤ 5 segments) | Revenue by product |
-   | **Correlation** | Scatter plot, bubble chart | Ad spend vs revenue |
-   | **Ranking** | Horizontal bar (sorted) | Top 10 products |
-   | **Geospatial** | Choropleth map | Revenue by country |
-
-2. **Dashboard Architecture**:
-   ```
-   Level 1 (Top):  KPI cards — 3-5 key metrics (Revenue, DAU, Conversion Rate, Churn)
-                   Trend sparklines, % change vs previous period
-   Level 2 (Mid):  Trend charts — Daily/weekly/monthly views, segmented by channel/region
-   Level 3 (Bottom): Drill-down tables — Top/bottom performers, outliers, details
-   ```
-
-3. **Data Storytelling Checklist**:
-   - [ ] Title answers the question: not "Revenue Chart" but "Revenue grew 15% YoY driven by APAC expansion"
-   - [ ] Annotations explain anomalies: "July dip: 3-day payment outage"
-   - [ ] Color is intentional: one highlight color, grayscale for everything else
-   - [ ] Y-axis starts at zero for bar charts (unless showing small changes)
-   - [ ] Time on X-axis is consistent: daily, weekly, monthly — not mixed
-
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- **One source of truth for metrics** — Define in dbt semantic layer or metric registry. Never duplicate `revenue = SUM(amount)` across 5 dashboards.
-- **Stage → Intermediate → Mart** — Never expose raw source tables to end users. Stage for cleanliness, intermediate for business logic, marts for consumption.
-- **Test data, not code** — dbt `unique`, `not_null`, `relationships` tests on every model. Custom tests for business rules (`revenue >= 0`).
-- **Pre-aggregate for dashboards** — A dashboard that queries 500M rows on every load is broken. Use incremental models, materialized tables, or BI cache.
-- **Pre-register experiments** — Document hypothesis, metrics, and sample size before launching. Never cherry-pick significant results from 50 metrics.
-- **Segment by default** — Every dashboard should allow filtering by platform, region, plan tier, and user cohort.
-- **Document metric definitions** — "Is 'active user' someone who opened the app or made a purchase?" Put the answer in the dashboard description.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Duplicating metric definitions across dashboards — "Revenue = SUM(amount)" defined 5 different ways | Define once in dbt semantic layer or metric registry; all dashboards reference the canonical definition | `grep -rn "revenue\|SUM(amount)" **/*.{sql,yml,lkml} \| sort \| uniq -c \| awk '$1 > 1'` — flags metric definitions appearing in multiple files | **sqlfluff rule**: custom regex rule that bans `SUM(amount)` outside of metric-layer models. **dbt test**: `dbt_utils.unique_combination_of_columns` on metric registry. **CI gate**: fail PR if new metric name already exists in semantic layer YAML. |
-| Exposing raw source tables directly to BI users without staging or business logic | Stage → Intermediate → Mart: never expose raw sources to end users; cleaning and business logic belong in dbt, not in the BI tool | `grep -rn "source(" **/*.yml \| grep -v "staging"` — finds source references outside staging layer. `dbt ls --select source:*+ --resource-type model \| grep -v "stg_"` — checks for sources without staging models | **dbt pre-commit hook**: `dbt run-operation validate_sources_have_staging` that fails if any source table lacks a staging model. **dbt access**: set `access: private` on source models in `dbt_project.yml`. **CI check**: `dbt ls --select source:*+ --resource-type model \| grep -v stg_` must return empty. |
-| Building dashboards that query 500M rows on every load without pre-aggregation | Use incremental models, materialized tables, or BI cache — real-time queries on raw data at dashboard scale are a warehouse cost bomb | `grep -rn "EXPLAIN" **/*.sql \| grep -E "rows=[0-9]{8,}"` — finds queries scanning 100M+ rows. Warehouse query log: `SELECT query_text FROM information_schema.query_history WHERE rows_scanned > 100000000 ORDER BY start_time DESC LIMIT 20` | **dbt materialization policy**: models serving dashboards must use `materialized='table'` or `materialized='incremental'`. **Pre-merge CI**: run `EXPLAIN` on every model and fail if estimated scan > 10M rows without incremental config. **Warehouse resource monitor**: alert when query exceeds $10 in compute. |
-| Cherry-picking significant p-values from 50 experiment metrics without correction | Pre-register hypothesis + primary metric + sample size before launch; apply multiple comparison correction; one primary metric per experiment | `grep -rn "p.value\|p_value\|pval" **/*.{R,py,sql,ipynb} \| wc -l` — if count > 1 without `p.adjust\|bonferroni\|holm\|fdr` in the same file, flag it | **Experiment config schema** (JSON Schema): require `primary_metric` (exactly 1), `secondary_metrics` (capped at 10), `correction_method` (enum: bonferroni, holm, benjamini-hochberg). **CI validation**: `ajv validate -s experiment-schema.json -d experiment_config.json` fails if primary_metric count ≠ 1 or correction_method missing. |
-| Designing experiments with insufficient sample size and declaring "directionally positive" | Run power analysis before launch (α=0.05, power ≥ 0.80); if underpowered, the test was inconclusive, not "directionally positive" | `grep -rn "sample.size\|power\|minimum.detectable.effect" **/*.{R,py,md}` — if experiment doc has no power analysis, flag. `grep -rn "directionally.positive\|trending\|approaching.significance" **/*.{md,ipynb}` — ban these phrases | **Experiment launch gate**: require `power_analysis.json` artifact with `sample_size`, `mde`, `power >= 0.80`, `alpha = 0.05`. **Pre-commit hook**: reject commits containing "directionally positive", "trending toward significance", or "approaching significance" in experiment docs. |
-| Treating dbt as a data pipeline orchestrator instead of a transformation tool | dbt transforms, it doesn't ingest or orchestrate — use Airflow/Dagster/Prefect for extraction and orchestration upstream | `grep -rn "requests\|urllib\|http.client\|boto3\|google.cloud.storage" **/*.sql` — flags external API calls in dbt models. `grep -rn "CREATE EXTERNAL\|COPY INTO\|LOAD DATA" **/*.sql` — flags ingestion logic in dbt | **dbt pre-commit hook**: `grep -rE '(requests\|urllib\|boto3\|http\\.)' models/ && echo "ERROR: dbt models must not call external APIs" && exit 1`. **Architecture lint**: sqlfluff rule that bans `CREATE EXTERNAL TABLE`, `COPY INTO`, `LOAD DATA` in dbt model files. |
-| Creating a new dashboard for every ad-hoc question instead of iterating on existing ones | Consolidate; add tabs, filters, or drill-downs to existing dashboards before creating new ones — dashboard sprawl is metric debt | `grep -rn "dashboard\|board\|report" BI_CONFIG.yml \| wc -l` — count dashboards; if > 3× team size, flag. BI tool API: `curl -s "$BI_URL/api/dashboards" \| jq '[.[] \| select(.created_at > "'$(date -d '7 days ago' +%Y-%m-%d)'")] \| length'` — dashboards created this week | **Dashboard lifecycle policy**: auto-archive dashboards with 0 views in 60 days. **CI gate**: new dashboard PRs require a "why this can't be a tab/filter on an existing dashboard" justification in PR description. **Weekly sweep**: `curl -s "$BI_URL/api/dashboards" \| jq '.[] \| select(.view_count < 5 and .age_days > 30)'` — flag low-usage dashboards. |
-| Ignoring BI tool usage analytics — no insight into which dashboards people actually use | Track views, unique users, and time spent per dashboard; archive anything unused for 90 days; deprecate before it becomes data landfill | `grep -rn "usage\|analytics\|audit\|logging" **/*.{yml,py,conf}` — check if usage tracking is configured. BI tool API: `curl -s "$BI_URL/api/usage?days=90" \| jq '.dashboards[] \| select(.views == 0)'` — find zero-view dashboards | **Automated usage dashboard**: deploy a weekly dbt model that ingests BI tool usage logs (via API → raw table → dbt model) and surfaces zero-view dashboards. **Auto-archive**: cron job calling BI tool API to archive dashboards with 0 views in 90 days. **Slack alert**: weekly report of dashboards approaching archive threshold (0 views in 60+ days). |
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Coordination
 
@@ -717,27 +417,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | New data source added to warehouse without dbt source definition or freshness check | Add dbt source YAML with freshness SLA before any model references it; notify data-engineer | Sources without freshness monitoring are blind spots — you won't know data is stale until users report wrong numbers |
 | Metric layer change proposed that would change historical reporting (e.g., "active user" definition) | Require impact analysis on all downstream dashboards; version the metric; communicate change to all consumers before deploying | Changing a metric definition retroactively breaks every historical comparison — version and communicate before, not after |
 
-## Scale Depth
-<!-- QUICK: 30s -- find your team size column -->
-### Solo (1 person, 0-100 users)
-One analyst/analytics engineer running dbt on a free tier warehouse (BigQuery sandbox, Snowflake trial). No orchestration; dbt Cloud free tier schedules. BI tool: Metabase open-source or Looker Studio free. Manual data quality checks. Metrics in dbt marts; no semantic layer needed. No A/B testing infrastructure beyond SQL queries in notebooks. Cost: $0-200/month. Overkill: data catalog, semantic layer, Airbyte/Fivetran, CI/CD, staging environments.
-
-### Small (2-10 people, 100-10K users)
-Dedicated analytics engineer. dbt Cloud team plan or self-hosted with Airflow. BI: Looker/Metabase with shared dashboards. Start A/B testing framework (SQL + statistical functions). Data quality: dbt tests + elementary for anomaly detection. Metric governance with dbt docs. CI/CD: lint + test on PRs. Cost: $500-3K/month. Overkill: full semantic layer, feature store, real-time dashboards.
-
-### Medium (10-50 people, 10K-1M users)
-Analytics engineering team (2-3). Semantic layer (dbt Semantic Layer or Cube) for centralized metric governance. Multi-environment: dev/staging/prod with CI/CD. Data catalog (DataHub/Amundsen). Automated A/B testing with SRM checks, CUPED, sequential testing (Eppo/Statsig integration). Certified metrics with lineage tracking. Embedded analytics for product. Cost: $5K-20K/month. Overkill: data mesh (stay centralized unless domain count > 10).
-
-### Enterprise (50+ people, 1M+ users)
-Distributed analytics engineering pods aligned to domains. Federated semantic layer with global metric registry. Real-time operational dashboards. Automated metric anomaly detection with Slack/PagerDuty integration. Data product lifecycle management: beta → GA → deprecated. Cross-domain metric consistency enforcement. Multi-region BI deployment. FinOps: warehouse cost attribution to domains. Cost: $30K-200K+/month.
-
-### Transition Triggers
-| From → To | Trigger | What to Change |
-|-----------|---------|----------------|
-| Solo → Small | 3+ BI consumers across different teams | Set up dbt Cloud team plan; formalize metric taxonomy; introduce CI/CD |
-| Small → Medium | Metric disagreement across teams; >20 dashboards | Implement semantic layer (dbt SL/Cube); add data catalog; build A/B testing framework |
-| Medium → Enterprise | 10+ domain teams needing self-service analytics | Adopt federated semantic layer; implement data product lifecycle; cross-domain governance |
-
 ## What Good Looks Like
 
 > Every metric in the organization traces back to a single, version-controlled definition in the semantic layer — no one asks "which DAU number is correct" because there is only one. dbt models run on a schedule, tests catch anomalies before dashboards update, and stale models are deprecated before anyone builds a report on them. Business stakeholders self-serve in the BI tool with certified datasets, and when the CEO asks a question in the board meeting, the answer is two clicks away, backed by lineage all the way to raw events.
@@ -750,87 +429,6 @@ Distributed analytics engineering pods aligned to domains. Federated semantic la
 /product-manager && /analytics-engineer && /growth-engineer
 # Data engineers deliver clean datasets. Analytics engineers model for consumption. Data scientists run experiments.
 ```
-
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-| Sub-Skill | When to Use | Context |
-|-----------|-------------|---------|
-| **dbt Data Modeling** | Building or refactoring data transformation pipelines | dbt (Core or Cloud), dimensional modeling, Kimball star schema, medallion architecture |
-| **Metric Layer Design** | Defining company-wide KPIs, single source of truth for "DAU" or "Revenue" | dbt Semantic Layer, Cube, LookML — centralized metric definition with lineage |
-| **A/B Test Design & Analysis** | Running experiments to measure product changes | Power analysis, CUPED, SRM checks, sequential testing — Eppo, Statsig, or SQL-based framework |
-| **SQL Performance Tuning** | Queries exceeding 30s or consuming excessive warehouse credits | EXPLAIN plans, partitioning/clustering, CTE optimization, warehouse sizing |
-| **Self-Service BI Enablement** | Non-technical stakeholders need ad-hoc data access | Looker, Metabase, Lightdash, Superset — governed self-service with certified metrics |
-| **Event Tracking Design** | Defining what user actions to capture and how | Tracking plans, Snowplow, Segment, RudderStack — schema validation, identity resolution |
-| **Data Storytelling** | Communicating insights to drive decisions | Visualization principles, narrative structure, dashboard architecture, executive summaries |
-| **Data Quality & Observability** | Proactive detection of data issues before stakeholders notice | dbt tests, elementary, Great Expectations, Monte Carlo — freshness, volume, schema anomaly checks |
-
-
-## Error Decoder
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -rn "revenue.*mismatch\|conflicting.*metric\|definition.*discrepancy" logs/*.log` OR `grep -c "revenue" **/*.{sql,yml} \| awk -F: '$2 > 1'` | Executive dashboard shows 15% higher revenue than finance team's reports — same metric name, different numbers | Semantic drift: two teams define "revenue" differently (booked vs collected vs recognized) but both label it "Revenue" | Implement single-source metric registry with owners; trace every metric to SQL definition; add glossary to BI tool with canonical definition | 1. `grep -rn "revenue" **/*.{sql,yml,lkml} > metric_audit.txt` — find all definitions. 2. Diff each against canonical: `diff <(dbt run-operation get_metric_sql --args '{metric: revenue}') <(cat dashboard_revenue.sql)`. 3. Deploy metric layer: `dbt run --select metrics.*`. 4. Add CI test: `dbt test --select metrics.*`. 5. Publish glossary with `dbt docs generate && dbt docs serve`. |
-| `grep -rn "source.*freshness\|max.updated_at\|staleness" logs/*.log` OR `grep "warn.*freshness\|error.*stale" dbt.log` | dbt model runs green but dashboard data is 3 days stale — green pipeline, dead data | dbt model runs successfully but upstream source table stopped receiving data; no freshness check on the source | Add dbt source freshness checks for every source table; alert on `MAX(updated_at) < NOW() - SLA`; implement data observability tool | 1. Check freshness: `dbt source freshness`. 2. Identify stale sources: `dbt source freshness --output json \| jq '.results[] \| select(.status == "error")'`. 3. Add SLA to source YAML: `freshness: {warn_after: {count: 4, period: hour}, error_after: {count: 24, period: hour}}`. 4. Add CI gate: `dbt source freshness` must pass pre-merge. 5. Alert: `elementary monitor --slack-webhook $WEBHOOK`. |
-| `grep -rn "row.count.*mismatch\|discrepancy\|reconciliation.*fail" logs/*.log` OR `SELECT ABS(COUNT(*) - (SELECT COUNT(*) FROM source)) / COUNT(*)::float FROM mart_table` > 0.02 | Monthly data mart reconciliation shows 8% discrepancy vs source system — incremental drift | Incremental model missed late-arriving data; 3-day lookback window wasn't wide enough; some records arrived 5+ days late | Extend incremental lookback window to 7 days; implement end-of-month full refresh for fact tables; add row-count reconciliation check | 1. Check row counts: `dbt run-operation count_rows --args '{models: [fct_orders, stg_orders]}'`. 2. Widen lookback: set `lookback_window: 7` in incremental model config. 3. Run full refresh: `dbt run --full-refresh --select fct_orders`. 4. Add reconciliation test: `dbt test --select tag:reconciliation`. 5. Schedule monthly full refresh in orchestrator DAG. |
-| `grep -rn "DAU.*conflict\|active.user.*disagree\|metric.*dispute" logs/*.log` OR `grep -c "active_user\|dau" **/*.{sql,yml} \| awk -F: '$2 > 1'` | Product and finance teams argue about DAU definition for 2 weeks every quarter — perpetual re-litigation | No canonical metric definition; Product counts "app opens" as DAU while Finance counts "logged-in sessions with an action" | Establish metric governance board; document each metric with formula, caveats, and owning team; enforce single definition in semantic layer | 1. Inventory definitions: `grep -rn "active_user\|dau\|daily_active" **/*.{sql,yml,lkml} > dau_audit.txt`. 2. Create canonical metric: `dbt run-operation create_metric --args '{name: daily_active_users, sql: SELECT..., owner: data_team}'`. 3. Enforce with CI: `dbt test --select tag:metric_consistency`. 4. Deprecate non-canonical: add `deprecation_date` to old metric YAML. 5. Publish glossary with `dbt docs generate`. |
-| `grep -rn "p.value.*0\\.0[3-5]\|significant.*win\|stopped.early" experiment_logs/*.log` OR `grep -rn "peek\|sequential.test.*fail\|alpha.spend" **/*.{R,py}` | A/B test declared "significant win" (p=0.04) but flatlined after launch — p-hacking caught in post-mortem | Peeking at results daily inflated false-positive rate; stopping at the first significant peek is p-hacking | Pre-register experiment duration and sample size; use sequential testing or alpha-spending if monitoring continuously; report confidence intervals, not just p-values | 1. Audit experiment log: `grep -n "p_value\|stopping_rule" experiment_*.log`. 2. Check pre-registration: `test -f experiment_configs/exp_${ID}_prereg.yaml \|\| echo "MISSING"`. 3. Run sequential test: `Rscript sequential_test.R --data exp_${ID}.csv --alpha_spending obrien_fleming`. 4. Enforce gate: pre-commit hook requiring `preregistration.yaml` for experiment models. 5. Report CI: `[0.85, 1.12]` not just "p=0.04". |
-| `grep -rn "merge.*duplicate\|INSERT INTO\|duplicate.*row\|dedup.*fail" logs/*.log` OR `SELECT unique_key, COUNT(*) FROM snapshot GROUP BY 1 HAVING COUNT(*) > 2` | dbt snapshot silently creates duplicate SCD2 rows, inflating all downstream metrics — undetected for weeks | Snapshot `unique_key` uses a non-unique column (e.g., `email`); no database-level unique constraint to catch duplicates | Use composite unique keys (e.g., `customer_id + valid_from`); add uniqueness test and row-count anomaly check on every snapshot | 1. Detect: `SELECT unique_key, COUNT(*) FROM snapshots.${TABLE} GROUP BY 1 HAVING COUNT(*) > 2`. 2. Fix key: change to composite key or surrogate. 3. Rebuild: `dbt snapshot --full-refresh --select ${TABLE}`. 4. Add test: `dbt test --select ${TABLE}` with `dbt_utils.unique_combination_of_columns`. 5. Alert: `elementary monitor --anomaly-detector row_count --table snapshots.${TABLE}`. |
-| `grep -rn "EXPLAIN.*cost\|bytes.scanned\|execution.time" logs/*.log \| awk '$NF > 30000'` OR warehouse query log showing queries > $50 | dbt incremental model takes 4 hours in production vs 22 minutes in dev — MERGE degrades to full table scan | `unique_key` for merge strategies doesn't align with partition column; MERGE compares all source rows against all target rows | Align `unique_key` with partition key; test on production-sized staging; set warehouse resource monitor at $50/query | 1. Profile: `EXPLAIN SELECT ... FROM {{ ref('fct_orders') }}`. 2. Check alignment: verify `unique_key` columns are in `partition_by` list. 3. Test at scale: `dbt build --select fct_orders --vars '{scale_test: true}'` in staging. 4. Fix config: set `partition_by: order_date` and `unique_key: [order_id, order_date]`. 5. Add cost gate: warehouse resource monitor with `QUERY_COST > 50 → ALERT` and `QUERY_COST > 100 → ABORT`. |
-
-
-## Production Checklist
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[S1]** | dbt project structured: staging → intermediate → marts with consistent naming | `dbt ls --resource-type model --output name \| grep -cE "^(stg_\|int_\|fct_\|dim_)"` — all models must match standard prefixes; count must equal total model count | Copy `dbt_project.yml` scaffold: `cp templates/dbt_project_structure.yml dbt_project.yml` |
-| **[S2]** | Materialization strategy documented per model type | `grep -L "materialized:" models/**/*.yml \| wc -l` — returns 0 when all models have materialization config | `dbt run-operation generate_materialization_docs --args '{output: materialization_strategy.md}'` |
-| **[S3]** | dbt tests on every model: unique, not_null, relationships, accepted_values minimum | `dbt test --select source:* model:* 2>&1 \| tail -1` — must show 0 failures | Copy test templates: `cp templates/dbt_tests.yml models/staging/schema.yml` with unique+not_null+relationships per model |
-| **[S4]** | Custom tests for business logic: positive amounts, date consistency, logical invariants | `grep -rn "test\|assert" tests/**/*.sql \| wc -l` — must be ≥ number of models | `dbt run-operation scaffold_custom_tests --args '{model_pattern: fct_%}'` generates test stubs |
-| **[S5]** | Snapshots (SCD Type 2) configured for slowly changing dimensions | `dbt ls --resource-type snapshot --output name \| wc -l` — must be > 0 for any dimension tables | `dbt run-operation scaffold_snapshot --args '{table: dim_customers, unique_key: customer_id, strategy: timestamp}'` |
-| **[S6]** | Source freshness checks running on schedule | `dbt source freshness 2>&1 \| grep -c "PASS"` — all sources must pass freshness | Add to sources.yml: `freshness: {warn_after: {count: 4, period: hour}, error_after: {count: 24, period: hour}}` |
-| **[S7]** | `dbt docs` generated and published; column-level descriptions complete | `dbt docs generate 2>&1 \| grep -c "Catalog written"` — must return 1. `dbt run-operation count_undocumented_columns` returns 0 | `dbt run-operation scaffold_descriptions --args '{fill_strategy: ai_suggest}'` |
-| **[S8]** | Metric layer defined — single source of truth for all KPIs | `dbt ls --resource-type metric --output name \| wc -l` — must be ≥ number of top-level KPIs | `dbt run-operation scaffold_metrics --args '{from: marts/, output: models/metrics/}'` |
-| **[S9]** | Semantic models: entities, dimensions, measures documented | `grep -rn "semantic_model:" models/**/*.yml \| wc -l` — ≥ 1 per mart model | `dbt run-operation generate_semantic_manifest --args '{models: [fct_orders, fct_sessions]}'` |
-| **[S10]** | BI tool configured: caching, row-level security, scheduled reports | `curl -s -o /dev/null -w "%{http_code}" "$BI_URL/api/health"` — must return 200 | Apply BI config template: `terraform apply -var-file=bi_config.tfvars` |
-| **[S11]** | Executive dashboard (3-5 top-level KPIs) + Product dashboard (funnels, cohorts, segments) | `curl -s "$BI_URL/api/dashboards" \| jq '[.[] \| select(.tags \| contains(["executive"])), .[] \| select(.tags \| contains(["product"]))] \| length'` — must be ≥ 2 | `curl -X POST "$BI_URL/api/dashboards" -d @templates/executive_dashboard.json` |
-| **[S12]** | Dashboard load time < 5 seconds (materialized tables, aggregate awareness, BI cache) | `curl -w "time_total: %{time_total}" -o /dev/null -s "$DASHBOARD_URL" \| awk '{if ($2 > 5) exit 1}'` — must pass | Set `materialized='table'` on all models feeding dashboards; enable BI cache with `ttl_seconds: 3600` |
-| **[S13]** | A/B test design template: hypothesis, primary metric, guardrail metrics, sample size, duration | `test -f templates/experiment_design.yaml && yq eval '.hypothesis and .primary_metric and .sample_size' templates/experiment_design.yaml` — valid YAML with all fields | `cp templates/experiment_design.yaml.sample experiments/$(date +%Y%m%d)_exp.yaml` |
-| **[S14]** | Sample size calculator accessible to all product teams | `curl -s "$SAMPLE_SIZE_CALC_URL" \| grep -c "minimum sample size"` — must return 1 | `docker run -p 8080:8080 sample-size-calculator:latest` or deploy Streamlit app |
-| **[S15]** | CUPED or equivalent variance reduction implemented | `grep -rn "CUPED\|cuped\|covariate.adjustment\|variance.reduction" **/*.{py,sql,R}` — must return matches | `Rscript setup_cuped.R --pre_period_days 7 --output cuped_scores.csv` |
-| **[S16]** | SRM (Sample Ratio Mismatch) check on every experiment | `grep -rn "SRM\|sample.ratio\|chi.sq.*allocation" **/*.{py,R,sql}` — must exist in experiment pipeline | Add to CI: `Rscript srm_check.R --experiment_id $EXP_ID \|\| exit 1` (exit 1 on p < 0.001) |
-| **[S17]** | Experiment results repo: hypothesis, setup, results, decision, learnings | `ls experiments/results/ \| wc -l` — must be ≥ number of completed experiments | `cp templates/experiment_results.md experiments/results/exp_${ID}_results.md` |
-| **[S18]** | Pre-registration enforced — no peeking or cherry-picking | `grep -rn "stop.early\|peek\|interim.analysis" experiment_configs/*.yaml` — if found, sequential testing method must be declared | Pre-commit hook: `test -f experiment_configs/exp_*/preregistration.yaml \|\| (echo "ERROR: pre-registration required" && exit 1)` |
-| **[S19]** | Incremental models for tables > 100M rows | `dbt run-operation list_large_tables --args '{min_rows: 100000000}' \| while read t; do grep -c "materialized.*incremental" models/$t.sql; done` — all must return 1 | `dbt run-operation convert_to_incremental --args '{tables: [fct_events, fct_sessions], unique_key: event_id, strategy: merge}'` |
-| **[S20]** | Query plan reviewed for top 10 most-expensive queries | `grep -rn "EXPLAIN" docs/query_plans/ \| wc -l` — must be ≥ 10 | `dbt run-operation explain_top_queries --args '{n: 10, output_dir: docs/query_plans/}'` |
-| **[S21]** | Window functions used for running totals, moving averages, rankings (not self-joins) | `grep -rn "JOIN.*ON.*=.*AND.*ROW_NUMBER\|SELF JOIN\|JOIN.*same_table" models/**/*.sql` — must return 0 matches | `sqlfluff fix --rules window_function_preference models/` to auto-convert self-joins to window functions |
-| **[S22]** | Materialized views or aggregate tables for frequently accessed aggregations | `grep -rn "materialized.*view\|aggregate.*table\|pre.aggregat" models/**/*.{sql,yml} \| wc -l` — must be ≥ 3 for any production BI deployment | `dbt run-operation scaffold_aggregates --args '{models: [fct_orders, fct_sessions], grain: daily}'` |
-| **[S23]** | CI pipeline: `dbt build --select state:modified+` — only build changed models | `grep -rn "state:modified\|deferral\|slim.ci" .github/workflows/*.yml` — must return matches in CI config | Copy CI template: `cp templates/dbt_slim_ci.yml .github/workflows/dbt_ci.yml` |
-| **[S24]** | Data freshness monitoring with alerts on stale dashboards | `grep -rn "freshness\|staleness\|elementary\|monte.carlo" **/*.{yml,py,conf}` — must have monitoring config | `elementary monitor --slack-webhook $WEBHOOK --schedule "0 */6 * * *"` |
-| **[S25]** | Analytics on-call rotation for critical pipeline failures | `grep -rn "on.call\|pagerduty\|opsgenie\|incident" .github/workflows/*.yml \| wc -l` — must be ≥ 1 | Copy on-call config: `cp templates/oncall_rotation.yml .github/workflows/oncall.yml` |
-| **[S26]** | BI tool usage analytics: which dashboards are viewed? Which are ignored (archive candidates)? | `curl -s "$BI_URL/api/usage?days=90" \| jq '.dashboards[] \| select(.views == 0) \| .name'` — must have monitoring set up to detect zero-view dashboards | Deploy usage tracking dbt model: `dbt run --select bi_usage_analytics` ingesting BI tool API logs weekly |
-| **[S27]** | Stakeholder training: self-service exploration, how to read an A/B test result, when to ask for help | `test -f docs/stakeholder_training.md && grep -c "self.service\|A/B.test\|escalation" docs/stakeholder_training.md` — must be ≥ 3 | Copy training template: `cp templates/stakeholder_training.md docs/` and customize per BI tool |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from the analytics trenches -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| dbt snapshot `unique_key='email'` silently duplicated 12,000 SCD2 rows in `dim_customers` — every revenue dashboard was wrong for 3 weeks | Corporate customers shared a generic `sales@company.com` email. Each daily snapshot run inserted a new SCD2 record for every shared-email customer. The `dim_customers` table grew from 50K to 62K rows in 21 days. Revenue attribution, cohort analysis, and LTV calculations all silently inflated — the executive dashboard showed 18% customer growth that didn't exist. | The engineer assumed email is a unique identifier. It isn't — shared inboxes, acquisitions, and support aliases all create collisions. The snapshot's `unique_key` had no database-level unique constraint to validate the assumption. | **Every dbt snapshot `unique_key` must trace to a column with a `UNIQUE` constraint or a `dbt_utils.unique_combination_of_columns` test.** Add a row-count anomaly check: fail the pipeline if any snapshot grows >5% day-over-day. Audit SCD2 tables weekly: `SELECT unique_key, COUNT(*) FROM snapshot GROUP BY 1 HAVING COUNT(*) > 2`. |
-| "Revenue" meant three different things across Looker, Salesforce, and the board deck — Q3 had a 22% discrepancy that took 4 analysts 2 weeks to resolve | The CEO presented $14.2M in quarterly revenue at the board meeting. Finance reported $11.6M. Sales reported $13.8M. Finance used net recognized revenue (ASC 606), Sales used bookings (signed contracts), BI used gross transaction volume (pre-refunds). No one had noticed because each team only looked at their own numbers. | No single source of truth for the "revenue" metric. Each team built their own calculation in their own tool on their own timeline. The metric name was shared but the definition was not — and the name was too generic to disambiguate. | **Codify every KPI in a metric layer with an exact SQL definition and business owner.** Publish a metrics glossary: "Net Revenue = SUM(net_revenue) FROM fct_transactions WHERE status = 'completed' AND refunded = FALSE. Owner: Finance. Last validated: 2024-03-15." Any dashboard that says "Revenue" must reference this definition. Run a nightly metric reconciliation script that compares metric layer output against source systems. |
-| A/B test showed +15% conversion, p=0.04 — shipped the feature, conversion actually dropped 3%. An automated SRM check would have caught it | A product team ran a 14-day checkout experiment with 50,000 users. Treatment showed +15% conversion with p=0.04. They shipped it. Real conversion dropped 3%. Post-mortem: the randomizer had a bug that assigned Chrome users to treatment at 62/38 ratio — Chrome users have higher baseline conversion, creating an artifactual "lift." The Sample Ratio Mismatch χ² p-value was 0.0001. | SRM check wasn't automated. The analyst ran t-tests but never verified the randomization. The p=0.04 was marginal even without the bug — the team would have shipped noise regardless. | **Automate SRM as a hard gate — if p < 0.001 on the χ² test, experiment results are invalid regardless of the treatment effect p-value.** Run SRM daily during the experiment, not just at the end. Train product teams: "If treatment and control aren't approximately 50/50, something is wrong. Stop and investigate." |
-| dbt incremental model `fct_orders` took 22 minutes in dev — 4 hours in production because `MERGE` rebuilt the entire table every run | The model used `incremental_strategy='merge'` with `unique_key='order_id'` but partitioned on `order_date`. The merge condition compared 500M source rows against 500M target rows instead of only the changed partition. Cost: $1,200 per run on Snowflake, 30 daily runs = $36K/month for a single model. Dev had 10K rows and hid the problem completely. | `unique_key` for merge strategies must align with the partition column, or the merge degrades to a full table scan. The engineer tested on a toy dataset and assumed production would scale linearly. | **Run `EXPLAIN` on every incremental model in a production-sized staging environment before deploying.** For merge strategies: the `unique_key` should match the partition key or include it. Test with `dbt build --full-refresh` time vs incremental to verify the strategy actually limits partitions. Set a warehouse resource monitor that alerts when a single query exceeds $50 in compute. |
-| Marketing dashboard showed 40% MoM growth for 6 weeks — an analyst had changed "revenue" to include test transactions in a base model, and 87 downstream models inherited the error | An analyst added a `WHERE is_test = FALSE` filter to `base_transactions` — or thought they did. The filter was applied only to the staging model, not the base model that fed every mart. Every downstream model — revenue, LTV, churn, cohort retention — silently included test transactions. The VP of Marketing presented the inflated numbers to the board. | No column-level lineage meant the analyst couldn't see that the base model fed 87 downstream dependencies. No reconciliation step compared mart output against source system totals. | **Treat base/staging model changes with the same caution as database migrations.** Require a downstream impact analysis before merging any model that feeds >5 downstream dependencies. Add a reconciliation model: `SELECT SUM(revenue) FROM fct_transactions` must match the source system within 0.1%. Run it after every dbt build. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can write SQL and build dbt models but don't know why a query scanning 500M rows at 9 AM every day is a problem for anyone else | You've designed a dbt project from scratch with staging/intermediate/marts layers, full test coverage, and CI that only builds changed models and their downstream dependents | A VP asks "why do Sales and Finance show different revenue numbers?" and you trace the discrepancy through 15 models to the root cause in under 15 minutes |
-| You rename a column in a base model without checking downstream dependencies — and discover 40 broken dashboards when Slack blows up at 8:30 AM | You add a column to a staging model and your CI pipeline tells you exactly which 12 downstream models are affected, with impact estimates, before you merge | You can estimate the Snowflake/BigQuery cost of a proposed data model change before it's built, and your estimate is within 20% of actual every time |
-| You copy-paste metric definitions between dashboards because "it's the same KPI" and don't realize they've drifted apart over 6 months | You define every metric once in the metric layer, every dashboard references that single definition, and a nightly reconciliation catches discrepancies before anyone sees them | A company adopts your metrics framework and 6 months later, Finance, Sales, and Product all report the exact same Q3 net revenue within the same hour — and an auditor confirms it |
-
-**The Litmus Test:** Take the most complex dashboard your company relies on for weekly decisions. Can you trace every number back to its raw source table, explain every transformation, and prove the number is correct? If you can't do this for your company's top 10 KPIs right now, you're not L3 yet.
 
 ## Deliberate Practice
 
@@ -849,11 +447,16 @@ graph LR
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- dbt Best Practices: https://docs.getdbt.com/best-practices
-- dbt Semantic Layer: https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-semantic-layer
-- Looker LookML Best Practices: https://cloud.google.com/looker/docs/best-practices
-- A/B Testing at Scale (Kohavi et al.): https://exp-platform.com/
-- Amplitude Data Taxonomy Playbook: https://amplitude.com/data-taxonomy-playbook
-- SQL Style Guide: https://www.sqlstyle.guide/
-- The Visual Display of Quantitative Information (Tufte): https://www.edwardtufte.com/
+
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
