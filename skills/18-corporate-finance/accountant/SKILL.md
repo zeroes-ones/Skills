@@ -244,6 +244,19 @@ What's your stage and complexity?
 - **1099s are January 31, not "whenever you get around to it."** Late filing penalty: $60/form (up to $630/year for small businesses). Intentional disregard: $630/form, no cap. The IRS does not accept "we were busy fundraising" as an excuse.
 - **Your auditor is not your accountant.** Auditors test what you've done. They do not prepare your financials, fix your reconciliations, or tell you what entries to make. Going into an audit with messy books costs 3-5x more in audit fees.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Relying solely on GL account strings without validation rules | Implement validation checks on all GL postings — validate account-code combinations before journal entry creation |
+| Classifying expenses based on vendor name rather than nature of transaction | Classify expenses by economic substance — look past the vendor name to what was actually purchased |
+| Manual recurring journal entries each period without automation | Set up recurring/reversing templates for repeat entries (accruals, depreciation, prepaid amortization) to eliminate manual error |
+| Reconciling balance sheet accounts quarterly instead of monthly | Reconcile all material balance sheet accounts monthly to catch errors when they're small and fresh |
+| Treating all adjusting entries as "in-scope" for the same review threshold | Risk-tier adjusting entries — apply heightened review to manual top-side entries above materiality |
+| Using "miscellaneous expense" or "sundry" as a catch-all | Create specific GL accounts for recurring non-standard items — miscellaneous should be <1% of total expenses |
+| Deferring intercompany reconciliation to quarter-end close | Reconcile intercompany balances weekly during close to avoid last-minute out-of-balance surprises |
+| Sharing Excel workbooks with embedded credentials or unprotected macros | Use secure shared platforms with access controls and version history; never embed credentials in spreadsheets |
+
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Skills this accountant works with — financial data flows across the entire company -->
@@ -282,6 +295,19 @@ What's your stage and complexity?
 - **Handoff to `treasury-manager`:** Daily cash reconciliation; weekly AP aging; monthly debt schedule. Artifact: Cash position summary with all bank account balances.
 - **Handoff to `investor-relations`:** Quarterly GAAP financials with ARR bridge, NRR calculation, and LTV/CAC. Artifact: Investor-grade financial package with methodology appendix.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Month-end close approaching and no reconciliation checklist circulated | Proactively publish the close calendar with owner assignments and cutoff dates | Prevents last-minute scrambling and ensures all reconciling items are identified early |
+| Intercompany balance exceeds 5% of total intercompany volume | Flag to treasury and initiate bilateral reconciliation before close | Intercompany mismatches compound across entities and delay consolidation |
+| More than 3 manual journal entries hitting the same account in a period | Investigate root cause and propose automation or process fix | Repeated manual entries signal a systemic issue that automation can eliminate |
+| Accrual reversal not processed by Day 5 of new period | Chase the responsible cost-center owner and escalate if unreversed by Day 7 | Stale accruals distort both current and prior period P&L |
+| Foreign currency revaluation rate differs >3% from prior month rate | Alert FP&A and treasury — assess balance sheet exposure impact | Material FX moves can trigger covenant breaches or hedge triggers |
+| Fixed asset addition posted to expense account above capitalization threshold | Reclassify immediately and notify fixed asset accountant | Failure to capitalize distorts both EBITDA and depreciation schedules |
+| Audit evidence request received without prior notice | Pull requested support within 2 hours and confirm completeness with auditor | Responsiveness builds auditor trust and can reduce substantive testing scope |
+| Bank feed disruption >4 hours during business day | Switch to manual import protocol and notify all entities relying on auto-feed | Delayed bank data cascades into cash positioning, reconciliation, and payment runs |
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error is a war story from real startup accounting failures -->
@@ -300,15 +326,6 @@ What's your stage and complexity?
 | Audit finding from missing revenue documentation | Revenue recognition memos not written or signed for material contracts | Implement contract review policy: every deal >$50K gets a revenue recognition memo signed by accounting manager. Keep in audit binder. | Auditors must test revenue recognition assertions. Without documentation, they assume the worst and increase sample size — driving up fees. |
 | AP aging shows $500K in unprocessed invoices | No invoice approval workflow — invoices sent to individual emails, lost in inboxes | Implement AP automation (Bill.com, Tipalti, or similar). Central invoice submission: AP@company.com only. 3-way match before payment. | The CFO discovered $200K in late fees and a vendor threatening to stop shipping. AP automation paid for itself in 3 months. |
 | Inventory value incorrect by $300K | No physical inventory count in 18 months; book value drifted from reality | Quarterly cycle counts on high-value items. Annual full physical inventory. Adjust GL to match physical count. Investigate shrinkage root cause. | A hardware startup's books showed $800K in inventory; physical count found $500K. The $300K difference was obsolete stock never written off. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. | Accrual vs cash variance should be reviewed monthly. If >5%, find the reconciling item. |
-| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. | Publish your SaaS metric methodology as a board appendix. Standardize definitions. |
-| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. | Every model must reproduce the last 12 months within 5%. If it can't explain the past, it can't predict the future. |
-| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. | Update 13-week cash forecast every Friday. Track DSO religiously. |
 | Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). | Use automated sales tax tools. Monitor nexus thresholds in every state. |
 | Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. | ASC 606 review at contract signing, not after. Involve accounting early. |
 | Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. | Use Carta/Pulley. Reconcile cap table monthly. Audit before fundraises. |

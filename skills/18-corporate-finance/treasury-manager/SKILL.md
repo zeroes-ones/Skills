@@ -235,6 +235,19 @@ For startups with multi-currency operations (international customers, overseas t
 - **Wires are forever; ACH can be reversed.** A wire transfer is final within hours and virtually irreversible. An ACH debit can be reversed within 5 days (consumer) or 2 days (business). Fraudsters know this — they demand wire transfers. Any new vendor requesting wire payment for the first invoice? Call them at a known number first.
 - **Cap table hygiene prevents fundraising delays.** A messy cap table (missing signatures, untracked option grants, incorrect share counts) adds 2-4 weeks to fundraising legal review. That's 2-4 weeks of runway burned while your lawyers and their lawyers argue about who owns what.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Keeping all cash in one operating account without segregation | Segregate into operating (1 month burn), reserve (6+ months), and investment accounts — prevents single-point-of-failure and optimizes yield |
+| Using DSO assumptions from contract terms instead of actual payment history | Model collections using actual customer-by-customer payment history — 50% pay within terms, 30% in 15 days late, 20% in 30+ days late |
+| Approving wires based on email instructions without verbal verification | All vendor bank changes require 2-person verbal verification at independently verified phone number + 48-hour cooling period |
+| Investing operating cash in anything with duration mismatch or principal risk | Match investment maturities to forecasted cash needs — operating cash in T-bills or government MMFs only; yield is third priority after capital preservation and liquidity |
+| Treating insurance as a "set and forget" annual purchase | Quarterly broker review: confirm top 5 risks are covered in writing; review exclusions; check adequacy as company scales (Series A coverage ≠ Series C needs) |
+| Deferring bank relationship management until there's a problem | Quarterly check-in with relationship manager; annual KYC refresh; maintain backup banking relationship at a different institution |
+| Modeling debt covenants at quarter-end only when lender requires certification | Model all covenants monthly with 20% headroom buffer; report potential breaches BEFORE they trigger — lenders prefer cure plans to surprises |
+| Ignoring FX exposure because "we're USD-denominated" while holding EUR/GBP receivables | Convert foreign currency to functional currency immediately upon receipt unless matched liability exists; use forwards for known future cross-currency obligations |
+
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Skills this treasury manager works with — cash is the company's oxygen -->
@@ -275,6 +288,19 @@ For startups with multi-currency operations (international customers, overseas t
 - **Handoff to `board-manager`:** Cash position summary, runway calculation, covenant compliance status. Artifact: Board cash appendix with trend charts and commentary.
 - **Handoff to `investor-relations`:** Cash balance, cash burn trend, months of runway, capital efficiency metrics. Artifact: Investor cash summary slide with forward-looking guidance.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Cash forecast deviates >15% from actual in any week | Investigate variance source within 24 hours — check AR collections timing, unexpected disbursements, or forecast formula error | Cash forecast is the company's early-warning system; >15% drift signals either a process problem or a developing crisis |
+| Single vendor or customer concentration exceeds 20% of total cash flow | Model worst-case scenario: what if that counterparty delays payment by 60 days? Present risk assessment to CFO with mitigation options | Concentration risk can kill a company faster than burn rate — one customer bankruptcy can cascade into payroll failure |
+| Bank relationship manager hasn't been contacted in 90+ days | Schedule 30-minute check-in call; review fees, services, and any upcoming KYC requirements | Banks freeze accounts when they lose touch with clients; proactive contact prevents "surprise" KYC holds |
+| Vendor requests wire payment for first invoice without prior relationship | Halt payment; call vendor at independently verified phone number to confirm banking details; implement 48-hour cooling period | First-invoice wire fraud is the most common BEC attack vector — irreversible within hours |
+| Foreign currency balance exceeds $500K or equivalent and remains unconverted for 30+ days | Convert to functional currency immediately unless there's a matched liability; present unrealized FX gain/loss to CFO | Holding unhedged foreign currency is speculation, not treasury management — a 10% FX move on $500K is a $50K P&L hit |
+| Insurance policy renewal date is within 60 days without broker review scheduled | Schedule comprehensive broker review: confirm top 5 risks covered in writing, review exclusions, benchmark premiums against peers | Insurance gaps discovered at claim time are uninsurable — annual review with written confirmation is the only defense |
+| 409A valuation is >10 months old or material event occurred (new term sheet, secondary, tender offer) | Order new 409A immediately (3-4 week lead time); pause all option grants until refreshed; document board resolution if grants must proceed | Expired 409A = options at risk of IRS challenge and Section 409A penalties on employees |
+| ACH debit block is not enabled on operating account | Enable ACH debit block today on all accounts except designated ACH collection accounts; add ACH positive pay with pre-authorized originators | ACH debit block costs nothing; one fraudulent ACH debit can drain operating cash with limited recovery rights |
+
 ## Error Decoder
 <!-- QUICK: 30s — exact error → root cause → fix -->
 <!-- DEEP: 10+min — each error from real startup treasury failures -->
@@ -293,18 +319,6 @@ For startups with multi-currency operations (international customers, overseas t
 | Wire fraud attempt caught too late — $350K lost | Vendor payment redirected by spoofed email; no verbal verification process | Implement dual authorization for all wires >$10K. Require call-back to known number for all vendor bank changes. Use 48-hour cooling period for new vendor accounts. | A startup received a "CEO email" requesting urgent payment of $350K to a new vendor. No verbal verification was required. The money was in a mule account in 4 hours and unrecoverable. |
 | FX loss of $250K on unhedged EUR revenue | European revenue held in EUR for 6 months without hedging; EUR/USD dropped 12% | Convert foreign currency to functional currency immediately upon receipt unless there's a matched liability in that currency. Use forward contracts for known future expenses in foreign currency. | A startup with German customers held 2M in a EUR account for 6 months planning a Berlin office. When the lease fell through, EUR/USD had dropped from 1.15 to 1.01 — a $250K loss. |
 | Bank account frozen after rapid unusual transactions | Money-laundering algorithm flagged rapid inbound-outbound pattern from new investor jurisdiction | Notify bank in advance of large or unusual transactions. Keep beneficial ownership info current. Maintain relationship with bank manager. Have backup banking relationships. | A fintech startup's operating account was frozen for 3 weeks during KYC review triggered by a $5M wire from a Singapore investor. They couldn't make payroll. The lesson: always have a secondary bank account. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| P&L doesn't tie to bank balance | Accrual accounting entries not reconciled | Run a monthly variance report: net income (accrual) vs cash flow from operations (cash). Every variance >5% needs a reconciling item identified. If accruals consistently drift from cash, review your revenue recognition and deferred revenue entries. | Accrual vs cash variance should be reviewed monthly. If >5%, find the reconciling item. |
-| Board questions ARR calculation | SaaS metrics not defined with clear methodology | Document your SaaS metric calculation methodology: what counts as ARR (annualized recurring revenue, not one-time), how expansion/contraction/churn are attributed, and how multi-year contracts are counted. Publish this as a board appendix. | Publish your SaaS metric methodology as a board appendix. Standardize definitions. |
-| Fundraising model doesn't match historicals | Model was built forward-only, not reconciled backwards | Every fundraising model must start by reproducing the last 12 months of actuals within 5%. If it can't explain the past, it can't predict the future. Reconcile model vs actuals before presenting to investors. | Every model must reproduce the last 12 months within 5%. If it can't explain the past, it can't predict the future. |
-| Cash runway suddenly shorter than expected | 13-week cash flow not maintained | Update the 13-week cash flow forecast every Friday afternoon. If actual cash differs from forecast by >15% in any week, investigate the variance source. Key driver: AR timing vs actual collections — always track DSO. | Update 13-week cash forecast every Friday. Track DSO religiously. |
-| Sales tax notice from a state you don't operate in | Economic nexus triggered by remote sales | Use a sales tax automation tool (TaxJar/Avalara). Monitor nexus thresholds in every state where you have customers. File in states where you have physical presence AND states where you cross economic nexus thresholds ($100K or 200 transactions). | Use automated sales tax tools. Monitor nexus thresholds in every state. |
-| Audit reveals material weakness in revenue recognition | ASC 606 review not done at contract signing | Every contract must go through an ASC 606 checklist at signing: is it a license or a service? Are there performance obligations? Is revenue recognized over time or at a point in time? Involve accounting in the deal review process, not after the contract is signed. | ASC 606 review at contract signing, not after. Involve accounting early. |
-| Cap table error discovered during fundraising | Stock ledger not maintained after every equity event | Update the cap table after every: funding round, option grant, option exercise, transfer, repurchase, and conversion. Use a platform (Carta/Pulley) — a spreadsheet cap table will have errors by the time you have >5 equity holders. | Use Carta/Pulley. Reconcile cap table monthly. Audit before fundraises. |
 
 
 ## Production Checklist

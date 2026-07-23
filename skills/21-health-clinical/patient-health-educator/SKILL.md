@@ -127,6 +127,19 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 - **"When to call your doctor" gate:** Every education module must include specific warning signs and emergency contact information relevant to the topic. Missing this section blocks publication.
 - **Behavior change validation gate:** Education programs must demonstrate measurable behavior change (adherence improvement, knowledge gain, skill acquisition) within 90 days. Programs not meeting targets trigger redesign.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Education module shows <60% completion rate within first 30 days of launch | Investigate: too long? Too complex? Wrong reading level? Run usability test with 5 target patients; iterate within 2 weeks | Low completion means patients aren't getting critical health information — every incomplete module is a missed prevention opportunity |
+| Patient feedback indicates education content contradicts what their doctor told them | Flag to medical content reviewer immediately; verify clinical accuracy of both the content and the doctor's advice; update content or add contextual explanation | Conflicting health information erodes trust in both the platform and the patient's care team |
+| Health literacy score of published content tests >8th-grade reading level post-launch | Halt distribution; rewrite to target level; re-test comprehension with target patients; redeploy within 1 release cycle | Above-8th-grade content is inaccessible to a significant portion of the patient population — it's an equity and safety issue |
+| "When to call your doctor" section missing from any education module | Halt publication immediately; every module must include specific warning signs and emergency contact info; this is a non-negotiable safety gate | Missing emergency guidance turns education content into a liability — patients need to know when self-management ends and clinical care begins |
+| Education program shows zero behavior change at 90-day assessment | Convene redesign workshop with UX researcher, data scientist, and clinical team within 30 days; identify whether content, delivery, or engagement is the failure point | Behavior change is the measure of education effectiveness — zero change means the program is consuming resources without improving outcomes |
+| Patient reports adverse event in education module feedback or comments | Flag within 1 hour; preserve content (do not delete); transfer to crisis response manager for AE triage; document timestamp | Education feedback channels are also safety surveillance channels — every comment is potential AE data |
+| New clinical guideline published that supersedes content in 3+ education modules | Flag all affected modules within 48 hours; prioritize update by clinical risk; notify patients who completed outdated modules if the change is clinically significant | Outdated clinical content is a patient safety risk — patients make self-management decisions based on your education |
+| Peer educator reports uncertainty about how to answer a clinical question from a patient | Provide immediate clinical backup: connect peer educator with medical content reviewer; document the question and response for future training | Peer educators are not clinicians — they need rapid access to clinical support to avoid giving incorrect medical advice | 
+
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -230,6 +243,19 @@ Content is for which audience?
 - **Peer stories outperform clinical content for behavior change.** A video of a patient saying "I used to skip doses because I hated the burning sensation when the factor went in. Then my physiotherapist showed me how to warm it to room temperature first" will change more behavior than any clinical guideline.
 - **Cultural competence matters in health education.** Hemophilia affects all populations, but beliefs about medicine, injection fears, family involvement in care, and health literacy vary. Translate content with cultural adaptation — not just literal translation. Train peer educators from diverse backgrounds.
 - **Health education is an ongoing conversation, not a one-time event.** Patients need different information at different stages: newly diagnosed (what is this?), starting treatment (how do I do this?), managing long-term (how do I live well?), transitioning to adult care (how do I manage on my own?). Design content for each stage.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| One education module covering 4+ distinct concepts (factor deficiency + prophylaxis + joint bleeds + injection technique) | One concept per module; each module has exactly one learning objective; split complex topics into sequenced micro-modules |
+| Using clinical terminology without plain-language definition on first use | Define every clinical term in plain language on first use: "Prophylaxis (preventive treatment to stop bleeds before they happen)"; target 6th-8th grade reading level |
+| Designing education content based on what clinicians think patients need to know | Co-design with patients: what do they WANT to know? What questions do they actually ask? Test content with target patient population before launch |
+| Creating one-size-fits-all education and expecting it to work for newly diagnosed AND experienced patients | Design for patient journey stages: newly diagnosed, starting treatment, managing long-term, transitioning to adult care — each stage has different information needs |
+| Translating education content literally without cultural adaptation | Adapt for culture: beliefs about medicine, injection fears, family roles in care, health literacy norms; use cognitive debriefing with native speakers from target community |
+| Measuring education success by content views rather than behavior change | Measure behavior change: adherence improvement, knowledge gain (pre/post test), skill acquisition (observed/self-reported), health outcome changes at 90 days |
+| Using peer educator stories without clinical accuracy review | Every peer story with medical content must pass clinical accuracy review; add disclaimer: "[Name]'s experience. Results vary. Talk to your doctor about what's right for you." |
+| Assuming patients with rare diseases are all experts or all novices | Allow experts to skip ahead (pre-assessment or "I already know this" option); start at the beginning for new patients; never assume knowledge level | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

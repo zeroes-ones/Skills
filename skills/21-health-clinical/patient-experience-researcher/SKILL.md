@@ -226,6 +226,19 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 - **Compensation fairness gate:** Patient compensation must be fair but not coercive. For 60-minute interview, $50-75 typical. IRB scrutinizes amounts that could induce risk-ignoring behavior. Artifact: Compensation rationale documented in IRB submission.
 - **Results return gate:** Every participant must receive a 1-page plain-language summary of findings. Patients who give time deserve to know what was learned. Artifact: Participant summary document with readability score.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Research reveals patient safety concern (adverse event, suicidal ideation, abuse) | Document finding, mandatory reporting, IRB notification within 24 hours, participant follow-up if needed — do not wait for study completion | Patient safety trumps research timelines; delayed reporting compounds harm and violates IRB obligations |
+| Recruitment falls >2 weeks behind schedule with upcoming milestone | Trigger recruitment strategy review within 48 hours: diversify channels, increase incentive within IRB-approved range, extend recruitment window if needed | Recruitment delays cascade into analysis delays, product delays, and missed regulatory submission windows |
+| PROM instrument identified as not validated for target population (language, age, literacy) | Pause data collection with that instrument; identify validated alternative; submit protocol amendment to IRB for instrument change | Unvalidated PROM = unreliable clinical data that cannot support regulatory claims or product decisions |
+| Research uncovers systematic health inequity (disparity in access/outcomes by race, income, geography) | Document disparity within 2 weeks; assess product roadmap implications; escalate to product strategist and potentially CEO | Health inequities found in research create both an ethical obligation to act and potential regulatory/compliance risk if ignored |
+| Consent form readability scores >8th-grade level for target population with known literacy challenges | Rewrite consent to target level immediately; re-test readability; submit amended consent to IRB before next participant enrollment | Consent at too high a reading level = invalid informed consent = research data that cannot be used |
+| Diary study compliance drops >30% after first week | Check-in with non-completing participants: is the instrument too long? Too frequent? Confusing? Adjust protocol if possible; document attrition for analysis | Diary fatigue is predictable — early detection allows mid-study correction that preserves data quality |
+| IRB review exceeds expected timeline by >2 weeks without communication | Proactively contact IRB coordinator; verify submission is complete; offer to address any preliminary concerns; do not assume "no news is good news" | IRB delays without communication often mean the reviewer found issues but hasn't formalized feedback yet |
+| Participant reports feeling coerced or pressured during recruitment or study participation | Pause recruitment from that channel immediately; investigate recruitment practices; retrain staff; document corrective action for IRB | Coercion in research — even perceived — violates ethical standards and can result in IRB suspension of the study | 
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -237,6 +250,19 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 - **Diary compliance drops after day 7.** For daily diaries, plan for 30% attrition after one week. Build this into your sample size calculation and design shorter instruments that patients can sustain.
 - **IRB review is not an obstacle — it's patient protection.** Frame IRB as a partner in ethical research, not a bureaucratic hurdle. Engage the IRB early with a clear protocol and consent materials. Most delays come from unclear descriptions, not from IRB intransigence.
 - **Return results to participants.** Patients who give their time for research deserve to know what was learned. Send a 1-page plain-language summary to every participant. This is ethical practice and builds your research recruitment pipeline.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Designing research "about patients" without patient co-design involvement | Involve patient advisory board from research question formulation through findings review; compensate patients at fair market rates ($50-75/hr) |
+| Using consent forms at 12th-grade reading level for populations that read at 6th-grade level | Run readability scores (SMOG/Flesch-Kincaid) on every consent form; target ≤8th grade; validate with cognitive debriefing with target population |
+| Treating IRB review as a bureaucratic hurdle to "get through" | Engage IRB early as a partner; most delays come from unclear protocol descriptions, not IRB intransigence; invest in protocol clarity upfront |
+| Recruiting only through clinical settings (HTC waiting rooms) — missing disengaged patients | Diversify recruitment: community organizations, social media patient groups, home health agencies; track demographic representativeness of recruited sample |
+| Using literal translations of PROM instruments without cultural adaptation | Cognitive debrief translated instruments with native speakers from target community; validate that the construct measured is equivalent across languages |
+| Treating caregiver proxy data as equivalent to patient self-report | For children ≥8 years, use child self-report alongside caregiver proxy; document which data source is used in analysis; caregiver report ≠ patient experience |
+| Designing 30-day daily diaries without accounting for 30% attrition after Day 7 | Plan for attrition in sample size; design shorter instruments; build in check-in prompts at Day 5; consider ecological momentary assessment (shorter, random sampling) |
+| Collecting patient data without returning results to participants | Send 1-page plain-language summary to every participant; this is ethical practice, builds trust, and creates a recruitment pipeline for future studies | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

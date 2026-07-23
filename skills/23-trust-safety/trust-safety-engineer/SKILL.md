@@ -234,6 +234,19 @@ Account flagged for suspicious activity → Determine integrity action:
 4. Moderation tooling changes that affect reviewer workflow → coordinate with `community-operations-manager` BEFORE deploying (don't surprise moderators with new tools mid-shift)
 5. Regulatory inquiry about content moderation practices → route to `compliance-officer` with supporting evidence from T&S systems; do not respond to regulators directly
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| New abuse pattern detected that doesn't fit existing policy framework | File content-policy-manager request with examples and detection data within 24 hours; do not create ad-hoc enforcement rules outside the policy framework | Ad-hoc enforcement rules create inconsistent moderation and undermine policy integrity |
+| New detection model completes shadow-mode evaluation with >0.1% false positive rate | Halt enforcement deployment; investigate root cause; tune precision-recall trade-off; re-evaluate in shadow mode before enabling automated actions | False positives erode community trust faster than missed violations — every successful appeal is a labeled example that should have prevented the error |
+| CSAM or violent extremism content detected by any system | Follow legal escalation pathway immediately: preserve evidence with cryptographic chain of custody, notify incident-responder AND legal-advisor simultaneously, prepare NCMEC CyberTipline report | Minutes matter — chain of custody starts at detection, not at legal hold trigger; every action must be logged |
+| Moderator wellness metrics indicate >2 hours/day on graphic content queues or signs of secondary trauma | Rotate moderator to low-severity queue immediately; trigger wellness check-in; review exposure time limits for all moderators on that queue | Secondary trauma is an occupational hazard — burnout represents system design failure, not individual resilience |
+| Reporting infrastructure receives anomalous volume spike (10,000+ reports/hour from single source) | Investigate for denial-of-service attack on moderation system; check if reports are targeting specific user or content; activate rate limiting while maintaining legitimate report intake | Reporting flows are an attack surface — systems designed to protect users can be weaponized against them |
+| Appeal rate for a specific automated enforcement category exceeds 5% | Sample 100 appealed decisions for human audit within 1 week; if >20% are overturned, disable automated enforcement for that category until model is retrained | High appeal + high overturn rate = detection model is causing systematic harm |
+| Multi-language abuse detection trained only on English keyword lists | Audit per-language false positive rates; if any supported language lacks native-speaker-validated keyword lexicon, halt enforcement in that language until validated | "Supporting 20 languages" with English-only validation is a false claim that creates enforcement blind spots |
+| Cross-platform threat intelligence indicates supplement scammer or health misinformation actor migrating to your platform | Query internal user graph for matching hashed identifiers (email, device fingerprint); proactively monitor accounts with similar behavioral patterns; share findings back to threat intelligence group | Bad actors operate across platforms — proactive monitoring prevents them from establishing a foothold | 
+
 ## Core Workflow
 <!-- STANDARD: 3min -->
 
@@ -544,6 +557,19 @@ Evidence Package Structure:
 7. **Penetration Testing of Reporting Flows.** Your reporting infrastructure is an attack surface. Test it: can a user submit 10,000 false reports to overwhelm moderators? Can a report be crafted to trigger an automated ban on an innocent user? Can the appeal system be denial-of-serviced? Quarterly penetration testing of the full report → triage → action → appeal pipeline ensures that the systems designed to protect users aren't weaponized against them.
 
 8. **Multi-Language Abuse Detection: Each Language Is a Separate System.** Keyword lists that work in English will fail in every other language. Arabic requires dialectal variation handling (MSA vs. Egyptian vs. Levantine). Chinese requires character decomposition for obfuscated terms. Hindi-English code-switching ("aaj kal bahut spam aa raha hai") requires mixed-language models. Every supported language needs: (a) a language-specific keyword lexicon built by native speakers, (b) validation on real-world abusive content in that language, and (c) a false positive measurement specific to that language. "We support 20 languages" means nothing if only English has been validated.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Optimizing detection models for recall without measuring false positive rates | Target <0.1% false positive rate; run new models in shadow mode for 2+ weeks; sample 5% of automated decisions for human audit; every successful appeal is a training example |
+| Using the same precision-recall trade-off for CSAM detection as for spam detection | Prioritize precision over recall for high-severity categories (CSAM, self-harm): a false positive CSAM flag is a life-destroying label; detection is triage, not decision-making |
+| Treating moderator wellness as an HR perk rather than an operational requirement | Mandatory exposure time limits (max 2 hours/day on graphic queues), content rotation, wellness check-ins, counseling access, and exit pathways with no career penalty |
+| Starting evidence chain of custody only when legal hold is triggered | Cryptographic chaining and WORM storage from moment of detection; log every access, action, and timestamp; chain of custody that starts late is defensible in court |
+| Rejecting appeals automatically or requiring full account access to submit an appeal | Every enforcement action (including permanent bans) must have human-reviewed appeal; appeal form must be accessible in limited-access mode for suspended users |
+| Sharing raw user data in cross-platform threat intelligence | Share only hashed identifiers (email hashes, device fingerprint hashes, content hashes) via automated APIs; never share raw PII in ad-hoc emails |
+| Assuming English keyword lists work for all supported languages | Build language-specific keyword lexicons with native speakers; validate on real-world abusive content; measure false positives per language independently |
+| Neglecting penetration testing of reporting infrastructure | Quarterly penetration testing of full report → triage → action → appeal pipeline; test false report floods, weaponized reports targeting innocent users, and appeal system DoS | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

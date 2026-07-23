@@ -250,6 +250,19 @@ Product marketing is the connective tissue between product, sales, and market. K
 | New clinical evidence published | `content-strategist`, `sales-engineer`, `demand-generation` | Messaging refresh, content creation |
 | Regulatory clearance received | `ceo-strategist`, `marketing-manager`, `legal-advisor` | Claims expansion, launch acceleration |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Competitor launches directly competing feature or product | Brief marketing-manager, sales-engineer, and ceo-strategist within 24 hours; update battle cards within 48 hours; assess messaging impact and response strategy | Competitive moves demand rapid response — 48-hour battle card updates prevent sales from being blindsided |
+| Win/loss trend shifts >10% in either direction over trailing 90 days | Run urgent win/loss analysis on last 20 deals; identify pattern (competitive gap, messaging failure, market shift); update battle cards and messaging within 1 week | Win rate is the canary — 10% shifts signal a fundamental problem that will compound if unaddressed |
+| Analyst report (Gartner, Forrester, KLAS) mentions company — positive or negative | Review within 48 hours; if negative/misrepresented, schedule corrective briefing with evidence package and customer references; if positive, amplify through demand-gen and sales enablement | Analyst relationships compound — a single misrepresentation can influence hundreds of enterprise buying decisions |
+| Launch readiness gate (2 weeks before launch date) | Convene cross-functional go/no-go: verify sales training completion, demand-gen alignment, messaging testing results, and competitive intelligence freshness; if any pillar is weak, delay launch | A launch is only as strong as its weakest pillar — launching without all pillars ready wastes the launch moment |
+| New clinical evidence published that supports or challenges product claims | Refresh messaging hierarchy within 2 weeks; notify content-strategist, sales-engineer, and demand-generation; update proof point library with citation | Clinical evidence is healthcare's currency — messaging without current evidence is opinion, not positioning |
+| Regulatory clearance received (510(k), CE Mark, De Novo) | Immediately brief ceo-strategist on claims expansion opportunities; update all messaging materials; align marketing-manager on launch acceleration plan | Regulatory clearance unlocks the claims that differentiate — delay in updating messaging forfeits first-mover advantage |
+| Pharma partner or strategic collaborator signals disengagement (delayed meetings, reduced communication) | Diagnose: is value prop too generic? No real-world evidence to share? Compliance concerns? Build specific engagement recovery plan with mutual KPIs | Pharma partnerships require specificity — generic value propositions signal you don't understand their business model |
+| Messaging audit reveals >3 different value propositions used across channels | Build and socialize messaging architecture with mandatory review gate; hold quarterly messaging alignment session; any employee should articulate the core narrative in 30 seconds | Without a messaging hierarchy, every channel writes its own story — internal inconsistency becomes market confusion | 
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -259,6 +272,19 @@ Product marketing is the connective tissue between product, sales, and market. K
 - **Update competitive intelligence continuously**: Healthcare moves fast — M&A, new entrants, regulatory changes. Quarterly battle card updates are the minimum.
 - **Train sales on the "why," not just the "what"**: Anyone can read a feature list. Sales needs to understand the clinical rationale so they can handle any objection.
 - **Respect regulatory boundaries**: Never claim what your clearance doesn't cover. FDA 510(k) clearance for "blood glucose monitoring" does not authorize "diabetes treatment" claims.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Leading with features instead of patient/provider outcomes | Every message answers: "What happens for the patient/provider after they use this?" Healthcare buyers care about results, not feature lists |
+| Claiming differentiation without clinical evidence citations | Anchor every differentiator with a verifiable citation; "unique" without proof is noise in healthcare |
+| Using the same messaging for CMOs and patients | Segment ruthlessly: a health system CMO and a parent of a child with asthma speak different languages — same product, different story |
+| Updating battle cards only quarterly regardless of competitive events | Update within 48 hours of any competitive move; quarterly is the minimum baseline, not the target cadence |
+| Training sales on feature lists without clinical rationale | Train on the "why" — sales needs clinical rationale to handle objections; anyone can read a feature list |
+| Exceeding regulatory clearance boundaries in marketing claims | FDA 510(k) for "blood glucose monitoring" ≠ "diabetes treatment"; never claim what clearance doesn't cover — this invites FDA enforcement |
+| Launching without verifying all readiness pillars (messaging, sales, demand-gen) | Mandatory go/no-go at T-2 weeks: verify messaging tested, sales trained, demand-gen aligned; delay if any pillar is weak |
+| Treating analyst briefings as one-time transactions | Brief early, brief thoroughly, bring evidence; analyst relationships are investments — a corrective briefing after a bad report costs 10x more than proactive engagement | 
 
 ## MVP vs Growth vs Scale
 
@@ -345,7 +371,7 @@ Common chains:
 - **Small → Medium**: >5 products, >$10M ARR, enterprise sales motion, first analyst coverage
 - **Medium → Enterprise**: Global markets, >$50M ARR, public company analyst scrutiny, pharma partnership deals
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

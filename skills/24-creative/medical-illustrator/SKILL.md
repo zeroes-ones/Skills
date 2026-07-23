@@ -230,6 +230,19 @@ Medical illustration bridges clinical accuracy, design, content, and development
 | Patient comprehension test shows visual confusion | `ux-researcher`, `ux-writer`, `clinical-informatics-specialist` | Redesign required, may affect clinical safety |
 | Animation triggers photosensitive concern | `accessibility-auditor`, `frontend-developer`, `ux-researcher` | Rate limiting, reduced motion alternative required |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Clinical reviewer flags anatomical error in published illustration | Immediately mark illustration `[DO NOT USE]` in CMS; notify clinical-informatics-specialist and content-strategist; audit all downstream assets using that illustration within 24 hours | An anatomically incorrect illustration in circulation damages clinical trust and may create patient safety risk |
+| New edition of core anatomical reference published (Netter, Gray's, Terminologia Anatomica) | Review illustration catalog for affected assets within 30 days; prioritize by clinical safety risk (surgical guides before general education); update citation trail | Medical references evolve — illustrations citing superseded editions undermine clinical credibility |
+| Patient comprehension test shows <80% comprehension on first viewing | Redesign immediately: simplify to core concept, test with 5 more patients, iterate until >80% threshold met; log as near-miss if illustration is in active patient use | If patients can't explain an illustration in 10 seconds, it's failing its purpose — comprehension is a safety metric, not a preference |
+| Color palette fails color-blind safety test or accessibility contrast audit | Halt publication; work with brand-guidelines and accessibility-auditor for replacement palette; never use color alone to convey clinical information | Color-only differentiation excludes ~8% of males — patterns, labels, and contrast ratios are non-negotiable |
+| Regulatory illustration guidance updated (FDA/EMA labeling, IFU standards) | Review all regulatory-submitted illustrations within 2 weeks; verify disclaimer language, claim substantiation, and representation standards against new guidance | Regulatory non-compliance on an illustration can delay product clearance or trigger enforcement action |
+| Translation workflow detects text baked into rasterized illustration | Rebuild as SVG with separate text layer; export text as translation keys; never rasterize labels — this is a process failure, not a translation issue | Rasterized text in illustrations means re-creating artwork for every language; fix at source |
+| New product line or therapeutic area requires illustration style not in existing style guide | Create style tile aligned to brand guidelines before commissioning full illustrations; get brand, clinical, and UX sign-off on style tile first | A style tile prevents a full redo — align on visual language before committing to production |
+| Animation loop or motion effect exceeds photosensitive safety thresholds (3 flashes/second, large屏幕 area) | Add reduced-motion alternative immediately; implement prefers-reduced-motion media query; flag for accessibility-auditor review | Photosensitive triggers can cause seizures — motion safety is a clinical concern, not an aesthetic preference | 
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -239,6 +252,19 @@ Medical illustration bridges clinical accuracy, design, content, and development
 - **Never show just the disease**: Show the whole person, not just the affected organ. Dehumanizing medical illustration reduces patient engagement.
 - **Color is not decoration**: Every color choice in a medical illustration carries meaning. Oxygenated = red, deoxygenated = blue. Don't swap these for aesthetic reasons.
 - **Version everything**: Medical illustrations are clinical assets. They need version control with audit trails as much as code does.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Prioritizing aesthetics over anatomical accuracy | Accuracy first, aesthetics second: a beautiful but anatomically wrong illustration damages trust more than a simple but correct one; cite verifiable anatomical references |
+| Getting clinical approval without testing with actual patients | Test with non-clinicians who match target demographics; clinicians may approve diagrams that patients find incomprehensible |
+| Creating illustrations as one-off monolithic assets | Build as modular components: an anatomical base serves patient education, provider training, and marketing with different labels and detail levels |
+| Showing only the diseased organ without the whole person | Show the whole person, not just the affected organ; dehumanizing medical illustration reduces patient engagement and health literacy |
+| Using color as decoration in medical illustrations | Every color carries meaning: oxygenated=red, deoxygenated=blue, nerves=yellow, lymph=green; never swap conventions for aesthetic reasons |
+| Rasterizing text labels into flat images | Export text as separate layer in SVG with translation keys; rasterized text means re-creating artwork for every language |
+| Skipping version control for illustration assets | Version every illustration with audit trails: who approved, which reference edition cited, what changes were made; clinical assets need code-level version discipline |
+| Publishing illustrations without accessibility alternatives | Provide alt text, high-contrast mode, and tactile graphic specs (for 3D/tactile); never rely on color alone to convey information | 
 
 ## MVP vs Growth vs Scale
 
@@ -323,7 +349,7 @@ Common chains:
 - **Small → Medium**: >200 illustrations, regulatory submission requires illustrations, multi-language launch
 - **Medium → Enterprise**: >500 illustrations, global market presence, patient safety-critical visuals
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
