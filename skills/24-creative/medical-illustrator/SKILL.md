@@ -259,7 +259,6 @@ Medical illustration bridges clinical accuracy, design, content, and development
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
@@ -310,14 +309,12 @@ Common chains:
 - **3D model for web that's 500MB** — the surgeon opens it on a hospital computer (typical specs: integrated graphics, 8GB RAM, throttled internet). The browser tab crashes. Medical environments run on outdated hardware. Target: load in < 10 seconds on a 3-year-old hospital workstation with shared WiFi.
 - **Color choices that are inaccessible** — red/green coding for healthy vs diseased tissue is invisible to 8% of male surgeons (color vision deficiency). Use blue/orange or add texture/pattern differentiation. A surgeon who can't see the contrast may miss the pathology you highlighted.
 
-
 ## Verification
 
 - [ ] Audience check: illustration reviewed by target audience (patient, student, or clinician) for comprehension
 - [ ] Performance: 3D model loads in < 10 seconds on 3-year-old hardware with integrated graphics
 - [ ] Accessibility: color-blind simulation (deuteranopia, protanopia, tritanopia) — all information remains distinguishable
 - [ ] Accuracy: reviewed by a subject matter expert (anatomist, surgeon, or clinical specialist)
-
 
 ## References
 

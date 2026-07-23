@@ -310,7 +310,6 @@ After every difficult conversation: write down what you said, what they said, an
 - **Hiring for "culture fit"** as code for "like me" — you build a team of people with the same background, same communication style, same blind spots. Culture ADD (what unique perspective does this person bring?) is more valuable than culture fit. Homogeneous teams make homogenous mistakes.
 - **Shielding your team from ALL organizational chaos** — your team doesn't know about the re-org, the budget cut, or the strategy pivot. When the decision lands, they're blindsided and feel you weren't transparent. Share context proportionally: enough to understand WHY decisions are made, not enough to distract from execution.
 
-
 ## Verification
 
 - [ ] 1:1 cadence: every direct report had a 1:1 in the last 2 weeks
@@ -319,7 +318,6 @@ After every difficult conversation: write down what you said, what they said, an
 - [ ] Team metrics: sprint review completed, retrospective action items tracked to completion, bugs/story ratio < 20%
 - [ ] Hiring: open roles have job descriptions, interview panels assigned, and sourcing active
 - [ ] Psychological safety: team survey shows ≥ 80% agree "I can raise problems without fear of retaliation"
-
 
 ## References
 

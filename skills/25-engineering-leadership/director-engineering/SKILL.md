@@ -413,7 +413,6 @@ graph LR
 - **Headcount planning** based on current roadmap projects — a 15% attrition rate means 15 of 100 engineers leave per year. If you hire exactly to roadmap needs, attrition puts you 15 engineers behind. Plan headcount for roadmap + attrition buffer + unexpected priorities (which always arrive).
 - **Tech debt "big rewrite"** approved by leadership — the rewrite takes 18 months, during which the old system gets zero investment. Customers leave because nothing improves. The rewrite launches, is missing 40% of edge cases the old system handled, and customers don't come back. Incremental strangler-fig migration always beats big rewrite.
 
-
 ## Verification
 
 - [ ] Team health: every team has updated skills matrix, succession plan for critical roles, and ≤ 20% attrition rate
@@ -421,7 +420,6 @@ graph LR
 - [ ] Tech debt: top 3 tech debt items have owners, estimated interest rates (cost to the business), and remediation timeline
 - [ ] Delivery: sprint predictability (committed/delivered ratio) is 80-120% for each team
 - [ ] Career growth: every engineer has documented growth plan, promotion timeline estimate, and skill gap analysis
-
 
 ## References
 

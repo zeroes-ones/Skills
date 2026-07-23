@@ -254,7 +254,6 @@ Product marketing is the connective tissue between product, sales, and market. K
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
@@ -306,14 +305,12 @@ Common chains:
 - **Competitive battlecard that's a feature grid** — your column is all checkmarks, competitor's column has some gaps. "We have feature X, they don't." The competitor's AE says "Feature X ships next quarter" and the deal stalls. Battlecard must include: YOUR unique value (features only you CAN build), AIR COVER (analyst quotes scoring you higher), and KILL POINTS (specific pain their customers experience that you solve).
 - **Messaging that works in a pitch deck but fails on a landing page** — the deck is presented with a narrative by a salesperson. The landing page is scanned in 8 seconds by someone who doesn't know your company name. Landing page messaging must answer: WHAT is this, WHO is it for, WHY should I care — in that order, in 3 seconds or less.
 
-
 ## Verification
 
 - [ ] Positioning: 1-sentence positioning statement — competitor can't truthfully say the same thing
 - [ ] Landing page: 5-second test — someone unfamiliar with your brand can explain what you do and who it's for
 - [ ] Battlecard: updated within last 90 days, includes analyst quotes, kill points, and objection handling
 - [ ] Messaging consistency: website, sales deck, and product UI use same value proposition and terminology
-
 
 ## References
 

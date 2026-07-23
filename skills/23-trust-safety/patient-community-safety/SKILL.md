@@ -265,7 +265,6 @@ graph LR
 
 ## Health Community Threat Model for [Platform Name]
 
-
 > See [references/threat-model.md](references/threat-model.md) for the full threat model covering moderation frameworks, crisis response protocols, content escalation matrices, and safety-by-design architecture patterns.
 
 ## Default Protections by Population

@@ -258,10 +258,9 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 
 ## What Good Looks Like
 
-> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without 
+> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
@@ -315,7 +314,6 @@ Common chains:
 - **"Click here" as link text** — screen reader users navigating by link list hear: "Click here, Click here, Click here, Click here." Zero information about where each link goes. Link text must describe the DESTINATION: "Download Q3 report (PDF, 2.4MB)" or "View billing history."
 - **Microcopy that's too clever** — a 404 page that says "Oopsie! Our hamsters are on a coffee break 🐹☕" — it's delightful to the designer who wrote it, but a user who's trying to pay an invoice and hit a broken link is NOT in the mood for whimsy. Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information.
 
-
 ## Verification
 
 - [ ] Error messages: every error message has 3 parts — what happened, why, what to do next
@@ -323,7 +321,6 @@ Common chains:
 - [ ] Link audit: zero "click here" or "learn more" links — all link text describes the destination
 - [ ] Accessibility: all content tested with screen reader — zero information conveyed ONLY by visual formatting
 - [ ] Reading level: all microcopy at ≤ 8th grade reading level (Flesch-Kincaid)
-
 
 ## References
 

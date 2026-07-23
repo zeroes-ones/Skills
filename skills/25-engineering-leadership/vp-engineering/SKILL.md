@@ -335,7 +335,6 @@ graph LR
 - **"Top-down mandate" architecture decisions** — "we will use Kubernetes" or "we will use microservices" decided by VP without engineering input. The teams who have to implement it weren't consulted, don't understand the rationale, and resent the decision. Mandates set direction (WHAT); teams determine implementation (HOW).
 - **Equity refreshes** that are the same for a 4-year engineer who built your core systems and a 1-year engineer hired at market peak — the 4-year engineer's equity is likely under water or significantly below market comp. Refreshes based on impact AND tenure-gap-to-market, not just one.
 
-
 ## Verification
 
 - [ ] Engineering metrics: DORA metrics (deploy frequency, lead time, MTTR, change failure rate) tracked and trending
@@ -344,7 +343,6 @@ graph LR
 - [ ] Org health: attrition < 15% annualized, eNPS score tracked and improving
 - [ ] Business alignment: every team's roadmap items traceable to company OKRs
 - [ ] Succession: at least 2 internal candidates identified for every director+ role
-
 
 ## References
 

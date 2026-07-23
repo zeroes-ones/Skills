@@ -408,7 +408,6 @@ graph LR
 - **False positive rate of 0.1% at 1B posts/day = 1M wrongful removals per day.** A 99.9% accurate classifier sounds great until you multiply it by scale. Every moderation metric must be reported in ABSOLUTE numbers, not just percentages: "We wrongly removed 1,000 posts" ≠ "99.99% accuracy."
 - **CSAM detection that accidentally flags medical images** — a dermatology app's user-submitted photos of skin conditions get flagged by perceptual hashing because they match patterns in the CSAM database. The user is a doctor, the image is a rash, but the auto-ban triggers and the doctor's account is suspended. Medical imagery exclusions must be configured.
 
-
 ## Verification
 
 - [ ] False positive rate: tracked per locale per content type — any locale with > 2x global average FPR investigated
@@ -416,7 +415,6 @@ graph LR
 - [ ] Classifier test set: refreshed quarterly with recent edge cases that the current model got wrong
 - [ ] Locale coverage: every supported locale has locale-specific training data and accuracy metrics
 - [ ] Transparency report: content removal stats by category, locale, and appeal outcome — published quarterly
-
 
 ## References
 

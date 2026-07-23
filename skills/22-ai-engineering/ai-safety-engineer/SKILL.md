@@ -307,7 +307,6 @@ graph LR
 - **Red-teaming for alignment** — your red team finds 1,000 jailbreaks. You patch them. The model now refuses those 1,000 patterns but the red team's techniques advance. This is an adversarial game where the defender patches known exploits while the attacker invents new ones. Patched jailbreaks ≠ safe model. Continuous red-teaming is non-negotiable.
 - **Jailbreak via token smuggling** — the model blocks "how to make a bomb" but processes "h o w t o m a k e a b o m b" as individual characters and answers. Character-level perturbation, base64 encoding, and role-play scenarios (DAN, "pretend you're my deceased grandmother who was a chemist") all bypass token-level filters. Safety must operate at the semantic intent level, not token level.
 
-
 ## Verification
 
 - [ ] Red-team exercise: last red-team exercise within past quarter — all critical findings addressed or accepted with risk documentation
@@ -316,7 +315,6 @@ graph LR
 - [ ] Reward model audit: sample 50 high-scoring responses — spot-check for correctness (not just verbosity)
 - [ ] Harmful output rate: in held-out test set, harmful output rate < 0.01% (1 in 10,000)
 - [ ] Safety documentation: model card published, limitations documented, intended use cases specified
-
 
 ## References
 

@@ -383,7 +383,6 @@ graph LR
 - **Pseudonymization vs anonymization** — you hash the user ID with SHA-256 and call it "anonymous." But the same user ID in your partner's dataset produces the same hash (deterministic). Joined datasets re-identify users. Cryptographic pseudonyms are pseudonyms, not anonymization. GDPR treats them as personal data.
 - **Data deletion request** executes `DELETE FROM users WHERE id = 123` — but the user's data also exists in: analytics events (Mixpanel), email logs (SendGrid), support tickets (Zendesk), database backups (28-day retention), and 6 other services. "Deleted from primary DB" ≠ deleted everywhere.
 
-
 ## Verification
 
 - [ ] Privacy budget: ε tracked cumulatively per dataset per time window — total ε ≤ configured maximum
@@ -391,7 +390,6 @@ graph LR
 - [ ] DSAR: end-to-end test — data subject request retrieves ALL data from ALL stores within SLA
 - [ ] Deletion: end-to-end test — deletion request removes data from ALL stores, verified by query
 - [ ] Data inventory: all data stores catalogued — no "I forgot about that database" gaps
-
 
 ## References
 

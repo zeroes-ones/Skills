@@ -355,7 +355,6 @@ graph LR
 - **Kubeflow Pipelines caching** is based on input hash. If your data ingestion step reads from `s3://bucket/data/date=2024-01-15/` and the data is identical to the previous run, the ENTIRE pipeline is cached — including model training, even if the code changed. Code changes don't invalidate data cache by default.
 - **Batch inference on GPU** with batch_size=1 underutilizes the GPU (10-20% utilization). But batch_size=256 on a model with sequence length 512 may exceed GPU memory. The optimal batch size is the largest power of 2 that fits in memory — profile with `torch.cuda.max_memory_allocated()`.
 
-
 ## Verification
 
 - [ ] Feature pipeline runs end-to-end: `python features.py --date=${TODAY}` — features written to online AND offline stores
@@ -364,7 +363,6 @@ graph LR
 - [ ] Online/offline feature parity: sample 1000 requests, compare feature values — 100% match (no skew)
 - [ ] Model stage promotion: promote model from Staging to Production via CI/CD — deployment triggered, health check passes
 - [ ] Rollback: deploy previous model version — serving switches to previous version within deployment window
-
 
 ## References
 

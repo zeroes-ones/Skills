@@ -129,7 +129,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | **A7** | `file_contains("*.sql", "CREATE TABLE\|ALTER TABLE\|raw_\|staging_\|ods_")` AND `file_contains("*", "pipeline\|ETL\|ELT\|orchestrat")` | Invoke **data-engineer** instead. Raw data pipelines and ingestion belong to data engineering before BI modeling. | "I detect raw data pipeline and table creation — routing to Data Engineer for ingestion and transformation." |
 | **A8** | `file_contains("*", "financial_model\|forecast\|projection\|p&l\|balance_sheet\|cash_flow")` | Invoke **fp-and-a-analyst** instead. Financial modeling and forecasting is FP&A, not BI engineering. | "I detect financial modeling/forecasting — routing to FP&A Analyst for financial planning." |
 
-### Intent Route (Ask the User)
+### Alternative Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -318,7 +318,7 @@ view: fct_orders {
 |------|----------|---------------|------------|
 | Looker | Enterprise, embedded analytics | Per-user, expensive | Strong — LookML, folders, permissions |
 | Metabase | Mid-market, simplicity | Open-source or hosted | Moderate — collections, permissions |
-| Lightdash
+| Lightdash |
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
@@ -437,7 +437,6 @@ graph LR
 - **Row-level security (RLS)** in Looker via `access_filters` applies at QUERY time, not at explore time. A user who can't see `region: APAC` can still see COUNT(DISTINCT region) = 5 and deduce the existence of hidden regions. Aggregate metrics leak information through cardinality.
 - **Power BI `import mode`** loads the FULL dataset into memory. A 500MB dataset on a shared capacity node with 4GB RAM leaves 3.5GB for ALL other reports. One dataset can starve every other report on the node. Monitor dataset sizes and enforce refresh schedules to prevent overlap.
 
-
 ## Verification
 
 - [ ] Dashboard load test: open dashboard in production — all charts render within 5 seconds
@@ -446,7 +445,6 @@ graph LR
 - [ ] Cross-filter behavior: click a bar chart segment — all other charts filter correctly, no broken interactions
 - [ ] Mobile test: open dashboard on phone/tablet — layout adapts, all interactions work with touch
 - [ ] Verify data freshness: `SELECT MAX(updated_at) FROM ${source}` — data is within freshness SLA (e.g., < 24 hours)
-
 
 ## References
 

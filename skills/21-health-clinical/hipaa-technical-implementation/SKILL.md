@@ -415,7 +415,6 @@ graph LR
 
 ## Before signing a new vendor:
 
-
 > See [references/vendor-due-diligence.md](references/vendor-due-diligence.md) for the full vendor due diligence checklist covering BAA requirements, sub-processor audits, breach notification SLAs, and PHI handling on contract termination.
 
 ## Gotchas
@@ -426,7 +425,6 @@ graph LR
 - **Email is NOT HIPAA-compliant** by default. SMTP is unencrypted text. Office 365/Google Workspace with BAA cover the inbox, but CC'ing an external address, forwarding to personal email, or sending unencrypted attachments all breach HIPAA.
 - **De-identification safe harbor** requires removing 18 specific identifiers, but ZIP codes with populations < 20,000 count as an identifier. A dataset with ZIP+DOB+gender re-identifies 87% of the US population (Sweeney study). True de-identification is harder than it looks — use expert determination, not safe harbor.
 
-
 ## Verification
 
 - [ ] Encryption at rest: `aws s3api get-bucket-encryption` — all PHI buckets have encryption enabled
@@ -436,7 +434,6 @@ graph LR
 - [ ] PHI in logs scan: `grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}' logs/*.log` — zero SSN patterns in logs
 - [ ] BAA audit: all vendors handling PHI have current BAA — zero vendors without BAA
 - [ ] Access review: all users with PHI access have documented business justification, reviewed within 90 days
-
 
 ## References
 

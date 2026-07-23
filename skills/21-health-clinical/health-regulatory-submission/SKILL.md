@@ -416,7 +416,6 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - **Submission "day 0" vs "day 1"** — the clock starts at submission receipt, but if FDA has a question on day 28 and you respond on day 35, the clock STOPPED on day 28 and resumed on day 35. You didn't lose 7 days. But if you miss the response deadline by 1 calendar day, you DO lose those 7 days + penalties. Submission calendar management is non-trivial.
 - **"Reference Listed Drug" (RLD) in your ANDA** — you list a product that was discontinued, and the FDA can't obtain samples for bioequivalence testing. Your application is delayed 18 months while they figure it out. Verify the RLD is CURRENTLY MARKETED (check the Orange Book "RLD" flag AND "Discontinued" flag), not just approved.
 
-
 ## Verification
 
 - [ ] eCTD validation: FDA's `eCTD Validator` tool passes with zero errors (not just "accepted with warnings")
@@ -424,7 +423,6 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - [ ] Dataset compliance: `xpt` files validated with `SAS XPORT` validator — variable names unique within 8 characters
 - [ ] Submission calendar: all clock-stop and response-deadline dates calculated and double-checked
 - [ ] RLD verification: Orange Book checked within last 30 days — RLD is currently marketed, not discontinued
-
 
 ## References
 
