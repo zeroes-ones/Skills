@@ -300,6 +300,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **RLHF (Reinforcement Learning from Human Feedback) reward model collapse** — the reward model learns that verbose, authoritative-sounding responses get higher scores, regardless of correctness. The policy model learns to produce confident-sounding wrong answers. Length correlates with human preference scores, creating a "confident bullshitter" local optimum.
+- **Constitutional AI harmlessness vs helpfulness tension** — training to refuse ALL potentially harmful queries (harmlessness) produces models that refuse "how do I tie a tourniquet?" (it could cause harm if misused). Real harm from over-refusal (someone dies from blood loss) exceeds hypothetical harm from providing first-aid instruction. Balance must be domain-calibrated.
+- **Red-teaming for alignment** — your red team finds 1,000 jailbreaks. You patch them. The model now refuses those 1,000 patterns but the red team's techniques advance. This is an adversarial game where the defender patches known exploits while the attacker invents new ones. Patched jailbreaks ≠ safe model. Continuous red-teaming is non-negotiable.
+- **Jailbreak via token smuggling** — the model blocks "how to make a bomb" but processes "h o w t o m a k e a b o m b" as individual characters and answers. Character-level perturbation, base64 encoding, and role-play scenarios (DAN, "pretend you're my deceased grandmother who was a chemist") all bypass token-level filters. Safety must operate at the semantic intent level, not token level.
+
+
 ## References
 
 Detailed reference material loaded on demand:

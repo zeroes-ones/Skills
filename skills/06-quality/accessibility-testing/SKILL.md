@@ -261,6 +261,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
+## Gotchas
+
+- **axe-core detects ~30-40% of WCAG issues** automatically. The remaining 60-70% require manual testing: focus order, keyboard traps, meaningful alt text, heading hierarchy semantics, and color contrast in dynamic states. Automated passing ≠ accessible.
+- **`aria-label` overrides visible text** but screen readers vary in how they handle this. JAWS announces `aria-label`, NVDA announces both, VoiceOver announces `aria-label` only if the element is interactive. Don't rely on `aria-label` alone for critical information.
+- **`role="button"` on a `<div>`** doesn't get keyboard handling for free. You must add `tabindex="0"`, `onKeyDown` for Enter/Space, and prevent default behavior. Native `<button>` does all this automatically — prefer it.
+- **Color contrast ratio 4.5:1** is minimum for AA, but large text (18px+ bold or 24px+ regular) only needs 3:1. Many tools report false failures for large text that actually passes.
+- **`display: none` and `aria-hidden="true"`** both hide from screen readers, but `display: none` also hides from keyboard focus while `aria-hidden` does not. An `aria-hidden` modal overlay is still keyboard-navigable — users can tab to invisible elements.
+
+
 ## References
 
 Detailed reference material loaded on demand:

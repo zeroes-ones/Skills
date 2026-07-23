@@ -331,6 +331,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **"Me too" bug reports** — a customer reports a bug, you log it, 10 more customers report the same bug, you merge them as duplicates. But the FIRST report has the freshest details (browser version, exact steps, timestamp) and merging buries it. Always preserve the first report as the canonical source.
+- **Debug symbols in production** — `node --inspect-brk` or `DEBUG=*` in a support debugging session exposes environment variables, secrets, and internal API paths. If you enable debug mode for one customer, ALL customers on that instance get debug output. Use per-request debug flags, not global debug modes.
+- **Support escalation "L1 → L2 → L3 → Engineering"** with each level gathering the same information again — the customer explains the problem 4 times. Implement a shared investigation document that accumulates context across tiers, with each tier adding before escalating.
+- **"Cannot reproduce"** as a resolution — the customer's environment differs from yours in a way you didn't check: timezone, browser extensions, proxy configuration, firewall rules. Ask for HAR file, console logs, and environment details BEFORE trying to reproduce.
+
+
 ## References
 
 Detailed reference material loaded on demand:

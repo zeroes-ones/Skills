@@ -352,6 +352,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Bootloader update that erases the old bootloader BEFORE verifying the new one** — power loss during the 2-second window between erase and verification = bricked device. Always write new bootloader to a secondary slot, verify checksum, set a "swap on next boot" flag atomically, THEN swap.
+- **I2C bus lockup** — a slave device holds SDA low mid-transaction. The master sees bus busy and waits forever. Most I2C peripherals have no timeout. Implement bus reset: clock SCL 9 times to force the slave to release, then send STOP. Check bus state before every transaction.
+- **Brown-out detection** — flash erase/program during a voltage sag corrupts the flash. The MCU runs fine at 1.8V but flash programming requires 2.7V. BOD must be enabled at 2.85V BEFORE any flash write/erase cycle. A crash during OTA update that hits this window = unrecoverable brick.
+- **Interrupt latency stacking** — a UART RX ISR (priority 2) fires while inside a SPI DMA ISR (priority 1). Then the systick ISR (priority 3) fires. Now 3 ISRs are stacked, each adding latency. A motor control loop (priority 0) misses its deadline by 47µs and the motor jitters. ISR priorities must reflect real-time deadlines, not peripheral importance.
+
+
 ## References
 
 Detailed reference material loaded on demand:

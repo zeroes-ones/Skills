@@ -350,6 +350,17 @@ Cross-team dependency blocking? → System Architect → Project Manager
 | "Zombie connections — server thinks 5K clients are connected, only 2K are actually reachable" | Implement application-level ping/pong heartbeat (30s interval, 2 missed pongs = terminate). TCP keepalive defaults to 2+ hours — always do application-level heartbeats. On the client side, use `EventSource` auto-reconnect (SSE) or implement exponential backoff reconnection with jitter (WebSocket). |
 | "Fan-out broadcast storm — one incoming event triggers cascading broadcasts that amplify" | Rate-limit broadcasts per room/channel (e.g., max 10/sec). Use a debounce pattern: if the same event type fires within 100ms, coalesce into one broadcast. Attach a `broadcastId` UUID to each message and deduplicate at the receiving end. Never broadcast raw upstream events without sanitizing/aggregating first. |
 
+## Gotchas
+
+- **Environment variables** are loaded differently in Docker vs. local — `process.env` vs. `os.environ` vs. dotenv priority order varies. Always log which env source is active on startup.
+- **Database connection pools** default to 10 connections. Under load with async frameworks, this silently queues requests. Set pool size to `2 * CPU cores + 1` for sync, `(CPU cores * 2) + 1` for async.
+- **JWT `exp` claim** is UNIX timestamp in seconds. Python's `datetime.timestamp()` returns float with microseconds. Truncate with `int(datetime.utcnow().timestamp())` or tokens will be rejected.
+- **CORS preflight** (`OPTIONS`) requests don't carry auth headers. Your auth middleware must skip OPTIONS or every CORS request will 401.
+- **Alembic/Drizzle/Knex migration ordering** depends on file timestamps, not logical dependency order. If two developers create migrations simultaneously, the merge may produce an ordering that breaks foreign keys.
+- **Health check endpoints** that only return 200 mask dependency failures. The `/health` endpoint should ping the database, cache, and message queue — not just the web server.
+- **`SELECT *` with ORMs** fetches all columns including large TEXT/BLOB fields. When the ORM generates the query from your model, it pulls every column unless you explicitly `.select()` or `columns=`.
+
+
 ## References
 
 Detailed reference material loaded on demand:

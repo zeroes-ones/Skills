@@ -342,6 +342,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Once a month, onboard a new hire yourself using only your platform. Time every step. The friction you feel is what every developer feels every day.
 
+## Gotchas
+
+- **Backstage `catalog-info.yaml` auto-discovery** via `GithubEntityProvider` discovers ALL YAML files in ALL repos. A `catalog-info.yaml` with `spec.type: website` in a docs-only repo creates a Component entity that appears in the service catalog, confusing teams who now think "website" is a maintained service.
+- **Internal Developer Platform (IDP) self-service** without resource quotas: a developer clicks "Create RDS" and gets a `db.r5.24xlarge` ($6,000/month) because the Terraform module doesn't enforce instance family constraints. All self-service templates need cost guardrails (max instance size, tag enforcement for billing).
+- **Golden path templates** that are opinionated but not versioned — if you update the template and 50 teams already scaffolded from it, they diverge silently. Template upgrades are breaking changes for existing services. Version templates and provide upgrade guides.
+- **Backstage scaffolder** uses `fetch:template` to scaffold from a cookiecutter. If the cookiecutter repo's default branch changes from `main` to `something-else`, every scaffolder action breaks with "template not found" — and the error appears as a generic 500 in Backstage UI.
+- **Scorecards and tech-insights** that check for `CODEOWNERS` file existence — teams react by creating empty `CODEOWNERS` files to go green. Every automated check must validate content quality, not just file existence, or it becomes a checkbox exercise.
+
+
 ## References
 
 Detailed reference material loaded on demand:

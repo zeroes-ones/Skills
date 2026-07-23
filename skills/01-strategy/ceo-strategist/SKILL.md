@@ -341,6 +341,14 @@ graph LR
 
 **The One Highest-Leverage Activity**: Keep a decision journal. For every significant decision, write: what you decided, why, what you expect to happen, and your confidence level (60%? 90%?). Review quarterly. The gap between your expectations and reality is the most honest feedback you'll ever get.
 
+## Gotchas
+
+- **Vision that doesn't constrain** — "we will be the leading provider of enterprise solutions" applies equally to a CRM company, a cloud provider, and a consulting firm. A vision that doesn't say NO to anything provides zero decision-making leverage. "We will be the CRM that sales teams love using" says NO to marketing, support, and HR use cases.
+- **OKRs set top-down without team input** — "VP sets OKRs → Directors cascade → Teams execute." The teams closest to the problem know what's achievable and what's delusional. Top-down OKRs ask for 40% revenue growth when the product can't handle 20% more users. Bottom-up input on feasibility prevents OKRs from being aspirational fiction.
+- **Board deck** that buries problems in appendix slide 47 — board members find problems through their networks anyway. The CEO who says "here are our 3 biggest problems and what we're doing about them" gets more trust and better advice than the CEO who says "everything is great." Bad news early is a leadership superpower.
+- **Fundraising timing** — if you have 18 months of runway, you start fundraising at month 12. You'll close at month 16, with 2 months of cash remaining. The board sees desperation and terms get worse. Start fundraising when you have 12+ months of runway AND strong momentum. Desperation is a negotiating position you never want.
+
+
 ## References
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)
 - **Fundraising Cost by Round**: See [fundraising-cost-by-round.md](references/fundraising-cost-by-round.md)

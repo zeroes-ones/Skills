@@ -413,6 +413,15 @@ Architecture guidance, review, or approval for team-level design
 ### The One Thing
 **Redesign a system you built 2 years ago using what you know now.** Would you make the same decisions? If yes: you haven't grown enough. If no: write down why. Your old architectures are a record of your thinking at that time. Revisiting them is the fastest way to see your own growth.
 
+## Gotchas
+
+- **C4 Container diagram vs. deployment diagram**: Containers in C4 are runtime processes (a web app, a database), NOT Docker containers. Showing Docker containers as C4 containers conflates the deployment view with the runtime view. Docker is infrastructure detail — it belongs in C4 level 4, not level 2.
+- **Event-driven architectures** make debugging order-dependent bugs nearly impossible without correlation IDs. If Service A emits event E1, B reacts with E2, C reacts with E3 — and C sees E3 before E1's side effect — the bug reproduces only under specific race conditions. Every event must carry a `correlationId` and `causationId`.
+- **Microservice data ownership**: If Service A owns `users` and Service B needs `user.email`, B should NOT query A's database directly. But if B calls A's API for every email, latency spikes. The real answer is a materialized view or event-carried state transfer — decisions that must be made at architecture time, not implementation time.
+- **ADR (Architecture Decision Record)** titles must state the decision, not the topic. "ADR-003: Database" is useless months later. "ADR-003: Use PostgreSQL with Citus for tenant-isolated multi-tenancy" tells you what was decided.
+- **Capacity planning with percentiles**: "Average response time 200ms" means 50% of requests are below 200ms, but 1% might be 5 seconds. P95, P99, and P99.9 matter more than average. Architect for the P99, not the mean.
+
+
 ## References
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)
 - **When Monolith Wins**: See [when-monolith-wins.md](references/when-monolith-wins.md)

@@ -464,6 +464,15 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Bake period minimums:** DB migration 24h → API migration 48h → Full stack 72h
 - **Rollback trigger #1:** Data corruption anywhere = immediate rollback
 
+## Gotchas
+
+- **Lift-and-shift migrations** that replicate on-prem hardware specs in the cloud — your on-prem server has 64 vCPUs because you bought it 5 years ago and it's oversized. Replicating that as a `c5.18xlarge` ($3/hour) wastes $26K/year. Right-size FIRST (based on actual utilization), then migrate.
+- **Database migration with `mysqldump`** on a 500GB database takes ~4 hours to export and ~8 hours to import. During those 12 hours, the source database is either locked (inconsistent if not locked) or the target is 12 hours behind. Use DMS, `pg_dump -j` (parallel), or logical replication for zero-downtime.
+- **DNS cutover during migration** — TTL doesn't guarantee clients respect it. Some ISPs cache DNS for 48 hours regardless of TTL. When you cut over DNS, expect 5-10% of traffic to hit the old endpoint for up to 48 hours. Run dual-write or proxy traffic during this window.
+- **Storage migration with `rsync`** on a live filesystem — files change during the sync. `rsync` copies file A, file A changes, then `rsync` is already past file A. The target has a version of file A that never existed on the source at any single point in time. Use filesystem snapshots or database-native replication.
+- **"Strangler Fig" migration** where the new system calls the old system via API — if the new system's availability depends on the old system, you've added a dependency without removing one. The combined system is LESS reliable than either alone. Cut the dependency before declaring migration complete.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -354,6 +354,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **Program Gantt chart with 100% dependency chaining** — if task B depends on A, C depends on B, ... Z depends on Y, any delay to A delays the entire program by the same amount. Every dependency is a single point of failure. Design programs with parallel tracks that merge only at integration milestones.
+- **"On track" status report** based on milestones that are 3 weeks out — everything is "on track" until the day before the milestone. Status reports should project forward: "given current velocity and remaining work, will we hit the date?" not "are we past the date yet?".
+- **Cross-team dependencies** where team A "promises" to deliver an API by March 15 — without a contract (API spec, SLA, test suite), March 15 arrives and team A says "it's ready" while team B says "it doesn't work." Inter-team delivery is not "code complete"; it's "integration tests passing for 48 hours."
+- **OKRs set at the program level** that cascade to teams — a program OKR of "99.9% availability" splits across 5 teams. All 5 teams hit 99.9%, but the COMBINED system has 99.5% because you multiplied availabilities (99.9%^5 = 99.5%). System-level OKRs can't be decomposed by simple division.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -241,6 +241,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Translation memory (TM) fuzzy match thresholds** — setting `fuzzy_match_threshold: 75%` captures "Hello World" → "Hello World!" (1 char difference = ~90% match) but also "Delete account" → "Delete comment" (same fuzzy score, completely different meaning). High fuzzy thresholds produce comically wrong translations that QA misses.
+- **Machine translation post-editing distance (HTR)** — if post-editors change < 10% of MT output, you're overpaying for MT+human vs human-only. If they change > 40%, the MT engine is wrong for your domain and training a custom model is cheaper than paying for heavy post-editing.
+- **ICU MessageFormat plural rules**: `{count, plural, one {# item} other {# items}}` — the `=0` case is NOT covered by `zero`. `zero` is for languages with a zero CLDR form (Arabic, Latvian). English uses `other` for zero. Missing `=0 {No items}` means English speakers see "0 items" instead of "No items."
+- **Pseudolocalization** with `en-XA` or `en-XB` BCP47 tags — if your UI doesn't handle 30% text expansion (English → German) or RTL layout, pseudo-localization reveals it before translators waste time. But pseudo must run in CI, not locally. One developer running pseudo-loc finds only their bugs, not integration bugs.
+- **String extraction from concatenation**: `t('views.') + viewName + t('.title')` — this produces 3 separate translation calls for ONE logical string. The concatenated result can't be in TM, can't benefit from context, and produces grammatically broken sentences in languages with different word order (Japanese, Korean, Turkish).
+
+
 ## References
 
 Detailed reference material loaded on demand:

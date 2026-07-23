@@ -464,6 +464,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **A/B test peeking**: checking p-values daily and stopping when p < 0.05 inflates the false positive rate from 5% to ~30%. A test that shows "significant" on day 3 needs to run the full pre-registered duration — the effect may regress to zero.
+- **CUPED (pre-experiment covariates)** MUST use pre-experiment data only. Using in-experiment data (e.g., day-1 revenue to adjust day-7 revenue) creates a biased estimator that systematically underestimates the treatment effect.
+- **Cookie-based user tracking** loses 30-50% of mobile users (Safari ITP blocks third-party cookies, Android app switches break continuity). Server-side identity resolution (email, user ID on login) is the only reliable cross-device tracking for growth experiments.
+- **`navigator.sendBeacon()` for event tracking** fires even when the page is unloading, but the payload size limit is 64KB. If your analytics payload is 70KB (e.g., full DOM snapshot for session replay), the beacon silently drops with no error callback.
+- **Funnel conversion rates** are ratios, not counts. A funnel that goes 1000 → 200 → 40 (4% overall) can't be decomposed as 20% × 20% = 4% if the 200 users who reached step 2 are DIFFERENT from the 200 in the 20% step-1-to-2 rate. Joined vs unjoined funnels produce different numbers — report both.
+
+
 ## References
 
 Detailed reference material loaded on demand:

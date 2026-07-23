@@ -458,6 +458,14 @@ graph LR
 
 **The One Highest-Leverage Activity**: After every retro, track whether the team's #1 action item was actually completed before the next retro. Completion rate is your effectiveness metric. If it's below 80%, you're facilitating discussions, not facilitating change.
 
+## Gotchas
+
+- **Velocity as a productivity metric** — if velocity goes from 30 to 40 points/sprint, management celebrates. But the team just inflated estimates by 33%. Velocity measures estimation consistency, not output. Comparing velocity across teams is comparing apples to fictional oranges.
+- **Sprint commitment** treated as a contract — "we committed to 8 stories" becomes "we must deliver 8 stories." This incentivizes the team to cut quality, skip testing, or inflate estimates to ensure they "make the commitment." The sprint backlog is a forecast, not a commitment.
+- **Retrospective action items without owners** — "improve code review turnaround" becomes a recurring retro topic for 6 sprints. Every action item needs an owner AND a measurable target: "Sarah will reduce average PR review time from 8 hours to 4 hours by next retro by implementing CODEOWNERS routing."
+- **Daily standup as status report to the Scrum Master** — team members report to the SM instead of coordinating with each other. The SM becomes a bottleneck. Standup should be team-to-team coordination; the SM observes and removes blockers, not directs.
+
+
 ## References
 
 Detailed reference material loaded on demand:

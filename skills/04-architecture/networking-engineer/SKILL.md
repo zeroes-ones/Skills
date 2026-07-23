@@ -376,6 +376,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Build a complete VPC from scratch every month. Every time, make it a little better — fewer public IPs, tighter security groups, simpler routing. The repetition builds instincts that documentation can't.
 
+## Gotchas
+
+- **Security group rules are stateful** — if you allow outbound on port 443, return traffic is automatically allowed. But Network ACLs are stateless — you must explicitly allow both outbound (ephemeral ports 1024-65535) AND inbound responses.
+- **DNS TTL is a maximum, not a guarantee**. Clients and intermediate resolvers may cache beyond TTL. During a DNS cutover, some clients will hit the old IP for up to 48 hours regardless of your 300-second TTL. Always keep old endpoints running for TTL × 2.
+- **`0.0.0.0/0` in a security group** means "from anywhere on the internet." But `0.0.0.0/0` in a route table means "the local VPC's internet gateway." Same CIDR, completely different meaning — confusing these two is the #1 cause of accidentally public databases.
+- **VPC peering is non-transitive**: A peered with B, B peered with C does NOT mean A can reach C. Every hop needs its own peering connection. This surprises teams migrating from hub-and-spoke network architectures.
+- **Load balancer health checks** hitting `/health` on port 80 pass even when the app on port 8080 is down — the health check targets the wrong port. Always verify the health check port matches the actual application port.
+- **MTU 1500 with VXLAN/Geneve encapsulation** adds 50 bytes overhead. Packets at exactly 1500 bytes get fragmented or dropped. Set "do not fragment" and reduce MTU to 1450 on overlay networks.
+
+
 ## References
 
 Detailed reference material loaded on demand:

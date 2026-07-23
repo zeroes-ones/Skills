@@ -429,6 +429,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **BI tool "live connection" mode** runs queries against the production database with the end user's permissions. A dashboard with 12 charts, each with a `SELECT * FROM orders` live query, fires 12 simultaneous scans on the production OLTP database. Use extracts or a read replica.
+- **Looker PDTs (Persistent Derived Tables)** run on a schedule but don't auto-retry. If the 3 AM rebuild fails because the ETL ran 10 minutes late, the PDT is stale for the next 24 hours. Build a 15-minute buffer between ETL completion and PDT rebuild, or trigger-based rebuilds.
+- **Tableau dashboard "actions" (filters that update other charts)** cascade: a filter change triggers EVERY chart on the dashboard to re-query. A dashboard with 8 charts and 3 filter actions = 24 queries per interaction. Disable auto-update on charts the filter doesn't affect.
+- **Row-level security (RLS)** in Looker via `access_filters` applies at QUERY time, not at explore time. A user who can't see `region: APAC` can still see COUNT(DISTINCT region) = 5 and deduce the existence of hidden regions. Aggregate metrics leak information through cardinality.
+- **Power BI `import mode`** loads the FULL dataset into memory. A 500MB dataset on a shared capacity node with 4GB RAM leaves 3.5GB for ALL other reports. One dataset can starve every other report on the node. Monitor dataset sizes and enforce refresh schedules to prevent overlap.
+
+
 ## References
 
 Detailed reference material loaded on demand:

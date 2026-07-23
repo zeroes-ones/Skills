@@ -318,6 +318,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **"Statistically significant (p < 0.05)" without effect size** — a study with 500,000 participants finds that Drug X reduces systolic BP by 0.3 mmHg (p = 0.04). Statistically significant, but clinically meaningless (minimum clinically important difference for BP is 2-5 mmHg). Review must report BOTH p-value AND effect size with clinical relevance threshold.
+- **Absolute vs relative risk** in marketing — "Drug X reduces heart attack risk by 50%!" sounds impressive. If the baseline risk is 2% over 10 years, 50% relative reduction = 1% absolute reduction. Number Needed to Treat (NNT) = 100. 100 people must take the drug for 10 years to prevent 1 heart attack. Always present absolute risk AND NNT.
+- **Conflict of interest hidden in acknowledgments** — the paper says "funded by PharmaCo" at the end, but the lead author is also on PharmaCo's advisory board (disclosed in a separate conflicts page you didn't load). Cross-reference clinicaltrials.gov for sponsor information and check author disclosures on ALL co-authors, not just first/last.
+- **Preprint (medRxiv/bioRxiv) cited as evidence** — preprints are NOT peer-reviewed. A high-profile preprint was retracted 6 months later after peer review found fabricated data. The content that cited the preprint is now evidence-free. Cite published, peer-reviewed sources. If preprint is the only source, flag it as "awaiting peer review."
+
+
 ## References
 
 Detailed reference material loaded on demand:

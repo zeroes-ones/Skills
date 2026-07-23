@@ -396,6 +396,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Chaos experiment "blast radius"** measured by instance count misses the real blast radius. Terminating 1 of 100 instances sounds safe (1%), but if that instance holds the sole partition leader for a critical Kafka topic, the impact is 100% outage for all producers/consumers of that topic.
+- **`Chaos Mesh` network partition experiment** — cutting network between pods A and B doesn't mean the app handles it gracefully. The kubelet still reports pod A as "Running" and `Ready` probes may still pass if they don't test that specific network path. Your monitoring says "all healthy" while the app is degraded.
+- **Game days where the team knows** the exact chaos experiment in advance produce artificially smooth responses. The team pre-writes runbooks, has dashboards ready, and mentally prepares. The real incident doesn't announce itself. Use blind game days where only the chaos engineer knows what's being injected.
+- **Pod deletion in Kubernetes** sends SIGTERM, waits `terminationGracePeriodSeconds` (default 30s), then SIGKILL. A chaos experiment that deletes a pod with default grace period may not trigger graceful shutdown bugs — apps with 60s cleanup may work fine in chaos but fail in real deployments. Test with `gracePeriodSeconds: 0` to find shutdown bugs.
+
+
 ## References
 - **Blast Radius (Military-Grade Controls)**: See [blast-radius-military-grade-controls.md](references/blast-radius-military-grade-controls.md)
 - **CI/CD Integration for Chaos**: See [ci-cd-integration-for-chaos.md](references/ci-cd-integration-for-chaos.md)

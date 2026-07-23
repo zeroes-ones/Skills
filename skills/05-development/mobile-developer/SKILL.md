@@ -385,6 +385,16 @@ Common chains:
 ### The One Thing
 **Delete your app and reinstall it. On a device you've never used for development. On a slow network. With no account pre-created.** The first-run experience you see is what every new user sees. If it's not delightful, nothing else in the app matters.
 
+## Gotchas
+
+- **React Native's `console.log`** in production builds on iOS appears in the device logs — it doesn't get stripped. Sensitive data logged during development ships to production if not behind `__DEV__` guards.
+- **`AsyncStorage`** has a 6MB limit on Android (varies by device). Large JSON blobs silently fail with no error callback. Chunk data over 1MB or use SQLite for structured storage.
+- **iOS Simulator networking** uses the host Mac's network directly. `localhost` works. Android Emulator uses a virtual router at `10.0.2.2` to reach host `localhost`. Code that works in iOS sim will silently fail on Android em.
+- **Keyboard avoidance**: `KeyboardAvoidingView` with `behavior="padding"` works on iOS but not Android (Android adjusts the window size automatically). Using `padding` on Android double-shifts the content.
+- **`Image.prefetch()`** has a 50MB disk cache on iOS and no disk cache on Android (Android clears on app close). Don't rely on prefetch for offline image availability on Android.
+- **App State (`AppState.currentState`)** on iOS reports `"inactive"` during Control Center pull-down. If you pause video on `"background"` only, your video keeps playing when the user opens Control Center.
+
+
 ## References
 
 Detailed reference material loaded on demand:

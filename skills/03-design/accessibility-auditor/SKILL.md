@@ -415,6 +415,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Turn off your monitor and complete your product's core flow using only a screen reader. Every week. The friction you feel is what millions of users experience every day.
 
+## Gotchas
+
+- **Accessibility tools that pass** — `axe-core` reports 0 violations. But `axe-core` catches ~30-57% of WCAG issues. It can't detect: keyboard trap (tab into a modal, can't tab out), focus order that jumps illogically, or that your "error" message text color passes contrast ratio but the error STATE isn't communicated to screen readers. Automated = baseline, not complete.
+- **ARIA `role` overrides native semantics** — `<button role="link">` looks like a link to screen readers but behaves like a button (responds to Space, not just Enter). Users navigating by landmark role get confused. First rule of ARIA: don't use ARIA if native HTML works. Second rule: never override native semantics.
+- **`aria-labelledby` with an ID that doesn't exist** — screen reader says nothing. `aria-labelledby="user-menu-label"` but `user-menu-label` was renamed to `user-menu-title` in the last refactor. No tool reports broken ARIA references because they resolve at runtime, not at build time.
+- **Skip navigation link that's `position: absolute; left: -9999px`** — keyboard focus moves to the link (it's focused), but the page doesn't scroll because the browser thinks the focused element isn't in the viewport. Use `transform: translateX(-100%)` or `top: -100%` with `:focus` styles that bring it back to visible.
+- **Color contrast ratio of 4.5:1 for text, 3:1 for large text (18px+ bold or 24px+)** — but large text on a gradient background: the contrast varies across the gradient. Measure at the WORST point where the text crosses the gradient, not the best.
+
+
 ## References
 - **Conformance Status**: See [conformance-status.md](references/conformance-status.md)
 - **Feedback**: See [feedback.md](references/feedback.md)

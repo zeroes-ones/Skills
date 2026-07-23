@@ -367,6 +367,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Release "go/no-go" decisions** based on test pass rate alone — tests pass because they test known scenarios. Unknown scenarios (the thing that will break) have no tests. A green test suite means "nothing we predicted broke" not "nothing broke." Go/no-go needs production canary data, not just test results.
+- **Canary deployment duration** — if you canary for 10 minutes and your P99 latency is 500ms with 100 RPS, that's 60K requests. A 0.01% error rate bug appears once per ~17 minutes on average. Your canary will miss it. Duration must be long enough to see the target error rate at least 5 times.
+- **Database migrations in release** — an `ALTER TABLE ADD COLUMN` with a default value on a 200M-row table locks the table for the entire duration. If the ALTER takes 45 minutes, your 10-minute deployment window is blown by 35 minutes and the table was locked the whole time. Use `ALGORITHM=INPLACE, LOCK=NONE` or online schema change tools.
+- **Rollback safety** — a release that adds a new API field is safe to rollback (clients never saw the field). A release that RENAMES an API field is NOT safe to rollback — rollback restores the old name, but clients that saw the new name are now broken. Never rename; add-new-then-deprecate-old.
+- **Release train "all aboard"** cutoff — if you allow commits until 2 PM and release at 3 PM, a commit at 1:58 PM gets 2 minutes of CI. If CI takes 45 minutes, the release goes out without those changes tested. Cutoff must be `release_time - CI_duration - buffer`.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -430,6 +430,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Docs-as-code with versioned branches** — if `v1.0` and `v2.0` branches both have `docs/`, a fix to common content on `v1.0` doesn't propagate to `v2.0`. You now maintain N copies of every doc. Use a shared content repository or backport workflow with cherry-pick tracking.
+- **API docs from OpenAPI with `redoc-cli`** — the CLI generates a zero-dependency HTML file, but that file embeds the FULL OpenAPI spec (including examples and descriptions). A 1,000-endpoint API produces a 15MB HTML file. Users on mobile wait 30 seconds for your docs to load. Use `x-codeSamples` and defer large payload examples.
+- **Markdown linter (`markdownlint`) defaults** conflict with docs platform features. `MD033: no HTML` blocks `<details><summary>` (expandable sections), a critical pattern for progressive disclosure in docs. Customize rules, don't disable the linter: `.markdownlint.json` with `"MD033": { "allowed_elements": ["details", "summary", "img"] }`.
+- **Screenshots in docs** rot silently — the UI changes, but the screenshot shows the old button with the old label. Users follow instructions that reference UI elements that no longer exist. Automated visual diffing (Percy/Chromatic applied to docs screenshots) catches UI-drift before users do.
+- **Search in static docs** (`algolia`, `lunr.js`) indexes rendered HTML, not source Markdown. Code blocks inside ` ``` ` fences are indexed as searchable text. Users searching for variable names get results from code samples, not documentation. Configure search to exclude `code` blocks unless explicitly annotated.
+
+
 ## References
 - **API Documentation**: See [api-documentation.md](references/api-documentation.md)
 - **Analytics**: See [analytics.md](references/analytics.md)

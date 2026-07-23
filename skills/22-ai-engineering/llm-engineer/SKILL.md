@@ -347,6 +347,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a "failure log" for every LLM system you operate. For each unexpected output: the input, the output, why it was wrong, and what guardrail would have caught it. Review before every architecture change.
 
+## Gotchas
+
+- **OpenAI `temperature=0` is NOT deterministic**. With `temperature=0`, the model still uses floating-point sampling and GPU non-determinism. Two identical requests can return different tokens. For truly deterministic outputs, use `seed` parameter (where supported) or tolerate minor variation.
+- **`max_tokens` truncation** is silent. If your prompt + completion exceeds the model's context window AND you set `max_tokens=4096`, the model simply stops generating at token 4096. The response appears complete but the last sentence may be cut off mid-word with no error.
+- **ChatML message ordering**: `[system, user, assistant, user, assistant]` is standard. Inserting a `system` message between `user` and `assistant` resets the model's "voice" and can produce garbled output. Some providers silently reorder messages; verify the final payload.
+- **Token counting is NOT byte-counting**. 1 token ≈ 0.75 words in English but 1 token ≈ 0.3 words in Japanese. A 500-character Japanese prompt costs 3x the tokens of a 500-character English prompt. Budget by token count, not character count.
+- **Fine-tuned models forget** — fine-tuning on a specific task reduces performance on OTHER tasks (catastrophic forgetting). A GPT-4 fine-tuned on medical transcripts may lose 15% accuracy on general reasoning. Evaluate BOTH target-task AND general-benchmark performance post fine-tuning.
+
+
 ## References
 
 Detailed reference material loaded on demand:
