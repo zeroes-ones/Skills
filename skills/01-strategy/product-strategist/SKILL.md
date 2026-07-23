@@ -1,15 +1,28 @@
 ---
 name: product-strategist
-description: 'Product strategy, product-market fit, OKR planning, product discovery, competitive analysis, pricing strategy, product growth modeling, PLG vs SLG strategy, feature prioritization, product
-  operations, customer journey mapping, Jobs-to-be-Done framework, product roadmapping, product metrics. Trigger: product strategy, PMF, OKR, product discovery, competitive analysis, pricing, PLG, product-led
-  growth, JTBD, North Star metric, product roadmap.'
+description: >
+  Use when defining product strategy, validating product-market fit, planning OKRs,
+  conducting competitive analysis, modeling product growth, or designing PLG vs SLG
+  motions. Handles product discovery, feature prioritization, Jobs-to-be-Done framework,
+  pricing strategy, customer journey mapping, North Star metric definition, and product
+  roadmapping. Do NOT use for sprint planning, backlog grooming, or day-to-day
+  engineering management.
+license: MIT
+tags:
+- product
+- strategy
+- pmf
+- okr
+- pricing
+- plt
+- competitive-analysis
+- jtbd
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- product-strategist
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 2715
 chain:
   consumes_from:
   - business-strategist
@@ -21,12 +34,10 @@ chain:
   - fp-and-a-analyst
   - marketing-manager
   - product-manager
-token_budget: 2715
-output:
-  type: code
-  path_hint: ./
 ---
 # Product Strategist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end product strategy from discovery through growth. Covers product-market fit validation, OKR-driven planning, pricing strategy, competitive positioning, and product-led growth — connecting business outcomes to product execution.
 

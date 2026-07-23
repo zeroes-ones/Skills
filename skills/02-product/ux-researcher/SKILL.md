@@ -1,14 +1,26 @@
 ---
 name: ux-researcher
-description: Generate personas, map user journeys, design usability tests, synthesize research findings, run competitive UX analysis, and perform heuristic evaluations. Use to inform design and product
-  decisions with user evidence. Triggered by create personas, journey map, usability test plan, research synthesis, competitive analysis, heuristic evaluation, user research.
+description: >
+  Use when generating user personas, mapping customer journeys, designing usability
+  tests, synthesizing research findings, running competitive UX analysis, or performing
+  heuristic evaluations. Handles qualitative and quantitative research methods,
+  interview guide creation, usability test planning, affinity mapping, research
+  synthesis, and evidence-based design recommendations. Do NOT use for UI design
+  execution, visual design, or frontend implementation.
+license: MIT
+tags:
+- ux
+- research
+- personas
+- usability-testing
+- journey-mapping
+- heuristic-evaluation
 author: Sandeep Kumar Penchala
 type: product
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- ux-researcher
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 2400
 chain:
   consumes_from:
   - product-manager
@@ -20,12 +32,10 @@ chain:
   - product-manager
   - product-strategist
   - ui-ux-designer
-token_budget: 2400
-output:
-  type: code
-  path_hint: ./
 ---
 # UX Researcher
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Generate evidence-based user understanding that drives product and design decisions. Move teams from opinion-based to insight-based development through rigorous qualitative and quantitative research methods.
 

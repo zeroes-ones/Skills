@@ -1,20 +1,28 @@
 ---
 name: frontend-developer
-description: 'React, Next.js, and Vue frontend development with TypeScript, Tailwind
-  CSS, state management, routing, SSR/SSG patterns, Core Web Vitals optimization,
-  accessibility (a11y), and testing. Trigger: frontend, React, Next.js, Vue, TypeScript,
-  Tailwind, SSR, SSG, Core Web Vitals, accessibility.'
+description: >
+  Use when building React, Next.js, or Vue web applications, implementing component
+  architectures, managing client-side state, optimizing Core Web Vitals, or ensuring
+  WCAG 2.2 AA accessibility compliance. Handles SSR/SSG patterns, CSS architecture
+  at scale, bundle optimization, and frontend testing from unit to E2E. Do NOT use
+  for backend API development, DevOps infrastructure, mobile development, or database
+  schema design.
 author: Sandeep Kumar Penchala
+license: MIT
 type: development
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- frontend-developer
+- react
+- nextjs
+- vue
+- typescript
+- tailwind
+- ssr
+- web-vitals
+- accessibility
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - accessibility-auditor
@@ -47,6 +55,8 @@ chain:
   - translation-manager
 ---
 # Frontend Developer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build performant, accessible, and maintainable web applications using React (Next.js App Router) and Vue (Nuxt). This skill covers the complete frontend engineering practice: framework selection with trade-off analysis, component architecture with Server Components and composition patterns, state management taxonomy (server vs client vs form vs URL), CSS architecture at scale, Core Web Vitals optimization to measurable targets, WCAG 2.2 AA accessibility compliance, bundle optimization with tree shaking and code splitting, and comprehensive testing from unit to E2E.
 

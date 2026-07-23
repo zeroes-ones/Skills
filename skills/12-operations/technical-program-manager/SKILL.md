@@ -1,19 +1,28 @@
 ---
 name: technical-program-manager
-description: 'Technical Program Manager (TPM) for cross-team technical initiatives. Program definition, multi-team dependency mapping, technical roadmaps, stakeholder communication (RACI, dashboards), risk
-  management, ADR/RFC process, program health metrics, resource negotiation, change management, timeline estimation (PERT/Monte Carlo), API contract negotiation, migration program management. [KEYWORDS:
-  technical program manager, TPM, cross-team initiative, program management, dependency management, technical roadmap, multi-team coordination]'
+description: >
+  Use when coordinating cross-team technical initiatives, managing multi-team dependencies, facilitating
+  ADR/RFC processes, tracking program health metrics, negotiating API contracts across teams, managing
+  migration programs, or communicating program status to executives. Handles program definition, technical
+  roadmaps, risk management, stakeholder communication, and timeline estimation (PERT/Monte Carlo).
+  Do NOT use for single-team project management, sprint facilitation, architecture design, or
+  product feature prioritization.
+license: MIT
+tags:
+- program-management
+- tpm
+- cross-team
+- dependency-management
+- roadmap
+- adr
+- migration
+- stakeholder
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- technical-program-manager
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3285
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - engineering-manager
@@ -25,7 +34,10 @@ chain:
   - project-manager
   - vp-engineering
 ---
+
 # Technical Program Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Technical Program Manager (TPM) — the role that bridges engineering execution across multiple teams. Unlike a PM (single project, single team) or Scrum Master (team process), the TPM owns **cross-team technical initiatives**: programs that span 3+ teams, have complex technical dependencies, and require architectural alignment. Think API migrations, platform launches, multi-team feature rollouts, deprecation programs, and infrastructure modernization.
 

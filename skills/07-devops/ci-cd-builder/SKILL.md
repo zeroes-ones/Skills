@@ -1,16 +1,28 @@
 ---
 name: ci-cd-builder
-description: GitHub Actions, pipeline design patterns, build optimization, artifact
-  management, quality gates, deployment strategies, SLSA supply chain security, DORA
-  metrics, and release management. Triggered by CI/CD, pipeline, GitHub Actions, GitLab
-  CI, build, matrix, cache, artifact, deployment gate, SLSA, DORA.
+description: >
+  Use when designing, building, or debugging CI/CD pipelines, optimizing build
+  performance, implementing quality gates, securing software supply chains, or
+  planning deployment strategies. Handles GitHub Actions and GitLab CI pipeline
+  architecture, composite and reusable workflows, build caching and artifact
+  management, SLSA supply chain security, semantic release automation, and DORA
+  metrics tracking. Do NOT use for infrastructure provisioning (Terraform/Pulumi),
+  Kubernetes manifests, or pure Docker image workflows.
+license: MIT
+tags:
+- ci-cd
+- pipeline
+- github-actions
+- gitlab-ci
+- build
+- deployment
+- slsa
+- dora
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- ci-cd-builder
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -28,11 +40,10 @@ chain:
   - monorepo-manager
   - qa-engineer
   - release-manager
-output:
-  type: code
-  path_hint: ./
 ---
 # CI/CD Pipeline Builder
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, build, optimize, and secure continuous integration and continuous delivery pipelines. This
 skill covers pipeline architecture patterns (fan-in/fan-out, matrix, conditional), GitHub Actions

@@ -1,23 +1,29 @@
 ---
 name: translation-manager
-description: >-
-  Translation management without human translators — translation memory (TM) strategy and maintenance, machine translation (MT) engine selection (DeepL, Google Cloud Translation, Azure Translator, ModernMT), glossary and termbase management, pseudo-localization for pre-flight testing, continuous localization pipeline design (Git-based, API-driven), string extraction and key-based identification (i18next, ICU MessageFormat, Fluent), translation quality automation (placeholder validation, ICU syntax check, length constraints, gender/plural coverage), TMS API integration (Lokalise, Phrase, Crowdin, Transifex), translation memory leveraging and fuzzy match optimization, cost optimization across MT engines, and automated linguist quality assurance (LQA) scoring. Use when setting up a localization pipeline without a human translation team, optimizing MT quality, managing translation memory at scale, or automating localization quality gates in CI/CD.
+description: >
+  Use when setting up automated translation pipelines without human translators,
+  optimizing machine translation quality, managing translation memory at scale,
+  or automating localization quality gates in CI/CD. Handles MT engine selection,
+  glossary and termbase management, pseudo-localization, string extraction, translation
+  quality automation, and cost optimization across MT engines. Do NOT use for i18n
+  architecture design, RTL layout implementation, or manual translation workflows
+  requiring human linguists.
 author: Sandeep Kumar Penchala
+license: MIT
 type: development
 status: stable
-version: "1.0.0"
-updated: 2027-01-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-  - translation
-  - localization
-  - i18n
-  - l10n
-  - machine-translation
-  - tms
+- translation
+- localization
+- machine-translation
+- tms
+- glossary
+- quality-assurance
+- ci-cd
+- cost-optimization
 token_budget: 3500
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - localization-engineer
@@ -29,6 +35,8 @@ chain:
     - ci-cd-builder
 ---
 # Translation Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Orchestrate automated translation pipelines — configure machine translation engines, manage translation memory, automate quality checks, and run continuous localization without a human translation team.
 

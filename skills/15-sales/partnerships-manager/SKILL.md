@@ -1,19 +1,28 @@
 ---
 name: partnerships-manager
-description: "Partnership execution & management: integration partner onboarding, co-selling motion design, partner training & certification, deal registration programs, partner portal & resource hub, MDF (market development funds) management, partner QBRs, conflict resolution (direct vs channel), partner success metrics (attach rate, influenced revenue, time-to-first-deal), ecosystem health scoring."
-author: Sandeep Kumar Penchala
-type: sales
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when onboarding integration partners, managing co-selling motions, running partner training
+  and certification, or operating deal registration programs. Handles integration partner
+  onboarding, co-selling motion design, partner training and certification, deal registration
+  programs, partner portal management, MDF allocation, partner QBRs, channel conflict resolution,
+  and ecosystem health scoring. Do NOT use for partnership deal structuring, legal term sheet
+  negotiation, or direct sales.
+license: MIT
 tags:
   - partnerships-manager
   - partner-success
   - channel-management
+  - co-selling
+  - deal-registration
+  - mdf
+  - qbr
+  - onboarding
+author: Sandeep Kumar Penchala
+type: sales
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3900
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - bizdev-manager
@@ -27,6 +36,8 @@ chain:
     - account-manager
 ---
 # Partnerships Manager (Channel Manager / Partner Success)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own partner execution: onboard integration, reseller, and referral partners, design co-selling motions, run partner training & certification, manage deal registration, operate the partner portal, allocate MDF, run partner QBRs, resolve channel conflict, and measure ecosystem health. BizDev structures the deal — you make it work.
 

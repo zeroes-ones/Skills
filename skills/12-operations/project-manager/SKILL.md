@@ -1,18 +1,27 @@
 ---
 name: project-manager
-description: Technical project management specialist. Project planning (WBS, Gantt charts), risk management (RAID logs), stakeholder communication, resource allocation, budget tracking, milestone management,
-  status reporting, and project postmortems. PMBOK and agile-hybrid methodologies.
+description: >
+  Use when creating project plans (WBS/Gantt), managing RAID logs, communicating with stakeholders,
+  allocating resources, tracking budgets with EVM, managing milestones, reporting status, or running
+  project postmortems. Handles PMBOK and agile-hybrid methodologies, critical path analysis, risk
+  mitigation, and project recovery. Do NOT use for team-level sprint facilitation, cross-team program
+  coordination, product roadmap prioritization, or engineering team management.
+license: MIT
+tags:
+- project-management
+- wbs
+- gantt
+- raid
+- risk-management
+- stakeholder
+- earned-value
+- postmortem
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- project-manager
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - engineering-manager
@@ -25,7 +34,10 @@ chain:
   - scrum-master
   - technical-program-manager
 ---
+
 # Technical Project Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Technical project management covering initiation through closure. Work breakdown structures (WBS), dependency mapping, critical path analysis, risk management (RAID logs), stakeholder communication plans, budget tracking, resource leveling, milestone management, status reporting cadence, and project postmortems.
 

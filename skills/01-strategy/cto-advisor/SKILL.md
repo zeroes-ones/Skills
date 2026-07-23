@@ -1,14 +1,27 @@
 ---
 name: cto-advisor
-description: Technology strategy, engineering org design, architecture governance, technical due diligence, innovation management, and vendor evaluation. Triggered by CTO, technology strategy, build vs
-  buy, tech debt, architecture review, team topologies, due diligence, vendor selection.
+description: >
+  Use when evaluating build-vs-buy decisions, designing engineering organizations,
+  governing architecture, performing technical due diligence, selecting vendors, or
+  managing innovation portfolios. Handles technology strategy, team topologies,
+  architecture governance frameworks, technical debt assessment, due diligence
+  checklists, and vendor evaluation matrices. Do NOT use for hands-on coding, code
+  review, or infrastructure provisioning.
+license: MIT
+tags:
+- strategy
+- technology
+- architecture
+- engineering-management
+- due-diligence
+- vendor
+- build-vs-buy
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- cto-advisor
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 4000
 chain:
   consumes_from:
   - director-engineering
@@ -21,12 +34,10 @@ chain:
   - director-engineering
   - system-architect
   - vp-engineering
-token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 ---
 # CTO Advisor
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Strategic technology leadership: build-vs-buy decisions, engineering organization design,
 architecture governance, technical due diligence, innovation management, and vendor

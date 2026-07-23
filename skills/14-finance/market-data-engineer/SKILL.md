@@ -1,21 +1,28 @@
 ---
 name: market-data-engineer
-description: Options flow ingestion (Unusual Whales, CBOE LiveVol, Polygon.io, Bloomberg), real-time streaming (Kafka/Redpanda), tick data storage (TimescaleDB/ClickHouse/Parquet), corporate actions normalization, dividend/split adjustments, and historical data warehousing for quantitative analysis. Triggered by options flow, market data pipeline, tick storage, corporate actions, Unusual Whales, Polygon.io, OPRA, dividend adjustment, options chain.
-author: Sandeep Kumar Penchala
-type: finance
-status: stable
-version: "1.0.0"
-updated: "2026-07-21"
+description: >
+  Use when building market data ingestion pipelines, normalizing corporate actions, storing tick
+  data, or streaming real-time financial data. Handles options flow ingestion (Unusual Whales,
+  CBOE LiveVol, Polygon.io, Bloomberg), real-time streaming (Kafka/Redpanda), tick data storage
+  (TimescaleDB, ClickHouse, Parquet), corporate actions normalization (splits, dividends, mergers),
+  and dividend/split-adjusted options chains. Do NOT use for quantitative analysis, trading strategy
+  development, or general ETL pipeline work.
+license: MIT
 tags:
   - market-data-engineer
   - options-flow
   - tick-data
+  - kafka
+  - timescaledb
   - corporate-actions
   - real-time-streaming
+  - polygon
+author: Sandeep Kumar Penchala
+type: finance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - data-engineer
@@ -30,6 +37,8 @@ chain:
 ---
 
 # Market Data Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ingest, normalize, store, and serve financial market data at production scale. This skill covers options flow ingestion from Unusual Whales REST/WebSocket, CBOE LiveVol, Polygon.io Options API, and Bloomberg Terminal/API; real-time streaming via Kafka/Redpanda with stream processing; tick data storage in TimescaleDB (hot) and ClickHouse (analytics); corporate actions normalization (splits, dividends, mergers, ticker changes); dividend/split-adjusted options chains; historical data warehousing in Parquet on S3; data quality rules for stale quotes, arbitrage violations, and volume/OI discrepancies; and market-hours-aware scheduling. Every decision here is backed by war stories from production options pipelines — including the $50K dividend-adjustment loss and the survivorship-bias backtest disaster.
 

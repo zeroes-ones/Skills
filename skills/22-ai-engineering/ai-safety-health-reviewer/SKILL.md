@@ -1,12 +1,24 @@
 ---
 name: ai-safety-health-reviewer
-description: >-
-  AI Safety and Health AI Reviewer covering medical AI output evaluation (hallucinated medical advice prevention, drug interaction fabrication, treatment recommendation accuracy), FDA AI/ML regulatory framework (SaMD, PCCP, 510(k) vs De Novo), appropriate disclaimers (informational only vs CDS), harmful suggestion detection (suicide/self-harm content, dangerous alternative treatments, contagion effects), clinical accuracy testing (benchmark against board-certified clinicians, inter-rater reliability, Cohen's kappa), bias and fairness in health AI, content filtering for medical context, red teaming for health AI, and explainability (SHAP, LIME, chain-of-thought audit). Triggered by AI safety, health AI, medical LLM, FDA AI, clinical validation, red teaming, responsible AI, medical safety review.
+description: >
+  Use when evaluating medical AI outputs for clinical accuracy, assessing FDA regulatory
+  readiness (SaMD, PCCP, 510(k) vs De Novo), auditing health AI for harmful suggestions,
+  or conducting specialized red teaming for healthcare LLMs. Handles medical AI output
+  evaluation (hallucinated medical advice prevention, drug interaction fabrication,
+  treatment recommendation accuracy), FDA AI/ML regulatory framework assessment (SaMD,
+  PCCP, 510(k) vs De Novo), appropriate disclaimer classification (informational only
+  vs CDS), harmful suggestion detection (suicide/self-harm content, dangerous alternative
+  treatments, contagion effects), clinical accuracy testing against board-certified
+  benchmarks, bias and fairness auditing for health AI, medical context content filtering,
+  health-specific red teaming methodologies, and medical reasoning explainability (SHAP,
+  LIME, chain-of-thought audit). Do NOT use for general AI safety unrelated to healthcare,
+  LLM pipeline engineering, or traditional ML model evaluation.
+license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - ai-safety
   - health-ai
@@ -17,9 +29,6 @@ tags:
   - red-teaming
   - responsible-ai
 token_budget: 5000
-output:
-  type: "document"
-  path_hint: "./"
 chain:
   consumes_from:
     - clinical-informatics-specialist
@@ -34,6 +43,8 @@ chain:
     - product-manager
 ---
 # AI Safety & Health AI Reviewer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Specialized AI safety evaluation for health and medical applications. Covers medical AI output evaluation, FDA regulatory frameworks (SaMD, PCCP, 510(k) vs De Novo), appropriate disclaimers and clinical decision support boundaries, harmful suggestion detection in patient communities, clinical accuracy testing against board-certified benchmarks, bias and fairness audits for health AI, content filtering for medical contexts, red teaming methodologies for health AI, and model explainability for medical reasoning.
 

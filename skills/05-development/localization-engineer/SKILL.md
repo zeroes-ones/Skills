@@ -1,19 +1,28 @@
 ---
 name: localization-engineer
-description: 'i18n/l10n architecture, translation pipelines, RTL layout, locale-aware formatting (dates/numbers/currencies), Unicode/BIDI, pseudo-localization, continuous localization in CI/CD, TMS integration
-  (Lokalise/Phrase/Crowdin), and locale detection. Trigger: i18n, l10n, internationalization, localization, translation, RTL, multilingual, locale, globalization, g11n, language support, cultural adaptation.
-  Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.'
+description: >
+  Use when designing i18n/l10n architecture, implementing translation pipelines,
+  adding RTL layout support, configuring locale-aware formatting, or setting up
+  continuous localization in CI/CD. Handles message extraction, TMS integration,
+  Unicode/BIDI handling, pseudo-localization testing, and locale detection strategies.
+  Do NOT use for translation management via TMS APIs, general accessibility testing,
+  or pure frontend styling.
 author: Sandeep Kumar Penchala
+license: MIT
 type: development
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- localization-engineer
+- i18n
+- l10n
+- rtl
+- icu
+- pseudolocalization
+- tms
+- unicode
+- locale
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - frontend-developer
@@ -27,6 +36,8 @@ chain:
   - translation-manager
 ---
 # Localization / i18n-L10n Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and implement end-to-end internationalization (i18n) and localization (l10n) systems. This skill covers message extraction, translation pipeline architecture, locale-aware formatting, RTL layout, pseudo-localization testing, and continuous localization integrated into CI/CD. Every decision balances developer ergonomics, translator workflow, and end-user experience across languages and cultures.
 

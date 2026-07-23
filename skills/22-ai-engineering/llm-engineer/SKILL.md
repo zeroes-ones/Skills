@@ -1,14 +1,23 @@
 ---
 name: llm-engineer
-description: LLM/AI engineering covering RAG pipeline design (chunking strategies, embedding models, vector databases), prompt engineering at scale (templates, versioning, few-shot selection, chain-of-thought,
-  system prompt governance), model evaluation frameworks (LLM-as-judge, hallucination detection, RAGAS), latency/cost optimization (streaming, token budgeting, semantic caching, distillation), function
-  calling and tool use (OpenAI structured output, tool selection), guardrails (NeMo, PII detection, toxicity filtering), multi-agent architectures, and fine-tuning strategy (LoRA/QLoRA, data preparation).
-  Triggered by LLM, RAG, prompt engineering, embeddings, vector database, function calling, AI engineering, LLM evaluation, hallucination detection, fine-tuning.
+description: >
+  Use when designing RAG pipelines, engineering prompts at scale, building LLM evaluation
+  frameworks, implementing function calling and tool use, or optimizing LLM latency and
+  cost. Handles RAG pipeline design (chunking strategies, embedding models, vector
+  databases), prompt engineering at scale (templates, versioning, few-shot selection,
+  chain-of-thought, system prompt governance), model evaluation frameworks (LLM-as-judge,
+  hallucination detection, RAGAS), latency and cost optimization (streaming, token
+  budgeting, semantic caching, distillation), function calling and tool use (structured
+  output, tool selection), safety guardrails (NeMo, PII detection, toxicity filtering),
+  multi-agent architectures, and fine-tuning strategy (LoRA/QLoRA, data preparation).
+  Do NOT use for AI safety evaluation, MLOps infrastructure, or traditional ML model
+  development.
+license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - llm
 - rag
@@ -19,9 +28,6 @@ tags:
 - model-evaluation
 - hallucination-detection
 token_budget: 5000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - ai-safety-engineer
@@ -36,6 +42,8 @@ chain:
   - product-manager
 ---
 # LLM & AI Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end LLM and AI engineering — from prompt design through production deployment of language model applications. Covers RAG pipeline architecture, prompt engineering at scale, model evaluation frameworks, latency and cost optimization, function calling and tool use patterns, safety guardrails, multi-agent orchestration, and fine-tuning strategies for production LLM systems.
 

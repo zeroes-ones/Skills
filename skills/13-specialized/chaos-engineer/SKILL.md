@@ -1,22 +1,35 @@
 ---
 name: chaos-engineer
-description: Chaos experiment design, fault injection (network latency, pod kills, resource exhaustion, AZ failure), blast radius control, steady state hypothesis, GameDays, resilience patterns (circuit breaker, retry, bulkhead), observability for chaos.
+description: >
+  Use when designing chaos experiments, planning GameDays, validating system resilience
+  through controlled fault injection, or building organizational confidence in failure handling.
+  Handles chaos experiment design, fault injection (network latency, pod kills, resource
+  exhaustion, AZ failure), blast radius control, steady state hypotheses, GameDay facilitation,
+  and resilience pattern validation (circuit breaker, retry, bulkhead). Do NOT use for general
+  monitoring setup, standard incident response, capacity planning, or routine performance testing.
+license: MIT
+tags:
+  - chaos-engineer
+  - resilience
+  - fault-injection
+  - gameday
+  - reliability
+  - sre
+  - observability
+  - chaos
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - chaos-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from: ["devops-engineer", "site-reliability-engineer", "observability-engineer"]
   feeds_into: ["site-reliability-engineer", "incident-responder", "devops-engineer"]
 ---
 # Chaos Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Systematic resilience verification framework based on Chaos Engineering principles. Covers experiment design, fault injection, blast radius management, GameDay facilitation, resilience pattern validation, and building organizational confidence in system behavior under failure.
 

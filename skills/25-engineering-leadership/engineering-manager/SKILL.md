@@ -1,14 +1,23 @@
 ---
 name: engineering-manager
-description: First-line people management for engineering teams of 5-10 engineers. Covers 1:1 cadence and career conversations, delivery accountability and sprint management, performance management including
-  continuous feedback and underperformer remediation, team building through hiring and onboarding, engineering culture and psychological safety, stakeholder communication and managing up, capacity planning
-  and resource negotiation. The EM is the linchpin between individual contributors and organizational leadership — not a tech lead, not an architect. Use when managing a team of engineers, running 1:1s,
-  handling performance issues, building hiring pipelines, or establishing team culture.
+description: >
+  Use when managing a team of 5-10 engineers, running effective 1:1s and career
+  conversations, handling performance issues and underperformance, building hiring
+  pipelines, or establishing team culture and psychological safety. Handles 1:1 cadence
+  and career growth conversations, delivery accountability and sprint management,
+  performance management (continuous feedback, PIP design, underperformer remediation),
+  team building through structured hiring and onboarding, engineering culture and
+  psychological safety, stakeholder communication and managing up, and capacity planning
+  with resource negotiation. The EM is the linchpin between individual contributors
+  and organizational leadership — not a tech lead, not an architect. Do NOT use for
+  architecture decision-making, technical strategy across teams, or organizational
+  design above team level.
+license: MIT
 author: Sandeep Kumar Penchala
 type: engineering-leadership
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - engineering-manager
 - people-management
@@ -19,9 +28,6 @@ tags:
 - 1-on-1s
 - team-building
 token_budget: 5000
-output:
-  type: markdown
-  path_hint: ./
 chain:
   consumes_from:
   - director-engineering
@@ -42,6 +48,8 @@ chain:
 ---
 
 # Engineering Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 First-line people management for engineering teams. You are the linchpin between individual contributors and the broader organization. Your output is your team's output. You manage people, process, and culture — not architecture, not code. When you succeed, engineers grow, teams deliver predictably, and the organization trusts you with hard problems.
 

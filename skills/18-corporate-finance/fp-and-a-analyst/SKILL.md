@@ -1,12 +1,13 @@
 ---
 name: fp-and-a-analyst
-description: Financial planning & analysis for startups — 3-statement models, SaaS metrics, budgeting, variance analysis, scenario planning, fundraising modeling, board financials, unit economics, and headcount
-  planning. Use when building financial models, preparing board decks, evaluating fundraising scenarios, or diagnosing SaaS metric health.
-author: Sandeep Kumar Penchala
-type: corporate-finance
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when building financial models, preparing board financials, evaluating fundraising
+  scenarios, diagnosing SaaS metric health, running scenario planning, or creating annual
+  budgets. Handles three-statement financial models, SaaS metrics (ARR, NRR, LTV/CAC,
+  magic number), variance analysis, headcount planning, unit economics, and fundraising
+  modeling including dilution scenarios. Do NOT use for bookkeeping and journal entries,
+  tax preparation and filing, audit execution, or treasury operations.
+license: MIT
 tags:
 - fp-and-a
 - financial-modeling
@@ -14,10 +15,12 @@ tags:
 - budgeting
 - fundraising
 - corporate-finance
+author: Sandeep Kumar Penchala
+type: corporate-finance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3420
-output:
-  type: spreadsheet
-  path_hint: models/
 chain:
   consumes_from:
   - accountant
@@ -42,6 +45,8 @@ chain:
 ---
 
 # FP&A Analyst — The Startup Finance Engine
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Financial planning and analysis for venture-backed startups. Build models that raise money, run companies, and survive downturns. Think like a startup CFO who's lived through a down round and a cash crunch — every number must be defensible.
 

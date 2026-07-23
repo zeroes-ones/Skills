@@ -1,14 +1,26 @@
 ---
 name: data-engineer
-description: ETL/ELT pipelines, data architecture (medallion/data mesh/lakehouse), data modeling (star/snowflake/data vault), dbt/Airflow/Spark/Kafka, data quality (Great Expectations/WAP), data governance,
-  streaming (Kafka/Flink), and performance optimization. Triggered by ETL, data warehouse, Spark, Airflow, Kafka, data pipeline, data modeling, data quality, CDC, data mesh.
+description: >
+  Use when building ETL/ELT pipelines, designing data architecture (medallion/data mesh/lakehouse), modeling data
+  warehouses (star/snowflake/data vault), orchestrating workflows (Airflow/dbt), implementing streaming (Kafka/Flink),
+  enforcing data quality (Great Expectations/WAP), or optimizing query performance. Handles batch and real-time
+  ingestion, CDC patterns, data governance, pipeline reliability, and cost optimization. Do NOT use for
+  analytics dashboard creation, statistical modeling, ML pipeline serving, or BI tool configuration.
+license: MIT
+tags:
+- data-engineering
+- etl
+- spark
+- airflow
+- kafka
+- data-warehouse
+- data-quality
+- streaming
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- data-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -24,11 +36,11 @@ chain:
   - market-data-engineer
   - ml-ai-engineer
   - mlops-engineer
-output:
-  type: code
-  path_hint: ./
 ---
+
 # Data Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build robust, scalable, and reliable data pipelines and platforms. This skill covers the full data
 engineering lifecycle: architecture design (medallion, data mesh, lake vs warehouse vs lakehouse),

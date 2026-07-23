@@ -1,17 +1,25 @@
 ---
 name: tdd-guide
-description: Test-Driven Development guide — red-green-refactor cycle with explicit refactoring recognition triggers, coverage analysis, property-based and mutation testing, and outside-in TDD patterns. Use when adopting TDD, writing tests-first, improving test quality, or introducing TDD practices to a team.
+description: >
+  Use when adopting test-driven development practices, writing tests-first for new
+  features, improving test quality through mutation testing, or introducing TDD to
+  a team. Handles red-green-refactor cycles, property-based testing, outside-in TDD
+  patterns, and coverage analysis. Do NOT use for general QA strategy, test automation
+  framework setup, performance testing, or e2e test authoring without TDD workflow.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- tdd-guide
 - tdd
 - test-driven-development
-- testing
-- code-quality
+- mutation-testing
+- property-based-testing
+- red-green-refactor
+- coverage
+token_budget: 3800
 chain:
   consumes_from:
   - backend-developer
@@ -28,12 +36,10 @@ chain:
   - fullstack-developer
   - mobile-developer
   - qa-engineer
-token_budget: 3800
-output:
-  type: code
-  path_hint: tests/
 ---
 # TDD Guide
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Rigorous Test-Driven Development with explicit red-green-refactor cycle recognition, property-based testing, mutation testing, and outside-in workflow. Knows when to refactor, when to delete tests, and what to measure.
 

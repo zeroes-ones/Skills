@@ -1,14 +1,27 @@
 ---
 name: ceo-strategist
-description: CEO field manual covering vision, fundraising, board management, competitive strategy, org design, OKRs, crisis management, executive hiring, M&A, metrics dashboards, and personal effectiveness.
-  Use when making company-defining decisions, raising capital, designing organizations, navigating crises, or scaling from seed to enterprise.
+description: >
+  Use when making company-defining decisions, raising capital, designing organizational
+  structures, navigating crises, scaling from seed to enterprise, or managing board
+  relations. Handles fundraising strategy, board governance, OKR design, competitive
+  strategy, M&A evaluation, executive hiring, metrics dashboards, and organizational
+  design. Do NOT use for day-to-day operational management, individual contributor
+  coaching, or tactical project planning.
+license: MIT
+tags:
+- strategy
+- executive
+- fundraising
+- board
+- organization-design
+- okr
+- ma
 author: Sandeep Kumar Penchala
 type: strategy
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- ceo-strategist
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 3285
 chain:
   consumes_from:
   - accountant
@@ -30,12 +43,10 @@ chain:
   - investor-relations
   - treasury-manager
   - vp-engineering
-token_budget: 3285
-output:
-  type: code
-  path_hint: ./
 ---
 # CEO Strategist — The Operator's Field Manual
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 

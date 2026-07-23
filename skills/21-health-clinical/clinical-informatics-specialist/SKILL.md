@@ -1,21 +1,20 @@
 ---
 name: clinical-informatics-specialist
-description: FHIR (HL7) standards R4/R5 with resource types, profiles, extensions,
-  and operations. EHR integration patterns for Epic/MyChart, Cerner, Argonaut, USCDI,
-  and SMART on FHIR. Health data exchange via HIE networks, TEFCA, Direct Secure Messaging,
-  XDR/XDM. Hemophilia Treatment Center (HTC) data exchange workflows for rare disease
-  registries. Patient-reported outcome (PRO) data standards including PROMIS, PRO-CTCAE,
-  and electronic PRO (ePRO). Clinical terminology with SNOMED CT, LOINC, ICD-10-CM,
-  RxNorm, MedDRA. Data mapping pipelines from source systems to FHIR resources to
-  internal data models. Consent management for patient data sharing with granular
-  HIE consent. Real-world evidence (RWE) data pipelines for pharma partnerships. Triggered
-  by FHIR, HL7, EHR integration, health data exchange, clinical terminology, PRO,
-  HTC, RWE, consent management.
+description: >
+  Use when designing FHIR R4/R5 resources, integrating EHR systems (Epic, Cerner),
+  mapping clinical terminologies (SNOMED CT, LOINC, ICD-10-CM, RxNorm), building
+  health data exchange pipelines (HIE, TEFCA), modeling patient-reported outcomes
+  (PROMIS, PRO-CTCAE), or implementing consent management for patient data sharing.
+  Handles FHIR/HL7 interoperability, clinical data mapping, real-world evidence
+  pipelines, rare disease registry data exchange, and HTC workflow integration.
+  Do NOT use for general API development, UI/frontend work, or non-healthcare
+  data integration.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - clinical-informatics
 - fhir
@@ -26,9 +25,6 @@ tags:
 - patient-reported-outcomes
 - real-world-evidence
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -45,6 +41,8 @@ chain:
   - product-manager
 ------
 # Clinical Informatics Specialist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, implement, and govern health data interoperability systems that bridge clinical workflows, EHR platforms, and research pipelines. This skill covers the full clinical informatics lifecycle — from FHIR resource modeling and EHR integration to real-world evidence data pipelines and patient consent management — with specialized depth in rare disease registries and patient-reported outcomes.
 

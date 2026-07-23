@@ -1,17 +1,27 @@
 ---
 name: scrum-master
-description: Sprint planning, daily standups, retrospectives, backlog refinement, velocity tracking, burndown charts, team health, impediment removal, agile metrics.
+description: >
+  Use when facilitating sprint ceremonies, coaching backlog refinement, diagnosing delivery bottlenecks
+  with agile metrics, removing team impediments, assessing team health and psychological safety, or
+  enforcing Definition of Done. Handles Scrum framework implementation, continuous improvement,
+  and team coaching. Do NOT use for project planning (WBS/Gantt), cross-team program management,
+  product roadmap prioritization, or engineering performance evaluation.
+license: MIT
+tags:
+- scrum
+- agile
+- sprint
+- retrospective
+- velocity
+- backlog
+- team-health
+- impediment
 author: Sandeep Kumar Penchala
 type: operations
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- scrum-master
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - engineering-manager
@@ -22,7 +32,10 @@ chain:
   - project-manager
   - technical-program-manager
 ---
+
 # Scrum Master
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Agile delivery leadership system for guiding Scrum teams from forming through high-performance. Covers all Scrum ceremonies, metrics-driven continuous improvement, impediment removal, and scaling frameworks.
 

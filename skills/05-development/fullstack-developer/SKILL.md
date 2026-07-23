@@ -1,20 +1,27 @@
 ---
 name: fullstack-developer
-description: 'End-to-end feature delivery across frontend and backend, API consumption
-  and design, database queries, authentication flows, monorepo patterns, deployment
-  pipelines, and full-stack testing. Trigger: fullstack, full-stack, end-to-end, frontend-backend
-  integration, monorepo, fullstack feature.'
+description: >
+  Use when delivering end-to-end features spanning frontend and backend, integrating
+  APIs with UI layers, implementing full-stack authentication flows, working in TypeScript
+  monorepos, or orchestrating deployment across all tiers. Handles database-to-UI
+  feature delivery, shared type systems, API consumption patterns, and full-stack
+  testing strategies. Do NOT use for pure frontend UI work, pure backend API development,
+  infrastructure provisioning, or mobile app development.
 author: Sandeep Kumar Penchala
+license: MIT
 type: development
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- fullstack-developer
+- fullstack
+- typescript
+- nextjs
+- monorepo
+- api-integration
+- authentication
+- postgresql
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - api-designer
@@ -30,6 +37,8 @@ chain:
   - tdd-guide
 ---
 # Fullstack Developer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Deliver complete features across the entire stack — from database to UI. This skill covers end-to-end feature development: TypeScript monorepos with shared types, full-stack frameworks (Next.js, Remix, SvelteKit), API integration patterns, database access from server-side code, authentication flows spanning frontend and backend, deployment orchestration, and comprehensive testing across all layers.
 

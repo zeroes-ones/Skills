@@ -1,21 +1,31 @@
 ---
 name: backend-developer
-description: 'Multi-language backend development with Python/FastAPI, Node.js/Express,
-  Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies,
-  async task processing, push notification delivery (APNs/FCM), real-time streaming
-  (WebSocket/SSE), structured logging, and testing. Trigger: backend, FastAPI,
-  Express, Go, JWT, OAuth, caching, async tasks, push notifications, WebSocket, API development.'
+description: >
+  Use when building REST APIs, implementing authentication, designing database schemas,
+  writing server-side business logic, or debugging backend performance issues. Handles
+  multi-language backend development (Python/FastAPI, Node.js/Express, Go) with JWT/OAuth
+  authentication, database integration, caching strategies, async task processing, push
+  notifications (APNs/FCM), WebSocket/SSE streaming, and structured logging. Do NOT use
+  for frontend UI work, DevOps infrastructure provisioning, mobile development,
+  or LLM pipeline engineering.
+license: MIT
+compatibility: requires-python-3.10-or-node-18-or-go-1.21
+tags:
+- backend
+- api
+- fastapi
+- express
+- go
+- authentication
+- database
+- caching
+- async
 author: Sandeep Kumar Penchala
 type: development
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- backend-developer
-token_budget: 2835
-output:
-  type: code
-  path_hint: ./
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 5000
 chain:
   consumes_from:
   - algorithmic-trader
@@ -68,6 +78,8 @@ chain:
   - technical-writer
 ------
 # Backend Developer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build production-grade backend services with polyglot expertise across Python (FastAPI), Node.js (Express/Fastify), and Go. This is the internal playbook for FAANG-level backend engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: language selection with tradeoff matrices, API design with framework-specific patterns, authentication and authorization (JWT, OAuth 2.0, RBAC), database integration with ORMs and raw SQL, multi-level caching architecture, asynchronous task processing with idempotency guarantees, structured logging with OpenTelemetry tracing, resilience patterns (circuit breakers, retries, graceful degradation), and comprehensive testing.
 

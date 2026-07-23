@@ -1,17 +1,28 @@
 ---
 name: networking-engineer
-description: "Cloud networking architecture (VPC/VNet/VCN), subnet/CIDR planning, DNS architecture, CDN strategy, load balancing (L4/L7), network security (security groups/NACLs/WAF/DDoS), hybrid/multi-cloud networking (VPN/Direct Connect/ExpressRoute), BGP routing, service mesh (sidecar/ambient/eBPF), API gateway/ingress, Zero Trust (ZTNA), and network observability. Trigger: networking, VPC, DNS, CDN, load balancer, BGP, network architecture, subnet, firewall, VPN, SDN, network security, network design, peering, transit gateway. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI."
+description: >
+  Use when designing cloud network architectures, planning subnet and CIDR layouts,
+  architecting DNS and CDN, configuring load balancers, or implementing network
+  security controls. Handles VPC/VNet/VCN design, hybrid and multi-cloud networking
+  (VPN, Direct Connect, ExpressRoute), BGP routing, service mesh architecture, API
+  gateway and ingress design, and Zero Trust network access. Do NOT use for
+  on-premises-only networking, physical cabling, or ISP procurement.
+license: MIT
+tags:
+- networking
+- vpc
+- dns
+- load-balancing
+- cdn
+- firewall
+- vpn
+- zero-trust
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - networking-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - system-architect
@@ -24,6 +35,8 @@ chain:
     - docker-kubernetes
 ---
 # Networking Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, deploy, and operate cloud-native and hybrid network architectures. This skill covers the full stack: from IP address planning and subnet design through DNS, load balancing, CDN, firewalls, VPNs, and service mesh. Every design considers cost, latency, security, and operational complexity. The goal is a network that developers never think about because it just works — secure by default, fast everywhere, and cheap at scale.
 

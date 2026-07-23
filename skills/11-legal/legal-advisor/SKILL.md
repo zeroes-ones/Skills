@@ -1,21 +1,30 @@
 ---
 name: legal-advisor
-description: Contract review framework, corporate structure decision matrix, IP protection
-  strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source
-  license compliance, fundraising term sheets (SAFE/convertible note/Series Seed),
-  employment law (contractor vs employee, equity), data processing agreements, and
-  ToS/Privacy Policy generation.
+description: >
+  Use when drafting SaaS agreements, reviewing contracts, developing IP protection
+  strategy, evaluating open-source license compliance, structuring fundraising term
+  sheets, or generating terms of service and privacy policies. Handles contract review
+  frameworks, corporate structure guidance, IP strategy (patent, trademark, copyright,
+  trade secret), open-source license compliance, fundraising term sheets (SAFE,
+  convertible note, Series Seed), and employment classification. Do NOT use for
+  regulatory compliance (FDA, HIPAA), privacy law implementation, or security
+  engineering.
+license: MIT
+tags:
+- legal
+- contracts
+- ip
+- open-source
+- fundraising
+- saas
+- terms
+- privacy-policy
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- legal-advisor
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - accessibility-auditor
@@ -42,8 +51,10 @@ chain:
   - people-ops
   - regulatory-specialist
   - treasury-manager
-------
+---
 # Legal Advisor
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.
 

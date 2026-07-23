@@ -1,26 +1,30 @@
 ---
 name: content-policy-manager
-description: Content policy and medical misinformation management for health platforms
-  — medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy
-  theories, miracle cures, anti-vaccine, with severity tiers from life-threatening
-  to low-quality), community guidelines creation (what is/isn't allowed with examples,
-  rationale, cultural adaptations, plain-language versions), policy enforcement framework
-  (first offense warning + education, second offense temporary suspension, third offense
-  permanent removal, emergency bypass for imminent harm), escalation framework (clinical
-  review pathway, legal review triggers, public health authority notification), regulatory
+description: >
+  Use when designing medical misinformation taxonomies, writing community guidelines
+  for health platforms, building enforcement frameworks with escalation pathways, or
+  preparing transparency reports for content moderation. Handles medical misinformation
+  taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures,
+  anti-vaccine, with severity tiers from life-threatening to low-quality), community
+  guidelines creation (what is/isn't allowed with examples, rationale, cultural
+  adaptations, plain-language versions), policy enforcement framework (first offense
+  warning + education, second offense temporary suspension, third offense permanent
+  removal, emergency bypass for imminent harm), escalation framework (clinical review
+  pathway, legal review triggers, public health authority notification), regulatory
   and liability considerations (FDA social media guidance, HIPAA implications, Section
   230, platform liability for medical content), policy-in-practice loop (quarterly
   policy review, community feedback integration, emerging misinformation pattern updates),
   medical expert review board (clinical advisory panel establishment, policy review
   cadence, expert dispute resolution), and transparency reporting (takedown statistics,
-  appeal rates, policy change log, public-facing transparency reports). Triggered
-  by content policy, medical misinformation, community guidelines, health content
-  moderation, policy enforcement, FDA social media, content governance.
+  appeal rates, policy change log, public-facing transparency reports). Do NOT use
+  for trust and safety detection infrastructure, privacy engineering, or clinical
+  content review.
+license: MIT
 author: Sandeep Kumar Penchala
 type: governance
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - content-policy
 - medical-misinformation
@@ -29,13 +33,6 @@ tags:
 - policy-enforcement
 - fda-social-media
 token_budget: 8000
-dependencies:
-  tools: []
-  packages: []
-  permissions: []
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - ai-safety-health-reviewer
@@ -56,6 +53,8 @@ chain:
 ------
 
 # Content Policy Manager / Medical Misinformation Officer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Define, enforce, and evolve content policies for health platforms where the stakes of misinformation are measured in lives, not engagement metrics. This skill covers medical misinformation taxonomy, community guidelines authoring, enforcement frameworks, escalation pathways, regulatory considerations, expert review boards, and transparency reporting. Health content moderation is fundamentally different from general content moderation — a wrong call on a vaccine post can contribute to a public health crisis.
 

@@ -1,20 +1,26 @@
 ---
 name: api-designer
-description: 'REST, GraphQL, and gRPC API design with OpenAPI 3.1, versioning strategies,
-  authentication, rate limiting, error handling, pagination, and SDK generation. Trigger:
-  API design, OpenAPI, REST, GraphQL, gRPC, versioning, rate limiting, pagination,
-  SDK.'
+description: >
+  Use when designing REST, GraphQL, or gRPC APIs, writing OpenAPI 3.1 specifications,
+  defining versioning strategies, or architecting authentication and rate limiting.
+  Handles API lifecycle design, error modeling, pagination strategies, SDK generation,
+  developer portal design, and API security patterns. Do NOT use for implementing APIs,
+  database schema design, or frontend API consumption.
+license: MIT
+tags:
+- api
+- rest
+- graphql
+- grpc
+- openapi
+- versioning
+- sdk
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- api-designer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -33,6 +39,8 @@ chain:
   - technical-writer
 ---
 # API Designer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skill covers full API lifecycle design: specification-first development with OpenAPI 3.1, consistent error modeling, authentication and authorization patterns, rate limiting, pagination strategies, versioning approaches, and developer experience (DX) including SDK generation and documentation.
 

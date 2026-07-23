@@ -1,14 +1,27 @@
 ---
 name: brand-guidelines
-description: Brand architecture, identity system design, logo system, color palette with accessibility validation, typography hierarchy, iconography, imagery, motion design, brand-in-product expression,
-  and brand governance.
+description: >
+  Use when designing brand identity systems, creating logo systems, defining color
+  palettes with accessibility validation, establishing typographic hierarchy, or
+  governing brand consistency at scale. Handles brand architecture, identity system
+  design, design token creation, iconography standards, motion design, imagery
+  direction, and brand-in-product expression. Do NOT use for UI component
+  implementation, marketing campaign execution, or frontend development.
+license: MIT
+tags:
+- design
+- brand
+- identity
+- logo
+- color
+- typography
+- design-tokens
 author: Sandeep Kumar Penchala
 type: design
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- brand-guidelines
+version: 1.1.0
+updated: 2026-07-23
+token_budget: 4000
 chain:
   consumes_from:
   - marketing-manager
@@ -19,12 +32,10 @@ chain:
   - product-marketing-manager
   - ui-ux-designer
   - ux-writer
-token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 ---
 # Brand Guidelines
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 

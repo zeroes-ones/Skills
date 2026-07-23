@@ -1,18 +1,26 @@
 ---
 name: system-architect
-description: System design, architecture decisions, scalability patterns, C4 modeling, ADRs, microservices vs monolith trade-offs, capacity planning, and event-driven architectures. Triggered by system
-  design, architecture, scalability, C4, ADR, microservices, monolith, event-driven, capacity planning.
+description: >
+  Use when designing system architectures, making architecture decisions, modeling
+  with C4, writing ADRs, evaluating microservices vs monolith trade-offs, or planning
+  capacity. Handles scalability patterns, event-driven architecture, deployment
+  topology design, trade-off analysis, capacity planning, and architecture governance.
+  Do NOT use for hands-on coding, detailed API design, or infrastructure provisioning.
+license: MIT
+tags:
+- architecture
+- system-design
+- c4
+- adr
+- scalability
+- microservices
+- event-driven
 author: Sandeep Kumar Penchala
 type: architecture
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- system-architect
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - cto-advisor
@@ -36,6 +44,8 @@ chain:
   - technical-program-manager
 ---
 # System Architect
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 

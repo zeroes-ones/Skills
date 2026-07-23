@@ -1,12 +1,25 @@
 ---
 name: mlops-engineer
-description: >-
-  MLOps Engineer covering model deployment patterns (real-time inference with Triton/vLLM/Ray Serve, batch inference, edge deployment), monitoring and observability (prediction drift via PSI/KS test, feature drift, data quality monitoring, model performance degradation), retraining pipelines (trigger strategies, A/B testing for model updates), feature stores (Feast, Tecton, offline/online serving, point-in-time correctness), experiment tracking (MLflow, Weights & Biases, model registry, lineage tracking), CI/CD for ML (model validation gates, canary deployments, shadow mode, rollback strategies), infrastructure (GPU optimization, model serving frameworks, autoscaling, cold start mitigation), data versioning (DVC, lakeFS, reproducible training pipelines), and cost optimization (spot instances, model compilation, token caching). Triggered by MLOps, model deployment, model monitoring, feature store, experiment tracking, retraining, GPU optimization.
+description: >
+  Use when deploying ML models to production, setting up model monitoring with drift
+  detection, building retraining pipelines, implementing feature stores, or configuring
+  CI/CD for ML. Handles model deployment patterns (real-time inference with Triton/vLLM/Ray
+  Serve, batch inference, edge deployment), monitoring and observability (prediction
+  drift via PSI/KS test, feature drift, data quality monitoring, model performance
+  degradation), retraining pipelines (trigger strategies, A/B testing for model updates),
+  feature stores (Feast, Tecton, offline/online serving, point-in-time correctness),
+  experiment tracking (MLflow, W&B, model registry, lineage tracking), CI/CD for ML
+  (model validation gates, canary deployments, shadow mode, rollback strategies), GPU
+  optimization and autoscaling (cold start mitigation), data versioning (DVC, lakeFS,
+  reproducible training pipelines), and cost optimization (spot instances, model
+  compilation, token caching). Do NOT use for LLM application engineering, model research
+  and training, or general DevOps infrastructure.
+license: MIT
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - mlops
   - model-deployment
@@ -16,9 +29,6 @@ tags:
   - retraining
   - gpu-optimization
 token_budget: 5000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - ml-ai-engineer
@@ -32,6 +42,8 @@ chain:
     - observability-engineer
 ---
 # MLOps Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Production machine learning operations — from model deployment through continuous monitoring and automated retraining. Covers serving infrastructure (Triton, vLLM, Ray Serve), observability with drift detection (PSI, KS test), retraining pipelines with A/B testing, feature stores (Feast, Tecton), experiment tracking (MLflow, W&B), CI/CD for ML with canary deployments and rollback strategies, GPU optimization and autoscaling, data versioning with DVC and lakeFS, and cost optimization for training and inference workloads.
 

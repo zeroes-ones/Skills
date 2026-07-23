@@ -1,28 +1,41 @@
 ---
 name: finops-engineer
-description: FinOps, cloud cost optimization, AWS billing, Azure cost management, GCP billing, cloud economics, cost governance, resource optimization, waste reduction, reserved instances, savings plans, unit economics. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: >
+  Use when analyzing cloud spending, optimizing resource utilization, planning
+  commitment discounts (Reserved Instances and Savings Plans), implementing cost
+  governance, or building showback and chargeback models. Handles multi-cloud cost
+  analysis, right-sizing recommendations, waste elimination, tagging strategy,
+  Kubernetes cost optimization, spot instance strategy, and unit economics. Do NOT
+  use for financial planning and analysis, accounting, or general FP&A work.
+license: MIT
+tags:
+- finops
+- cost
+- cloud
+- optimization
+- governance
+- savings
+- aws
+- azure
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - finops-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
-    - cloud-architect
-    - devops-engineer
-    - fp-and-a-analyst
+  - cloud-architect
+  - devops-engineer
+  - fp-and-a-analyst
   feeds_into:
-    - cloud-architect
-    - vp-engineering
-    - fp-and-a-analyst
-output:
-  type: "code"
-  path_hint: "./"
+  - cloud-architect
+  - vp-engineering
+  - fp-and-a-analyst
 ---
 # FinOps Engineer / Cloud Cost Optimization
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Drive cloud financial accountability through the FinOps lifecycle: Inform (visibility, allocation),
 Optimize (right-sizing, commitment discounts, waste elimination), and Operate (governance, unit

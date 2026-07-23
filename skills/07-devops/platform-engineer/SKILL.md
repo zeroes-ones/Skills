@@ -1,14 +1,28 @@
 ---
 name: platform-engineer
-description: Internal Developer Platform (IDP) design, golden paths, Backstage, self-service infrastructure, developer portals, scaffolding, developer experience (DX), platform as product. Works with Claude
-  Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: >
+  Use when designing Internal Developer Platforms, creating golden path templates,
+  implementing developer portals (Backstage, Port), building self-service
+  infrastructure modules, or improving developer experience through scaffolding and
+  automation. Handles IDP architecture, golden path design, self-service IaC,
+  developer portal setup, scaffolding toolchains, ephemeral environments, and
+  platform-as-product operating models. Do NOT use for cloud architecture design,
+  CI/CD pipeline authoring, or Kubernetes cluster operations.
+license: MIT
+tags:
+- platform
+- idp
+- backstage
+- developer-experience
+- self-service
+- scaffolding
+- golden-paths
+- dx
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- platform-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3525
 chain:
   consumes_from:
@@ -21,11 +35,10 @@ chain:
   - devops-engineer
   - frontend-developer
   - observability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Platform Engineer / Developer Experience (DX)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and operate an Internal Developer Platform that transforms infrastructure into a product.
 Covers IDP architecture, golden path templates, self-service IaC modules, developer portal

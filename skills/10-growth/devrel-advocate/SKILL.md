@@ -1,19 +1,26 @@
 ---
 name: devrel-advocate
-description: 'Developer relations strategy, community building, content creation (blogs/tutorials/videos/talks), sample apps, conference speaking, hackathon design, developer onboarding (TTC), developer
-  NPS, champion programs, and API evangelism. Trigger: DevRel, developer relations, developer advocate, developer evangelism, community building, developer community, open source community, API evangelist,
-  technical community manager. Works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.'
+description: >
+  Use when building developer relations strategy, creating developer content (tutorials/samples/talks),
+  designing hackathons, running champion programs, optimizing developer onboarding (TTC), measuring
+  developer NPS, or evangelizing APIs. Handles community strategy, content creation at scale, developer
+  feedback loops, and metrics that connect DevRel to business outcomes. Do NOT use for technical
+  documentation authoring, product management, paid marketing campaigns, or internal developer tools.
+license: MIT
+tags:
+- devrel
+- developer-relations
+- community
+- advocacy
+- hackathons
+- developer-content
+- api-evangelism
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- devrel-advocate
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -27,7 +34,10 @@ chain:
   - growth-engineer
   - marketing-manager
 ---
+
 # Developer Relations / Developer Advocate
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and execute developer relations programs that turn developers into champions, products into platforms, and documentation into onboarding. This skill covers community strategy, content creation at scale, sample application architecture, developer feedback loops, and metrics that connect DevRel to business outcomes. Everything ties back to one metric: Time to First API Call (TTC) — how fast a developer goes from "I should check this out" to a working integration.
 

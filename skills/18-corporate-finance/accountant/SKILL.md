@@ -1,12 +1,13 @@
 ---
 name: accountant
-description: Accounting & bookkeeping for startups — chart of accounts, ASC 606 revenue recognition, month-end close, payroll accounting, equity accounting (ASC 718, 409A), AP/AR, sales tax compliance,
-  audit preparation, and accounting tech stack. Use when setting up accounting for a startup, closing the books, or preparing for an audit.
-author: Sandeep Kumar Penchala
-type: corporate-finance
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when setting up accounting for a startup, closing the books, preparing for an audit,
+  implementing ASC 606 revenue recognition, or managing equity accounting under ASC 718.
+  Handles chart of accounts design, month-end close processes, payroll accounting, AP/AR
+  management, sales tax compliance, 409A valuations, and accounting tech stack selection.
+  Do NOT use for financial modeling and forecasting, fundraising strategy, treasury and
+  cash management, or tax strategy and planning.
+license: MIT
 tags:
 - accounting
 - bookkeeping
@@ -16,10 +17,12 @@ tags:
 - audit
 - payroll
 - corporate-finance
+author: Sandeep Kumar Penchala
+type: corporate-finance
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3510
-output:
-  type: spreadsheet
-  path_hint: accounting/
 chain:
   consumes_from:
   - compliance-officer
@@ -36,6 +39,8 @@ chain:
 ---
 
 # Accountant — Startup Accounting & Bookkeeping
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 GAAP-compliant accounting for venture-backed startups. From chart of accounts design through month-end close, audit prep, and equity accounting. Think like a controller who's survived their first Big 4 audit — every entry must be supportable, every reconciliation must tie, and nothing ships without review.
 

@@ -1,14 +1,26 @@
 ---
 name: ml-ai-engineer
-description: ML lifecycle, model selection, training, MLOps, RAG, LLM patterns, model serving, evaluation, monitoring, and responsible AI. Triggered by ML, machine learning, deep learning, LLM, RAG, embeddings,
-  fine-tuning, MLOps, model, AI safety.
+description: >
+  Use when training ML models, building RAG pipelines, fine-tuning LLMs, deploying models to production,
+  designing MLOps infrastructure, monitoring drift, or implementing responsible AI guardrails. Handles
+  model selection, training pipelines, LLM integration patterns, serving at scale, evaluation frameworks,
+  and AI safety. Do NOT use for statistical hypothesis testing, data pipeline construction, BI dashboard
+  creation, or pure data engineering.
+license: MIT
+tags:
+- machine-learning
+- llm
+- rag
+- mlops
+- model-serving
+- fine-tuning
+- embeddings
+- ai-safety
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- ml-ai-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 5000
 chain:
   consumes_from:
@@ -22,11 +34,11 @@ chain:
   - mlops-engineer
   - quantitative-analyst
   - trust-safety-engineer
-output:
-  type: code
-  path_hint: ./
 ---
+
 # ML & AI Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end machine learning and AI engineering — from problem framing through production monitoring.
 Covers the full ML lifecycle, model selection, data preparation, training, MLOps infrastructure,

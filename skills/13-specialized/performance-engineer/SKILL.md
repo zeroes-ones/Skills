@@ -1,18 +1,28 @@
 ---
 name: performance-engineer
-description: Performance profiling (flame graphs, CPU/memory/I/O), load testing (k6/wrk/Artillery), frontend optimization (Core Web Vitals, bundle analysis), database optimization, caching strategies, performance
-  budgets, SLOs.
+description: >
+  Use when profiling application performance, diagnosing bottlenecks, running load tests,
+  or establishing performance budgets and SLOs. Handles performance profiling (flame graphs,
+  CPU/memory/I/O analysis), load testing (k6, wrk, Artillery), frontend optimization (Core Web
+  Vitals, bundle analysis), database query optimization, caching strategies, and performance
+  budget enforcement. Do NOT use for infrastructure provisioning, CI/CD optimization, or security
+  auditing.
+license: MIT
+tags:
+  - performance-engineer
+  - profiling
+  - flame-graphs
+  - load-testing
+  - k6
+  - core-web-vitals
+  - caching
+  - optimization
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- performance-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -26,6 +36,8 @@ chain:
   - site-reliability-engineer
 ---
 # Performance Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 End-to-end performance engineering framework covering profiling, load testing, bottleneck diagnosis, and optimization across the full stack — frontend, backend, database, and infrastructure.
 

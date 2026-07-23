@@ -1,19 +1,25 @@
 ---
 name: embedded-engineer
-description: 'Embedded systems engineering: MCU/MPU selection (ARM Cortex-M/R/A, RISC-V, ESP32, nRF, STM32), RTOS configuration (FreeRTOS, Zephyr, ThreadX), peripheral interfaces (SPI, I2C, UART, CAN, USB),
-  memory-constrained patterns, power management, bootloader design, HIL testing, real-time constraints, and safety-critical design. Trigger: MCU, RTOS, bare-metal, SPI, I2C, FreeRTOS, Zephyr, bootloader,
-  JTAG, SWD, watchdog, BSP, power profile.'
-author: Sandeep Kumar Penchala
-type: hardware
-status: stable
-version: 1.0.0
-updated: 2026-07-21
+description: >
+  Use when selecting MCU/MPU architectures, configuring RTOS, designing peripheral
+  interfaces, optimizing power profiles, implementing bootloaders, or setting up HIL
+  testing. Handles ARM Cortex-M/R/A, RISC-V, ESP32, nRF, and STM32 platforms with
+  FreeRTOS, Zephyr, and ThreadX covering SPI, I2C, UART, CAN, USB interfaces,
+  memory-constrained patterns, power management, and safety-critical design. Do NOT
+  use for PCB layout and hardware schematics, HDL/FPGA design, firmware build system
+  configuration, or cloud connectivity implementation.
+license: MIT
 tags:
 - embedded-engineer
 - hardware
 - mcu
 - rtos
 - firmware
+author: Sandeep Kumar Penchala
+type: hardware
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3500
 dependencies:
   tools:
@@ -26,9 +32,6 @@ dependencies:
   - python3
   - pyserial
   permissions: []
-output:
-  type: code+config
-  path_hint: firmware/
 chain:
   consumes_from:
   - backend-developer
@@ -43,6 +46,8 @@ chain:
   - firmware-developer
 ---
 # Embedded Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, implement, and validate embedded systems from silicon selection through RTOS architecture, peripheral bring-up, power optimization, and hardware-in-the-loop testing. Hardware failures cost $50K per PCB respin and 6 weeks of schedule. There is no `git revert` for a burned board.
 

@@ -1,12 +1,22 @@
 ---
 name: vp-engineering
-description: VP of Engineering executive leadership covering engineering strategy, organizational architecture, executive team participation, engineering culture at scale, board communication, DORA metrics,
-  budget and headcount planning, M&A technical due diligence, and engineering brand building.
+description: >
+  Use when setting engineering strategy for 50-500+ engineers, designing organizational
+  architecture, preparing board communications, planning multi-year budgets and
+  headcount, conducting M&A technical due diligence, or building engineering brand
+  and culture at scale. Handles engineering strategy and multi-year vision,
+  organizational architecture and team topology at scale, executive team participation
+  and board communication, DORA metrics and engineering dashboards, budget and headcount
+  planning, M&A technical due diligence, engineering culture at scale, and engineering
+  brand building (blog, conference, open source, recruiting brand). Do NOT use for
+  single-team management, individual contributor technical leadership, or CTO-level
+  technology vision.
+license: MIT
 author: Sandeep Kumar Penchala
 type: engineering-leadership
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - vp-engineering
 - engineering-leadership
@@ -17,9 +27,6 @@ tags:
 - board-communication
 - dora-metrics
 token_budget: 3780
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - ceo-strategist
@@ -36,6 +43,8 @@ chain:
 ---
 
 # VP of Engineering
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 > Executive leader of the entire engineering organization. Reports to CEO. Accountable for engineering strategy, culture, delivery, and business impact across 50-500+ engineers.
 

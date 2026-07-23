@@ -1,22 +1,41 @@
 ---
 name: seo-specialist
-description: Technical SEO audits, structured data (JSON-LD), Core Web Vitals optimization, crawl budget management, E-E-A-T content strategy, international SEO, JavaScript SEO, link building, schema markup, algorithm update response, rank tracking. Triggered by SEO audit, structured data, Core Web Vitals, crawl budget, hreflang, JSON-LD, schema markup, organic traffic, ranking drop, JavaScript SEO.
+description: >
+  Use when performing technical SEO audits, deploying structured data (JSON-LD/schema), optimizing Core Web
+  Vitals, managing crawl budgets, defining E-E-A-T content strategy, configuring international SEO (hreflang),
+  diagnosing JavaScript SEO issues, or responding to algorithm updates. Handles site architecture, indexing
+  strategy, link building, rank tracking, and search visibility optimization. Do NOT use for paid search (SEM),
+  social media strategy, email marketing, or conversion rate optimization.
+license: MIT
+tags:
+- seo
+- technical-seo
+- structured-data
+- core-web-vitals
+- crawl-budget
+- javascript-seo
+- json-ld
+- hreflang
 author: Sandeep Kumar Penchala
 type: growth
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - seo-specialist
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
-  consumes_from: ["content-strategist", "frontend-developer", "analytics-engineer"]
-  feeds_into: ["content-strategist", "growth-engineer", "marketing-manager"]
+  consumes_from:
+  - content-strategist
+  - frontend-developer
+  - analytics-engineer
+  feeds_into:
+  - content-strategist
+  - growth-engineer
+  - marketing-manager
 ---
+
 # SEO Specialist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Expert field manual for technical SEO strategy, audit execution, and search visibility optimization.
 Covers the full lifecycle: crawl budget management, structured data deployment, Core Web Vitals

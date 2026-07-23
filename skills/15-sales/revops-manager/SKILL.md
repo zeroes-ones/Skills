@@ -1,44 +1,28 @@
 ---
-<!-- DEEP: 10+min -->
-
-<!-- DEEP: 10+min -->
-
-<!-- DEEP: 10+min -->
-
-<!-- DEEP: 10+min -->
-
-<!-- DEEP: 10+min -->
-
-<!-- DEEP: 10+min -->
-
 name: revops-manager
-description: Revenue Operations leadership — pipeline analytics with funnel stage conversion rates, velocity metrics, pipeline coverage ratios, cohort analysis, and forecasting models CRM strategy for HubSpot/Salesforce
-  architecture including custom objects for health-tech (patient accounts, provider accounts, pharma partners), automation rules, and data hygiene territory planning with account segmentation (geographic,
-  therapeutic area, HCP vs patient), territory assignment logic, capacity planning, and quota setting attribution modeling with first-touch, last-touch, multi-touch, and custom weighting for health-tech
-  buying cycles covering marketing-sourced vs sales-sourced pipeline compensation design including commission structures, SPIFF programs, accelerator tiers, clawback policies, and plan modeling and rollouts
-  tech stack integration with CRM to marketing automation to customer success platform to billing, data flow mapping, and integration health monitoring revenue forecasting across weekly, monthly, and quarterly
-  cadences with pipeline inspection, commit vs best-case methodology, risk flagging, and forecast accuracy tracking deal desk operations covering quoting process, discount approval workflows, contract review
-  routing, and non-standard terms escalation revenue analytics including ARR and MRR tracking, NRR and GRR, LTV:CAC by segment, logo vs expansion split, and churn and contraction analysis sales process
-  optimization with stage definition, exit criteria, deal inspection, and win/loss analysis integration. Use when designing revenue operations strategy, building forecasting models, optimizing CRM architecture,
-  designing compensation plans, or standing up a deal desk function.
+description: >
+  Use when designing revenue operations strategy, architecting CRM systems, building forecasting
+  models, or designing compensation plans. Handles pipeline analytics (funnel conversion, velocity,
+  coverage ratios), CRM architecture (HubSpot/Salesforce), territory planning, attribution
+  modeling, compensation design, revenue forecasting, deal desk operations, and tech stack
+  integration. Do NOT use for financial accounting, FP&A budget planning, or direct sales
+  execution.
+license: MIT
+tags:
+  - revops-manager
+  - revenue-operations
+  - forecasting
+  - crm
+  - pipeline-analytics
+  - compensation
+  - territory-planning
+  - deal-desk
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- revops
-- revenue-operations
-- pipeline-analytics
-- crm-strategy
-- attribution-modeling
-- compensation-design
-- forecasting
-- sales-operations
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - account-manager
@@ -57,6 +41,8 @@ chain:
   - sales-engineer
 ---
 # RevOps Manager (Revenue Operations)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the revenue engine end-to-end: architect the CRM, design the forecasting model, build the territory plan, model compensation, run the deal desk, and connect every system in the tech stack so revenue moves predictably from pipeline to cash.
 

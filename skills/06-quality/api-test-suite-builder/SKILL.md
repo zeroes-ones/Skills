@@ -1,17 +1,27 @@
 ---
 name: api-test-suite-builder
-description: Automated API test suite generation — route detection across Next.js, Express, FastAPI, Django REST, comprehensive test matrices (auth, validation, error codes, pagination, rate limiting), and ready-to-run test files for Vitest+Supertest or Pytest+httpx. Use when generating API tests, creating integration test suites, building contract tests, or ensuring every endpoint has happy-path + error + edge-case coverage.
+description: >
+  Use when generating automated API test suites, building integration test coverage
+  for REST endpoints, creating contract tests from OpenAPI specs, or ensuring
+  comprehensive test matrices across auth, validation, error codes, and pagination.
+  Handles route detection across frameworks, batch test generation, input validation
+  matrices, and mutation testing. Do NOT use for UI/e2e testing, performance or load
+  testing, security penetration testing, or manual QA test case writing.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- api-test-suite-builder
 - api-testing
 - test-generation
 - integration-testing
 - contract-testing
+- vitest
+- pytest
+- openapi
+token_budget: 3800
 chain:
   consumes_from:
   - api-designer
@@ -23,12 +33,10 @@ chain:
   - ci-cd-builder
   - code-reviewer
   - qa-engineer
-token_budget: 3800
-output:
-  type: code
-  path_hint: tests/
 ---
 # API Test Suite Builder
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Automatically scan API route definitions and generate comprehensive test suites covering auth, input validation, error codes, pagination, file uploads, and rate limiting. Outputs ready-to-run test files for Vitest+Supertest (Node.js) or Pytest+httpx (Python).
 

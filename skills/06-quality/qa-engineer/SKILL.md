@@ -1,20 +1,28 @@
 ---
 name: qa-engineer
-description: 'Test pyramid strategy, unit/integration/e2e testing with Playwright
-  and Cypress, API testing, performance testing with k6, test automation frameworks,
-  coverage goals, and quality metrics. Trigger: QA, quality assurance, testing, test
-  strategy, Playwright, Cypress, k6, test automation, coverage.'
+description: >
+  Use when designing test strategies, implementing test automation frameworks,
+  configuring Playwright or Cypress for e2e testing, setting up performance testing
+  with k6, or establishing coverage goals and quality metrics. Handles test pyramid
+  design, API contract testing, test data management, and CI integration for
+  continuous quality. Do NOT use for accessibility-specific testing, security
+  auditing, code review, or production incident response.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- qa-engineer
+- testing
+- playwright
+- cypress
+- k6
+- test-automation
+- coverage
+- quality
+- e2e
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - accessibility-auditor
@@ -47,6 +55,8 @@ chain:
   - tdd-guide
 ---
 # QA Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design and implement comprehensive test strategies following the test pyramid model. This skill covers the full testing lifecycle: unit testing with Vitest/Jest/pytest, integration testing with real databases and services, end-to-end testing with Playwright and Cypress, API contract testing, performance and load testing with k6, test data management, coverage enforcement, and CI integration for continuous quality.
 

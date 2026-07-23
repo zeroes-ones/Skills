@@ -1,19 +1,28 @@
 ---
 name: demand-generation
-description: Paid acquisition (Google/LinkedIn/Meta ads), email marketing automation, lead scoring & nurturing, MQL→SQL handoff, attribution modeling (first-touch, multi-touch, U-shaped), CAC optimization, landing page optimization & CRO, webinar programs, ABM for enterprise, marketing ops (HubSpot/Marketo/Pardot).
+description: >
+  Use when building paid acquisition campaigns, designing lead scoring models, optimizing
+  conversion rates, or implementing ABM programs. Handles paid acquisition (Google, LinkedIn,
+  Meta ads), email marketing automation, lead scoring and nurturing, MQL to SQL handoff,
+  attribution modeling (first-touch, multi-touch, U-shaped), CAC optimization, landing page CRO,
+  webinar programs, ABM for enterprise, and marketing operations (HubSpot, Marketo, Pardot).
+  Do NOT use for product positioning, brand strategy, or content creation.
+license: MIT
+tags:
+  - demand-generation
+  - paid-acquisition
+  - lead-scoring
+  - attribution
+  - abm
+  - cro
+  - email-marketing
+  - hubspot
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
-tags:
-  - demand-generation
-  - demand-gen
-  - growth-marketing
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - marketing-manager
@@ -27,6 +36,8 @@ chain:
     - content-strategist
 ---
 # Demand Generation (Demand Gen / Growth Marketing)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the pipeline engine: paid acquisition across Google/LinkedIn/Meta, email marketing automation, lead scoring, MQL→SQL handoff, attribution modeling, CAC optimization, landing page CRO, webinar programs, ABM for enterprise, and marketing operations (HubSpot/Marketo/Pardot).
 

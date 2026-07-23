@@ -1,20 +1,27 @@
 ---
 name: mobile-developer
-description: 'Cross-platform mobile development with React Native and Flutter, navigation
-  patterns, state management, offline-first architecture, push notifications, platform-specific
-  patterns, and app store deployment. Trigger: mobile, React Native, Flutter, navigation,
-  offline-first, push notifications, app store, iOS, Android.'
+description: >
+  Use when building cross-platform mobile applications with React Native or Flutter,
+  implementing offline-first architecture, configuring push notifications, or preparing
+  app store deployments. Handles navigation patterns, state management, platform-specific
+  design systems, biometric authentication, and deep linking. Do NOT use for web
+  frontend development, backend API design, DevOps infrastructure, or desktop
+  application development.
 author: Sandeep Kumar Penchala
+license: MIT
 type: development
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- mobile-developer
+- react-native
+- flutter
+- ios
+- android
+- offline-first
+- push-notifications
+- app-store
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - accessibility-testing
@@ -30,6 +37,8 @@ chain:
   - translation-manager
 ---
 # Mobile Developer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build production mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
 

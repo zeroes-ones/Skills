@@ -1,20 +1,27 @@
 ---
 name: sales-engineer
-description: Technical demos, proof-of-concept design, RFP responses, technical qualification with MEDDIC/BANT/SPICED frameworks, competitive positioning, objection handling, demo environment management,
-  and technical win rate optimization. Use when preparing technical sales engagements.
+description: >
+  Use when preparing technical sales engagements, designing proofs-of-concept, conducting
+  technical discovery, or building demo environments. Handles technical demos, proof-of-concept
+  design, RFP responses, technical qualification (MEDDIC, BANT, SPICED), competitive positioning,
+  objection handling, demo environment management, and technical win rate optimization. Do NOT
+  use for post-sale implementation, customer support, or product roadmap definition.
+license: MIT
+tags:
+  - sales-engineer
+  - presales
+  - demos
+  - proof-of-concept
+  - rfps
+  - meddic
+  - technical-selling
+  - solutions-engineer
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- sales-engineer
-- solutions-engineer
-- presales
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3800
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - backend-developer
@@ -34,6 +41,8 @@ chain:
   - bizdev-manager
 ---
 # Sales Engineer (Solutions Engineer / Presales)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the technical side of the sales cycle: discover with MEDDIC/BANT/SPICED, design proofs-of-concept that close, deliver demos that map to pain, write RFP responses that score, and build demo environments that never fail during a call.
 

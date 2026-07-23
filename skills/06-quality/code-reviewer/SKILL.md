@@ -1,19 +1,26 @@
 ---
 name: code-reviewer
-description: 'Six-dimension code review covering security, performance, quality, error
-  handling, testing, and documentation with severity grading and actionable, specific
-  feedback. Trigger: code review, review code, CR, pull request review, review this.'
+description: >
+  Use when performing structured code reviews on pull requests, reviewing code for
+  security vulnerabilities, evaluating performance implications, or assessing error
+  handling and test coverage. Handles six-dimension reviews covering security,
+  performance, quality, error handling, testing, and documentation with severity-graded
+  actionable feedback. Do NOT use for automated linting, CI/CD pipeline configuration,
+  security penetration testing, or writing new code.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2026-07-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
-- code-reviewer
+- code-review
+- security
+- performance
+- quality
+- static-analysis
+- pull-request
 token_budget: 3000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - api-test-suite-builder
@@ -30,6 +37,8 @@ chain:
   - tdd-guide
 ---
 # Code Reviewer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Perform rigorous, structured code reviews across six dimensions: security, performance, code quality, error handling, testing, and documentation. Each finding is graded by severity (Critical, High, Medium, Low, Info) with specific, actionable recommendations. This skill goes beyond linting — it identifies logic errors, architectural concerns, security vulnerabilities, performance bottlenecks, and test gaps that automated tools miss.
 

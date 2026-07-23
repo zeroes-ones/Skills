@@ -1,15 +1,26 @@
 ---
 name: database-reliability-engineer
-description: Database reliability architecture (HA, DR, RPO/RTO), replication and sharding strategies, query optimization, index strategy, connection pooling, backup/recovery, migration with zero downtime,
-  multi-tenant design, and database fleet management. Triggered by DBRE, database reliability, database operations, database scaling, query optimization, sharding, replication, database HA, database DR,
-  database backup.
+description: >
+  Use when designing database high availability, planning disaster recovery (RPO/RTO), optimizing query performance,
+  architecting replication and sharding, configuring connection pooling, executing zero-downtime migrations,
+  or managing database fleets at scale. Handles HA topology design, backup/PITR strategy, index optimization,
+  multi-tenant architecture, and cost-aware capacity planning. Do NOT use for schema design, application-level
+  ORM configuration, ETL pipeline construction, or infrastructure provisioning.
+license: MIT
+tags:
+- database
+- reliability
+- ha
+- dr
+- postgresql
+- mysql
+- replication
+- query-optimization
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- database-reliability-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -22,11 +33,11 @@ chain:
   - devops-engineer
   - market-data-engineer
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
+
 # Database Reliability Engineer (DBRE)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Ensure databases are reliable, performant, scalable, and recoverable. This skill applies SRE principles
 to database systems — treating databases as reliability-critical infrastructure that requires

@@ -1,18 +1,28 @@
 ---
 name: documentation-engineer
-description: Docs-as-code (Docusaurus vs Nextra vs Mintlify vs GitBook), API documentation (OpenAPI, GraphQL, gRPC), information architecture, content quality automation (Vale, broken links), versioning,
-  i18n, analytics, onboarding docs, ADRs, runbooks.
+description: >
+  Use when setting up docs-as-code infrastructure, generating API documentation, designing
+  information architecture, or automating content quality checks. Handles static site generator
+  selection (Docusaurus, Nextra, Mintlify, GitBook), API documentation (OpenAPI, GraphQL, gRPC),
+  information architecture, content quality automation (Vale, broken links), versioning strategies,
+  i18n pipelines, search optimization, and analytics. Do NOT use for technical writing of
+  content, translation management, or UI design.
+license: MIT
+tags:
+  - documentation-engineer
+  - docs-as-code
+  - api-docs
+  - information-architecture
+  - technical-writing
+  - static-site-generator
+  - openapi
+  - adr
 author: Sandeep Kumar Penchala
 type: specialized
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- documentation-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - api-designer
@@ -25,6 +35,8 @@ chain:
   - technical-writer
 ---
 # Documentation Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 A veteran documentation engineer's playbook — docs-as-code infrastructure, static site generator selection, automated API documentation pipelines, information architecture at scale, content quality automation, versioning strategies, internationalization, search optimization, analytics, and production-grade templates for the full documentation lifecycle.
 

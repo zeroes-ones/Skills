@@ -1,21 +1,26 @@
 ---
 name: customer-success-manager
-description: "Customer Success Manager: design customer lifecycle (onboarding→adoption→value→expansion→advocacy), build health scoring models, prepare QBRs, predict churn with intervention playbooks, identify expansion revenue, optimize time-to-first-value, and run voice of customer programs. Use for health score design, QBR prep, churn intervention, onboarding optimization, NRR/GRR tracking. [KEYWORDS: customer success, CSM, health score, QBR, churn prediction, NRR, GRR, onboarding, VoC, customer lifecycle]"
-author: Sandeep Kumar Penchala
-type: customer-success
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when designing customer health score models, preparing QBRs, predicting and preventing
+  churn, optimizing time-to-first-value, identifying expansion opportunities, or running
+  voice-of-customer programs. Handles the full post-sale customer lifecycle from onboarding
+  through advocacy with health scoring, churn intervention playbooks, adoption monitoring,
+  NRR/GRR tracking, and customer journey mapping. Do NOT use for commercial renewal
+  negotiations, new business development, support ticket triage, or product roadmap
+  decisions.
+license: MIT
 tags:
   - customer-success-manager
   - churn-prevention
   - health-scoring
   - qbr
   - customer-onboarding
+author: Sandeep Kumar Penchala
+type: customer-success
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3480
-output:
-  type: "document"
-  path_hint: "./"
 chain:
   consumes_from:
     - sales-engineer
@@ -28,6 +33,8 @@ chain:
     - revops-manager
 ---
 # Customer Success Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own the post-sale customer lifecycle: onboard customers to first value, monitor health to predict and prevent churn, drive expansions through adoption insights, and turn successful customers into advocates. The CSM is the customer's internal champion — accountable for Net Revenue Retention (NRR), Gross Revenue Retention (GRR), and logo retention.
 

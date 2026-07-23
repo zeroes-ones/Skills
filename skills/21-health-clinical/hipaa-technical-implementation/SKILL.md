@@ -1,11 +1,20 @@
 ---
 name: hipaa-technical-implementation
-description: HIPAA technical implementation — BAA templates, PHI audit table schemas, encryption at rest/in transit patterns, access logging architectures, data deletion cascades, breach notification pipelines, and minimum necessary data access patterns. Use when implementing HIPAA-compliant infrastructure, setting up PHI audit trails, signing BAAs with sub-processors, or building patient data deletion workflows.
+description: >
+  Use when implementing HIPAA-compliant technical infrastructure, designing PHI
+  audit trail schemas, configuring encryption for ePHI at rest and in transit,
+  building breach notification pipelines, or managing BAA workflows with
+  sub-processors. Handles PHI access logging architectures, data deletion
+  cascades, minimum necessary access patterns, and HIPAA Security Rule
+  technical controls. Do NOT use for GDPR compliance, general security
+  hardening unrelated to PHI, HIPAA policy/legal analysis, or non-healthcare
+  data protection.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - hipaa-technical-implementation
 - hipaa
@@ -29,11 +38,10 @@ chain:
   - legal-advisor
   - security-engineer
 token_budget: 4200
-output:
-  type: code
-  path_hint: infrastructure/
 ---
 # HIPAA Technical Implementation
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Concrete implementation patterns for HIPAA compliance: PHI audit table schemas, encryption configurations, BAA management, breach notification pipelines, and patient data deletion workflows. This is the code-level companion to `compliance-officer`'s regulatory framework.
 

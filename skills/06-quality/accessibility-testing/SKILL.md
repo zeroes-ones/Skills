@@ -1,31 +1,28 @@
 ---
 name: accessibility-testing
-description: Automated accessibility testing in CI/CD pipelines — axe-core integration
-  (unit tests, e2e, component tests), pa11y and Lighthouse CI for page-level audits,
-  HTML CodeSniffer for continuous scanning, automated screen reader testing patterns,
-  visual regression testing for accessibility (color contrast diffs, focus ring visibility),
-  accessibility linting (eslint-plugin-jsx-a11y, stylelint-a11y, Android Lint accessibility
-  checks, SwiftLint a11y rules), CI/CD quality gates with WCAG 2.2 AA compliance thresholds,
-  accessibility monitoring and regression detection, test strategy across the testing
-  pyramid (static → unit → integration → e2e), and accessibility score dashboards.
-  Use when implementing automated a11y testing, setting up CI/CD accessibility gates,
-  or building an accessibility monitoring system.
+description: >
+  Use when implementing automated accessibility testing in CI/CD pipelines, setting
+  up WCAG 2.2 AA compliance gates, building accessibility monitoring dashboards, or
+  integrating axe-core across test layers. Handles automated screen reader testing,
+  visual regression for accessibility, accessibility linting, and test strategy
+  across the testing pyramid. Do NOT use for manual accessibility audits, general QA
+  strategy without a11y focus, or UI design system creation.
 author: Sandeep Kumar Penchala
+license: MIT
 type: quality
 status: stable
-version: 1.0.0
-updated: 2027-01-21
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - accessibility
 - a11y
-- testing
-- ci-cd
 - wcag
-- automation
+- axe-core
+- ci-cd
+- testing
+- lighthouse
+- pa11y
 token_budget: 3500
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - accessibility-auditor
@@ -39,6 +36,8 @@ chain:
   - qa-engineer
 ---
 # Accessibility Testing
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Build automated accessibility testing into every layer of the CI/CD pipeline — catch violations at lint time, component test time, e2e test time, and in production monitoring before users do.
 

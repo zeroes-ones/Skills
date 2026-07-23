@@ -1,14 +1,28 @@
 ---
 name: release-manager
-description: Release management, release train, deployment calendar, go/no-go, release coordination, version management, launch readiness, rollback, canary deployment, feature flags. Works with Claude Code,
-  Copilot CLI, Cursor, OpenClaw, Gemini CLI.
+description: >
+  Use when planning release trains, coordinating deployment schedules, facilitating
+  go/no-go decisions, managing feature flag rollouts, planning rollbacks, or
+  automating release notes and changelogs. Handles release train design, deployment
+  calendar coordination, go/no-go decision frameworks, feature flag management,
+  rollback planning, semantic versioning, and automated release notes generation.
+  Do NOT use for CI/CD pipeline implementation, infrastructure provisioning, or
+  incident response.
+license: MIT
+tags:
+- release
+- deployment
+- go-no-go
+- feature-flags
+- rollback
+- versioning
+- changelog
+- coordination
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- release-manager
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -21,11 +35,10 @@ chain:
   - devops-engineer
   - project-manager
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
 ---
 # Release Manager
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Orchestrate the safe, predictable delivery of software to production. Design release trains,
 facilitate go/no-go decisions, manage deployment calendars across teams, coordinate rollbacks,

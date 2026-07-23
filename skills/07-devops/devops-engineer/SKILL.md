@@ -1,16 +1,28 @@
 ---
 name: devops-engineer
-description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns,
-  secret management, service mesh, progressive delivery, cost optimization, and disaster
-  recovery. Triggered by terraform, pulumi, ansible, infrastructure, platform, deployment,
-  blue-green, canary, secrets, service mesh, DR, FinOps.
+description: >
+  Use when implementing Infrastructure as Code, designing GitOps workflows, managing
+  secrets and configuration, planning disaster recovery, or automating deployment
+  pipelines. Handles Terraform and Pulumi IaC patterns, GitOps with Argo CD, secret
+  management (Vault, external-secrets), progressive delivery (canary, blue-green,
+  feature flags), cost optimization, and disaster recovery planning. Do NOT use for
+  cloud architecture design, CI/CD pipeline authoring, Kubernetes manifests, or
+  observability instrumentation.
+license: MIT
+tags:
+- devops
+- iac
+- terraform
+- gitops
+- deployment
+- secrets
+- disaster-recovery
+- finops
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- devops-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -47,11 +59,10 @@ chain:
   - security-engineer
   - security-reviewer
   - site-reliability-engineer
-output:
-  type: code
-  path_hint: ./
-------
+---
 # DevOps Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design, automate, and operate resilient multi-cloud infrastructure and delivery pipelines. This skill
 covers the full lifecycle: Infrastructure as Code (Terraform/Pulumi patterns), GitOps with Argo CD,

@@ -1,11 +1,13 @@
 ---
 name: hardware-architect
-description: Hardware architecture design & electronic system-level decisions — SoC/microcontroller selection (ARM Cortex, RISC-V, FPGA, ASIC), memory architecture (SRAM, DRAM, Flash, eMMC), power tree design (PMIC, LDO, buck/boost), bus architecture (AMBA, AXI, AHB, APB), PCB stackup & signal integrity, thermal management, EMC/EMI compliance, IP selection & licensing. Use when choosing processors, designing hardware architecture, making PCB stackup decisions, or evaluating silicon tradeoffs for an embedded/IoT product.
-author: Sandeep Kumar Penchala
-type: hardware
-status: stable
-version: "1.0.0"
-updated: 2026-07-21
+description: >
+  Use when choosing processors and SoCs, designing memory architectures, planning power
+  trees, making PCB stackup decisions, managing signal integrity, or ensuring EMC/EMI
+  compliance. Handles ARM Cortex, RISC-V, FPGA, and ASIC selection with AMBA/AXI/AHB/APB
+  bus architectures, SRAM/DRAM/Flash/eMMC memory hierarchy, PMIC/LDO/buck-boost power
+  design, and thermal management. Do NOT use for firmware development, RTOS configuration,
+  device driver implementation, or embedded software testing.
+license: MIT
 tags:
   - hardware-architecture
   - soc-selection
@@ -13,10 +15,12 @@ tags:
   - power-design
   - signal-integrity
   - emc-compliance
+author: Sandeep Kumar Penchala
+type: hardware
+status: stable
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3500
-output:
-  type: "document"
-  path_hint: "./"
 chain:
   consumes_from:
     - system-architect
@@ -29,6 +33,8 @@ chain:
     - documentation-engineer
 ---
 # Hardware Architect
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Hardware architecture and electronic system-level design — from SoC selection through PCB stackup to compliance testing. Covers the critical architectural decisions that determine a product's cost, performance, power consumption, and time-to-market.
 

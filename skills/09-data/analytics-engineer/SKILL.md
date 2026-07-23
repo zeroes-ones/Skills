@@ -1,14 +1,26 @@
 ---
 name: analytics-engineer
-description: dbt patterns, metric layers, BI architecture, data modeling for analytics, A/B testing and experimentation, SQL optimization, data visualization, and self-service analytics (Looker/Metabase/Lightdash).
-  Triggered by analytics, dbt, Looker, Metabase, A/B test, metric layer, event tracking, SQL optimization, dashboard.
+description: >
+  Use when building dbt data models, designing metric layers, enabling self-service BI (Looker/Metabase/Lightdash),
+  running A/B tests, optimizing SQL performance, designing event tracking, or building data quality frameworks.
+  Handles dbt project architecture, semantic layer design, experimentation methodology, SQL tuning, data storytelling,
+  and BI governance. Do NOT use for raw ETL/ELT pipeline construction, statistical modeling, ML engineering,
+  or infrastructure provisioning.
+license: MIT
+tags:
+- analytics
+- dbt
+- bi
+- metrics
+- sql
+- experimentation
+- data-modeling
+- looker
 author: Sandeep Kumar Penchala
 type: data
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- analytics-engineer
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
@@ -23,11 +35,11 @@ chain:
   - product-manager
   - revops-manager
   - seo-specialist
-output:
-  type: code
-  path_hint: ./
 ---
+
 # Analytics Engineer
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Bridge raw data and actionable business insight. This skill covers dbt project design and patterns
 (model layers, incremental models, snapshots, macros, tests), metric definition (semantic models,

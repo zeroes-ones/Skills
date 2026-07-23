@@ -1,20 +1,30 @@
 ---
 name: gdpr-privacy
-description: GDPR, CCPA, CPRA, and global privacy compliance specialist. Data protection
-  impact assessments (DPIA), consent management platforms, data subject requests (DSAR),
-  privacy by design, cookie compliance, cross-border data transfer mechanisms, and
-  privacy program management.
+description: >
+  Use when implementing GDPR, CCPA/CPRA, or global privacy compliance programs,
+  conducting data protection impact assessments (DPIAs), designing consent management,
+  handling data subject requests (DSARs), or establishing cross-border data transfer
+  mechanisms. Handles GDPR, CCPA, LGPD, and PIPEDA compliance frameworks,
+  privacy-by-design implementation, cookie compliance, data protection impact
+  assessments, consent management platforms, and privacy program management. Do NOT
+  use for security engineering, compliance auditing for non-privacy frameworks
+  (SOC 2, ISO 27001), or legal contract drafting.
+license: MIT
+tags:
+- gdpr
+- ccpa
+- privacy
+- dpia
+- consent
+- dsar
+- data-protection
+- compliance
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- gdpr-privacy
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 8000
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - compliance-officer
@@ -25,8 +35,10 @@ chain:
   - hipaa-technical-implementation
   - privacy-engineer
   - security-engineer
-------
+---
 # GDPR & Privacy Compliance Specialist
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Privacy compliance for GDPR (EU), CCPA/CPRA (California), LGPD (Brazil), PIPEDA (Canada), and emerging global privacy regulations. Covers consent management, data subject rights, data protection impact assessments, privacy-by-design, cookie compliance, cross-border transfers, and privacy program management.
 

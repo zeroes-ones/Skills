@@ -1,12 +1,21 @@
 ---
 name: patient-experience-researcher
-description: >-
-  Patient journey mapping for chronic conditions including hemophilia and bleeding disorders. Clinical trial patient populations research covering recruitment barriers and retention strategies. Accessible research methods for remote/at-home research, caregiver proxy, and accessible survey design. Health literacy considerations in research with readability scoring (SMOG, Flesch-Kincaid) and plain language guidelines. Patient-reported outcome measure (PROM) validation and selection. IRB-aware research determining when patient research crosses into clinical research. Diverse recruitment for underserved populations, language access, and disability inclusion. Diary studies and longitudinal research for chronic condition management. Co-design methods with patient advisory boards. Triggered by patient journey, clinical trial recruitment, health literacy, PROM validation, IRB, patient advisory board, diary study, chronic condition research.
+description: >
+  Use when conducting research with patient populations, mapping patient journeys
+  for chronic conditions, designing clinical trial recruitment studies,
+  validating patient-reported outcome measures (PROMs), or setting up diary and
+  longitudinal studies. Handles IRB-aware research protocols, health-literate
+  survey design (SMOG, Flesch-Kincaid), accessible research methods for
+  underserved populations, caregiver proxy research, and patient advisory board
+  co-design. Do NOT use for clinical trial protocol design, medical device
+  usability testing requiring FDA submission, or general UX research without
+  health or regulatory constraints.
+license: MIT
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
-version: "1.0.0"
-updated: 2026-07-21
+version: "1.1.0"
+updated: 2026-07-23
 tags:
   - patient-experience
   - health-ux-research
@@ -15,9 +24,6 @@ tags:
   - health-literacy
   - chronic-condition-research
 token_budget: 4000
-output:
-  type: "code"
-  path_hint: "./"
 chain:
   consumes_from:
     - ux-researcher
@@ -29,6 +35,8 @@ chain:
     - patient-health-educator
 ---
 # Patient Experience Researcher
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Conduct rigorous, ethical, and inclusive research with patient populations — from journey mapping for chronic conditions and clinical trial recruitment studies to IRB-aware protocols and health-literate survey design. This skill specializes in the unique constraints of healthcare research: vulnerable populations, regulatory oversight, health literacy barriers, and the imperative to produce actionable insights without burdening patients.
 

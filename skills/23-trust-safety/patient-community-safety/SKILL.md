@@ -1,11 +1,23 @@
 ---
 name: patient-community-safety
-description: Health community safety — threat models for patient communities, medical misinformation detection patterns, health claim verification workflows, clinical escalation protocols, and vulnerable population protection. Use when building patient communities, health forums, support groups, or any platform where patients share health experiences and medical information.
+description: >
+  Use when building threat models for patient communities, detecting medical
+  misinformation in health forums, protecting vulnerable patient populations, or
+  designing crisis response protocols for platforms where patients share health
+  experiences. Handles threat modeling for patient communities (patient data scraping,
+  predatory behavior toward vulnerable patients, medical misinformation amplification),
+  medical misinformation detection patterns, health claim verification workflows,
+  clinical escalation protocols, crisis response for self-harm/suicide/CSAM content,
+  and safety configuration for vulnerable populations (pediatric, eating disorders,
+  mental health, rare disease). Do NOT use for general social app trust and safety
+  detection infrastructure, content policy taxonomy design, or privacy engineering
+  compliance.
+license: MIT
 author: Sandeep Kumar Penchala
 type: trust-safety
 status: stable
-version: 1.0.0
-updated: 2026-07-22
+version: 1.1.0
+updated: 2026-07-23
 tags:
 - patient-community-safety
 - trust-and-safety
@@ -24,11 +36,10 @@ chain:
   - crisis-response-manager
   - trust-safety-engineer
 token_budget: 3800
-output:
-  type: document
-  path_hint: docs/trust-safety/
 ---
 # Patient Community Safety
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Safety frameworks for health communities where patients discuss treatment experiences, share medical information, and support each other. Different from general social app safety — the threat model includes medical misinformation that can cause physical harm, vulnerable patient populations, and regulatory liability for platform operators.
 

@@ -1,20 +1,28 @@
 ---
 name: marketing-manager
-description: Product marketing, positioning, messaging, competitive analysis, launch management, buyer persona development, sales enablement (battle cards, pitch decks), analyst relations (Gartner, Forrester),
-  pricing & packaging strategy, campaign briefs, brand-to-demand connection.
+description: >
+  Use when defining product positioning, planning go-to-market launches, creating sales enablement
+  materials, or managing analyst relations. Handles product marketing strategy, competitive
+  analysis, launch management, buyer persona development, sales enablement (battle cards, pitch
+  decks), analyst relations (Gartner, Forrester), pricing and packaging strategy, campaign briefs,
+  and brand-to-demand alignment. Do NOT use for paid media execution, demand generation campaign
+  operations, or content marketing production.
+license: MIT
+tags:
+  - marketing-manager
+  - product-marketing
+  - positioning
+  - go-to-market
+  - competitive-analysis
+  - sales-enablement
+  - analyst-relations
+  - launch
 author: Sandeep Kumar Penchala
 type: sales
 status: stable
-version: 1.0.0
-updated: 2026-07-21
-tags:
-- marketing-manager
-- product-marketing
-- pmm
+version: 1.1.0
+updated: 2026-07-23
 token_budget: 3900
-output:
-  type: code
-  path_hint: ./
 chain:
   consumes_from:
   - bizdev-manager
@@ -39,6 +47,8 @@ chain:
   - growth-engineer
 ---
 # Marketing Manager (Product Marketing Manager / PMM)
+
+> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own product positioning, messaging, and go-to-market launches. Translate product capabilities into buyer-relevant narratives, arm sales with battle cards and pitch decks, manage analyst relations, and ensure every campaign starts from differentiated positioning — not generic category claims.
 
