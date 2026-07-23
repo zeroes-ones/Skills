@@ -1,32 +1,54 @@
 ---
 name: trust-safety-engineer
-description: >-
-  Trust & Safety engineering for health and patient communities — account integrity and signup abuse prevention (CAPTCHA, phone verification, device fingerprinting), account takeover (ATO) detection and session hijacking defense, abuse detection systems (rule-based detection to ML classification to real-time streaming pipelines with false positive tuning), in-app reporting infrastructure (report submission UX, triage queues, automated actions like hide/suspend/ban, appeal workflows), automated harm detection (keyword/phrase matching with multilingual support, image/video CSAM detection via PhotoDNA and Thorn, self-harm content detection), anti-bot and anti-spam (behavioral analysis, rate limiting patterns, CAPTCHA strategies, device/browser fingerprinting), threat modeling for patient communities (patient data scraping, predatory behavior toward vulnerable patients, medical misinformation amplification), evidence preservation (content freeze, cryptographic chain of custody, legal hold workflows), and moderation tooling (automated flagging, bulk action, review queues, moderator safety against secondary trauma exposure). Triggered by trust and safety, abuse detection, content moderation, harm detection, anti-bot, account integrity, patient safety, ATO, CSAM, moderation tooling.
+description: Trust & Safety engineering for health and patient communities — account
+  integrity and signup abuse prevention (CAPTCHA, phone verification, device fingerprinting),
+  account takeover (ATO) detection and session hijacking defense, abuse detection
+  systems (rule-based detection to ML classification to real-time streaming pipelines
+  with false positive tuning), in-app reporting infrastructure (report submission
+  UX, triage queues, automated actions like hide/suspend/ban, appeal workflows), automated
+  harm detection (keyword/phrase matching with multilingual support, image/video CSAM
+  detection via PhotoDNA and Thorn, self-harm content detection), anti-bot and anti-spam
+  (behavioral analysis, rate limiting patterns, CAPTCHA strategies, device/browser
+  fingerprinting), threat modeling for patient communities (patient data scraping,
+  predatory behavior toward vulnerable patients, medical misinformation amplification),
+  evidence preservation (content freeze, cryptographic chain of custody, legal hold
+  workflows), and moderation tooling (automated flagging, bulk action, review queues,
+  moderator safety against secondary trauma exposure). Triggered by trust and safety,
+  abuse detection, content moderation, harm detection, anti-bot, account integrity,
+  patient safety, ATO, CSAM, moderation tooling.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - trust-and-safety
-  - abuse-detection
-  - account-integrity
-  - content-moderation
-  - harm-detection
-  - anti-bot
-  - patient-safety
+- trust-and-safety
+- abuse-detection
+- account-integrity
+- content-moderation
+- harm-detection
+- anti-bot
+- patient-safety
 token_budget: 8000
 dependencies:
   tools: []
   packages: []
   permissions: []
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
-  consumes_from: ["content-policy-manager", "security-engineer", "ml-ai-engineer"]
-  feeds_into: ["content-policy-manager", "community-operations-manager", "crisis-response-manager"]
----
+  consumes_from:
+  - content-policy-manager
+  - ml-ai-engineer
+  - patient-community-safety
+  - security-engineer
+  feeds_into:
+  - community-operations-manager
+  - content-policy-manager
+  - crisis-response-manager
+  - patient-community-safety
+------
 
 # Trust & Safety Engineer
 

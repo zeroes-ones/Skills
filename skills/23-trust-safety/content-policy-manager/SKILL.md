@@ -1,12 +1,21 @@
 ---
 name: content-policy-manager
-description: Content policy and medical misinformation management for health platforms — medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures, anti-vaccine,
-  with severity tiers from life-threatening to low-quality), community guidelines creation (what is/isn't allowed with examples, rationale, cultural adaptations, plain-language versions), policy enforcement
-  framework (first offense warning + education, second offense temporary suspension, third offense permanent removal, emergency bypass for imminent harm), escalation framework (clinical review pathway,
-  legal review triggers, public health authority notification), regulatory and liability considerations (FDA social media guidance, HIPAA implications, Section 230, platform liability for medical content),
-  policy-in-practice loop (quarterly policy review, community feedback integration, emerging misinformation pattern updates), medical expert review board (clinical advisory panel establishment, policy review
-  cadence, expert dispute resolution), and transparency reporting (takedown statistics, appeal rates, policy change log, public-facing transparency reports). Triggered by content policy, medical misinformation,
-  community guidelines, health content moderation, policy enforcement, FDA social media, content governance.
+description: Content policy and medical misinformation management for health platforms
+  — medical misinformation taxonomy (diagnostic claims, treatment claims, conspiracy
+  theories, miracle cures, anti-vaccine, with severity tiers from life-threatening
+  to low-quality), community guidelines creation (what is/isn't allowed with examples,
+  rationale, cultural adaptations, plain-language versions), policy enforcement framework
+  (first offense warning + education, second offense temporary suspension, third offense
+  permanent removal, emergency bypass for imminent harm), escalation framework (clinical
+  review pathway, legal review triggers, public health authority notification), regulatory
+  and liability considerations (FDA social media guidance, HIPAA implications, Section
+  230, platform liability for medical content), policy-in-practice loop (quarterly
+  policy review, community feedback integration, emerging misinformation pattern updates),
+  medical expert review board (clinical advisory panel establishment, policy review
+  cadence, expert dispute resolution), and transparency reporting (takedown statistics,
+  appeal rates, policy change log, public-facing transparency reports). Triggered
+  by content policy, medical misinformation, community guidelines, health content
+  moderation, policy enforcement, FDA social media, content governance.
 author: Sandeep Kumar Penchala
 type: governance
 status: stable
@@ -35,14 +44,16 @@ chain:
   - crisis-response-manager
   - legal-advisor
   - medical-content-reviewer
+  - patient-community-safety
   - regulatory-specialist
   - trust-safety-engineer
   feeds_into:
   - community-operations-manager
   - crisis-response-manager
+  - patient-community-safety
   - patient-health-educator
   - trust-safety-engineer
----
+------
 
 # Content Policy Manager / Medical Misinformation Officer
 

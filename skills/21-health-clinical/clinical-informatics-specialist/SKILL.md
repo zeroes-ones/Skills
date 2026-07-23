@@ -1,10 +1,16 @@
 ---
 name: clinical-informatics-specialist
-description: FHIR (HL7) standards R4/R5 with resource types, profiles, extensions, and operations. EHR integration patterns for Epic/MyChart, Cerner, Argonaut, USCDI, and SMART on FHIR. Health data exchange
-  via HIE networks, TEFCA, Direct Secure Messaging, XDR/XDM. Hemophilia Treatment Center (HTC) data exchange workflows for rare disease registries. Patient-reported outcome (PRO) data standards including
-  PROMIS, PRO-CTCAE, and electronic PRO (ePRO). Clinical terminology with SNOMED CT, LOINC, ICD-10-CM, RxNorm, MedDRA. Data mapping pipelines from source systems to FHIR resources to internal data models.
-  Consent management for patient data sharing with granular HIE consent. Real-world evidence (RWE) data pipelines for pharma partnerships. Triggered by FHIR, HL7, EHR integration, health data exchange,
-  clinical terminology, PRO, HTC, RWE, consent management.
+description: FHIR (HL7) standards R4/R5 with resource types, profiles, extensions,
+  and operations. EHR integration patterns for Epic/MyChart, Cerner, Argonaut, USCDI,
+  and SMART on FHIR. Health data exchange via HIE networks, TEFCA, Direct Secure Messaging,
+  XDR/XDM. Hemophilia Treatment Center (HTC) data exchange workflows for rare disease
+  registries. Patient-reported outcome (PRO) data standards including PROMIS, PRO-CTCAE,
+  and electronic PRO (ePRO). Clinical terminology with SNOMED CT, LOINC, ICD-10-CM,
+  RxNorm, MedDRA. Data mapping pipelines from source systems to FHIR resources to
+  internal data models. Consent management for patient data sharing with granular
+  HIE consent. Real-world evidence (RWE) data pipelines for pharma partnerships. Triggered
+  by FHIR, HL7, EHR integration, health data exchange, clinical terminology, PRO,
+  HTC, RWE, consent management.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
@@ -32,11 +38,12 @@ chain:
   feeds_into:
   - ai-safety-health-reviewer
   - data-engineer
+  - health-regulatory-submission
   - medical-content-reviewer
   - patient-experience-researcher
   - patient-health-educator
   - product-manager
----
+------
 # Clinical Informatics Specialist
 
 Design, implement, and govern health data interoperability systems that bridge clinical workflows, EHR platforms, and research pipelines. This skill covers the full clinical informatics lifecycle — from FHIR resource modeling and EHR integration to real-world evidence data pipelines and patient consent management — with specialized depth in rare disease registries and patient-reported outcomes.

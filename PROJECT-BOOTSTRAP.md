@@ -17,7 +17,7 @@ Match skills to your project's maturity. Start lean, expand as you grow:
 |------|--------|-------------|
 | **Solo** (`skills-init --solo`) | 8 essentials | Weekend project, prototype, personal site |
 | **Grow** (`skills-init --grow`) | 18 skills | Side project with users, open source, early startup |
-| **Full** (`skills-init`) | 103 skills | Team project, funded startup, enterprise |
+| **Full** (`skills-init`) | 106 skills | Team project, funded startup, enterprise |
 
 This bootstrap guide covers the full 101-skill lifecycle. If you started with `--solo`, upgrade to `--grow` around Phase 3 and `--full` around Phase 6. Skills you haven't activated yet won't be loadable by agents.
 
