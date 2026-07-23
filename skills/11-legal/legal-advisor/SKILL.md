@@ -139,163 +139,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
+Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Open Source License Selection
 ```
-                     ┌──────────────────────────┐
-                     │ START: Which open-source   │
-                     │ license?                   │
-                     └────────────┬─────────────┘
-                                  │
-                    ┌─────────────▼─────────────┐
-                    │ Want to require derivative  │
-                    │ works to also be open       │
-                    │ source (copyleft)?          │
-                    └────┬──────────────────┬───┘
-                         │ YES              │ NO
-                    ┌────▼──────┐    ┌──────▼──────────┐
-                    │ Strong    │    │ Want to prevent   │
-                    │ copyleft  │    │ others from       │
-                    │ or weak?  │    │ using your name   │
-                    └──┬───┬────┘    │ in promotion?     │
-                       │   │        └──┬──────────┬────┘
-                  ┌────▼┐ ┌▼────────┐  │YES       │NO
-                  │GPL  │ │Weak:    │ ┌▼──────┐ ┌──▼──────────┐
-                  │v3.0 │ │MPL 2.0  │ │MIT +  │ │Completely   │
-                  │(most│ │(file-   │ │Apache │ │unrestricted:│
-                  │restrictive)│ │level)  │ │2.0    │ │CC0 / Public │
-                  └─────┘ │LGPL     │ │(patent│ │Domain        │
-                           │(library)│ │grant) │ └──────────────┘
-                           └─────────┘ └───────┘
-```
-**When to choose GPL v3:** Want maximum copyleft — anyone distributing modified versions must also release source under GPL. Strongest community enforcement.
-**When to choose MPL 2.0/LGPL:** Weak copyleft — file-level (MPL) or library-level (LGPL). Allows linking from proprietary code while keeping your library open.
-**When to choose MIT/Apache 2.0:** Permissive — MIT is simplest (no patent grant), Apache 2.0 adds explicit patent grant and contributor protection. Both allow proprietary use.
-**When to choose CC0:** Abandon copyright entirely — public domain dedication. Use for documentation, reference implementations, or when you truly don't care.
-
-### SaaS Agreement Risk Triage
-```
-                     ┌──────────────────────────────┐
-                     │ START: Reviewing contract —    │
-                     │ what risk level?               │
-                     └────────────┬─────────────────┘
-                                  │
-                    ┌─────────────▼─────────────────┐
-                    │ Annual contract value < $5K?   │
-                    └────┬──────────────────────┬───┘
-                         │ YES                  │ NO
-                    ┌────▼──────────┐    ┌──────▼──────────┐
-                    │ Low risk:     │    │ ACV > $50K OR    │
-                    │ Accept        │    │ involves DPA,    │
-                    │ standard terms│    │ HIPAA BAA, or    │
-                    │ unless glaring│    │ custom IP terms? │
-                    │ red flag      │    └──┬──────────┬────┘
-                    └───────────────┘       │YES       │NO
-                                       ┌────▼────┐ ┌──▼──────────┐
-                                       │High Risk│ │Medium Risk: │
-                                       │Engage   │ │Negotiate    │
-                                       │External │ │key terms:   │
-                                       │Counsel  │ │liability cap│
-                                       │for every│ │IP ownership,│
-                                       │redline  │ │indemnity    │
-                                       └─────────┘ └─────────────┘
-```
-**When to accept standard terms:** Low ACV ($0-5K), no data processing obligations, no custom IP — accept vendor paper with minimal redlines (cap at fees paid, no indemnity).
-**When to negotiate key terms:** Medium ACV ($5-50K) — negotiate liability cap (2× fees), clarify IP ownership of deliverables, mutual confidentiality, and termination for convenience.
-**When to engage external counsel:** High ACV (>$50K), DPAs (GDPR), BAAs (HIPAA), custom software development, IP transfer — specialized counsel, full redline, board visibility.
-
-### Trademark Protection Strategy
-```
-                     ┌──────────────────────────────┐
-                     │ START: Trademark strategy?     │
-                     └────────────┬─────────────────┘
-                                  │
-                    ┌─────────────▼─────────────────┐
-                    │ Operating in US only vs         │
-                    │ multiple countries?             │
-                    └────┬──────────────────────┬───┘
-                         │ US only             │ Multi-country
-                    ┌────▼──────────┐    ┌──────▼──────────┐
-                    │ USPTO §1(a)   │    │ Revenue >$100K  │
-                    │ (use-based)   │    │ in target       │
-                    │ if product in │    │ country?        │
-                    │ commerce.     │    └──┬──────────┬────┘
-                    │ §1(b) (intent-│       │YES      │NO
-                    │ to-use) if    │  ┌────▼────┐ ┌─▼──────────┐
-                    │ pre-launch.   │  │Madrid   │ │File in key │
-                    └───────────────┘  │Protocol:│ │markets only│
-                                       │WIPO base│ │(US + top 3)│
-                                       │+designate│ │nationally  │
-                                       │countries │ └────────────┘
-                                       └──────────┘
-```
-**When to file use-based US:** Product already in commerce — §1(a) filing with specimen of use, faster to registration, lower cost ($250-350/class).
-**When to file intent-to-use US:** Pre-launch, want priority date now — §1(b) filing, reserves priority, but must prove use later (Statement of Use).
-**When to use Madrid Protocol:** 3+ countries needed — file WIPO application based on home registration, designate member countries, single renewal, cheaper than individual national filings.
-**When to file nationally:** Only 1-2 key markets — direct national filing may be faster and cheaper than Madrid route with fewer designated countries.
-
-### IP Assignment vs License Decision
-```
-                     ┌──────────────────────────────┐
-                     │ START: Contractor/employee     │
-                     │ creates IP — how to secure?    │
-                     └────────────┬─────────────────┘
-                                  │
-                    ┌─────────────▼─────────────────┐
-                    │ Work done by employee within    │
-                    │ scope of employment?            │
-                    └────┬──────────────────────┬───┘
-                         │ YES                  │ NO (contractor)
-                    ┌────▼──────────┐    ┌──────▼──────────┐
-                    │ Work-for-hire│    │ Contractor using  │
-                    │ doctrine     │    │ their own tools,  │
-                    │ applies (US) │    │ no supervision?   │
-                    │ — IP auto-   │    └──┬──────────┬────┘
-                    │ owned by     │       │YES       │NO
-                    │ employer.    │  ┌────▼────┐ ┌──▼──────────┐
-                    │ Still get    │  │IP       │ │May qualify  │
-                    │ signed       │  │Assign-  │ │as work-for- │
-                    │ agreement    │  │ment +   │ │hire — but   │
-                    │ confirming.  │  │Moral    │ │get assignment│
-                    └──────────────┘  │Rights   │ │for certainty │
-                                      │Waiver   │ └──────────────┘
-                                      └─────────┘
-```
-**When work-for-hire applies:** US employee creating within scope — automatic IP ownership to employer. Still get written confirmation for audit trail and investors.
-**When IP assignment needed:** Contractor or non-US contributor — signed agreement with "present assignment of future rights" language + moral rights waiver where applicable.
-**When to use license instead:** Third-party contribution to your open source project — CLA with license grant (not assignment) may be sufficient for project stewardship.
-
-### DMCA Safe Harbor Eligibility
-```
-                     ┌──────────────────────────────┐
-                     │ START: Need DMCA safe harbor?  │
-                     └────────────┬─────────────────┘
-                                  │
-                    ┌─────────────▼─────────────────┐
-                    │ Do you host user-generated      │
-                    │ content (comments, uploads,     │
-                    │ repos, listings)?               │
-                    └────┬──────────────────────┬───┘
-                         │ YES                  │ NO
-                    ┌────▼──────────┐    ┌──────▼──────────┐
-                    │ Must register │    │DMCA safe harbor  │
-                    │ DMCA agent    │    │not applicable.   │
-                    │ with USCO     │    │Still need:       │
-                    │ ($6 fee).     │    │respond to notices│
-                    │ Implement:    │    │as matter of risk │
-                    │ - Notice-and- │    │management.       │
-                    │   takedown    │    └─────────────────┘
-                    │ - Counter-notice│
-                    │ - Repeat      │
-                    │   infringer   │
-                    │   policy      │
-                    │ - No knowledge│
-                    │   of infring. │
-                    └───────────────┘
-```
-**When DMCA safe harbor needed:** Any platform hosting user-submitted content (comments, repos, uploads) — registration is $6, but failure to implement = full liability for user infringement.
-**When not needed:** No UGC, only your own content — still respond to takedown notices as a matter of risk management but safe harbor unavailable.
-**Key requirements:** Designated agent registered at copyright.gov, expeditious takedown, counter-notice process, repeat infringer termination policy, no actual knowledge of infringement.
+                     ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
 
@@ -460,6 +309,34 @@ graph LR
 | **Master** | Board-level strategy for a company in a different industry; present to a peer CEO for feedback | Semi-annually |
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
+
+## Anti-Patterns
+
+- **"I am not a lawyer, but..."** followed by legal advice — this disclaimer doesn't protect the company from unauthorized practice of law claims AND doesn't protect the recipient from relying on non-lawyer legal opinions. If you're not a barred attorney in the relevant jurisdiction, don't give legal conclusions. Give risk assessments and options, not legal opinions.
+- **Accepting the other party's contract without redlines** — their contract was written by their lawyers to protect them, not you. Every clause favors them by default. A contract that arrives "pre-approved" is a negotiation opening, not a final document. Always redline.
+- **"We'll sort out the legal details later"** — the deal closes, the relationship sours, and there's no written agreement on IP ownership, payment terms, termination rights, or dispute resolution. The "legal details" are now a lawsuit that costs 10x what the deal was worth.
+- **Using a template contract for a fundamentally different deal** — your SaaS subscription agreement used for a custom development project. It doesn't cover: IP assignment (who owns the custom code?), acceptance criteria, milestone payments, or warranty on deliverables. Templates are starting points, not universal contracts.
+- **Signing personally instead of as an authorized representative of the company** — "John Smith" instead of "John Smith, CEO, on behalf of Acme Corp." The contract now binds John Smith personally. If the company can't pay, John's personal assets are at risk.
+
+
+## Error Decoder
+
+- **"This clause is 'standard' or 'boilerplate'" from opposing counsel** → "Standard" means "we put this in every contract and hope you don't push back." Every clause is negotiable. "Boilerplate" clauses that matter: governing law, venue, indemnification, limitation of liability, termination, and assignment. These are never truly boilerplate.
+- **"We need this signed by EOD"** → Artificial urgency is a negotiation tactic. If they really need it signed today, they should have sent it last week. Rushing legal review means you'll miss: auto-renewal clauses, uncapped liability, one-sided indemnification, and IP assignment traps.
+- **NDA that defines "Confidential Information" as "all information disclosed"** → Including publicly available information, information you already knew, and information you independently developed. The NDA now restricts you from using information you already owned. Always add exclusions: publicly known, previously known, independently developed, rightfully received from third party.
+- **Indemnification: "Each party indemnifies the other" (mutual)** → Sounds fair but isn't. If your product causes their data loss, you indemnify them (fair: it's your product). If they use your product to violate GDPR, they indemnify you (fair: it's their use). Mutual indemnification for DIFFERENT types of liability (IP infringement vs data misuse) is standard. Mutual for the SAME liability means you're paying for their mistakes.
+
+
+## Production Checklist
+
+- [ ] Contract review: reviewed by a barred attorney in the relevant jurisdiction (not just an AI-assisted review)
+- [ ] Key clauses checked: governing law, venue, indemnification, limitation of liability, IP ownership, termination, auto-renewal
+- [ ] Signing authority: signatory has documented authority to bind the company. Signature block includes title and "on behalf of [Company Name]."
+- [ ] Redlines: all changes from the original are tracked (redlines saved). Rationale for each change documented.
+- [ ] Open source license audit: all project dependencies have license checks. No GPLv3 in non-GPL projects. CLAs in place for external contributors.
+- [ ] Terms of Service: last updated within 12 months. Consistent with privacy policy. Dispute resolution and governing law specified.
+- [ ] Document retention: signed contracts stored in a durable, backed-up system with access controls. Retention schedule documented.
+
 
 ## Gotchas
 

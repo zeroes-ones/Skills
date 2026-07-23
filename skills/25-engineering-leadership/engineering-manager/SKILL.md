@@ -175,79 +175,11 @@ Engineering management skill scales from managing individuals to managing manage
 
 ## Decision Trees
 
+Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
+
 <!-- STANDARD: 3min -->
 <!-- REFERENCE: For every branch, follow the arrows to the right section -->
-
-### 1. Performance Issue Handling
-
-```
-Performance concern identified
-│
-├── Is this a skill gap or a will gap?
-│   ├── Skill gap → COACH
-│   │   ├── Write a 30-day development plan with specific, measurable goals
-│   │   ├── Pair them with a senior engineer on the team
-│   │   ├── Provide external resources (courses, books, conferences)
-│   │   ├── Check in weekly — are they progressing?
-│   │   │   ├── Yes (30 days) → Extend plan another 30 days, increase autonomy
-│   │   │   │   ├── Yes (60 days) → Continue coaching, note improvement in reviews
-│   │   │   │   └── No (60 days) → Escalate to PIP
-│   │   │   └── No (30 days) → Reassess: is the skill gap bridgeable?
-│   │   │       ├── Bridgeable → Adjust plan, 30 more days
-│   │   │       └── Not bridgeable → PIP
-│   │   └── [TIMELINE: 30-90 days total before escalation]
-│   │
-│   └── Will gap → DIRECT FEEDBACK
-│       ├── Have an explicit conversation: "Here's the expectation, here's where you are, here's the gap"
-│       ├── Document everything — every conversation, every commitment, every missed commitment
-│       ├── Set a 30-day improvement window with weekly checkpoints
-│       ├── After 30 days:
-│       │   ├── Improved → Monitor for 60 more days, then close the case
-│       │   └── Not improved → FORMAL PIP
-│       │       ├── PIP runs 30-60 days with weekly documented check-ins
-│       │       ├── Partner with HR-manager throughout
-│       │       └── Outcomes:
-│       │           ├── Passes PIP → Continue monitoring for 90 days
-│       │           └── Fails PIP → TRANSITION OUT (work with HR-manager on separation)
-│       └── [TIMELINE: 30 days feedback → 30-60 days PIP → exit]
-│
-└── Is this immediate (harassment, ethics, safety)?
-    ├── Yes → Escalate to hr-manager + legal-advisor IMMEDIATELY. Do not handle alone.
-    └── No → Follow the path above
-```
-
-### 2. Weekly Structure
-
-```
-How do I structure my 168-hour week?
-│
-├── TEAM HEALTH (40%) ~16 hours
-│   ├── 1:1s (5-10 × 30 min each = 2.5-5 hrs)
-│   ├── 1:1 prep + follow-up notes (2 hrs)
-│   ├── Skip-level meetings quarterly (1 hr/week amortized)
-│   ├── Team rituals: standup, retro, demo, all-hands (3 hrs)
-│   └── Ad-hoc conversations, morale pulse checks (4-5 hrs)
-│
-├── DELIVERY (30%) ~12 hours
-│   ├── Sprint planning + backlog grooming (2 hrs)
-│   ├── Stakeholder updates: status reports, exec summaries (2 hrs)
-│   ├── Unblocking: dependency resolution, cross-team coordination (4 hrs)
-│   ├── Technical design review participation (2 hrs)
-│   └── Timeline negotiation, scope discussions (2 hrs)
-│
-├── HIRING & GROWTH (20%) ~8 hours
-│   ├── Interviewing candidates (3-4 hrs)
-│   ├── Interview debriefs + calibration (1 hr)
-│   ├── Career development plans, promotion packets (2 hrs)
-│   └── Sourcing, outreach, pipeline building (1-2 hrs)
-│
-└── STRATEGY & SELF (10%) ~4 hours
-    ├── Leadership team meetings (2 hrs)
-    ├── Peer EM syncs, calibration (1 hr)
-    └── Self-development, reading, reflection (1 hr)
-
-ADJUST: If actively hiring, shift to 30/20/40/10. If in crisis, 50/30/10/10.
-```
+### 1. Performance Issue Handling... [See full decision trees →](references/decision-trees.md)
 
 ## Core Workflow
 
@@ -329,31 +261,7 @@ Your team ships. You're accountable for what ships, when, and at what quality. Y
 
 ## Proactive Triggers
 
-<!-- QUICK: 30s -- trigger-action table for autonomous EM workflow -->
-
-The EM detects team health and delivery signals before they become crises. Every trigger is tied to an observable behavioral or metric signal.
-
-| Trigger | Action | Why |
-|---------|--------|-----|
-| A direct report's 1:1s have become consistently shorter (<15 min vs usual 30 min) and less candid — "everything's fine" is the default answer | Switch the next 1:1 to a walk-and-talk or coffee format outside the office; ask open-ended career questions ("What would make you excited to come to work?"); do not accept "everything's fine" — probe gently | 1:1 compression is the earliest attrition signal — engineers disengage emotionally before they disengage professionally. Catch it in the 1:1, not the exit interview |
-| `cto-advisor` announces a strategic pivot (new platform, build-vs-buy shift, architecture direction change) that affects your team's roadmap | Translate the pivot into team-specific implications within 48 hours: which projects stop, which start, which skills become critical. Hold a team AMA with the CTO if the change is significant. Update OKRs within the week. | Strategic pivots without rapid translation create anxiety and misalignment. The EM's job is to convert ambiguity into clarity — fast. A team that waits 2 weeks for direction invents its own (often wrong) narrative |
-| Two high-performing engineers ask in their 1:1s (within the same month) "what does career growth look like here?" — the same question from two people in 30 days is a pattern, not a coincidence | Audit your career ladder: is it clear, documented, and demonstrated? Identify the next promotion for each of them and the concrete milestones. If the ladder is vague, partner with `people-ops` to define it this quarter. | "What does growth look like?" asked by one person is curiosity. Asked by two high performers in a month, it's a retention threat. High performers leave when they can't see the next step — they don't need a promotion promise, they need a visible path |
-| Team's PR review turnaround time has increased from <4 hours to >24 hours over 3 weeks | Diagnose root cause: (a) team overloaded (check WIP and interrupt rate), (b) new team members not confident reviewing, (c) review culture deteriorating (check if senior engineers have stopped reviewing). Fix the root cause — don't just remind people to review faster | PR review slowdown is a leading indicator of team overload or disengagement. It's the canary for "too much WIP" — engineers stop reviewing when they're drowning in their own work |
-| An underperforming engineer has had 3 feedback conversations with documented improvement plans and zero measurable change | Move from coaching to a formal PIP (Performance Improvement Plan) with `hr-manager`. Define: specific, measurable behaviors to change, check-in cadence (weekly), and a hard deadline (typically 30-60 days). If no improvement by the deadline, transition to termination. | Three feedback cycles without change is not a communication problem — it's a performance decision delayed. Every month of inaction costs your best engineers' morale and your own credibility |
-| Hiring pipeline: 3 consecutive candidates passed the technical interview but failed the values/behavioral interview | The technical bar and values bar are out of alignment — you're attracting technically strong candidates who don't match the team culture. Review the job description: does it emphasize collaboration, mentorship, and communication as much as technical skills? | A misaligned hiring funnel produces brilliant jerks. Fix the top of the funnel (job description, sourcing channels) before adjusting the interview — you're attracting the wrong profile |
-| `director-engineering` asks for "a bit more visibility into the team's work" — this is director-speak for "I don't trust that things are on track" | Don't send more status reports. Schedule a 30-min in-person walkthrough of the team's delivery metrics, risks, and trade-offs. Ask: "What would help you feel confident about our direction?" Solve the trust gap, not the reporting gap | "More visibility" is never about dashboards — it's about trust. A director asking for visibility is saying the current communication isn't giving them confidence. Fix the relationship, not the report format |
-
-### Service Interaction: EM → CTO Advisor
-
-The EM-to-CTO-Advisor relationship is where team execution meets technical strategy. The EM brings ground truth from the team; the CTO brings organizational context and technical direction.
-
-| Interaction Point | What EM Provides | What CTO Advisor Needs |
-|-------------------|-----------------|------------------------|
-| **Build-vs-buy decision** | Team capacity analysis, integration complexity estimate, maintenance burden forecast, team skill match for build option | Strategic fit evaluation, total cost of ownership over 3 years, vendor risk assessment, make-vs-buy framework with decision criteria |
-| **Career ladder definition** | Ground-level observations: what skills differentiate L4 from L5 in practice, what behaviors correlate with success at each level, where the current ladder creates perverse incentives | Industry benchmarking, leveling consistency across teams, comp band alignment, promotion velocity targets |
-| **Team topology input** | Delivery friction data: which cross-team dependencies are the #1 blocker, which teams your team coordinates with most, Conway's Law violations in the current structure | Organizational design principles, span of control targets, team API boundaries, reverse Conway maneuver strategy |
-| **Hiring pipeline health** | Funnel metrics: candidates at each stage, pass rates by interview type, offer acceptance rate, time-to-hire; qualitative: candidate quality trends, competitor poaching patterns | Company-wide hiring strategy, employer brand positioning, compensation philosophy, diversity pipeline initiatives |
-| **Technology radar input** | Team-adopted tools and practices, tech debt that's constraining velocity, skills the team wants to develop, technologies the team is resisting | Industry trends, architectural north star, technology portfolio decisions, sunset/incubate/invest framework |
+[Full trigger details →](references/proactive-triggers.md)
 
 ## What Good Looks Like
 
