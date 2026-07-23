@@ -444,6 +444,20 @@ def detect_uoa(trades: pd.DataFrame, quotes: pd.DataFrame,
 - **Position sizing scales with conviction, not premium size** — A $10M block trade by an institution repositioning is less directional than a $1.5M sweep executed aggressively across exchanges. Signal classification (STRONG/BUY/WEAK) should drive position sizing, not raw premium.
 - **Backtest your signal filters before trading them live** — Run your UOA detection pipeline on 6 months of historical data. Measure: (a) win rate by signal strength, (b) average return by DTE bucket, (c) false positive rate around earnings. If STRONG BUY signals don't outperform BUY signals historically, your classification is broken.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **Classifying every $1M+ premium trade as a directional signal** | Premium size alone does not indicate direction. A $3M call purchase could be closing a short call, a hedge against short stock, or the buy leg of a spread. Without OI comparison and multi-leg detection, 30%+ of signals are classified on the wrong side. | Always compare trade volume to open interest. Flag trades where volume/OI < 0.5 as potential closing activity. Run multi-leg detection within 60-second windows to identify spreads, straddles, and combos before classifying direction. |
+| **Using IV rank without checking whether the 52-week range includes an earnings volatility spike** | If the 52-week IV high was during an earnings event, current IV rank will appear artificially low. A stock at IV 60 with earnings-spike max IV 120 shows IV rank 50 — but excluding earnings, true IV rank could be 90 and the entry price is terrible. | Compute IV rank from non-earnings periods only. Flag when 52-week IV max or min coincide with earnings dates. Report both raw IV rank and earnings-excluded IV rank, and use the latter for position sizing decisions. |
+| **Running 500 hypothesis tests and reporting every p < 0.05 as a discovered edge** | With 500 independent tests at 95% confidence, 25 false positives are expected by chance alone. Without multiple-testing correction, you are trading noise dressed as alpha — and noise has no edge. | Apply Bonferroni correction (α/n) or Benjamini-Hochberg FDR. Pre-register hypotheses before testing. Split data: 70% exploration for hypothesis generation, 30% confirmation for validation. Only confirmed signals graduate to production. |
+| **Backtesting on the full universe of currently-listed tickers** | Companies that went bankrupt, were acquired, or delisted are excluded — but your strategy would have held them. Survivorship bias inflates backtest returns by 2-4% annually, with the effect concentrated in small-cap and high-yield strategies where delistings are most common. | Use a point-in-time ticker master with delisting history. For each backtest date, include all tickers that were tradable on that date. Account for delisting returns (often -100%) in P&L — a stock that goes to zero is part of the strategy's real return. |
+| **Computing Greeks exclusively from provider-supplied values without independent verification** | Data vendors compute Greeks with different models, interest rates, and dividend assumptions. Provider-computed Delta can differ by 0.05-0.10 from your own Black-Scholes model — a 5-10% position sizing error on every trade. | Compute Greeks independently using Black-Scholes inversion with your own rate and dividend inputs. Cross-check against provider values. If Delta differs by >0.05, investigate which model input differs. Flag tickers with persistent discrepancies for manual review. |
+| **Treating every STRONG BUY signal equally regardless of days-to-expiration** | A bullish call sweep on 5-DTE options decays 3-5% of premium per day to Theta. The same sweep on 60-DTE options has negligible daily decay. The probability of profit is fundamentally different even if the directional signal is identical. | Bucket signals by DTE: 0-7 days (speculative — requires immediate catalyst), 8-30 days (tactical), 31-90 days (strategic). Adjust stop distances and position holding periods by DTE bucket — shorter DTE demands tighter stops and faster exits. |
+| **Validating signal performance over a single bull-market period** | A UOA strategy that works in 2020-2021 (low rates, rising markets, retail option boom) may fail catastrophically in 2022 (rate hikes, falling markets, vol expansion). Single-regime validation is curve-fitting with extra steps. | Validate across at least three distinct market regimes: bull (e.g., 2019-2021), bear (e.g., 2022), and sideways/high-vol (e.g., 2018 Q4, 2020 Q1). Reject signals that underperform in any regime — a real edge works across conditions. |
+| **Flagging every high-premium trade as unusual without checking the ticker's historical distribution** | A $2M call purchase on SPY is an ordinary Tuesday. The same trade on a $500M market-cap stock with average daily option premium of $50K is genuinely unusual. Absolute thresholds miss the context that makes a trade "unusual." | Compute z-score of premium relative to the ticker's trailing 90-day distribution. Flag as UOA when z-score > 3.0 (premium > 3 standard deviations above mean). Use different thresholds: large-cap (z > 2.5), mid-cap (z > 3.0), small-cap (z > 3.5). |
+
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
@@ -523,6 +537,20 @@ Sector-wide anomaly (10+ STRONG BUY in single sector)? → Business Strategist �
 # Quantitative analyst detects UOA, computes Greeks, generates signals.
 # Algorithmic trader consumes signals for execution decisions.
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| STRONG BUY signal generated with premium >$5M and OI ratio >2x | algorithmic-trader | Highest-priority signal requiring immediate evaluation; Theta decay starts at signal generation — every minute of delay reduces the edge |
+| IV Rank exceeds 95 across 5+ names in same sector | algorithmic-trader + business-strategist | Potential sector-wide volatility event or regime change; review all open positions in affected sector for Vega exposure and correlation |
+| Signal win-rate drops below 50% on 30-day rolling window | data-scientist + algorithmic-trader | Signal degradation detected — may indicate regime change, data quality issue, or model drift; recalibrate classification thresholds before next trading session |
+| Put-call parity violation exceeds 5% of spot on active options chain | algorithmic-trader + market-data-engineer | Genuine arbitrage opportunity or data corruption — verify data quality with market-data-engineer first; evaluate arb execution only if data is confirmed clean |
+| Earnings calendar shows 3+ portfolio holdings reporting within 48 hours | algorithmic-trader | Elevated event risk concentrated in the portfolio — downgrade all signals on affected tickers, reduce position sizes 50%, tighten stop distances |
+| Market data pipeline reports >5 minutes of stale quotes during trading session | market-data-engineer + algorithmic-trader | UOA detection degraded — all signals generated during the gap window are unreliable; flag and downgrade affected signals, pause new signal generation until feed recovers |
+| Sector ETF performance diverges >3% from signal direction in same week | algorithmic-trader + business-strategist | Signal is fighting macro tape — downgrade confidence on all counter-trend signals in the sector; sector headwind is a stronger signal than individual option flow |
+| Computed Greeks diverge >10% from provider values on 3+ tickers simultaneously | market-data-engineer | Possible data feed corruption, incorrect dividend assumptions, or rate curve mismatch; halt signal generation until root cause identified — trading on wrong Greeks is worse than not trading |
 
 ## What Good Looks Like
 <!-- STANDARD: 2min — the bar for production-quality quantitative analysis -->

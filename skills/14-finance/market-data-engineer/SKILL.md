@@ -734,6 +734,20 @@ ORDER BY volume_diff DESC;
 - **Use ZSTD compression level 9 for Parquet archives.** ZSTD-9 achieves 30-40% smaller files than Snappy for financial time-series data. For 7 years of tick data at 50 TB raw, that is the difference between $2,000/month and $3,200/month on S3 Intelligent-Tiering. Decompression speed penalty is negligible (< 5%) for Athena queries that scan pre-pruned partitions.
 - **Schedule all jobs in Eastern Time with holiday awareness.** Use `pandas_market_calendars` or `exchange_calendars` library. Never hardcode `0 9 * * 1-5` in cron — that runs on Good Friday, July 3 half-days, and misses post-holiday catch-up windows. Instead: `trading_calendar.is_trading_day(date)` before every pipeline run.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| **Storing only adjusted prices because raw data takes too much space** | Adjustment factors change retroactively — a 2:1 split announced today changes all historical prices. Without raw prices, you cannot re-adjust when corporate action methodologies are revised or when an adjustment error is discovered. | Store raw price, adjustment factor, and adjusted price as three columns. Compress raw historical data with ZSTD-9 — the storage cost difference is <15% for the safety of full auditability. Never discard the raw. |
+| **Using JSON on Kafka because it is easier to debug during development** | At 50K messages/second with 500-byte payloads, JSON serialization costs 10x the storage and network bandwidth of Avro. A single day of options flow becomes a $2,400/month Kafka bill versus $240 with Avro — and the debugging convenience ends the moment you leave dev. | Use Avro or Protobuf with Confluent Schema Registry. Enforce schema compatibility checks (BACKWARD, FORWARD, FULL). JSON is acceptable in local dev with a small topic — never in staging or production pipelines. |
+| **Running corporate actions processing after downstream analytics pipelines** | Downstream models consume unadjusted prices — all Greeks, IV surfaces, signals, and backtests are silently wrong. A 10:1 split processed 4 hours late means every quant model used prices off by 10x for half a trading day with zero alerts. | Corporate actions must complete BEFORE any downstream pipeline runs. Add a dependency gate: if `corp_actions.last_run < today 6 AM ET`, freeze all analytics pipelines. No downstream pipeline starts until corporate actions are applied and verified. |
+| **Partitioning Parquet by ticker/year/month/day** | Query engines prune partitions left-to-right. With ticker first, a query for "AAPL on 2024-06-14" still scans every month partition under the AAPL prefix. Date-first pruning eliminates 99.7% of data in a single pass. | Partition as `year/month/day/ticker`. A single-day single-ticker query hits exactly one partition. Always put the highest-cardinality filter last in the partition hierarchy — date before ticker. |
+| **Silently dropping rows that fail validation to keep the pipeline running** | Dropped data = silently wrong analytics. When 3% of rows fail volume sanity checks and are quietly discarded, every downstream model is off by 3% — and nobody knows. The corruption propagates invisibly through every consumer. | Route failed rows to a quarantine table (`options_flow_quarantine`) with `validation_error`, `ingested_at`, and `raw_payload`. Review quarantine daily. Alert if quarantine rate exceeds 1% of daily ingested volume. |
+| **Hardcoding market hours as 9:30-16:00 ET in pipeline configs and cron jobs** | Runs on Good Friday, July 3 half-days, Thanksgiving Friday, and every federal holiday. Produces zero-volume days that look like data outages, triggering false PagerDuty alerts. Misses post-holiday catch-up windows entirely. | Use `pandas_market_calendars` or `exchange_calendars` for all schedule decisions. Check `trading_calendar.is_trading_day(date)` before every pipeline run. Never hardcode time windows — parameterize from the calendar. |
+| **Assuming vendor API "unlimited" tier is actually unlimited** | Every vendor has soft caps, burst limits, or fair-use policies buried in the terms of service. A single earnings season day with 3x normal volume generates a $50K overage charge before anyone notices. "Unlimited" means "unlimited until it hurts us." | Configure per-vendor rate limiters with daily cost budgets. Set cost alerts at 50%, 75%, and 90% of monthly budget. Model costs using worst-case daily volume (earnings season), not average — the worst case happens every quarter. |
+| **Deploying a schema migration without a data reconciliation step** | Schema migrations change column types, add precision, or rename fields — but the migration script does not validate that existing values are correct in the new schema. Strikes off by 1000x, premiums in wrong currency, OI values truncated — all invisible until a backtest produces impossible results. | Every migration must include: (a) pre-migration data snapshot, (b) migration script, (c) post-migration reconciliation query comparing row counts and value distributions at the 1st, 50th, and 99th percentiles. Reject the migration if reconciliation fails for any column. |
+
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
@@ -887,6 +901,20 @@ API cost overrun > 200% daily budget? → finops-engineer → cto-advisor
 Corporate action missed for major index constituent? → quantitative-analyst → cto-advisor (legal/regulatory risk)
 PII discovered in raw market data feed? → security-engineer → compliance-officer
 ```
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Data feed latency exceeds 60 seconds during market hours | quantitative-analyst + algorithmic-trader | Real-time UOA detection and trade signals are degraded; downstream consumers trading on stale data must halt until feed recovers |
+| Kafka consumer lag exceeds 50K messages or 5 minutes during market hours | devops-engineer + database-reliability-engineer | Streaming pipeline bottleneck; TimescaleDB ingestion falling behind; risk of data loss if lag exceeds topic retention window |
+| Vendor API cost exceeds 75% of daily budget before 11 AM ET | finops-engineer + devops-engineer | On track for daily budget overrun; consider rate-limit tightening or vendor tier upgrade before overage charges hit at month-end |
+| Daily quarantine table exceeds 1% of ingested rows | quantitative-analyst + data-scientist | Data quality degradation — downstream analytics potentially corrupted; investigate root cause and quarantine pattern before next model training run |
+| Corporate action announced for top-50 index constituent (split, dividend, merger) | quantitative-analyst + algorithmic-trader | Adjusted data will lag announcement by up to 1 hour; all models consuming unadjusted prices for this ticker are unreliable until processing completes |
+| Cross-source reconciliation shows >15% volume discrepancy between vendors | quantitative-analyst + data-scientist | One data source is reporting incorrect volume; backtests and signals consuming the bad source are invalid; identify source of truth and quarantine the bad feed |
+| Parquet export integrity check fails (row count mismatch or nulls in required columns) | quantitative-analyst + data-scientist | Historical archive has gaps; affected date range must be excluded from backtesting until re-export completes and passes integrity check |
+| Primary vendor API returns 503 for 3+ consecutive requests | devops-engineer + quantitative-analyst | Vendor outage confirmed; initiate failover to backup data source; estimate data gap duration and notify all downstream consumers of recovery ETA |
 
 ## What Good Looks Like
 <!-- QUICK: 30s — the concrete definition of success -->
