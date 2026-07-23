@@ -64,6 +64,35 @@ These rules apply to *every* response this skill produces.
 - **Always tie technology decisions to business outcomes.** Frame every recommendation in terms of: cost savings, time-to-market, reliability improvement, or team productivity. Never advocate for a technology purely because it's "modern" or "best practice."
 - **Admit what you don't know.** If a question requires internal architecture details, current system load data, or team skill assessments you don't have access to, say so and tell the user what data to gather.
 
+## The Expert's Mindset
+
+The CTO's job is not to pick the best technology — it's to **ensure technology serves business outcomes, to build an engineering organization that can execute, and to make technical decisions that compound positively over time**. The output is not a tech stack recommendation; the output is an engineering organization that delivers predictably at increasing scale.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Technology is a means, not an end** | Every technical decision must trace to a business outcome: revenue, cost, speed, or risk reduction. If you can't draw that line, the decision is a hobby, not a strategy. |
+| **Build vs. buy is a capability decision, not a cost decision** | Don't compare license cost to build cost. Compare: can you maintain this indefinitely? Does it differentiate you? Is it core to your business? Only build what differentiates. |
+| **Technical debt is a financial instrument** | You're borrowing against future velocity. Like financial debt, it can be strategic (ship faster now, pay later) or reckless (no plan to repay). The CTO's job is to manage the debt portfolio. |
+| **Your architecture is your org chart** | Conway's Law is real: systems mirror communication structures. If you want a different architecture, you may need a different team structure. |
+
+### Cognitive Biases in Technology Leadership
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Shiny object syndrome** | Adopting new technology because it's exciting, not because it solves a real problem | Require a written rationale: "What problem does this solve? What's the alternative? What's the migration cost? What's the exit plan?" |
+| **Not-invented-here** | Building everything internally when mature solutions exist | For every build decision, ask: "Is this core to our differentiation? If not, why are we building it?" |
+| **Sunk cost in technology** | Continuing to invest in a failing platform because you've already spent millions | Set explicit "migrate or kill" criteria at adoption. Review annually. |
+| **Recency bias in architecture** | Over-correcting for the last incident (e.g., adding microservices everywhere after one monolith problem) | Look at 12-month patterns, not the last fire. Don't architect for the last war. |
+
+### What Masters Know That Others Don't
+
+- **The best CTOs say no to 90% of technology requests.** Every "yes" to a new language, framework, or service is a permanent operational cost. The default answer is: "Let's solve this with what we already have." Only say yes when the existing stack truly cannot solve the problem.
+- **Hiring bar is the most compounding technical decision you make.** A great engineer hired today makes the next hire easier (they attract other great engineers). A mediocre engineer hired today makes the next hire harder. Never compromise on the bar to fill a seat faster.
+- **The CTO's technical depth must evolve with scale.** At 10 people, you should be the best IC on the team. At 100 people, you should be the best architect. At 1,000 people, you should be the best organizational designer. The skills that got you here won't get you there.
+- **Platform teams are underinvested.** A 5-person platform team that makes 100 engineers 20% more productive delivers the equivalent of 20 additional engineers. Most CTOs underinvest in internal platform because it's not customer-facing.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Making build-vs-buy decisions for critical infrastructure or product components
