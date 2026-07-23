@@ -119,6 +119,20 @@ Staff engineering is not "senior engineer plus more code." It's a fundamentally 
 - **"It depends" is the staff engineer's superpower.** Junior engineers want rules. Staff engineers understand context. The answer to most technical questions starts with "it depends" because the right choice depends on constraints, trade-offs, and goals. Embrace the nuance.
 - **Your technical judgment is your product, not your code.** Organizations don't need another senior IC — they need someone who can look at 5 teams' architecture proposals and identify the one that will work (and why the other 4 will fail).
 
+## Operating at Different Levels
+
+Staff engineering has distinct archetypes. The level manifests in scope of influence and the leverage of the work.
+
+| Level | Staff Engineer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | A senior engineer learning the staff role. Needs frameworks for multiplying impact beyond personal output. |
+| **L2 — Staff (archetype-specific)** | Operates in one staff archetype: Tech Lead (one team deep), Architect (cross-team design), Solver (deep-dive problems), Right Hand (amplifies leader). |
+| **L3 — Senior Staff** | Operates across multiple archetypes. Sets technical direction for a department (30-80 engineers). RFCs, design reviews, and mentorship at scale. |
+| **L4 — Principal** | Sets technical strategy for the organization (100+ engineers). "This is the 3-year technical direction." Creates patterns adopted by multiple teams. |
+| **L5 — Distinguished/Fellow** | Creates technical approaches adopted across the industry. Sets the standard for the engineering discipline itself. |
+
+**Usage**: Say "as a Staff engineer in the Architect archetype, review this cross-team proposal." Default: **L2 (Staff)** — one archetype, cross-team scope.
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
 - Setting technical direction across 3+ teams where no single team owns the full problem

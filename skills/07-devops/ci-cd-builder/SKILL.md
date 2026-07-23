@@ -98,6 +98,20 @@ CI/CD is not about pipelines — it's about **reducing the time and risk between
 - **Progressive delivery beats big-bang deployments.** Canary, blue-green, and feature flags reduce the blast radius of a bad change from "all users" to "5% of users." The investment in progressive delivery pays for itself in avoided incidents.
 - **Pipeline speed is a productivity multiplier.** Going from 30 minutes to 5 minutes doesn't just save 25 minutes — it changes developer behavior. Developers run CI before pushing, experiment more, and iterate faster.
 
+## Operating at Different Levels
+
+CI/CD skill scales from single-pipeline design to org-wide delivery platform architecture.
+
+| Level | CI/CD Builder Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Writes pipeline YAML from templates. Learns CI/CD fundamentals and common patterns. |
+| **L2 — Practitioner** | Owns CI/CD for a service. Designs build, test, and deploy workflows independently. Caching, artifact management, environment promotion. |
+| **L3 — Senior** | Designs CI/CD strategy for a product. Multi-service pipeline orchestration, progressive delivery, SLSA supply chain security. |
+| **L4 — Staff/Principal** | Sets CI/CD standards for the organization. Pipeline as product, shared workflow libraries, DORA metric optimization. "This is how we ship software here." |
+| **L5 — Industry-level** | Creates CI/CD patterns and delivery methodologies adopted across the industry. |
+
+**Usage**: Say "as an L3 CI/CD engineer, design the delivery pipeline for..." Default: **L2** (service-level CI/CD, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Architecting a CI/CD pipeline from scratch for monorepos, microservices, or polyglot codebases
