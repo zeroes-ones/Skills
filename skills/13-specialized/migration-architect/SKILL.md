@@ -371,6 +371,19 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 | Database replication, failover testing, backup integrity | `database-reliability-engineer` |
 | Data access layer changes, API versioning, dual-write implementation | `backend-developer` |
 
+## Proactive Triggers
+<!-- QUICK: 30s — when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Migration backfill progress falls >20% behind schedule | Project Manager, Backend Developers | Cutover date at risk; throughput investigation or resource reallocation needed |
+| Replication lag exceeds 2 seconds sustained for >5 minutes | DBA, DevOps, Backend Developers | Old system falling behind; throttling or pause required to protect rollback capability |
+| Data reconciliation check fails (row count or checksum mismatch) | DBA, Backend Developers, QA | Data integrity at risk; halt migration until root cause identified and fixed |
+| Dual-write error rate exceeds 0.1% for either target | Backend Developers, DBA | Silent data loss possible; write verification failing; investigate write path immediately |
+| Production performance degradation >15% during backfill window | Performance Engineer, DevOps, Project Manager | User impact; throttle backfill or reschedule to lower-traffic window |
+| Migration window timing conflicts with release freeze or holiday moratorium | Project Manager, Product Strategist | Reschedule migration; never run migrations during change freezes |
+| Third-party dependency for migration fails (CDC connector, cloud service, API) | System Architect, DevOps, Project Manager | Migration blocked; contingency plan or workaround activation needed |
+
 ## Production Checklist
 
 - [ ] **Inventory complete:** all databases, services, cron jobs, consumers, and dependencies documented with row counts, throughput estimates, and coupling scores
@@ -487,17 +500,6 @@ python3 scripts/monitor_replication.py --threshold-ms 2000 --output json
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 1. **Expand-Contract for every schema change:** Add → dual-write → backfill → switch reads → remove old. Never drop a column in the same deploy that adds its replacement.
-
-### Error Decoder
-<!-- DEEP: 10+min -->
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Database migration silently corrupted 50K customer records | Migration script applied UPDATE without WHERE clause; no pre-migration backup verified; no data integrity checks before cutover | Always verify backup is restorable before migration; add WHERE clause linting in CI; run pre/post migration reconciliation queries | A migration without a verified rollback isn't a migration — it's a gamble with customer data |
-| Incremental migration planned for 3 months still running after 18 months | No checkpointing; migration couldn't resume from failures; each restart started from the beginning | Batch data migration with checkpointing (save progress every 1K rows); use CDC for ongoing sync; set a deadline with automated escalation | Incremental without checkpointing is a death march — design every migration for resumability |
-| Big-bang migration rolled back at 3 AM after a 12-hour outage | Hidden dependency discovered mid-migration; shared database accessed by 3 unannounced services | Before any migration conduct a full dependency audit — count every API consumer, ETL job, and webhook; add 50% buffer to every time estimate | "It's just a schema change" — until a forgotten cron job breaks your rollback in the middle of the night |
-| Dual-write to old and new databases but only old data persisted | Dual-write code silently swallowed errors to the new database; team assumed it worked because no alerts fired | Add write-verification after every dual-write operation; monitor error rates for both databases separately; run periodic consistency reconciliation | If you're not monitoring both sides of a dual-write you only have one database |
-| Schema migration blocked reads for 30 minutes in production | Direct ALTER TABLE on a 50M-row table caused an extended table lock | Use online schema change tools: gh-ost for MySQL, pgroll for PostgreSQL; always run CREATE INDEX CONCURRENTLY instead of blocking CREATE INDEX | A blocking ALTER on a large table isn't a migration — it's a planned outage by another name |
 2. **Test rollbacks before you need them:** Every migration must pass CI: apply up → run tests → roll back → run tests. If rollback can't be tested, it doesn't exist.
 3. **Start with low-risk components first:** Migrate your least critical, least coupled service first. Learn from it. Don't start with the payment system.
 4. **Batch data migration with checkpointing:** Process 1K-10K rows per batch with a sleep interval. Save checkpoint after each batch. A failed 100M-row migration must resume, not restart.
@@ -508,6 +510,31 @@ python3 scripts/monitor_replication.py --threshold-ms 2000 --output json
 9. **Never migrate and refactor simultaneously:** Either lift-and-shift (same logic, new platform) OR refactor-and-migrate (new logic). Doing both at once makes <!-- DEEP: 10+min -->
 debugging impossible.
 10. **Conduct a pre-mortem before every migration:** "The migration failed. What went wrong?" Write down the top 3 causes. Those are your rollback triggers and monitoring priorities.
+
+## Error Decoder
+<!-- DEEP: 10+min -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|------------|-----|--------|
+| Database migration silently corrupted 50K customer records | Migration script applied UPDATE without WHERE clause; no pre-migration backup verified; no data integrity checks before cutover | Always verify backup is restorable before migration; add WHERE clause linting in CI; run pre/post migration reconciliation queries | A migration without a verified rollback isn't a migration — it's a gamble with customer data |
+| Incremental migration planned for 3 months still running after 18 months | No checkpointing; migration couldn't resume from failures; each restart started from the beginning | Batch data migration with checkpointing (save progress every 1K rows); use CDC for ongoing sync; set a deadline with automated escalation | Incremental without checkpointing is a death march — design every migration for resumability |
+| Big-bang migration rolled back at 3 AM after a 12-hour outage | Hidden dependency discovered mid-migration; shared database accessed by 3 unannounced services | Before any migration conduct a full dependency audit — count every API consumer, ETL job, and webhook; add 50% buffer to every time estimate | "It's just a schema change" — until a forgotten cron job breaks your rollback in the middle of the night |
+| Dual-write to old and new databases but only old data persisted | Dual-write code silently swallowed errors to the new database; team assumed it worked because no alerts fired | Add write-verification after every dual-write operation; monitor error rates for both databases separately; run periodic consistency reconciliation | If you're not monitoring both sides of a dual-write you only have one database |
+| Schema migration blocked reads for 30 minutes in production | Direct ALTER TABLE on a 50M-row table caused an extended table lock | Use online schema change tools: gh-ost for MySQL, pgroll for PostgreSQL; always run CREATE INDEX CONCURRENTLY instead of blocking CREATE INDEX | A blocking ALTER on a large table isn't a migration — it's a planned outage by another name |
+
+## Anti-Patterns
+<!-- STANDARD: 3min — patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Dropping old column in the same deploy that adds replacement | Rollback impossible — if new column has bugs, you can't go back to old; zero-downtime lost | Expand-Contract: add new column → dual-write → backfill → switch reads → remove old (separate deploys) |
+| Running migration script without WHERE clause | One typo corrupts entire table; no way to resume from failure point; rollback requires full restore | Always include WHERE clause with batching condition; run on sample first; never UPDATE or DELETE without explicit filter |
+| Assuming "it's just a schema change" without dependency audit | Hidden consumers break silently: cron jobs, reporting queries, ETL pipelines, unregistered services | Run full dependency audit before every migration: count all API consumers, direct DB readers, ETL jobs, and webhooks |
+| Manual migration execution in production terminal | No audit trail; fat-finger risk; can't resume if SSH drops; no one else knows what was run | All migrations run through CI/CD pipeline; idempotent scripts; logged output with timestamps; no human-in-terminal execution |
+| Delaying rollback test until migration day | Rollback script has syntax errors; untested rollback takes 10x estimated time; outage extends | Test rollback in staging for every migration phase; CI pipeline validates apply-up → test → rollback → test cycle |
+| Using big-bang approach because "expand-contract takes too long" | 12-hour outage when hidden dependency breaks; no incremental verification; all-or-nothing gamble | Expand-contract costs calendar time but zero downtime; big-bang saves calendar time but guarantees downtime window |
+| No feature flag gating new code paths | If migration fails, you must redeploy old code; deploy takes minutes, feature flag takes seconds | Feature-flag every new migration path; rollback = disable flag (seconds) not redeploy (minutes) |
+| Decommissioning old system the day after cutover | Latent bugs surface after 48 hours; data edge cases discovered by users; no fallback available | Minimum bake: 24h simple, 48h API, 72h full-stack, 7-30 days financial; keep old system in read-only mode during bake |
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

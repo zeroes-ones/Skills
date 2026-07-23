@@ -267,6 +267,20 @@ Pair each strategic account (>$100K ACV) with an internal executive sponsor (VP 
 - **Executive sponsor relationships must be peer-to-peer.** A VP-level sponsor paired with a Director-level customer contact creates an awkward power dynamic. Match levels intentionally. VP to VP. C-level to C-level.
 - **Every account plan includes a "who could kill this deal" section.** Identify the one person (not your champion) who could veto the renewal — the new CFO cutting costs, the incoming VP with a competitor relationship, the procurement lead who hates your standard terms. Document your mitigation strategy for each.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- patterns that predictably fail -->
+
+| Anti-Pattern | Why It Fails | Correct Approach |
+|---|---|---|
+| Waiting until the last 30 days to start renewal conversations | Late renewals become price-only discussions. The customer has no time to internalize value delivered, so they negotiate on cost alone. Without documented value, you're in a race to the bottom against every cheaper alternative. | Start renewal cycle at 120 days. Phase 1 (days 120-90): internal prep and value log compilation. Phase 2 (days 90-60): value review with champion. Phase 3 (days 60-30): proposal and economic buyer engagement. Phase 4 (days 30-0): close and procurement. |
+| Leading expansion pitches with product features instead of customer business problems | Customers can detect a self-serving pitch immediately. "You should buy more licenses" sounds like you're chasing quota, not solving their problems. They tune out and the opportunity dies. | Identify an unsolved customer problem your expansion addresses. Lead with the problem, not the product: "Your EMEA team is still on spreadsheets — here's what rolling out licenses would unlock for them." Expansion must solve a real customer pain point. |
+| Using industry-average ROI numbers instead of customer-specific data | Finance teams are trained to spot generic assumptions instantly. One unverifiable number destroys credibility of the entire business case. The analysis is dismissed within 30 seconds. | Every number must trace to a customer-provided data point or a labeled, adjustable assumption. "We estimated your engineer cost at $150K/year based on industry data. Your actual fully loaded cost may differ — adjust cell B12 to see updated ROI." |
+| Building relationship only with the champion, ignoring the economic buyer | The champion loves your product but doesn't control the budget. When renewal comes, the economic buyer (who you never met) sees your product as a line item to optimize. Without a relationship, you're a cost, not a partner. | Map and maintain relationships with both roles from day one. The champion advocates; the economic buyer signs. Schedule at least quarterly touchpoints with the economic buyer focused on business outcomes, not product features. |
+| Discounting to defend against competitors without first quantifying switching costs | The cheapest competitor wins on price alone. If you immediately match or beat on price, you're validating the competitor's only advantage while ignoring yours — the switching cost they'd incur leaving you. | Quantify migration costs before discussing pricing: "$X in data migration, $Y in retraining, $Z in lost productivity during transition." Most customers underestimate switching costs by 3-5x. Present the total cost of switching before any discount discussion. |
+| Allowing single-threaded accounts to persist without escalation | One contact means one point of failure. If that person leaves, gets promoted, or changes priorities, you lose all institutional knowledge and relationship capital overnight. The renewal becomes a cold sale. | Multi-threading audit every quarter. Flag accounts with only 1 active contact (responded within 30 days). Escalate within 14 days: CEO intro, executive sponsor pairing, or targeted outreach to adjacent departments. Target: ≥3 active contacts per account >$50K ACV. |
+| Forecasting renewals on gut feel without objective commit criteria | Gut-feel forecasting inflates commit categories. Deals marked "commit" without procurement engagement or budget verification create forecast misses of 30%+. Leadership loses trust in the pipeline and can't plan resources. | Enforce objective commit criteria: (1) procurement contact identified and engaged, (2) budget confirmed for upcoming period, (3) timeline agreed to by customer, (4) legal review complete or not required. Any deal missing 2+ criteria is Upside, not Commit. |
+| Treating QBRs as product roadmap presentations | Customers see a one-way product pitch as a waste of time. They already use your product — they don't need a demo. Attendance declines, and the strategic relationship erodes into a vendor transaction. | Restructure QBRs: 80% about the customer's business goals and KPIs, 20% about your product. Pre-read deck sent 48h before. Confirm economic buyer attends. The QBR is a joint business review, not a product showcase. |
+
 ## Error Decoder
 <!-- DEEP: 10+min -- every row is a real account management failure that cost revenue or trust -->
 
@@ -341,6 +355,20 @@ Common chains:
 - **Expansion loop**: customer-success-manager → account-manager — Usage signals → expansion qualification → upsell/cross-sell close
 - **Renewal defense**: account-manager → product-manager → legal-advisor — Competitive threat detected → feature gap commitment → contract terms review
 - **Strategic negotiation**: account-manager → legal-advisor → ceo-strategist — Non-standard terms requested → risk assessment → executive approval
+
+## Proactive Triggers
+<!-- QUICK: 30s -- when to proactively notify stakeholders -->
+
+| Trigger | Notify | Why |
+|---------|--------|-----|
+| Champion departs (detected via email bounce, LinkedIn job change, or non-response >30 days) | Customer Success Manager | Single point of contact failure. Re-establish relationship with a new champion within 7 days. If no new contact is made, renewal probability drops below 30%. |
+| Competitor formally engaged (RFP issued, POC underway, trial with competitor detected) | Product Manager, CEO Strategist (if >$100K ACV) | Competitive defense activation. Feature gap analysis required. Executive relationship must be activated immediately — peer-to-peer sponsor outreach within 48 hours. |
+| Procurement demands non-standard terms (uncapped liability, custom SLA, IP indemnity, data residency addenda) | Legal Advisor | Non-standard terms can delay or kill deals. Legal review, risk assessment, and negotiation strategy needed before committing to any position. |
+| Multi-year renewal approaching 120-day mark for account >$250K ACV | Customer Success Manager, RevOps Manager, CEO Strategist | Strategic renewal cycle initiation. Value documentation review. Executive alignment on pricing strategy. Multi-year deals require longer preparation and executive sponsorship. |
+| Customer's usage of premium/paid-addon features spikes 3x month-over-month | Customer Success Manager | Expansion signal — the customer is outgrowing their current tier. Engagement before they hit a usage ceiling prevents frustration and positions expansion naturally. |
+| Account health score drops >20 points within 30 days | Customer Success Manager, CEO Strategist (if >$100K ACV) | Rapid health deterioration signals an acute issue — product failure, support crisis, or internal customer decision to evaluate alternatives. Intervention required within 48 hours. |
+| Customer contact goes silent for 45+ days (no email response, missed meetings, no support activity) | Customer Success Manager | Disengagement is a leading churn indicator. The customer has likely deprioritized your product or is evaluating alternatives. Re-engagement before the relationship fully atrophies. |
+| Expansion closed >$100K ACV | Customer Success Manager, Sales Engineer | Onboarding trigger for expanded deployment. Success plan update. Health score recalibrated. The larger deployment requires coordinated handoff to ensure value is delivered against the expanded scope. |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- DEEP: 10+min -- how this skill changes as the company grows -->
