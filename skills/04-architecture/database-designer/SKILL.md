@@ -307,6 +307,19 @@ Routine schema change (new column, index addition, non-breaking type change)
 
 
 **What good looks like:** ERD covers all entities with named relationships and cardinalities. The 10 most expensive query patterns each have an EXPLAIN plan showing sequential scans eliminated by the chosen index strategy. Migration scripts have both up and down paths tested in CI. The schema survives a production load test at 2x peak QPS without connection pool exhaustion or lock contention.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Choosing an ORM for a new project | Before committing, map the ORM's query generation against your top 5 query patterns. Propose running `EXPLAIN ANALYZE` on ORM-generated queries for joins, aggregations, and pagination. Discuss N+1 detection tooling (e.g., `bullet` gem, `nplusone` for Django, Prisma's `relationLoadStrategy: "query"`) | ORMs generate queries you didn't write — LEFT JOINs where INNER JOINs suffice, implicit subqueries, and lazy-loaded relations that cause N+1 cascades. A `findAll({ include: { posts: { include: { comments: true } } } })` can generate 5000+ queries under load. Pre-select the ORM's escape hatch for raw SQL |
+| Modeling a many-to-many relationship that will serve >100K associations per entity | Before creating a standard junction table, propose a denormalized approach: materialize the association as a JSONB array on the parent for read-heavy workloads, or use a separate optimized read model (Redis sorted set, Elasticsearch) for high-cardinality lookups. Discuss read/write ratio and query patterns before picking the physical model | Standard junction tables with `JOIN` + `GROUP_CONCAT` perform fine at 1K associations but collapse at 100K — index scans become table scans, and aggregations consume disproportionate memory. The right model depends on whether reads or writes dominate |
+| Designing a database that will serve both OLTP (transactional) and OLAP (analytics/reporting) workloads | Propose separating read models: OLTP uses normalized Postgres, OLAP uses a read replica with materialized views or a dedicated columnar store (ClickHouse, Redshift). Discuss CDC (change data capture) to stream writes to the analytics store. Never let reporting queries compete with transaction locks | A `SELECT COUNT(*) GROUP BY date_trunc('hour', created_at)` on 50M rows holds locks that block order creation. Reporting queries scanning production tables are the #1 cause of unexplained latency spikes in OLTP systems. Separate the workloads before the first dashboard is built |
+| Adding full-text search to a Postgres-backed application | Before reaching for Elasticsearch, evaluate Postgres `tsvector` + GIN index (good to ~1M documents, ~100ms queries). If >1M docs or sub-50ms latency needed, propose CDC pipeline from Postgres WAL → Elasticsearch/Meilisearch. Discuss reindexing strategy, synonym dictionaries, and relevance tuning | Postgres full-text search works surprisingly well at moderate scale, but `tsvector` columns need triggers/refresh on every write, GIN indexes have write amplification, and fuzzy matching is limited. Elasticsearch is 10x better at relevance but adds a second system to operate — know the crossover point |
+| Configuring connection pooling across a microservices fleet | Before deploying, calculate total connections: `(pool_size_per_service × service_instances) + (background_jobs × workers)`. Propose PgBouncer transaction pooling (not session pooling) for >5 services. Set `idle_in_transaction_session_timeout` to 30s. Alert at 70% pool utilization with P95 | 10 services × 20 connections each × 3 instances = 600 connections. Postgres defaults to 100 max_connections — 500 connections get queued. Every service thinks "I only need 20" but the sum creates a denial-of-service on the database. Connection budgets are shared resources that need governance |
+| Using Redis/Memcached as a cache layer in front of the database | Before adding cache, propose a read-through or write-through pattern with TTL based on data freshness requirements. Discuss cache invalidation strategy: TTL-based (simple), event-driven (accurate but complex), or write-through (consistent but higher write latency). Propose cache-hit-rate monitoring with stale-data alerts | A cache without an invalidation strategy serves stale data silently. `SETEX user:123 3600 {...}` works until a profile update happens and users see old names for an hour. Write-through ensures consistency; TTL-only accepts staleness — pick deliberately, not by accident |
+| Designing a multi-tenant database schema | Before choosing shared-table vs schema-per-tenant vs database-per-tenant, propose evaluating: (a) tenant count (10 vs 10K), (b) isolation requirements (GDPR/HIPAA), (c) noisy-neighbor risk. Discuss connection pool routing — if database-per-tenant, how does the app route to the right pool? Discuss tenant-level backup/restore expectations | Row-level tenancy (`tenant_id` column + RLS) is simple but one tenant's heavy queries degrade all others. Database-per-tenant isolates perfectly but explodes connection counts (200 tenants × 10 connections = 2000 connections). The choice between "simple and shared" vs "isolated and complex" is a business decision masked as a technical one |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Model for access patterns, not for "purity"**: Denormalize when read performance matters more than write simplicity.
@@ -315,6 +328,19 @@ Routine schema change (new column, index addition, non-breaking type change)
 - **Separate read and write models**: CQRS pattern for high-scale systems with disparate read/write patterns.
 - **Connection management**: Set appropriate pool sizes (CPU cores * 2-4 for OLTP), statement timeouts, idle-in-transaction timeouts.
 - **Regular maintenance**: `VACUUM ANALYZE`, index rebuilds, statistics updates, bloat monitoring.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Designing indexes by intuition without running `EXPLAIN ANALYZE` | Run `EXPLAIN (ANALYZE, BUFFERS)` on every query in staging with production-like data volumes. Check that index scans actually occur. A `CREATE INDEX` that the planner ignores because of low cardinality or bad statistics is dead weight — it slows writes without helping reads |
+| Using `SELECT *` in production code against wide tables | Explicitly list columns. `SELECT *` breaks when columns are added/removed, fetches unused `TEXT`/`JSONB` blobs over the wire, and prevents index-only scans. A 50-column table where the app needs 3 columns wastes 94% of network I/O on every query |
+| Running migrations without a tested rollback path | Every `up` migration must have a corresponding `down` tested in CI. Use expand-contract for destructive changes: add new column (nullable) → backfill → switch reads → drop old column in a later migration. Never drop a column in the same migration that adds its replacement |
+| Relying on application-level constraints instead of database constraints | Add `NOT NULL`, `CHECK`, `UNIQUE`, and `FOREIGN KEY` at the database level. App-level validation is bypassed by background jobs, direct DB access, data migrations, and bugs. A `CHECK (amount >= 0)` in the DB catches what the controller forgot — and survives forever |
+| Opening a new database connection per request without pooling | Use PgBouncer (transaction mode) for Postgres, or the ORM's built-in pool with sane limits (`pool_size = (cores * 2) + 1`). A new TCP+TLS handshake per request adds 5-15ms overhead, and Postgres forks a backend process per connection — 1000 requests/sec without pooling = 1000 Postgres backends = OOM |
+| Storing monetary values as `FLOAT`/`DOUBLE` | Use `NUMERIC(19,4)` or `DECIMAL` for exact decimal arithmetic. Store amounts in the smallest unit (cents, satoshis) as `BIGINT` if you need integer-only operations. `0.1 + 0.2 = 0.30000000000000004` in floating-point — a $0.01 error per transaction compounds to thousands at scale |
+| Not monitoring connection pool saturation, replication lag, and slow queries | Deploy monitoring with alerts: connection pool utilization >70%, replication lag >5s, slow queries >500ms. Without these three signals, you discover production database problems from user complaints, not dashboards — and by then data may already be lost or corrupted |
+| Using application-level JOINs (fetch users, loop, fetch orders per user) instead of database JOINs | Write a single `SELECT u.*, o.* FROM users u LEFT JOIN orders o ON u.id = o.user_id` with proper indexes. Application-level JOINs (N+1 pattern) turn a 2-query operation into a 2001-query operation for 1000 users. Use the ORM's eager loading (`include`, `preload`, `joins`) or write the SQL yourself |
 
 ## When Postgres is All You Need
 
@@ -390,7 +416,7 @@ Do NOT denormalize when: read:write ratio < 10:1 (maintenance will kill you).
 - **Medium → Enterprise**: >1TB data or >10K writes/sec. Multi-region or compliance (SOC 2, HIPAA, GDPR). >50 developers.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
