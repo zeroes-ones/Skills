@@ -280,6 +280,18 @@ Debugging flaky tests and improving test stability
 - **Shift-left testing**: Catch bugs as early as possible. Test at the lowest pyramid level that can verify the behavior.
 - **Tagging**: Tag tests by type (`@smoke`, `@regression`, `@slow`, `@flaky`) for selective execution in CI.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Using `page.waitForTimeout(3000)` or `cy.wait(3000)` instead of waiting for actual DOM conditions | Replace all fixed waits with explicit assertions: `page.waitForSelector()`, `page.waitForResponse()`, or `page.waitForURL()`. Fixed timeouts are the #1 cause of flaky tests — they fail when CI runs slower than your dev machine. |
+| Asserting only on HTTP status codes without validating response body shape or data | Every API test must verify: status code + response body schema + specific data values. Use JSON Schema or OpenAPI spec validation to catch structural regressions. A test that only checks for 200 is testing nothing useful. |
+| Running integration tests against an in-memory SQLite database when production uses PostgreSQL | Use testcontainers or a dedicated ephemeral database matching the production engine and version exactly. SQLite silently ignores PostgreSQL-specific features (index types, constraint behaviors, JSON operators) — these differences become production bugs. |
+| Measuring code coverage by line percentage and ignoring branch/path coverage | Track branch coverage and require explicit tests for all feature-flagged code paths. 95% line coverage means nothing if the payment-processing branch behind a feature flag has zero tests. Map coverage to risk — auth, payments, and data handling get extra scrutiny. |
+| Skipping E2E tests because "they're slow and flaky" | Design E2E tests for your top 5 critical user journeys only. Use Playwright's auto-waiting, trace viewer for debugging failures, and run them in CI with retry (max 2). A flaky E2E test is a signal to improve the test, not an excuse to skip E2E entirely. |
+| Running performance tests against a warm cache and calling it representative of production | Performance tests must exercise the full stack: database, cache miss scenarios, and external dependencies. Run three passes: cold start, warm cache, and sustained load. Production traffic patterns are rarely cache-hit-only. |
+| Treating flaky tests as "known issues" without a quarantine and investigation process | Quarantine flaky tests in a separate suite so they don't block CI. Track flaky rate per test — investigate every test above 2% failure rate. Create a backlog item with root cause and owner. A flaky test today is a production incident tomorrow. |
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -319,6 +331,19 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 
 
 **What good looks like:** Test strategy document covers unit (60%), integration (30%), and E2E (10%). All critical user flows have automated E2E tests that pass on every PR. CI blocks on test failure. Coverage > 80% on business logic. Load test handles 2x peak QPS with p95 < 500ms.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Flaky test rate crosses 2% threshold — CI reliability is degrading | Quarantine the offending tests immediately. Run bisection to identify the commit that introduced flakiness. If root cause is a race condition or timing issue, fix the test (not the timeout). | A 2% flaky rate means 1 in 50 CI runs fails spuriously — engineers start ignoring failures, and real bugs slip through. Trust in CI erodes quickly. |
+| Code coverage drops by >5% on a single PR without explicit justification | Flag the PR and require either restored coverage or documented rationale (e.g., removing dead code, refactoring to simpler patterns). Coverage drops that aren't intentional are almost always untested code paths added in haste. | Coverage drops compound silently. One 2% drop per sprint = 52% coverage loss in a year. Enforcing per-patch coverage review catches the drift early. |
+| A critical user journey (login → search → checkout) has no automated E2E test | Add a Playwright/Cypress test covering the full happy path immediately. A manual-only critical path will break eventually — and you'll find out from a user, not a dashboard. | The cost of one E2E test is hours to write. The cost of a broken checkout flow on Black Friday is measured in revenue per minute. |
+| Performance smoke test in CI shows p95 latency increase of >20% from baseline | Block the merge and profile the change. A 20% latency regression in a framework upgrade or "minor refactor" is never minor — it multiplies at scale. Compare flame graphs from before and after the change. | Latency regressions are the silent app killers. A 20ms increase per endpoint across 50 microservices adds 1 second to the user experience. |
+| A team member asks "should we write tests for this?" about a payment, auth, or data-deletion feature | The answer is always yes. These are tier-0 risk surfaces. If the feature touches money, identity, or user data, it gets unit + integration + contract tests with no exceptions. | Testing isn't optional for high-risk surfaces. The question itself is a signal that testing culture needs reinforcement. |
+| Playwright/Cypress E2E suite takes >15 minutes and team starts skipping it locally | Split E2E into: smoke (5 critical paths, <5 min, run on every PR) and full regression (all paths, run nightly). Engineers run what's fast. A 30-minute E2E suite that nobody runs locally is dead code. | Test execution time directly correlates with adoption. If tests are too slow to run before pushing, they won't catch bugs — they'll just confirm them hours later in CI. |
+| Test data is shared across test cases and one test's data modification breaks another test | Each test must set up and tear down its own data. Use factories with unique identifiers (UUIDs, timestamps) so tests can run in parallel. Shared test data creates test interdependence — you can't run tests in isolation or in any order. | Non-isolated tests are the #2 cause of flakiness after fixed timeouts. A test that depends on data from another test will fail randomly based on execution order. |
+| Load test targets a "representative" QPS that's 6 months old and extrapolated from a spreadsheet | Derive load test targets from production traffic patterns: 2x peak QPS from the last 30 days, with realistic traffic distribution across endpoints. Extrapolated targets almost never match real-world load patterns. | Load testing against stale targets produces false confidence. Production will surprise you in ways a spreadsheet cannot predict. |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -378,7 +403,7 @@ Common chains:
 | `test-data-management` | Reproducible test data, GDPR-compliant test databases, seed data freshness | Factory libraries (Fishery, factory_boy), migration-based seeding, data obfuscation for production-like data |
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

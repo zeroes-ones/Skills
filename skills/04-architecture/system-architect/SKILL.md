@@ -312,6 +312,20 @@ Architecture guidance, review, or approval for team-level design
 
 
 **What good looks like:** Architecture Review Board signs off with zero unresolved critical findings. C4 diagrams (Context → Container → Component → Code) are accurate and up-to-date — a new team member traces the system's data flow from ingress to persistence in under 10 minutes. ADRs for the last 5 major decisions are written, reviewed, and merged. The architecture sketch passes the 'explain to a new hire in 5 minutes' test.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Team proposes microservices for a greenfield project with <10 engineers | Run the "Should We Microservice?" checklist. If team <20, DB CPU <50%, single tech stack, revenue <$20M ARR, deploy <daily → reject microservices. Start with a modular monolith with clear bounded contexts enforced by code structure | Microservices add network latency, deployment complexity, and debugging overhead. The default for <20 engineers should always be a monolith — extract services only when you can prove independent deploy/scale is required |
+| Architecture diagram hasn't been updated in 6+ months — new team members draw their own on whiteboards during onboarding | Schedule a 2-hour "diagram day" to update C4 Context and Container diagrams. Add to PR template: "Does this change affect any C4 diagram? If yes, update it." Make diagrams part of the Definition of Done for architecture-affecting work | Outdated architecture diagrams are worse than no diagrams — they create false confidence. When fire breaks out, the wrong diagram leads incident response in the wrong direction, wasting critical minutes |
+| ADR is proposed with a single option presented as "the obvious choice" — no alternatives considered | Reject the ADR and require at least 2 rejected alternatives with documented tradeoffs for each. An ADR without rejected alternatives is a preference, not a reasoned decision | The value of an ADR isn't the choice — it's the context around why alternatives were rejected. Two years later, when constraints have changed, knowing why you chose X over Y and Z is what enables informed reconsideration instead of guessing |
+| Production incident reveals an event was published but never consumed — data silently lost with no alert | Audit every event subscription: does it have a dead-letter queue? Implement DLQ for all subscriptions, add message persistence with replay capability, monitor DLQ depth with alerts, and add end-to-end tracing for all event flows | Event-driven without DLQ is fire-and-forget with amnesia. Lost messages in production are invisible until a customer complains — by then the trust is gone and the data is unrecoverable |
+| P95 latency doubled after extracting a new service — "we split it to make it faster" | Measure the latency budget per hop BEFORE extraction. Every network hop adds 50-200ms. If the split violates the latency budget, merge services back or use async messaging (events/queues) instead of sync REST | Distributed systems are slower than monolithic ones — always quantify before splitting. Extract with distributed tracing already in place, not after the fact. Latency is a feature users feel; don't trade it away for architectural purity |
+| Security review finds hardcoded credentials in source code — 6 months after they were committed and the repo has been cloned by 15 engineers | Add secret scanning to CI immediately (Trivy, Semgrep, GitGuardian). Rotate all exposed credentials within 24 hours. Implement secrets management (Vault/AWS Secrets Manager) as a non-negotiable architectural requirement enforced at the platform level | A single hardcoded credential in source code can cost millions in breach remediation. Secrets should never touch a developer's editor or version control — inject at runtime via secrets manager or CI/CD pipeline |
+| Team of 5 engineers operating 15 microservices — every deploy requires coordination across 3 teams and takes 3 days | Consolidate into a modular monolith with clear bounded contexts. One deploy, one repo, one team. If a service handles <100 req/s, it's a library, not a service — merge it back. Run the consolidation as a dedicated architectural initiative | The operational cost of a microservice (CI/CD pipeline, monitoring, on-call rotation, deployment coordination) is constant regardless of throughput. Many tiny services multiply operational burden without any scaling benefit |
+| New external dependency introduced without architecture review — "we'll document it later, we needed it for the sprint" | Add architecture fitness functions in CI: no new service dependencies without an ADR, no circular module dependencies, no breaking API changes, no HIGH/Critical CVEs. Automate the architecture review, don't schedule it — the CI pipeline is your enforcement mechanism | Architecture degrades one un-reviewed decision at a time. Fitness functions in CI catch drift before it becomes debt. A dependency not reviewed is a decision not tracked — and a future outage with no documented rationale |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Evolvable architecture**: Start with modular monolith; extract microservices only when bounded contexts are clear and independent scaling is needed.
@@ -321,6 +335,18 @@ Architecture guidance, review, or approval for team-level design
 - **Infrastructure as Code**: Terraform/Pulumi/CloudFormation for all infrastructure; GitOps (ArgoCD/Flux) for deployment.
 - **Security by design**: Defense in depth, zero-trust networking, least-privilege IAM, encryption at rest and in transit, secrets management (Vault/Secrets Manager).
 - **Cost awareness**: Model cloud costs early (compute, data transfer, storage, managed services); architect for cost optimization (spot instances, auto-scaling, serverless where appropriate).
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Choosing microservices for a greenfield 5-person team "so we're ready to scale" — 15 services, 3-day deploys, debugging requires tracing across 5 service boundaries | Start with a modular monolith. Extract services only when: (1) bounded contexts are clearly proven, (2) independent scaling is measured as needed, (3) team topology aligns with service boundaries. Microservices are a cost paid upfront for a benefit you may never need |
+| Designing for hypothetical scale — optimizing for 1M concurrent users when you have 100 | Design for 10x current load, not 10,000x. A single well-tuned Postgres + Redis can handle 10K req/s. Premature optimization adds complexity without value. Measure first, scale second |
+| Using event sourcing for every write operation — even simple user profile updates become event-sourced sagas with replays and projections | Use event sourcing only when you need: immutable audit trail (compliance), temporal queries (what was the state at time T?), or complex multi-step event-driven workflows. For standard CRUD, a relational database with an append-only history table is simpler, faster, and easier to debug |
+| Sharing a single database across multiple services — "it's faster than API calls and we trust each other's schema changes" | Each service owns its data exclusively. Services communicate via well-defined APIs, never by reading each other's tables directly. A shared database creates tight coupling: a schema migration in Service A silently breaks Service B's queries |
+| Deploying to production without circuit breakers — "our dependencies are reliable, they never go down" | Every external dependency needs a circuit breaker, configurable timeout, retry policy with backoff, and graceful fallback. Assume every dependency can and will fail at the worst possible time. Circuit breakers prevent cascading failures from one slow service taking down the entire system |
+| Treating the architecture diagram as a one-time deliverable — generated for the design review and never opened again | Architecture diagrams are living documents updated with every significant change. Add "update C4 diagrams if affected" to the Definition of Done. Outdated architecture docs are misinformation — they guide incident response to the wrong root cause during outages |
+| Expressing non-functional requirements as adjectives — "the system must be fast, scalable, and secure" | Express NFRs as measurable SLOs: "P95 checkout latency <200ms, availability ≥99.95%, recover from single-AZ failure within 5 minutes." Vague adjectives are impossible to verify, test, or alert on. SLOs are specific, monitorable, and enforceable in CI and production |
 
 ## When Monolith Wins
 
@@ -402,7 +428,7 @@ Cache hit rate < 50%? → Remove the cache. It's adding latency.
 - **Medium → Enterprise**: 10+ services require platform team. Multi-region or compliance (SOC 2, HIPAA) required. >50 engineers.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
