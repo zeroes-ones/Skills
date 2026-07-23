@@ -84,6 +84,7 @@ What are you trying to do?
 ├── Need release coordination → Invoke `release-manager` skill instead
 ├── Need infrastructure automation → Invoke `devops-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -98,7 +99,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R1** | **REFUSE to define SLOs without user-impact data.** An SLO for "99.9% availability" is arbitrary unless tied to when users actually notice degradation. Measure user experience, not just system metrics. | Trigger: User proposes SLO target with no reference to user research, support ticket analysis, or client-side measurement data | STOP. Respond: "What do users actually experience? Provide: (1) client-side error rate from RUM/CDN logs, (2) support ticket volume correlated with outages, (3) user survey data on acceptable downtime. Without user-impact data, the SLO is a guess." |
 | **R2** | **REFUSE to treat error budgets as team performance metrics.** Error budgets are decision-making tools (ship features vs. invest in reliability), not scorecards to punish teams. | Trigger: `grep -rn "missed.*SLO\|SLO.*failure\|budget.*violation\|explain.*budget" docs/performance*.md` → punitive language around error budgets | STOP. Respond: "Error budgets measure system reliability, not team performance. Use 'error budget consumed' language, not 'SLO missed' or 'budget violation.' The question is: do we freeze features and invest in reliability, or keep shipping?" |
 | **R3** | **REFUSE to design on-call rotations with a single responder.** Every service needs at least two on-call responders. Bus-factor-of-one is a reliability risk, not an HR problem. | Trigger: `grep -rn "rotation\|schedule\|on.call" pagerduty*.yml oncall*.yml \| grep -c "user\|responder"` = 1 (single responder) | STOP. Respond: "On-call needs ≥ 2 responders per shift (primary + secondary). Add a secondary with automatic escalation after 5 minutes of no acknowledgment. Use `pd schedule:update --add-user=secondary@`." |
-| **R4** | **REFUSE to create alerts without linked runbooks.** An alert that fires with no documented steps to diagnose and mitigate is noise that wakes someone up. | Trigger: `grep -L "runbook_url\|runbook\|playbook" **/alert*.yml **/rules*.yml` → alert files missing runbook annotations | STOP. Respond: "Every alert needs a runbook. Add `annotations.runbook_url: https://wiki/runbooks/<alert-name>` to each alert rule. The runbook must cover: how to diagnose, how to mitigate, who to escalate to." |
+| **R4** | **REFUSE to create alerts without linked runbooks.** An alert that fires with no documented steps to diagnose and mitigate is noise that wakes someone up. | Trigger: `grep -L "runbook_url\|runbook\|playbook" **/alert*.yml **/rules*.yml` → alert files missing runbook annotations | STOP. Respond: "Every alert needs a runbook. Add `annotations.runbook_url: <https://wiki/runbooks/<alert-name>`> to each alert rule. The runbook must cover: how to diagnose, how to mitigate, who to escalate to." |
 | **R5** | **STOP and ASK when no SLI data exists for a service you're asked to set SLOs for.** You need ≥ 4 weeks of historical data to establish baselines. | Trigger: No Prometheus/Grafana datasource URL provided, no SLI metrics file referenced, and user hasn't mentioned historical data | STOP. Ask: "What's the current measured reliability? Provide: (1) 4 weeks of latency p50/p95/p99, (2) error rate over the same period, (3) throughput. I need data to set meaningful SLO targets. Without data, start with aspirational targets and calibrate after 30 days." |
 | **R6** | **DETECT and WARN about toil that isn't being quantified.** You can't reduce toil you haven't measured. Every manual, repetitive, automatable task needs a time cost tracked. | Trigger: No `toil-tracker*` file or `toil_budget` metric in the project, and user describes manual/repetitive work | WARN: "Track toil explicitly. Create a `toil-tracker.md`: for each manual task, log: task name, time per occurrence, occurrences per week, automation feasibility (easy/medium/hard). Target: < 50% of SRE time spent on toil." |
 | **R7** | **DETECT and WARN about postmortems without action-item tracking.** Postmortems that produce findings without owners, deadlines, and tracking guarantee repeat incidents. | Trigger: `grep -rn "postmortem\|post-mortem" docs/ \| grep -v "action.item\|owner\|deadline\|JIRA-\|tracked"` → postmortem docs missing action-item metadata | WARN: "Postmortems without tracked action items are theater. Every finding needs: named owner, deadline (≤ 30 days), and a tracking link (Jira/GH issue). Add `### Action Items` section with `[ ] @owner — Due: YYYY-MM-DD — #ISSUE-123` format." |
@@ -176,9 +177,11 @@ Is this user-visible behavior?
 ├─ NO → Internal operational metric (monitor but don't set SLO)
 │   └─ Examples: deployment frequency, cache hit ratio, garbage collection pause time
 └─ Edge case: Batch systems → measure freshness (data age) and throughput instead of latency
+
 ```
 
 ### 2. SLO Target Selection
+
 ```
 What's the reliability floor your users tolerate?
 ├─ Customer-facing API?
@@ -191,9 +194,11 @@ What's the reliability floor your users tolerate?
 ├─ Background/async processing?
 │   └─ Freshness SLO: "99% of records processed within 5 minutes"
 └─ Rule: SLOs must be STRICTER than SLAs (contractual) — typically SLO = SLA × 2 margin
+
 ```
 
 ### 3. Error Budget Burn Rate Response
+
 ```
 Error budget consumption rate decision:
 ├─ Burn rate < 1x (on track to finish budget within window)?
@@ -220,9 +225,11 @@ Is the work manual AND repetitive AND automatable AND without enduring value AND
 │   └─ Augment: build tooling to assist, keep human in loop for decision
 │   └─ Examples: approval workflows for production schema changes, incident commander role
 └─ Toil budget rule: cap toil at 50% of each SRE's time; excess toil escalates to engineering manager
+
 ```
 
 ### 5. Incident Severity Classification
+
 ```
 Is the incident user-visible?
 ├─ YES → Is the impact > 20% of users or revenue-critical?
@@ -325,7 +332,6 @@ Is the incident user-visible?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 SRE mastery is built under pressure — but the pressure should come from practice, not from production incidents. The best SREs have rehearsed failure so many times that real incidents feel familiar.
@@ -336,6 +342,7 @@ graph LR
     B --> C[Fix the gap: automate detection, improve runbooks, harden the system]
     C --> D[Run it again — was recovery faster this time?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -355,7 +362,6 @@ graph LR
 - **SLI measurement at the load balancer** captures "request failed at LB" but misses "request succeeded at LB but returned 500 from backend." Always measure SLIs at the application layer, not the infrastructure layer — the user doesn't care if the LB is healthy.
 - **MTBF (Mean Time Between Failures)** is misleading for distributed systems with partial failures. A system that has 100 micro-failures per day (each affecting 0.1% of requests) has terrible MTBF but users experience 99.9% availability. Use window-based availability, not MTBF.
 
-
 ## Verification
 
 - [ ] SLI metrics: query Prometheus for 30-day window — SLI correctly measures good events / total events
@@ -364,7 +370,6 @@ graph LR
 - [ ] Runbook test: pick an alert, follow its runbook in a game day — runbook is accurate, complete, and resolves the issue
 - [ ] Toil measurement: track time spent on manual, repetitive tasks for 1 week — toil < 50% of total engineering time
 - [ ] Capacity planning: current peak utilization < 60% of provisioned capacity — 2x headroom for failover + growth
-
 
 ## References
 

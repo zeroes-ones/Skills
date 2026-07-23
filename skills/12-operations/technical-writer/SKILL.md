@@ -145,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ## Decision Trees
 
 ### Documentation Type Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: What type of docs?       │
@@ -183,6 +184,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to build Conceptual Guides:** Learning/understanding — architecture overviews, design patterns, ADRs, tutorials, "why" not just "how".
 
 ### Information Architecture Decision
+
 ```
                      ┌──────────────────────────────┐
                      │ START: How to structure docs?  │
@@ -214,6 +216,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use Simple Hierarchy:** Medium scope — Getting Started → Guides → Reference → Changelog, works for most open-source projects and startups.
 
 ### README Quality Gate
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Is this README good?    │
@@ -249,6 +252,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When README needs work:** Missing any of: description, install, usage, contributing, license. Each missing piece costs new contributors 5-20 minutes of frustration.
 
 ### API Documentation Generation Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: How to generate API     │
@@ -279,6 +283,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to create OpenAPI spec first:** >10 endpoints without spec — invest in creating the spec; it becomes source of truth for docs, SDK generation, and validation.
 
 ### Changelog Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Changelog approach?     │
@@ -427,12 +432,12 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -451,7 +456,6 @@ graph LR
 - **Code samples with placeholder values that look real** — `api_key = "YOUR_API_KEY_HERE"` — a developer copies this, doesn't replace the placeholder, and spends 30 minutes debugging "Authentication failed: YOUR_API_KEY_HERE is not a valid API key." Code samples must either: (a) use a clearly invalid placeholder that throws a specific error, or (b) be executable with test credentials.
 - **Versioned docs where Google indexes ALL versions** — a user searches "how to configure" and gets the v1.0 docs (from 2021). They follow the instructions, which reference deprecated APIs, and conclude your product is broken. Old docs must have `noindex` meta tags AND a banner linking to the current version.
 
-
 ## Verification
 
 - [ ] Guides: every major use case has a step-by-step guide (not just API reference)
@@ -459,7 +463,6 @@ graph LR
 - [ ] Code samples: every sample is either executable (test credentials) or has clearly non-functional placeholders
 - [ ] Versioned docs: old versions have `noindex` + banner linking to current version — verified via Google Search Console
 - [ ] Doc testing: top 10 code samples tested in CI against latest API version
-
 
 ## References
 

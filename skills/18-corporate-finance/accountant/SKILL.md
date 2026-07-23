@@ -330,6 +330,7 @@ Month-end close is completed on business day 5. The financial package (P&L, bala
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -362,7 +363,6 @@ graph LR
 - **Sales tax nexus** — you registered in Delaware and Texas. But you hired a remote employee in Colorado, and Colorado now considers you to have economic nexus. You owe 2 years of uncollected sales tax + penalties. Nexus is triggered by employees, not just revenue. Every state where you have an employee needs a nexus review.
 - **Bank reconciliation** that says "difference = $42.17, immaterial" — but the $42.17 is 12 micro-transactions ($3.51 each) that are actually bank fees you didn't record. Over 12 months, that's $504 in unreported expenses. Immaterial ≠ zero. Track and categorize all differences; don't force-balance.
 
-
 ## Verification
 
 - [ ] Close process: month close completed within 5 business days — all reconciliations done
@@ -370,7 +370,6 @@ graph LR
 - [ ] Accounts receivable: AR aging report reviewed — > 90 days past due items have collection plan
 - [ ] Tax compliance: sales tax nexus reviewed quarterly for new states (employees, revenue thresholds)
 - [ ] Audit readiness: all material balances have supporting schedules with source data references
-
 
 ## References
 

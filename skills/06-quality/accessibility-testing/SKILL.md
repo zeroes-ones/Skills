@@ -141,6 +141,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- STANDARD: 3min -->
 
 ### Screen Reader Automation
+
 ```
 What do you need to test with a screen reader?
 ├── Static page content and heading structure → axe-core + DOM snapshot comparison (no real SR needed)
@@ -151,9 +152,11 @@ What do you need to test with a screen reader?
 │   └── Use aria-live regions instead of testing actual speech output
 └── Full screen reader UX → Manual testing required (automation cannot validate comprehension or usability)
     └── Supplement with: structured manual test scripts that QA follows
+
 ```
 
 ### Mobile Accessibility Testing
+
 ```
 Platform?
 ├── iOS → XCUITest + accessibility Inspector + VoiceOver swipe gestures
@@ -164,6 +167,7 @@ Platform?
 │   └── Key checks: accessible, accessibilityLabel, accessibilityRole, importantForAccessibility
 └── Flutter → flutter_test + SemanticsHandle + a11y audit in integration_test
     └── Key checks: Semantics widget, excludeFromSemantics, MergeSemantics
+
 ```
 
 <!-- DEEP: 10+min -->
@@ -214,6 +218,7 @@ Configure periodic (daily) accessibility scans of key production pages using pa1
 Blocked by inaccessible third-party component? → Accessibility Auditor → Legal Advisor (VPAT review)
 ADA/Section 508 complaint received? → Legal Advisor → Compliance Officer → CTO
 Accessibility score < 70 on critical user flow? → Product Manager → CTO Advisor
+
 ```
 
 ## Proactive Triggers
@@ -250,6 +255,7 @@ Accessibility score < 70 on critical user flow? → Product Manager → CTO Advi
 ```mermaid
 graph LR
     A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -269,7 +275,6 @@ graph LR
 - **Color contrast ratio 4.5:1** is minimum for AA, but large text (18px+ bold or 24px+ regular) only needs 3:1. Many tools report false failures for large text that actually passes.
 - **`display: none` and `aria-hidden="true"`** both hide from screen readers, but `display: none` also hides from keyboard focus while `aria-hidden` does not. An `aria-hidden` modal overlay is still keyboard-navigable — users can tab to invisible elements.
 
-
 ## Verification
 
 - [ ] Run `axe-core` in CI: zero violations at WCAG 2.2 AA level
@@ -278,7 +283,6 @@ graph LR
 - [ ] Screen reader audit: Navigate main flow with VoiceOver (macOS) or NVDA (Windows) — all content announced, all actions reachable
 - [ ] Color contrast: verify all text/UI components pass 4.5:1 (text) and 3:1 (large text/icons) using `axe` or `contrast-ratio` tool
 - [ ] Verify `eslint-plugin-jsx-a11y` passes with zero errors in CI
-
 
 ## References
 

@@ -323,6 +323,7 @@ Org Design Decision (director-engineering) → Architecture Strategy (cto-adviso
         └── Design review (all affected tech leads)
             └── ADR published → implementation begins
                 └── Quarterly architecture health report to director-engineering
+
 ```
 
 **Key governance gates:**
@@ -409,6 +410,7 @@ graph LR
     B --> C[Collect feedback, revise, build consensus]
     C --> D[Measure: did adoption of this pattern reduce incidents/confusion/churn?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |

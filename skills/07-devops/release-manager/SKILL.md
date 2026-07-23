@@ -80,6 +80,7 @@ What are you trying to do?
 ├── Need infrastructure automation → Invoke `devops-engineer` skill instead
 ├── Need production monitoring → Invoke `site-reliability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -149,6 +150,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Release Cadence Selection
+
 ```
 What release cadence fits your risk tolerance and team capacity?
 ├─ Continuous deployment (multiple/day)?
@@ -170,6 +172,7 @@ What release cadence fits your risk tolerance and team capacity?
 ```
 
 ### 2. Go/No-Go Decision Framework
+
 ```
 At release readiness review, evaluate each criterion:
 ├─ CRITICAL (any NO = NO-GO):
@@ -190,9 +193,11 @@ At release readiness review, evaluate each criterion:
 │   ├─ > 2 CONDITIONAL fail → NO-GO (unless CTO/VP signs off risk acceptance)
 │   └─ Tiebreaker: last releaser says GO/NO-GO if consensus cannot be reached
 └─ Decision deadline: 24 hours before deployment window
+
 ```
 
 ### 3. Rollback Decision Criteria
+
 ```
 Incident detected during/after deployment:
 ├─ Is the issue user-visible?
@@ -211,9 +216,11 @@ Incident detected during/after deployment:
     ├─ 3. Verify: smoke tests pass on rolled-back version; error budget burn stops
     ├─ 4. Communicate: status page update within 5 min; stakeholder Slack within 15 min
     └─ 5. Retro: postmortem within 48h; identify why deploy gates didn't catch the issue
+
 ```
 
 ### 4. Versioning Strategy Selection
+
 ```
 What versioning scheme?
 ├─ Library/API (consumed by other code)?
@@ -233,9 +240,11 @@ What versioning scheme?
 └─ 0ver (zero-based versioning)?
     └─ Use when: rapid iteration, pre-1.0 product, no stability promise
         └─ Example: 0.47.3 → 0.48.0; MAJOR always 0 until "stable" declaration
+
 ```
 
 ### 5. Hotfix vs. Scheduled Release Decision
+
 ```
 Critical bug found in production:
 ├─ User-visible and SEV1/SEV2?
@@ -350,12 +359,12 @@ Critical bug found in production:
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -375,7 +384,6 @@ graph LR
 - **Rollback safety** — a release that adds a new API field is safe to rollback (clients never saw the field). A release that RENAMES an API field is NOT safe to rollback — rollback restores the old name, but clients that saw the new name are now broken. Never rename; add-new-then-deprecate-old.
 - **Release train "all aboard"** cutoff — if you allow commits until 2 PM and release at 3 PM, a commit at 1:58 PM gets 2 minutes of CI. If CI takes 45 minutes, the release goes out without those changes tested. Cutoff must be `release_time - CI_duration - buffer`.
 
-
 ## Verification
 
 - [ ] Release checklist: all items checked, each has owner, each verifiable (not "verify performance is good" → "p99 < 200ms under 1K RPS")
@@ -384,7 +392,6 @@ graph LR
 - [ ] Database migration: migration runs forward and BACKWARD (rollback) — both complete without error in staging
 - [ ] Release notes: CHANGELOG.md updated, breaking changes documented with migration guide
 - [ ] Stakeholder sign-off: QA, Security, Product — all have explicitly approved (not "no one said no")
-
 
 ## References
 

@@ -246,12 +246,12 @@ Cross-team dependency deadlock (two teams block each other)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -269,7 +269,6 @@ graph LR
 - **"Build a dashboard with these 15 metrics"** — the spec describes WHAT to display, not WHERE the data comes from. Engineering discovers that 7 of the 15 metrics require data from a system that doesn't have an API. Spec must include DATA PROVENANCE: "Metric X comes from the billing system via `GET /invoices`, field `total`."
 - **Success criteria that can't be verified until launch** — "Users will love the new workflow" — you won't know until it ships. Success criteria must include pre-launch proxies: "In usability testing, 8/10 users complete the workflow in < 3 minutes without assistance." Verifiable before code freeze.
 
-
 ## Verification
 
 - [ ] Executive summary: 1 page — decisions, not details (details in appendices)
@@ -278,7 +277,6 @@ graph LR
 - [ ] Data model: ER diagram with all entities, relationships, and key fields labeled
 - [ ] Success criteria: pre-launch proxies defined — verifiable before code freeze
 - [ ] Stakeholder sign-off: Engineering, Design, and Product have reviewed and approved
-
 
 ## References
 

@@ -285,6 +285,7 @@ Engineering management is learned through hard conversations you can't take back
 
 ```
 ACT → REFLECT → ADJUST → (build relationship capital) → repeat
+
 ```
 
 After every difficult conversation: write down what you said, what they said, and what you'd do differently. Review before the next difficult conversation. Patterns will emerge.

@@ -79,6 +79,7 @@ What are you trying to do?
 ├── Cross-skill: Involve `devrel-advocate` for developer tutorials → Open that skill
 ├── Cross-skill: Align campaign content with `marketing-manager` → Open that skill
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -147,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Content Format Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Which content      │
@@ -171,12 +173,13 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   │(SEO)  ││media  │              └──────────────┘
                   └───────┘└───────┘
 ```
-**When to choose Blog/Guide:** TOFU + organic search focus — invest in SEO, cluster strategy, evergreen content with 6-12 month shelf life.  
-**When to choose Video/Podcast:** TOFU + brand building — reach audiences on YouTube, Spotify; high production cost, long payback.  
-**When to choose Case Study/Comparison:** BOFU — close deals with social proof; quantifiable ROI metrics required.  
+**When to choose Blog/Guide:** TOFU + organic search focus — invest in SEO, cluster strategy, evergreen content with 6-12 month shelf life.
+**When to choose Video/Podcast:** TOFU + brand building — reach audiences on YouTube, Spotify; high production cost, long payback.
+**When to choose Case Study/Comparison:** BOFU — close deals with social proof; quantifiable ROI metrics required.
 **When to choose Webinar/Template:** MOFU — nurture leads with gated assets; capture email → nurture sequence.
 
 ### Content Refresh vs. New Creation
+
 ```
                      ┌──────────────────────────┐
                      │ START: Publish new or      │
@@ -203,11 +206,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     └───────────┘               │or de-optimize│
                                                 └─────────────┘
 ```
-**When to Refresh:** Existing page ranks #4-15, 6+ months old — update stats, add new sections, republish with fresh date (SEO win in 30-60 days).  
-**When to Create New:** Keyword gap uncovered, no existing page within striking distance — build pillar + cluster, target long-tail first.  
+**When to Refresh:** Existing page ranks #4-15, 6+ months old — update stats, add new sections, republish with fresh date (SEO win in 30-60 days).
+**When to Create New:** Keyword gap uncovered, no existing page within striking distance — build pillar + cluster, target long-tail first.
 **When to Consolidate:** Multiple pages competing for same keyword — merge into one definitive resource, 301 redirects.
 
 ### Content Distribution Channel Mix
+
 ```
                      ┌──────────────────────────┐
                      │ START: Where to distribute │
@@ -232,10 +236,11 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                    └──────────┘ └─────────────┘
 ```
 **When to choose SEO + Owned:** Evergreen content, ROI from organic — invest in keyword research, backlinks, updates. Distribution: blog + newsletter.
-**When to choose Social + Push:** News, announcements, time-sensitive — Twitter, LinkedIn, Slack communities, push notifications.  
+**When to choose Social + Push:** News, announcements, time-sensitive — Twitter, LinkedIn, Slack communities, push notifications.
 **When to choose Gated + Retargeting:** High-value lead gen asset — landing page, form, email sequence, retargeting ads.
 
 ### Content Audit Decision Matrix
+
 ```
                      ┌──────────────────────────────┐
                      │ START: How to handle existing  │
@@ -264,11 +269,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                    └──────┘│priority)│
                                                            └────────┘
 ```
-**When to Keep + Optimize:** High traffic + high CVR — your best assets. Update CTAs, add related content links, optimize for conversions.  
+**When to Keep + Optimize:** High traffic + high CVR — your best assets. Update CTAs, add related content links, optimize for conversions.
 **When to Refresh:** High traffic, low conversion — content is found but doesn't convert. Improve CTAs, update offers, or fix format/paywall.
 **When to Delete/Redirect:** <10 visits/month, >1 year old, no backlinks — prune. 301 redirect to closest relevant page.
 
 ### Content Team Structure Decision
+
 ```
                      ┌──────────────────────────────┐
                      │ START: How to staff content?   │
@@ -293,7 +299,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                        └─────────┘ └─────────────┘
 ```
 **When to build in-house team:** >4 pieces/week, need deep product knowledge, fast iteration — hire editor + writers; supplement with freelancers.
-**When to use Agency + SME:** Niche domain expertise (legal, medical, financial) — pair agency with subject matter experts for accuracy.  
+**When to use Agency + SME:** Niche domain expertise (legal, medical, financial) — pair agency with subject matter experts for accuracy.
 **When to use Freelance:** <4 pieces/week, general topics — cost-effective, flexible, no benefits overhead.
 
 ## Core Workflow
@@ -406,12 +412,12 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 
 ## What Good Looks Like
 
-> 
+>
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
+
 ```mermaid
 graph LR
     A[product-manager] --> B[content-strategist]
@@ -423,6 +429,7 @@ Run skills in the order shown:
 ```bash
 # Chain A: product-manager → content-strategist → devrel-advocate
 # Chain B: seo-specialist → content-strategist → technical-writer
+
 ```
 
 ## Deliberate Practice
@@ -430,6 +437,7 @@ Run skills in the order shown:
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -448,7 +456,6 @@ graph LR
 - **SEO content that ranks #1 for a keyword and drives zero pipeline** — "What is a database?" — 50K visits/month, 0 conversions. The content was built for traffic, not for the buyer journey. For every piece of content, define: what stage of the funnel it targets and what the NEXT step is (subscribe, download, demo, buy).
 - **Content audit that flags "outdated" but doesn't have a process for what happens next** — 200 articles are "outdated." No one has time to update 200 articles. Result: audit report sits in Google Docs, content continues to age. Audit must include a PRIORITIZATION framework: update high-traffic declining, redirect low-traffic outdated, leave medium-traffic stable.
 
-
 ## Verification
 
 - [ ] Content audit: completed within last quarter — all content scored on traffic, conversion, and freshness
@@ -456,7 +463,6 @@ graph LR
 - [ ] Content performance: traffic and conversions tracked per piece — top 10% and bottom 20% identified
 - [ ] Funnel mapping: every content piece tagged with funnel stage and next-step CTA
 - [ ] Content debt: outdated high-traffic content has update plan — outdated low-traffic content redirected
-
 
 ## References
 

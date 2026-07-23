@@ -182,6 +182,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When inbound works:** Junior/mid-level roles with clear JD, strong employer brand, and compensation in market range. Expect 200-500 inbound applicants for a mid-level engineering role in a known company.
 
 ### Interview Loop Design: Deep vs Broad
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Interview loop design?   │
@@ -216,6 +217,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When broad loop:** Cross-functional roles (EM, PM, TPM, exec). More rounds covering distinct dimensions. Panel debrief required to synthesize signals.
 
 ### Offer Approval Authority
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Offer above band?        │
@@ -357,6 +359,7 @@ A hiring manager can open the ATS and see: pipeline health (candidates per stage
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -375,7 +378,6 @@ graph LR
 - **Interview debrief that starts with** a senior engineer saying "I wasn't impressed" — every subsequent comment anchors to that opinion. Debriefs must be written FIRST (each interviewer submits rating + justification independently), then discussed. Anchoring effects make verbal-first debriefs unreliable.
 - **Pipeline metrics that report "time to fill"** from req open to offer accepted — but the clock starts when the hiring manager finishes the job description, not when HR posts it. If HR posts in week 1 and HM finishes in week 4, the "time to fill" reports the HM's delay as HR's problem.
 
-
 ## Verification
 
 - [ ] Job descriptions: all open roles have ≤ 5 must-haves, nice-to-haves separated
@@ -383,7 +385,6 @@ graph LR
 - [ ] Interview calibration: debriefs use written-first format — no verbal anchoring
 - [ ] Candidate experience: NPS survey sent to all final-round candidates — score ≥ 50
 - [ ] Time-to-fill: measured from HM-completed intake to offer accepted — not from req posted
-
 
 ## References
 

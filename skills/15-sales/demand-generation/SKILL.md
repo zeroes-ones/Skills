@@ -366,6 +366,7 @@ MQL quality crisis (sales rejects >50% of MQLs) → Sales leadership + Marketing
 
 # Chain: demand-generation → growth-engineer
 # Conversion optimization: Demand gen identifies funnel leaks → Growth engineer builds and runs A/B tests
+
 ```
 
 ## Proactive Triggers
@@ -394,6 +395,7 @@ Every paid channel has a documented CAC and LTV:CAC ratio >3:1. MQL→SQL conver
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -412,7 +414,6 @@ graph LR
 - **Lead scoring based on email opens** (Apple Mail Privacy Protection opens all emails via proxy, inflating open rates by 30-40%). A "highly engaged" lead who "opened every email" may have never seen your brand. Score on clicks, form fills, and site visits — not opens.
 - **"MQL to SQL conversion rate"** measured without defining who qualifies the lead — marketing passes 100 leads, sales accepts 40, 60 are rejected but never returned to marketing. Those 60 are NOT "unqualified" — they're "unworked." Track rejection reasons and build a recycle path.
 
-
 ## Verification
 
 - [ ] Suppression lists: customers, open opportunities, and topic-unsubscribes suppressed from all campaigns
@@ -420,7 +421,6 @@ graph LR
 - [ ] Attribution: UTM parameters validated across all channels — no broken tracking links
 - [ ] MQL-to-SQL: rejection reasons tracked for every rejected lead, recycle path exists
 - [ ] Campaign ROI: cost per MQL, cost per SQL, cost per closed-won tracked and trending
-
 
 ## References
 

@@ -94,6 +94,7 @@ What are you trying to do?
 │   └── Jump to "Decision Trees > Build vs Buy vs Partner"
 └── Don't know where to start?
     └── Run all 4 phases of "Core Workflow" sequentially
+
 ```
 
 Do not read the entire skill. Follow the route above.
@@ -394,6 +395,7 @@ graph LR
     B --> C[3-6 months later: what actually happened?]
     C --> D[Calibrate: what did you get right/wrong? what bias showed up?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |

@@ -63,7 +63,7 @@ Use for: **code blocks, terminal output, fixed-width data display**. Available w
 
 **Styles that scale the most**: Body, Headline, Subheadline scale aggressively. **Styles that scale the least**: Caption 1/2 — these stay compact even at AX sizes. Large Title may truncate at AX3+ — test with `.adjustsFontSizeToFitWidth` or `.minimumScaleFactor(0.5)`.
 
-**Testing Dynamic Type**: 
+**Testing Dynamic Type**:
 - Simulator: Features → Toggle Increased (⌘+shift+= for larger, ⌘+shift+- for smaller)
 - Device: Settings → Control Center → Add "Text Size" control
 - Environment override in code: `UIApplication.shared.preferredContentSizeCategory = .accessibilityExtraExtraLarge`

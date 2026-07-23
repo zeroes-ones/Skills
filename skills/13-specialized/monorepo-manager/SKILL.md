@@ -65,6 +65,7 @@ What are you trying to do?
 ├── Migrate from polyrepo to monorepo → Jump to "Sub-Skills" — Monorepo Migration
 ├── Need CI/CD pipeline setup first → Invoke ci-cd-builder skill instead
 └── Not sure? → Describe your team size, package count, and current pain points
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -130,7 +131,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are migrating from polyrepo to monorepo and need a strategy for history preservation and gradual adoption
 - Your monorepo has grown to 50+ packages and you need to refactor the structure, tooling, or dependency graph
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -147,6 +147,7 @@ Common chains:
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Monorepo Tool Selection
+
 ```
                      ┌────────────────────────┐
                      │ START: What's your     │
@@ -171,12 +172,13 @@ Common chains:
   │ paces   │ │ Nx     │                         │ support.        │
   └─────────┘ └────────┘                         └─────────────────┘
 ```
-**pnpm workspaces alone:** <15 packages, simple dependency graph, no build orchestration needed.  
-**Turborepo:** JS/TS, need parallel task execution + caching. Lighter than Nx.  
-**Nx:** JS/TS, need generators, plugin ecosystem, advanced affected detection, or mobile+web.  
+**pnpm workspaces alone:** <15 packages, simple dependency graph, no build orchestration needed.
+**Turborepo:** JS/TS, need parallel task execution + caching. Lighter than Nx.
+**Nx:** JS/TS, need generators, plugin ecosystem, advanced affected detection, or mobile+web.
 **Bazel/Pants:** Polyglot (JS + Python + Go + Rust), large org, need reproducible builds.
 
 ### 2. Package Boundary Decision
+
 ```
                   ┌──────────────────────────┐
                   │ START: Will this package │
@@ -204,11 +206,12 @@ Common chains:
                    │ needed.  │
                    └──────────┘
 ```
-**Published externally → strict `exports` field, semver, Changesets.**  
-**Internal shared code → `"private": true`, no versioning overhead.**  
+**Published externally → strict `exports` field, semver, Changesets.**
+**Internal shared code → `"private": true`, no versioning overhead.**
 **Truly independent → separate repo. Don't force into monorepo if it ships independently.**
 
 ### 3. Versioning Strategy
+
 ```
                    ┌──────────────────────────┐
                    │ START: Are packages      │
@@ -230,10 +233,11 @@ Common chains:
                     │ by its own changes. │
                     └─────────────────────┘
 ```
-**Fixed/Locked:** All packages share one version. Use when packages are tightly coupled (e.g., React + ReactDOM).  
+**Fixed/Locked:** All packages share one version. Use when packages are tightly coupled (e.g., React + ReactDOM).
 **Independent with Changesets:** Each package versioned independently. Use when packages have different release cadences.
 
 ### 4. Migration Path: Polyrepo → Monorepo
+
 ```
                   ┌──────────────────────────┐
                   │ START: How many repos    │
@@ -256,10 +260,11 @@ Common chains:
                    │ merge.  │ │ over weeks.  │
                    └─────────┘ └──────────────┘
 ```
-**<5 repos → big-bang over a weekend.** Use subtree merge strategy to preserve history.  
+**<5 repos → big-bang over a weekend.** Use subtree merge strategy to preserve history.
 **>5 repos or >500K LOC → gradual adoption.** Start with shared configs and utilities; add one repo at a time.
 
 ### 5. CI/CD Affected Detection
+
 ```
                    ┌──────────────────────────┐
                    │ START: PR changes files  │
@@ -286,7 +291,7 @@ Common chains:
                   │ ages ││ected│
                   └──────┘└─────┘
 ```
-**Root config change (tsconfig/eslint/CI) → build ALL packages.**  
+**Root config change (tsconfig/eslint/CI) → build ALL packages.**
 **Package-level change → build only changed + dependents. Dramatically reduces CI time.**
 
 ## Core Workflow
@@ -396,16 +401,16 @@ Monorepo management touches every development team. A monorepo tooling change af
 
 ## What Good Looks Like
 
-> 
+>
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -425,7 +430,6 @@ graph LR
 - **Package version drift** — `packages/ui/package.json` depends on `react@18.2` and `packages/app/package.json` depends on `react@18.3`. The lockfile resolves both to one version, but CI installs might pick the other. Two React versions in one bundle causes "Invalid hook call" errors with no stack trace pointing to the root cause.
 - **Affected graph `--base=main`** compares against the local `main` branch. If CI hasn't fetched `main` recently, the affected graph computes against stale `main`, missing files that changed since. Always `git fetch origin main --depth=1` before computing affected projects.
 
-
 ## Verification
 
 - [ ] `git clone --depth=1` — clone completes in < 2 minutes, repo size < 500MB
@@ -434,7 +438,6 @@ graph LR
 - [ ] CI pipeline: changed `packages/ui/` only runs `ui` tests, not `app` or `admin` tests
 - [ ] Package consistency: `npx syncpack list-mismatches` — zero version mismatches across packages
 - [ ] Lint all: `npm run lint` at root — zero errors, all packages pass
-
 
 ## References
 - **Build System & CI/CD**: See [build-system-&-ci-cd.md](references/build-system-&-ci-cd.md)

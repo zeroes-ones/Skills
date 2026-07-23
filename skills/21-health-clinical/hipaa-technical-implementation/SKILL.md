@@ -158,6 +158,7 @@ Does the data element...
 ```
 
 ### Breach Risk Assessment
+
 ```
 Was PHI accessed/acquired by an unauthorized party?
 ├── YES → Perform 4-factor risk assessment:
@@ -168,9 +169,11 @@ Was PHI accessed/acquired by an unauthorized party?
 │   └── Low probability of compromise? → No notification required (document why)
 │   └── > Low probability? → NOTIFY: Patients, HHS, media if >500 affected
 └── NO → Document incident, no notification required
+
 ```
 
 ### BAA Decision Matrix
+
 ```
 Service type...
 ├── Cloud provider (AWS, Azure, GCP) → BAA available on standard terms. Execute before use.
@@ -236,6 +239,7 @@ CREATE INDEX idx_audit_profiles_timestamp ON audit.profiles(operation_timestamp)
 
 -- Application-level trigger via SQLAlchemy (preferred to DB triggers for logic)
 -- See Phase 2a for SQLAlchemy implementation
+
 ```
 
 **SQLAlchemy implementation (Python/FastAPI):**
@@ -392,6 +396,7 @@ Every PHI access is logged — who, what, when, from where, and why. The audit t
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -428,7 +433,7 @@ graph LR
 ## Verification
 
 - [ ] Encryption at rest: `aws s3api get-bucket-encryption` — all PHI buckets have encryption enabled
-- [ ] Encryption in transit: `curl -I https://${endpoint}` — all endpoints return HTTPS (not HTTP) with valid TLS 1.2+
+- [ ] Encryption in transit: `curl -I <https://${endpoint}`> — all endpoints return HTTPS (not HTTP) with valid TLS 1.2+
 - [ ] Access logging: `aws s3api get-bucket-logging` — all PHI buckets have access logging enabled
 - [ ] Audit log: `SELECT * FROM audit_log WHERE timestamp > NOW() - INTERVAL '24 hours'` — all PHI access is logged
 - [ ] PHI in logs scan: `grep -E '[0-9]{3}-[0-9]{2}-[0-9]{4}' logs/*.log` — zero SSN patterns in logs

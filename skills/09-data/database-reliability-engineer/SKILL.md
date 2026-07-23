@@ -83,6 +83,7 @@ What are you trying to do?
 ├── Need data pipelines → Invoke `data-engineer` skill instead
 ├── Need reliability framework → Invoke `site-reliability-engineer` skill instead
 └── Not sure? → Start at "Decision Trees" for RPO/RTO-based architecture selection
+
 ```
 
 ## Ground Rules — Read Before Anything Else
@@ -173,6 +174,7 @@ What are your RPO and RTO requirements?
 └── RPO < 1hr (cost-optimized)
     └── Either engine                         → Async replication + periodic pg_dump/mysqldump
         └── Consider if the business can truly tolerate this before choosing
+
 ```
 
 ### Sharding Strategy Decision
@@ -218,6 +220,7 @@ Database engine and client pattern?
 └── Managed cloud DB (RDS, Cloud SQL, AlloyDB)
     └── Check managed proxy offering first (RDS Proxy, Cloud SQL Auth Proxy)
         └── Reduces operational burden; built-in IAM + secret rotation
+
 ```
 
 ### Backup Strategy Decision
@@ -322,8 +325,8 @@ Recovery requirements?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
+
 ```bash
 # Schema design → Database reliability → Infrastructure reliability
 /database-designer && /database-reliability-engineer && /site-reliability-engineer
@@ -337,6 +340,7 @@ Recovery requirements?
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -356,7 +360,6 @@ graph LR
 - **Replication lag monitoring**: `SELECT pg_last_wal_receive_lsn() - pg_last_wal_replay_lsn()` gives bytes behind, but a single giant transaction (e.g., batch delete of 50M rows) produces ONE WAL record that replays as 50M operations, taking hours. Bytes-behind shows zero while the replica is actually hours behind in wall-clock time.
 - **Indexes on low-cardinality columns** (boolean, status with 3 values) are often ignored by the query planner because the selectivity is too low. But a partial index `WHERE status = 'active'` on the 5% active subset IS selective and WILL be used.
 
-
 ## Verification
 
 - [ ] Backup: `pg_dump` or `xtrabackup` completes successfully — restore from backup verified in staging
@@ -365,7 +368,6 @@ graph LR
 - [ ] Connection pooling: `SHOW POOLS` — zero connections in `idle in transaction` state for > 5 minutes
 - [ ] Query performance: `pg_stat_statements` top 10 queries by total_time — all have appropriate indexes
 - [ ] Disk space: `df -h` on data directory — usage < 80%, auto-extend or alerts configured
-
 
 ## References
 

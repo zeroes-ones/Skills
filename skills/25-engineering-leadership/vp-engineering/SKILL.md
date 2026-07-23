@@ -316,6 +316,7 @@ graph LR
     B --> C[Track outcomes over 6-12 months]
     C --> D[Review: what pattern did you learn? share with your leadership team]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |

@@ -143,6 +143,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Open Source License Selection
+
 ```
                      ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
@@ -299,6 +300,7 @@ Legal advice touches every function. Missed coordination creates liability; over
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -318,14 +320,12 @@ graph LR
 - **Using a template contract for a fundamentally different deal** — your SaaS subscription agreement used for a custom development project. It doesn't cover: IP assignment (who owns the custom code?), acceptance criteria, milestone payments, or warranty on deliverables. Templates are starting points, not universal contracts.
 - **Signing personally instead of as an authorized representative of the company** — "John Smith" instead of "John Smith, CEO, on behalf of Acme Corp." The contract now binds John Smith personally. If the company can't pay, John's personal assets are at risk.
 
-
 ## Error Decoder
 
 - **"This clause is 'standard' or 'boilerplate'" from opposing counsel** → "Standard" means "we put this in every contract and hope you don't push back." Every clause is negotiable. "Boilerplate" clauses that matter: governing law, venue, indemnification, limitation of liability, termination, and assignment. These are never truly boilerplate.
 - **"We need this signed by EOD"** → Artificial urgency is a negotiation tactic. If they really need it signed today, they should have sent it last week. Rushing legal review means you'll miss: auto-renewal clauses, uncapped liability, one-sided indemnification, and IP assignment traps.
 - **NDA that defines "Confidential Information" as "all information disclosed"** → Including publicly available information, information you already knew, and information you independently developed. The NDA now restricts you from using information you already owned. Always add exclusions: publicly known, previously known, independently developed, rightfully received from third party.
 - **Indemnification: "Each party indemnifies the other" (mutual)** → Sounds fair but isn't. If your product causes their data loss, you indemnify them (fair: it's your product). If they use your product to violate GDPR, they indemnify you (fair: it's their use). Mutual indemnification for DIFFERENT types of liability (IP infringement vs data misuse) is standard. Mutual for the SAME liability means you're paying for their mistakes.
-
 
 ## Production Checklist
 
@@ -337,7 +337,6 @@ graph LR
 - [ ] Terms of Service: last updated within 12 months. Consistent with privacy policy. Dispute resolution and governing law specified.
 - [ ] Document retention: signed contracts stored in a durable, backed-up system with access controls. Retention schedule documented.
 
-
 ## Gotchas
 
 - **Open-source license compatibility** — MIT code in an Apache 2.0 project is compatible (MIT is more permissive). GPLv3 code in an MIT project makes the ENTIRE project GPLv3 (copyleft propagation). Apache 2.0 and GPLv2 are INCOMPATIBLE (patent grant vs termination clauses). License compatibility must be checked at the dependency-graph level, not per-package.
@@ -346,7 +345,6 @@ graph LR
 - **Data residency vs data sovereignty** — your data is stored in Frankfurt (residency), but your parent company in the US can access it under the CLOUD Act (sovereignty). EU customers demand sovereignty (data can't leave the EU under any legal order), not just residency. Separate legal entity + data trustee required for true sovereignty.
 - **Indemnification clauses** in enterprise contracts — "Customer indemnifies Vendor against all third-party claims arising from Customer's use of the service." A third party sues YOU for something YOUR customer did with your software — and the customer pays your legal bills. But if YOUR software was the CAUSE (e.g., security vulnerability), customer indemnification doesn't apply. Mutual indemnification for IP infringement is standard; unilateral for customer conduct.
 
-
 ## Verification
 
 - [ ] License audit: `fossa` or `license-checker` — all dependencies have licenses, no GPLv3 in non-GPL projects
@@ -354,7 +352,6 @@ graph LR
 - [ ] Terms of Service: last updated date visible, governing law specified, dispute resolution process documented
 - [ ] Privacy: privacy policy and ToS are consistent (no "we never share data" in privacy + "we share with affiliates" in ToS)
 - [ ] Open source: projects with > 100 stars have contributing guide, code of conduct, and license
-
 
 ## References
 

@@ -149,6 +149,7 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 Key decision paths (full trees in [references/decision-trees.md](references/decision-trees.md)):
 
 ### Scrum vs Kanban vs Scrumban
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Which agile framework?  │... [See full decision trees →](references/decision-trees.md)
@@ -285,6 +286,7 @@ graph LR
     B --> C[Intervene with a specific experiment or coaching conversation]
     C --> D[Retro the intervention: did it help? what would you do differently?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -303,7 +305,6 @@ graph LR
 - **Retrospective action items without owners** — "improve code review turnaround" becomes a recurring retro topic for 6 sprints. Every action item needs an owner AND a measurable target: "Sarah will reduce average PR review time from 8 hours to 4 hours by next retro by implementing CODEOWNERS routing."
 - **Daily standup as status report to the Scrum Master** — team members report to the SM instead of coordinating with each other. The SM becomes a bottleneck. Standup should be team-to-team coordination; the SM observes and removes blockers, not directs.
 
-
 ## Verification
 
 - [ ] Sprint goal: team can articulate the sprint goal and why it matters — verified in standup
@@ -312,7 +313,6 @@ graph LR
 - [ ] Work in progress: WIP limits respected — no team member has > 3 items in progress simultaneously
 - [ ] Stakeholder feedback: sprint review attended by >= 1 stakeholder outside the team
 - [ ] Impediments: time from blocker raised to resolved tracked — median < 4 hours
-
 
 ## References
 

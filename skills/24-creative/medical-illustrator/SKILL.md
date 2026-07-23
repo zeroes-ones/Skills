@@ -75,6 +75,7 @@ What are you trying to do?
 ├── Need radiology or DICOM image processing? → Invoke clinical-informatics-specialist instead
 ├── Need patient experience or comprehension testing? → Invoke ux-researcher instead
 └── Not sure? → Describe the illustration need (audience, clinical context, output format) and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -165,6 +166,7 @@ What is the primary purpose?
 └── Marketing/awareness (general audience) → Engagement + accuracy balanced
     ├── Condition awareness → Emotional resonance + medical accuracy
     └── Product promotion → Claims-substantiated, disclaimer placement required
+
 ```
 
 ### Color Safety Decision Tree
@@ -178,6 +180,7 @@ Does the visual distinguish categories using color alone?
 │       ├── YES → Passes accessibility baseline
 │       └── NO → Increase contrast or add borders/outlines
 └── UNCERTAIN → Run through Coblis (color blindness simulator) for deuteranopia, protanopia, tritanopia
+
 ```
 
 **What good looks like:** A patient looks at your injection site guide and knows exactly where and how to inject — without reading a word. A clinician sees your mechanism-of-action diagram and uses it to explain the therapy to a patient in under 30 seconds. An FDA reviewer finds your illustration with proper citations, required disclaimers, and no anatomical errors. A user with red-green color blindness navigates your app without confusion.
@@ -264,6 +267,7 @@ Medical illustration bridges clinical accuracy, design, content, and development
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

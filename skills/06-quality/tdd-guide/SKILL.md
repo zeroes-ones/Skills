@@ -196,6 +196,7 @@ Do you see these signals?
                     │
                     ▼
               Start next test
+
 ```
 
 ### Phase 1: Red — Write a Failing Test
@@ -217,6 +218,7 @@ def test_transfer_moves_money_between_accounts():
     assert bob.balance == 50
 
 # Run: pytest → FAILS because BankAccount has no transfer() method
+
 ```
 
 **Rules for the Red phase:**
@@ -239,6 +241,7 @@ class BankAccount:
         to.balance += amount     # No error handling yet
 
 # Run: pytest → PASSES
+
 ```
 
 **Rules for the Green phase:**
@@ -260,6 +263,7 @@ def transfer(self, to, amount):
     to.balance += amount
 
 # Now refactor: extract validation, add type hints, clean up
+
 ```
 
 **Refactoring triggers (AND NOTHING ELSE):**
@@ -326,6 +330,7 @@ def test_transfer_preserves_total_money(amount, initial_balance):
     total_after = alice.balance + bob.balance
 
     assert total_before == total_after
+
 ```
 
 This single test explores thousands of random input combinations. Use for: financial calculations, data transformations, parsers, serializers, any pure function with clear invariants.
@@ -382,6 +387,7 @@ graph LR
     B --> C[Refactor: improve design without changing behavior]
     C --> D[Review: was the test a good first consumer of the API?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -400,7 +406,6 @@ graph LR
 - **REFACTOR phase skipped because "it's just a small function"** — 50 small functions with duplicated patterns, inconsistent naming, and no shared utilities. The codebase becomes a museum of individual decisions. Refactoring happens at the SUITE level: after 3 similar functions emerge, extract the pattern.
 - **Unit test that hits the database** — it's not a unit test. It's called a "unit test" but takes 200ms (network call), fails when the DB is down (external dependency), and CI reports "unit test failure" when the DB container didn't start. Unit tests touch NO external resources. If it needs a database, call it an integration test.
 
-
 ## Verification
 
 - [ ] RED phase: test fails for the expected reason (not compilation error, not different test) before implementation
@@ -408,7 +413,6 @@ graph LR
 - [ ] REFACTOR phase: duplicate patterns extracted after 3+ occurrences — rule of three
 - [ ] Test isolation: every test is independent — no shared state, no test-order dependency, shardable
 - [ ] Test categorization: unit (no I/O) vs integration (with I/O) vs e2e (full system) — labeled and run separately
-
 
 ## References
 

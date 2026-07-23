@@ -153,6 +153,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Experiment Design: A/B vs Multivariate vs Sequential vs Bayesian
+
 ```
                      ┌──────────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
@@ -288,6 +289,7 @@ The Growth-Engineer-to-Product-Manager partnership is the engine of data-driven 
 
 
 ### Cross-skills Integration
+
 ```mermaid
 graph LR
     A[analytics-engineer] --> B[growth-engineer]
@@ -299,6 +301,7 @@ Run skills in the order shown:
 ```bash
 # Chain A: analytics-engineer → growth-engineer → product-manager
 # Chain B: seo-specialist → growth-engineer → data-scientist
+
 ```
 
 ## Deliberate Practice
@@ -306,6 +309,7 @@ Run skills in the order shown:
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -325,7 +329,6 @@ graph LR
 - **`navigator.sendBeacon()` for event tracking** fires even when the page is unloading, but the payload size limit is 64KB. If your analytics payload is 70KB (e.g., full DOM snapshot for session replay), the beacon silently drops with no error callback.
 - **Funnel conversion rates** are ratios, not counts. A funnel that goes 1000 → 200 → 40 (4% overall) can't be decomposed as 20% × 20% = 4% if the 200 users who reached step 2 are DIFFERENT from the 200 in the 20% step-1-to-2 rate. Joined vs unjoined funnels produce different numbers — report both.
 
-
 ## Verification
 
 - [ ] A/B test duration pre-registered: start date, end date, sample size, and success metric documented BEFORE test starts
@@ -334,7 +337,6 @@ graph LR
 - [ ] Multiple testing correction: Bonferroni or Benjamini-Hochberg applied if testing multiple metrics
 - [ ] Cookie-less tracking: server-side identity resolution works — login event associates anonymous session with user ID
 - [ ] Funnel analysis: both joined AND unjoined funnel conversion rates reported — discrepancy explained
-
 
 ## References
 

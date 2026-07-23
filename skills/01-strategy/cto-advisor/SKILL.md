@@ -158,6 +158,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Build vs Buy
+
 ```
                      ┌────────────────────────┐
                      │ START: Build or Buy?   │
@@ -186,6 +187,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
 **When to BUY:** Commodity infrastructure (auth, payments, monitoring, CI/CD). Vendor switching cost is manageable (< 3 months migration). Build would divert > 30% of engineering from product work.
 
 ### Architecture Pattern Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Monolith or Services?  │
@@ -215,6 +217,7 @@ CTO effectiveness is deeply tied to company stage. The skills that make a great 
 debugging complexity.
 
 ### Tech Debt Prioritization
+
 ```
                      ┌────────────────────────────┐
                      │ START: Prioritize tech debt │
@@ -242,6 +245,7 @@ debugging complexity.
 **When to defer (P2):** Legacy code that works reliably. Module slated for replacement within 6 months. No customer-facing impact.
 
 ### Vendor Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Evaluate vendor   │
@@ -296,7 +300,6 @@ Can this be a competitive differentiator?
         ├── YES → BUILD (first-mover advantage possible)
         └── NO  → WAIT (let the market mature, then buy)
 ```
-
 
 **What good looks like:** Technology radar document published and reviewed with the engineering team — every major dependency has a clear Adopt/Trial/Assess/Hold rating with written rationale. The last 3 build-vs-buy decisions are documented with 5-year TCO, alternatives considered, and accepted tradeoffs. A new CTO can read the radar and understand why every technology choice was made within an afternoon.
 
@@ -389,7 +392,6 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Great CTOs develop their judgment through structured exposure to technology and organizational problems across different contexts.
@@ -400,6 +402,7 @@ graph LR
     B --> C[Recommend strategy with trade-offs]
     C --> D[Observe implementation outcome]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -418,7 +421,6 @@ graph LR
 - **"Innovation lab" or "skunkworks"** as a team siloed from the main engineering org — they build cool prototypes that can't integrate with production systems. The prototypes demo beautifully to the board and then die because the main engineering team wasn't part of the process. Innovation must be embedded, not siloed.
 - **"Move fast and break things"** applied to infrastructure decisions — choosing a database, message queue, or deployment platform requires 3-5 year commitments. Breaking things at the infrastructure layer means data migration, retraining, and service disruption. Fast iteration is for products, not platforms.
 
-
 ## Verification
 
 - [ ] Technology radar: reviewed within last 6 months — all technologies classified (adopt/trial/assess/hold)
@@ -426,7 +428,6 @@ graph LR
 - [ ] Architecture review: all production services have current architecture diagrams, ADRs for key decisions
 - [ ] Tech debt: quantified in business terms (velocity impact, risk exposure, cost), prioritized in roadmap
 - [ ] Innovation: at least 1 experiment per quarter with success/failure criteria and documented learning
-
 
 ## References
 - **Consequences**: See [consequences.md](references/consequences.md)

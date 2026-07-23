@@ -127,6 +127,7 @@ What are you trying to do?
 ├── Need privacy/compliance guidance? → Invoke privacy-engineer instead
 ├── Facing a crisis or safety incident? → Invoke patient-community-safety instead
 └── Not sure? → Describe the content type, platform, and harm you're trying to prevent — I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -271,6 +272,7 @@ Tier 4 — Low-Quality (no removal, quality signal)
   Examples: "I heard vitamin C prevents colds — not sure if it's true"
             Personal anecdotes presented as general advice
   Action: Reduced visibility in feeds + no punitive action
+
 ```
 
 ### Phase 2 — Community Guidelines Creation
@@ -356,6 +358,7 @@ Tier 4 — Low-Quality (no removal, quality signal)
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

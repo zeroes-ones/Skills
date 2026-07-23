@@ -75,6 +75,7 @@ What are you trying to do?
 ├── Implement showback/chargeback
 ├── Optimize Kubernetes costs
 └── Not sure? → Start with visibility: you can't optimize what you can't measure
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -144,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Reserved Instance vs. Savings Plan vs. On-Demand
+
 ```
 What's the workload profile?
 ├─ Steady-state, predictable (24/7 production, no seasonal spikes)?
@@ -161,9 +163,11 @@ What's the workload profile?
 ├─ Short-lived, unpredictable (hackathon, POC, burst)?
 │   └─ On-Demand: no commitment penalty
 └─ WARNING: Buying RIs/SPs for workloads < 6 months old = overcommitment risk
+
 ```
 
 ### 2. Right-Sizing Decision
+
 ```
 Resource utilization analysis:
 ├─ CPU < 10% avg over 30 days?
@@ -180,9 +184,11 @@ Resource utilization analysis:
 ├─ Storage attached (EBS, managed disk, persistent disk)?
 │   └─ Check provisioned IOPS vs consumed: paying for unused IOPS → switch to GP3/auto-tier
 └─ Implementation: change instance type in IaC, deploy during maintenance window, verify performance
+
 ```
 
 ### 3. Storage Tier Optimization
+
 ```
 Object storage lifecycle decision:
 ├─ Accessed hourly?
@@ -200,9 +206,11 @@ Object storage lifecycle decision:
 │   └─ YES → Set lifecycle policy: delete after X days
 │       └─ Savings: 100% — always the best optimization
 └─ Implementation: S3 lifecycle policies, GCS object lifecycle management, Azure Blob lifecycle
+
 ```
 
 ### 4. Data Transfer Cost Optimization
+
 ```
 Service-to-service communication:
 ├─ Same availability zone?
@@ -221,9 +229,11 @@ Service-to-service communication:
 │   └─ $0.045/GB + $0.045/hour per AZ
 │       └─ Optimization: VPC endpoints for S3/DynamoDB (free, no NAT); consolidate to 1 NAT in hub VPC
 └─ WARNING: Cross-region data transfer is the #1 hidden cost in multi-region architectures
+
 ```
 
 ### 5. Kubernetes Cost Optimization
+
 ```
 Cluster cost attack surface:
 ├─ Node right-sizing?
@@ -337,12 +347,12 @@ Cluster cost attack surface:
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -362,7 +372,6 @@ graph LR
 - **Data transfer costs within AWS** between AZs in the same region are $0.01/GB inbound AND outbound. A microservice that calls another service across AZs pays twice per request. Co-locate chatty services in the same AZ (via topology spread constraints) or use VPC endpoints.
 - **AWS Budget alerts** can only notify on FORECASTED or ACTUAL spend exceeding thresholds. If you set a $10K monthly budget alert and spend $9K in the first 5 days, the alert fires AFTER you've already spent $9K — not before. Use anomaly detection alongside budgets.
 
-
 ## Verification
 
 - [ ] Cost allocation: every cloud resource has `cost_center` / `team` / `environment` tag — 100% tagging coverage
@@ -371,7 +380,6 @@ graph LR
 - [ ] Savings coverage: compute savings plan / reserved instance coverage > 80% for steady-state workloads
 - [ ] Anomaly detection: cost anomaly alert configured — test by deploying an expensive resource, alert fires within 24 hours
 - [ ] Monthly report: cost per team, cost per feature, cost per customer — trend line shows cost/unit decreasing or stable
-
 
 ## References
 

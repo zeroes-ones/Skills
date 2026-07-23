@@ -78,6 +78,7 @@ What are you trying to do?
 ├── Need DevOps security (containers, IaC) → Invoke devops-engineer skill instead
 ├── Need incident response for active breach → Invoke incident-responder skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" — define scope, identify threat actors, then follow STRIDE
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -152,6 +153,7 @@ Security review scales from single-PR review to org-wide security program design
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Review Depth by Change Type
+
 ```
                      ┌──────────────────────────┐
                      │ START: Security review   │
@@ -182,6 +184,7 @@ Security review scales from single-PR review to org-wide security program design
 **When light review suffices:** Documentation changes, test-only changes, configuration changes with no security surface. SAST passes + `npm audit` clean = approve.
 
 ### Auth Vulnerability Severity
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Auth finding found    │
@@ -212,6 +215,7 @@ Security review scales from single-PR review to org-wide security program design
 **When MEDIUM:** JWT with `algorithm: none` possible but mitigated elsewhere. Session timeout is too long (72h+). Missing `SameSite` on non-critical cookie.
 
 ### Dependency Risk Triage
+
 ```
                      ┌──────────────────────────────┐
                      │ START: CVE found in dep      │
@@ -239,6 +243,7 @@ Security review scales from single-PR review to org-wide security program design
 **When 30-day fix:** Vulnerable in dev dependency only. Reachable code path requires non-default config. CVSS < 7.0 with local attack vector only.
 
 ### Tool vs Manual Review
+
 ```
                      ┌──────────────────────────────┐
                      │ START: SAST flag or manual?  │
@@ -378,7 +383,6 @@ Low / Info?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Security instinct is built through repeated adversarial thinking — learning to see systems the way an attacker sees them. This is a mindset that must be practiced, not just studied.
@@ -389,6 +393,7 @@ graph LR
     B --> C[Fix it and write a detection rule]
     C --> D[Add that vulnerability class to your mental threat model]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -458,7 +463,6 @@ graph LR
 - **Open redirect in login flow**: `GET /login?redirect=/dashboard` — if the redirect parameter is not validated against a whitelist, `redirect=//evil.com` sends the user's session token to an attacker's server.
 - **Prototype pollution in `Object.assign` or spread operators**: If user input like `{"__proto__": {"isAdmin": true}}` reaches a merge function, it pollutes `Object.prototype`. Every `{}` in the application now has `isAdmin: true`. Use `Object.create(null)` or libraries that sanitize keys.
 
-
 ## Verification
 
 - [ ] Run `npm audit` / `pip-audit` / `trivy fs .` — zero critical/high vulnerabilities
@@ -467,7 +471,6 @@ graph LR
 - [ ] STRIDE threat model complete: all 6 threat categories addressed with mitigations
 - [ ] OWASP Top 10 2021: each category checked, any findings have CVSS score
 - [ ] Auth review: JWT validation, session management, password policy — all items checked against checklist
-
 
 ## References
 

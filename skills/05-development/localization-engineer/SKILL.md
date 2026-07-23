@@ -77,6 +77,7 @@ What are you trying to do?
 ├── Need QA for locale testing → Invoke qa-engineer skill instead
 ├── Need accessibility in multiple languages → Invoke accessibility-testing skill instead
 └── Don't know where to start? → Describe your app, target languages, and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -307,7 +308,6 @@ LOCALE DETECTION — How should we decide which language to show?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -325,6 +325,7 @@ Common chains:
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -345,7 +346,6 @@ graph LR
 - **Translation keys with interpolation** `Hello {name}` — if the translator omits `{name}`, the app shows literal `{name}`. Validate that every translated string has exactly the same placeholders as the source.
 - **Pseudo-localization** doubles string length and adds diacritics. But it doesn't catch: missing plural forms, date formats, currency codes, or word-order issues. Pseudo-loc is necessary but not sufficient.
 
-
 ## Verification
 
 - [ ] Run pseudo-localization build: `npm run build -- --pseudo-locale=en-XA` — no layout breaks, no truncated strings
@@ -353,7 +353,6 @@ graph LR
 - [ ] Check ICU MessageFormat: validate all `{count, plural, ...}` and `{gender, select, ...}` syntax with `icu-messageformat-parser`
 - [ ] Test RTL layout: set locale to `ar` or `he` — all layouts mirror correctly, no hardcoded `left`/`right` CSS
 - [ ] Spot-check 3 languages in staging: login, main flow, error screen — no English fallback strings visible
-
 
 ## References
 

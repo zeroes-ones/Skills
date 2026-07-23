@@ -83,6 +83,7 @@ What are you trying to do?
 ├── Need database schema for this API → Invoke database-designer skill instead
 ├── Need security review of this API → Invoke security-reviewer skill instead
 └── Not sure where to start? → Describe the API you need and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -155,6 +156,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### REST vs GraphQL vs gRPC
+
 ```
                      ┌──────────────────────────┐
                      │ START: New API endpoint   │
@@ -177,6 +179,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 **When to choose REST:** Public-facing CRUD APIs, >3 consumer types, need HTTP caching, team has REST experience. **When to choose GraphQL:** 3+ client platforms with divergent data needs, nested/relational data, over-fetching problem measured at >40% unused fields. **When to choose gRPC:** Internal microservices, >1000 req/s, need bidirectional streaming, polyglot service mesh.
 
 ### URL Path vs Header Versioning
+
 ```
                      ┌──────────────────────────┐
                      │ START: Breaking API       │
@@ -196,6 +199,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 **When to choose URL Path:** Public API, >100 consumers, need discoverability and caching by version. **When to choose Header:** Internal-only API, <10 consumers, want clean URLs, can mandate Accept header usage.
 
 ### Cursor vs Offset Pagination
+
 ```
                      ┌──────────────────────────┐
                      │ START: List endpoint      │
@@ -216,6 +220,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 **When to choose Cursor:** Data changes frequently (>10 writes/sec), need stable pagination during mutations, dataset >10K records. **When to choose Offset:** Static or slowly-changing data (<1 write/min), need jump-to-page-N UX, dataset <10K records, simpler client implementation acceptable.
 
 ### API Key vs OAuth2 vs JWT
+
 ```
                      ┌──────────────────────────┐
                      │ START: Auth mechanism     │
@@ -240,6 +245,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
 **When to choose OAuth2:** User-facing APIs, delegated access, need refresh tokens and scope-based permissions. **When to choose API Key:** Server-to-server, <10 internal consumers, no user context needed, simplest integration. **When to choose JWT:** Stateless auth, distributed systems, need claims without token lookup, short-lived tokens (<15 min).
 
 ### Rate Limiting Tier Design
+
 ```
                      ┌──────────────────────────┐
                      │ START: Rate limit         │
@@ -294,7 +300,6 @@ API design skill manifests in the scope of the API — from single endpoints to 
 3. **Deprecation** — Use `Sunset` and `Deprecation` HTTP headers; emit `Deprecation` notice in API changelog at least 6 months before removal.
 4. **Sunset policy**: vN supported for 12 months after vN+1 release.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -336,7 +341,6 @@ Minor API addition or non-breaking change
   └── API Designer reviews, team implements. No escalation needed. Changelog and docs updated.
 ```
 
-
 **What good looks like:** OpenAPI 3.1 spec renders cleanly in Swagger UI with no validation warnings. Every endpoint has at least one request example, one response example, and all error schemas documented. A frontend developer can generate a type-safe client from the spec and start integrating without asking a single question about pagination, filtering, sorting, or error handling.
 
 ## Proactive Triggers
@@ -356,7 +360,6 @@ Minor API addition or non-breaking change
 > API consumers integrate in hours, not weeks. The specification is the source of truth — nothing ships that isn't documented. Breaking changes are rare and always communicated 6+ months ahead.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
@@ -387,7 +390,6 @@ Minor API addition or non-breaking change
 - **`202 Accepted`** means "I queued this, no guarantee of completion." Clients that treat 202 as success will assume the resource exists when it may still be processing. Always include a `Location` header pointing to a status endpoint.
 - **API versioning in the URL path** (`/v1/users`) means every route has a version prefix. When you add `/v2/users`, the old `/v1/users` route still needs maintenance until deprecated. URL versioning creates N copies of every endpoint.
 
-
 ## Verification
 
 - [ ] Run OpenAPI validator: `redocly lint openapi.yaml` or `spectral lint openapi.yaml` — zero errors
@@ -396,7 +398,6 @@ Minor API addition or non-breaking change
 - [ ] Verify pagination: all list endpoints return `next`/`cursor` link when more results exist
 - [ ] Verify error responses: every endpoint's 4xx and 5xx responses match `ErrorResponse` schema
 - [ ] Check `servers[].url` in OpenAPI: matches all environments (dev/staging/prod), no localhost URLs
-
 
 ## References
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)

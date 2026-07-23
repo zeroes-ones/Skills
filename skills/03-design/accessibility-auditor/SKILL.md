@@ -80,6 +80,7 @@ What are you trying to do?
 ├── Need formal legal compliance review? → `legal-advisor`
 ├── Need a11y testing in CI/CD pipeline? → `accessibility-testing`
 └── Not sure? → Run automated audit first (Phase 2), then assess manual testing needs
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -159,6 +160,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Conformance Level Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: WCAG target level?    │
@@ -189,6 +191,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 **When A acceptable:** Internal admin tool used by < 100 known employees. Early-stage MVP with accessibility roadmap. No legal obligation (confirmed by counsel).
 
 ### Testing Method Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Automated or manual?  │
@@ -219,6 +222,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 **When manual required:** ~70% of WCAG criteria need human judgment. Keyboard operability, focus management, meaningful alt text (not just presence), modal focus trapping.
 
 ### Remediation Priority
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Fix priority?         │
@@ -247,6 +251,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
 **When P2:** Enhancement-level issue. Workaround exists. Affects WCAG AAA criteria only. Low-traffic page with no critical function.
 
 ### Legal Risk Assessment
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Legal exposure?       │
@@ -393,7 +398,6 @@ Design system violation (shared component fails audit, affects all products)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Accessibility expertise grows through repeated exposure to how real users with disabilities interact with products. You cannot learn accessibility from specs alone — you must use assistive technologies.
@@ -404,6 +408,7 @@ graph LR
     B --> C[Fix the root cause, not just the symptom]
     C --> D[Test again with the same tool — did it improve?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -423,7 +428,6 @@ graph LR
 - **Skip navigation link that's `position: absolute; left: -9999px`** — keyboard focus moves to the link (it's focused), but the page doesn't scroll because the browser thinks the focused element isn't in the viewport. Use `transform: translateX(-100%)` or `top: -100%` with `:focus` styles that bring it back to visible.
 - **Color contrast ratio of 4.5:1 for text, 3:1 for large text (18px+ bold or 24px+)** — but large text on a gradient background: the contrast varies across the gradient. Measure at the WORST point where the text crosses the gradient, not the best.
 
-
 ## Verification
 
 - [ ] Automated scan: `axe-core` or `WAVE` — zero violations at WCAG 2.2 AA
@@ -432,7 +436,6 @@ graph LR
 - [ ] Color contrast: manual verification of gradient text, image text, and UI components not caught by automated tools
 - [ ] Focus management: modals trap focus, closing returns focus to trigger element, dynamic content updates announce to screen readers
 - [ ] Report: findings prioritized by severity and user impact, remediation recommendations specific and verifiable
-
 
 ## References
 - **Conformance Status**: See [conformance-status.md](references/conformance-status.md)

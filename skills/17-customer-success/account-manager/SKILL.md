@@ -146,6 +146,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Renewal Strategy Selection
+
 ```
 When is the renewal date?
 ├── > 180 days out → Early stage. Focus: value delivery tracking, executive alignment.
@@ -179,6 +180,7 @@ Multi-year deal structure?
 ```
 
 ### Expansion Strategy Selection
+
 ```
 What type of expansion?
 ├── Seat growth within existing department → Land-and-expand.
@@ -204,6 +206,7 @@ What type of expansion?
 ```
 
 ### Competitive Defense Strategy
+
 ```
 Which competitor is threatening?
 ├── Lower-price competitor → Defend on value, not price.
@@ -331,6 +334,7 @@ A new AM joining the team can take over an existing account within 1 week — th
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -349,7 +353,6 @@ graph LR
 - **"Our NPS is 65!"** — but you only surveyed customers who renewed (churned customers weren't asked). And the CEO of a 500-seat account gave a 9, while 12 end-users gave 4s. NPS weighted by revenue AND stratified by role (decision-maker vs end-user) tells the real story.
 - **Expansion revenue from "land and expand"** — you landed with a $20K team deal and plan to expand to $200K enterprise in year 2. But the team that adopted your product LEFT the company. Your internal champion is gone, and the new team lead uses a competitor. Land-and-expand requires multi-threaded relationships from day 1.
 
-
 ## Verification
 
 - [ ] Health score: every account has a health score (green/yellow/red) updated monthly
@@ -357,7 +360,6 @@ graph LR
 - [ ] Renewal pipeline: all renewals in the next 90 days have active engagement within last 30 days
 - [ ] NPS: response rate ≥ 40%, results segmented by revenue tier and user role
 - [ ] Expansion: at least 2 contacts per strategic account, decision-maker engaged within last quarter
-
 
 ## References
 

@@ -88,6 +88,7 @@ What are you trying to do?
 ├── Need incident response integration → Invoke `incident-responder` skill instead
 ├── Need platform observability → Invoke `platform-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -99,7 +100,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 
 | # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
 |---|-------------------|---------------------------------------------|-------------------|
-| **R1** | **REFUSE to create an alert without a linked runbook URL.** If the alert fires and the on-call engineer has no documented steps to diagnose and mitigate, it's noise that wakes someone up. | Trigger: `grep -L "runbook_url\|runbook" **/alert*.yml **/rules*.yml` → any alert rule file missing runbook annotations | STOP. Respond: "Every alert needs a runbook URL in annotations. Add `runbook_url: https://...` to each alert rule before proceeding." |
+| **R1** | **REFUSE to create an alert without a linked runbook URL.** If the alert fires and the on-call engineer has no documented steps to diagnose and mitigate, it's noise that wakes someone up. | Trigger: `grep -L "runbook_url\|runbook" **/alert*.yml **/rules*.yml` → any alert rule file missing runbook annotations | STOP. Respond: "Every alert needs a runbook URL in annotations. Add `runbook_url: <https://...`> to each alert rule before proceeding." |
 | **R2** | **REFUSE to create dashboards without a defined audience question.** Every dashboard must answer a specific question: "Is the service healthy?", "Where is latency coming from?", "Are we within SLO?" | Trigger: Dashboard JSON missing `"title"` or containing >12 panels with no `"description"` annotation | STOP. Respond: "Define the single question this dashboard answers. A dashboard with >12 panels without a clear question is dashboard sprawl." |
 | **R3** | **REFUSE to recommend unstructured (free-form text) logging in production.** Every log line must be structured JSON with consistent field names and types across services. | Trigger: `grep -rn "console\.log\|print\|fmt\.Print\|log\.Print" --include="*.go" --include="*.py" --include="*.js" | grep -v "JSON\|json\|structured"` → unstructured log calls detected | STOP. Respond: "All production logs must be structured JSON. Replace free-form log calls with structured logging (e.g., `logger.info(structured_data)` or `logrus.WithFields(...)`)." |
 | **R4** | **REFUSE to add high-cardinality labels to Prometheus metrics.** Labels with user IDs, request IDs, session IDs, or full URLs create a new time series per unique value — TSDB chokes. | Trigger: `grep -rn "user_id\|userID\|session_id\|sessionId\|request_id\|requestId" **/metrics/** **/prometheus*.go --include="*.go" --include="*.py"` → high-cardinality values used as metric labels | STOP. Respond: "High-cardinality data belongs in logs/traces, not metric labels. Move `user_id`/`request_id` to log context or span attributes. Keep label cardinality < 100 unique values." |
@@ -166,6 +167,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Metrics Backend: Prometheus vs SaaS
+
 ```
                      ┌──────────────────────────┐
                      │ START: Metrics collection  │
@@ -192,6 +194,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 **When to choose Self-Hosted Prometheus:** Budget <$500/month, <500 nodes, <10M active series, team has ops capacity (2-4 hrs/week). **When to choose SaaS:** >500 nodes, >10M series, no ops capacity, need integrated APM + logs + traces, budget >$2K/month. **When to choose Prometheus+Thanos:** Scale beyond single Prometheus but budget-constrained, 10M-100M series, team can manage distributed TSDB.
 
 ### Log Aggregation: Loki vs Elasticsearch
+
 ```
                      ┌──────────────────────────┐
                      │ START: Log aggregation     │
@@ -212,6 +215,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 **When to choose Loki:** K8s-native, label-based indexing sufficient, want S3-backed storage, budget <$1K/month, already using Grafana. **When to choose Elasticsearch:** Full-text log search required, complex aggregations (e.g., business analytics on logs), team has ES expertise, budget >$2K/month.
 
 ### Alert Severity Classification
+
 ```
                      ┌──────────────────────────┐
                      │ START: New alert condition │
@@ -238,6 +242,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 **When to set CRITICAL:** User-facing broken, error budget burning >10% in 1hr, revenue impact, page on-call with <5min ack SLA. **When to set WARNING:** Error budget burning >5% in 6hr, approaching threshold, page during business hours only. **When to set INFO:** Trend anomaly, no immediate user impact, dashboard-only, auto-generate ticket.
 
 ### Dashboard Design: RED vs USE vs Golden Signals
+
 ```
                      ┌──────────────────────────┐
                      │ START: Dashboard for a     │
@@ -261,6 +266,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 **When to use RED:** Every service endpoint — Rate (req/sec), Errors (5xx %), Duration (p50/p95/p99 latency). Add Golden Signals: traffic, latency, errors, saturation. **When to use USE:** Infrastructure — CPU utilization, memory saturation (OOM risk), disk I/O errors, network packet drops.
 
 ### Tracing Sampling Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: Sampling strategy   │
@@ -318,7 +324,6 @@ Observability scales from instrumenting a single service to org-wide observabili
    Budget < 5%: Full freeze, notify VP Engineering
    ```
 
-
 **What good looks like:** Every service emits structured logs, metrics, and traces. Grafana dashboard shows RED metrics (Rate/Errors/Duration) per service. Alert fires within 60 seconds of SLO violation. p99 latency tracked and trended weekly.
 
 5. **Stack Selection Decision**:
@@ -374,7 +379,6 @@ Observability scales from instrumenting a single service to org-wide observabili
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Observability mastery comes from using your own dashboards during real incidents. The gap between what you designed on a whiteboard and what you actually need at 3am is where mastery lives.
@@ -385,6 +389,7 @@ graph LR
     B --> C[Can you find the root cause in < 60 seconds using your dashboards?]
     C --> D[Fix what was missing: add instrumentation, improve dashboards, adjust alerts]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -404,7 +409,6 @@ graph LR
 - **Log sampling** at high volume: if you sample 1% of logs, you lose the 1 error in 10,000 requests that would have diagnosed the outage. Never sample ERROR-level logs; sample DEBUG/TRACE at 1%, INFO at 10%, WARN at 50%, ERROR at 100%.
 - **Alert fatigue**: If your `CPU > 80%` alert fires for 5 minutes every hour due to batch jobs, on-call engineers train themselves to ignore it. Then when a genuine CPU saturation occurs, no one responds. Alerts must require human action — if automation handles it, it's a notification, not an alert.
 
-
 ## Verification
 
 - [ ] Prometheus config: `promtool check config prometheus.yml` — syntax valid, no rule conflicts
@@ -413,7 +417,6 @@ graph LR
 - [ ] SLO dashboard: error budget visible, burn rate alerts configured for 1h, 6h, and 24h windows
 - [ ] Verify log correlation: trace ID appears in logs AND in traces for the same request
 - [ ] Test alert routing: trigger a test alert — arrives at correct channel (Slack/PagerDuty) within 60 seconds
-
 
 ## References
 

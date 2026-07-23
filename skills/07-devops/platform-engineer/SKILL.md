@@ -79,6 +79,7 @@ What are you trying to do?
 ├── Need cloud architecture guidance → Invoke `cloud-architect` skill instead
 ├── Need observability for platform → Invoke `observability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -165,9 +166,11 @@ Is this capability required for ALL services?
 │   │   └─ Examples: feature flags, secrets management, DB provisioning
 │   └─ NO → Let teams own it; revisit at next platform review
 └─ Exception: Compliance/security mandate → Golden path regardless of demand
+
 ```
 
 ### 2. Build vs. Buy vs. Assemble for Platform Components
+
 ```
 Is this a differentiating capability for your business?
 ├─ YES → Build custom (your competitive advantage lives here)
@@ -179,9 +182,11 @@ Is this a differentiating capability for your business?
 │       ├─ YES → Buy SaaS (let vendor absorb complexity)
 │       │   └─ Examples: Port for catalog if Backstage plugin maintenance is too heavy
 │       └─ NO → Build thin wrapper; keep surface area small
+
 ```
 
 ### 3. When to Enforce Platform Adoption vs. Encourage It
+
 ```
 Adoption approach decision:
 ├─ Compliance-mandated capability (security, audit, data residency)?
@@ -192,9 +197,11 @@ Adoption approach decision:
 │   └─ PULL: build with 1-2 design partners, let word-of-mouth drive adoption
 └─ Legacy migration path?
     └─ INCENTIVIZE: migration sprints, brownfield co-investment from platform team
+
 ```
 
 ### 4. Platform Team Topology Decision
+
 ```
 How many teams and what operating model?
 ├─ Organization < 50 engineers?
@@ -209,6 +216,7 @@ How many teams and what operating model?
 └─ Organization 500+ engineers?
     └─ Platform org with product managers, dedicated SRE, developer relations
         └─ Model: internal product lines with SLAs and NPS tracking
+
 ```
 
 ### 5. IDP Maturity Model: Where Are You?
@@ -320,7 +328,6 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Platform engineering mastery comes from treating the platform as a product — measuring adoption, gathering feedback, and iterating. The best platform engineers obsess over developer experience metrics.
@@ -331,6 +338,7 @@ graph LR
     B --> C[Identify the #1 friction point from user feedback]
     C --> D[Fix it, ship again, measure again]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -350,7 +358,6 @@ graph LR
 - **Backstage scaffolder** uses `fetch:template` to scaffold from a cookiecutter. If the cookiecutter repo's default branch changes from `main` to `something-else`, every scaffolder action breaks with "template not found" — and the error appears as a generic 500 in Backstage UI.
 - **Scorecards and tech-insights** that check for `CODEOWNERS` file existence — teams react by creating empty `CODEOWNERS` files to go green. Every automated check must validate content quality, not just file existence, or it becomes a checkbox exercise.
 
-
 ## Verification
 
 - [ ] Scaffold a service from golden path template: `npx create-service` or Backstage scaffolder — service boots, health check passes
@@ -359,7 +366,6 @@ graph LR
 - [ ] Verify resource quotas: attempt to provision a resource exceeding quota limits — request is REJECTED with clear error
 - [ ] Scorecard check: run `tech-insights` or `scorecard` against scaffolded service — all required checks pass (CODEOWNERS, branch protection, etc.)
 - [ ] Verify upgrade path: document steps to upgrade from template v1.0 to v1.1 — procedure tested on a sample service
-
 
 ## References
 

@@ -373,6 +373,7 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 
 # Chain: product-manager → partnerships-manager → sales-engineer
 # Integration partner: PM builds integration → Partnerships onboards partner → SE trains partner on integration selling
+
 ```
 
 ## Proactive Triggers
@@ -401,6 +402,7 @@ Partners are onboarded and have a first registered deal within 90 days for >60% 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -419,7 +421,6 @@ graph LR
 - **Revenue share that doesn't account for cost of sales** — 20% rev share to the partner, but your sales team spent 40 hours supporting their deal cycle (cost: $6,000 in salary). A $20K deal pays partner $4K, leaving you $10K after COGS + sales cost. Model economics BEFORE signing, not after.
 - **Partner's product manager who championed the integration leaves** — the integration was their project. Their replacement has a different roadmap. Your integration goes from "strategic" to "legacy" overnight. Build relationship depth: 3+ contacts at the partner, not one champion.
 
-
 ## Verification
 
 - [ ] Partnership pipeline: every active partnership has named target accounts, reviewed bi-weekly
@@ -427,7 +428,6 @@ graph LR
 - [ ] Partner health: NPS or satisfaction survey for top 10 partners within last quarter
 - [ ] Integration: joint solution tested against latest versions of both products within last 6 months
 - [ ] Contracts: all partnership agreements reviewed within last 12 months — performance clauses active
-
 
 ## References
 

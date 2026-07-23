@@ -111,6 +111,7 @@ What are you trying to do?
 ├── Need MLOps infrastructure → Invoke `mlops-engineer` skill
 ├── Need LLM-specific patterns → Invoke `llm-engineer` skill
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 
 ## Operating at Different Levels
@@ -146,6 +147,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### ML vs Heuristic vs LLM
+
 ```
                      ┌───────────────────────────────┐
                      │ START: Should this be ML?       │
@@ -179,6 +181,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Fine-tuned LLM:** Need specific style/tone/task adaptation, have 100-1K high-quality examples, latency budget allows inference.
 
 ### Real-time vs Batch vs Streaming Inference
+
 ```
                      ┌──────────────────────────┐
                      │ START: Serving pattern    │
@@ -205,6 +208,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Embedded:** Scoring within SQL queries — ONNX Runtime in PostgreSQL, <1ms, no network overhead.
 
 ### RAG vs Fine-tuning vs Prompt Engineering
+
 ```
                      ┌──────────────────────────┐
                      │ START: LLM approach       │
@@ -233,6 +237,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Zero-shot:** Simple tasks with capable models (GPT-4, Claude), no examples needed, fastest path.
 
 ### Overfitting Diagnosis
+
 ```
                      ┌──────────────────────────┐
                      │ START: Model not          │
@@ -264,6 +269,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to audit data:** Perfect train, random val — likely data leakage or bad split. Audit time-based/group-based splits.
 
 ### Model Monitoring Thresholds
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Production model       │
@@ -386,12 +392,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -411,7 +417,6 @@ graph LR
 - **Transformer attention masks** — a mask of `0` means "attend to this token" in Hugging Face, but `0` means "ignore this token" in most PyTorch implementations. Mixing libraries silently inverts the attention pattern, producing models that attend to padding tokens instead of real content.
 - **GPU memory fragmentation**: `empty_cache()` frees memory but doesn't defragment. After 100 cycles of allocating/deallocating different-sized tensors, you may have 4GB "free" but can't allocate a 2GB contiguous tensor. Restart the process or use `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`.
 
-
 ## Verification
 
 - [ ] Training runs to completion without NaN loss or exploding gradients — monitor `grad_norm` throughout
@@ -420,7 +425,6 @@ graph LR
 - [ ] Inference test: run inference on 100 samples — output shape correct, values in expected range (e.g., probabilities in [0, 1])
 - [ ] GPU memory: `nvidia-smi` shows memory usage < 90% of GPU RAM — no OOM risk during peak batch
 - [ ] Reproducibility: train twice with same seed — metrics within 1% (GPU non-determinism tolerance)
-
 
 ## References
 

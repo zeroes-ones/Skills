@@ -311,6 +311,7 @@ Every Monday at 9 AM, the cash dashboard is updated: actual prior-week ending ca
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -329,7 +330,6 @@ graph LR
 - **"Interest rate risk is for banks"** — your company has $50M in floating-rate debt. The Fed raises rates by 300 basis points. Your annual interest expense goes from $2M to $3.5M. Your EBITDA forecast missed by $1.5M because you didn't model rate sensitivity. Every 100bp move should have a quantified P&L impact.
 - **Cash sweep automation** that sweeps all excess cash into a money market fund — great for yield, but the sweep happens at midnight and your payroll ACH debit hits at 2 AM. $500K overdraft + $50 fee + bank relationship damage. Sweep rules must leave a minimum operating balance AND exclude known future outflows.
 
-
 ## Verification
 
 - [ ] Cash position: daily cash report — actual vs target operating cash, excess deployed within SLA
@@ -337,7 +337,6 @@ graph LR
 - [ ] Bank covenants: all covenants monitored monthly — debt service coverage, leverage ratio, minimum liquidity all compliant
 - [ ] Payment controls: all payment detail changes verified via secondary channel (phone/video, not email)
 - [ ] FX exposure: net exposure by currency quantified — hedged positions matched to forecasted cash flows
-
 
 ## References
 - **Cap Table Operations**: See [cap-table-operations.md](references/cap-table-operations.md)

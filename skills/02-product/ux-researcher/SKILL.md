@@ -68,6 +68,7 @@ What are you trying to do?
 ├── Need feature prioritization or roadmap planning? → `product-manager`
 ├── Need product-market fit or competitive positioning? → `product-strategist`
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -160,7 +161,6 @@ Sample size decision?
 └── Mixed methods → 5-8 qual + 30-50 quant. Triangulate findings.
 ```
 
-
 **What good looks like:** Research plan with falsifiable hypotheses. 5+ user interviews completed with transcripts and recordings. Findings synthesized into 3-5 key insights with direct quotes. Recommendations linked to specific design decisions.
 
 ### When NOT to Do Formal Research
@@ -246,7 +246,6 @@ Study blocked (legal/privacy concern, recruitment failure, tooling failure)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 UX research mastery comes from observing real users, repeatedly, until pattern recognition becomes instinct. There is no substitute for watching users struggle.
@@ -257,6 +256,7 @@ graph LR
     B --> C[Synthesize findings into actionable insights]
     C --> D[Track whether your recommendations changed the product]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -276,7 +276,6 @@ graph LR
 - **A/B test that reaches significance at 7 days** — you stop it and declare the variant winner. But if you had run it for 14 days, the effect reversed (novelty effect wore off). Always pre-register test duration AND sample size. Peeking and stopping early inflates false positive rate to ~30%.
 - **"Users said they wanted X"** — what users SAY in interviews and what they DO in a live product correlate at ~0.3 (weak). Users said they wanted folders in Google Inbox; they actually needed search and archiving. Observe behavior; don't just ask for wishlists.
 
-
 ## Verification
 
 - [ ] Research plan: objectives, methodology, participant criteria, and sample size documented BEFORE data collection
@@ -285,7 +284,6 @@ graph LR
 - [ ] Findings report: themes supported by multiple participant quotes, recommendations traceable to specific findings
 - [ ] Bias documented: researcher positionality, recruitment channels, and methodological limitations stated
 - [ ] Share-out: findings presented to stakeholders, decisions documented, follow-up research planned for open questions
-
 
 ## References
 

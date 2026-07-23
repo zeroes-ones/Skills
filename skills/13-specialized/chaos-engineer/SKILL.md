@@ -34,7 +34,6 @@ chain:
 
 Systematic resilience verification framework based on Chaos Engineering principles. Covers experiment design, fault injection, blast radius management, GameDay facilitation, resilience pattern validation, and building organizational confidence in system behavior under failure.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -78,6 +77,7 @@ What are you trying to do?
 ├── Need SLOs or error budgets defined first → Invoke site-reliability-engineer skill instead
 ├── Need observability dashboards before experimenting → Invoke observability-engineer skill instead
 └── Not sure? → Describe the system and I'll design a starting experiment for staging
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -148,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Chaos First
+
 ```
                      ┌─────────────────────┐
                      │ START: Pick a service│
@@ -174,6 +175,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **If no resilience patterns exist** — chaos engineering without circuit breakers just proves you're fragile. Build resilience first.
 
 ### 2. Experiment Type Selection
+
 ```
                 ┌──────────────────────────────┐
                 │ START: What are you testing?  │
@@ -197,6 +199,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **System-wide tests** verify multi-AZ/region failover. Run as GameDays with full team participation.
 
 ### 3. Observability Gate
+
 ```
                   ┌────────────────────────────┐
                   │ START: Before any experiment│
@@ -230,6 +233,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Fix dashboards and alerts before anything else** — running chaos without observability is just breaking things.
 
 ### 4. Production Readiness Gate
+
 ```
                      ┌──────────────────────┐
                      │ START: Ready for prod?│
@@ -257,6 +261,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Multi-AZ/region failover is the highest-value production experiment** — test what protects you from real outages.
 
 ### 5. Tool Selection
+
 ```
                      ┌─────────────────┐
                      │ START: Pick tool│
@@ -385,6 +390,7 @@ The system fails gracefully. Chaos experiments run in production without custome
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -403,7 +409,6 @@ graph LR
 - **Game days where the team knows** the exact chaos experiment in advance produce artificially smooth responses. The team pre-writes runbooks, has dashboards ready, and mentally prepares. The real incident doesn't announce itself. Use blind game days where only the chaos engineer knows what's being injected.
 - **Pod deletion in Kubernetes** sends SIGTERM, waits `terminationGracePeriodSeconds` (default 30s), then SIGKILL. A chaos experiment that deletes a pod with default grace period may not trigger graceful shutdown bugs — apps with 60s cleanup may work fine in chaos but fail in real deployments. Test with `gracePeriodSeconds: 0` to find shutdown bugs.
 
-
 ## Verification
 
 - [ ] Chaos experiment manifest validates: `chaos-mesh validate experiment.yaml` or equivalent — no syntax errors
@@ -412,7 +417,6 @@ graph LR
 - [ ] Rollback: experiment has `duration` set (not infinite) — experiment auto-terminates after duration
 - [ ] Monitoring during experiment: grafana dashboard shows the injection impact — no "unknown unknown" failures
 - [ ] Game day report: findings documented, severity assessed, remediation tickets filed within 24 hours
-
 
 ## References
 - **Blast Radius (Military-Grade Controls)**: See [blast-radius-military-grade-controls.md](references/blast-radius-military-grade-controls.md)

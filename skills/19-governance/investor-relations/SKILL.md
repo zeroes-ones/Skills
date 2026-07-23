@@ -251,6 +251,7 @@ data-room/
     ├── Federal and state tax returns (last 2 years)
     ├── R&D tax credit documentation
     └── Sales tax compliance status by jurisdiction
+
 ```
 
 **War story:** A Series B company sent their data room link to 40 investors. One folder — "06-customer-reference" — contained an Excel file with customer names, contact info, AND annual contract values, unredacted. An associate at a VC firm shared it with a competitor's CEO (their portfolio company). The competitor used the pricing data to undercut renewals. The startup lost 3 of their top 10 accounts within 6 months. Lesson: every document in the data room goes through counsel review before investor access. Revenue data is never customer-attributed in a data room.
@@ -351,6 +352,7 @@ Common chains:
 # 1. fp-and-a-analyst produces financial model and cap table
 # 2. investor-relations structures data room, builds pitch deck, prepares pipeline
 # 3. legal-advisor reviews term sheet and drafts definitive agreements
+
 ```
 
 ## What Good Looks Like
@@ -362,6 +364,7 @@ A fundraise that goes from first meeting to term sheet in 6 weeks, diligence to 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -380,7 +383,6 @@ graph LR
 - **Quiet period violation** — the CEO mentions at a conference "Q3 is looking great so far" 2 weeks before earnings. The stock moves 5%. That's selective disclosure (Regulation FD violation). During the quiet period (typically 2-4 weeks before earnings), NO ONE outside the company gets material non-public information.
 - **"One-time charges" that appear every quarter** — Q1: restructuring ($2M), Q2: acquisition costs ($3M), Q3: legal settlement ($1.5M), Q4: impairment ($4M). After 4 quarters of "one-time" charges, investors price them into the stock as recurring. Non-GAAP adjustments must be truly extraordinary, not recurring operational noise.
 
-
 ## Verification
 
 - [ ] Earnings materials: press release, script, and Q&A prep completed 1 week before earnings
@@ -388,7 +390,6 @@ graph LR
 - [ ] Quiet period: calendar published, all insiders notified of trading and communication restrictions
 - [ ] Consensus: analyst estimates tracked — your guidance range overlaps consensus range (no surprising beats)
 - [ ] Shareholder engagement: top 20 investors met within last 12 months, feedback documented
-
 
 ## References
 

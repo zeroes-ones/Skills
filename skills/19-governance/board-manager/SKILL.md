@@ -319,6 +319,7 @@ Common chains:
 # 1. Run FP&A model to generate financial statements
 # 2. Use board-manager to structure the board deck around those financials
 # 3. Feed the deck into investor-relations for monthly update formatting
+
 ```
 
 ## What Good Looks Like
@@ -330,6 +331,7 @@ A board meeting where strategic discussion consumes >50% of time. Directors arri
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -348,7 +350,6 @@ graph LR
 - **"Any other business"** at the end of the meeting where a board member raises "I think we should explore a sale" — this is the only thing anyone remembers from the meeting and it got 3 minutes of discussion. AOB items that are material get their own agenda slot or are deferred to the next meeting's agenda.
 - **Board minutes that capture every word** — "John said X, Sarah replied Y, the board discussed Z for 15 minutes." Minutes are NOT a transcript. They record: decisions made, votes taken, and action items assigned. Detailed discussion notes are discoverable in litigation and can be taken out of context.
 
-
 ## Verification
 
 - [ ] Board deck: sent ≥ 5 business days before meeting — executive summary ≤ 3 pages
@@ -356,7 +357,6 @@ graph LR
 - [ ] Action items: all items from last meeting have status update — completed, in progress with ETA, or escalated
 - [ ] Minutes: approved within 30 days of meeting — decisions and action items only (no transcript)
 - [ ] Annual calendar: board meeting dates, committee meetings, and key governance events planned 12 months ahead
-
 
 ## References
 

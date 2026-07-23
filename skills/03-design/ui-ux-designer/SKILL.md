@@ -70,6 +70,7 @@ What are you trying to do?
 ├── Need brand identity or visual design tokens? → `brand-guidelines`
 ├── Need accessibility audit or WCAG compliance? → `accessibility-auditor`
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -265,6 +266,7 @@ Design skill is built through iteration with real users, not through polishing p
 
 ```
 DESIGN → TEST WITH USERS → OBSERVE CONFUSION → REFINE → repeat
+
 ```
 
 The key: you are not your user. Every time you're surprised by what a user does, that's a gap in your mental model. Close that gap.
@@ -290,7 +292,6 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - **"Design handoff"** as a Figma link thrown over the wall — the developer opens it, sees 47 screens with no interaction states (loading, empty, error, success, focus, hover, active, disabled). They implement the happy path and guess on the other 7 states. Handoff must cover ALL states, not just the ideal screen.
 - **Dark mode as color-flipping** — you invert the background and text, but shadows don't work in dark mode (dark shadow on dark background = invisible). Elevation must be communicated through LIGHT (higher surfaces are lighter). Dark mode needs its own elevation system keyed to ambient light, not shadow.
 
-
 ## Verification
 
 - [ ] Design tokens: exported as JSON/CSS/SCSS and imported by all platforms without manual conversion
@@ -299,7 +300,6 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - [ ] Dark mode: all screens tested in dark mode — elevation hierarchy is clear, contrast ratios pass
 - [ ] Accessibility: color contrast ≥ 4.5:1 for text, ≥ 3:1 for large text/icons — verified with contrast checker
 - [ ] Handoff: Figma/Zepkin link reviewed by developer — all spacing, colors, and typography match design tokens
-
 
 ## References
 

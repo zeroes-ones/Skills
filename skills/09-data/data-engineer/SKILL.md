@@ -118,6 +118,7 @@ What are you trying to do?
 ├── Need ML feature pipelines → Invoke `ml-ai-engineer` skill instead
 ├── Need database reliability → Invoke `database-reliability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -154,6 +155,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Batch vs Streaming vs CDC
+
 ```
                      ┌──────────────────────────┐
                      │ START: New data ingestion │
@@ -179,6 +181,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Streaming:** Real-time dashboards, fraud detection, alerting — need sub-second to sub-minute latency.
 
 ### Data Warehouse vs Lakehouse vs Data Mesh
+
 ```
                      ┌──────────────────────────┐
                      │ START: Architecture choice │
@@ -205,6 +208,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Data Mesh:** 5+ teams, domain autonomy required, each team needs to own data quality and SLAs.
 
 ### Star Schema vs Data Vault vs OBT
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Data model selection    │
@@ -231,6 +235,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose OBT:** Performance-critical, simple dimensional model (≤ 5 dims), no SCD Type 2 history, dashboard-specific.
 
 ### Pipeline Reliability Pattern
+
 ```
                      ┌──────────────────────────┐
                      │ START: Pipeline hardening │
@@ -258,6 +263,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to add DLQ:** Any streaming pipeline — bad messages must go to dead letter queue, never silently dropped.
 
 ### dbt Materialization Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: dbt materialization │
@@ -307,7 +313,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    └─ 20+ sources, 5+ autonomous teams → Data mesh
        └─ Federated governance, domain-owned data products
    ```
-
 
 **What good looks like:** Data pipeline processes daily batch within SLA. Data quality checks pass (completeness, freshness, uniqueness, referential integrity). dbt tests cover 90%+ of source tables. Pipeline dashboard shows row counts, latency, and error rates per stage.
 
@@ -377,12 +382,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -403,7 +408,6 @@ graph LR
 - **dbt `--full-refresh`** drops and recreates tables. On incremental models, this wipes all historical data. If your incremental model is the source for downstream models, the full refresh cascades. Always `--full-refresh` bottom-up, never top-down.
 - **Kafka consumer group rebalancing** during deployment — if your consumer takes 3 minutes to process a batch but the `max.poll.interval.ms` is 300 seconds, and deployment restarts take 2 minutes, the consumer group rebalance stalls all partitions for the full interval. Tune `max.poll.interval.ms` > (max batch time + max deployment time × 2).
 
-
 ## Verification
 
 - [ ] Run pipeline locally on sample data: `dbt run --select ${model}` or `python pipeline.py --sample` — completes without error
@@ -412,7 +416,6 @@ graph LR
 - [ ] Check partition freshness: `SELECT MAX(partition_date) FROM ${table}` — within expected freshness SLA (e.g., today for daily)
 - [ ] Run `EXPLAIN` on the 3 most expensive queries — all use partition pruning, no full table scans
 - [ ] Verify row counts: source row count ± 1% = target row count (accounting for filters/joins)
-
 
 ## References
 

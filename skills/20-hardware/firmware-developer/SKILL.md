@@ -290,6 +290,7 @@ Fleet bricking >0.1%? → Halt OTA → VP Engineering → Physical recall assess
 Build unreproducible >24h? → DevOps Engineer → Cannot ship → Escalate to CTO
 Secure boot bypass found? → Security Engineer → Emergency OTA / HW respin + physical recall
 Factory firmware blocking production? → QA Engineer → Production Manager → Revenue: $X/day
+
 ```
 
 ### Cross-Skill Chain
@@ -297,6 +298,7 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 ```bash
 # Embedded bring-up → Firmware → QA → DevOps
 /embedded-engineer && /firmware-developer && /qa-engineer && /devops-engineer
+
 ```
 
 **Decision Gates & Handoff Artifacts:**
@@ -341,6 +343,7 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -359,7 +362,6 @@ graph LR
 - **Brown-out detection** — flash erase/program during a voltage sag corrupts the flash. The MCU runs fine at 1.8V but flash programming requires 2.7V. BOD must be enabled at 2.85V BEFORE any flash write/erase cycle. A crash during OTA update that hits this window = unrecoverable brick.
 - **Interrupt latency stacking** — a UART RX ISR (priority 2) fires while inside a SPI DMA ISR (priority 1). Then the systick ISR (priority 3) fires. Now 3 ISRs are stacked, each adding latency. A motor control loop (priority 0) misses its deadline by 47µs and the motor jitters. ISR priorities must reflect real-time deadlines, not peripheral importance.
 
-
 ## Verification
 
 - [ ] Build: bootloader + application both compile with zero warnings (`-Wall -Werror`)
@@ -368,7 +370,6 @@ graph LR
 - [ ] Flash wear: estimated erase cycles within flash endurance spec (e.g., < 10K cycles for consumer NAND)
 - [ ] ISR timing: oscilloscope measurement — all ISR handlers complete within deadline, no nesting beyond max depth
 - [ ] Brown-out test: lower supply voltage below BOD threshold during flash write — BOD triggers, flash is NOT corrupted
-
 
 ## References
 

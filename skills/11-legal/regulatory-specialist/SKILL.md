@@ -159,6 +159,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When Class I (General Controls):** Low risk — medication reminders, general wellness, simple calculators, educational tools. No premarket submission; register + list + QSR compliance.
 
 ### EU MDR Classification
+
 ```
                      ┌──────────────────────────────┐
                      │ START: EU MDR classification?  │
@@ -207,6 +208,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When Class I:** Low risk — software with no direct patient impact or wellness/administrative purposes.
 
 ### HIPAA Compliance: Business Associate Status
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Is your company a       │
@@ -419,12 +421,12 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -444,13 +446,11 @@ graph LR
 - **Responding to an FDA 483 (inspection observations) with "We'll fix it"** without a timeline, root cause analysis, and corrective action plan — the FDA sees this as "they don't understand the severity." A 483 response must address: root cause, corrective action, preventive action, timeline, and responsible person for EACH observation.
 - **Assuming international regulations don't apply because "we're US-based"** — GDPR applies to any company processing EU residents' data. EU MDR applies to any medical device sold in the EU. PIPL (China) applies to processing Chinese citizens' data. Territorial reach of modern regulations is global.
 
-
 ## Error Decoder
 
 - **"FDA refuses to accept 510(k) — not substantially equivalent"** → Your predicate device is either: (1) not legally marketed (was recalled/withdrawn), (2) has a different intended use, or (3) has different technological characteristics that raise new safety questions. The FDA's SE (Substantial Equivalence) decision isn't a "rejection" — it's a finding that you chose the wrong predicate or didn't demonstrate equivalence.
 - **"Notified Body suspends CE certificate"** → This is a MAJOR nonconformity, not a routine audit finding. Check: (1) Did you fail to address a previous minor nonconformity? (2) Did post-market surveillance reveal safety issues? (3) Did unannounced audit find serious QMS failures? CE suspension means you can't sell in the EU. Remediation timeline is measured in weeks, not months.
 - **"Warning Letter posted on FDA website"** → The FDA publishes Warning Letters publicly. Your investors, customers, and competitors all see it simultaneously. The clock to respond is 15 business days, but the reputational damage is immediate. Pre-drafted crisis communication for regulatory actions is as important as the regulatory response itself.
-
 
 ## Production Checklist
 
@@ -462,13 +462,11 @@ graph LR
 - [ ] Public statements: all compliance-related public statements reviewed by legal/regulatory within last quarter. No absolute compliance claims.
 - [ ] Post-market: adverse event reporting process tested. Complaint handling procedure current. Vigilance reporting timelines verified.
 
-
 ## Gotchas
 
 - **Regulatory gap analysis that maps requirements to controls** but doesn't test whether the controls ACTUALLY WORK — you have a policy that says "access reviewed quarterly." The control is the policy document. The auditor asks "show me the last 4 quarterly reviews." You have 1. The control existed on paper, not in practice. Every mapped control needs evidence of OPERATION, not just design.
 - **"Compliance with [Regulation] is our top priority"** in a public statement — that statement is now evidence in every investigation, lawsuit, and regulatory action against you. If you fall short (and everyone falls short somewhere), opposing counsel opens with: "You said this was your top priority. Was that a lie, or were you incompetent?" Never claim compliance is your "top priority" — claim it's a "core commitment."
 - **Regulatory change monitoring** that's a Google Alert for "FDA regulation change" — you miss the EU MDR transition period deadline by 6 months because your alert didn't cover EU regulations. Regulatory monitoring needs structured sources: jurisdiction-specific registers (Federal Register, EUR-Lex, MHRA), industry association updates, and law firm client alerts.
-
 
 ## Verification
 
@@ -477,7 +475,6 @@ graph LR
 - [ ] Monitoring: regulatory change sources cover all jurisdictions you operate in — tested with a known recent change
 - [ ] Public statements: all compliance-related public statements reviewed by legal — no "top priority" language
 - [ ] Audit readiness: mock audit conducted within last 12 months — findings tracked to remediation
-
 
 ## References
 

@@ -220,8 +220,8 @@ Time to audit?
 4. After certification: maintain the compliance posture continuously, not just before audits.
 5. Schedule quarterly internal reviews, annual external surveillance audits (ISO), and continuous monitoring.
 
-
 ### Cross-skills Integration
+
 ```bash
 # Security implementation → Compliance mapping → Legal review → Executive strategy → Regulatory filing
 /security-engineer && /compliance-officer && /legal-advisor
@@ -234,7 +234,6 @@ Time to audit?
 > Compliance is a seamless operating rhythm, not a pre-audit fire drill. Every control has automated evidence collection running on a cadence, every policy is versioned and acknowledged, and the unified
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Cross-Skill Coordination
 
@@ -269,6 +268,7 @@ Time to audit?
 ```mermaid
 graph LR
     A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -288,7 +288,6 @@ graph LR
 - **Data retention policies** that say "delete after 7 years" — if you delete exactly at year 7, data from Jan-Dec is mixed. Records created Dec 31 need to live until Dec 31 + 7 years. Retention must be per-record, not per-calendar-year.
 - **"Encryption at rest" means different things** to different auditors. AWS RDS encryption (KMS-managed keys) counts. Application-level encryption (encrypt before writing) counts. But disk-level encryption (EBS volume encryption) doesn't count if the auditor requires separation of duties between data controller and infrastructure provider.
 
-
 ## Verification
 
 - [ ] Control mapping: every compliance requirement (SOC 2, ISO 27001, GDPR) maps to at least one implemented control
@@ -297,7 +296,6 @@ graph LR
 - [ ] Access review: quarterly access review completed — all accounts have documented business justification
 - [ ] Vendor risk assessment: all vendors handling sensitive data have current (≤ 12 months) risk assessment
 - [ ] Incident response test: tabletop exercise conducted within last 6 months, findings tracked to remediation
-
 
 ## References
 

@@ -125,6 +125,7 @@ What are you trying to do?
 ├── Need content policy or moderation guidance? → Invoke content-policy-manager instead
 ├── Need patient safety or crisis protocols? → Invoke patient-community-safety instead
 └── Not sure? → Describe the data types, regulatory regime, and processing activities — I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -315,6 +316,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 □ Minimum necessary PHI fields sent to sub-processor confirmed (data minimization check)
 □ Sub-processor's data deletion process verified: 30-day post-termination deletion with certificate
 □ Sub-processor's access control model reviewed: RBAC, MFA required, no shared accounts
+
 ```
 
 **Sub-Processor Inventory:**
@@ -365,6 +367,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

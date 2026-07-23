@@ -187,6 +187,7 @@ What level of risk does the device pose to patients?
     → Examples: AI that autonomously diagnoses, treatment recommendation without human review
     → PMA: Clinical trials required
     → De Novo may be possible if novel but moderate risk
+
 ```
 
 ### Regulatory Pathway Selection
@@ -199,6 +200,7 @@ Starting point...
 ├── Class III → Pre-market Approval (PMA) (~18-36 months, clinical trials)
 ├── Breakthrough Device? → Expedited review + priority → Apply for designation first
 └── Low-risk, uncertain → Pre-submission Meeting with FDA → Get feedback before committing
+
 ```
 
 ## Core Workflow
@@ -253,6 +255,7 @@ You have a dated, signed intended use statement that clearly defines what your s
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -285,6 +288,7 @@ that are NOT intended to diagnose, treat, cure, mitigate, or prevent any disease
 - Does it recommend specific treatments/doses? → likely medical device
 - Does it replace clinician judgment? → definitely medical device
 - Does it connect to a medical device for control? → definitely medical device
+
 ```
 
 ### Phase 2: Classification (~2 weeks)
@@ -300,6 +304,7 @@ open https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm
 
 # Search De Novo classification orders
 open https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/denovo.cfm
+
 ```
 
 **Classification factors:**
@@ -350,6 +355,7 @@ If no predicate device exists:
 4. Submit De Novo request
 5. FDA review: 150 days target
 6. If granted: device is now reclassified, becomes a predicate for future 510(k)s
+
 ```
 
 ### Phase 5: EU MDR / IVDR (~12-24 months)
@@ -384,6 +390,7 @@ Is your health software...
 4. Prepare Technical Documentation (Annex II/III)
 5. Clinical Evaluation (MEDDEV 2.7/1 Rev.4 or MDR Article 61 + Annex XIV)
 6. Notified Body audit → CE Mark → Register in EUDAMED
+
 ```
 
 ### Phase 6: Breakthrough Device Designation (~3 months)
@@ -407,6 +414,7 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - Sprint review milestones
 - More interactive review process
 - Reduced PMA/De Novo review times
+
 ```
 
 ## Gotchas

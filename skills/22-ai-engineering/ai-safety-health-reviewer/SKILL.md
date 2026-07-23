@@ -113,6 +113,7 @@ What are you evaluating?
 ├── HIPAA compliance for AI system → Decision Trees: HIPAA Compliance
 ├── Bias/fairness in health AI → Phase 4: Bias & Fairness Audit
 └── Red-team the health AI system → Phase 6: Health-Specific Red Teaming
+
 ```
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
@@ -147,6 +148,7 @@ What are you trying to do?
 ├── Need LLM pipeline design for this? → Invoke llm-engineer skill instead
 ├── Need regulatory compliance review? → Invoke compliance-officer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -330,6 +332,7 @@ START: AI model generates health-related output
   └─ Does the output target pediatric, adolescent, or vulnerable populations?
        ├─ YES → Route through pediatric/adolescent guardrails. Extra review.
        └─ NO → Standard safety review → APPROVE with disclaimer
+
 ```
 
 ### Severity Triage for Health AI Outputs
@@ -354,6 +357,7 @@ START: AI model generates health-related output
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |

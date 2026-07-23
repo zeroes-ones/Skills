@@ -98,6 +98,7 @@ What are you trying to do?
 ├── Need design system or component specs? → `ui-ux-designer`
 ├── Need sprint execution or delivery tracking? → `engineering-manager`
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -196,7 +197,6 @@ Strategic vs tactical feature?
 └── Tactical improvement → RICE/Value-vs-Effort. Data-driven.
 ```
 
-
 **What good looks like:** PRD with problem statement validated by user research. Success metrics defined with baseline and target. RICE scoring on all features. Stakeholders have reviewed and signed off. Open questions have owners and due dates.
 
 ### When NOT to Write a PRD
@@ -291,7 +291,6 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Product management is learned in the arena — through shipped products, failed experiments, and retrospectives. The improvement loop is the lean startup loop applied to yourself.
@@ -300,6 +299,7 @@ Product management is learned in the arena — through shipped products, failed 
 
 ```
 SHIP → MEASURE → LEARN → (adjust process) → repeat
+
 ```
 
 After every launch: what did you predict would happen? What actually happened? Where was the gap? Close one gap per cycle.
@@ -325,7 +325,6 @@ After every launch: what did you predict would happen? What actually happened? W
 - **Roadmap as a Gantt chart** set 12 months out — the first unexpected customer escalation, competitor launch, or platform dependency change invalidates everything after month 2. Roadmaps should set outcomes and themes with rolling 6-week certainty windows, not fixed timelines.
 - **"Technical debt" as a catch-all** for "we need to refactor." Actual tech debt (trade-offs made knowingly) can be quantified with interest payments (e.g., "deployments take 3x longer due to X"). Vague "clean up the codebase" initiatives without interest-rate calculations never get prioritized.
 
-
 ## Verification
 
 - [ ] PRD review: stakeholders from Engineering, Design, QA, and Support have reviewed and approved
@@ -334,7 +333,6 @@ After every launch: what did you predict would happen? What actually happened? W
 - [ ] Competitive analysis: reviewed within last 90 days, includes at least 3 competitors
 - [ ] Customer validation: at least 5 customer interviews support the problem hypothesis
 - [ ] Success metrics: North Star metric identified, baseline measured, target set with timeline
-
 
 ## References
 

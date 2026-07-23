@@ -2,7 +2,7 @@
 
 ## Table of Contents
 1. [Ingestion Pattern Decision Tree](#ingestion-pattern-decision-tree)
-2. [Batch ETL/ELT Patterns](#batch-etelet-patterns)
+2. [Batch ETL/ELT Patterns](#batch-etlelt-patterns)
 3. [Stream Processing Patterns](#stream-processing-patterns)
 4. [CDC (Change Data Capture)](#cdc-change-data-capture)
 5. [Orchestration Framework Selection](#orchestration-framework-selection)

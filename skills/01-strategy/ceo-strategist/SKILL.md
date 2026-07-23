@@ -162,7 +162,6 @@ CEO strategy is inherently tied to company stage. The same frameworks apply diff
 - M&A evaluation: buy-side and sell-side strategy
 - Company-building through MVP → Growth → Scale phases
 
-
 ### Cross-skills Integration
 
 This skill in a typical workflow chain:
@@ -194,7 +193,6 @@ Are you solving a venture-scale problem? (TAM > $1B?)
         ├── NO → Wait. Raise when you have momentum.
         └── YES → Raise. But only what you need for 18-24 months.
 ```
-
 
 **What good looks like:** An investor or new hire reads the strategy document and can explain the company's core thesis, target market, and 12-month priorities in under 60 seconds. Cap table is clean with 18-month runway across 3 funding scenarios. Every key role has a named owner and the next 2 hires are budgeted. Board meeting produces decisions, not debate.
 ### When NOT to Raise VC
@@ -319,7 +317,6 @@ Functional level (tactical: org change, process issue, vendor decision)
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 CEO skill is built through repeated exposure to high-stakes decisions with structured reflection. The gap between a first-time CEO and a seasoned one is the decision journal they've accumulated.
@@ -330,6 +327,7 @@ graph LR
     B --> C[Observe actual outcome over time]
     C --> D[Quarterly review: what was your hit rate? what bias showed up?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -348,7 +346,6 @@ graph LR
 - **Board deck** that buries problems in appendix slide 47 — board members find problems through their networks anyway. The CEO who says "here are our 3 biggest problems and what we're doing about them" gets more trust and better advice than the CEO who says "everything is great." Bad news early is a leadership superpower.
 - **Fundraising timing** — if you have 18 months of runway, you start fundraising at month 12. You'll close at month 16, with 2 months of cash remaining. The board sees desperation and terms get worse. Start fundraising when you have 12+ months of runway AND strong momentum. Desperation is a negotiating position you never want.
 
-
 ## Verification
 
 - [ ] Vision/mission: every employee can articulate the company vision (verified by survey, ≥ 80% accuracy)
@@ -356,7 +353,6 @@ graph LR
 - [ ] Board deck: last board meeting deck includes: wins, challenges, metrics dashboard, ask (what board can help with)
 - [ ] Runway: cash runway > 12 months (18+ if fundraising), updated monthly with burn rate and revenue projections
 - [ ] Strategy: strategy memo reviewed quarterly — what changed in the market, what we're doing about it
-
 
 ## References
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)

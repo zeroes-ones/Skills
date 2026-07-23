@@ -150,7 +150,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## Decision Trees
 
-
 > See [references/decision-trees.md](references/decision-trees.md) for the full SEO decision trees covering technical SEO audits, content optimization flows, keyword research frameworks, and crawl budget diagnostics.
 
 ## Core Workflow
@@ -324,6 +323,7 @@ The SEO-Specialist-to-Frontend-Developer partnership is where search visibility 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
 ### Cross-skills Integration
+
 ```mermaid
 graph LR
     A[content-strategist] --> B[seo-specialist]
@@ -335,6 +335,7 @@ Run skills in the order shown:
 ```bash
 # Chain A: content-strategist → seo-specialist → frontend-developer
 # Chain B: growth-engineer → seo-specialist → analytics-engineer
+
 ```
 
 ## Deliberate Practice
@@ -342,6 +343,7 @@ Run skills in the order shown:
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -361,7 +363,6 @@ graph LR
 - **Redirect chains** (A → B → C) lose ~10% of link equity per hop AND add 200-600ms latency per redirect. A chain of 5 redirects costs 1-3 seconds of load time and ~40% link equity loss. Fix intermediate redirects to point directly to the final destination.
 - **Hreflang tags** with incorrect language+country codes silently fail. `en-uk` is invalid (correct: `en-gb`). `pt-br` is valid. Missing reciprocal tags (page A points to B, but B doesn't point back to A) causes Google to ignore all hreflang annotations on both pages.
 
-
 ## Verification
 
 - [ ] Run Lighthouse: Performance ≥ 90, SEO = 100, Best Practices ≥ 90
@@ -371,7 +372,6 @@ graph LR
 - [ ] Sitemap: `sitemap.xml` contains all indexable pages, `lastmod` dates are correct
 - [ ] Mobile-friendly: Google Mobile-Friendly Test — all pages pass
 - [ ] Hreflang: for each locale pair, reciprocal tags exist and point to correct URLs
-
 
 ## References
 

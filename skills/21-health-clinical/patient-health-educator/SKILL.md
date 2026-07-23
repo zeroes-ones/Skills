@@ -254,6 +254,7 @@ Regulatory concern about education content? → compliance-officer + legal-advis
                                                               subclinical bleeds
                                                               + peer testimonials
                                                               + joint health imaging
+
 ```
 
 **Key insight:** The #1 reason adherence programs fail is that they diagnose the wrong barrier. A push notification won't fix injection anxiety. A video about why prophylaxis matters won't fix cost. Always diagnose the barrier before designing the intervention.
@@ -324,6 +325,7 @@ Content is for which audience?
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |

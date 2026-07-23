@@ -92,6 +92,7 @@ What are you trying to do?
 ├── Need release management → Invoke release-manager skill instead
 ├── Need DevOps to fix test infrastructure → Invoke devops-engineer skill instead
 └── Not sure where to start? → "Core Workflow > Phase 0" (Triage) — describe what you're testing
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -166,6 +167,7 @@ Debugging flaky tests and improving test stability
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Test Type Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: What kind of test? │
@@ -194,6 +196,7 @@ Debugging flaky tests and improving test stability
 **When to choose Unit test:** Pure logic, data transformation, validation rules. No I/O. Must run in < 5ms. Covers all edge cases and error paths.
 
 ### Performance Test Depth
+
 ```
                      ┌──────────────────────────────┐
                      │ START: What perf test level? │
@@ -222,6 +225,7 @@ Debugging flaky tests and improving test stability
 **When smoke test suffices:** Routine deploy. No infrastructure changes. Response time trend is stable over past 7 days.
 
 ### Coverage Strategy
+
 ```
                      ┌─────────────────────────────┐
                      │ START: Coverage targets?    │
@@ -243,6 +247,7 @@ Debugging flaky tests and improving test stability
 **When 80% is acceptable:** Internal tools, admin dashboards, non-critical UI components. Cost of 100% coverage exceeds risk of bug.
 
 ### Flaky Test Response
+
 ```
                      ┌───────────────────────────┐
                      │ START: Test is flaky      │
@@ -332,8 +337,8 @@ Security vulnerability in testing? → Security Reviewer → Security Engineer
 Infrastructure blocking testing? → DevOps Engineer → Cloud Architect
 Flaky CI pipeline? → CI/CD Builder → DevOps Engineer
 Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
-```
 
+```
 
 **What good looks like:** Test strategy document covers unit (60%), integration (30%), and E2E (10%). All critical user flows have automated E2E tests that pass on every PR. CI blocks on test failure. Coverage > 80% on business logic. Load test handles 2x peak QPS with p95 < 500ms.
 
@@ -367,7 +372,6 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 QA mastery comes from developing an instinct for where bugs hide. This instinct is built through deliberate exposure to failures — studying real bugs and the conditions that created them.
@@ -378,6 +382,7 @@ graph LR
     B --> C[Analyze: what test gap allowed this?]
     C --> D[Add that test category to your mental checklist]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -398,7 +403,6 @@ graph LR
 - **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering.
 - **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01.
 
-
 ## Verification
 
 - [ ] Run `npm test` — unit tests pass, coverage meets threshold (≥ 80%)
@@ -406,7 +410,6 @@ graph LR
 - [ ] Run `npx playwright test` or `npx cypress run` — e2e tests pass, no flaky tests (rerun 3x: all pass)
 - [ ] Test matrix covers: happy path, auth failure, validation error, not-found, rate limit, timeout
 - [ ] Performance test: `k6 run load-test.js` — p99 latency within SLO at expected peak RPS
-
 
 ## References
 
