@@ -276,6 +276,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 
 **What good looks like:** Docker image builds in under 5 minutes and is under 200MB. Kubernetes manifests pass `kubeval` validation. Pod startup time < 10 seconds. Liveness and readiness probes configured on every deployment. Resource requests and limits set on every container.
 
+## Proactive Triggers
+<!-- STANDARD: 2min — surface these WITHOUT being asked -->
+
+- **Docker image build time exceeds 10 minutes** → Layer cache is likely broken. Check: are `COPY . .` instructions placed before `RUN npm install`? Reorder layers so dependencies install before application code copy. Cache miss on dependency layer = full rebuild. 🔴
+- **Container running as root in production** → `USER` directive missing from Dockerfile. This is a security incident waiting to happen — root container escape = root on host. Add `USER 1000:1000` and `securityContext.runAsNonRoot: true`. 🔴
+- **Pod restarting every 30 seconds — liveness probe failing** → Check if liveness probe uses the same endpoint as readiness probe. During traffic spikes, the endpoint slows down and K8s kills healthy pods. Liveness = `/healthz` (fast). Readiness = `/ready` (service health). 🟠
+- **Image tag `:latest` found in production manifest** → `latest` is a mutable tag — what you deployed yesterday is not what you're running today. Pin images by SHA256 digest. CI should auto-replace tags with digests in deployment manifests. 🔴
+- **No resource limits on production Deployment** → A memory leak in one pod can OOM the entire node, cascading to other workloads. Set `resources.limits.memory` and `resources.requests.cpu` for every container. Without limits, one bad deploy takes down the cluster. 🔴
+- **Helm release stuck in `pending-upgrade` for > 5 minutes** → Helm hooks are likely hung. Check `helm history <release>` and `kubectl get jobs -l helm.sh/hook`. Hung pre-upgrade hook = blocked deployment. Add `helm.sh/hook-delete-policy: before-hook-creation` to clean up failed hooks. 🟡
+- **NodePort/port 80 exposed to public internet without TLS** → Ingress/load balancer exposing plain HTTP. Use cert-manager to auto-provision Let's Encrypt certificates. Add `ingress.kubernetes.io/force-ssl-redirect: "true"` annotation. 🟠
+- **docker-compose secrets in git repo** → `.env` file committed with database passwords, API keys. Add `.env` to `.gitignore`. Use `docker-compose secrets` or environment variable injection from CI/CD. Rotate exposed credentials immediately. 🔴
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 <!-- DEEP: 10+min -->
@@ -285,6 +297,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Resource limits are mandatory**: without limits, a memory leak in one pod can OOM the entire node.
 - **Use `kubectl diff` before applying**: preview changes and catch unintended mutations.
 - **Scan images**: integrate Trivy, Grype, or Snyk into CI; block deployment on HIGH/CRITICAL CVEs.
+
+## Anti-Patterns
+<!-- STANDARD: 2min -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| "Let's use Kubernetes for our 3-service MVP" | Kubernetes overhead for 3 services is 10x the complexity for 0x the benefit. docker-compose on a $20 VM handles 1K DAU. Migrate to K8s when you hit: >5 services, need auto-scaling, or team >5 engineers. |
+| `COPY . .` before `RUN npm install` in Dockerfile | Order layers by change frequency: OS packages → dependencies (locked) → application code. When you change app code, you want to reuse the cached dependency layer. Put `COPY package*.json ./` and `RUN npm ci` BEFORE `COPY . .`. |
+| Using `:latest` tag in production deployment manifests | `latest` is mutable — your "working" deployment silently changes when a new build pushes to the same tag. Pin images by SHA256 digest: `image: myapp@sha256:abc123...`. CI should auto-generate pinned manifests. |
+| Setting resource limits based on average usage from load testing | Average hides spikes. That one API call that processes large files uses 3x the average memory. Set requests at P50, limits at P99+20% headroom over a 7-day production window. Use VPA recommender. |
+| Same endpoint for liveness AND readiness probes | Under load: endpoint slows → K8s thinks pod is dead → kills healthy pod → remaining pods get more load → cascade failure. Liveness: `/healthz` (lightweight, always fast). Readiness: `/ready` (service health). NEVER the same. |
+| `chmod 777` or running as root "to make it work" | Root containers + container escape = root on the host node. Every Dockerfile MUST have `USER 1000:1000`. Enforce with PodSecurityStandard `restricted`. Add CI check for missing USER directive. |
+| Copying `.env` files into Docker images | `.env` files baked into images leak secrets to anyone who pulls the image. Use Docker secrets, Kubernetes Secrets (with etcd encryption), or External Secrets Operator. Add `.env*` to `.dockerignore`. |
 
 ## When Kubernetes is Overkill
 
@@ -375,8 +400,8 @@ Don't adopt K8s until you can answer YES to:
 - **Small → Medium**: 5+ services. Need auto-scaling. Need self-healing. docker-compose can't keep up.
 - **Medium → Enterprise**: 10+ clusters or multi-region. 50+ services. Dedicated platform team justified.
 
-
-### Error Decoder
+## Error Decoder
+<!-- STANDARD: 3min -->
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -385,7 +410,7 @@ Don't adopt K8s until you can answer YES to:
 | Pod OOMKilled every 4 hours — 99th percentile memory usage was 3x the resource limit | Resource limits were set to `memory: 256Mi` based on average usage during load testing. But one API call consistently spiked to 800Mi — the limit was based on average, not P99. | Set resource requests based on P50 usage and limits based on P99 usage over a 7-day window. Use Vertical Pod Autoscaler in recommendation mode to suggest optimal requests/limits. Test with production traffic patterns before setting final limits. | Resource limits set by average usage guarantee OOM kills for anyone who hits the peak. Always use percentile-based sizing, not average-based. |
 | Image digest pinning failed — deployment rolled back because the tag changed between test and deploy | Helm chart referenced image by tag (`myapp:v1.2.3`), not digest. Between when the chart was tested and deployed, a new build pushed to the same tag. | Always reference images by SHA256 digest, not mutable tags. CI/CD pipeline should: build with SHA tag, scan, test, promote digest through environments. Use `imagePullPolicy: Always` for tags, `IfNotPresent` for digests (but prefer digests for all production deployments). | Immutable tags are a myth in practice. Only SHA256 digests guarantee that what you tested is what you deploy. |
 | Liveness probe incorrectly configured — Kubernetes killed healthy pods during traffic spike | Liveness probe used the same endpoint as the readiness probe. During a traffic spike, the endpoint became slow (> 5s). Kubernetes interpreted slow response as dead container and restarted healthy pods. | Liveness probes should check for process health (is the process alive?), not load health (is the service responsive?). Use a separate, lightweight liveness endpoint (`/healthz`) that returns quickly regardless of load. Readiness probes should check actual service health. | A liveness probe that fails under load makes every traffic spike worse. Liveness = process alive. Readiness = service healthy. Never use the same probe for both. |
-
+| Docker build cache always misses — every build takes 8+ minutes | `COPY . .` placed before `RUN npm ci` in Dockerfile. Changing any source file invalidates the dependency layer cache. | Reorder: COPY package.json + lock file → RUN npm ci → COPY . . Application code changes only invalidate the final COPY layer. Dependencies are cached. | Docker layer ordering is the single highest-leverage build optimization. One reorder can turn an 8-minute build into 30 seconds. |
 
 ## What Good Looks Like
 

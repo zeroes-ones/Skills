@@ -180,6 +180,18 @@ These rules apply to *every* response this skill produces. AI safety in health i
 
 **What good looks like:** Safety dashboard with guardrail trigger rates, bypass attempt trends, and evaluation scores over time. Weekly eval run. Human reviewers sampling 1% of interactions. Incident response documented and exercised.
 
+## Proactive Triggers
+<!-- STANDARD: 2min — surface these WITHOUT being asked -->
+
+- **AI generates medical advice that sounds authoritative but is unverified** → "Take 50mg of prednisone daily for your bleed" when the RAG context says nothing about dosage. This is the #1 harm vector in health AI — confident wrong answers. Trigger output guardrail + log + escalate to clinical reviewer. 🔴
+- **Hallucinated clinical guideline citation** → "According to the 2024 ISTH guidelines..." when no such guideline exists. Generated citations that don't reference actual documents in your knowledge base. Flag for content team review — may indicate RAG retrieval gaps. 🔴
+- **AI agrees with user's dangerous self-diagnosis** → User: "I think my chemo isn't working, I should stop it." AI: "That's understandable." Never validate treatment discontinuation decisions. Must trigger mandatory "consult your physician" disclaimer + escalate. 🔴
+- **AI output contains dosage or medication name without disclaimer** → Any output with mg/mL/tablet/capsule + drug name. Pattern: `\d+\s*(mg|mcg|ml|tablet|capsule)\b.*\b(drug names)`. Auto-append disclaimer if missing, flag for review if dosage advice. 🟠
+- **Guardrail bypass rate spikes from 1% to 8% in one hour** → Could be coordinated attack, prompt injection campaign, or model update. Pause feature, investigate logs, run full safety test set. 🔴
+- **AI gives different quality response for non-English query** → Spanish query gets 2-sentence answer while English gets detailed 5-paragraph response. Language parity regression. Check RAG retrieval quality per language, model multilingual performance. 🟡
+- **User explicitly asks AI to diagnose their symptoms** → "Based on my symptoms, what condition do I have?" Must refuse with "I cannot provide medical diagnoses" message. Track refusal rate — if <100%, guardrail is failing. 🟠
+- **AI generates content that could discourage evidence-based treatment** → Any language suggesting "natural alternatives" to prescribed treatment, questioning medical consensus, or promoting unverified therapies. Immediate block + content review. 🔴
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 
@@ -189,6 +201,19 @@ These rules apply to *every* response this skill produces. AI safety in health i
 - **Red-teaming is a team sport, not a solo exercise.** A single person will miss attack vectors. Have at least 3 people conduct independent red-teaming. Use diverse perspectives (clinician, security engineer, product manager, patient advocate). Each finds different bypass methods.
 - **Model providers change their safety behavior without notice.** OpenAI's GPT-4o may refuse a request today and comply tomorrow after a model update. Re-run your safety test set after every model update. Never assume model safety behavior is stable.
 - **Bias in health AI is a patient safety issue, not just a fairness issue.** An AI that gives worse advice to non-English speakers, dismisses symptoms more for women, or recommends less aggressive treatment based on demographics can directly harm patients. Test for demographic parity in response quality. Include representative test cases for your patient population.
+
+## Anti-Patterns
+<!-- STANDARD: 2min -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| "The model is safety-trained by the provider, we don't need guardrails" | Provider safety training is probabilistic, not deterministic. Always add input + output guardrails. Model safety behavior changes without notice — your guardrails are the only guarantee. |
+| "We'll add a disclaimer at the bottom of every AI response" | Disclaimers are necessary but not sufficient. Users skip fine print. The AI's actual words are what patients act on. Guardrails must prevent harmful content from being generated, not just disclaim it after. |
+| "Let's use GPT to evaluate GPT output safety" | LLM-as-judge is useful as a secondary layer but cannot be the primary guardrail. It has the same failure modes as the model being evaluated. Use rule-based + ML classifiers as primary, LLM-judge as secondary. |
+| "We tested in English, we're good to launch in all languages" | Safety behavior varies dramatically by language. A model that refuses to give medical advice in English may happily comply in Swahili. Test every supported language independently with the full safety test set. |
+| "Zero bypass attempts on the dashboard — our safety system is perfect" | Zero bypasses usually means the logging pipeline is broken, not the guardrails. Guardrail triggers happening before log writes create a blind spot. Audit the logging pipeline — silent failures are dangerous. |
+| "The AI only summarizes our content, so it can't be wrong" | Summarization can hallucinate, omit critical context, or reorder information in misleading ways. "You should see a doctor" inserted into a summary of hemophilia education is a generated medical recommendation. |
+| "We'll add safety after the feature works" | Safety is not a feature — it's infrastructure. Retrofitting guardrails onto an existing LLM pipeline is exponentially harder than building them in from day one. Safety architecture is part of feature architecture. |
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

@@ -166,6 +166,254 @@ These rules apply to *every* response this skill produces.
 4. Report to the appropriate authority: FDA MedWatch (Form 3500 for voluntary, 3500A for mandatory), EudraVigilance (EU), manufacturer pharmacovigilance system (if involving their product). Use the correct form and timeline for the jurisdiction.
 5. Document internally: create an incident record with timeline, reporter details, patient details, product details, event description, seriousness assessment, expectedness assessment, reporting timeline, and confirmation of submission. Retain per regulatory recordkeeping requirements (typically 10 years for FDA).
 
+### Phase 1 Implementation: AE Reporting Code (~30 min)
+
+#### FDA MedWatch eMDR XML Generation (Form 3500A)
+
+```python
+import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+
+def generate_medwatch_3500a_xml(ae_report: dict) -> str:
+    """Generate FDA MedWatch eMDR Form 3500A XML for electronic submission."""
+    root = ET.Element("ichicsr", attrib={
+        "xmlns": "urn:hl7-org:v3",
+        "messagetype": "ichicsr"
+    })
+
+    # Safety report header
+    header = ET.SubElement(root, "safetyreportheader")
+    ET.SubElement(header, "messagenumber").text = ae_report.get("message_id", "")
+    ET.SubElement(header, "messagedate").text = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    ET.SubElement(header, "reporttype").text = "1"  # Spontaneous report
+
+    # Patient demographics (de-identified per HIPAA)
+    patient = ET.SubElement(root, "patient")
+    ET.SubElement(patient, "patientonsetage").text = str(ae_report.get("age", ""))
+    ET.SubElement(patient, "patientonsetageunit").text = "801"  # Year
+    ET.SubElement(patient, "patientsex").text = str(ae_report.get("sex", "0"))
+
+    # Drug/reaction block
+    for drug in ae_report.get("suspect_products", []):
+        drug_el = ET.SubElement(root, "patientdrug")
+        ET.SubElement(drug_el, "drugcharacterization").text = "1"  # Suspect
+        ET.SubElement(drug_el, "medicinalproduct").text = drug.get("name", "")
+
+    for reaction in ae_report.get("reactions", []):
+        reaction_el = ET.SubElement(root, "patientreaction")
+        ET.SubElement(reaction_el, "reactionmeddrapt").text = reaction.get("meddra_pt", "")
+
+    # Seriousness criteria
+    seriousness = ET.SubElement(root, "seriousness")
+    for criteria in ae_report.get("seriousness_criteria", []):
+        ET.SubElement(seriousness, criteria).text = "1"
+
+    # Reporter info
+    reporter = ET.SubElement(root, "reporter")
+    ET.SubElement(reporter, "reportertype").text = "1"  # Physician
+    ET.SubElement(reporter, "reportergivename").text = ae_report.get("reporter_name", "")
+
+    return ET.tostring(root, encoding="unicode", xml_declaration=True)
+```
+
+#### MedDRA Coding: SOC → PT → LLT Hierarchy
+
+```python
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class MedDRATerm:
+    """MedDRA coding with SOC (System Organ Class), PT (Preferred Term),
+    LLT (Lowest Level Term) hierarchy."""
+    llt_code: str       # Lowest Level Term code (e.g., "10003922")
+    llt_name: str       # LLT name ("Head pain")
+    pt_code: str        # Preferred Term code ("10019211")
+    pt_name: str        # PT name ("Headache")
+    soc_code: str       # System Organ Class code ("10029205")
+    soc_name: str       # SOC name ("Nervous system disorders")
+
+def classify_ae_with_meddra(verbatim_term: str, meddra_db: dict) -> Optional[MedDRATerm]:
+    """Map a verbatim patient-reported term to the MedDRA hierarchy (LLT → PT → SOC)."""
+    # Lookup LLT by exact or normalized match
+    llt = meddra_db.get("llt_index", {}).get(verbatim_term.lower())
+    if not llt:
+        # Fallback: try MedDRA LLT-normalized matching
+        llt = meddra_db.get("llt_normalized", {}).get(
+            verbatim_term.lower().replace(" ", "_")
+        )
+
+    if not llt:
+        return None  # Requires manual coding by safety professional
+
+    return MedDRATerm(
+        llt_code=llt["llt_code"],
+        llt_name=llt["llt_name"],
+        pt_code=llt["pt_code"],
+        pt_name=llt["pt_name"],
+        soc_code=llt["soc_code"],
+        soc_name=llt["soc_name"],
+    )
+```
+
+#### Causality Assessment: Naranjo Scale + WHO-UMC Criteria
+
+```python
+from enum import Enum
+
+class CausalityCategory(Enum):
+    CERTAIN = "Certain"
+    PROBABLE = "Probable"
+    POSSIBLE = "Possible"
+    UNLIKELY = "Unlikely"
+
+# Naranjo Adverse Drug Reaction Probability Scale (10 questions, scored -1/0/+1)
+NARANJO_QUESTIONS = [
+    "Are there previous conclusive reports on this reaction?",
+    "Did the adverse event appear after the suspected drug was administered?",
+    "Did the adverse reaction improve when the drug was discontinued?",
+    "Did the adverse reaction reappear when the drug was re-administered?",
+    "Are there alternative causes that could have caused the reaction?",
+    "Did the reaction reappear when a placebo was given?",
+    "Was the drug detected in blood/fluids in concentrations known to be toxic?",
+    "Was the reaction more severe when the dose was increased or less severe when decreased?",
+    "Did the patient have a similar reaction to the same or similar drugs previously?",
+    "Was the adverse event confirmed by any objective evidence?"
+]
+
+def naranjo_score(answers: list[int]) -> tuple[int, CausalityCategory]:
+    """
+    Calculate Naranjo ADR probability score.
+    answers: list of 10 integers (0=No, 1=Do not know/NA, 2=Yes).
+    Question 5 (alternative causes) is reverse-scored: 0=Yes, 2=No.
+    Returns (total_score, category).
+    """
+    if len(answers) != 10:
+        raise ValueError("Exactly 10 Naranjo answers required")
+
+    total = sum(answers)
+    if total >= 9:
+        return total, CausalityCategory.CERTAIN
+    elif total >= 5:
+        return total, CausalityCategory.PROBABLE
+    elif total >= 1:
+        return total, CausalityCategory.POSSIBLE
+    else:
+        return total, CausalityCategory.UNLIKELY
+
+# WHO-UMC Causality Categories (structured clinical assessment)
+def who_umc_assess(
+    temporal_plausible: bool,
+    dechallenge_positive: bool,
+    rechallenge_positive: bool,
+    alternative_causes_excluded: bool,
+    previous_known: bool,
+) -> CausalityCategory:
+    """WHO-UMC causality assessment with structured clinical reasoning."""
+    if all([temporal_plausible, dechallenge_positive, rechallenge_positive,
+            alternative_causes_excluded, previous_known]):
+        return CausalityCategory.CERTAIN
+    elif temporal_plausible and dechallenge_positive and alternative_causes_excluded:
+        return CausalityCategory.PROBABLE
+    elif temporal_plausible and not dechallenge_positive and not alternative_causes_excluded:
+        return CausalityCategory.POSSIBLE
+    else:
+        return CausalityCategory.UNLIKELY
+```
+
+#### EudraVigilance ICSR XML Format
+
+```python
+def generate_eudravigilance_icsr_xml(ae_report: dict, qppv_name: str) -> str:
+    """Generate EudraVigilance ICSR XML per ICH E2B(R3) for EU reporting."""
+    root = ET.Element("ichicsr", attrib={
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "messagetype": "ichicsr",
+        "messagemode": "1"  # 1 = new, 2 = follow-up
+    })
+
+    # EU-specific: QPPV sign-off metadata
+    qppv = ET.SubElement(root, "qppv")
+    ET.SubElement(qppv, "qppvname").text = qppv_name
+    ET.SubElement(qppv, "reportnullification").text = "0"
+
+    # Primary source qualification (EU requires HCP or consumer designation)
+    source = ET.SubElement(root, "primarysource")
+    ET.SubElement(source, "reportercountry").text = ae_report.get("country", "US")
+    ET.SubElement(source, "qualification").text = ae_report.get("reporter_qualification", "1")
+
+    # Reaction with MedDRA coding (E2B R3 format)
+    for reaction in ae_report.get("reactions", []):
+        reaction_el = ET.SubElement(root, "reaction")
+        ET.SubElement(reaction_el, "primarysourcereaction").text = reaction.get("verbatim", "")
+        ET.SubElement(reaction_el, "reactionmeddrapt").text = reaction.get("meddra_pt", "")
+        ET.SubElement(reaction_el, "reactionmeddraversion").text = ae_report.get(
+            "meddra_version", "27.1"
+        )
+
+    # Seriousness — EU GVP Module VI criteria
+    seriousness = ET.SubElement(root, "seriousness")
+    criteria_map = {
+        "death": "1", "life_threatening": "2", "hospitalization": "3",
+        "disability": "4", "congenital_anomaly": "5",
+        "other_medically_important": "6"
+    }
+    for criteria, code in criteria_map.items():
+        if ae_report.get(criteria):
+            ET.SubElement(seriousness, criteria).text = code
+
+    return ET.tostring(root, encoding="unicode", xml_declaration=True)
+```
+
+#### Automated Timeline Detection for 7-Day / 15-Day / 30-Day Rules
+
+```python
+from datetime import datetime, timedelta
+from enum import Enum
+
+class ReportingDeadline(Enum):
+    SEVEN_DAY = 7       # Death or life-threatening
+    FIFTEEN_DAY = 15    # Serious, unexpected, non-life-threatening
+    THIRTY_DAY = 30     # Medical device death/serious injury
+
+def determine_reporting_deadline(ae_report: dict) -> tuple[ReportingDeadline, datetime]:
+    """
+    Determine regulatory reporting deadline and calculate due date.
+    Clock starts at first employee awareness — not when investigation concludes.
+    """
+    awareness_date = ae_report.get("awareness_date", datetime.utcnow())
+    is_serious = ae_report.get("is_serious", False)
+    is_unexpected = ae_report.get("is_unexpected", True)
+    outcome = ae_report.get("outcome", "").lower()
+    is_device = ae_report.get("is_device", False)
+
+    if is_device and ("death" in outcome or "serious injury" in outcome):
+        deadline = ReportingDeadline.THIRTY_DAY
+    elif is_serious and is_unexpected and ("death" in outcome or "life-threatening" in outcome):
+        deadline = ReportingDeadline.SEVEN_DAY
+    elif is_serious and is_unexpected:
+        deadline = ReportingDeadline.FIFTEEN_DAY
+    else:
+        return None, None  # Not expedited — standard reporting timeline
+
+    due_date = awareness_date + timedelta(days=deadline.value)
+    return deadline, due_date
+
+def check_ae_timeline_compliance(submissions: list[dict]) -> list[dict]:
+    """Audit AE reports for regulatory timeline compliance. Flag violations."""
+    violations = []
+    for sub in submissions:
+        deadline, due_date = determine_reporting_deadline(sub)
+        if deadline and sub.get("submission_date") > due_date:
+            violations.append({
+                "message_id": sub.get("message_id"),
+                "deadline_type": deadline.name,
+                "days_late": (sub["submission_date"] - due_date).days,
+                "regulatory_risk": "FDA 483 / Warning Letter exposure"
+            })
+    return violations
+```
+
 ### Phase 2 (~20 min): Public Health Emergency Response
 1. Detect the emergency signal: disease outbreak in patient community, product recall notification from manufacturer or FDA, safety alert from CDC/WHO/health authority, or data suggesting a cluster of serious AEs.
 2. Activate the crisis team: Crisis Response Manager (lead), Health Compliance, Legal Advisor, Clinical Lead, CEO/designee (for S1-S2), Community Operations Manager (if patient-facing comms), Communications/PR (if media potential).
@@ -239,6 +487,21 @@ Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not
 - **Post-crisis review gate:** Every S1-S3 incident requires blameless post-crisis review within 2 weeks. Must include: root cause analysis, timeline reconstruction, what worked, what didn't, corrective actions with owners and deadlines. Artifact: Post-crisis review report with CAPA assignments.
 - **Evidence preservation gate:** Never delete or modify crisis-related content. Archive with timestamp and reason. Destroyed evidence = regulatory violation. Artifact: Content preservation log with chain of custody.
 
+## Proactive Triggers
+
+These triggers fire automatically based on detected signals in patient community content, support tickets, or system events. When a trigger fires, route to the specified action immediately — do not wait for manual triage.
+
+| Trigger | Action |
+|---------|--------|
+| User reports a severe reaction to medication ("couldn't breathe," "throat closed," "anaphylaxis") | Auto-generate MedWatch 3500A draft. Flag S2 severity. Notify Health Compliance within 1 hour. Clock starts at post timestamp — do not wait for investigation. |
+| Suicide-related keyword detected in community post ("kill myself," "end it all," "no reason to live") | Administer C-SSRS screening. If plan/intent detected: warm handoff to 988 within 5 minutes. If passive ideation: warm handoff within 30 minutes. Document handoff confirmation. Never automated-only response. |
+| Cluster of 3+ similar AEs for the same product detected within 48 hours | Escalate to Pharmacovigilance for signal validation. Trigger disproportionality analysis (PRR, ROR). Notify Clinical Lead and Health Compliance. Prepare for potential labeling update or Dear HCP letter. |
+| Product recall or safety alert from FDA, EMA, or manufacturer received | Activate crisis team per S1-S2 classification. Route to `ceo-strategist` and `community-operations-manager` for patient notification planning. Draft regulatory response within 4 hours. Use pre-approved templates. |
+| Patient mentions self-harm method or access to means ("I have the pills," "I know how I'd do it") | Immediate escalation per Mental Health Crisis decision tree. Call 988 if US-based. Contact patient directly if identifiable. Do NOT leave an automated response. Notify Clinical Lead within 5 minutes. |
+| Data breach involving PHI detected in patient community | Invoke `incident-responder` for forensic investigation. Notify `legal-advisor` and Health Compliance immediately. Begin breach notification timeline assessment (HIPAA: 60 calendar days). Preserve all evidence — no deletion. |
+| Misinformation about product safety spreading in community (10+ posts in 1 hour) | Invoke `content-policy-manager` for containment. Prepare fact-based correction from Clinical Lead. Coordinate with `community-operations-manager` for community-wide announcement. Do NOT delete posts — add corrective reply and archive. |
+| Medical device malfunction reported with patient harm ("my insulin pump delivered too much," "pacemaker shocked me") | Trigger FDA MDR reporting per 21 CFR Part 803. 30-day timeline if death/serious injury. Simultaneously notify manufacturer. Quarantine device data logs. Escalate to S2-S3 per Safety Incident Classification. |
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -- rules extracted from production experience -->
@@ -250,6 +513,18 @@ Media inquiry about safety incident? → CEO + Legal + Communications/PR. Do not
 - **Warm handoff means a live human connection.** For suicide risk, "here is the crisis line number" is a cold referral. A warm handoff means: you stay with the patient while they connect to the crisis service, confirm they are connected, and document the handoff.
 - **Post-crisis review is not optional.** Every S1-S3 incident gets a blameless post-crisis review within 2 weeks. Root cause analysis, timeline reconstruction, what worked, what did not, and specific corrective actions with owners and deadlines.
 - **Regulatory timelines are non-negotiable.** 7 days for death/life-threatening, 15 days for serious unexpected, 30 days for medical device death/serious injury. These are calendar days, not business days. Missed timelines are cited in FDA 483s and Warning Letters.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Waiting for a complete investigation before filing an AE report — "we need all the facts first" | Submit the report with available information within the regulatory timeline. Continue investigation in parallel. Submit follow-up reports as new information emerges. The FDA clock does not pause for internal review. |
+| Sending an automated crisis line message as the only response to a suicidal patient — "here's the number, call them" | A trained human must perform C-SSRS assessment and stay with the patient until they are connected to a crisis counselor by warm handoff. Confirm the connection was made. Document everything. Cold referrals are not sufficient. |
+| Deleting or editing patient posts about AEs to "reduce panic" or "protect the brand" | Archive the post with timestamp and reason. Do not modify or destroy evidence. If removal is necessary for safety (e.g., contains PHI), document the removal and preserve the original content. Evidence destruction is a regulatory violation. |
+| Releasing crisis communications without Legal and Regulatory approval because "the situation is urgent" | Pre-approve templates for common scenarios so they are ready during a crisis. For novel situations, get verbal approval from Legal + Regulatory with email confirmation within the hour — never bypass review entirely. |
+| Assuming community moderators can distinguish AEs from general complaints without formal training | Train all patient-facing staff on the four AE elements: identifiable patient, identifiable reporter, suspect product, adverse event. Provide a one-click "Flag for PV Review" button in moderation tools. Train annually and verify competency. |
+| Treating regulatory timelines as flexible internal targets — "15 days means 2-3 weeks" | 7-day and 15-day timelines are calendar days, not business days. Missed timelines are cited in FDA 483s and Warning Letters. Use automated SLA timers that trigger alerts at 50%, 75%, and 90% of the deadline window. |
+| Conducting a post-crisis review that blames individuals — "who missed the deadline and why?" | Run a blameless post-crisis review focused on process failures. Ask: what in our system allowed this to happen? What safeguard was missing? Assign corrective actions with owners and deadlines — not blame with consequences. |
 
 ## Error Decoder
 <!-- DEEP: 10+min -->
