@@ -19,7 +19,7 @@ Match skills to your project's maturity. Start lean, expand as you grow:
 | **Grow** (`skills-init --grow`) | 18 skills | Side project with users, open source, early startup |
 | **Full** (`skills-init`) | 106 skills | Team project, funded startup, enterprise |
 
-This bootstrap guide covers the full 101-skill lifecycle. If you started with `--solo`, upgrade to `--grow` around Phase 3 and `--full` around Phase 6. Skills you haven't activated yet won't be loadable by agents.
+This bootstrap guide covers the full 106-skill lifecycle. If you started with `--solo`, upgrade to `--grow` around Phase 3 and `--full` around Phase 6. Skills you haven't activated yet won't be loadable by agents.
 
 > **Chain-aware navigation:** Every skill's YAML `chain:` block declares exact upstream/downstream dependencies. Use [`COORDINATION-MATRIX.md`](COORDINATION-MATRIX.md) to find the minimal viable sequence for your phase. The chains are symmetric — if `backend-developer` feeds into `code-reviewer`, then `code-reviewer` consumes from `backend-developer`.
 
