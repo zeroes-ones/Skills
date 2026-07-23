@@ -240,6 +240,19 @@ Focus: Full AppSec program (SAST+DAST+IAST+RASP, bug bounty). IAM: ABAC + permis
 | `incident-responder` | Detection rules, SOAR playbooks, forensic tooling access, threat intelligence sharing | Incident response has no detection capability — breaches go unnoticed |
 | `compliance-officer` | Technical control evidence, vulnerability management metrics, security monitoring coverage | Compliance audits fail without technical evidence — certification at risk |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| SAST/SCA scanner flags a critical CVE in a transitive dependency with a published exploit | Assess exploitability in your context (is the vulnerable code path reachable?), then apply the patch within 24 hours per SLA. If patching is blocked, implement a compensating control (WAF rule, network segmentation) and document the risk acceptance. | Critical CVEs with known exploits are being actively targeted. Every hour of delay increases the probability of compromise exponentially. |
+| A developer commits an `.env` file or hardcoded secret that passes pre-commit hooks | Investigate why the pre-commit hook didn't catch it — the secret pattern may be missing from the detection rules. Rotate the exposed credential immediately. Add the detected pattern to the hook and scan the full repo history for prior exposures. | A secret that survives pre-commit hooks today means it was also missed yesterday. Every undetected secret in git history is a latent breach waiting to happen. |
+| CloudTrail/Audit Log shows an IAM principal performing an action it has never performed before | This is an anomaly signal. Check if it's a new team member, a legitimate automation change, or a compromised credential. Correlate with login geography and source IP. If suspicious, revoke the credential and initiate incident response. | Unusual IAM activity is the most common early indicator of credential compromise. Novelty alone doesn't equal malice, but it demands immediate investigation. |
+| A new S3 bucket or storage resource is created without Block Public Access enabled | Immediately enable Block Public Access at the bucket level and investigate the creation context. If this was an automated provisioning pipeline, fix the template. Public S3 buckets are the #1 cause of cloud data breaches. | Default-open storage is a data exfiltration waiting to happen. A single misconfigured bucket can expose millions of records in minutes. |
+| Vulnerability scanner finds an unpatched critical CVE that was disclosed >7 days ago with a CVSS score ≥9.0 | This is an SLA violation — the CVE should have been patched within 24 hours. Escalate to the service owner and security leadership. Apply the patch immediately and conduct a postmortem on why the SLA was missed. | A missed SLA on a 9.0+ CVE is a near-miss incident. The vulnerability was exploitable for at least 6 days longer than policy allows — determine if it was exploited during that window. |
+| SIEM alert fires for an outbound data transfer exceeding 500MB from a database-hosting subnet to an external IP | This is a potential data exfiltration event. Immediately isolate the source host, preserve forensic evidence (memory dump, network flows, process list), and initiate incident response. Outbound data transfer from data-tier subnets should be near-zero. | Large outbound flows from database subnets are almost never legitimate. Databases don't initiate outbound connections to the internet — someone or something is exfiltrating data. |
+| An OWASP dependency-check or npm audit returns a vulnerability in a package that hasn't been updated in >2 years | The package is likely abandoned. Replace it with an actively maintained alternative, or fork and patch it yourself if it's critical to your application. Unmaintained dependencies accumulate known vulnerabilities without fixes. | Abandoned packages are time bombs. The Log4Shell crisis proved that even widely-used libraries can become unmaintained and critically vulnerable. |
+| Security scanning pipeline is bypassed or disabled for an "emergency hotfix" without documented approval | The hotfix must still pass SAST and secret scanning — these checks add <2 minutes. If truly impossible, require a break-glass approval from the security lead with a 24-hour remediation window. Bypassing security gates normalizes the behavior. | Emergency bypasses are how Shadow IT creeps into production. Every bypass that isn't remediated becomes the new normal — and attackers know to target the un-scanned paths. |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Shift left**: security testing in the IDE and at PR time; don't wait for staging or production scans.
@@ -248,9 +261,20 @@ Focus: Full AppSec program (SAST+DAST+IAST+RASP, bug bounty). IAM: ABAC + permis
 - **Secrets never travel in plaintext**: encrypt in transit (TLS) and at rest (KMS); use ephemeral credentials whenever possible.
 - **Patch aggressively**: automate OS and dependency patching; SLA: critical patches within 24 hours, high within 7 days.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Running SAST as a nightly job instead of blocking PRs on critical/high findings | Integrate SAST into the CI pipeline so it runs on every PR. Configure severity gates: critical and high findings block merge. Nightly scans find vulnerabilities hours after they've been merged — PR-time scans prevent them from reaching main. |
+| Storing secrets in environment variables and assuming they're secure because "only the app can read them" | Use a secrets manager (HashiCorp Vault, AWS Secrets Manager) with dynamic credentials that auto-expire. Environment variables leak through child processes, debug endpoints, crash dumps, and logging frameworks. They are not a security boundary. |
+| Running a penetration test, filing the report, and not remediating findings for months | Assign each pen test finding an owner, severity-based SLA (Critical: 7 days, High: 30 days), and track to closure in the same system as engineering bugs. An un-remediated pen test finding is a documented, known vulnerability that your security team acknowledged and ignored. |
+| Implementing threat modeling only at project kickoff and never revisiting it | Treat the threat model as a living document reviewed every quarter and updated on every major architecture change. A threat model from the MVP phase doesn't account for the payment integration, third-party API, or admin panel added 6 months later. |
+| Allowing IAM roles with wildcard permissions (`s3:*`, `ec2:*`) because "it's easier than figuring out the exact actions" | Start with `ReadOnlyAccess` and add specific actions as needed based on actual API calls (use IAM Access Analyzer to identify required permissions). Wildcards are the #1 cause of privilege escalation paths. A compromised Lambda with `s3:*` can read, write, and delete every bucket in the account. |
+| Disabling IMDSv2 on EC2 instances because "the legacy app needs IMDSv1" | Migrate the legacy app to IMDSv2 (session-oriented metadata access) or isolate it in a separate subnet with additional network controls. IMDSv1 is vulnerable to SSRF attacks that can leak IAM credentials — the Capital One breach exploited exactly this weakness. |
+| Running vulnerability scans but never building an SBOM or tracking transitive dependencies | Generate an SBOM (CycloneDX/SPDX) for every application and store it alongside the build artifact. Transitive dependencies are the silent attack surface — Log4Shell was a transitive dependency in thousands of applications that "didn't use Log4j directly." |
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

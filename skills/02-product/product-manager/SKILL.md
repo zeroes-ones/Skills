@@ -182,6 +182,19 @@ Customer escalation (enterprise customer threatening churn over missing feature)
   └── `product-manager` + `ceo-strategist` if >10% revenue at risk.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Stakeholder asks "can we just add this one small thing?" mid-sprint | Check RICE score against current sprint items. If unprioritized, add to "Next" column with score — never swap in-progress work without a tradeoff conversation | Scope creep mid-sprint is the #1 cause of missed deadlines; every "small thing" carries hidden complexity and context-switching cost |
+| Engineering lead reports velocity drop >30% for two consecutive sprints | Run a retrospective on the last 3 completed stories. Check if acceptance criteria are ambiguous, dependencies unmapped, or stories too large (>5 story points). Loop in scrum-master | Sustained velocity drops signal systemic issues (unclear specs, technical debt, or morale), not just "a slow sprint" — early diagnosis prevents quarter-level misses |
+| User research reveals a feature you prioritized has low desirability in Kano survey results | Reclassify the feature (attractive → indifferent) and re-score RICE with updated Reach and Confidence. Move to "Later" if Confidence drops below 50% | Building features users don't want wastes engineering capacity; the Kano model distinguishes "must-have" from "nice-to-have" with data, not opinion |
+| Competitor launches feature with >70% parity to your Q2 roadmap item | Run competitive teardown within 48 hours: what problem do they solve better/worse? Decide: accelerate to differentiate, deprioritize and own a different problem, or match with a better UX. Notify product-strategist | Parity features lose — if you ship the same thing 3 months later, you're competing on execution speed, not differentiation, and the competitor already has the data |
+| PRD has been in async review for >5 business days with zero stakeholder feedback | Schedule a 15-minute sync with each silent stakeholder. Ask directly: "What would make you reject this spec?" Silence in review = misalignment that surfaces during implementation | Delayed feedback means stakeholders haven't read the PRD or disagree but won't say so; both scenarios produce rework after engineering has already started building |
+| Post-launch metrics show adoption <20% of target after 30 days | Audit the success metric baseline: was the Reach estimate inflated? Run 5 user interviews with non-adopters within 1 week. Decide: iterate on UX, pivot the use case, or kill the feature | Low adoption after launch means either the problem wasn't real, the solution missed the mark, or the rollout was flawed — each requires a different fix, and waiting depletes team trust |
+| Engineering estimates 3x what you expected for a P0 feature | Walk through the spec together with engineering: identify hidden complexity, missing edge cases, or integration points you didn't account for. Adjust scope or timeline — never pressure estimates down | Estimation gaps reveal spec ambiguity; engineers see complexity PMs miss. Pressuring estimates down produces missed deadlines, technical debt, and burned-out teams |
+| Backlog contains items older than 2 quarters with no updates or grooming activity | Archive or delete stale items. If the problem was genuinely important, it would have been reprioritized by now. Send a summary of archived items to stakeholders before deletion with a 1-week veto window | Stale backlogs create the illusion of progress ("look at all these ideas!") while hiding the real work that needs doing. A lean backlog is a trusted backlog |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - Write the PRD before writing the first line of code — and share it asynchronously for 48-hour comment period.
@@ -192,6 +205,18 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 - Keep PRDs under 10 pages; appendices carry supplementary detail so the core remains skimmable.
 - When stakeholders disagree, escalate the decision criteria, not the decision.
 - Run a pre-mortem: "It's 6 months from now and this feature failed. What happened?"
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Writing PRDs in isolation and sharing them as "final" — engineering sees the spec for the first time when sprint planning starts | Share PRDs as drafts with a 48-hour async comment period. Engineering, design, and QA review before a single user story is written. PRDs are collaboration tools, not approval artifacts |
+| Computing RICE scores solo without team validation — Reach = "all logged-in users will see this" and Confidence = "80% because we have analytics" | Compute RICE as a team exercise. Require evidence for each input: Reach from analytics (not wishful thinking), Impact from user research, Confidence tiered (20%/50%/80%/100%). Team review surfaces hidden assumptions before they become implementation dead ends |
+| Committing launch dates before engineering has seen the full spec — CEO announces "Q2 launch" based on the PM's rough estimate | Roadmap uses Now/Next/Later, not dates. When dates are required, get engineering's estimate after they've read the full spec with edge cases and NFRs. PM says "targeting Q2, pending engineering validation" |
+| Defining success metrics after launch when adoption is low — retrofitting metrics to make the feature look successful | Define success metrics before writing the first user story. Establish baseline values and target thresholds. If you can't define what success looks like numerically before building, you're building on hope |
+| Treating the "Next" column as a promise — committing to stakeholders that features will ship next quarter, then feeling guilty when priorities shift | Explicitly communicate that the "Next" column is a buffer, not a promise, and reprioritization happens quarterly. Stakeholders who understand the system trust the process more than stakeholders who expect fixed commitments |
+| Accepting "works" as a user story completion criterion — "user can reset password" with no measurable definition of done | Every user story must have acceptance criteria in GIVEN/WHEN/THEN format with measurable outcomes. "Works" means 10 different things to 10 different engineers — it's a disagreement waiting to surface in QA |
+| Skipping the non-goals section in PRDs — "everything is in scope until someone explicitly says it's not" | Every PRD includes an explicit "Out of Scope" section. When scope tries to expand during build, point to the non-goals as a pre-agreed contract. Without non-goals, you're negotiating scope under time pressure |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -265,7 +290,7 @@ Common chains:
 **Lesson:** Dates set without engineering input are not estimates — they're wishes. Always get engineering's estimate after they've read the full spec.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |
