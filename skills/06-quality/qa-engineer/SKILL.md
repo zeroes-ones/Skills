@@ -345,6 +345,17 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 | Test data is shared across test cases and one test's data modification breaks another test | Each test must set up and tear down its own data. Use factories with unique identifiers (UUIDs, timestamps) so tests can run in parallel. Shared test data creates test interdependence — you can't run tests in isolation or in any order. | Non-isolated tests are the #2 cause of flakiness after fixed timeouts. A test that depends on data from another test will fail randomly based on execution order. |
 | Load test targets a "representative" QPS that's 6 months old and extrapolated from a spreadsheet | Derive load test targets from production traffic patterns: 2x peak QPS from the last 30 days, with realistic traffic distribution across endpoints. Extrapolated targets almost never match real-world load patterns. | Load testing against stale targets produces false confidence. Production will surprise you in ways a spreadsheet cannot predict. |
 
+**Service Interaction Designs:**
+
+| Interaction | Design Detail |
+|---|---|
+| QA ↔ CI/CD | Test parallelization: split test suites across parallel CI runners by tag (`@smoke`, `@regression`, `@slow`). Coverage reporting (Codecov/Coveralls) with PR annotations for coverage changes. Flaky test detection: track per-test pass/fail history; auto-quarantine tests exceeding 2% flake rate. Quality gate: lint → unit → integration → E2E smoke → contract → performance smoke, with merge blocking at each stage. |
+| QA ↔ Mobile | Device lab integration (BrowserStack, Sauce Labs, Firebase Test Lab) for cross-device testing. Network condition testing: simulate 3G/4G/offline conditions for mobile E2E tests. Touch target validation: automated checks for 44x44dp minimum interactive elements. App store readiness: screenshot testing across device sizes, permission dialog flows, deep link testing. |
+| QA ↔ Backend | API contract testing (OpenAPI schema validation, Pact) for every public endpoint. Test data factories generate realistic, isolated data for each test run. Database engine parity: test against the same database engine as production (testcontainers), never SQLite-as-Postgres. |
+| QA ↔ Frontend | Test IDs (`data-testid`) standardized across components. Visual regression testing (Percy, Chromatic) on critical pages. Loading/error/empty state coverage required for every component. Accessibility checks (axe-core) integrated into E2E test suite. |
+| QA ↔ Release Management | Release readiness report: test pass/fail summary, coverage trend, flaky test rate, known issues, and risk assessment. Go/no-go gate: all critical path tests must pass; any failing critical test blocks release. Rollback test: verify rollback procedure is tested and documented. |
+| QA ↔ Observability | Test results correlated with production metrics: did the test suite predict the production incident? Synthetic monitoring tests run in production at regular intervals (heartbeat checks for critical user journeys). Error budget integration: test gaps linked to SLO breaches inform test priority. |
+
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
 ### Solo (1 person, 0-100 users)
