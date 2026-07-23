@@ -1,7 +1,10 @@
 ---
 name: legal-advisor
-description: Contract review framework, corporate structure decision matrix, IP protection strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source license compliance,
-  fundraising term sheets (SAFE/convertible note/Series Seed), employment law (contractor vs employee, equity), data processing agreements, and ToS/Privacy Policy generation.
+description: Contract review framework, corporate structure decision matrix, IP protection
+  strategy (patent/trademark/copyright/trade secret), SaaS agreements (MSA+DPA), open-source
+  license compliance, fundraising term sheets (SAFE/convertible note/Series Seed),
+  employment law (contractor vs employee, equity), data processing agreements, and
+  ToS/Privacy Policy generation.
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
@@ -18,6 +21,8 @@ chain:
   - accessibility-auditor
   - ai-safety-health-reviewer
   - board-manager
+  - health-regulatory-submission
+  - hipaa-technical-implementation
   - privacy-engineer
   feeds_into:
   - accountant
@@ -28,6 +33,8 @@ chain:
   - content-policy-manager
   - crisis-response-manager
   - gdpr-privacy
+  - health-regulatory-submission
+  - hipaa-technical-implementation
   - hr-manager
   - investor-relations
   - medical-content-reviewer
@@ -35,7 +42,7 @@ chain:
   - people-ops
   - regulatory-specialist
   - treasury-manager
----
+------
 # Legal Advisor
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.

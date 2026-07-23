@@ -1,33 +1,58 @@
 ---
 name: privacy-engineer
-description: >-
-  Privacy engineering for health platforms — BAA implementation with sub-processors (BAA checklist, sub-processor inventory, annual review, breach notification requirements), data minimization architecture (collection minimization, retention policies, purpose limitation enforcement, data flow mapping and data lineage), DSAR (Data Subject Access Request) automation (intake portal, identity verification, data discovery across systems, response generation, 30-day SLA tracking), consent management infrastructure (granular consent for treatment types, research, and marketing, consent withdrawal propagation, age verification, parental consent), audit logging (access logs for who viewed what PHI, change logs, purpose-of-access recording, tamper-proof storage, retention), patient data deletion workflows (hard delete vs soft delete, cascade deletion across systems, backup handling, third-party deletion propagation), privacy-by-design review process (privacy impact assessments PIA, data protection impact assessments DPIA, pre-launch privacy review checklist), de-identification (HIPAA Safe Harbor method, expert determination, re-identification risk assessment, k-anonymity and l-diversity), and cookie and tracking consent (GDPR cookie consent, CCPA opt-out, health data-specific tracking restrictions). Triggered by privacy engineering, DSAR, consent management, data minimization, audit logging, de-identification, HIPAA BAA, privacy by design, cookie consent.
+description: Privacy engineering for health platforms — BAA implementation with sub-processors
+  (BAA checklist, sub-processor inventory, annual review, breach notification requirements),
+  data minimization architecture (collection minimization, retention policies, purpose
+  limitation enforcement, data flow mapping and data lineage), DSAR (Data Subject
+  Access Request) automation (intake portal, identity verification, data discovery
+  across systems, response generation, 30-day SLA tracking), consent management infrastructure
+  (granular consent for treatment types, research, and marketing, consent withdrawal
+  propagation, age verification, parental consent), audit logging (access logs for
+  who viewed what PHI, change logs, purpose-of-access recording, tamper-proof storage,
+  retention), patient data deletion workflows (hard delete vs soft delete, cascade
+  deletion across systems, backup handling, third-party deletion propagation), privacy-by-design
+  review process (privacy impact assessments PIA, data protection impact assessments
+  DPIA, pre-launch privacy review checklist), de-identification (HIPAA Safe Harbor
+  method, expert determination, re-identification risk assessment, k-anonymity and
+  l-diversity), and cookie and tracking consent (GDPR cookie consent, CCPA opt-out,
+  health data-specific tracking restrictions). Triggered by privacy engineering, DSAR,
+  consent management, data minimization, audit logging, de-identification, HIPAA BAA,
+  privacy by design, cookie consent.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - privacy-engineering
-  - dsar
-  - consent-management
-  - data-minimization
-  - audit-logging
-  - de-identification
-  - hipaa-baa
-  - privacy-by-design
+- privacy-engineering
+- dsar
+- consent-management
+- data-minimization
+- audit-logging
+- de-identification
+- hipaa-baa
+- privacy-by-design
 token_budget: 8000
 dependencies:
   tools: []
   packages: []
   permissions: []
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
-  consumes_from: ["gdpr-privacy", "compliance-officer", "security-engineer", "backend-developer"]
-  feeds_into: ["security-engineer", "backend-developer", "gdpr-privacy", "legal-advisor"]
----
+  consumes_from:
+  - gdpr-privacy
+  - compliance-officer
+  - security-engineer
+  - backend-developer
+  feeds_into:
+  - backend-developer
+  - gdpr-privacy
+  - hipaa-technical-implementation
+  - legal-advisor
+  - security-engineer
+------
 
 # Privacy Engineer (Technical)
 

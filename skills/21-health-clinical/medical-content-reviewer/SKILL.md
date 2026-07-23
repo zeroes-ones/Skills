@@ -1,8 +1,12 @@
 ---
 name: medical-content-reviewer
-description: Clinical accuracy review of health content — medical misinformation detection and prevention, evidence-based content validation (use of citations, GRADE framework for evidence quality), community
-  Q&A medical accuracy, health claims fact-checking, clinical guideline compliance, disclaimer and liability language, adverse event reporting triggers. Use when reviewing patient-facing content for clinical
-  accuracy, building medical misinformation detection rules, or establishing a content review workflow.
+description: Clinical accuracy review of health content — medical misinformation detection
+  and prevention, evidence-based content validation (use of citations, GRADE framework
+  for evidence quality), community Q&A medical accuracy, health claims fact-checking,
+  clinical guideline compliance, disclaimer and liability language, adverse event
+  reporting triggers. Use when reviewing patient-facing content for clinical accuracy,
+  building medical misinformation detection rules, or establishing a content review
+  workflow.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
@@ -28,10 +32,11 @@ chain:
   - ai-safety-health-reviewer
   - content-policy-manager
   - medical-illustrator
+  - patient-community-safety
   - patient-health-educator
   alternatives:
   - compliance-officer
----
+------
 # Medical Content Reviewer
 
 Ensure every piece of health content in your app is clinically accurate, evidence-based, and legally defensible. This skill covers medical accuracy review workflows, misinformation detection, evidence quality assessment, disclaimer drafting, and adverse event trigger identification — specifically for digital health apps and patient communities.

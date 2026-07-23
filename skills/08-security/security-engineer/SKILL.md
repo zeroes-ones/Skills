@@ -1,7 +1,8 @@
 ---
 name: security-engineer
-description: Application security, penetration testing, IAM design, secrets management, API security, network security, zero trust, and security monitoring. Triggered by security, pentest, IAM, secrets,
-  zero trust, vulnerability, threat model, API security.
+description: Application security, penetration testing, IAM design, secrets management,
+  API security, network security, zero trust, and security monitoring. Triggered by
+  security, pentest, IAM, secrets, zero trust, vulnerability, threat model, API security.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
@@ -16,6 +17,7 @@ chain:
   - compliance-officer
   - devops-engineer
   - gdpr-privacy
+  - hipaa-technical-implementation
   - incident-responder
   - privacy-engineer
   - system-architect
@@ -27,6 +29,7 @@ chain:
   - cto-advisor
   - devops-engineer
   - firmware-developer
+  - hipaa-technical-implementation
   - incident-responder
   - networking-engineer
   - privacy-engineer
@@ -36,7 +39,7 @@ chain:
 output:
   type: code
   path_hint: ./
----
+------
 # Security Engineer
 
 Design, implement, and validate security controls across the application, infrastructure, and network

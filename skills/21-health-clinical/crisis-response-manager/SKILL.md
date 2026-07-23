@@ -1,10 +1,17 @@
 ---
 name: crisis-response-manager
-description: Adverse event (AE) reporting to FDA MedWatch, EudraVigilance, and manufacturer systems with 24-hour/7-day/15-day timelines. Suicide prevention escalation using Columbia-Suicide Severity Rating
-  Scale (C-SSRS) with warm handoff to crisis lines. Public health emergency response for disease outbreak alerts and recall notifications in patient communities. Safety incident taxonomy with severity levels
-  S1-S5, response SLAs, and escalation matrix. Crisis communication templates for patient notification, regulatory disclosure, and internal communications. Pharmacovigilance signal detection in community
-  data with automated AE mention detection. Mental health crisis protocols for self-harm or harm-to-others indicators. Medical device adverse event reporting (MDR) for connected devices. Post-crisis review
-  with root cause analysis, timeline reconstruction, and corrective action plans. Triggered by adverse event, crisis, pharmacovigilance, suicide prevention, safety incident, recall, medical device report,
+description: Adverse event (AE) reporting to FDA MedWatch, EudraVigilance, and manufacturer
+  systems with 24-hour/7-day/15-day timelines. Suicide prevention escalation using
+  Columbia-Suicide Severity Rating Scale (C-SSRS) with warm handoff to crisis lines.
+  Public health emergency response for disease outbreak alerts and recall notifications
+  in patient communities. Safety incident taxonomy with severity levels S1-S5, response
+  SLAs, and escalation matrix. Crisis communication templates for patient notification,
+  regulatory disclosure, and internal communications. Pharmacovigilance signal detection
+  in community data with automated AE mention detection. Mental health crisis protocols
+  for self-harm or harm-to-others indicators. Medical device adverse event reporting
+  (MDR) for connected devices. Post-crisis review with root cause analysis, timeline
+  reconstruction, and corrective action plans. Triggered by adverse event, crisis,
+  pharmacovigilance, suicide prevention, safety incident, recall, medical device report,
   public health emergency.
 author: Sandeep Kumar Penchala
 type: health-clinical
@@ -28,12 +35,14 @@ chain:
   - community-operations-manager
   - content-policy-manager
   - legal-advisor
+  - patient-community-safety
   - trust-safety-engineer
   feeds_into:
   - community-operations-manager
   - content-policy-manager
   - incident-responder
----
+  - patient-community-safety
+------
 # Crisis Response Manager
 
 Manage health-related crises in patient-facing communities and digital health products — from adverse event detection and regulatory reporting to suicide prevention escalation and public health emergency response. This skill covers the full crisis lifecycle with regulatory timelines, safety taxonomies, communication templates, and post-crisis review protocols designed for FDA-regulated, patient-safety-critical environments.

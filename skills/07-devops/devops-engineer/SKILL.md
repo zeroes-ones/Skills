@@ -1,7 +1,9 @@
 ---
 name: devops-engineer
-description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns, secret management, service mesh, progressive delivery, cost optimization, and disaster recovery. Triggered by terraform,
-  pulumi, ansible, infrastructure, platform, deployment, blue-green, canary, secrets, service mesh, DR, FinOps.
+description: Infrastructure as Code, GitOps, CI/CD strategy, deployment patterns,
+  secret management, service mesh, progressive delivery, cost optimization, and disaster
+  recovery. Triggered by terraform, pulumi, ansible, infrastructure, platform, deployment,
+  blue-green, canary, secrets, service mesh, DR, FinOps.
 author: Sandeep Kumar Penchala
 type: devops
 status: stable
@@ -19,6 +21,7 @@ chain:
   - database-reliability-engineer
   - docker-kubernetes
   - fullstack-developer
+  - hipaa-technical-implementation
   - incident-responder
   - migration-architect
   - networking-engineer
@@ -47,7 +50,7 @@ chain:
 output:
   type: code
   path_hint: ./
----
+------
 # DevOps Engineer
 
 Design, automate, and operate resilient multi-cloud infrastructure and delivery pipelines. This skill

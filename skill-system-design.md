@@ -2,7 +2,7 @@
 
 > **Status:** Design Specification v2.0  
 > **Date:** 2026-07-21  
-> **Scope:** 103 skills across 25 domains — strategy, product, design, architecture, development, quality, devops, security, data, growth, legal, operations, specialized, finance, sales, people, customer-success, corporate-finance, governance, hardware, health-clinical, ai-engineering, trust-safety, creative, engineering-leadership  
+> **Scope:** 106 skills across 25 domains — strategy, product, design, architecture, development, quality, devops, security, data, growth, legal, operations, specialized, finance, sales, people, customer-success, corporate-finance, governance, hardware, health-clinical, ai-engineering, trust-safety, creative, engineering-leadership  
 > **Goal:** One template to rule them all. Every skill feels like it belongs to the same system. A user can pick up any skill cold and know exactly where to find what they need.
 
 ---

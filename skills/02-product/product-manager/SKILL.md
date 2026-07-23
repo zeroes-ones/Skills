@@ -1,7 +1,10 @@
 ---
 name: product-manager
-description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage stakeholders, and craft user stories with precise acceptance criteria. Use for feature definition, sprint planning,
-  backlog grooming, and strategic product decisions. Triggered by write a PRD, prioritize features, build a roadmap, define user stories, RICE score this, stakeholder update.
+description: Write PRDs, prioritize features with RICE scoring, build roadmaps, manage
+  stakeholders, and craft user stories with precise acceptance criteria. Use for feature
+  definition, sprint planning, backlog grooming, and strategic product decisions.
+  Triggered by write a PRD, prioritize features, build a roadmap, define user stories,
+  RICE score this, stakeholder update.
 author: Sandeep Kumar Penchala
 type: product
 status: stable
@@ -20,6 +23,7 @@ chain:
   - customer-success-manager
   - customer-support-engineer
   - growth-engineer
+  - health-regulatory-submission
   - llm-engineer
   - patient-experience-researcher
   - product-strategist
@@ -31,6 +35,7 @@ chain:
   - customer-support-engineer
   - director-engineering
   - engineering-manager
+  - health-regulatory-submission
   - idea-to-spec
   - partnerships-manager
   - product-marketing-manager
@@ -47,7 +52,7 @@ token_budget: 2430
 output:
   type: code
   path_hint: ./
----
+------
 # Product Manager
 
 Own the product discovery-to-delivery pipeline: translate business goals into prioritized roadmaps, write crisp PRDs that engineering can execute against, and run RICE-driven prioritization so the team always works on the highest-impact items.
