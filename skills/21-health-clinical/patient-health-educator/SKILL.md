@@ -342,7 +342,6 @@ graph LR
 - **Translation that's literal but culturally wrong** — "You need to exercise more" translated to a culture where women don't exercise in public. The instruction is linguistically correct but practically impossible. Health education needs cultural adaptation, not just translation.
 - **Teach-back method** — you explain the care plan, the patient says "I understand." But when you ask "Can you tell me in your own words what you'll do at home?" — they can't. "Do you understand?" always gets "yes." "Tell me what you understood" reveals the gap.
 
-
 ## Verification
 
 - [ ] Readability: all patient materials at ≤ 6th grade reading level (SMOG or Flesch-Kincaid verified)
@@ -350,7 +349,6 @@ graph LR
 - [ ] Cultural adaptation: materials reviewed by a cultural liaison for each major patient demographic
 - [ ] Health literacy: Patient Activation Measure (PAM) or similar tool used to tailor education to activation level
 - [ ] Outcomes: education effectiveness measured — readmission rate, medication adherence, and self-management confidence
-
 
 ## References
 

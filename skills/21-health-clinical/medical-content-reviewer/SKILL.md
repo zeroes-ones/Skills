@@ -325,7 +325,6 @@ graph LR
 - **Conflict of interest hidden in acknowledgments** — the paper says "funded by PharmaCo" at the end, but the lead author is also on PharmaCo's advisory board (disclosed in a separate conflicts page you didn't load). Cross-reference clinicaltrials.gov for sponsor information and check author disclosures on ALL co-authors, not just first/last.
 - **Preprint (medRxiv/bioRxiv) cited as evidence** — preprints are NOT peer-reviewed. A high-profile preprint was retracted 6 months later after peer review found fabricated data. The content that cited the preprint is now evidence-free. Cite published, peer-reviewed sources. If preprint is the only source, flag it as "awaiting peer review."
 
-
 ## Verification
 
 - [ ] Source audit: every claim linked to a specific published, peer-reviewed source — no preprints cited as fact
@@ -333,7 +332,6 @@ graph LR
 - [ ] Conflict check: all authors on cited papers checked for industry disclosures in addition to declared conflicts
 - [ ] Readability: patient-facing content at ≤ 6th grade reading level (Flesch-Kincaid or SMOG verified)
 - [ ] Date check: all cited sources published within last 5 years (or documented why older source is authoritative)
-
 
 ## References
 

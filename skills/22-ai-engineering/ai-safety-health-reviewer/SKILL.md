@@ -131,7 +131,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | **A7** | `file_contains("*", "rag\|retrieval\|vector_store\|embedding\|prompt.*template")` AND `file_contains("*", "clinical\|medical\|health\|patient\|pharma")` | Invoke **llm-engineer** instead. LLM pipeline architecture for clinical use — design the pipeline first, then this skill evaluates its safety. | "I detect clinical LLM pipeline architecture — routing to LLM Engineer for pipeline design. Return here for safety evaluation." |
 | **A8** | `file_contains("*", "HIPAA\|PHI\|de.identif\|privacy\|data_protection")` AND `file_contains("*", "AI\|LLM\|model")` | Invoke **compliance-officer** instead. Privacy and data protection for AI features needs legal/compliance review before safety evaluation. | "I detect HIPAA/privacy concerns with AI context — routing to Compliance Officer for privacy impact assessment." |
 
-### Intent Route (Ask the User)
+### Alternative Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -372,7 +372,6 @@ graph LR
 - **Equity in health AI** — a dermatology model trained on images of light-skinned patients has 95% accuracy for light skin and 70% for dark skin. The model is "92% accurate overall" but systematically misdiagnoses Black patients. Disaggregate performance metrics by demographic: accuracy, sensitivity, specificity for EACH group separately.
 - **"Symptom checker says I'm fine"** — the AI says "your symptoms are consistent with a common cold, monitor at home." The patient has meningitis (same early symptoms). They don't seek care until it's severe. The AI didn't include "go to the ER if X, Y, Z develop" because the safety net was in the fine print. Safety nets must be prominent, not footnotes.
 
-
 ## Verification
 
 - [ ] Performance: accuracy, sensitivity, and specificity disaggregated by age, gender, race/ethnicity, and language
@@ -380,7 +379,6 @@ graph LR
 - [ ] Safety nets: for every "likely benign" output, safety net conditions are prominently displayed
 - [ ] Clinical review: outputs reviewed by a board-certified clinician for safety — documented review cadence
 - [ ] Regulatory: model intended use, limitations, and performance characteristics documented per FDA/EMA guidance
-
 
 ## References
 

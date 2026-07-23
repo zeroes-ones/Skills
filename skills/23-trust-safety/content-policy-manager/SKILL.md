@@ -373,7 +373,6 @@ graph LR
 - **"Health misinformation" policy** that says "remove content that contradicts WHO guidance" — WHO guidance changed 3 times during COVID. Content that was "misinformation" in April 2020 was "WHO guidance" by June 2020. Policy that references external, changing authorities creates retroactive enforcement. Reference principles ("harmful medical advice"), not specific organizations.
 - **Policy exception process** that takes 14 days — a journalist posts graphic war footage that violates the violence policy but is clearly newsworthy. By day 14, the story is over and the journalist's footage was suppressed during its entire news cycle. Exception review for time-sensitive content needs a SLA measured in hours, not days.
 
-
 ## Verification
 
 - [ ] Policy clarity: moderator accuracy audit — ≥ 90% inter-rater agreement on policy application
@@ -381,7 +380,6 @@ graph LR
 - [ ] Exception SLA: time-sensitive exception requests reviewed within SLA at least 95% of the time
 - [ ] Appeals: policy overturned on appeal rate tracked — any policy with > 10% overturn rate flagged for revision
 - [ ] Transparency: policy change log public — users can see what changed and when
-
 
 ## References
 
