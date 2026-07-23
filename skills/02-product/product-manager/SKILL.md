@@ -85,6 +85,41 @@ These rules apply to *every* response this skill produces.
 - **Always define success metrics before writing user stories.** If you can't measure it, you can't prioritize it.
 - **Admit what you don't know.** If you lack competitive intel, usage analytics, or user research, say so and tell the user where to find it (analytics dashboard, ux-researcher, business-strategist).
 
+## The Expert's Mindset
+
+Product management is not about writing specs — it's about **making decisions under uncertainty with incomplete information and competing incentives**. The output is not a PRD; the output is a shipped outcome that moved a metric.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Bets, not plans** | Every feature is a wager with a hypothesis, not a commitment. Treat roadmaps as portfolios of bets — diversify, size appropriately, and kill losing bets fast. |
+| **The map is not the territory** | PRDs, roadmaps, and JIRA tickets are abstractions. The real product is what users experience. Spend time in the territory (user interviews, support tickets, analytics) weekly. |
+| **Saying no is the job** | Your primary value is deciding what *not* to build. Every yes to a feature is a no to something else. If you're not saying no frequently, you're not prioritizing. |
+| **Discovery > delivery** | The best-delivered wrong feature is still wrong. Invest at least as much in discovering what to build as in building it. |
+
+### Cognitive Biases That Ruin Products
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Availability bias** | Prioritizing the feature you heard about last (or loudest) because it's top of mind | Maintain a scored backlog; never reprioritize from a single conversation |
+| **Survivorship bias** | Copying successful products without understanding why failed competitors died | Study failures in your space — they teach more than successes |
+| **HIPPO effect** | Deferring to the highest-paid person's opinion without evidence | Ask: "What would convince us we're wrong?" Document assumptions, test them |
+| **IKEA effect** | Overvaluing features you personally conceived | Every feature gets a RICE score before it goes on the roadmap, regardless of source |
+| **Confirmation bias** | Designing success metrics that prove your feature worked | Define the counter-metric: what number would prove it failed? |
+
+### What Masters Know That Others Don't
+
+- **The best PMs ship 1/3 of what they could ship.** They kill the bottom 2/3 ruthlessly so the top 1/3 actually lands with quality. Mediocre PMs ship everything poorly.
+- **Customers don't know what they want until you show them.** "Would you use this?" is a useless question. Prototype it, watch them interact, then ask.
+- **Stakeholder alignment is 50% of the job.** A great PRD with no buy-in is worth less than a good PRD everyone supports. Invest in pre-wiring decisions before meetings.
+- **Your backlog is a liability, not an asset.** Every item in the backlog costs cognitive overhead. Archive aggressively.
+
+### When to Break Your Own Rules
+
+- **Skip RICE when the strategic bet is existential.** If a feature is table stakes (competitors have it, you'll lose deals without it), don't score it — just build it. Be honest about whether it's truly table stakes or just "nice to have."
+- **Ship without full consensus when speed matters more than alignment.** In crisis or time-sensitive opportunities, ship first, align after. Document the decision and rationale.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A new feature or product area needs a formal Product Requirements Document
@@ -326,6 +361,31 @@ Common chains:
 - [ ] **[S8]**  Launch plan includes rollout strategy (feature flags, canary, % ramp) and rollback criteria
 - [ ] **[S9]**  Post-launch metrics dashboard set up before GA
 - [ ] **[S10]**  Backlog groomed and free of stale items older than 2 quarters
+
+## Deliberate Practice
+
+Product management is learned in the arena — through shipped products, failed experiments, and retrospectives. The improvement loop is the lean startup loop applied to yourself.
+
+### The PM Improvement Loop
+
+```
+SHIP → MEASURE → LEARN → (adjust process) → repeat
+```
+
+After every launch: what did you predict would happen? What actually happened? Where was the gap? Close one gap per cycle.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | Write 10 user stories in GIVEN/WHEN/THEN from real feature requests. Have an engineer review them for clarity and testability. | Weekly |
+| **Competent** | RICE-score 20 items from your backlog independently, then compare scores with another PM. Discuss every gap >2x. | Biweekly |
+| **Expert** | Run a customer interview following The Mom Test (talk about their life, not your product). Write up the 3 most surprising insights. | Weekly |
+| **Master** | Reverse-engineer a successful product: write the PRD they must have written, then write the PRD they *probably actually* wrote. Compare the difference — that gap is where the craft lives. | Monthly |
+
+### The One Highest-Leverage Activity
+
+**Watch a user use your product in silence.** Don't guide. Don't explain. Just watch. One hour of silent observation reveals more than 50 survey responses. Do this before writing any PRD.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
