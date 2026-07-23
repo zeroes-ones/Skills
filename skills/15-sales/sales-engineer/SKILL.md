@@ -406,6 +406,25 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Demo data that looks too perfect** — every user is "Jane Doe" with a profile photo from Unsplash, every chart shows hockey-stick growth. Buyers notice and distrust everything. Use realistic data with edge cases (long names, negative numbers, missing data) — it proves the product handles real-world messiness.
+- **"Just trust me on the API"** as answer to a technical question — the buyer's engineer will test it anyway. If the API documentation is wrong or the endpoint behaves differently than you said, you lose all credibility. Every claim you make about technical behavior must be demonstrable in the current build.
+- **Proof of Concept (PoC) scope creep** — "can we also test with our data?" becomes "can you integrate with our SSO?" becomes "can you build a custom dashboard?" The PoC scope is what was agreed in the success criteria document. Any addition is Phase 2 with a new timeline.
+- **ROI calculator that uses list price** without discounts, implementation costs, or training — your $100K/year tool with 20% discount + $50K implementation + 2 weeks of training for 10 people = $130K year 1. The buyer's finance team will build the same model. If your numbers don't match theirs, the deal stalls.
+- **"We don't have that feature yet, but it's on the roadmap"** — the roadmap is not a contract. If the deal closes based on a roadmap promise and the feature slips (all features slip), you have a customer threatening to churn before they've finished onboarding. Sell what exists today.
+
+
+## Verification
+
+- [ ] Demo environment: refreshed within last 24 hours, all integrations working, no broken features
+- [ ] Technical win: buyer's technical stakeholder has explicitly confirmed the solution meets their requirements
+- [ ] PoC success criteria: documented, signed by both parties, timeline agreed
+- [ ] ROI model: built with buyer's actual numbers (not industry averages), reviewed by a neutral party
+- [ ] Competition: differentiation documented — why us vs top 2 competitors (not "we're better", but specific gaps we fill)
+- [ ] Security review: security questionnaire completed, any open items have remediation plan with dates
+
+
 ## References
 
 Detailed reference material loaded on demand:

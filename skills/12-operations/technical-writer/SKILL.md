@@ -444,6 +444,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **Documentation that's API reference without narrative** — you document every endpoint, every parameter, every response code. A developer trying to BUILD something doesn't know which endpoints to call in what ORDER. Reference docs answer "what does this do?" Guides answer "how do I accomplish X?" You need both. Without guides, reference is a dictionary without sentences.
+- **"This is straightforward" in documentation** — it's straightforward to YOU because you wrote the API. To a developer encountering it for the first time, nothing is straightforward. Every time you use "straightforward," "simply," "just," or "obviously," replace it with the actual steps. "Just configure the OAuth flow" → 15 specific steps.
+- **Code samples with placeholder values that look real** — `api_key = "YOUR_API_KEY_HERE"` — a developer copies this, doesn't replace the placeholder, and spends 30 minutes debugging "Authentication failed: YOUR_API_KEY_HERE is not a valid API key." Code samples must either: (a) use a clearly invalid placeholder that throws a specific error, or (b) be executable with test credentials.
+- **Versioned docs where Google indexes ALL versions** — a user searches "how to configure" and gets the v1.0 docs (from 2021). They follow the instructions, which reference deprecated APIs, and conclude your product is broken. Old docs must have `noindex` meta tags AND a banner linking to the current version.
+
+
+## Verification
+
+- [ ] Guides: every major use case has a step-by-step guide (not just API reference)
+- [ ] Language audit: zero instances of "straightforward," "simply," "just," or "obviously" in docs
+- [ ] Code samples: every sample is either executable (test credentials) or has clearly non-functional placeholders
+- [ ] Versioned docs: old versions have `noindex` + banner linking to current version — verified via Google Search Console
+- [ ] Doc testing: top 10 code samples tested in CI against latest API version
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -405,6 +405,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **B2B LinkedIn ads targeting "CEO" title** at companies with 50-200 employees — half of those profiles list "CEO" but are actually solopreneur consultants, not your buyer. Combine title + company size + industry; title alone is a vanity metric.
+- **Email nurture sequence that doesn't suppress existing customers or active opportunities** — a customer in contract renewal gets "Want to learn about our platform?" and forwards it to their account manager. Every nurture email must suppress: current customers, open opportunities, and anyone who unsubscribed from THAT topic (not just global unsubscribe).
+- **Lead scoring based on email opens** (Apple Mail Privacy Protection opens all emails via proxy, inflating open rates by 30-40%). A "highly engaged" lead who "opened every email" may have never seen your brand. Score on clicks, form fills, and site visits — not opens.
+- **"MQL to SQL conversion rate"** measured without defining who qualifies the lead — marketing passes 100 leads, sales accepts 40, 60 are rejected but never returned to marketing. Those 60 are NOT "unqualified" — they're "unworked." Track rejection reasons and build a recycle path.
+
+
+## Verification
+
+- [ ] Suppression lists: customers, open opportunities, and topic-unsubscribes suppressed from all campaigns
+- [ ] Lead scoring: model validated — high-scoring leads (top 20%) account for ≥ 80% of pipeline generated
+- [ ] Attribution: UTM parameters validated across all channels — no broken tracking links
+- [ ] MQL-to-SQL: rejection reasons tracked for every rejected lead, recycle path exists
+- [ ] Campaign ROI: cost per MQL, cost per SQL, cost per closed-won tracked and trending
+
+
 ## References
 
 Detailed reference material loaded on demand:

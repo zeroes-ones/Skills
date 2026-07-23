@@ -381,6 +381,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Conference talk abstract that pitches your product** — "How AcmeDB solves the top 5 database challenges" gets rejected because it's a vendor pitch. "5 Database Patterns That Fail at Scale (and How to Fix Them)" gets accepted because it teaches a skill. The audience learns, they associate the lesson with YOU, and they check out your product AFTER. Teach, don't pitch.
+- **"Our Discord/Slack community has 10,000 members!"** — 9,800 joined once and never returned. 150 are active weekly. 10 are answering questions (and one of them works for your competitor). Community health = active members / total members. A "10,000 member" community with 1.5% activity rate is a ghost town.
+- **Tutorial documentation that worked 6 months ago** — the API changed, the SDK version is deprecated, and the tutorial's `package.json` installs security-vulnerable dependencies. A new developer follows it, gets errors on step 3, and concludes your product is broken. Tutorials need CI testing: `npm install && npm test` must pass on every commit to `main`.
+- **Developer NPS that only surveys your champions** — the 50 developers who speak at your conferences and contribute to your open source give you NPS 80. The 5,000 who tried your product once and left aren't surveyed. Segment: new developers (day 0-30), active developers (monthly active), and churned developers (inactive > 30 days). Each segment's NPS tells a different story.
+
+
+## Verification
+
+- [ ] Content: last 5 pieces of content — all teach a skill, none pitch the product primarily
+- [ ] Community: active-member/total-member ratio tracked monthly — target > 5%
+- [ ] Tutorial CI: top 10 tutorials tested in CI — `npm install && npm test` passes on latest product version
+- [ ] Developer NPS: surveyed by segment (new, active, churned) — churned segment NPS insights shared with product
+- [ ] Event ROI: every sponsored event has post-mortem — leads generated, content produced, community engagement
+
+
 ## References
 
 Detailed reference material loaded on demand:

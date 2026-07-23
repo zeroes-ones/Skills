@@ -362,6 +362,16 @@ graph LR
 - **OKRs set at the program level** that cascade to teams — a program OKR of "99.9% availability" splits across 5 teams. All 5 teams hit 99.9%, but the COMBINED system has 99.5% because you multiplied availabilities (99.9%^5 = 99.5%). System-level OKRs can't be decomposed by simple division.
 
 
+## Verification
+
+- [ ] Program schedule: critical path identified — any delay to critical path tasks escalates within 24 hours
+- [ ] Cross-team dependencies: all inter-team handoffs have: API contract, SLA, integration test suite, and named owners on both sides
+- [ ] Status reporting: every team's status projects forward ("will we hit the date at current velocity?") not backward ("are we past the date?")
+- [ ] Risk register: top 5 program risks have mitigation plans, triggers, and owners — reviewed bi-weekly
+- [ ] Stakeholder comms: program status sent to stakeholders within last 2 weeks — format tailored to audience
+- [ ] Retrospective: program-level retrospective conducted at major milestones — findings tracked to process changes
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -263,6 +263,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **"Blueprint" that's 40 pages of prose** — the engineering team doesn't read it. They skim the data model diagram and the API contract, then start coding. A spec that isn't consumed isn't a spec. Structure for SKIM → DIVE: 1-page executive summary (decisions), entity-relationship diagram (structure), OpenAPI spec (contract). Details in appendices.
+- **"Build a dashboard with these 15 metrics"** — the spec describes WHAT to display, not WHERE the data comes from. Engineering discovers that 7 of the 15 metrics require data from a system that doesn't have an API. Spec must include DATA PROVENANCE: "Metric X comes from the billing system via `GET /invoices`, field `total`."
+- **Success criteria that can't be verified until launch** — "Users will love the new workflow" — you won't know until it ships. Success criteria must include pre-launch proxies: "In usability testing, 8/10 users complete the workflow in < 3 minutes without assistance." Verifiable before code freeze.
+
+
+## Verification
+
+- [ ] Executive summary: 1 page — decisions, not details (details in appendices)
+- [ ] Data provenance: every data element traced to source system and endpoint
+- [ ] API contract: OpenAPI/GraphQL schema validated (can generate a mock server from it)
+- [ ] Data model: ER diagram with all entities, relationships, and key fields labeled
+- [ ] Success criteria: pre-launch proxies defined — verifiable before code freeze
+- [ ] Stakeholder sign-off: Engineering, Design, and Product have reviewed and approved
+
+
 ## References
 
 Detailed reference material loaded on demand:

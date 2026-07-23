@@ -342,6 +342,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **QBR (Quarterly Business Review) as a product demo** — you spend 45 minutes showing features they already have, 10 minutes on new features, and 5 minutes on "any questions?" The customer learned nothing about the VALUE they got. QBR should be: "Here's what you achieved with our product this quarter (with data), here's what you could achieve next quarter, what's blocking you?"
+- **Renewal conversation that starts 30 days before renewal date** — the customer has been silently unhappy for 11 months, built a business case for a competitor, and secured budget. Your "let's talk renewal" arrives as they're signing with the competitor. Renewal is a continuous conversation starting day 1, not a Q4 event.
+- **"Our NPS is 65!"** — but you only surveyed customers who renewed (churned customers weren't asked). And the CEO of a 500-seat account gave a 9, while 12 end-users gave 4s. NPS weighted by revenue AND stratified by role (decision-maker vs end-user) tells the real story.
+- **Expansion revenue from "land and expand"** — you landed with a $20K team deal and plan to expand to $200K enterprise in year 2. But the team that adopted your product LEFT the company. Your internal champion is gone, and the new team lead uses a competitor. Land-and-expand requires multi-threaded relationships from day 1.
+
+
+## Verification
+
+- [ ] Health score: every account has a health score (green/yellow/red) updated monthly
+- [ ] QBR cadence: every strategic account had QBR within last 120 days
+- [ ] Renewal pipeline: all renewals in the next 90 days have active engagement within last 30 days
+- [ ] NPS: response rate ≥ 40%, results segmented by revenue tier and user role
+- [ ] Expansion: at least 2 contacts per strategic account, decision-maker engaged within last quarter
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -441,6 +441,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Correlation matrix on non-stationary data** — you calculate the correlation between two stock prices (both trending up) and get 0.95. "They're highly correlated!" No — they're both trending. The correlation of their RETURNS is 0.2 (effectively unrelated). Always compute correlations on stationary transforms (returns, differences).
+- **Sharpe ratio annualized incorrectly** — daily Sharpe × √252 assumes returns are i.i.d. (independent and identically distributed). If your strategy trades weekly (serial correlation), daily Sharpe × √252 overstates annual Sharpe by 30-50%. Use the actual return frequency, not an arbitrary scaling.
+- **p-hacking across 100 strategy variations** — you test 100 parameter combinations. At p < 0.05, you expect 5 false positives. You find 7 "significant" strategies, publish all 7, and 5 are noise. Multiple testing correction (Bonferroni, Benjamini-Hochberg, or Holm-Bonferroni) is non-negotiable when testing multiple hypotheses.
+- **Max drawdown in backtest is 15%** — but you only ran 1 simulation path. Monte Carlo with 10,000 paths shows max drawdown distribution: median 18%, 95th percentile 35%, worst case 52%. The single-path backtest gave you a false sense of safety. Report the DISTRIBUTION of drawdowns, not the point estimate.
+
+
+## Verification
+
+- [ ] Stationarity: all time series tested for stationarity (ADF test) — non-stationary series differenced or cointegrated
+- [ ] Sharpe ratio: annualized correctly based on actual return frequency, not √252 assumption
+- [ ] Multiple testing: p-values adjusted when testing > 1 hypothesis — adjustment method documented
+- [ ] Monte Carlo: key risk metrics (max drawdown, VaR, CVaR) reported as distributions, not point estimates
+- [ ] Reproducibility: full pipeline runs from raw data to final metrics with a single command
+
+
 ## References
 
 Detailed reference material loaded on demand:

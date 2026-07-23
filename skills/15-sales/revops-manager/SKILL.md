@@ -391,6 +391,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Salesforce/HubSpot "required fields"** that sales reps circumvent by entering "N/A" or "TBD" — the field is required but the data is garbage. Required doesn't mean valid. Add validation rules: "Close date must be in the future," "Amount > $0," "Contact must have valid email."
+- **Pipeline stage durations** measured as AVERAGES — a 60-day average sales cycle with 10 deals: 9 closed in 30 days, 1 took 330 days. The average says 60 days but no deal actually took 60 days. Report median AND distribution, not just mean.
+- **CRM automation that auto-emails 5 days after form fill** — the prospect filled the form during a demo with a competitor. Your auto-email arrives while they're evaluating the competitor, and your name is added to the comparison matrix. Timing matters more than speed.
+- **"Attribution is solved"** via multi-touch model — the model gives equal credit to the last-click webinar and the first-touch cold call. But the cold call happened 18 months ago and the buyer doesn't remember it. Attribution models need RECENCY weighting — a touch 18 months ago != a touch last week.
+
+
+## Verification
+
+- [ ] Data quality: CRM fields with > 50% "N/A" or "TBD" identified and validation rules added
+- [ ] Pipeline hygiene: deals with no activity in 30+ days flagged, owners notified
+- [ ] Forecast accuracy: end-of-quarter forecast vs actuals — accuracy within ±10%
+- [ ] Tech stack: all tools have active users (login within last 30 days) — unused tools flagged for removal
+- [ ] Process documentation: sales process documented, current (updated within last quarter), and version-controlled
+
+
 ## References
 
 Detailed reference material loaded on demand:

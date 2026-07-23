@@ -412,6 +412,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Partnership agreement signed, champagne popped, nothing happens** — both sides return to their day jobs. The signed agreement is the STARTING line, not the finish. First 30 days: joint value proposition, joint sales deck, 3 named target accounts, and a bi-weekly pipeline review. No pipeline in 90 days = dead partnership.
+- **"Exclusive partnership"** without performance clauses — your partner is now your ONLY channel into a market, and they're producing zero pipeline. Exclusivity must be EARNED quarterly: "Exclusive if ≥ $X pipeline generated per quarter, non-exclusive otherwise."
+- **Revenue share that doesn't account for cost of sales** — 20% rev share to the partner, but your sales team spent 40 hours supporting their deal cycle (cost: $6,000 in salary). A $20K deal pays partner $4K, leaving you $10K after COGS + sales cost. Model economics BEFORE signing, not after.
+- **Partner's product manager who championed the integration leaves** — the integration was their project. Their replacement has a different roadmap. Your integration goes from "strategic" to "legacy" overnight. Build relationship depth: 3+ contacts at the partner, not one champion.
+
+
+## Verification
+
+- [ ] Partnership pipeline: every active partnership has named target accounts, reviewed bi-weekly
+- [ ] Revenue: partner-sourced revenue tracked separately — % of total revenue, growth rate, CAC comparison
+- [ ] Partner health: NPS or satisfaction survey for top 10 partners within last quarter
+- [ ] Integration: joint solution tested against latest versions of both products within last 6 months
+- [ ] Contracts: all partnership agreements reviewed within last 12 months — performance clauses active
+
+
 ## References
 
 Detailed reference material loaded on demand:

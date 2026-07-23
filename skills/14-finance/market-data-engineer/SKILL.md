@@ -480,6 +480,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Tick data timestamps with timezone-naive storage** — you store `2024-01-15 09:30:00` assuming it's US/Eastern. But your exchange feed says `09:30:00 EST` and another feed says `09:30:00 UTC`. Now you're merging trades that happened 5 hours apart as if they were simultaneous. Store all timestamps in UTC with an explicit timezone offset.
+- **Corporate actions that aren't applied retroactively** — a stock splits 2:1 on June 1. Your historical price for May 31 is $200, and June 1 is $100. Without split adjustment, your model sees a -50% overnight crash and triggers a panic sell. All historical prices must be split-adjusted from today's perspective.
+- **"Adjusted close" from different vendors uses different methodologies** — Yahoo adjusts for splits AND dividends, Google adjusts for splits only, Bloomberg adjusts for everything including spinoffs. Your model trained on Yahoo data and tested on Bloomberg data: performance is an artifact of different adjustment methodologies.
+- **Real-time feed disconnection during a volatility event** — the market drops 5% in 2 minutes, your feed disconnects for 30 seconds, you reconnect and your position is down 8%. Gap detection: "data gap > 5 seconds during volatility > 2 stddev" must trigger a safety pause, not resume trading on stale prices.
+
+
+## Verification
+
+- [ ] Timestamps: all timestamps stored in UTC with timezone offset column — no timezone-naive data
+- [ ] Corporate actions: historical prices are split-adjusted from current date perspective
+- [ ] Data quality: missing bars, zero-volume periods, and stale prices flagged in monitoring
+- [ ] Cross-vendor: adjusted prices from all vendors reconciled within 0.1% tolerance
+- [ ] Feed resilience: gap detection tested — simulated disconnect during volatile market triggers safety pause
+
+
 ## References
 
 Detailed reference material loaded on demand:

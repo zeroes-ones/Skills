@@ -361,6 +361,23 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 | Align engineering workforce strategy | `vp-engineering` | Multi-team workforce planning, engineering culture, technical hiring strategy, retention programs |
 | Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis. **Decision gate:** Is budget variance < 5% from plan? → on track. **Artifact:** headcount cost model + variance analysis. |
 
+## Gotchas
+
+- **Employee handbook as a 120-page PDF** that nobody reads — an employee violates a policy, you reference page 87, they say "I didn't know." The handbook only protects you if employees actually read it. Acknowledge receipt with a quiz: "What's our social media policy? (a) Anything goes (b) Don't share confidential info (c) No social media allowed."
+- **"Unlimited PTO" policy** that results in employees taking LESS vacation because there's no "use it or lose it" signal. Average PTO taken drops from 18 days (accrued) to 12 days (unlimited). Add a MINIMUM PTO requirement: "You must take at least 15 days off per year."
+- **Performance review calibration** without bias training — managers rate their direct reports higher than cross-team reviewers because "my team is exceptional." Calibration needs: written evidence for every rating level, not manager opinion. "Exceeds expectations" requires 3 specific examples of exceeding.
+- **"Culture is our #1 priority"** but you only measure it during exit interviews when it's too late. Quarterly pulse surveys with anonymous free-text: "What would make you leave?" and "What keeps you here?" Track the ratio of positive-to-negative themes over time.
+
+
+## Verification
+
+- [ ] Handbook: acknowledgment tracked — 100% of employees have acknowledged within 30 days of hire or update
+- [ ] Compliance: all required posters, policies, and training current — no expired mandatory training
+- [ ] Turnover: voluntary attrition tracked quarterly — ≤ company target, exit interview themes categorized
+- [ ] Pulse survey: response rate ≥ 70%, results shared with leadership within 2 weeks
+- [ ] PTO: minimum PTO taken per employee tracked — outliers (< 10 days/year for unlimited plans) flagged to managers
+
+
 ## References
 
 Detailed reference material loaded on demand:

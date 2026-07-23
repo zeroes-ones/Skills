@@ -379,6 +379,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **"Brand awareness" campaigns** measured by impressions — 1M impressions with 0.01% CTR (100 clicks) and 0 conversions. Awareness without consideration or conversion metrics is a budget black hole. Every awareness campaign must have a downstream metric: website traffic increase, branded search volume increase, or retargeting pool growth.
+- **Content marketing that ranks for keywords** but the keywords are informational ("what is Kubernetes") and the audience is SREs researching a blog post — not buyers evaluating your Kubernetes management platform. The 10,000 visitors/month don't convert because they weren't in-market. Target BOTTOM-of-funnel keywords: "Kubernetes cluster management platform pricing."
+- **"We need a viral campaign"** — virality is an outcome, not a strategy. 99.9% of branded content gets < 10,000 views. Plan for the 99.9% outcome (success = X qualified leads) and treat virality as upside. Budgeting for viral reach with average content is hoping to win the lottery.
+- **Case study with logoless "Fortune 500 healthcare company"** as the reference — reads as "we couldn't get a real reference." Actual named customers (even mid-market) beat anonymous Fortune 500 logos. If they won't go on record, the case study isn't worth publishing.
+
+
+## Verification
+
+- [ ] Campaign measurement: every campaign has primary KPI + leading indicators + lagging indicators defined BEFORE launch
+- [ ] Content audit: oldest 20% of content reviewed — outdated stats, broken links, or deprecated features updated or archived
+- [ ] Brand consistency: last 10 pieces of content across all channels — same voice, same visual identity, same value proposition
+- [ ] Budget: spend vs plan by channel — variance < 10%, reallocation decisions documented
+- [ ] Competitive share of voice: tracked quarterly — your brand's share of total category conversation
+
+
 ## References
 
 Detailed reference material loaded on demand:

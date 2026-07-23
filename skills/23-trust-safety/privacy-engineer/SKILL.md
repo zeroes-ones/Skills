@@ -376,6 +376,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
+## Gotchas
+
+- **Differential privacy with ε=1 applied once** gives meaningful privacy. Applied to the SAME dataset for 10 different queries, the combined ε=10 (privacy loss composes additively). A dashboard with 20 charts each querying a DP-protected dataset = ε=20, providing essentially no privacy. Track the privacy BUDGET, not per-query ε.
+- **`k-anonymity` with k=5** — each record has at least 4 identical neighbors. But if all 5 records have the same sensitive value ("HIV positive"), the attacker learns the sensitive value despite k-anonymity. k-anonymity without l-diversity (at least `l` DISTINCT sensitive values in each group) is insufficient.
+- **Pseudonymization vs anonymization** — you hash the user ID with SHA-256 and call it "anonymous." But the same user ID in your partner's dataset produces the same hash (deterministic). Joined datasets re-identify users. Cryptographic pseudonyms are pseudonyms, not anonymization. GDPR treats them as personal data.
+- **Data deletion request** executes `DELETE FROM users WHERE id = 123` — but the user's data also exists in: analytics events (Mixpanel), email logs (SendGrid), support tickets (Zendesk), database backups (28-day retention), and 6 other services. "Deleted from primary DB" ≠ deleted everywhere.
+
+
+## Verification
+
+- [ ] Privacy budget: ε tracked cumulatively per dataset per time window — total ε ≤ configured maximum
+- [ ] Anonymization: k-anonymity AND l-diversity verified on published datasets
+- [ ] DSAR: end-to-end test — data subject request retrieves ALL data from ALL stores within SLA
+- [ ] Deletion: end-to-end test — deletion request removes data from ALL stores, verified by query
+- [ ] Data inventory: all data stores catalogued — no "I forgot about that database" gaps
+
+
 ## References
 
 Detailed reference material loaded on demand:

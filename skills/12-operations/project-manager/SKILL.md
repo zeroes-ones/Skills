@@ -452,6 +452,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **Gantt chart with 100% dependency chaining** — task B → C → D → ... → Z. Any delay to B delays the entire project by the same amount. Every dependency is a single point of failure. Parallelize independent work streams and only chain them at integration milestones. The longest chain IS your minimum project duration.
+- **Status report: "Project is GREEN"** for 11 consecutive weeks, then "RED" in week 12 because the deadline is next week and the remaining work is 3 weeks. A project that's GREEN until the week before the deadline was never truly GREEN. Status = (remaining work / remaining time), not "are we past the deadline yet?"
+- **Stakeholder who "approved" the spec but didn't actually read it** — they approved the idea, not the details. When the deliverable doesn't match their mental model: "This isn't what I approved." Approval must be specific: "I have reviewed the spec and confirm pages 3-7 accurately describe the workflow. I approve the design on page 8 with the noted changes on lines 45-50."
+- **Scope creep as "just a small change"** — 15 "small changes" later, the project is 40% over budget and 3 months late. Every change request goes through: impact assessment (schedule + budget + risk), stakeholder approval, and documentation. "Small" is a size, not a process exemption.
+
+
+## Verification
+
+- [ ] Schedule: critical path identified — every task on the critical path has a single owner and a buffer
+- [ ] Status: weekly status uses (remaining work / remaining time) formula — not gut feel
+- [ ] Approvals: all spec approvals are specific — page/section-level, not document-level
+- [ ] Change log: every scope change has written impact assessment AND stakeholder sign-off
+- [ ] Risk register: top 5 risks have mitigation plans and triggers — reviewed weekly
+
+
 ## References
 
 Detailed reference material loaded on demand:

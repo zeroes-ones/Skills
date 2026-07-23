@@ -423,6 +423,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Backtest with look-ahead bias** — your strategy uses P/E ratio data that was published 3 months after quarter-end (reporting lag). In backtest, you use it at quarter-end because that's when the data IS. In production, you can't trade on data that doesn't exist yet. Your "55% Sharpe ratio" drops to 0.3 when you fix the look-ahead.
+- **Survivorship bias** in backtest universe — you test on today's S&P 500 constituents. But 10 years ago, 20% of those companies weren't in the index, and 15% of companies that WERE in the index were acquired or delisted. Your strategy unknowingly selects stocks that survived, inflating returns by 2-4% annually.
+- **Transaction costs that are "2 bps"** in the model but market impact on a $5M order in a $2M/day-average-volume stock is 50-100 bps. Your model says "buy at $100.00" and you actually get filled at $100.75. Slippage + commission + market impact = model says profitable, P&L says breakeven.
+- **Overfitting detection** — your strategy has 15 parameters and Sharpe > 3. You've discovered a pattern that explains historical noise, not a real edge. The test: split data into in-sample (2000-2018) and out-of-sample (2019-2023). Out-of-sample Sharpe is 0.1. Your 15 parameters were memorizing, not learning.
+
+
+## Verification
+
+- [ ] Backtest: no look-ahead bias — all signals use data that was available at the time of the trade
+- [ ] Survivorship-free universe: backtest universe includes delisted and acquired securities
+- [ ] Transaction costs: model accounts for commission, bid-ask spread, and market impact at trade size
+- [ ] Out-of-sample test: strategy performs on unseen data (different time period) within acceptable degradation
+- [ ] Walk-forward: strategy parameters re-optimized on rolling windows — performance stable across periods
+
+
 ## References
 
 Detailed reference material loaded on demand:

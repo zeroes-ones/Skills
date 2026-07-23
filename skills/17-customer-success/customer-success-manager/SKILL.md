@@ -307,6 +307,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Gotchas
+
+- **Onboarding measured by "time to first login"** — the customer logged in once, poked around, and never came back. Time-to-first-VALUE is the metric: when did the customer achieve the outcome they bought your product for? For a CRM: first deal closed. For analytics: first dashboard built. Login ≠ activation.
+- **"Low-touch" digital CS at scale** that sends the same "Tips & Tricks" email to a 500-seat enterprise and a 5-seat startup — the enterprise admin marks it as spam (they already know the basics), the startup founder marks it as spam (too basic). Segmentation by maturity AND company size is the difference between "helpful" and "spam."
+- **Escalation "closed" because Engineering fixed the bug** — but nobody told the customer. The ticket sits in "Resolved" for 2 weeks until the customer asks for an update. Bug-fixed ≠ customer-informed. The CSM closes the loop: "The fix shipped on Tuesday. Can you confirm it's working as expected?"
+- **Churn prediction model that uses only usage data** — "low login frequency = churn risk." But your product is an API that customers integrate once and forget. Low logins = healthy (it's working). The model flags 40% of your installed base as "at risk" and the CS team ignores all flags because they're noise.
+
+
+## Verification
+
+- [ ] Time-to-first-value: measured per account, segmented by plan/segment — benchmarked and improving
+- [ ] Health score accuracy: last 90 days — accounts that churned were correctly flagged "red" ≥ 30 days before churn
+- [ ] Escalation SLA: time from engineering-fix to customer-notified tracked — target < 24 business hours
+- [ ] Digital CS: email open and click rates segmented by maturity and size — content optimized per segment
+- [ ] Churn: monthly churn rate tracked — trend line flat or declining, surprise churn incidents reviewed within 1 week
+
+
 ## References
 
 Detailed reference material loaded on demand:
