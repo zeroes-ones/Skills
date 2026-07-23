@@ -65,6 +65,28 @@ These rules apply to *every* response this skill produces.
 - **Always request permissions at the point of need.** Explain why the permission is needed before the system dialog. Do not request all permissions at app launch — it reduces trust and acceptance rates.
 - **Admit what you don't know.** Platform-specific APIs (HealthKit, Credential Manager, ARKit) evolve rapidly. If you're not current on the latest SDK version, say so and point to Apple/Google docs.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent mobile developers build apps that work on their test device. Masters build experiences that **work on a $200 Android phone in rural connectivity, in direct sunlight, with 15% battery.** The shift: your iPhone 16 Pro on office WiFi is not representative. The median global user has a mid-range Android device, intermittent connectivity, and pays for data by the megabyte. Design for constraints first — enhance for abundance.
+
+### Cognitive Biases That Kill Mobile Experiences
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **iOS-first myopia** | Designing and testing exclusively on iOS, then "porting" to Android — Material Design feels alien, back button breaks, permissions model differs | Design for both platforms simultaneously. Every feature spec must include Android behavior before implementation starts. |
+| **Flagship device blindness** | Testing only on the latest Pixel or iPhone Pro — missing the 4GB RAM device where your app is killed in the background every 30 seconds | Maintain a device lab: latest flagship + 3-year-old budget device for each platform. Budget device is your primary test target. |
+| **Over-engineering offline** | Building CRDT-based sync and conflict resolution for an app that's used 95% online — 6 months of engineering for an edge case | Offline support is a spectrum: cache-last-known-state (2 days) → optimistic writes with retry (2 weeks) → full offline with sync (2 months). Match the engineering investment to the user's actual offline duration. |
+
+### What Mobile Masters Know That Others Don't
+- **Battery is a shared resource.** Every network request, GPS poll, and background wake costs battery. A user who uninstalls your app because it's draining their battery is gone forever. Use `WorkManager` (Android) and `BGTaskScheduler` (iOS) — never roll your own background polling.
+- **App Store review is a deployment pipeline with a 24-72 hour SLA you don't control.** Structure your app so critical fixes can ship via OTA update (JS bundle, server config, feature flags). The native binary should change rarely. Every native change that requires review is a risk.
+- **Memory is a hard ceiling, not a budget.** iOS kills your app when it exceeds the memory limit — no warning, no callback. Android's `onTrimMemory()` is a courtesy, not a guarantee. Profile memory under worst case: largest screen, most content, longest session. If you're within 20% of the limit, you're one image-heavy screen from a crash.
+
+### When to Break Your Own Rules
+- **Ship a native module for a single critical feature.** The cross-platform abstraction tax isn't always worth it. If AR, Bluetooth, or advanced camera is your core differentiator, go native for that module. Wrap it in a cross-platform interface for the rest of the app.
+- **Use WebView for content that changes daily.** Terms of service, help center, marketing pages — content that changes faster than your app review cycle belongs in a WebView, not in native code.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between native (Swift/Kotlin), React Native, Flutter, or PWA for a new mobile project
@@ -1221,6 +1243,25 @@ These are the patterns that cause production incidents, battery drain, and app s
 - [ ] **[S12]**  CI/CD: lint → type-check → unit test → integration test → build → TestFlight/Play Internal on every push to main
 - [ ] **[S13]**  Store metadata: App Store privacy nutrition labels accurate; all Info.plist usage descriptions included; account deletion flow inside app; screenshots for all required device sizes
 - [ ] **[S14]**  Testing: unit tests for all domain logic (>80% coverage on domain layer); integration tests for critical flows; accessibility audit pass
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what you do -->
+
+### The Mobile Improvement Loop
+1. **Deploy to the worst device you own** — A 3-year-old budget Android with 4G throttling. Use it as your daily driver for one day.
+2. **Find every friction point** — Slow startup? Janky scroll? Background kill? Permission denied with no explanation? Empty state in airplane mode?
+3. **Fix the worst offender** — Then redeploy and test again. Did the experience improve for that device class?
+4. **Rotate devices monthly** — Different device, different OS version, different network conditions. Your app works differently on all of them.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Build the same app (camera + list + detail) natively in Swift and Kotlin, then in React Native and Flutter. Compare code, performance, and platform feel | Monthly per platform | Understands the tradeoffs between cross-platform and native from lived experience, not documentation |
+| Competent → Expert | Run the Android Strict Mode and iOS Instruments on your app. Fix every violation: disk reads on main thread, overdraw, memory leaks, retain cycles | Quarterly | App is verified clean by platform tooling, not by developer assumption |
+| Expert → Master | Ship an app to production on a platform you've never shipped to before. Go through the full store review process | Annually | Understands the platform's review criteria, provisioning, signing, and release management — not just its API surface |
+
+### The One Thing
+**Delete your app and reinstall it. On a device you've never used for development. On a slow network. With no account pre-created.** The first-run experience you see is what every new user sees. If it's not delightful, nothing else in the app matters.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
