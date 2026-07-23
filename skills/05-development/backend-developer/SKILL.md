@@ -2,8 +2,9 @@
 name: backend-developer
 description: 'Multi-language backend development with Python/FastAPI, Node.js/Express,
   Go, REST APIs, JWT/OAuth authentication, database integration, caching strategies,
-  async task processing, structured logging, and testing. Trigger: backend, FastAPI,
-  Express, Go, JWT, OAuth, caching, async tasks, API development.'
+  async task processing, push notification delivery (APNs/FCM), real-time streaming
+  (WebSocket/SSE), structured logging, and testing. Trigger: backend, FastAPI,
+  Express, Go, JWT, OAuth, caching, async tasks, push notifications, WebSocket, API development.'
 author: Sandeep Kumar Penchala
 type: development
 status: stable
@@ -176,6 +177,438 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 3. **Migrations**: Run before deploy. Backward-compatible changes only. Rollback plan for every migration.
 4. **Secrets**: Environment variables for config, secrets manager for credentials. Never in code or config files.
 
+### Phase 5 (~20 min): Real-Time & Streaming
+
+1. **Choose the right protocol**: WebSocket for bidirectional (chat, collaboration), SSE for server→client streaming (dashboards, logs), Polling for simple/legacy clients.
+
+| Factor | WebSocket | SSE | Polling |
+|--------|-----------|-----|---------|
+| Direction | Bidirectional | Server→Client | Client→Server |
+| Connection | Persistent | Persistent | Per-request |
+| Reconnect | Manual | Auto (EventSource) | Built-in |
+| Binary | Yes | No (text only) | Via HTTP |
+| HTTP/2 Friendly | Requires upgrade | Native multiplexing | Native |
+| Complexity | Medium | Low | Minimal |
+| Backpressure | Manual | Stream-native | N/A |
+
+2. **WebSocket server** — Node.js with `ws`:
+```js
+const { WebSocketServer } = require('ws');
+const wss = new WebSocketServer({ port: 8080 });
+const clients = new Map(); // userId → ws
+
+wss.on('connection', (ws, req) => {
+  const userId = authenticate(req);
+  // Reject duplicate connections from same user
+  if (clients.has(userId)) {
+    ws.close(4001, 'Duplicate connection');
+    return;
+  }
+  clients.set(userId, ws);
+  ws.isAlive = true;
+
+  ws.on('pong', () => { ws.isAlive = true; });
+  ws.on('message', (data) => {
+    const msg = JSON.parse(data);
+    // Route to handler, broadcast, or publish to Redis
+  });
+  ws.on('close', () => clients.delete(userId));
+});
+
+// Heartbeat: terminate dead connections every 30s
+const interval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (!ws.isAlive) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+wss.on('close', () => clearInterval(interval));
+```
+
+3. **FastAPI WebSocket** — Python async:
+```python
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+app = FastAPI()
+
+class ConnectionManager:
+    def __init__(self):
+        self.active: dict[str, WebSocket] = {}
+
+    async def connect(self, user_id: str, ws: WebSocket):
+        await ws.accept()
+        self.active[user_id] = ws
+
+    def disconnect(self, user_id: str):
+        self.active.pop(user_id, None)
+
+    async def broadcast(self, message: dict):
+        import json
+        dead = []
+        for uid, ws in self.active.items():
+            try:
+                await ws.send_json(message)
+            except Exception:
+                dead.append(uid)
+        for uid in dead:
+            self.disconnect(uid)
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/{user_id}")
+async def ws_endpoint(ws: WebSocket, user_id: str):
+    await manager.connect(user_id, ws)
+    try:
+        while True:
+            data = await ws.receive_json()
+            await manager.broadcast({"user": user_id, "msg": data})
+    except WebSocketDisconnect:
+        manager.disconnect(user_id)
+```
+
+4. **SSE endpoint** — FastAPI one-way streaming:
+```python
+from fastapi.responses import StreamingResponse
+import asyncio, json
+
+async def event_stream(request):
+    while True:
+        if await request.is_disconnected():
+            break
+        data = await get_latest_events()
+        # SSE format: "data: <payload>\n\n"
+        yield f"data: {json.dumps(data)}\n\n"
+        await asyncio.sleep(1)
+
+@app.get("/events/stream")
+async def sse_endpoint(request: Request):
+    return StreamingResponse(
+        event_stream(request),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # disable nginx buffering
+        }
+    )
+```
+
+5. **Connection pool management** — hard limits prevent memory leaks:
+```js
+const MAX_CONNECTIONS = 10_000;
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
+wss.on('connection', (ws) => {
+  if (wss.clients.size >= MAX_CONNECTIONS) {
+    ws.close(1013, 'Server at capacity');
+    return;
+  }
+  ws._idleTimer = setTimeout(() => ws.close(1001, 'Idle timeout'), IDLE_TIMEOUT_MS);
+  ws.on('message', () => {
+    clearTimeout(ws._idleTimer);
+    ws._idleTimer = setTimeout(() => ws.close(1001, 'Idle timeout'), IDLE_TIMEOUT_MS);
+  });
+});
+```
+
+6. **Broadcasting with Redis pub/sub** — scale beyond single process:
+```js
+const redis = require('redis');
+const pub = redis.createClient();
+const sub = redis.createClient();
+
+sub.subscribe('room:general', (message) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) client.send(message);
+  });
+});
+
+// On message from any server instance:
+ws.on('message', (data) => {
+  pub.publish('room:general', data); // fan-out to all instances
+});
+```
+
+7. **Reconnection-aware state**: Assign monotonically increasing sequence numbers to each event. Store the last N events (e.g., 1000) in a ring buffer. On reconnect, the client sends `{ lastSeq: 42 }` and the server replays events 43+. For longer disconnections, fall back to a REST endpoint for historical data. Use sticky sessions or a Redis sorted set in multi-instance deployments.
+
+8. **WebSocket health check**: Expose an HTTP endpoint that verifies the WS server is accepting connections:
+```python
+@app.get("/health/ws")
+async def ws_health():
+    return {
+        "ws_connections": len(manager.active),
+        "max_connections": MAX_CONNECTIONS,
+        "status": "ok"
+    }
+```
+
+### Phase 6 (~25 min): Push Notification Delivery
+
+Production push notification infrastructure is a bridge between your backend and Apple/Google push services. A broken push pipeline produces zero user-facing errors — just silently undelivered notifications. This phase implements the server-side delivery with proper error handling, token lifecycle management, and CI-testable verification.
+
+**1. Push notification delivery architecture:**
+
+```
+┌──────────┐    ┌──────────────────┐    ┌─────────┐    ┌───────────┐
+│ App Code  │──→│ Push Task Queue  │──→│ Provider │──→│ APNs/FCM  │──→ Device
+│ notify()  │   │ (Celery/BullMQ)  │   │ Router   │   │           │
+└──────────┘    └──────────────────┘    └─────────┘    └───────────┘
+                                              │
+                    ┌─────────────────────────┘
+                    ▼
+              ┌──────────┐    ┌──────────────┐
+              │ Token DB │←──→│ In-App Store │
+              └──────────┘    └──────────────┘
+```
+
+- **Push Task Queue**: Decouples user-facing requests from push delivery. A slow APNs response (up to 30s for invalid tokens) must not block your API.
+- **Provider Router**: Routes to APNs or FCM based on `platform` field. Handles provider-specific authentication and payload construction.
+- **Token DB**: Stores `(user_id, platform, token, is_active, last_updated)`. Tokens are ephemeral — stale token cleanup is critical.
+- **In-App Store**: Creates notification record in your database BEFORE push dispatch. A push failure must never lose the notification — users can see it when they open the app.
+
+**2. APNs provider — Python with HTTP/2 + JWT:**
+
+```python
+import time, jwt, httpx
+from cryptography.hazmat.primitives import serialization
+
+class APNsProvider:
+    """Token-based (JWT) APNs provider. One p8 key covers all team apps.
+    Certificate-based auth is deprecated — JWT tokens never expire (regenerate hourly)."""
+
+    def __init__(self, key_path: str, key_id: str, team_id: str, topic: str, use_sandbox: bool = False):
+        with open(key_path, "rb") as f:
+            self._private_key = serialization.load_pem_private_key(f.read(), password=None)
+        self._key_id = key_id
+        self._team_id = team_id
+        self._topic = topic  # Bundle ID, e.g. "com.lantern.app"
+        self._base_url = (
+            "https://api.sandbox.push.apple.com" if use_sandbox
+            else "https://api.push.apple.com"
+        )
+        self._jwt: tuple[str, float] = ("", 0.0)
+
+    def _generate_jwt(self) -> str:
+        now = time.time()
+        if not self._jwt[0] or now > self._jwt[1] - 300:
+            token = jwt.encode(
+                {"iss": self._team_id, "iat": int(now)},
+                self._private_key,
+                algorithm="ES256",
+                headers={"kid": self._key_id},
+            )
+            self._jwt = (token, now + 3600)
+        return self._jwt[0]
+
+    async def send(self, device_token: str, title: str, body: str,
+                   badge: int | None = None, sound: str = "default",
+                   category: str | None = None, mutable_content: int = 0,
+                   data: dict | None = None) -> dict:
+        """Send push via APNs HTTP/2. Returns {status, reason, apns_id}."""
+        payload = {
+            "aps": {
+                "alert": {"title": title, "body": body},
+                "sound": sound,
+                "badge": badge,
+                "category": category,
+                "mutable-content": mutable_content,
+            }
+        }
+        if data:
+            payload["data"] = data
+
+        async with httpx.AsyncClient(http2=True, timeout=30.0) as client:
+            response = await client.post(
+                f"{self._base_url}/3/device/{device_token}",
+                json=payload,
+                headers={
+                    "authorization": f"bearer {self._generate_jwt()}",
+                    "apns-topic": self._topic,
+                    "apns-push-type": "alert",
+                    "apns-priority": "10" if badge else "5",
+                    "apns-expiration": "0",
+                },
+            )
+        result = {"status": response.status_code, "apns_id": response.headers.get("apns-id")}
+        if response.status_code == 200:
+            return result
+        reason = response.json().get("reason", "unknown")
+        result["reason"] = reason
+        if reason in ("Unregistered", "BadDeviceToken"):
+            result["action"] = "delete_token"
+        return result
+```
+
+**3. FCM provider — Node.js with Firebase Admin SDK:**
+
+```js
+const admin = require('firebase-admin');
+
+// Initialize once at startup — loads service account JSON
+admin.initializeApp({
+  credential: admin.credential.cert(require('./firebase-service-account.json')),
+});
+
+class FCMProvider {
+  static async send(token, title, body, options = {}) {
+    const message = {
+      token,
+      notification: { title, body },
+      android: {
+        priority: 'high',
+        ttl: (options.ttl || 86400) * 1000,
+        notification: {
+          channelId: options.channelId || 'default',
+          ...(options.collapseKey && { tag: options.collapseKey }),
+        },
+      },
+      apns: {
+        payload: {
+          aps: { sound: 'default', badge: 1, 'mutable-content': 1 },
+        },
+      },
+      data: options.data || {},
+    };
+
+    try {
+      const response = await admin.messaging().send(message);
+      return { sent: true, messageId: response };
+    } catch (error) {
+      const code = error.code || '';
+      if (code === 'messaging/registration-token-not-registered') {
+        return { sent: false, error: code, action: 'delete_token' };
+      }
+      if (code === 'messaging/invalid-argument') {
+        return { sent: false, error: code, action: 'delete_token' };
+      }
+      if (code === 'messaging/server-unavailable') {
+        return { sent: false, error: code, action: 'retry' };
+      }
+      return { sent: false, error: code, action: 'log_and_continue' };
+    }
+  }
+}
+```
+
+**4. Token lifecycle API — Python/FastAPI:**
+
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
+
+router = APIRouter(prefix="/push", tags=["push"])
+
+class TokenRegister(BaseModel):
+    token: str = Field(..., min_length=32, max_length=512)
+    platform: str = Field(..., pattern="^(ios|android)$")
+    previous_token: str | None = Field(None, min_length=32, max_length=512)
+
+@router.post("/register")
+async def register_push_token(req: TokenRegister, user=Depends(get_current_user)):
+    """Register push token. Called on every app launch."""
+    async with db.transaction():
+        await db.execute(
+            "DELETE FROM push_tokens WHERE token = :token",
+            {"token": req.token}
+        )
+        if req.previous_token:
+            await db.execute(
+                "UPDATE push_tokens SET is_active = FALSE, updated_at = NOW() "
+                "WHERE token = :prev AND user_id = :uid",
+                {"prev": req.previous_token, "uid": user.id}
+            )
+        await db.execute(
+            """INSERT INTO push_tokens (user_id, platform, token, is_active, created_at, updated_at)
+               VALUES (:uid, :platform, :token, TRUE, NOW(), NOW())
+               ON CONFLICT (user_id, platform, token) DO UPDATE
+               SET is_active = TRUE, updated_at = NOW()""",
+            {"uid": user.id, "platform": req.platform, "token": req.token}
+        )
+    return {"status": "registered"}
+```
+
+**5. Delivery dispatch — Python with Celery task:**
+
+```python
+@celery_app.task(bind=True, max_retries=3, default_retry_delay=30, acks_late=True)
+def send_push_notification(self, user_id: str, title: str, body: str,
+                           data: dict | None = None):
+    """Dispatch push to all active devices. In-app notification created FIRST."""
+    # Create in-app notification before push (fast DB write)
+    create_in_app_notification.delay(user_id, "custom", title, body, data)
+
+    tokens = fetch_active_tokens(user_id)
+    if not tokens:
+        return {"sent": False, "reason": "no_tokens"}
+
+    sent, failed, deleted = 0, 0, 0
+    for token_row in tokens:
+        result = None
+        if token_row.platform == "ios":
+            result = asyncio.run(apns.send(token_row.token, title, body, data=data))
+        elif token_row.platform == "android":
+            result = FCMProvider.send(token_row.token, title, body, {"data": data})
+
+        if result.get("action") == "delete_token":
+            deactivate_token(token_row.token)
+            deleted += 1
+        elif result.get("action") == "retry":
+            failed += 1
+        else:
+            sent += 1
+
+    return {"sent": sent, "failed": failed, "deleted_tokens": deleted}
+```
+
+**6. Delivery monitoring metrics:**
+
+| Metric | Alert Threshold | Why |
+|--------|----------------|-----|
+| Push delivery rate (`sent / (sent + failed)`) per 5min | < 95% | APNs/FCM auth issue or mass invalidation |
+| Token invalidation rate per hour | > 20% | App reinstall spike or token refresh bug |
+| APNs 403 rate | > 1% | JWT expired or wrong key |
+| Push latency P95 | > 5s | Slow provider or network issue |
+| Stale token ratio (>30 days since update) | > 15% | Token cleanup job failing |
+
+**7. CI/CD test endpoint — verify push pipeline:**
+
+```python
+@router.post("/test")
+async def test_push(user=Depends(get_current_user)):
+    """Send silent test notification. Run in CI on every deploy."""
+    tokens = await fetch_active_tokens(user.id)
+    if not tokens:
+        raise HTTPException(400, "No push tokens registered")
+
+    for token_row in tokens:
+        if token_row.platform == "ios":
+            result = await apns.send_silent(token_row.token, {
+                "aps": {"content-available": 1, "category": "test"},
+                "data": {"test_id": str(uuid.uuid4()), "timestamp": int(time.time())},
+            })
+        else:
+            result = await fcm.send_data_only(token_row.token, {
+                "test_id": str(uuid.uuid4()), "timestamp": int(time.time()),
+            })
+
+        if not result.get("sent"):
+            raise HTTPException(502, {
+                "error": "PUSH_PIPELINE_BROKEN",
+                "platform": token_row.platform,
+                "reason": result.get("error", "unknown"),
+            })
+
+    return {"status": "push_pipeline_healthy", "devices_tested": len(tokens)}
+```
+
+**8. Payload design principles:**
+- Never put sensitive data in payload — APNs/FCM servers log these. Put only a reference ID in `data`, fetch content from API on notification tap.
+- Platform-adaptive: iOS needs `apns-priority`, `apns-push-type`, `mutable-content`; Android needs `android.priority`, `channel_id`, `collapse_key`.
+- Collapse keys: Use for state-replacement notifications (like count). Without one, 50 likes = 50 notification cards.
+- TTL: Set `apns-expiration: "0"` for time-sensitive notifications. Set longer TTL (1 day) for evergreen content.
+- Badge count: iOS uses absolute badge count — backend must track unread count per user.
+
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
 ### Solo (1 person, 0-100 users)
@@ -250,8 +683,19 @@ Common chains:
 - **Connection pooling**: Always pool database connections. Set statement timeout and idle-in-transaction timeout.
 - **Migrate forward, rollback tested**: Every migration has a tested reversal. Expand-contract for zero-downtime schema changes.
 
+## Anti-Patterns
 
-### Error Decoder
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Using long polling for real-time features (chat, live dashboards) | Use WebSocket for bidirectional or SSE for server→client. Polling 10K clients every 1s = 10K req/s for no data. WebSocket/SSE push only when there is data. |
+| Storing WebSocket connections in a global array without cleanup | Use a `Map` keyed by user ID. Remove on `close` event. Add heartbeat-based zombie detection every 30s. Monitor connection count in health checks. |
+| Returning raw stack traces in API error responses | Return sanitized errors: `{ "error": { "code": "DB_CONNECTION_FAILED", "message": "Service temporarily unavailable", "request_id": "abc-123" } }`. Log the full stack trace server-side with the same request ID. |
+| Opening a DB transaction, making an external API call, then committing | Keep transactions as short as possible. Fetch external data first, then open the transaction. An open transaction holds locks and blocks other queries — a 5s external call inside a transaction can stall the entire connection pool. |
+| Sharing a single database across multiple services | Each service owns its data. Services communicate via API, never by reading each other's tables. Shared databases create tight coupling and make every schema change a cross-team negotiation. |
+| Hardcoding secrets, API keys, or connection strings in source code | Use environment variables for config (non-sensitive), a secrets manager (AWS Secrets Manager, HashiCorp Vault) for credentials. Scan code in CI for secret patterns before merge. |
+| Skipping idempotency on payment/order endpoints — retries create duplicates | Add idempotency keys: client generates a UUID in `Idempotency-Key` header. Server stores key → response mapping. On retry with same key, return cached response. Use a DB unique constraint as the safety net. |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -260,6 +704,9 @@ Common chains:
 | Dashboard page took 45 seconds to load — timed out and showed an error | API endpoint for dashboard fired 2,300 individual SQL queries (N+1): loaded users, then looped over each to load orders, then looped over each order to load line items | Use eager loading or batch queries: `SELECT * FROM users WHERE ...`, then `SELECT * FROM orders WHERE user_id IN (...)`, then `SELECT * FROM line_items WHERE order_id IN (...)`. Add N+1 detection (django-silk, scout_apm, custom middleware). Result: 3 queries, 120ms | **N+1 queries are the silent killer of API performance.** Always use eager loading for ORM queries. Profile query counts in every endpoint. Add N+1 detection tooling in staging before it hits production. 2,300 queries > 3 queries is a 765x difference |
 | External API call blocked the request handler for 30 seconds, causing a server-wide thread pool exhaustion | An endpoint called an external API with no timeout configured — when the external service was slow, the thread hung until the default OS timeout (30s on Linux) | Add explicit timeouts on ALL external calls: `httpx.Timeout(5.0)`, `axios({ timeout: 5000 })`. Implement circuit breaker (resilience4j, Polly) for external dependencies. Use async I/O for IO-bound calls | **Every external call needs a timeout shorter than the user's patience.** 200ms is a good default for user-facing endpoints. Without a timeout, a slow dependency becomes a site-wide outage. Circuit breaker pattern prevents cascading failures |
 | `DELETE /api/users` was a soft delete, but support team accidentally called `DELETE /api/users/archive` thinking it was a hard delete — 1,200 user records permanently lost | The API had two separate delete endpoints with confusing names — no idempotency, no confirmation for destructive operations | Consolidate to a single `DELETE` endpoint with a `hard` query parameter (`DELETE /api/users/{id}?hard=false`). Add confirmation prompts for destructive operations in admin UI. Lock down destructive operations behind a separate auth role | **Destructive operations must be hard to do accidentally.** Consolidate delete semantics into one endpoint with explicit parameters. Require elevated roles for irreversible operations. Idempotent delete patterns prevent "oops I deleted the wrong thing" |
+| 10K WebSocket connections, server OOM-killed at 2GB RSS within 90 minutes | No max connection limit was configured. Each ws connection held a buffer and file descriptor — unbounded growth consumed all available memory until the OOM killer terminated the process | Set `MAX_CONNECTIONS` (e.g., 10,000). Add idle timeout (5 min) that terminates inactive sockets. Monitor `process.memoryUsage()` and alert if RSS exceeds 80% of container limit. Add a connection count gauge to health checks | **WebSocket connections are not free.** Each idle connection consumes ~10–50KB of memory and one file descriptor. At 10K connections that's 100–500MB before any message processing. Always cap concurrent connections, enforce idle timeouts, and monitor growth trends. |
+| SSE endpoint caused nginx 502 after exactly 60 seconds — every client disconnected and reconnected on a loop | Proxy timeout defaulted to 60s. nginx `proxy_read_timeout` terminated the SSE stream because no data frame arrived within the timeout window. `EventSource` auto-reconnected, masking the issue while creating a reconnect storm | Send SSE keepalive comments every 15s: `: heartbeat\n\n`. Set `proxy_read_timeout 300s;` in nginx. Disable response buffering: `proxy_buffering off;`. Add `X-Accel-Buffering: no` response header from the application | **SSE is a long-lived HTTP connection — proxies treat it as a slow response and kill it.** Without keepalive frames, every proxy in the path (nginx, ALB, CloudFront) can drop the connection at its configured timeout. Always send heartbeat comments. Test your SSE endpoint behind the actual production proxy chain. |
+| Fan-out broadcast to 50K clients caused 30-second latency spikes — WebSocket event loop blocked and health checks started failing | Synchronous broadcast iterating all 50K connections in a single tick: `wss.clients.forEach(c => c.send(data))`. The Node.js event loop is single-threaded — a 500ms broadcast blocks all other request handlers | Shard connections across worker processes (1 per CPU core). Use Redis pub/sub: publish once per channel, each worker instance sends only to its subset. Batch broadcasts: accumulate 50ms of events, send once. For one-way data flows, use SSE which has lower per-connection overhead than WebSocket framing | **Broadcasting to N clients is O(N) — at scale, that blocks the event loop.** A 50K-client WebSocket broadcast can take 300–500ms. During that window, health checks, API handlers, and other I/O are all blocked. Always shard, use pub/sub fan-out, and batch. SSE avoids bidirectional framing overhead for one-way streams. |
 
 
 ## Production Checklist
@@ -321,4 +768,17 @@ Auth/security concern? → Security Engineer → Compliance Officer
 Data contract dispute? → System Architect → CTO Advisor
 Cross-team dependency blocking? → System Architect → Project Manager
 ```
+
+## Proactive Triggers
+
+| Trigger | Response |
+|---------|----------|
+| "WebSocket connections dropping after every deploy" | Implement connection draining: on SIGTERM, stop accepting new WebSocket connections (`server.close()` in ws), send close frames (code 1001) to existing clients with a `Retry-After` header equivalent, and wait for in-flight messages to complete before process exit. Add a readiness probe that returns 503 while draining so the load balancer stops routing new traffic. |
+| "SSE clients getting 502 after exactly 60 seconds" | Proxy timeout is killing the stream. Configure `proxy_read_timeout 300s;` in nginx or increase the ALB idle timeout to 120s+. Send SSE keepalive comments (`: heartbeat\n\n`) every 15–30 seconds to prevent idle connection drops. Disable response buffering with `proxy_buffering off;` and set the `X-Accel-Buffering: no` response header from the application. |
+| "Memory leak in production — WebSocket connections growing unbounded over days" | Set `MAX_CONNECTIONS` cap at server startup. Add idle timeout (5 min) that terminates inactive connections after two missed heartbeats. Implement per-user connection deduplication — reject new connections from the same user if one already exists. Monitor `wss.clients.size` in health checks and alert on growth trends. |
+| "Broadcast to 50K connections causes event loop lag and request timeouts" | Shard connections across multiple processes/instances (1 per CPU core). Use Redis pub/sub for cross-instance fan-out. Batch broadcasts: accumulate 50ms of events, send once instead of per-message. Consider SSE instead of WebSocket for one-way broadcasts — lower overhead per connection, no per-frame ACK overhead. |
+| "Client reconnects after 30s disconnect and misses events — data loss" | Assign monotonically increasing sequence numbers to each broadcast event. Store the last N events (e.g., 1,000) in a ring buffer per connection/channel. On reconnect, client sends `{ lastSeq: 42 }` and server replays events 43+. For disconnects longer than the ring buffer, fall back to a REST endpoint for historical data. |
+| "WebSocket upgrade fails with 426/400 behind a proxy or load balancer" | Ensure the proxy forwards WebSocket upgrade headers. In nginx: `proxy_set_header Upgrade $http_upgrade;` and `proxy_set_header Connection "upgrade";`. In AWS ALB: the listener protocol must be HTTP/HTTPS (not HTTP/2, which doesn't support protocol upgrade). Verify the backend route matches the WebSocket path exactly. |
+| "Zombie connections — server thinks 5K clients are connected, only 2K are actually reachable" | Implement application-level ping/pong heartbeat (30s interval, 2 missed pongs = terminate). TCP keepalive defaults to 2+ hours — always do application-level heartbeats. On the client side, use `EventSource` auto-reconnect (SSE) or implement exponential backoff reconnection with jitter (WebSocket). |
+| "Fan-out broadcast storm — one incoming event triggers cascading broadcasts that amplify" | Rate-limit broadcasts per room/channel (e.g., max 10/sec). Use a debounce pattern: if the same event type fires within 100ms, coalesce into one broadcast. Attach a `broadcastId` UUID to each message and deduplicate at the receiving end. Never broadcast raw upstream events without sanitizing/aggregating first. |
 

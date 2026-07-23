@@ -430,6 +430,95 @@ syncQueue.onConnectivityChange(async (online) => {
 | Normal (5) | `priority: normal` | `apns-priority: 5` | Standard: social updates, content alerts, reminders |
 | Background | Silent FCM | `content-available: 1` | Data sync trigger, no user-visible notification |
 
+**APNS device token lifecycle — the full picture:**
+- **Registration**: On app launch, call `registerForRemoteNotifications()`. iOS returns a device token via `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`. This token is unique to the device + app combination and changes across reinstalls, device restores, and major OS updates.
+- **Refresh detection**: iOS may issue a new token without user interaction. Always compare the received token against the last stored token. If different, send to backend immediately — old token will fail silently, causing undelivered notifications.
+- **Invalidation**: The delegate method `application(_:didFailToRegisterForRemoteNotificationsWithError:)` fires when registration fails. Common causes: no network, no provisioning profile entitlement, simulator (push doesn't work on simulator — test on device).
+- **Multi-device handling**: A user with iPhone + iPad + Apple Watch gets different APNs tokens per device. Your backend must store an array of `{ deviceId, platform, token, lastActive }` per user. When sending, broadcast to all or target by last-active device.
+- **APNs auth**: Use token-based authentication (JWT with p8 key) — it never expires, unlike certificate-based auth which requires annual renewal. One p8 key covers all your team's apps.
+
+**Notification Service Extension (iOS) — modify push before display:**
+
+```swift
+// NotificationService.swift — runs in a separate process, ~30s execution window
+// Use cases: decrypt end-to-end encrypted push payload, download rich media attachment
+class NotificationService: UNNotificationServiceExtension {
+    override func didReceive(_ request: UNNotificationRequest,
+        withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+
+        guard let bestAttempt = request.content.mutableCopy() as? UNMutableNotificationContent else {
+            contentHandler(request.content); return
+        }
+
+        // 1. Decrypt E2E-encrypted payload (e.g., chat message body)
+        if let encryptedBody = bestAttempt.userInfo["encrypted_body"] as? String {
+            bestAttempt.body = decryptPayload(encryptedBody) ?? "New message"
+        }
+
+        // 2. Download rich media attachment (image, video thumbnail)
+        if let imageUrl = bestAttempt.userInfo["image_url"] as? String {
+            downloadAttachment(from: imageUrl) { attachment in
+                if let attachment = attachment {
+                    bestAttempt.attachments = [attachment]
+                }
+                contentHandler(bestAttempt)
+            }
+        } else {
+            contentHandler(bestAttempt)
+        }
+    }
+}
+```
+
+**Notification Content Extension (iOS) — custom notification UI:**
+- Provides a custom `UIViewController` displayed when the user 3D-touches or long-presses a notification. Use for: interactive charts, message threads, calendar event previews. Not for: replacing standard notification look entirely (Apple rejects this).
+- Register in Info.plist with `UNNotificationExtensionCategory` matching the notification category identifier.
+- Limited interaction — no keyboard input, no scrolling `UITableView`. Use `UNNotificationContentExtension` protocol methods for media playback controls or quick action buttons.
+
+**Android notification channels deep-dive:**
+
+```kotlin
+// Create channel on app startup — Android 8.0+ requires channels for ALL notifications
+// If no channel matches, notification is silently dropped on API 26+
+val channel = NotificationChannel(
+    "chat_messages",            // id: immutable once created
+    "Chat Messages",            // name: user-visible in system settings
+    NotificationManager.IMPORTANCE_HIGH // importance: controls sound, heads-up, interruption
+).apply {
+    description = "Incoming chat messages from your conversations"
+    enableVibration(true)
+    vibrationPattern = longArrayOf(0, 200, 100, 200) // custom pattern
+    setShowBadge(true)          // show dot on app icon
+    lockscreenVisibility = Notification.VISIBILITY_PRIVATE // hide content on lock screen
+}
+
+notificationManager.createNotificationChannel(channel)
+```
+
+**Importance levels — pick the right one:**
+
+| Level | Behavior | Use Case |
+|-------|----------|----------|
+| `IMPORTANCE_HIGH` | Heads-up popup, sound, vibration | Chat messages, ride arrival, security alerts |
+| `IMPORTANCE_DEFAULT` | Sound, no popup | Social updates, content alerts |
+| `IMPORTANCE_LOW` | No sound, status bar only | Weather updates, sync status |
+| `IMPORTANCE_MIN` | No sound, no visual interruption | Background data sync confirmations |
+| `IMPORTANCE_NONE` | Blocked entirely | Deprecated channel migration placeholder |
+
+**Channel groups:** Group related channels so users can manage them together in system settings. E.g., group "Messages" with sub-channels: "Direct Messages" + "Group Messages" + "Message Reactions."
+
+**Silent/background notification best practices:**
+- **iOS `content-available: 1`**: Set `apns-priority: 5` (not 10). The payload MUST NOT include `alert`, `sound`, or `badge` — or iOS may throttle it. iOS delivers at most 2-3 silent pushes per hour when the app is not in the foreground, and may coalesce them.
+- **Android data payloads**: Omit `notification` key entirely; include only `data`. The app receives the payload in `onMessageReceived` and decides whether to post a local notification. This bypasses the system tray for true background processing.
+- **Rate limits**: APNs silently throttles excessive background pushes. FCM collapses messages with the same `collapse_key`. Always include a collapse key for messages that replace previous ones (e.g., "new like on post" — only the latest matters).
+- **User-facing rate limit**: More than 4-5 notifications/day from non-messaging apps leads to the user disabling notifications. Respect the user's attention.
+
+**Push notification reliability — detecting and diagnosing failures:**
+- **APNs feedback service**: APNs returns status codes (`410 Unregistered` = token invalid, remove it from your database). Poll the feedback service or use the HTTP/2 stream to get real-time delivery failures.
+- **FCM delivery diagnostics**: FCM provides delivery receipt via `send_to_device` response (`success`, `failure`, `canonical_ids`). A `NotRegistered` error means the token is stale — delete it. A `canonical_id` in the response means the token was refreshed — update your database.
+- **Handling expired tokens**: If a push send returns `410` (APNs) or `NotRegistered` (FCM), remove the token from your database immediately. Sending to invalid tokens wastes quota and may trigger rate limiting by Apple/Google.
+- **End-to-end test**: Maintain a backend endpoint that sends a silent notification to a test device on demand. Run this test in CI on every deploy to verify the push pipeline: backend → APNs/FCM → device. A broken push pipeline produces zero user-facing errors — just silently undelivered notifications.
+
 ### Phase 5 (~25 min): Platform Design Systems
 
 **iOS Human Interface Guidelines — non-negotiable rules:**
@@ -562,6 +651,153 @@ Tag release → Production build → Store submission
 - Accessibility tests: run `accessibility()` checks in Maestro or manual VoiceOver/TalkBack pass. Every interactive element must have an accessibility label.
 - Performance regression: measure cold start time and scroll FPS in CI. Fail the build if cold start exceeds 2s or average scroll FPS drops below 58.
 
+### Phase 10 (~25 min): Streaming Clients & Real-Time Data
+
+Real-time data on mobile is a fundamentally different beast from web. iOS and Android aggressively kill persistent connections when the app goes to background. The right pattern is the difference between a chat app that works and one that drains 30% battery per hour.
+
+**Decision matrix — choose the right real-time transport:**
+
+| Use Case | Transport | Why |
+|----------|-----------|-----|
+| Chat / messaging | WebSocket (primary) + Silent Push (wake) | Bidirectional low-latency; push wakes the app when WebSocket is killed |
+| Live feed (sports scores, stock ticker) | SSE (primary) + Polling (fallback) | Server→client unidirectional; simpler than WebSocket; polling as degraded fallback |
+| Data sync trigger (new content available) | Silent Push (`content-available: 1` / FCM data-only) | Minimal battery; app wakes briefly, fetches, goes back to sleep |
+| Real-time health data (HR monitor, step counter) | BLE / Core Bluetooth | Persistent peripheral connection; not internet-based |
+| Collaborative editing | WebSocket + CRDT merge | Bidirectional low-latency + conflict-free merge on reconnect |
+
+**WebSocket client — production-grade implementation:**
+
+```typescript
+// Connection state machine: CONNECTING → CONNECTED → RECONNECTING → DISCONNECTED → SUSPENDED
+type ConnectionState =
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'RECONNECTING'
+  | 'DISCONNECTED'
+  | 'SUSPENDED'; // app in background, OS killed socket
+
+function useWebSocket(url: string) {
+  const [state, setState] = useState<ConnectionState>('DISCONNECTED');
+  const wsRef = useRef<WebSocket | null>(null);
+  const retryCount = useRef(0);
+  const messageQueue = useRef<string[]>([]);
+
+  const connect = useCallback(() => {
+    setState('CONNECTING');
+    const ws = new WebSocket(url);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      setState('CONNECTED');
+      retryCount.current = 0;
+      // Flush queued offline messages
+      while (messageQueue.current.length > 0) {
+        ws.send(messageQueue.current.shift()!);
+      }
+    };
+
+    ws.onclose = (e) => {
+      if (state === 'SUSPENDED') return; // don't reconnect if suspended
+      setState('RECONNECTING');
+      // Exponential backoff + jitter: prevents thundering herd
+      const base = Math.min(1000 * 2 ** retryCount.current, 30000);
+      const jitter = Math.random() * 1000;
+      setTimeout(connect, base + jitter);
+      retryCount.current++;
+    };
+
+    ws.onmessage = (event) => {
+      // Dispatch to appropriate handler based on message type
+      handleMessage(JSON.parse(event.data));
+    };
+  }, [url]);
+
+  // Handle app background/foreground transitions
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && wsRef.current?.readyState !== WebSocket.OPEN) {
+        setState('RECONNECTING');
+        connect();
+      } else if (nextState === 'background') {
+        setState('SUSPENDED');
+        wsRef.current?.close(); // let OS reclaim socket — silent push will wake us
+      }
+    });
+    return () => sub.remove();
+  }, [connect]);
+
+  // Offline message queuing: queue when disconnected, flush on reconnect
+  const send = useCallback((data: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(data);
+    } else {
+      messageQueue.current.push(data);
+    }
+  }, []);
+
+  return { state, send };
+}
+```
+
+**Reconnection backoff reference table:**
+
+| Attempt | Delay (max jitter) | Why |
+|---------|-------------------|-----|
+| 1st | 1-2s | Quick recovery from transient network flap |
+| 2nd | 2-4s | Brief outage (tunnel, elevator) |
+| 3rd | 4-8s | Cell tower handoff |
+| 4th+ | 8-30s cap | Avoid battery drain; at this point, lean on silent push to wake |
+
+**SSE consumption on mobile:**
+
+```typescript
+// EventSource polyfill — React Native lacks native EventSource; use a lib
+import EventSource from 'react-native-sse';
+
+function useLiveFeed(feedUrl: string) {
+  const [events, setEvents] = useState<FeedEvent[]>([]);
+
+  useEffect(() => {
+    const es = new EventSource(feedUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+      // Reconnect with backoff built into the polyfill; tune for mobile
+      reconnectOnError: true,
+      maxReconnectInterval: 15000,
+    });
+
+    es.addEventListener('update', (e) => {
+      if (e.data) setEvents((prev) => [...prev, JSON.parse(e.data)]);
+    });
+
+    es.addEventListener('error', () => {
+      // SSE connection lost — fall back to polling if persistent failure
+      if (consecutiveFailures > 3) switchToPolling(feedUrl);
+    });
+
+    return () => es.close();
+  }, [feedUrl]);
+}
+```
+
+**Battery-efficient real-time — the golden rules:**
+
+1. **Push-triggered fetch beats persistent WebSocket for most apps.** If your data updates every 30+ seconds, use silent push to tell the app "there's new data" and fetch on demand. A persistent WebSocket keeps the radio active — 10-20× more battery than an occasional push + fetch cycle.
+2. **WebSocket only for sub-second latency requirements.** Chat, live trading, real-time collaboration. If 2-5 second delay is acceptable, silent push + fetch is always cheaper.
+3. **Never hold a WebSocket open in the background.** iOS kills it within ~30 seconds; Android within a few minutes. Both platforms throttle background network. Close the WebSocket in `onBackground`, re-establish in `onForeground`. Use silent push to wake the app for important messages while in background.
+4. **Batch and coalesce:** Don't send 50 individual WebSocket messages when the app returns from background — send one "sync since timestamp X" message and process the batch.
+
+**Background modes — what survives and what doesn't:**
+
+| Platform | Persistent connections | Silent push | Background fetch | BLE |
+|----------|----------------------|-------------|-----------------|-----|
+| iOS (foreground) | Yes | Yes | N/A | Yes |
+| iOS (background, < 30s) | Yes (brief grace period) | Yes | Yes (opportunistic) | Yes (with capability) |
+| iOS (background, > 30s) | Killed by OS | Yes (limited rate) | Yes (opportunistic, OS decides) | Yes (with capability) |
+| Android (foreground) | Yes | Yes | N/A | Yes |
+| Android (background) | Minutes, then killed | Yes (high-priority FCM) | Yes (WorkManager) | Yes (with foreground service) |
+
+**What to remember:** iOS kills WebSocket connections aggressively — plan for it. Silent push is your reliable background wake mechanism on both platforms. For real-time data that must work in the background (fitness tracking, navigation), use platform-native background modes (BLE, location updates, audio) with a foreground service (Android) or capability entitlement (iOS).
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -595,6 +831,21 @@ API breaking change? → Backend Developer lead → System Architect
 Critical performance regression? → Observability Engineer → CTO Advisor
 Cross-platform inconsistency? → UI/UX Designer → Product Strategist
 ```
+
+## Proactive Triggers
+
+These are signals that should trigger the mobile developer to investigate — no one needs to tag you; you should be watching for these.
+
+| Trigger | Immediate Action |
+|---------|-----------------|
+| "APNs tokens failing — push notifications not delivered" | Run token rotation check: verify backend stores per-device token arrays, confirm token refresh runs on every app launch, check APNs feedback service for `410` responses. A single stale token blocks delivery to that device silently — no error on the device, just missing notifications |
+| "WebSocket reconnecting in a tight loop — battery drain" | Audit reconnection logic: exponential backoff with jitter must be in place. Check that `onclose` handler isn't calling `connect()` immediately (common substring-matching bug where `ws.close()` triggers `onclose` → reconnect → close → infinite loop). Verify WebSocket is proactively closed in `AppState` background handler, not left dangling for OS kill |
+| "Notification tapped but wrong screen opens" | Deep-link routing verification: trace the notification payload's deep-link URL through every routing layer. Test `myapp://product/123` resolves to `ProductScreen(id: 123)`. Check nested navigator state restoration — if a tab navigator contains a stack navigator, the deep link must activate both the tab AND push onto the correct stack |
+| "App using 30% battery/hour — streaming connection never sleeps" | Background mode audit: verify WebSocket/SSE connections close on background event. Check if silent push is being used instead of persistent connections for non-latency-critical data. Profile with Xcode Energy Log / Android Battery Historian — identify which component keeps the radio active. A single unclosed WebSocket in background = 20-30% battery/hour |
+| "Biometric auth prompts on every app resume — users annoyed" | Auth gate frequency audit: biometric should gate on cold start, not every foreground transition. Check `AppState` listener — ensure it tracks a session timeout (e.g., 5 minutes in background before re-prompting) rather than prompting on every resume. Over-prompting trains users to disable biometric auth |
+| "Push notification permission dialog shown at app launch — 80% deny rate" | Permission timing audit: move push permission request to point of value (e.g., after user enables a notification-dependent feature). Use iOS provisional authorization (`UNAuthorizationOptionProvisional`) — delivers notifications silently to Notification Center without a dialog, then prompt later when user has seen the value. First-launch permission barrage is the #1 cause of low opt-in rates |
+| "App Store rejected — 'Your app declares support for background modes but doesn't use them'" | Capability audit: remove unused `UIBackgroundModes` from Info.plist. Apple's static analyzer checks if declared background modes match actual API usage. `fetch`, `remote-notification`, `processing`, `bluetooth-central` — only declare what your code actually calls. Remove stale capabilities from old experiments |
+| "Crash rate spikes on iOS major version release day" | OS compatibility audit: run your test suite against the iOS beta 2 months before public release. Check all native modules for deprecated APIs (`#available` guards). Maintain a `PlatformCompatibility.md` with per-OS-version breaking changes. iOS major version releases are predictable — the crash shouldn't be a surprise |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -665,8 +916,21 @@ Common chains:
 9. **Crash reporting with breadcrumbs, not just stack traces:** Log user actions (screen visited, button tapped, API called) as breadcrumbs before the crash. A stack trace tells you what crashed; breadcrumbs tell you what the user was doing — and how to reproduce it.
 10. **Security is defense-in-depth:** Certificate pinning + Keychain/Keystore + ProGuard/R8 + root detection + disable screenshots in app switcher + jailbreak detection. Each layer alone can be bypassed; together they raise the bar from opportunistic to targeted attack.
 
+## Anti-Patterns
 
-### Error Decoder
+These are the patterns that cause production incidents, battery drain, and app store rejections. Recognize them early.
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|--------------------|
+| **Persistent WebSocket in background** — keeping a WebSocket open when the app enters background, hoping the OS will maintain it. iOS kills it within ~30s; Android within minutes. Battery drain: 20-30%/hour | Close WebSocket in `AppState` background handler. Use silent push (`content-available: 1`) to wake the app when there's new data. Re-establish WebSocket in foreground handler. The user won't notice the 50ms reconnection delay |
+| **Storing APNs/FCM tokens as permanent** — registering for push once on first launch and never refreshing. Tokens change on reinstall, device restore, OS update, and sometimes silently | Register for remote notifications on EVERY app launch. Compare received token against stored; if different, sync to backend immediately. Store `lastUpdated` timestamp alongside token. Implement a push test endpoint to verify the pipeline end-to-end |
+| **One-size-fits-all push payloads** — sending identical notification payloads to iOS and Android, ignoring platform-specific capabilities. Leads to missing rich media on one platform, broken deep links on another | Send platform-adapted payloads: iOS gets `apns-priority`, `apns-push-type`, `mutable-content`; Android gets `priority`, `channel_id`, `collapse_key`. Use per-platform payload fields in your backend push service |
+| **Blocking splash screen on network calls** — fetching config, auth tokens, or feature flags on the splash screen with no timeout. User stares at splash for 10+ seconds in poor connectivity | Native splash screen (not JS/Flutter splash). Start app immediately with cached config/tokens. Validate in background. Timeout at 3s maximum — show the app with degraded state rather than blocking. A frozen splash screen looks like a crash |
+| **Caching API responses indefinitely** — setting `Cache-Control: max-age=31536000` or never invalidating TanStack Query caches. Users see stale data days after the server updated | Set reasonable cache TTLs: 30-60s for real-time data, 5-15min for content feeds, 24h for static reference data. Always provide a pull-to-refresh mechanism. Show a "last updated" timestamp so users know data freshness. stale-while-revalidate pattern: serve cached data immediately, update in background |
+| **Hiding scroll indicators on long lists** — removing `showsVerticalScrollIndicator={false}` or setting it globally. Users have no idea how far through a 500-item list they are | Always show scroll indicators on content lists. The indicator provides navigation context — "am I 10% or 90% through this feed?" Disable only for full-screen immersive experiences (media player, game). This is an accessibility concern too |
+| **Requesting all permissions on first launch** — a permission barrage dialog for camera, location, contacts, notifications, and microphone before the user has seen any value. Opt-in rates drop 60-80% | Request each permission at the point of need with a rationale dialog. Show the permission reason in-app before the system dialog. Use provisional notification auth on iOS (delivers silently first). Respect denial — show a disabled state with Settings link, never re-prompt aggressively |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
@@ -675,7 +939,12 @@ Common chains:
 | User edited a todo on their phone while offline — the edit was silently lost when connectivity returned | Offline sync used last-write-wins without conflict resolution. The user's offline edit was overwritten by the server's stale version when sync ran | Implement CRDT-based conflict resolution or version vector tracking. Show the user a "sync pending" indicator during offline. If conflict is detected, show both versions and let the user choose. Test offline scenarios with the network link conditioner | **Offline without conflict resolution is silent data loss.** Last-write-wins assumes the server always has the latest data — wrong for offline edits. Every offline-first app needs a conflict resolution strategy (CRDT, version vectors, or user-facing merge UI) |
 | Push notifications stopped working after app update — no errors logged | APNs token changed after the update (iOS rotates tokens on reinstall and sometimes on updates) but the app didn't re-register for push notifications on launch | Always register for remote notifications on every app launch, not just on first install. Store the most recent token and sync it to the backend. Implement a push notification test endpoint that sends a silent notification to verify the pipeline | **Push notification tokens are ephemeral — never cache them as permanent.** Register for push on every app launch. iOS can rotate APNs tokens silently. A test endpoint that sends a silent notification is the only way to verify the push pipeline end-to-end |
 | Biometric auth was bypassed — user could access the app without Face ID after a force quit | Biometric auth was gating the app on resume but not on cold start. After killing and reopening the app, the gate was skipped | Implement biometric auth check on BOTH cold start AND app resume (foreground). Use `AppState` listener in React Native or `applicationWillEnterForeground` in iOS to re-prompt. Test: kill app → reopen → should see biometric prompt | **Auth gates must fire on every entry point, not just backgrounding.** Cold start bypass of biometric auth is a common oversight. Test all app launch paths: fresh install, force quit, background → foreground, and notification tap. One path without auth = data accessible without authentication |
-
+| WebSocket reconnecting in a tight loop — battery drained to zero in 2 hours | `onclose` handler calls `connect()` immediately with no backoff. Even worse: `ws.close()` triggers `onclose` → calls `connect()` → gets open → immediately calls `close()` for cleanup → infinite loop | Implement exponential backoff with jitter in the `onclose` handler: `base = min(1000 * 2^retries, 30000) + random(0, 1000)`. Add a guard: if `ws.close()` was called intentionally, set a `shouldReconnect = false` flag to prevent the reconnect loop. Profile with Xcode Energy Log to verify radio activity settles when app is idle | **Exponential backoff with jitter is mandatory for any reconnect loop.** Without it, a brief server outage triggers a reconnection storm across all devices simultaneously — this is the "thundering herd" problem. Jitter spreads reconnection attempts across a time window, preventing the server from being overwhelmed on recovery |
+| Deep link opens app but shows home screen — notification tap leads to wrong destination | The deep-link path `/product/123` resolves in the URL handler but the navigation stack isn't properly restored. If a tab navigator wraps a stack navigator, the deep link must first switch to the correct tab, THEN push onto that tab's stack | Implement a two-phase deep-link handler: (1) navigate to the root destination (tab), (2) in the `navigationReady` callback, push the detail screen with params. Test every deep-link path with the app in every possible state: fresh install, backgrounded, killed, on a different tab. Use `linking.getInitialURL()` for cold-start deep links and `linking.addEventListener('url', ...)` for warm-start | **Deep links must handle every app lifecycle state.** A deep link that works when the app is backgrounded may fail on cold start because the navigation tree hasn't mounted yet. Cold start deep links need explicit handling — `getInitialURL()` + deferred navigation until the root navigator reports `isReady` |
+| Background fetch works in development but never fires in production | iOS delivers background fetch at its discretion based on the user's usage patterns. If the user rarely opens the app, iOS deprioritizes it. Android's WorkManager similarly defers work based on battery optimization and Doze mode | Don't rely on background fetch for time-critical operations. Use silent push (`content-available: 1`) for reliable wake — Apple limits rate but guarantees delivery order. On Android, use high-priority FCM data messages. Set `BGTaskScheduler` minimum fetch interval to `15 * 60` (15 minutes) and expect actual delivery to be much less frequent. Log every background fetch invocation to measure real-world delivery rate | **Background fetch is opportunistic, not guaranteed.** Apple and Google control when background tasks run to preserve battery. Silent push is more reliable for time-sensitive wake-ups. If you need guaranteed background execution (e.g., uploading photos), use a background URLSession (iOS) or foreground service (Android) |
+| Notification permission dialog shown but user never sees it — dialog dismissed instantly | The permission dialog was triggered before the app's `UIWindow` was fully presented, or the app called `requestAuthorization` inside `applicationDidFinishLaunching` before the root view controller appeared. iOS silently dismisses early permission prompts | Delay permission request until the root view controller's `viewDidAppear` has fired. In React Native, request in a `useEffect` with a 500ms delay after mount — never in the module's top-level code. On Android 13+, use `POST_NOTIFICATIONS` at point of need, not in `Application.onCreate()`. Test permission flow after a fresh install (delete app, reinstall, verify dialog appears and is tappable) | **Permission dialogs presented before the app's window is ready are silently discarded by iOS.** The user never sees the dialog, your code receives `.denied` as the authorization status, and you have no way to re-prompt. This is one of the hardest bugs to detect because the dialog simply never appears |
+| Face ID / Touch ID fails with `LAError.biometryLockout` — user locked out of app | Too many failed biometric attempts. iOS locks biometric auth after 5 consecutive failures (Face ID) or 3 (Touch ID). The app doesn't fall back to device passcode, leaving the user stuck at the biometric prompt forever | Handle `LAError.biometryLockout` explicitly: present the system device passcode dialog (`LAPolicy.deviceOwnerAuthentication`) as a fallback. This lets the user unlock with their passcode, which also re-enables biometrics. If passcode fails too, show the app's own credential-based login as a last resort. Never leave the user with only a biometric gate — Face ID can fail for many reasons (face covering, lighting, angle, wet fingers for Touch ID) | **Biometric auth is a convenience, not a gate.** Always have a fallback to device passcode, then to app credentials. `biometryLockout` is common — it happens every time a user hands their phone to a child or wears a face mask. Without a fallback, the user is permanently locked out until they manually go to Settings → Face ID & Passcode |
+| FCM token invalidated on server but app still sends with old token — push silently fails for this device | The FCM token was refreshed (device restored, app data cleared, Google Play Services updated) and the server received the new token via `onTokenRefresh`, but the server's old-token cleanup failed due to a race condition. The app's local cache still holds the stale token, and the server doesn't reject it explicitly — FCM just silently drops messages for unregistered tokens | On every app launch: register for FCM token, compare with locally stored token. If different, send to backend with `previousToken` for server-side dedup and old-token cleanup. Implement a `/push/unregister` endpoint that removes tokens explicitly. Monitor FCM response codes: `NotRegistered` means the token was invalidated — trigger a client-side re-registration. Never assume an FCM token stored in SharedPreferences/MMKV is still valid | **FCM token invalidation is silent — no error on the client, no error on the server, just undelivered messages.** The only hint is FCM's `NotRegistered` error in the send response, which many backends ignore. Always send old token alongside new token so the server can clean up. A token validation endpoint (send silent test push, confirm receipt in 5 seconds) is the only way to know if a token is still live |
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
