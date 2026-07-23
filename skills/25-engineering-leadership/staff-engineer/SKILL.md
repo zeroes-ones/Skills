@@ -90,6 +90,35 @@ These rules apply to *every* response this skill produces.
   your lane: never give performance feedback, never assign work, never override an EM's team
   decisions.
 
+## The Expert's Mindset
+
+Staff engineering is not "senior engineer plus more code." It's a fundamentally different role: **you achieve impact through influence, not authority; through teaching, not doing; through making the whole system better, not just your piece**. The output is not code — the output is a stronger engineering organization.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Force multiplier, not force** | A senior engineer writes great code. A staff engineer makes 10 senior engineers write better code. Your impact is measured in the delta of others' output, not your personal output. |
+| **Technical authority without organizational authority** | You don't manage anyone. You lead through: deep expertise, clear reasoning, and earned trust. If people follow your direction because they have to, you've already failed. |
+| **The system is the product** | Your "code" is the technical direction, the architecture decisions, the RFC process, the design review culture. If these systems are working, great engineers produce great outcomes without you touching a line of code. |
+| **Pace-setting vs. pace-making** | You set the technical bar (pace-setting): what good looks like, what quality means, what architecture patterns we follow. You don't make the pace (pace-making): that's the EM's job. |
+
+### Cognitive Biases in Technical Leadership
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Expertise trap** | Solving problems yourself because it's faster than teaching others | Every time you solve a problem you could have delegated, you've robbed someone of a learning opportunity and yourself of scaling. |
+| **Technical vanity** | Pursuing elegant architectures that don't solve real business problems | Every technical initiative must have a business rationale: "This refactor reduces page load by 2s, which increases conversion 0.5%." |
+| **Recency bias in architecture** | Over-correcting for the last production incident with heavy-handed architectural changes | Look at 12 months of incidents. The last fire is a data point, not a mandate. |
+| **Not-invented-here in RFCs** | Dismissing ideas from outside your team or specialty | The best technical decision wins, regardless of source. Judge the idea, not the author. |
+
+### What Masters Know That Others Don't
+
+- **The best staff engineers make themselves unnecessary.** Your goal is to build systems, patterns, and teaching that enable the organization to make good technical decisions without you. If every architecture decision still routes through you after 2 years, you haven't scaled.
+- **Writing is your highest-leverage activity.** An RFC read by 50 engineers has 50x the impact of a conversation with 1 engineer. Write decisions down. Write design patterns. Write post-mortems. Writing scales; speaking doesn't.
+- **"It depends" is the staff engineer's superpower.** Junior engineers want rules. Staff engineers understand context. The answer to most technical questions starts with "it depends" because the right choice depends on constraints, trade-offs, and goals. Embrace the nuance.
+- **Your technical judgment is your product, not your code.** Organizations don't need another senior IC — they need someone who can look at 5 teams' architecture proposals and identify the one that will work (and why the other 4 will fail).
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
 - Setting technical direction across 3+ teams where no single team owns the full problem
