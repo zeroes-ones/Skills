@@ -403,6 +403,265 @@ syncQueue.onConnectivityChange(async (online) => {
 - **Isar** (Flutter): NoSQL with links (relationships), full-text search, ACID transactions. Best all-rounder for Flutter local storage.
 - **Drift** (Flutter): Type-safe SQLite wrapper with reactive queries. Use when you need complex SQL joins and migrations.
 
+**Production-grade sync queue — priority levels, backoff, and dead letters:**
+
+The simple FIFO queue above works for demos. Production needs priority ordering, exponential backoff with jitter, and a dead letter queue for permanently failed operations.
+
+```typescript
+type SyncPriority = 'critical' | 'high' | 'normal' | 'background';
+type SyncStatus = 'pending' | 'in_flight' | 'completed' | 'dead_letter';
+
+interface SyncItem {
+  id: string;
+  type: 'CREATE' | 'UPDATE' | 'DELETE';
+  entity: string;           // table or collection name
+  payload: Record<string, unknown>;
+  priority: SyncPriority;
+  retries: number;          // 0–5
+  maxRetries: number;       // default 5
+  lastError?: string;
+  createdAt: number;        // epoch ms
+  nextRetryAt: number;      // epoch ms
+  status: SyncStatus;
+  localVersion: number;     // monotonic counter for conflict detection
+}
+
+class SyncQueue {
+  private queue: SyncItem[] = [];
+  private processing = false;
+
+  /** Enqueue with priority-based insertion. Critical items (life-saving data
+   *  like bleed logs) jump to the front. Background items (analytics) wait. */
+  async enqueue(item: Omit<SyncItem, 'id' | 'retries' | 'status' | 'localVersion'>): Promise<void> {
+    const syncItem: SyncItem = {
+      ...item,
+      id: uuid(),
+      retries: 0,
+      status: 'pending',
+      localVersion: await this.getLocalVersion(item.entity),
+      nextRetryAt: Date.now(),
+    };
+    // Insert at correct priority position
+    const priorities: SyncPriority[] = ['critical', 'high', 'normal', 'background'];
+    const insertIdx = this.queue.findIndex(
+      q => priorities.indexOf(q.priority) > priorities.indexOf(syncItem.priority)
+    );
+    if (insertIdx === -1) this.queue.push(syncItem);
+    else this.queue.splice(insertIdx, 0, syncItem);
+
+    await this.persist(); // save queue to MMKV — survives app kill
+  }
+
+  /** Process queue with exponential backoff + jitter. Called when online. */
+  async processAll(): Promise<void> {
+    if (this.processing) return;
+    this.processing = true;
+
+    while (this.queue.some(q => q.status === 'pending' && q.nextRetryAt <= Date.now())) {
+      const item = this.queue.find(q => q.status === 'pending' && q.nextRetryAt <= Date.now())!;
+      item.status = 'in_flight';
+
+      try {
+        await this.dispatch(item);
+        item.status = 'completed';
+        this.queue = this.queue.filter(q => q.id !== item.id);
+      } catch (error) {
+        item.retries++;
+        item.lastError = String(error);
+
+        if (item.retries >= item.maxRetries) {
+          // Dead letter — permanently failed. Alert the user for critical items.
+          item.status = 'dead_letter';
+          if (item.priority === 'critical') {
+            this.notifyUser('Sync failed', `Could not save ${item.entity}`);
+          }
+        } else {
+          // Exponential backoff: 2^n * base_delay with 20% jitter
+          const baseDelay = item.priority === 'critical' ? 1_000 : 5_000;
+          const delay = Math.min(
+            Math.pow(2, item.retries) * baseDelay * (0.8 + Math.random() * 0.4),
+            5 * 60 * 1000  // cap at 5 minutes
+          );
+          item.nextRetryAt = Date.now() + delay;
+          item.status = 'pending';
+        }
+      }
+      await this.persist();
+    }
+    this.processing = false;
+  }
+}
+```
+
+**Conflict resolution — three-way merge for offline mutations:**
+
+```typescript
+interface ConflictResolution<T> {
+  /** Three-way merge using base (last known server state), local, and remote versions.
+   *  This is the industry standard — Git uses the same algorithm. */
+  resolve(params: {
+    baseVersion: T;      // what the server had when we last synced
+    localVersion: T;     // what we changed offline
+    remoteVersion: T;    // what the server now has (someone else's change)
+    strategy: 'last-write-wins' | 'client-wins' | 'server-wins' | 'field-merge';
+    fieldRules?: Record<string, 'client' | 'server'>;  // per-field authority for field-merge
+  }): T;
+}
+
+// Health app example: bleed log entry
+function resolveBleedLogConflict(params: {
+  baseVersion: BleedLogEntry;
+  localVersion: BleedLogEntry;
+  remoteVersion: BleedLogEntry;
+}): BleedLogEntry {
+  const { base, local, remote } = params;
+
+  // If remote hasn't changed since base → use local (no conflict)
+  if (remote.updatedAt === base.updatedAt) return local;
+
+  // If local hasn't changed since base → use remote (no conflict)
+  if (local.updatedAt === base.updatedAt) return remote;
+
+  // Both changed → field-level merge based on medical safety rules
+  return {
+    ...remote,
+    // User's symptom report always wins (subjective, can't be overridden)
+    symptoms: local.symptoms,
+    // Severity: take the higher value (safety-first — never downgrade severity)
+    severity: Math.max(local.severity, remote.severity),
+    // Treatment notes: merge both (don't lose information)
+    treatmentNotes: `${remote.treatmentNotes}\n---Additional entry---\n${local.treatmentNotes}`,
+    // Administrative fields: server wins (timestamps, flags set by backend)
+    updatedAt: remote.updatedAt,
+    reviewedBy: remote.reviewedBy,
+  };
+}
+```
+
+**Offline mutations — temporary IDs and sync ordering:**
+
+When creating records offline, generate a temporary client-side ID. On first successful sync, the server returns the permanent ID. All child records must reference the parent by its temporary ID until the parent is synced.
+
+```typescript
+// 1. Create parent (bleed log entry) — temporary ID
+const tempBleedId = `temp_${uuid()}`;
+await localDB.insert('bleed_logs', { id: tempBleedId, ...data, _synced: false });
+await syncQueue.enqueue({ type: 'CREATE', entity: 'bleed_logs', payload: { id: tempBleedId, ...data }, priority: 'critical' });
+
+// 2. Create child (treatment) — references temp parent ID
+await localDB.insert('treatments', { id: `temp_${uuid()}`, bleedLogId: tempBleedId, ...treatmentData, _synced: false });
+await syncQueue.enqueue({ type: 'CREATE', entity: 'treatments', payload: { bleedLogId: tempBleedId, ...treatmentData }, priority: 'critical' });
+
+// 3. Sync worker enforces ordering: CREATE parents before children
+// On successful parent sync, remap temp IDs to real IDs:
+const idMapping = new Map<string, string>(); // tempId → realId
+idMapping.set(tempBleedId, serverResponse.id);
+// Update all queued child items referencing tempBleedId
+for (const item of syncQueue.getByParent(tempBleedId)) {
+  item.payload.bleedLogId = serverResponse.id;
+}
+```
+
+**Network state machine — graceful degradation by connection quality:**
+
+```typescript
+type NetworkState = 'online-fast' | 'online-slow' | 'online-metered' | 'offline';
+type NetworkStrategy = 'sync-all' | 'sync-critical-only' | 'queue-only' | 'read-cache-only';
+
+const strategyForState: Record<NetworkState, NetworkStrategy> = {
+  'online-fast': 'sync-all',            // full sync, fetch fresh data, upload all
+  'online-slow': 'sync-critical-only',  // only bleed logs + meds, defer analytics/images
+  'online-metered': 'queue-only',       // don't download images/video, queue writes
+  'offline': 'read-cache-only',         // local DB only, show stale-data banner
+};
+
+// Connectivity detection with quality assessment
+const useNetworkMonitor = () => {
+  const [state, setState] = useState<NetworkState>('offline');
+
+  useEffect(() => {
+    const check = async () => {
+      const netInfo = await NetInfo.fetch();
+      if (!netInfo.isConnected) return setState('offline');
+      if (netInfo.details?.isConnectionExpensive) return setState('online-metered');
+
+      // Measure latency with a HEAD request to health endpoint
+      const start = Date.now();
+      try {
+        await fetch(`${API_BASE}/health`, { method: 'HEAD' });
+        const latency = Date.now() - start;
+        setState(latency < 500 ? 'online-fast' : 'online-slow');
+      } catch {
+        setState('offline');
+      }
+    };
+    check();
+    return NetInfo.addEventListener(check);
+  }, []);
+
+  return state;
+};
+```
+
+**Delta sync with sequence numbers — minimize transferred data:**
+
+```typescript
+interface DeltaSyncState {
+  lastSequence: number;       // last server sequence number we've seen
+  lastFullSync: number;       // epoch ms of last complete sync
+}
+
+async function deltaSync(state: DeltaSyncState): Promise<DeltaSyncState> {
+  // 1. Pull: ask server for changes since our last known sequence
+  const response = await apiClient.get('/sync/pull', {
+    params: { since: state.lastSequence, limit: 500 }
+  });
+  // Server returns: { changes: [...], newSequence: 1042, hasMore: false }
+
+  // 2. Apply server changes to local DB in order
+  for (const change of response.changes) {
+    await applyChangeToLocalDB(change);
+    state.lastSequence = Math.max(state.lastSequence, change.sequence);
+  }
+
+  // 3. Push: send our pending changes to server
+  const pendingLocal = await syncQueue.getPending();
+  const pushResponse = await apiClient.post('/sync/push', {
+    changes: pendingLocal,
+    baseSequence: state.lastSequence,  // server checks for conflicts
+  });
+
+  // 4. Handle push conflicts
+  for (const conflict of pushResponse.conflicts) {
+    const resolved = resolveConflict(conflict);
+    await localDB.update(conflict.entity, resolved);
+  }
+
+  // 5. Periodically do a full reconciliation (e.g., every 24h or on WiFi)
+  if (Date.now() - state.lastFullSync > 24 * 60 * 60 * 1000) {
+    const fullData = await apiClient.get('/sync/full');
+    await localDB.replaceAll(fullData);
+    state.lastFullSync = Date.now();
+    state.lastSequence = fullData.sequence;
+  }
+
+  return state;
+}
+```
+
+**TTL-based cache invalidation policy by data type:**
+
+| Data Type | Cache TTL | Stale-While-Revalidate | Strategy |
+|-----------|-----------|----------------------|----------|
+| User profile | 1 hour | Yes (show cached, refresh bg) | `staleTime: 60 * 60 * 1000` |
+| Forum posts list | 5 min | Yes | Invalidate on pull-to-refresh |
+| Forum post detail | 30 sec | No (show loader for fresh data) | Real-time via WebSocket push |
+| Bleed log entries | Immediate | No (health data — never stale) | `staleTime: 0, cacheTime: 0` |
+| Medication list | 1 hour | Yes | Invalidate on user edit |
+| Notification preferences | 24 hours | Yes | User rarely changes these |
+| Static content (FAQs) | 7 days | Yes | Hard reload on app update |
+| Pod/condition data | 1 hour | Yes | Invalidate on pod membership change |
+
 ### Phase 4 (~15 min): Push Notifications
 
 **Provider architecture:**
