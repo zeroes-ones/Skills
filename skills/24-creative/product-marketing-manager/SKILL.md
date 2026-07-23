@@ -250,7 +250,10 @@ Product marketing is the connective tissue between product, sales, and market. K
 
 ## What Good Looks Like
 
-> When product marketing is firing on all cylinders, every launch has a tiered plan with cross-functional sign-off and a retro within 30 days, battle cards are updated within 48 hours of a competitive move and sales teams trust them enough to use them, the core narrative is so clear that any employee can articulate it in 30 seconds, win/loss analysis runs continuously and its insights flow into product and messaging decisions, and analyst briefings result in accurate, favorable coverage — marketing is the bridge between product truth and market perception.
+> When product marketing is firing on all cylinders, every launch has a tiered plan with cross-functional sign-off and a retro within 30 days, battle cards are updated within 48 hours of a competitive m
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

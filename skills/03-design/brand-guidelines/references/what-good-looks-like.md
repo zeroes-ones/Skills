@@ -1,0 +1,5 @@
+# What Good Looks Like — Full Quality Standard
+
+Every customer-facing surface — from the login screen to the 404 page to the transactional email footer — feels unmistakably like the same brand without a single designer policing it manually. The logo renders crisply at every size from 16px favicon to 4K billboard, with correct clear space, and never stretched, recolored, or placed on a busy background. Color tokens flow from a single source of truth into Figma and code, guaranteeing that dark mode looks intentional rather than inverted and that every state passes WCAG AA contrast. Typography scales fluidly across breakpoints without layout breakage, and every icon is drawn from the same family with consistent stroke weights and optical sizing. Marketing, product, and engineering teams self-serve from the brand portal without opening a single Slack thread to ask which blue is correct.
+
+> This is the full aspirational quality standard. The compressed version in SKILL.md is optimized for model token budgets.

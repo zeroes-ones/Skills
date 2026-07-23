@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "code-reviewer",
+  "description": "Per-skill evaluation for code-reviewer \u2014 validates trigger routing, six-dimension review coverage, anti-pattern detection, and severity grading.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-code-review",
+      "category": "trigger_routing",
+      "input": "Review this pull request for the authentication module",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "security",
+            "performance",
+            "quality"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cr-security",
+      "category": "trigger_routing",
+      "input": "Can you do a code review focusing on security vulnerabilities in this Express middleware?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "OWASP",
+            "injection",
+            "XSS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cr-quality",
+      "category": "trigger_routing",
+      "input": "Check this React component code for quality and best practices",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "error handling",
+            "testing",
+            "documentation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-security-only",
+      "category": "negative_trigger",
+      "input": "Run a penetration test against our production API endpoint",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-incident-only",
+      "category": "negative_trigger",
+      "input": "Our production database is down, we need incident response immediately",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "output-six-dimensions",
+      "category": "anti_pattern_compliance",
+      "input": "Review this Python FastAPI endpoint for user registration",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "security",
+            "performance",
+            "quality",
+            "error handling",
+            "testing",
+            "documentation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "severity-grading",
+      "category": "checklist_coverage",
+      "input": "Review this code with multiple issues including SQL injection and missing tests",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "severity",
+            "critical",
+            "high",
+            "medium"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "actionable-feedback",
+      "category": "output_quality",
+      "input": "Review this JavaScript function that has an N+1 query problem",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "N+1",
+            "batch",
+            "specific",
+            "fix"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "looks good",
+            "LGTM",
+            "nice work"
+          ]
+        }
+      ]
+    }
+  ]
+}

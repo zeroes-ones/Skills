@@ -271,7 +271,10 @@ CI infrastructure issues? → DevOps Engineer
 
 ## What Good Looks Like
 
-> Every code review catches structural bugs, security flaws, and performance regressions before they reach production. Reviews are delivered in under four hours with actionable, priority-ranked feedback. Each finding links to a specific line, explains the risk, and suggests a concrete fix. The team treats reviews as a learning opportunity, and review feedback measurably reduces production incidents sprint over sprint. Reviewers consistently spot issues across all six dimensions, and developers trust the review process enough to never bypass it.
+> Every code review catches structural bugs, security flaws, and performance regressions before they reach production.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

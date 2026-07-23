@@ -255,7 +255,10 @@ Medical illustration bridges clinical accuracy, design, content, and development
 
 ## What Good Looks Like
 
-> When medical illustration is done at its best, every clinical diagram cites a verifiable anatomical reference and has passed clinical review, patients with no medical training achieve >80% comprehension on the first viewing, color palettes are tested and safe for all forms of color vision deficiency, alt text and high-contrast alternatives make every visual fully accessible, regulatory submissions include illustrations that clarify rather than confuse, and the illustration library is versioned, cataloged, and localizable — visuals build trust, not liability.
+> When medical illustration is done at its best, every clinical diagram cites a verifiable anatomical reference and has passed clinical review, patients with no medical training achieve 80% comprehensio
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

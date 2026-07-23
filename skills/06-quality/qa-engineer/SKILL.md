@@ -363,7 +363,10 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 
 ## What Good Looks Like
 
-> A comprehensive test strategy catches 95% of regressions before production, with fast unit and integration tests in CI and targeted E2E tests covering critical user journeys. Test data is realistic and isolated, and flaky tests stay below 1%. QA reports surface clear, reproducible bug reports with severity, impact, and reproduction steps. The team ships with confidence because the test pyramid is balanced, quality gates are meaningful, and every failure in production traces back to a missing test that gets added before the next release.
+> A comprehensive test strategy catches 95% of regressions before production, with fast unit and integration tests in CI and targeted E2E tests covering critical user journeys.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

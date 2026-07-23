@@ -258,7 +258,10 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 
 ## What Good Looks Like
 
-> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without disrupting flow, all patient-facing content reads at or below 8th grade level, consent flows use granular options with comprehension checks, error messages explain what happened, the impact, and the next action, and the voice is consistent from onboarding to recovery — words build trust, reduce support tickets, and make the product feel human.
+> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without 
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

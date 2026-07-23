@@ -333,7 +333,10 @@ The TPM-to-System-Architect relationship is the bridge between program execution
 
 ## What Good Looks Like
 
-> When technical program management is done right, cross-team dependencies are mapped and tracked so that no team is blocked waiting on another, architectural decisions are documented as ADRs with clear rationale and trade-offs, executive stakeholders receive concise reports that surface the decisions they need to make, technical risks are identified and mitigated before they threaten the timeline, and multiple engineering teams move in concert toward a shared milestone — the program runs so smoothly that the TPM's orchestration is nearly invisible.
+> When technical program management is done right, cross-team dependencies are mapped and tracked so that no team is blocked waiting on another, architectural decisions are documented as ADRs with clear
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

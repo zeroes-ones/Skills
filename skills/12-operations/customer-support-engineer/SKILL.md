@@ -310,7 +310,10 @@ The Support-Engineer-to-Backend-Developer handoff is the most critical quality g
 
 ## What Good Looks Like
 
-> When customer support engineering operates at its best, every inbound ticket is triaged and routed within minutes, root causes are identified through systematic reproduction rather than guesswork, knowledge base articles preempt the next 10 tickets on the same topic, customer-reported bugs flow into the engineering backlog with complete reproduction steps, and support becomes a strategic feedback loop that makes the product better with every interaction.
+> When customer support engineering operates at its best, every inbound ticket is triaged and routed within minutes, root causes are identified through systematic reproduction rather than guesswork, kno
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

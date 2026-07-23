@@ -333,7 +333,10 @@ Cluster cost attack surface:
 
 ## What Good Looks Like
 
-> Every cloud resource is tagged for cost allocation, and spending is visible per team, service, and environment within 24 hours. Commitment discounts cover at least 80% of predictable workloads, and idle or over-provisioned resources are automatically identified and right-sized weekly. Cloud spend grows linearly with business metrics — not exponentially with headcount. Anomalies trigger alerts within hours, not days, with a root cause and remediation recommendation attached. Finance and engineering speak the same language because cost data is embedded in the tools engineers already use.
+> Commitment discounts cover at least 80% of predictable workloads, and idle or over-provisioned resources are automatically identified and right-sized weekly.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

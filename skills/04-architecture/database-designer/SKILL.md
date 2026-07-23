@@ -388,7 +388,10 @@ Routine schema change (new column, index addition, non-breaking type change)
 
 ## What Good Looks Like
 
-> Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans hiding in production. The schema is normalized to 3NF with deliberate, documented denormalizations where read performance demands it, and no one has ever said "we'll fix the schema later" in a code review. Migrations apply in under 30 seconds with zero downtime via expand-contract patterns, and rollback plans are practiced, not theorized. Connection pools are sized so peak Black Friday traffic never exhausts them, and slow-query logs are empty for days at a time. Backups run on schedule, restores are exercised quarterly, and the team can answer "what was the state of this row at 3:14 PM last Tuesday?" because point-in-time recovery just works.
+> Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

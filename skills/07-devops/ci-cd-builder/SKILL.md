@@ -417,7 +417,10 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
 ## What Good Looks Like
 
-> Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback. Builds are reproducible and hermetic — the same commit always produces the same artifact. Artifacts are immutable and promoted through environments with zero manual steps. The pipeline enforces quality gates at every stage and blocks deployment on failure. Developers trust the pipeline implicitly: a green build means "ready to ship," and a red build tells them exactly what to fix, where, and why.
+> Pipelines run reliably on every commit, complete in under fifteen minutes, and provide clear, actionable feedback.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 
