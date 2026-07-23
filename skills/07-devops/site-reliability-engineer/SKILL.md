@@ -226,6 +226,19 @@ Is the incident user-visible?
 | `incident-responder` | Incident severity classification, communication templates, postmortem ownership, runbook procedures | Incidents have no structured response — chaos during outages |
 | `release-manager` | Error budget status, deploy freeze recommendations, canary rollout gating, deploy risk assessment | Risky releases ship without guardrails — production instability |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Toil consumes > 50% of team time — measured via time-tracking or ticket classification | Propose toil elimination backlog: identify top 5 toil sources, estimate automation effort vs. annual toil cost, prioritize by ROI | Toil above 50% means the SRE team is an ops team; automation frees engineers for reliability engineering, not ticket processing |
+| Error budget exhausted (< 0 budget remaining in 28-day window) with no automatic response | Propose automated deployment freeze for the affected service; all feature deploys blocked until error budget recovers; only reliability fixes allowed | An exhausted error budget without consequence means the SLO is aspirational, not operational; the system must respond automatically |
+| No error budget integration in CI/CD pipeline — deploys proceed regardless of reliability | Propose release-manager integration: deploy pipeline queries error budget status before promotion; canary rollout gated on burn-rate check; automated freeze on critical burn | Error budget enforcement must be automated; a human "check" is skipped 100% of the time under delivery pressure |
+| On-call handoff is a 30-minute verbal conversation with no written record | Propose structured handoff template: active incidents, recent changes, known risks, silenced alerts; stored in on-call channel/wiki; reviewed at shift start | Unstructured handoff means every shift starts from zero context; a 5-minute template eliminates the "what happened while I was away?" gap |
+| Incident postmortems produce action items that are never completed — same incident recurs | Propose postmortem tracking: every action item has owner + deadline; open items reviewed at start of every incident postmortem; stale items (> 30 days) escalate to engineering management | A postmortem without tracked action items is theater; if you don't follow through, the next incident will be a rerun |
+| Capacity planning uses monthly average traffic — peak traffic 5× average causes outage | Propose peak-based capacity planning: model P95/P99 traffic, marketing campaigns, seasonal peaks; auto-scale with 2× headroom above forecast peak | Average-based capacity planning guarantees failure under peak load; always plan for the spike, not the baseline |
+| SRE team is a separate silo — product teams throw services over the wall and expect SRE to operate them | Propose embedded SRE model or "SRE consulting" rotation; service owners retain on-call responsibility; SRE provides framework, tooling, and expertise | SRE is cultural, not organizational; reliability must be owned by the teams that build the services |
+| Chaos experiments run ad-hoc without measurement — "we broke it and it recovered, so we're good" | Propose structured chaos engineering: define steady-state hypothesis, measure with SLO metrics, run with controlled blast radius, document findings, automate regression | Chaos without measurement is just breaking things for fun; the hypothesis and measurement turn chaos into reliability evidence |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -301,7 +314,20 @@ debugging signal, not a user-impact signal.
 - **SRE is cultural, not a job title**: reliability is everyone's responsibility. SRE provides the framework, tooling, and expertise — but service owners own their SLOs.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| SLO target set to 100% — "five nines" for a service that users access over mobile networks | Set SLO at what users actually experience: 99.9% for consumer apps, 99.99% for payment systems; 100% costs exponentially more and prevents innovation |
+| Error budget used as a performance metric to punish teams — "your SLO missed, explain yourself" | Use error budget as a decision-making tool: when budget is high, ship features; when budget burns, invest in reliability; never punish teams for budget consumption |
+| On-call rotation is a single person with no backup — primary goes on vacation, pages go unanswered | Every on-call shift must have primary + secondary responders; automatic escalation after 5 minutes no-ack; PagerDuty schedules updated when team members are out |
+| Toil accepted as "part of the job" — manual database failovers, hand-crafted SSL cert renewals, ticket-driven capacity requests | Track toil explicitly; set a toil budget (max 50% of time); every repetitive manual task gets an automation ticket within 2 sprints |
+| Postmortems focus on "who" instead of "what" — blame culture drives incidents underground | Blameless postmortems: focus on system causes, not individual mistakes; "blameless" means "we all want to fix the system," not "nobody is accountable" |
+| Capacity planning based on "it worked last quarter" — no demand forecasting, no headroom calculation | Model demand with leading indicators (user growth, feature launches, seasonal patterns); maintain 2× peak headroom; auto-scale as backstop, not primary strategy |
+| Every alert pages on-call — 30 pages per shift, team silences the channel | Alert on symptoms (user error rate > 1%), not causes (CPU > 80%); route by severity; no more than 5 pages per shift; every alert must require human action |
+| Production readiness review is a one-time gate at launch — never revisited | PRR is a continuous practice: re-assess after major changes, quarterly for stable services; reliability degrades over time as the system evolves |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

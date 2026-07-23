@@ -565,6 +565,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `incident-responder` | Alert correlation signals, dashboard links, anomaly detection, metric trends | Incident responders can't diagnose issues — MTTR skyrockets |
 | `platform-engineer` | Standard observability across all services, self-service dashboards, alert templates | Platform can't provide observability — developer experience degraded |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| No SLOs defined for any production service — teams operate on "it feels slow" | Propose SLI/SLO framework: define 2-3 SLIs per critical user journey, negotiate SLO targets with stakeholders, establish error budgets | Without SLOs, reliability is opinion, not data; teams can't prioritize reliability work vs. feature work without error budgets |
+| Alert fatigue — on-call team receives 50+ pages per shift, critical alerts buried in noise | Propose alert tuning session: classify every alert by severity, eliminate duplicates, set minimum 5-minute group wait, cap pages at 5 per shift, route SEV3/4 to Slack only | Alert fatigue is the #1 cause of missed critical incidents; every false alarm trains responders to ignore the system |
+| No deployment markers on dashboards — impossible to correlate deploys with metric changes | Propose CI/CD integration: push deploy markers to Grafana/CloudWatch/DataDog from pipeline; annotate every deploy with commit SHA, author, and change summary | Deploy markers are the single highest-ROI dashboard feature; they immediately answer "did the last deploy cause this?" |
+| Incidents have no linked runbooks — on-call engineer googles how to restart the service | Propose incident management integration: every alert links to a runbook in PagerDuty/Opsgenie; runbook is version-controlled alongside service code | A service without a runbook doesn't exist for the on-call engineer; every minute spent figuring out basics extends the outage |
+| Structured logging present but trace IDs not propagated across async boundaries (Kafka, SQS, background jobs) | Propose OpenTelemetry instrumentation at every async boundary: inject trace context into message headers, create span links for fan-out/fan-in patterns | Traces that break at async boundaries are nearly useless for root cause analysis; the most interesting latency hides in queues |
+| Dashboard sprawl — 200+ dashboards, no one knows which is authoritative | Propose dashboard consolidation: one dashboard per service with ≤ 12 panels, USE + RED + golden signals; tag dashboards with `team` and `tier`; archive stale dashboards after 30 days unused | Dashboard sprawl is the observability equivalent of a junk drawer; engineers waste incident time hunting through dashboards instead of debugging |
+| Log retention set to "forever" with no sampling — costs growing 40% month-over-month | Propose log tiering: hot (7 days, full-text search), warm (30 days, indexed), cold (1 year, compressed S3); sample debug logs at 10% in production | Logs are the fastest-growing observability cost; tiered retention with sampling cuts costs 50-70% without losing incident investigation capability |
+| Observability stack manually configured — Grafana dashboards created via click-ops | Propose observability-as-code: Terraform Grafana provider, Grafonnet JSON dashboards in Git, Prometheus recording rules in version control; PR review for all changes | Click-ops observability is unreproducible and unversioned; observability-as-code ensures dashboards survive platform migrations and team changes |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Tag everything**: `team`, `service`, `environment`, `region` on all metrics for consistent drill-down and cost attribution.
@@ -577,6 +590,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 debugging without additional queries. Include `trace_id`, `user_id` (hashed), `order_id`, `error.stack`.
 - **Alert on burn rate, not SLO compliance** — SLO is a 28-day window; by the time it drops, budget is exhausted. Burn rate gives early warning.
 - **Monthly fire-drills** — Test the full alerting chain: synthetic failure → Prometheus alert → Alertmanager → PagerDuty → on-call acknowledges → runbook followed.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Alerting on infrastructure metrics (CPU > 80%, disk > 90%) instead of user-facing symptoms | Alert on RED metrics (error rate > 1%, latency p99 > 500ms) and SLO burn rate; infrastructure metrics are debugging signals, not user-impact signals |
+| Every alert goes to the same PagerDuty channel — SEV1 and SEV4 pages are indistinguishable | Route by severity: SEV1 → page on-call, SEV2 → Slack + page if unacked in 15 min, SEV3 → Slack only, SEV4 → weekly digest; no single channel receives all severities |
+| Dashboards created via click-ops in Grafana UI — no version control, no review, no reproducibility | Dashboard as code: Terraform Grafana provider, Grafonnet, or JSON committed to Git; all dashboard changes go through PR review |
+| Structured logging implemented but log messages are useless — "Error occurred", "Failed" with no context | Every log line must include `trace_id`, `user_id` (hashed), `service`, `environment`, and actionable context; log in JSON with a schema |
+| 100% tracing sampling in production — tracing cost 3× the infrastructure cost | Use head-based sampling: 100% of errors, 10% of normal traffic; tail-based sampling at the collector for anomaly detection; store sampled traces for 7 days |
+| Metric cardinality explosion — `user_id` or `session_id` as a Prometheus label; TSDB chokes | Never use high-cardinality values as metric labels; use logs or traces for per-user/per-session data; keep label cardinality < 100 unique values per label |
+| Alerts fire but no one knows what to do — runbook is "check logs and escalate" | Every alert must link to a specific runbook with step-by-step diagnosis and remediation; runbook is tested in fire drills; update after every incident |
+| Observability is an afterthought bolted on after launch — "we'll add monitoring later" | Instrument during development: OpenTelemetry auto-instrumentation, structured logging from day one, RED metrics exported before first production deploy |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -606,7 +632,7 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 - **Medium → Enterprise**: 10+ services with SLO commitments. Multi-team on-call. Compliance requires audit trails.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

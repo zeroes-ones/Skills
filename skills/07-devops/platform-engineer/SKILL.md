@@ -223,6 +223,19 @@ Level 5 (Ecosystem): External contributors, plugin marketplace, multi-team owner
 | `devops-engineer` | Platform APIs, module contracts, golden path requirements, pipeline template needs | Infrastructure teams build without platform guidance — fragmentation risk |
 | `observability-engineer` | Standard observability integration across all services, self-service dashboards | No consistent monitoring — every service reinvents observability |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Developer onboarding takes > 1 day from laptop to first production deploy | Propose golden path template: scaffold → local dev → CI/CD → staging → production in < 1 hour; eliminate manual setup steps | Onboarding friction is the canary for platform health; every day of onboarding delay is a day of lost productivity multiplied by every new hire |
+| CI/CD pipelines are copy-pasted between repos — 50 slightly different `.github/workflows/deploy.yml` files | Propose reusable pipeline templates: organization-level workflow with parameterized inputs; one source of truth for lint → test → build → scan → deploy | Copy-paste pipelines create a maintenance nightmare; a single security fix must propagate to 50 repos; reusable templates centralize best practices |
+| Security requirements documented in wiki but not enforced — teams skip them under delivery pressure | Propose policy-as-code integration: OPA/Rego or Sentinel policies in golden path templates; pipeline blocks deploy on policy violation; security is automatic, not aspirational | Documented security without enforcement is security theater; policy-as-code in the golden path makes compliance the default, not the exception |
+| Teams provision infrastructure via tickets to platform team — 2-week wait for a database | Propose self-service infrastructure catalog: Terraform modules with JSON Schema validation, automated provisioning, policy guardrails; target < 15 minutes from request to provisioned | Ticket-based infrastructure provisioning is the #1 platform team bottleneck; self-service with guardrails is faster AND more secure |
+| Developer portal (Backstage/Port) shows stale data — service catalog 3 months out of date | Propose automated catalog discovery: Kubernetes entity provider, GitHub org scanner, PagerDuty integration; catalog auto-updates, not manual curation | A stale service catalog is worse than no catalog — it trains developers that the platform is unreliable; auto-discovery keeps it current |
+| Golden path templates are 12 months old — new services start with known vulnerabilities and deprecated APIs | Propose template lifecycle: assign owner per template, run Dependabot/Renovate on templates, test quarterly against security baseline, version templates with migration guides | A stale golden path is worse than no golden path — it gives false confidence while shipping known vulnerabilities |
+| Platform team has no product manager — roadmap is a Jira backlog sorted by who shouts loudest | Propose platform-as-product: hire or designate a platform PM, run developer NPS survey, maintain public roadmap, prioritize by developer-hours-saved | A platform without product management is an infrastructure team that takes tickets; PM turns reactive ops into strategic product development |
+| No ephemeral environments — every PR waits for a shared staging environment, merge conflicts in staging | Propose per-PR ephemeral environments: namespace isolation, automated DNS, data seeding, TTL auto-cleanup; PR gets its own full-stack environment | Shared staging is a bottleneck; ephemeral environments eliminate "works on my machine" and staging merge conflicts simultaneously |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -298,7 +311,20 @@ Common chains:
 - **Avoid the "platform team as bottleneck" trap**: if every deploy requires platform team approval, you've built a gate, not a platform. Self-service means no human in the loop.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Platform team approves every deploy — 50 deploys/day queue behind 2 platform engineers | Self-service by default: golden paths automate approval; human review reserved for architecture changes and incidents; platform enforces policy, not gates every deploy |
+| Golden path covers every edge case — template has 40 parameters, developers afraid to use it | Golden path covers the 80% use case; leave escape hatches for specialized needs; teams that leave the path own their consequences; thinnest viable template wins |
+| Platform built in isolation for 12 months — launched to find it solves problems nobody has | Ship the thinnest viable platform in weeks, not months; validate every feature with 3-5 developer design partners; NPS survey before building, not after launching |
+| Developer portal is a static wiki — "documentation-driven platform" with no automation | Portal must be the interface to automation: click-to-provision, self-service catalog, automated workflows; documentation tells you what to do; the portal does it for you |
+| Platform team has no PM, no roadmap, no NPS — priorities set by whoever shouts loudest in Slack | Platform-as-product: hire or designate a PM, maintain public roadmap, measure NPS quarterly, prioritize by developer-hours-saved; platform competes for adoption |
+| Ephemeral environments never get cleaned up — $15K/month in zombie preview environments | Enforce TTL on all ephemeral environments (default 72 hours); automated cleanup after PR merge/close; cost dashboard shows per-PR environment cost |
+| Platform deprecation is "we removed the old API, good luck" — 12 teams broken, 0 days notice | Deprecation policy: announce 90 days before, emit warnings at 60 days, sunset at 0; automated migration tooling where possible; human support for stuck teams |
+| Template versioning is "copy the latest" — every service runs a different version of the golden path | Version golden path templates with semver; auto-update dependencies via Renovate; publish migration guides between major versions; track adoption by template version |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

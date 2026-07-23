@@ -716,6 +716,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 | `qa-engineer` | Test integration stages, coverage reports, flaky test quarantine | QA can't validate builds — quality gates block everything |
 | `docker-kubernetes` | Image build pipeline, registry integration, image signing | Containers can't be built or scanned — deploy blocked |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Build times exceed 15-minute threshold for > 3 consecutive builds | Propose parallelization strategy, test sharding, and dependency caching improvements with cache-warm schedules | Slow CI trains developers to bypass it; every minute above 10 costs developer focus and increases context-switch waste |
+| Deployment fails with non-deterministic error (flaky test, timeout, race condition) | Propose flaky test quarantine workflow and deployment health-check pre-warm stage | Non-deterministic failures erode pipeline trust; a single flaky test can block the entire team's velocity |
+| No security scanning in pipeline (SAST/DAST/SCA) | Propose CodeQL/SonarQube/Trivy integration as blocking quality gates before deploy stage; enforce CRITICAL/HIGH severity thresholds | Unscanned code in production is a compliance and security incident waiting to happen; scanning must be a blocking gate, not an advisory dashboard |
+| Container images pushed to registry without vulnerability scan or signature | Propose image signing (Cosign) + vulnerability scanning (Trivy/Grype) in registry push workflow; block deploy on CRITICAL CVEs | Container registries are the last defense line before production; every image must be attested and scanned — unsigned images are untrusted images |
+| All deployments are "big bang" with no progressive delivery mechanism | Propose canary or blue-green deployment strategy with automated metric comparison and rollback trigger | Progressive delivery limits blast radius; a 5% canary catches regressions before they affect all users — no canary means every deploy is all-or-nothing |
+| Feature flags managed ad-hoc without lifecycle tracking in pipeline | Propose feature flag integration in pipeline — deploy flags OFF, gradual rollout phases, automated flag-removal ticket after 30 days | Feature flags without lifecycle discipline become permanent technical debt; pipeline should enforce flag hygiene and removal cadence |
+| Secrets hardcoded in pipeline YAML or environment variables as plaintext | Propose OIDC-based cloud auth + secret referencing (not value copying); enable GitHub secret scanning on pipeline output logs | Hardcoded secrets in CI configuration are the #1 source of credential leaks; OIDC eliminates static credentials entirely and provides short-lived tokens |
+| Deploy stage has no rollback automation — manual SSH + `kubectl rollout undo` | Propose automated rollback pipeline: one-click trigger, smoke test verification, notify stakeholders; target < 5 minutes from trigger to stable | Manual rollback during an incident doubles MTTR; automated rollback is a reliability feature, not an admission of failure |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 <!-- DEEP: 10+min -->
@@ -726,6 +739,19 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Secrets via environments + OIDC, never hardcoded** — Each environment has its own secrets. CI roles use OIDC with audience + subject restrictions. Rotate any static tokens on schedule.
 - **Warm caches on schedule** — `on: schedule: cron: '0 */6 * * *'` runs dependency install to keep cache fresh for PR workflows.
 - **Validate locally before pushing** — `act` for GitHub Actions, `gitlab-ci-local` for GitLab CI. Catch syntax errors before CI runtime.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Using `:latest` tags for deployment images — every deploy ships a mystery artifact | Tag images with commit SHA (`${{ github.sha }}`); promote immutable artifacts through environments; build once, deploy many |
+| `continue-on-error: true` on test or scan steps to "unblock" a stuck pipeline | Fix failing tests or quarantine flaky ones in a separate non-blocking workflow; never silence test failures — they're the signal |
+| Single monolithic pipeline with 25+ sequential stages — 45-minute feedback loop | Split into independent workflows: lint + test (on PR), build + scan (on merge to main), deploy (on release tag); parallelize where topology allows |
+| Secrets stored as repository-level variables (plaintext) instead of CI secrets manager | Use CI secrets manager with environment-scoped secrets + OIDC for cloud authentication; never store secrets as plaintext variables — rotate any that were exposed |
+| Pipeline deploys directly from a feature branch to production with no staging gate | Enforce branch protection: only `main`/`release/*` branches deploy to production; all deploys go through staging with automated smoke tests first |
+| Hardcoded environment URLs, credentials, and configuration baked into pipeline YAML | Extract environment configuration to deployment environments with variable substitution; use environment protection rules to gate production deploys |
+| No pipeline observability — DORA metrics unknown, lead time is a mystery, failure rate guessed | Instrument pipeline with DORA metrics: deployment frequency, lead time for changes, change failure rate, MTTR; dashboard visible to entire engineering org |
+| Manual approval gates without timeout or escalation — deployment blocked for days waiting for one person | Auto-approve after 4-hour timeout with fallback to secondary approver; deploy window SLA prevents indefinite blocking; approval is a signal review, not a bottleneck |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -755,7 +781,7 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Medium → Enterprise**: 10+ teams. Compliance requirements. >50 deploys/day.
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
