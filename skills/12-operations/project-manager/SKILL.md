@@ -331,6 +331,34 @@ Project management is the hub — coordinating product, engineering, design, QA,
 | Vendor contract, procurement, or external delivery | `vendor-manager` or `legal-advisor` | Contractual obligations and external dependency management |
 | Budget governance and portfolio prioritization | `vp-engineering` or `director-engineering` | Executive decision on cross-project resource allocation |
 
+## Proactive Triggers
+<!-- QUICK: 30s -- trigger-action table for autonomous PM workflow -->
+
+The project manager doesn't wait for status reports — the PM detects drift from baseline data and acts before stakeholders ask. Every trigger below is tied to a measurable threshold and a direct action.
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| SPI < 0.85 for 2 consecutive weeks | Invoke schedule compression (fast-tracking or crashing); notify sponsor with recovery options | Cumulative critical path delay compounds; this is the last moment to recover without date slip |
+| `fullstack-developer` reports a task blocked by unresolved API contract ambiguity | Schedule a 30-min huddle with `fullstack-developer` + `backend-developer` + `api-designer` within 24 hours; log the dependency in RAID | Cross-stack ambiguity is the #1 cause of mid-sprint stall — it compounds as downstream tasks wait |
+| Risk probability × impact crosses from Medium to High | Activate mitigation plan within 48 hours; notify all affected `scrum-master`s; allocate contingency budget if pre-approved | High risks left unmitigated become incidents — cost of mitigation is always lower than cost of recovery |
+| Vendor deliverable 3 days past committed date with no updated ETA | Escalate to vendor PM with cc to `legal-advisor`; flag as RED dependency in weekly status; assess workaround options with engineering lead | External dependencies are the #1 cause of project delay; early escalation preserves negotiation leverage |
+| Stakeholder requests scope change without formal change request | Log the request in change log; produce impact analysis (schedule + budget + resource delta) within 3 business days; schedule a trade-off discussion with sponsor | Unmanaged scope change is the #1 cause of budget overrun — gate all scope changes through impact analysis |
+| 3+ stakeholders report conflicting priorities for the same sprint | Call a priority alignment meeting with `product-manager` + all requesting stakeholders; use the RACI matrix to identify the single accountable decider | Conflicting priorities without resolution = team thrashing — one decider per decision |
+| Project budget burn rate exceeds plan by >10% for 2 consecutive reporting periods | Analyze variance root cause; produce options (re-scope, request additional budget, adjust timeline); present to sponsor within 5 business days | Budget drift is a leading indicator of scope or estimation failure — catch it before the overrun is unrecoverable |
+| Team morale signal: sprint retro participation drops, 1:1s become shorter, nobody asks questions in planning | Flag to `engineering-manager` and `scrum-master`; schedule a no-agenda team health check; review workload distribution for burnout signals | Project success depends on team health — morale erosion is a lagging indicator of burnout; intervene when signals first appear |
+
+### Service Interaction: PM → Fullstack Developer
+
+The project-manager-to-fullstack-developer handoff is the bridge between planning and execution. When done well, tickets flow from roadmap to sprint without clarification loops.
+
+| Interaction Point | What PM Provides | What Fullstack Dev Needs |
+|-------------------|-----------------|--------------------------|
+| **Sprint planning** | Prioritized backlog with business context, acceptance criteria, and dependency flags | Story points estimate, technical risk flags, sequencing constraints |
+| **Ticket breakdown** | Epic-level user stories with clear "definition of done" | Task-level decomposition (frontend, backend, DB, tests), spike identification |
+| **Mid-sprint blocker** | Escalation path, stakeholder context for trade-offs, authority to adjust scope | Root cause diagnosis, alternative implementation options, time-to-fix estimate |
+| **Cross-team dependency** | Introduction to the owning team's PM, committed dates, escalation contact | Technical requirements document, API contract needs, integration test scenarios |
+| **Sprint review prep** | Demo script aligned to stakeholder expectations, success metric context | Working increment, performance benchmarks, known limitations |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -392,6 +420,20 @@ Common chains:
 - **Milestones over tasks for external comms**: Stakeholders care about "payment module live," not 47 subtasks
 - **Risk identification is everyone's job**: A quiet PM doesn't catch risks; an engineering team speaking up catches them
 - **Postmortems are blameless**: Focus on process failures, not individual mistakes
+
+## Anti-Patterns
+<!-- STANDARD: 3min -- common failure modes and their correct alternatives -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| **The PM-as-secretary trap**: Taking meeting notes, scheduling everyone's calendar, updating Jira tickets for engineers | PM owns the *plan*, not the *execution*. Engineers update their own tickets. The PM's time is spent on risk identification, stakeholder alignment, and dependency resolution |
+| **Green-washing status reports**: Every status report shows GREEN across all workstreams despite known risks | Use objective RAG criteria (SPI < 0.85 = RED, 0.85-0.95 = AMBER). A report with no red items when you know about risks is a lie, not a status report |
+| **Planning paralysis**: 4 weeks of planning for a 6-week project because "we need to get the estimate right" | Time-box planning to 10% of project duration. Ship a plan at 80% confidence and refine as you learn. A perfect plan delivered late is worse than a good plan delivered on time |
+| **The Gantt chart as truth**: Updating the Gantt chart weekly without validating actual progress against the critical path | Walk the critical path physically: ask each owner "show me the working artifact." A Gantt chart updated from status reports is fiction — validate with evidence, not words |
+| **Stakeholder spam**: Sending 40-page status decks to 30 people every week, cc'ing executives on every minor update | Segment stakeholders: exec summary (1 page, decisions needed) for sponsors, detailed status for team leads, self-serve dashboard for everyone else. Communicate at the recipient's altitude |
+| **RAID log as theater**: Maintaining a beautiful RAID log that nobody reads and risks age past 30 days without review | RAID log is a working document, not an audit artifact. Review top 10 risks weekly with the team. If a risk is older than 2 weeks without an update, either it's not a risk or you're not managing it |
+| **Hero PM syndrome**: The PM personally chases every blocker, resolves every conflict, and becomes the single point of failure for project information | Build systems, not dependencies: self-serve dashboards, documented escalation paths, delegated decision authority. The project should run for 2 weeks without you — if it can't, you've built a bottleneck, not a process |
+| **Scope creep by "just this one thing"**: Accepting every small stakeholder request without change control because "it's tiny" | Every scope change — no matter how small — goes through the change log. "Tiny" changes compound: 20 tiny scope additions = 1 major feature. Track cumulative impact and make the cost visible to requesters |
 
 ## MVP vs Growth vs Scale
 
@@ -488,7 +530,7 @@ python3 scripts/raid_audit.py --project-id PROJECT --stale-threshold-days 14
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -497,6 +539,9 @@ python3 scripts/raid_audit.py --project-id PROJECT --stale-threshold-days 14
 | Scope grew 3x during the project despite an approved charter | Every stakeholder request was accepted as minor without change control -- cumulative impact of 40 minor changes blew the budget | Implement a formal change control process: any scope/date/resource change requires an impact analysis and sponsor sign-off. Track change requests in a log with cumulative budget impact. | Scope creep does not come as one big change -- it comes as 40 small ones. Without a change control process, "just one more thing" becomes "we are twice over budget." |
 | Two teams built overlapping functionality because they were not communicating | No RACI matrix was created -- backend team built an API that frontend team was already developing as a client-side feature | Create a RACI matrix at project initiation. Hold weekly cross-team sync. Implement a shared dependency tracking board. Review for overlap at every milestone gate. | Without clear ownership, teams either assume someone else is doing the work or both do it. A RACI matrix prevents both. Assign every deliverable to exactly one accountable person. |
 | Postmortem identified 20 lessons learned but none were implemented in the next project | Postmortem was a venting session with no structured action plan -- findings were documented but never assigned owners or tracked | Structure the postmortem with: what went well, what went wrong, root causes, and 3-5 prioritized action items with owners and deadlines. Track action items in the next project kickoff. | A postmortem without owners and deadlines is a therapy session, not an improvement process. Limit action items to the top 3-5 and track them until completion. |
+| Fullstack developer spent 3 days building a feature against outdated API specs because the `api-designer` updated the contract mid-sprint without notification | No contract change notification protocol existed — the API designer published a new spec version but didn't notify dependent teams, and the PM's dependency tracker didn't cover in-flight spec changes | Implement a contract change broadcast: any API spec version bump triggers an automated notification to all dependent team leads and PMs. Add "contract version stability" as a sprint readiness gate. Freeze API contracts for the sprint duration unless a SEV1 fix requires a change. | The most expensive bug is the one built against a spec that changed silently. API contracts are commitments, not suggestions — version-freeze contracts for the duration of active sprints. The PM's dependency tracker must include "spec drift" as a risk category. |
+| Project sponsor approved a $200K budget for a vendor tool, but after 4 months the vendor's API couldn't support the required throughput — $80K sunk cost with no recovery | Vendor selection was based on feature checklists and sales demos, not a technical proof-of-concept with production-scale load testing | Before any vendor contract exceeding $50K, require a technical PoC: load test the API at 2x expected peak throughput, validate SLAs with penalties, and have the `system-architect` sign off on integration feasibility. Include a 30-day termination clause for technical non-performance. | A vendor sales demo proves the vendor can sell, not that their product works at your scale. The PM must gate procurement decisions on technical validation, not feature matrices. Budget is not the only risk — integration failure is often more expensive than the contract value. |
+| Project completed "on time" but the product shipped with 3 critical security vulnerabilities that weren't discovered until the pen test — delayed launch by 6 weeks | Security review was scheduled as the last gate before launch because the PM treated it as a compliance checkbox, not an engineering requirement | Schedule the first security review during architecture design, not after implementation. Add "security review passed" as an entry criterion for every milestone gate, not just the final release gate. Involve `security-engineer` in sprint planning for any feature handling PII, auth, or payments. | Security is not a phase — it's a continuous constraint. Scheduling security review last guarantees it will be skipped or rubber-stamped. The PM must front-load security gates so that findings surface when they are cheap to fix, not when the launch date is immovable. |
 
 
 ## Production Checklist
