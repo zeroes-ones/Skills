@@ -441,6 +441,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Content calendar that's a list of topics** without audience, format, distribution, or goal — "Write about Kubernetes security" — for WHO (beginners or SREs)? As WHAT (blog post or whitepaper)? Distributed WHERE (SEO or paid social)? With what GOAL (brand awareness or lead gen)? A topic without these 4 dimensions is a wish, not a strategy.
+- **"Blog twice a week" as a strategy** — you publish 104 articles per year. 90 of them get < 500 views. 10 get 5,000+. 2 get 50,000+. The content strategy that produces the 2 hits matters; the strategy that produces the 90 misses is a waste of budget. Quality × distribution > quantity. Publish fewer, better, promoted pieces.
+- **SEO content that ranks #1 for a keyword and drives zero pipeline** — "What is a database?" — 50K visits/month, 0 conversions. The content was built for traffic, not for the buyer journey. For every piece of content, define: what stage of the funnel it targets and what the NEXT step is (subscribe, download, demo, buy).
+- **Content audit that flags "outdated" but doesn't have a process for what happens next** — 200 articles are "outdated." No one has time to update 200 articles. Result: audit report sits in Google Docs, content continues to age. Audit must include a PRIORITIZATION framework: update high-traffic declining, redirect low-traffic outdated, leave medium-traffic stable.
+
+
+## Verification
+
+- [ ] Content audit: completed within last quarter — all content scored on traffic, conversion, and freshness
+- [ ] Editorial calendar: next 4 weeks planned — each piece has audience, format, distribution, and goal
+- [ ] Content performance: traffic and conversions tracked per piece — top 10% and bottom 20% identified
+- [ ] Funnel mapping: every content piece tagged with funnel stage and next-step CTA
+- [ ] Content debt: outdated high-traffic content has update plan — outdated low-traffic content redirected
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -373,6 +373,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Earnings call script that sounds like a press release** — "We are pleased to announce robust top-line growth driven by strategic initiatives and operational excellence." Investors tune out corporate-speak in 8 seconds. "Revenue grew 32%. Here are the 3 things that drove it. Here's what we're worried about. Here's what we're doing about it."
+- **Guidance that's a single number** — "We expect revenue of $50-52M next quarter." When you report $51.2M, you "met guidance." But your internal forecast was $53M and you guided low to beat it. Investors see the pattern: beat-and-raise, beat-and-raise, miss. The miss tanks the stock 3x more than the beats lifted it. Guide honestly.
+- **Quiet period violation** — the CEO mentions at a conference "Q3 is looking great so far" 2 weeks before earnings. The stock moves 5%. That's selective disclosure (Regulation FD violation). During the quiet period (typically 2-4 weeks before earnings), NO ONE outside the company gets material non-public information.
+- **"One-time charges" that appear every quarter** — Q1: restructuring ($2M), Q2: acquisition costs ($3M), Q3: legal settlement ($1.5M), Q4: impairment ($4M). After 4 quarters of "one-time" charges, investors price them into the stock as recurring. Non-GAAP adjustments must be truly extraordinary, not recurring operational noise.
+
+
+## Verification
+
+- [ ] Earnings materials: press release, script, and Q&A prep completed 1 week before earnings
+- [ ] Guidance model: updated with actuals monthly — current quarter projection vs guidance range
+- [ ] Quiet period: calendar published, all insiders notified of trading and communication restrictions
+- [ ] Consensus: analyst estimates tracked — your guidance range overlaps consensus range (no surprising beats)
+- [ ] Shareholder engagement: top 20 investors met within last 12 months, feedback documented
+
+
 ## References
 
 Detailed reference material loaded on demand:

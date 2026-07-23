@@ -436,6 +436,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Regulatory gap analysis that maps requirements to controls** but doesn't test whether the controls ACTUALLY WORK — you have a policy that says "access reviewed quarterly." The control is the policy document. The auditor asks "show me the last 4 quarterly reviews." You have 1. The control existed on paper, not in practice. Every mapped control needs evidence of OPERATION, not just design.
+- **"Compliance with [Regulation] is our top priority"** in a public statement — that statement is now evidence in every investigation, lawsuit, and regulatory action against you. If you fall short (and everyone falls short somewhere), opposing counsel opens with: "You said this was your top priority. Was that a lie, or were you incompetent?" Never claim compliance is your "top priority" — claim it's a "core commitment."
+- **Regulatory change monitoring** that's a Google Alert for "FDA regulation change" — you miss the EU MDR transition period deadline by 6 months because your alert didn't cover EU regulations. Regulatory monitoring needs structured sources: jurisdiction-specific registers (Federal Register, EUR-Lex, MHRA), industry association updates, and law firm client alerts.
+
+
+## Verification
+
+- [ ] Control evidence: for each regulatory control, can you produce the last 4 periods of operational evidence?
+- [ ] Regulatory calendar: all filing deadlines, renewal dates, and transition period end-dates tracked with 90-day pre-alerts
+- [ ] Monitoring: regulatory change sources cover all jurisdictions you operate in — tested with a known recent change
+- [ ] Public statements: all compliance-related public statements reviewed by legal — no "top priority" language
+- [ ] Audit readiness: mock audit conducted within last 12 months — findings tracked to remediation
+
+
 ## References
 
 Detailed reference material loaded on demand:

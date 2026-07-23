@@ -370,6 +370,23 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 
 **DEEP: 10+min — War story:** A founder modeled their Series A at $40M pre-money with $10M raise. Their revenue was $2M ARR — 20x multiple. They didn't model the "comp" scenario: what comparable companies actually raised at. VCs offered $20M pre-money. The model had no downside case, so the founder couldn't negotiate from data. They took the term sheet from a position of weakness. Always model: "what multiple do I need to justify my valuation to an investor who's seen 500 deals this year?"
 
+## Gotchas
+
+- **Annual budget built in September, approved in December, irrelevant by March** — the assumptions from Q3 are stale before Q1 starts. Rolling forecasts (updated quarterly) replace the annual budget as the primary planning tool. The annual budget sets the high-level target; rolling forecasts guide actual decisions.
+- **"Actual vs Budget" variance reports** that flag a 5% overage as "red" without context — Marketing is 5% over because they ran a campaign that generated 3x pipeline. The variance is a SIGNAL, not a problem. Variance analysis requires the question "why?" before the judgment "bad."
+- **Headcount cost modeled as (salary + 30% benefits)** — you're missing: equipment ($3K/hire), software licenses ($500/person/month for enterprise tools), office space ($500-1500/person/month), training ($2K/person/year), and recruiting fees (20% of first-year salary). All-in cost is salary + 50-70%, not 30%.
+- **Revenue forecast based on sales pipeline × historical close rate** — but the pipeline is inflated (sales reps enter anything with a pulse) and the close rate is historical (pre-recession, pre-competitor-launch, pre-pricing-change). Pipeline-weighted forecasting amplifies both errors. Use committed + upside categories, not just pipeline × close rate.
+
+
+## Verification
+
+- [ ] Budget vs actuals: monthly variance reports published within 5 business days of month close
+- [ ] Forecast accuracy: rolling 3-month forecast vs actuals — accuracy within ±10%
+- [ ] Headcount cost: all-in cost model updated quarterly with actual benefits, equipment, and overhead data
+- [ ] Board reporting: financial package ready 5 business days before board meeting
+- [ ] Scenario planning: at least 3 scenarios modeled (base, upside, downside) updated quarterly
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -297,6 +297,22 @@ graph LR
 - Large text, clear language in safety communications
 ```
 
+## Gotchas
+
+- **Patient community that shares personal health data** — a member posts "I'm on 50mg of X and my side effects are Y." The post is now: (a) PHI under HIPAA if the community is run by a covered entity, (b) discoverable in litigation, (c) permanently indexed by search engines. Community rules must explicitly warn that posts are public and permanent, and the platform must offer anonymous posting.
+- **Moderation of terminal illness communities** — a member with stage 4 cancer posts "I'm stopping treatment, thanks for everything." Is this a goodbye post from someone entering hospice, or a suicide note? Moderators (often volunteers) are making life-or-death calls. Escalation protocols for end-of-life content must involve clinical professionals, not just community guidelines.
+- **Alternative medicine advice in chronic illness communities** — "I cured my lupus with this diet" — the post has 500 supportive comments. A newly diagnosed patient reads it and stops their prescribed treatment. The community's most engaged content is also its most dangerous. Evidence-based stickied posts + expert AMAs must provide counter-balance to anecdotal cures.
+
+
+## Verification
+
+- [ ] Privacy: community rules include public-and-permanent warning — anonymous posting option available
+- [ ] Crisis content: end-of-life/suicide content escalation protocol tested with clinical professional within last quarter
+- [ ] Medical misinformation: top 20 most-engaged posts audited for medical claims — % evidence-based tracked
+- [ ] Expert presence: at least 1 clinical expert engaged in the community (AMA, content review, or moderation) per quarter
+- [ ] Moderation training: all moderators trained on health-specific crisis escalation — refresher within last 6 months
+
+
 ## References
 
 Detailed reference material loaded on demand:

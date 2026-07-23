@@ -367,6 +367,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
+## Gotchas
+
+- **Policy written by lawyers, enforced by 22-year-old content moderators** — "Content that depicts or describes serious physical violence in a gratuitous or sensationalized manner" — the moderator spends 4 seconds per video and has to decide if a cartoon punch is "gratuitous" or "sensationalized." Policy must be written for the ENFORCER, not for legal defensibility.
+- **"Health misinformation" policy** that says "remove content that contradicts WHO guidance" — WHO guidance changed 3 times during COVID. Content that was "misinformation" in April 2020 was "WHO guidance" by June 2020. Policy that references external, changing authorities creates retroactive enforcement. Reference principles ("harmful medical advice"), not specific organizations.
+- **Policy exception process** that takes 14 days — a journalist posts graphic war footage that violates the violence policy but is clearly newsworthy. By day 14, the story is over and the journalist's footage was suppressed during its entire news cycle. Exception review for time-sensitive content needs a SLA measured in hours, not days.
+
+
+## Verification
+
+- [ ] Policy clarity: moderator accuracy audit — ≥ 90% inter-rater agreement on policy application
+- [ ] Policy freshness: all policies reviewed within last 6 months — external references (laws, guidelines) still current
+- [ ] Exception SLA: time-sensitive exception requests reviewed within SLA at least 95% of the time
+- [ ] Appeals: policy overturned on appeal rate tracked — any policy with > 10% overturn rate flagged for revision
+- [ ] Transparency: policy change log public — users can see what changed and when
+
+
 ## References
 
 Detailed reference material loaded on demand:

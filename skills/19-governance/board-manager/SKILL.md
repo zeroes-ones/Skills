@@ -341,6 +341,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Board deck sent 24 hours before the meeting** — board members have 4 other board meetings this month, run their own companies, and can't digest 80 slides in 24 hours. The deck arrives, they skim the executive summary, and ask questions that were answered on slide 47. Send deck 5-7 business days before. Pre-reads = better discussions.
+- **Board meeting that's a 2-hour CEO monologue** — the CEO presents slides for 110 minutes, board asks 10 minutes of questions, meeting ends. The board's value is in the DISCUSSION, not the presentation. 30 minutes of presentation, 90 minutes of discussion. Send the update in the pre-read; spend meeting time on decisions.
+- **"Any other business"** at the end of the meeting where a board member raises "I think we should explore a sale" — this is the only thing anyone remembers from the meeting and it got 3 minutes of discussion. AOB items that are material get their own agenda slot or are deferred to the next meeting's agenda.
+- **Board minutes that capture every word** — "John said X, Sarah replied Y, the board discussed Z for 15 minutes." Minutes are NOT a transcript. They record: decisions made, votes taken, and action items assigned. Detailed discussion notes are discoverable in litigation and can be taken out of context.
+
+
+## Verification
+
+- [ ] Board deck: sent ≥ 5 business days before meeting — executive summary ≤ 3 pages
+- [ ] Agenda: 70%+ of meeting time allocated to discussion, not presentation
+- [ ] Action items: all items from last meeting have status update — completed, in progress with ETA, or escalated
+- [ ] Minutes: approved within 30 days of meeting — decisions and action items only (no transcript)
+- [ ] Annual calendar: board meeting dates, committee meetings, and key governance events planned 12 months ahead
+
+
 ## References
 
 Detailed reference material loaded on demand:

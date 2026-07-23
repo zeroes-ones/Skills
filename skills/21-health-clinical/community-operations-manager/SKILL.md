@@ -318,6 +318,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **Health community that becomes a symptom-swapping forum** — members share unverified remedies, one person's "miracle cure" becomes community lore, a new member tries it and has a severe adverse reaction. The community facilitated harm. Health communities need: evidence-based content guidelines, expert moderation for medical claims, and "this is not medical advice" prominence.
+- **"Community engagement is up 200%!"** — because a controversial post about vaccine safety went viral. Engagement metrics alone are dangerous. A spike in activity could be a crisis, not a success. Disaggregate engagement: supportive comments vs argumentative comments, new member welcome rate, post-reporting rate. Quality of engagement > quantity.
+- **Volunteer moderator burnout** — your 10 volunteer moderators handle 500 posts/day, including suicide ideation, terminal diagnosis grief, and caregiver trauma. After 6 months, 6 have vicarious trauma symptoms and 3 quit. Volunteer moderators need: psychological support (counseling access), mandatory breaks, and clear escalation paths for crisis content.
+
+
+## Verification
+
+- [ ] Content safety: medical claims in community posts flagged and reviewed within SLA — misinformation rate < 1%
+- [ ] Engagement quality: supportive-to-argumentative comment ratio tracked — trend stable or improving
+- [ ] Moderator wellness: volunteer moderators surveyed monthly — burnout indicators tracked, support offered
+- [ ] Crisis response: suicide/self-harm content responded to within 30 minutes — escalation protocol tested quarterly
+- [ ] Guidelines: community guidelines reviewed within last 6 months — updated for emerging health topics
+
+
 ## References
 
 Detailed reference material loaded on demand:

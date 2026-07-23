@@ -355,6 +355,23 @@ graph LR
 
 **DEEP: 10+min — War story:** A Series B startup got a $2.00/share 409A in January. By June, they had a term sheet at $15/share (Series C). They granted options at the $2.00 strike in July — but didn't get a new 409A. The IRS audited and determined the FMV at grant date was actually $8.00 based on the term sheet progression. Result: all July grants were discounted options with $6/share of compensation income to employees AND a $500K penalty for the company. Rule: new 409A before any option grant where > 6 months since last valuation OR any material event (fundraise term sheet, major customer win, revenue 2x).
 
+## Gotchas
+
+- **Revenue recognition for SaaS** — a customer pays $120K upfront for a 12-month contract. You can't recognize $120K in month 1. ASC 606 requires ratable recognition: $10K/month over 12 months. The $110K you haven't recognized yet sits on the balance sheet as deferred revenue (a LIABILITY, not cash you've earned).
+- **Prepaid expenses amortization** — you pay $24K for annual software in January. Only $2K hits January P&L. The remaining $22K is a prepaid asset. If you forget to amortize, Q1 P&L is $18K understated ($2K/month × 9 remaining months), and your runway calculation is wrong.
+- **Sales tax nexus** — you registered in Delaware and Texas. But you hired a remote employee in Colorado, and Colorado now considers you to have economic nexus. You owe 2 years of uncollected sales tax + penalties. Nexus is triggered by employees, not just revenue. Every state where you have an employee needs a nexus review.
+- **Bank reconciliation** that says "difference = $42.17, immaterial" — but the $42.17 is 12 micro-transactions ($3.51 each) that are actually bank fees you didn't record. Over 12 months, that's $504 in unreported expenses. Immaterial ≠ zero. Track and categorize all differences; don't force-balance.
+
+
+## Verification
+
+- [ ] Close process: month close completed within 5 business days — all reconciliations done
+- [ ] Revenue recognition: deferred revenue schedule reconciled — recognized revenue matches delivery
+- [ ] Accounts receivable: AR aging report reviewed — > 90 days past due items have collection plan
+- [ ] Tax compliance: sales tax nexus reviewed quarterly for new states (employees, revenue thresholds)
+- [ ] Audit readiness: all material balances have supporting schedules with source data references
+
+
 ## References
 
 Detailed reference material loaded on demand:

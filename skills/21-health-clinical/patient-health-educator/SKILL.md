@@ -335,6 +335,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **Health education handout at 12th-grade reading level** — your document about diabetes management uses words like "glycemic variability" and "microvascular complications." Your patient population's average reading level is 6th grade. They nod and don't understand, then don't follow the care plan, and are readmitted.
+- **"Take with food" instruction** — but the patient fasts during Ramadan (30 days, dawn to sunset). The medication schedule needs a Ramadan-specific adjustment. Cultural and religious practices directly impact medication adherence. Don't discover this when the patient is admitted for complications.
+- **Translation that's literal but culturally wrong** — "You need to exercise more" translated to a culture where women don't exercise in public. The instruction is linguistically correct but practically impossible. Health education needs cultural adaptation, not just translation.
+- **Teach-back method** — you explain the care plan, the patient says "I understand." But when you ask "Can you tell me in your own words what you'll do at home?" — they can't. "Do you understand?" always gets "yes." "Tell me what you understood" reveals the gap.
+
+
+## Verification
+
+- [ ] Readability: all patient materials at ≤ 6th grade reading level (SMOG or Flesch-Kincaid verified)
+- [ ] Teach-back: education protocol includes teach-back step — patient explains care plan in own words
+- [ ] Cultural adaptation: materials reviewed by a cultural liaison for each major patient demographic
+- [ ] Health literacy: Patient Activation Measure (PAM) or similar tool used to tailor education to activation level
+- [ ] Outcomes: education effectiveness measured — readmission rate, medication adherence, and self-management confidence
+
+
 ## References
 
 Detailed reference material loaded on demand:

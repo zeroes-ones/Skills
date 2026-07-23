@@ -466,6 +466,16 @@ graph LR
 - **Daily standup as status report to the Scrum Master** — team members report to the SM instead of coordinating with each other. The SM becomes a bottleneck. Standup should be team-to-team coordination; the SM observes and removes blockers, not directs.
 
 
+## Verification
+
+- [ ] Sprint goal: team can articulate the sprint goal and why it matters — verified in standup
+- [ ] Velocity: stable (20-30%% variance sprint-to-sprint is normal; trending up or down > 30%% is investigated)
+- [ ] Retrospective action items: >= 80%% completed within the sprint they were assigned
+- [ ] Work in progress: WIP limits respected — no team member has > 3 items in progress simultaneously
+- [ ] Stakeholder feedback: sprint review attended by >= 1 stakeholder outside the team
+- [ ] Impediments: time from blocker raised to resolved tracked — median < 4 hours
+
+
 ## References
 
 Detailed reference material loaded on demand:

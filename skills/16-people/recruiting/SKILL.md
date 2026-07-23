@@ -368,6 +368,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
+## Gotchas
+
+- **Job description as a wishlist** — "10+ years of Kubernetes, 5+ years of Rust, 3+ years of WebAssembly" — this person doesn't exist. You're filtering OUT the 99% of qualified candidates who check 7/10 boxes. List must-haves (≤ 5) and nice-to-haves separately. If a skill can be learned in 3 months, it's a nice-to-have.
+- **"We only hire from top-tier companies"** — you screen for FAANG alumni and miss the startup engineer who scaled a system from 10 to 10M users with 3 people and no budget. Company pedigree ≠ individual capability. Screen for impact within their context, not company brand.
+- **Interview debrief that starts with** a senior engineer saying "I wasn't impressed" — every subsequent comment anchors to that opinion. Debriefs must be written FIRST (each interviewer submits rating + justification independently), then discussed. Anchoring effects make verbal-first debriefs unreliable.
+- **Pipeline metrics that report "time to fill"** from req open to offer accepted — but the clock starts when the hiring manager finishes the job description, not when HR posts it. If HR posts in week 1 and HM finishes in week 4, the "time to fill" reports the HM's delay as HR's problem.
+
+
+## Verification
+
+- [ ] Job descriptions: all open roles have ≤ 5 must-haves, nice-to-haves separated
+- [ ] Pipeline diversity: top-of-funnel candidate demographics tracked — sourcing channels adjusted if pipeline isn't diverse
+- [ ] Interview calibration: debriefs use written-first format — no verbal anchoring
+- [ ] Candidate experience: NPS survey sent to all final-round candidates — score ≥ 50
+- [ ] Time-to-fill: measured from HM-completed intake to offer accepted — not from req posted
+
+
 ## References
 
 Detailed reference material loaded on demand:

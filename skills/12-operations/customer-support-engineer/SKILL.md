@@ -339,6 +339,16 @@ graph LR
 - **"Cannot reproduce"** as a resolution — the customer's environment differs from yours in a way you didn't check: timezone, browser extensions, proxy configuration, firewall rules. Ask for HAR file, console logs, and environment details BEFORE trying to reproduce.
 
 
+## Verification
+
+- [ ] Response time SLA: tickets acknowledged within SLA window (e.g., 1 hour for critical, 4 hours for normal)
+- [ ] Investigation template: every escalated ticket has a shared investigation document accumulating context across tiers
+- [ ] Resolution quality: "cannot reproduce" rate < 10%% — all "cannot reproduce" closures include HAR file/env details request
+- [ ] Debug safety: zero instances of DEBUG=* or inspector mode in production — verified via audit log
+- [ ] CSAT: customer satisfaction survey sent for every closed ticket — response rate >= 20%%, score >= target
+- [ ] Duplicate detection: "me too" reports linked to canonical first report as source of truth
+
+
 ## References
 
 Detailed reference material loaded on demand:

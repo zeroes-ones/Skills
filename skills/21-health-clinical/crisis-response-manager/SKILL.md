@@ -362,6 +362,22 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **Crisis communication drafted during the crisis** — the CEO is writing a statement at 2 AM while the CTO investigates the breach, the PR team is fielding reporter calls with "no comment," and Legal is reviewing every word in real-time. Pre-drafted crisis templates for the TOP 5 crisis scenarios (data breach, product outage, executive departure, lawsuit, safety incident) save 4 hours.
+- **First statement minimizes the incident** — "A minor service disruption affected a small number of users." Two hours later: "We're investigating reports of a data breach." Four hours later: "We confirm unauthorized access to 10 million accounts." Each escalating statement destroys credibility. If you don't know the full scope yet, say "We don't know the full scope yet. Here's what we know, what we're doing, and when we'll update."
+- **Internal communications that leak** — you send an "Internal Only — Do Not Share" email to all 500 employees. Within 15 minutes, it's on Twitter. The "leak" was inevitable; the "Internal Only" label was wishful thinking. Crisis communications must be written as if they'll be published on the front page. There is no "internal" during a crisis.
+
+
+## Verification
+
+- [ ] Crisis templates: top 5 crisis scenarios have pre-drafted templates — reviewed and updated quarterly
+- [ ] Communication drill: crisis comms team tested within last 6 months — tabletop exercise with simulated media inquiry
+- [ ] Stakeholder map: key stakeholders (board, investors, regulators, customers, media) identified with communication plan
+- [ ] First response SLA: initial public statement drafted within 60 minutes of crisis declaration
+- [ ] Post-crisis review: within 30 days — what worked, what didn't, templates and playbooks updated
+
+
 ## References
 
 Detailed reference material loaded on demand:

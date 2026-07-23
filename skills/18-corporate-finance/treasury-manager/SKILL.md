@@ -322,6 +322,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
+## Gotchas
+
+- **"We have $10M in the bank, we're fine"** — but $8M is in a 12-month CD that can't be broken without losing 6 months of interest, $1.5M is restricted cash (collateral for a letter of credit), and $500K is in a foreign subsidiary that can't be repatriated without tax consequences. Cash ≠ available cash.
+- **ACH fraud window** — an employee's email is compromised, attacker sends "please update my direct deposit to this new account." Payroll changes it. Next pay cycle, $5K goes to the attacker's account. The employee notices 3 days later. ACH reversal window is 5 business days but banks aren't obligated to recover funds. Two-factor verification for ALL payment detail changes.
+- **"Interest rate risk is for banks"** — your company has $50M in floating-rate debt. The Fed raises rates by 300 basis points. Your annual interest expense goes from $2M to $3.5M. Your EBITDA forecast missed by $1.5M because you didn't model rate sensitivity. Every 100bp move should have a quantified P&L impact.
+- **Cash sweep automation** that sweeps all excess cash into a money market fund — great for yield, but the sweep happens at midnight and your payroll ACH debit hits at 2 AM. $500K overdraft + $50 fee + bank relationship damage. Sweep rules must leave a minimum operating balance AND exclude known future outflows.
+
+
+## Verification
+
+- [ ] Cash position: daily cash report — actual vs target operating cash, excess deployed within SLA
+- [ ] Cash forecast: 13-week rolling cash flow forecast — updated weekly, accuracy ±5% for week 1, ±15% for week 13
+- [ ] Bank covenants: all covenants monitored monthly — debt service coverage, leverage ratio, minimum liquidity all compliant
+- [ ] Payment controls: all payment detail changes verified via secondary channel (phone/video, not email)
+- [ ] FX exposure: net exposure by currency quantified — hedged positions matched to forecasted cash flows
+
+
 ## References
 - **Cap Table Operations**: See [cap-table-operations.md](references/cap-table-operations.md)
 - **Foreign Exchange Operations**: See [foreign-exchange-operations.md](references/foreign-exchange-operations.md)

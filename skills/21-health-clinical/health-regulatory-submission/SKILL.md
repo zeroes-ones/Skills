@@ -409,6 +409,23 @@ If your device offers more effective treatment/diagnosis for life-threatening or
 - Reduced PMA/De Novo review times
 ```
 
+## Gotchas
+
+- **eCTD (electronic Common Technical Document) hyperlinks** that work on your Windows machine but break on the FDA's Linux-based review system — you used backslashes (`\`) in file paths because your tool converted them. The FDA reviewer clicks a hyperlink and gets "File not found." Validate ALL hyperlinks on a Linux VM before submission.
+- **Dataset variable names** in `xpt` (SAS transport) format — variable names are truncated to 8 characters. `PATIENT_IDENTIFIER` becomes `PATIENT_` and `PATIENT_INTAKE_DATE` also becomes `PATIENT_`. Two different variables with the same name in the FDA's analysis tools. Define unique names within 8 characters: `PTID`, `PTINTDT`.
+- **Submission "day 0" vs "day 1"** — the clock starts at submission receipt, but if FDA has a question on day 28 and you respond on day 35, the clock STOPPED on day 28 and resumed on day 35. You didn't lose 7 days. But if you miss the response deadline by 1 calendar day, you DO lose those 7 days + penalties. Submission calendar management is non-trivial.
+- **"Reference Listed Drug" (RLD) in your ANDA** — you list a product that was discontinued, and the FDA can't obtain samples for bioequivalence testing. Your application is delayed 18 months while they figure it out. Verify the RLD is CURRENTLY MARKETED (check the Orange Book "RLD" flag AND "Discontinued" flag), not just approved.
+
+
+## Verification
+
+- [ ] eCTD validation: FDA's `eCTD Validator` tool passes with zero errors (not just "accepted with warnings")
+- [ ] Hyperlinks: every hyperlink tested on a Linux-based viewer — zero broken links
+- [ ] Dataset compliance: `xpt` files validated with `SAS XPORT` validator — variable names unique within 8 characters
+- [ ] Submission calendar: all clock-stop and response-deadline dates calculated and double-checked
+- [ ] RLD verification: Orange Book checked within last 30 days — RLD is currently marketed, not discontinued
+
+
 ## References
 
 Detailed reference material loaded on demand:

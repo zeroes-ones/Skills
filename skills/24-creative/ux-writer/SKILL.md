@@ -308,6 +308,23 @@ Common chains:
 - **Accessible content**: accessibility-auditor → ux-writer → ui-ux-designer — Accessibility requirements → accessible copy → accessible design
 - **Brand-aligned content**: brand-guidelines → ux-writer → content-strategist — Brand voice → product voice → content strategy
 
+## Gotchas
+
+- **Error message: "Error 0x80070005: Access is denied"** — the user doesn't know what 0x80070005 is, and "access is denied" tells them what happened but not WHY or what to DO. "You don't have permission to view this report. Ask your account admin to add you to the Reports Viewer role." Context + action.
+- **Button labels that change between screens** — "Save" on the settings page, "Save Changes" on the profile page, "Apply" in the modal. The user pauses: "Are these the same thing?" Consistency of action labels across the ENTIRE product is more important than contextual precision. Pick one label per action.
+- **"Click here" as link text** — screen reader users navigating by link list hear: "Click here, Click here, Click here, Click here." Zero information about where each link goes. Link text must describe the DESTINATION: "Download Q3 report (PDF, 2.4MB)" or "View billing history."
+- **Microcopy that's too clever** — a 404 page that says "Oopsie! Our hamsters are on a coffee break 🐹☕" — it's delightful to the designer who wrote it, but a user who's trying to pay an invoice and hit a broken link is NOT in the mood for whimsy. Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information.
+
+
+## Verification
+
+- [ ] Error messages: every error message has 3 parts — what happened, why, what to do next
+- [ ] Consistency audit: same action has same label everywhere — "Save" or "Submit," not both
+- [ ] Link audit: zero "click here" or "learn more" links — all link text describes the destination
+- [ ] Accessibility: all content tested with screen reader — zero information conveyed ONLY by visual formatting
+- [ ] Reading level: all microcopy at ≤ 8th grade reading level (Flesch-Kincaid)
+
+
 ## References
 
 Detailed reference material loaded on demand:

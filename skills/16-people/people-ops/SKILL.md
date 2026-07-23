@@ -377,6 +377,23 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
+## Gotchas
+
+- **Onboarding that's just paperwork** — 3 days of tax forms, benefits enrollment, and IT setup. The new hire hasn't met their team, doesn't know what "done" looks like, and has no 30-day plan. They're productive in month 3 when they could have been productive in week 3. First day = shipping code (or equivalent first real work).
+- **"We promote from within"** but the internal candidate competes with external candidates who have 2 more years of experience because the job description was written for the external market. Internal candidates need different evaluation criteria: trajectory (last 12 months of growth) matters more than total years.
+- **DEI initiatives measured by hiring demographics only** — you hire a diverse class but they all leave in 18 months because the culture didn't include them. Measure retention AND promotion rates by demographic. A diverse hire class + homogeneous leadership in 3 years = failed DEI.
+- **Benefits survey that asks "rate our benefits 1-5"** — you get 4.2 average and declare success. But the 25-year-old engineer doesn't care about 401(k) match and the 45-year-old parent doesn't care about gym reimbursement. Segment by life stage and measure satisfaction WITHIN each segment.
+
+
+## Verification
+
+- [ ] Onboarding: 30/60/90-day check-ins completed for all new hires — satisfaction and productivity scores tracked
+- [ ] Internal mobility: % of roles filled internally tracked — target ≥ 33%
+- [ ] DEI: hiring, retention, and promotion rates tracked by demographic — disparities identified and addressed
+- [ ] Benefits utilization: % of employees using each benefit tracked — underused benefits re-evaluated
+- [ ] Employee lifecycle: every stage (hire → onboard → develop → promote → exit) has documented process and metrics
+
+
 ## References
 
 Detailed reference material loaded on demand:

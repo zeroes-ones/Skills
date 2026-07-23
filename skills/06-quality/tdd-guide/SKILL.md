@@ -393,6 +393,23 @@ graph LR
 
 **The One Highest-Leverage Activity**: Code kata every week. Same kata, different approach. The repetition isn't about the problem — it's about the rhythm. Red. Green. Refactor. Until you don't think about the steps anymore.
 
+## Gotchas
+
+- **RED phase: test that passes without implementation** — you write `expect(add(1, 2)).toBe(3)` and `add()` returns `3`. Test passes, you move to GREEN, then REFACTOR — but `add()` is hardcoded. The test didn't drive the implementation. RED phase test must fail for the RIGHT reason: when you call `add(2, 3)`, it must FAIL because it's hardcoded (not pass by accident).
+- **GREEN phase: implementation that handles the test case but nothing else** — `add(a, b) { return a + b }` passes for `add(1, 2)`. But `add(-1, 5)`? Not tested = not known if it works. The test suite says "100% coverage" but only tested 1 input combination. Coverage ≠ correctness.
+- **REFACTOR phase skipped because "it's just a small function"** — 50 small functions with duplicated patterns, inconsistent naming, and no shared utilities. The codebase becomes a museum of individual decisions. Refactoring happens at the SUITE level: after 3 similar functions emerge, extract the pattern.
+- **Unit test that hits the database** — it's not a unit test. It's called a "unit test" but takes 200ms (network call), fails when the DB is down (external dependency), and CI reports "unit test failure" when the DB container didn't start. Unit tests touch NO external resources. If it needs a database, call it an integration test.
+
+
+## Verification
+
+- [ ] RED phase: test fails for the expected reason (not compilation error, not different test) before implementation
+- [ ] GREEN phase: minimal implementation that passes ONLY the test case — no over-engineering
+- [ ] REFACTOR phase: duplicate patterns extracted after 3+ occurrences — rule of three
+- [ ] Test isolation: every test is independent — no shared state, no test-order dependency, shardable
+- [ ] Test categorization: unit (no I/O) vs integration (with I/O) vs e2e (full system) — labeled and run separately
+
+
 ## References
 
 Detailed reference material loaded on demand:
