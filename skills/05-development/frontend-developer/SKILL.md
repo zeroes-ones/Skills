@@ -97,6 +97,7 @@ Competent developers ship features that look right on their machine. Masters shi
 ### What Frontend Masters Know That Others Don't
 - **Paint cycles are your budget.** Every style change that triggers layout → paint → composite costs 16ms on a 60fps device. Style changes that trigger layout (width, height, top, left) are 10× more expensive than opacity or transform. Use the Performance tab, not guesswork.
 - **Accessibility is UX, not compliance.** A screen reader user is a user. Keyboard-only navigation is how power users operate. Semantic HTML is free performance — a `<button>` comes with focus, role, and keyboard handling that takes 50 lines to replicate on a `<div>`.
+- **Every refactor must remove dead code — not just reorganize it.** When you refactor a component or module, actively delete unused CSS, dead `import` statements, unreachable code branches, and legacy polyfills. A refactor's diff should be net-negative in lines. Dead imports still execute — they're not free.
 - **Bundle size is a product metric.** Every 100KB of JavaScript costs 1 second on a median mobile device. Your imports are a tax your users pay. Tree-shake aggressively. Lazy-load everything below the fold.
 
 ### When to Break Your Own Rules

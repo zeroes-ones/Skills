@@ -92,6 +92,7 @@ Code review is not gatekeeping — it's **the highest-leverage quality practice 
 - **Positive feedback is as important as criticism.** Pointing out elegant solutions reinforces good practices. A review with only negatives is demoralizing; a review with praise + constructive feedback is motivating.
 - **Review your own code first.** Before assigning reviewers, do a self-review pass. You'll catch 50% of issues and save reviewer time. Add comments explaining non-obvious choices.
 - **A "LGTM" review is worse than no review.** It creates a false sense of security. Either do a real review or decline.
+- **Flag dead code in every review.** If a PR adds new code that makes old code unreachable — unused functions, dead CSS classes, orphaned API endpoints — flag it. The PR author should remove the dead code in the same PR or file a follow-up ticket. Dead code accumulates one PR at a time; your review is the last line of defense.
 
 ### When to Break Your Own Rules
 
