@@ -800,6 +800,19 @@ Design system violation (shared component fails audit, affects all products)
   └── `ui-ux-designer` + `frontend-developer`. Fix component, propagate to all consumers.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New UI component added to design system without ARIA annotations or keyboard interaction model | Flag to `ui-ux-designer` and block handoff to engineering until ARIA role, states, keyboard model, and focus behavior are documented. Every new component must pass a11y review before entering the component library | A component without ARIA annotations in the design system propagates inaccessibility to every product that uses it. Fixing one component in design costs 30 minutes; fixing it in 5 deployed products costs 5 sprints |
+| Color palette change in design system — new brand color, semantic token update, or dark mode addition | Run full contrast audit on all new color combinations against WCAG 2.2 AA. Check: normal text (4.5:1), large text (3:1), UI components (3:1), all states (hover, focus, active, disabled, error). Flag any combination below threshold to `brand-guidelines` | Color changes in the design system are high-risk for accessibility regressions. A palette update can silently break contrast on dozens of components. Validate at the token level before the change propagates |
+| New form added to a user flow (signup, checkout, settings, search) | Verify the form has: associated labels for every input, `aria-describedby` for error messages, `aria-invalid` on validation errors, clear error recovery path, sufficient color contrast on error states, and keyboard-operable submit. Test with screen reader before release | Forms are conversion-critical and the most common source of accessibility lawsuits. Every inaccessible form input is a potential ADA violation. Forms are not UI — they are legal documents |
+| PR merged that introduces `<div>` with `onclick` instead of `<button>`, or `<span>` with `role="heading"` instead of `<h2>` | Flag to `frontend-developer` with code-level fix: replace with native semantic HTML. Block further PRs from the same developer until they complete a semantic HTML review. Add lint rule to CI | Native HTML elements have built-in accessibility — `<button>` is focusable, keyboard-operable, and announces its role to screen readers for free. Custom widgets with ARIA require implementing all that behavior manually. The rule is simple: use native HTML unless it's genuinely impossible |
+| New modal, drawer, or dialog component shipped without keyboard testing | Flag immediately: test Escape key dismissal, focus trapping (Tab/Shift+Tab stays within modal), focus restoration on close, and screen reader announcement of modal content. Demand remediation before the component is used in any production flow | Modals are the #1 accessibility failure pattern on the web. A modal that traps keyboard users or doesn't announce itself to screen readers creates a dead-end in the user journey — and is the first thing plaintiffs' lawyers test |
+| Accessibility score in CI drops below quality gate threshold on a PR | Fail the build and notify `frontend-developer` and `product-manager`. Require remediation before merge. If the violation is in a shared component, escalate to design system team for coordinated fix | CI gates are the last line of defense before inaccessible code reaches users. A failing gate is not a suggestion — it's a stop sign. Allowing violations to accumulate normalizes inaccessibility |
+| Enterprise customer or prospect requests VPAT/ACR and one doesn't exist or is >6 months out of date | Coordinate with `legal-advisor` and `product-manager` to produce/update VPAT. Run full WCAG 2.2 AA audit on the product version the customer will use. Document known issues with remediation timelines and workarounds | VPAT requests signal serious procurement evaluation. An outdated VPAT is worse than no VPAT — it represents a conformance claim the product may no longer meet. Enterprise deals worth $100K+ are lost over outdated accessibility documentation |
+| Interaction with `frontend-developer` for semantic HTML audit | Proactively review new component PRs for semantic correctness: single `<main>`, named `<nav>` elements, heading hierarchy without skips, `<label>` with `for` on every input, `<th scope>` in tables, `alt` text on meaningful images. Provide code-level fix guidance, not just violation reports | Accessibility auditors who only report violations create adversarial relationships with developers. Providing fix-ready code (the exact ARIA pattern, the exact semantic HTML replacement) turns auditors into force multipliers — developers learn patterns instead of memorizing rules |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - **Test with real users:** Automated tools and manual scripts are proxies. Real users with disabilities find issues you'll never catch. Test with at least 3 users with different disabilities.
@@ -808,6 +821,19 @@ Design system violation (shared component fails audit, affects all products)
 - **Don't override semantics:** `<div onclick>` is not a button. Use `<button>`. `<span class="h2">` is not a heading. Use `<h2>`.
 - **ARIA is a last resort:** If you can use native HTML, use it. ARIA adds roles/states/properties but not behavior — you must implement keyboard interaction yourself.
 - **`aria-label` must start with visible text:** Voice control users say "Click [visible text]" — if the accessible name differs from visible text, voice commands fail.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Running only automated accessibility tests (Lighthouse, axe-core) and declaring the product "accessible" | Add manual testing layers: keyboard-only navigation on all critical flows, screen reader testing with VoiceOver + NVDA, and testing with real users with disabilities. Automated tools catch ~30% of WCAG issues — the other 70% require human judgment |
+| Using `<div onclick="...">` instead of `<button>` because "styling buttons is hard" | Use native `<button>` and style it. `<button>` is focusable, keyboard-operable, and announces its role to screen readers for free. Custom `<div>` buttons require implementing all that behavior manually — and developers forget 80% of it |
+| Adding `role="button"` to a `<div>` and calling it done — no keyboard handler, no focus style, no disabled state | If you must use ARIA for a custom widget, implement the full keyboard interaction model: Enter/Space to activate, Tab to reach, visible focus indicator, `aria-disabled` for disabled state. ARIA adds roles/states/properties but not behavior — you must implement the keyboard interaction yourself |
+| Putting `aria-label` on a `<div>` or `<span>` — ARIA labels are ignored on non-semantic elements | Put `aria-label` only on interactive elements (`<button>`, `<a>`, `<input>`) or elements with a widget `role`. If you need to label a `<div>`, use `role="region"` with `aria-labelledby` pointing to a visible heading |
+| Shipping a modal without keyboard testing — focus not trapped, Escape doesn't close, focus not restored on close | Every modal must pass: (1) focus moves to first focusable element on open, (2) Tab/Shift+Tab cycles within modal, (3) Escape closes modal, (4) focus returns to triggering element on close, (5) screen reader announces modal content. Test with keyboard only before any other QA |
+| Using `outline: none` on focusable elements without providing a custom visible focus indicator | Provide a custom focus indicator (e.g., `box-shadow` ring, `outline` with offset) that meets WCAG 2.4.7 Focus Visible (2px+ thickness, 3:1 contrast ratio against adjacent colors). `outline: none` without a replacement is a WCAG violation — full stop |
+| Treating accessibility as a QA gate at the end of the development cycle — auditing after the feature is built | Shift left: audit designs for contrast and heading hierarchy, audit code during PR review for semantic HTML and ARIA, audit builds in CI with automated tools. Accessibility issues caught in design cost seconds to fix; in production they cost sprints and legal fees |
+| Labeling form inputs with placeholder text only — no `<label>` element, no `aria-label`, no `aria-labelledby` | Every form input must have an associated `<label>` with a `for` attribute matching the input's `id`. Placeholder text disappears on focus, isn't announced consistently by screen readers, and fails color contrast. Placeholder is a hint — not a label |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -907,7 +933,7 @@ Common chains:
 **Lesson:** Accessibility IS brand. An inaccessible color palette isn't a compliance problem — it's a broken brand promise. Validate contrast before handing off, not after users complain.
 
 
-### Error Decoder
+## Error Decoder
 <!-- DEEP: 10+min -->
 
 | Symptom | Root Cause | Fix | Lesson |

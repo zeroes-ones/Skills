@@ -155,6 +155,19 @@ Cross-team dependency deadlock (two teams block each other)
   └── `product-manager` + engineering leads of both teams. `cto-advisor` breaks ties if unresolved in 48 hours.
 ```
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Idea description is too vague ("make it better," "improve UX") with no concrete user problem | Ask clarifying questions: "What user behavior change do you want to see?" and "What does success look like numerically?" Refuse to write spec until problem is defined in one sentence | Vague ideas produce vague specs. A spec built on an undefined problem will be rejected by engineering, QA, and users — the cost of clarifying upfront is 10 minutes; the cost of rewriting a spec is 2 weeks |
+| No non-functional requirements mentioned (performance, security, accessibility, compliance) | Proactively ask: "What's the P95 latency budget? Are there regulatory constraints? Does this need to work offline?" Add NFRs section before declaring spec complete | NFRs discovered mid-implementation cause the worst kind of rework — architecture-level changes. Every missing NFR in the spec is a potential sprint derailment |
+| No mobile or responsive consideration in a consumer-facing feature spec | Flag "mobile-first" design requirement. Ask: "What happens at 320px? What gestures are expected? Is offline mode needed?" Add responsive behavior to screen inventory | 60%+ of consumer traffic is mobile. Designing desktop-first and retrofitting mobile produces clunky experiences and missed launch dates — handle viewport strategy in the spec, not in the bug tracker |
+| No API contract mentioned when cross-service communication is required | Propose OpenAPI spec generation as part of the spec deliverable. Coordinate with `api-designer` to define endpoints, request/response schemas, error codes, and idempotency requirements | API contract ambiguity is the #1 cause of integration bugs. A spec without an API contract is a wish, not a plan — frontend and backend teams will build against different assumptions |
+| Acceptance criteria use "works," "functional," or "complete" as completion signal | Replace all vague criteria with GIVEN/WHEN/THEN format. Reject any story that can't be validated by QA without asking clarifying questions | "Works" means 10 different things to 10 different engineers. Measurable acceptance criteria are the contract between product intent and engineering delivery — without them, QA is guessing |
+| Spec mentions a dependency on another team's service/API without a named contact or date | Map all external dependencies with owner name, team, expected availability date, and fallback plan. Flag to `product-manager` if any dependency has no committed date | An unmapped dependency is a delayed launch. Every external team needs a named contact and a timeline — otherwise the spec is planning around assumptions, not commitments |
+| Feature spec doesn't reference any user research or data that justifies the feature | Ask: "What user evidence supports this feature? Is there a pain point severity rating, support ticket count, or churn signal?" If none exists, flag to `ux-researcher` for validation sprint before full spec | Features built without evidence become shelfware. A 2-day validation sprint costs far less than a 2-month build of something nobody needs |
+| No entity relationship model when feature touches database schema | Coordinate with `database-designer` to produce ERD, data dictionary, access patterns, and cardinality rules. Add to spec appendix | Schema decisions made by individual engineers without coordination create data inconsistencies that take quarters to untangle. Spec-level data modeling prevents migration cascades |
+
 ## Best Practices
 <!-- STANDARD: 3min -- rules extracted from production experience -->
 - Always define the empty state and error state before the happy path — they reveal the most design complexity.
@@ -166,6 +179,19 @@ debugging.
 - Version the spec artifact — date-stamp every iteration so teams can trace decisions.
 - Socialize the spec asynchronously (RFC-style) before any synchronous review meeting.
 - Capture every decision with context: what alternatives were considered and why they were rejected.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| Writing the spec as a bullet list of UI elements — "Add a button that says Save" with no context about what saving means | Write the spec as outcome-driven behavior: "Given a user with unsaved changes, when they click Save, then changes are persisted and a confirmation is shown. If the save fails, the user sees a retryable error." UI elements are implementation details — specs describe behavior |
+| Defining only the happy path and assuming engineering will figure out edge cases | Define loading, empty, error, and edge-case states for every screen before the happy path. The empty state reveals the most UX complexity. Specs without edge cases become rework tickets in sprint 2 |
+| Including implementation details in the spec — "Use Redis for caching" or "Build this in React" | Describe what the system must do, not how to build it. Let engineering own the implementation. "Cache query results with TTL configurable by the operator" — not "Use Redis with a 300s TTL" |
+| Starting with API contract design before defining the user problem and success metrics | Define the problem, success metrics, and user stories first. API contracts are derived from user needs, not the other way around. A perfectly designed API that solves the wrong problem is still wrong |
+| Writing specs in isolation and sharing them as "final" with no async review period | Share specs as RFCs with a 48-hour async comment period. Engineering, design, and QA review before a single user story is estimated. Specs are collaboration tools, not approval artifacts |
+| Using "all users will see this" as the Reach estimate without segmentation or evidence | Calculate Reach from analytics: "users who performed action X in the last 30 days" or "users in segment Y with pain point Z." Segment by persona, behavior, or cohort — not "everyone" |
+| Skipping the "Out of Scope" section — assuming scope negotiation will happen during implementation | Every spec includes an explicit "Out of Scope" section at the top. When scope tries to expand during build, point to non-goals as a pre-agreed contract. Without non-goals, every conversation becomes a scope negotiation under time pressure |
+| Treating the spec as immutable after approval — refusing to update when new information surfaces | Treat the spec as a living document. Version it with dates and changelogs. When new information surfaces (new constraint, research finding, technical discovery), update the spec and communicate the delta to all consumers |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -206,6 +232,30 @@ debugging.
 Common chains:
 - **New product**: product-strategist → idea-to-spec → product-manager — from business case to prioritized roadmap
 - **Feature work**: ux-researcher → idea-to-spec → backend-developer — from user evidence to implementable API contracts
+
+### Service Interaction Designs
+
+**idea-to-spec → api-designer: API contract generation from PRD**
+When the spec defines user stories that require cross-service communication, the spec MUST include an endpoint inventory with request/response schemas. The `api-designer` skill consumes the spec's screen inventory and entity model to produce OpenAPI contracts. Every acceptance criterion that mentions "when the user clicks X" maps to at least one API endpoint. Missing endpoints in the spec = broken frontend-backend contracts.
+
+**idea-to-spec → database-designer: entity modeling from spec**
+The spec's domain model (entities, relationships, cardinalities, access patterns) feeds directly into schema design. For every entity in the spec, the `database-designer` needs: read vs write ratio, query patterns, data volume projections, and consistency requirements. Specs that omit access patterns force database designers to guess — and guessing produces schemas that don't match query reality.
+
+**idea-to-spec → frontend-developer: component API alignment**
+The screen inventory in the spec maps 1:1 to frontend components. Every screen must specify its data dependencies (which API endpoints, which entities) and its states (loading, empty, error, edge). Frontend developers should never discover missing states mid-sprint — the spec is the contract.
+
+## Error Decoder
+<!-- DEEP: 10+min -->
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Engineers keep asking "what should happen when X?" during implementation | Spec didn't define edge cases — only the happy path was documented | Every screen in the screen inventory must have loading, empty, error, and edge-case states defined before the spec leaves review. The empty state reveals more design complexity than the happy path | An incomplete spec doesn't save time — it shifts the design work from the spec author to every engineer reading the spec. Five engineers asking the same question costs 5x the time of answering it once in the spec |
+| Backend and frontend teams build incompatible APIs because they read the spec differently | API contract was left ambiguous — endpoints described in prose, not in a structured format | Include an OpenAPI contract (even a draft) in every spec that crosses service boundaries. The API contract is the executable specification — if it can't be validated, it's not defined | Prose is ambiguous by design. A spec that says "the API returns user data" will produce 5 different implementations. An OpenAPI spec that says `User { id: UUID, email: string, role: enum }` produces exactly one |
+| QA files 20 bugs on a feature that "passed" design review | Acceptance criteria were not testable — "user can reset password" with no measurable completion signal | Every user story must have GIVEN/WHEN/THEN acceptance criteria. "User can reset password" becomes: "Given a registered user on the login page, when they click 'Forgot Password' and enter their email, then a reset link is sent within 60 seconds and the user sees a confirmation message" | Untestable acceptance criteria are not criteria — they're aspirations. QA cannot verify aspirations. The gap between "works" and verified is the gap between your spec and the bug tracker |
+| Spec approved by product but rejected by engineering during sprint planning | Engineering found hidden complexity: missing NFRs, unmapped dependencies, impossible performance targets | Include NFRs (latency, throughput, availability, security, compliance) in the spec template. Map every cross-team dependency with a named owner. Validate performance targets against known system capacity before spec approval | Engineering rejection during sprint planning means the spec was never reviewed by engineering before approval. Add an engineering feasibility review step before spec sign-off |
+| Feature ships on time but nobody uses it — adoption is <10% of target after 30 days | Spec was built on assumptions, not user evidence. Success metric was defined after launch to make the feature look successful | Define success metrics before writing the first user story. Establish baseline values. If you can't define "what success looks like" numerically before building, flag to `ux-researcher` for a validation sprint | Features fail because they solve problems that don't exist, not because they're badly built. A spec without a validated success metric is a bet without odds — you're gambling engineering capacity on a hunch |
+| Entity model must be reworked mid-sprint because access patterns weren't considered | Spec defined entities but not how they're queried. "User has many Orders" doesn't tell you if you're querying "all orders for a user" (index on user_id) or "all users who ordered X" (requires a different index) | Include access patterns in the domain model: for each entity, list the top 3-5 queries with expected frequency and latency. Coordinate with `database-designer` to validate schema against access patterns before spec approval | Entity relationships without access patterns are schema decorations. The database designer needs to know what you're going to ask the database, not just what's in it |
+| Spec assumes an external dependency will be ready on time — it's 2 months late | Dependency was listed by name ("Needs payment service") without owner, date, or fallback | Map every external dependency with: owner name, team, committed date, and fallback plan. Flag red dependencies (no committed date or >1 month past committed date) to `product-manager` weekly | "The payment service will be ready" is not a plan — it's a prayer. Dependencies without owners and dates are the single biggest source of delayed launches in multi-team environments |
 
 ## Sub-Skills
 <!-- QUICK: 30s -- table of deeper dives by topic -->
