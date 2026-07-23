@@ -606,6 +606,19 @@ These rules apply to *every* response this skill produces.
 - **Segment by default** — Every dashboard should allow filtering by platform, region, plan tier, and user cohort.
 - **Document metric definitions** — "Is 'active user' someone who opened the app or made a purchase?" Put the answer in the dashboard description.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Duplicating metric definitions across dashboards — "Revenue = SUM(amount)" defined 5 different ways | Define once in dbt semantic layer or metric registry; all dashboards reference the canonical definition |
+| Exposing raw source tables directly to BI users without staging or business logic | Stage → Intermediate → Mart: never expose raw sources to end users; cleaning and business logic belong in dbt, not in BI tool |
+| Building dashboards that query 500M rows on every load without pre-aggregation | Use incremental models, materialized tables, or BI cache — real-time queries on raw data at dashboard scale are a warehouse cost bomb |
+| Cherry-picking significant p-values from 50 experiment metrics without correction | Pre-register hypothesis + primary metric + sample size before launch; apply multiple comparison correction; one primary metric per experiment |
+| Designing experiments with insufficient sample size then declaring "directionally positive" | Run power analysis before launch (α=0.05, power ≥ 0.80); if underpowered, the test was inconclusive, not "directionally positive" |
+| Treating dbt as a data pipeline orchestrator instead of a transformation tool | dbt transforms, it doesn't ingest or orchestrate — use Airflow/Dagster/Prefect for extraction and orchestration upstream |
+| Creating a new dashboard for every ad-hoc question instead of iterating on existing ones | Consolidate; add tabs, filters, or drill-downs to existing dashboards before creating new ones — dashboard sprawl is metric debt |
+| Ignoring BI tool usage analytics — no insight into which dashboards people actually use | Track views, unique users, and time spent per dashboard; archive anything unused for 90 days; deprecate before it becomes data landfill |
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -620,6 +633,19 @@ These rules apply to *every* response this skill produces.
 | `product-manager` | Metric taxonomy, event tracking specification, A/B test metric framework, dashboard requirements | Product decisions made without reliable metrics — strategy guesswork |
 | `growth-engineer` | A/B test metric definitions, statistical analysis queries, activation funnel instrumentation, cohort definitions | Growth experiments have no measurement framework — can't validate impact |
 | `revops-manager` | Revenue definitions, CAC/LTV calculations, ARR/MRR reporting, customer segmentation queries | Revenue operations fly blind — forecasting and planning impossible |
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| dbt source freshness check fails — source table > 24 hours stale | Notify data-engineer, downstream consumers; pause dependent dashboard updates; investigate upstream pipeline | A green dbt run with stale data is worse than a red one — creates false confidence that dashboards are current |
+| Two teams report conflicting "Revenue" or "DAU" numbers to executives | Escalate to metric governance lead; lock definition in semantic layer; add glossary entry with canonical formula and caveats | Semantic drift is invisible until executives compare numbers — one definition, one owner, one source prevents re-litigation |
+| A/B test result shared as "statistically significant (p=0.04)" before pre-registered duration ends | Halt result sharing; flag as premature; enforce sequential testing or alpha-spending protocol | Peeking inflates false positive rate 5-20x — a p-value that looks significant today is often noise tomorrow |
+| Dashboard load time exceeds 5 seconds for executive-facing reports | Profile query plan; add materialized views or aggregate tables; move heavy computation to dbt; implement BI cache | Executive trust in data erodes with every second of loading — if the CEO can't get an answer in a board meeting, the dashboard is dead |
+| Incremental model reconciliation shows > 2% discrepancy vs source system | Investigate late-arriving data; extend lookback window; schedule end-of-month full refresh; add row-count reconciliation check | Incremental models are fast but leaky — trust requires periodic full reconciliation against source of truth |
+| BI tool usage analytics show dashboard with zero views for 90+ days | Archive candidate; notify original stakeholder; redirect to maintained equivalent; free warehouse credits | Unused dashboards consume compute, confuse users, and dilute metric trust — archive aggressively |
+| New data source added to warehouse without dbt source definition or freshness check | Add dbt source YAML with freshness SLA before any model references it; notify data-engineer | Sources without freshness monitoring are blind spots — you won't know data is stale until users report wrong numbers |
+| Metric layer change proposed that would change historical reporting (e.g., "active user" definition) | Require impact analysis on all downstream dashboards; version the metric; communicate change to all consumers before deploying | Changing a metric definition retroactively breaks every historical comparison — version and communicate before, not after |
 
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
@@ -669,7 +695,7 @@ Distributed analytics engineering pods aligned to domains. Federated semantic la
 | **Data Quality & Observability** | Proactive detection of data issues before stakeholders notice | dbt tests, elementary, Great Expectations, Monte Carlo — freshness, volume, schema anomaly checks |
 
 
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

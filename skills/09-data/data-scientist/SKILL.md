@@ -265,6 +265,19 @@ What question are you answering?
 | `ml-ai-engineer` | Feature engineering insights, model evaluation metrics, training data quality assessment | ML models built on poor features — garbage in, garbage out |
 | `analytics-engineer` | Metric definitions, experiment frameworks, statistical function specifications | Analytics can't build trusted metrics — dashboards unreliable |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Experiment reaches pre-registered duration — decision gate activated | Run final analysis with pre-specified tests; report effect size + CI + practical significance; close experiment within 48 hours | Indefinite experiments waste traffic and delay decisions — pre-registered duration is the contract, honor it |
+| SRM (Sample Ratio Mismatch) check fails on running experiment | Pause experiment immediately; investigate bucketing bug, bot traffic, or infrastructure issue; do NOT analyze results | SRM invalidates the entire experiment — any result from a mismatched sample is garbage regardless of p-value |
+| Model AUC > 0.98 on holdout — suspiciously good | Audit features for target leakage (future info, post-outcome signals); check for identity leaks; suspect before celebrating | If your model is "too good," suspect leakage — the most common ML failure is invisible data leakage, not underfitting |
+| Simpson's paradox detected: overall result disagrees with every segment | Report both aggregate and segmented results; investigate confounder; add interaction terms to model; do NOT report aggregate alone | An overall positive that disagrees with every segment is not a win — it's a warning to dig deeper |
+| Stakeholder requests "just give me the p-value" without effect size or CI | Refuse to report p-value alone; educate on effect size; always include CI and practical significance assessment | A p-value without effect size is responsibility without accountability — with enough data, everything is "significant" |
+| Model deployed to production without fairness evaluation | Audit model predictions by demographic slice; evaluate demographic parity and equal opportunity; document disparities before customers are affected | Historical data encodes historical bias — a model deployed without fairness evaluation amplifies discrimination at scale |
+| Chronological leakage detected: future data leaking into training set | Re-split by strict time boundaries; audit every feature for temporal dependency; use expanding window backtest | Random train/test splits on temporal data leak the future into the past — time-based splits are non-negotiable |
+| Analysis code produces different results when re-run 6 months later | Pin dependencies, set random seeds, version datasets with hashes, log git commit — reproducibility requires discipline, not luck | An unreproducible experiment result is an anecdote, not evidence — science requires reproducibility |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -336,7 +349,20 @@ What question are you answering?
 - **Communicate uncertainty visually** — Error bars, confidence bands, prediction intervals. Point estimates alone mislead decision-makers.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Reporting "statistically significant" without effect size, confidence interval, or practical significance assessment | Always report effect size + 95% CI + "what this means in business terms" — a significant 0.02% lift on a $10 test is useless |
+| Continuously monitoring experiments and stopping at the first p < 0.05 | Pre-register duration + sample size; use sequential testing or alpha-spending if monitoring continuously; unadjusted peeking inflates false positives 5-20x |
+| Using random train/test split on time-series data | Always split chronologically; backtest on expanding or rolling windows; random splits leak future information into training |
+| Deploying a model without a baseline comparison — "82% accuracy" without context | Always compare to a simple baseline (mean, last-value, rule-based heuristic); 82% accuracy sounds good until you learn the baseline is 81% |
+| Running 50 metrics per experiment and highlighting the one with p < 0.05 | One primary metric, pre-registered; apply Bonferroni or FDR correction for secondary metrics; cherry-picking is p-hacking |
+| Treating missing data as ignorable without characterizing the missingness mechanism (MCAR/MAR/MNAR) | Characterize missing data pattern before imputation; MNAR missingness can't be fixed with simple imputation — it requires modeling the missingness itself |
+| Interpreting SHAP values as causal effects | SHAP explains correlation, not causation — a feature can be highly predictive without being causally actionable; use causal inference methods for "why" questions |
+| Building production ML without monitoring for drift — train once, deploy forever | Implement data drift detection, prediction drift monitoring, and automated retraining triggers — models decay silently |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

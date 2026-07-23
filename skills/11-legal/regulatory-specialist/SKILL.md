@@ -344,6 +344,19 @@ Do not read the entire skill. Follow the route above and read only the sections 
 - Never validate a production system with production data that contains PHI — use synthetic or de-identified test data.
 - The Predicate Device analysis for 510(k) is the single most scrutinized part of your submission — invest the time to make the substantial equivalence argument airtight.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|-------------------|
+| Writing DHF retrospectively after product launch — scrambling to create design history when regulator asks | Maintain DHF incrementally during development; every design review, risk assessment, and test report goes in within 1 week of completion |
+| Assuming "not a medical device" without documented classification rationale | Perform SaMD/SiMD classification per FDA guidance and EU MDR Annex VIII; document the determination with regulatory rationale; revisit when intended use changes |
+| Skipping design controls for SaMD because "it's just software" | Apply IEC 62304 software development lifecycle; maintain software development plan, software requirements spec, and architecture document from sprint zero |
+| Using production data with PHI for validation testing | Use synthetic test data or de-identified datasets; if de-identification is not feasible, use separate PHI-authorized validation environment with strict access controls |
+| Mixing DEV, VAL, and PROD environments — patching validation server directly | Maintain strict environment segregation per GAMP 5; all changes flow DEV→VAL→PROD through formal change control with documented verification at each stage |
+| Treating CAPA as a paperwork exercise — closing findings without root cause or effectiveness verification | Apply structured root cause analysis (5 Whys, Ishikawa); verify corrective action effectiveness with objective evidence before close out |
+| Sharing e-signature credentials or using generic "QA team" login | Assign unique Part 11-compliant e-signature credentials per individual; enforce MFA; audit log must attribute every action to a specific person |
+| Filing 510(k) without regulatory counsel review because "we know our device" | Engage external FDA regulatory counsel for all submission packages — an FDA reviewer's interpretation of substantial equivalence may differ from yours |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Regulatory compliance in healthcare, finance, and safety-critical domains requires deep cross-functional coordination. Engineering, quality, and legal all own pieces of the compliance puzzle.
@@ -406,6 +419,19 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 | ISO 13485 / MDR certification at risk (major nonconformity) | **Notified Body** + CEO Strategist + QA Lead | CE marking at risk; EU market access may be suspended |
 | Whistleblower allegation of data integrity fraud (GxP) | **External Counsel** + Board + FDA (if required) | Criminal liability potential; DOJ/FDA investigation risk |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Intended use change for SaMD/SiMD — new clinical claim or patient population | Re-classify per FDA/EU MDR criteria; assess if new 510(k) or conformity assessment required; notify Legal Advisor and Product Strategist | Intended use changes can escalate Class I→II→III or trigger new regulatory pathway — shipping without reclassification is a criminal offense |
+| Software update inadvertently changes clinical data interpretation | Freeze deployment; conduct regulatory impact assessment as pre-deployment gate; if significant change, submit new conformity assessment | Under MDR, not every change is a bug fix — changes affecting clinical interpretation can reclassify the device |
+| New vendor or SaaS tool will store/manage GxP data | Validate vendor per 21 CFR Part 11 and GAMP 5; ensure audit trail capability; execute quality agreement; add to validated system inventory | GxP systems without validation and audit trails create Part 11 violations — every GxP data store must be validated before use |
+| ISO 13485 / MDR certification audit scheduled within 90 days | Conduct internal mock audit; review DHF for traceability; verify CAPA closure; ensure document control is current | Auditors find what you didn't fix — mock audit 4-6 weeks before ensures findings are yours, not theirs |
+| ALCOA+ data integrity issue discovered — deleted records, missing timestamps, shared credentials | Initiate data integrity investigation; assess scope; determine if regulatory disclosure required; notify Legal Advisor | Data integrity violations in GxP can invalidate entire datasets — cover-up is worse than discovery |
+| SOC 2 Type II or ISO 27001 audit — Major Non-Conformity | Initiate CAPA within 30 days; document root cause; implement corrective action; verify effectiveness before next surveillance audit | Major NCs unaddressed escalate to certification suspension — corrective action window is weeks, not months |
+| New market entry planned — Japan PMDA, Australia TGA, Health Canada | Engage in-country regulatory representative 6+ months before submission; map technical file to local requirements; identify gaps | Each market has unique requirements — in-country representation is mandatory; PMDA is not an FDA translation |
+| HIPAA BAA missing for a vendor processing PHI | Halt PHI sharing; execute BAA; add verification to vendor onboarding; audit all vendor relationships quarterly | Processing PHI without BAA exposes both entities — the most common HIPAA violation after misconfiguration |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -461,7 +487,7 @@ Run skills in the order shown:
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -470,6 +496,10 @@ Run skills in the order shown:
 | 510(k) submission returned with Not Substantially Equivalent -- 6 months of work wasted | Predicate device comparison focused on clinical outcomes but did not address different technological characteristics -- FDA determined a new intended use | Analyze the NSE letter for specific deficiencies. Engage a regulatory consultant. Consider De Novo classification for novel technology rather than forcing 510(k) fit. | Substantial equivalence is about technological characteristics AND intended use. If your technology is genuinely novel, De Novo is safer than stretching a 510(k) predicate argument. |
 | HIPAA fine of $100K after a cloud misconfiguration exposed 5,000 patient records | Engineering team provisioned an S3 bucket storing PHI without encryption and made it publicly accessible -- no BAA with the cloud provider either | Enable S3 Block Public Access by default. Encrypt all data at rest. Execute BAAs with all cloud vendors. Implement automated compliance scanning. | Cloud misconfigurations exposing PHI are the most common HIPAA violation. Automate security guardrails in your infrastructure-as-code -- do not rely on manual review of every bucket. |
 | MDR Notified Body audit flagged software update as requiring a new conformity assessment | Company pushed a bug-fix update that inadvertently changed how clinical data was interpreted -- the change affected the device's intended purpose under MDR | Freeze the update. Assess the change's impact on safety and performance. If it is a significant change, submit a new conformity assessment. Implement a regulatory impact review as a pre-deployment gate. | Under MDR, not every change is a bug fix. Changes affecting clinical interpretation can reclassify the device. Add a regulatory impact assessment to every release pipeline. |
+| SOC 2 Type II report qualified with exception for change management — customer-facing and embarrassing | Engineering deployed directly to production without change control tickets; no CAB existed; deployments were "ask for forgiveness" | Implement formal CAB with weekly review; require change tickets for all production changes; enforce segregation of duties so deployer ≠ approver; re-audit in 6 months | SOC 2 exceptions are public-facing and kill enterprise deals. Change management is the most commonly excepted Trust Services Criteria — automate it into your CI/CD pipeline. |
+| FDA Form 483 received for inadequate CAPA — CAPAs closed within days without root cause investigation | CAPA system treated as checkbox exercise; pressure to close findings quickly led to superficial "retrained operator" responses | Implement structured root cause analysis (5 Whys + Ishikawa) as mandatory CAPA step; require objective evidence of effectiveness before closure; separate CAPA metrics from individual performance reviews | FDA views CAPA as the heart of the QMS. Shallow CAPAs are worse than no CAPAs — they demonstrate systemic failure to investigate. Never tie CAPA closure rate to bonuses. |
+| PCI DSS SAQ-A changed to SAQ-D after scope creep — 300+ requirements instead of 22 | Engineering added a custom checkout page that touched cardholder data directly instead of using iframe tokenization | Migrate to iframe/redirect payment integration (Stripe Elements, Braintree Hosted Fields); tokenize all card data before it touches your servers; document network segmentation to keep CDE minimal | PCI scope is determined by where cardholder data touches your infrastructure. One custom input field can expand scope from SAQ-A (22 reqs) to SAQ-D (329 reqs). Always use hosted payment fields. |
+| EU clinical trial application rejected — IMPD missing required CTIS format and QP declaration | Assumed FDA IND format would translate to EU; didn't engage Qualified Person or use CTIS portal templates | Review CTIS submission requirements early; engage QP for IMP batch certification; use EMA templates for IMPD; factor 60-90 days for regulatory authority + ethics committee review | EU Clinical Trials Regulation harmonized via CTIS but country-specific requirements still exist. EU and FDA submissions are structurally different — you cannot copy-paste between them. |
 
 
 ## Production Checklist

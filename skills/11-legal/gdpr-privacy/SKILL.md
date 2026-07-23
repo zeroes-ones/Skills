@@ -357,6 +357,19 @@ Privacy compliance is everyone's responsibility — not just legal. Engineering,
 | EU representative or DPO identifies systematic non-compliance | **Board/Audit Committee** + CEO Strategist | Governance failure; personal liability risk for executives |
 | Cross-border transfer mechanism invalidated (e.g., Privacy Shield successor struck down) | **External Privacy Counsel** + CTO Advisor + Legal Advisor | All international data flows may need restructuring |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New vendor/tool proposed that processes personal data | Block procurement until DPA signed and vendor privacy assessment completed; add to ROPA; notify Security Reviewer | Processing without DPA is an Art. 28 violation — the contract must exist before data flows, not after integration |
+| Personal data breach suspected (laptop stolen, S3 bucket misconfigured, unauthorized access) | Start 72-hour Art. 33 clock; notify DPO within 2 hours; complete risk assessment within 24 hours; prepare DPA notification template | The clock starts at AWARENESS, not confirmation — without a pre-built notification workflow, every breach misses the deadline |
+| New product feature collecting new category of personal data | Complete DPIA BEFORE processing begins; identify specific lawful basis; document necessity and proportionality; notify Product Strategist | Processing high-risk data without DPIA is the highest-fine GDPR violation — up to 4% of global annual turnover |
+| Data subject access request (DSAR) received | Verify identity within 5 days; search all data stores within 10 days; assemble response; escalate if approaching day 20 of 30-day window | Manual DSAR across 12 systems will miss the deadline — automate before the first request arrives |
+| Cross-border data transfer to non-adequate country planned | Execute SCCs (2021 version) before transfer; complete TIA; add transfer to ROPA; notify DPO; implement procurement gate for future transfers | Transfers happen in engineering, not legal — procurement must gate every cloud service and SaaS tool for data residency |
+| Cookie consent CMP reports < 80% opt-in rate — users not freely consenting | Audit consent flow: reject-all button equal prominence, no pre-ticked boxes, no cookie wall; compare against EDPB guidelines; fix within 1 week | A CMP designed to maximize consent rather than enable free choice is a CNIL/DPA fine waiting to happen |
+| Data retention schedule not enforced — records older than stated policy still in production | Implement automated deletion/anonymization based on retention policy; audit data stores quarterly; escalate to CTO Advisor | Retention violations are systematic — if you keep data longer than your own policy states, the policy is evidence against you |
+| Privacy training completion rate drops below 90% across workforce | Escalate to HR and department heads; gate system access on training completion; track per-department compliance | Untrained employees create liability — regulators cite training gaps in every enforcement action; human error is the leading breach cause |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -420,6 +433,19 @@ Run skills in the order shown:
 - **Train engineers, not just lawyers**: Engineering decisions create 80% of privacy risks
 - **Legitimate interest is not a silver bullet**: Must pass the 3-part balancing test; document your LIAs
 - **Cookie walls are not valid consent**: Cannot make service access conditional on accepting non-essential cookies
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Deploying a cookie banner with "Accept All" as prominent button and "Reject All" hidden behind a settings menu | Equal prominence for Accept All and Reject All buttons; granular per-purpose toggles available without extra clicks; prior blocking of non-essential cookies |
+| Starting data processing before completing the DPIA because "we'll document it later" | Complete DPIA BEFORE processing begins for any high-risk activity — Art. 35 requires prior assessment; retroactive DPIAs are compliance theater |
+| Assuming legitimate interest as the default lawful basis without conducting the 3-part balancing test | Document the Legitimate Interests Assessment (LIA) for every processing activity relying on Art. 6(1)(f); if it fails any of the three tests, use consent instead |
+| Treating DSARs as a manual process: "we'll search each system when a request comes in" | Build DSAR automation pipeline: identity verification → automated search across all data stores → response assembly → secure delivery; 30-day timer starts at receipt |
+| Transferring EU personal data to US-based cloud services without SCCs because "the vendor said they're GDPR compliant" | Execute SCCs (2021 version) with every non-adequate-country processor; complete TIA; vendor's self-declaration of compliance is not a transfer mechanism |
+| Storing data indefinitely because "we might need it someday" with no retention schedule | Define retention periods per data category per Art. 5(1)(e); implement automated deletion/anonymization; document retention justification |
+| Using consent obtained pre-GDPR or from a different processing purpose for new processing | Obtain fresh, specific, granular consent for each distinct processing purpose; bundled consent is not valid; repurpose requires new consent or new lawful basis |
+| Relying on the same SCCs executed in 2019 without updating to the 2021 version or completing a TIA | Update all SCCs to the June 2021 version; complete Transfer Impact Assessments for all transfers; review annually as EDPB guidance evolves |
 
 ## MVP vs Growth vs Scale
 
@@ -519,7 +545,7 @@ python3 scripts/test_dsar_workflow.py                                  # Exit 0 
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

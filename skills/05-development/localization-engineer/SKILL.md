@@ -276,6 +276,19 @@ LOCALE DETECTION — How should we decide which language to show?
 | RTL layout breaks on new feature | Frontend Developer, UI/UX Designer | Visual regression; fix or feature flag before release |
 | Legal requirement for a language not yet supported | Legal Advisor, Product Manager | Compliance gap; prioritize or document risk acceptance |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New feature with user-facing strings merged without i18n wrapper | Run pseudo-localization CI; flag PR if new hardcoded strings detected | Catches i18n regression before translators see it — CI should block merge, not QA catch later |
+| RTL locale (Arabic/Hebrew/Farsi) added to roadmap | Audit CSS for logical properties; run RTL pseudo-locale build; schedule native-speaker QA | RTL is not a CSS flip if you haven't used logical properties — early audit prevents 2-month refactor |
+| Translation coverage drops below 95% for a production locale | Halt release; notify QA and Product Manager; escalate to translation-manager | Missing translations in production erode user trust — a half-translated app is worse than English-only |
+| Pseudo-localization CI job finds new hardcoded strings in a PR | Reject merge; notify Frontend Developer to externalize strings before re-submit | Fixing hardcoded strings in dev costs minutes; in production it costs an app store review cycle |
+| Third-party dependency adds new UI strings without i18n support | Audit dependency's i18n capabilities; wrap with locale-aware component; file upstream issue | Dependencies that render user-facing strings without i18n hooks break your entire locale coverage |
+| Legal requirement mandates a language your TMS doesn't yet support | Notify Legal Advisor, translation-manager, Product Manager; assess TMS capabilities vs contract translators | Compliance gap carries regulatory fines — prioritize language support based on legal risk, not market size |
+| Visual diff detects RTL layout regression on new page | Reject merge; notify Frontend Developer and UI/UX Designer; fix before release | RTL layout breaks compound — one missed page creates a pattern that cascades across the app |
+| Locale file grows beyond 10K keys with no code-splitting | Refactor to lazy-load translations per route; measure bundle size impact per locale | Bundling all locales into the main bundle bloats initial load — users download 40 languages and use 1 |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-1K users)
@@ -348,8 +361,20 @@ Common chains:
 - **Never concatenate translated strings**: `msg = translate("Page") + " " + pageNumber + " " + translate("of") + " " + totalPages` — this breaks in Japanese (word order), Arabic (RTL), Korean (counters). Use ICU: `"Page {current} of {total}"`.
 - **Test with native speakers, not just bilingual colleagues**: A bilingual developer can verify correctness. A native speaker verifies naturalness. These are different quality bars. Budget for native-speaker QA per locale.
 
+## Anti-Patterns
 
-### Error Decoder
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Using physical CSS properties (`margin-left`, `padding-right`) throughout the codebase | Use CSS logical properties (`margin-inline-start`, `padding-inline-end`) from day one — makes RTL a CSS variable flip |
+| Hardcoding strings in source files because "we only support English right now" | Externalize every user-facing string to locale files on day one — retrofitting in a 200K LOC codebase costs 5-10x more |
+| Concatenating translated string fragments: `translate("Page") + " " + n + " " + translate("of")` | Use ICU MessageFormat: `"Page {current} of {total}"` — concatenation breaks in Japanese (word order), Arabic (RTL), Korean (counters) |
+| Using GeoIP as the primary language detector | Use Accept-Language header first, user preference second, GeoIP only as last-resort fallback — Swiss users with French browsers shouldn't get German content |
+| Shipping machine-translated content to Arabic/Hebrew/Farsi markets without native-speaker review | Budget for native-speaker post-editing — MT engines don't understand honorifics, cultural context, or religious sensitivities |
+| Bundling all locale files into the main application bundle | Code-split translations per locale and lazy-load only the current one — tree-shake ICU data per locale to avoid shipping 40 languages of polyfills |
+| Treating pseudo-localization as a pre-release manual step | Run pseudo-localization CI on every PR — catches hardcoded strings and overflow immediately, not 2 days before launch |
+| Designing UI that fits English text perfectly without expansion buffer | Design for 30-50% text expansion — German, Finnish, and Dutch average 30% longer than English; test with pseudo-locale that lengthens strings |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

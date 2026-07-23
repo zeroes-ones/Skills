@@ -126,7 +126,19 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 7. **MT post-editing cost should drive engine selection.** If DeepL costs $25/1M chars but requires 10% post-editing, and Google costs $20/1M chars but requires 25% post-editing, DeepL is cheaper when post-editing costs $100/hour.
 8. **Screen reader strings need separate handling.** `aria-label` strings are consumed by screen readers, not visually rendered. They have no length constraints but require high accuracy — prioritize TM+human review over raw MT for accessibility strings.
 
-<!-- DEEP: 10+min -->
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Selecting MT engine based on cost-per-character alone, ignoring post-editing cost | Calculate total cost: (MT cost + (post-editing hours × editor rate)). DeepL at $25/1M chars with 10% edit rate is cheaper than Google at $20/1M chars with 25% edit rate |
+| Sending ICU MessageFormat strings through MT without stripping variables first | Extract variables like `{count}` before MT, re-insert after translation — ICU syntax is structural code, not translatable content |
+| Renaming i18n keys during code refactors without providing a migration map | Use content-hash-based keys (match on source string hash) or provide a key migration map — TM matches on keys, not content |
+| Running MT re-translation on all source strings every CI build instead of only changed strings | Hash source strings; only send new/changed strings to MT; cache results — re-translating unchanged strings wastes 60-80% of MT budget |
+| Defining UI character limits in character counts for CJK markets | Define limits in pixels/ems — Japanese/Chinese/Korean characters are 1.5-2x wider than Latin script characters |
+| Importing acquired company TMX without validating source language codes match your project | Validate source language (`en-US` vs `en-GB`), XML well-formedness, segment count; run dry-run import first |
+| Using the same glossary for all locales without cultural sensitivity review | Add cultural sensitivity glossary per locale: terms to never translate literally, religious terms, national references, body parts — especially for Arabic, Hebrew, Farsi |
+| Shipping MT-only translations to markets with strong cultural language norms without human post-editing | Budget native-speaker post-editing for customer-facing content in Korean (honorifics), Japanese (politeness levels), Arabic (cultural sensitivity) — MT can offend entire markets |
+
 ## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
@@ -185,6 +197,19 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 | MT cost spikes 3x budget | frontend-developer (source owner) | Audit source strings; reduce unnecessary re-translation |
 | New locale added to TMS | localization-engineer, qa-engineer | Configure locale detection, test infrastructure, CI pipeline |
 | Quality gate blocking: LQA score < 80 | qa-engineer, localization-engineer | Investigate MT engine quality or TM degradation |
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New locale added to TMS | Notify localization-engineer, qa-engineer, content-strategist; configure locale detection, CI pipeline, QA test plan | New locale without infrastructure creates the illusion of translation readiness — strings are translated but nothing renders |
+| MT engine quality drops below threshold for a locale (BLEU score decline > 5%) | Audit recent source strings for ICU syntax leakage; compare MT output against TM baseline; consider engine swap | MT quality degradation compounds silently — by the time users complain, you've shipped bad translations for weeks |
+| TM leverage drops below 60% after a code refactor | Audit i18n key changes; restore key migration map; rebuild TM from content hashes | Key renaming without migration is the #1 cause of TM leverage collapse — each renamed key is a new translation cost |
+| New vendor/agency onboarded for a locale | Validate TMX import; run LQA calibration session; configure glossary enforcement; review first batch before pipeline integration | New translators bring style inconsistency — calibration prevents 6 months of rework |
+| Glossary conflict detected — two translators disagree on a brand term translation | Escalate to Brand/Marketing; lock glossary entry with `translate: false` if needed; notify all translators | Brand term inconsistency across locales fragments brand identity — lock terms before they diverge |
+| ICU syntax error in translated locale file passes CI | Strengthen ICU validation in quality gate; strip variables before MT, re-insert after; add pre-deploy syntax check | ICU variables like `{count}` are code, not content — MT engines corrupt them; protect structural syntax |
+| Continuous localization pipeline latency exceeds 12 hours | Audit TMS API throughput; check webhook reliability; add pipeline health alert | When translations take >12 hours from merge to PR, developers bypass the pipeline and hardcode strings |
+| Accessibility string (aria-label) translated with MT-only, no human post-editing | Flag accessibility strings for TM+human review only; never raw MT for screen reader content | Screen reader users rely on label accuracy — a mistranslated aria-label is a broken interface, not just a bad string |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 <!-- STANDARD: 3min -->

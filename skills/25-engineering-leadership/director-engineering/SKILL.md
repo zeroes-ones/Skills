@@ -296,6 +296,19 @@ rate instead of story points.
 | **recruiting** | Hiring pipeline, offer strategy, employer brand | Pipeline metrics, comp benchmarks, process quality |
 | **fp-and-a-analyst** | Budget modeling, headcount planning, vendor TCO | Financial models, scenario analysis, budget tracking |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Team health survey scores drop >15% in a single quarter for any team | Schedule 1:1s with the EM and 2-3 ICs; identify root cause before acting; if EM is the cause, coach or transition within 30 days | Team health is a leading indicator of attrition — a 15% drop in one quarter predicts departures within 6-8 weeks |
+| Skip-level signals reveal pattern — ICs say "I don't know what success looks like" or "priorities change weekly" | Audit team charters and strategy docs; simplify to 3 OKRs max per team; communicate changes in writing, not just verbally | Ambiguity about success criteria is the #1 engagement killer — ICs leave managers, not companies |
+| Three consecutive sprints miss commitments across 2+ teams | Don't add more process; diagnose: is it estimation, dependency blocking, scope creep, or understaffing? Apply targeted fix, not blanket standup mandates | Treating all delivery problems with "more process" burns out teams and masks the real bottleneck |
+| Annual budget cycle approaching — no engineering financial model exists | Build headcount model (current, committed, planned); categorize all spend (people, infra, vendors, travel); create 3 scenarios (status quo, +10%, -10%) | Budget proposals without models get cut first — finance treats unmodeled requests as optional |
+| Architecture decision escalated to you as Director more than twice in a month | Audit decision rights: does the team have clear architecture ownership boundaries? Establish Architecture Decision Records (ADRs) and empower staff engineers as decision owners | Directors should sponsor architecture governance, not adjudicate every decision — if you're the bottleneck, the system is broken |
+| Hiring pipeline shows <3 qualified candidates in pipeline per open role for 4+ weeks | Review job descriptions for bias and realism; audit sourcing channels; consider internal mobility or role restructuring before lowering the bar | Pipeline droughts create desperation hires — every bar-lowering hire costs 18 months of team productivity |
+| Quarterly planning reveals 2+ teams blocked on the same dependency (platform, infra, another org) | Elevate the dependency to your VP; propose dedicated enabling team or platform investment; don't let teams "work around" a systemic blocker | Cross-team dependencies that persist across quarters are org design failures, not execution failures — they need structural fixes |
+| Postmortem action items from last 3 incidents >60% incomplete | Declare postmortem action bankruptcy; consolidate incomplete items; assign one owner per item with due dates; track in the same system as product work | Unfinished postmortem actions are worse than no postmortems — they teach teams that reliability doesn't actually matter |
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 
@@ -347,6 +360,19 @@ the commander, stay quiet.
 track by demographic — differentials signal cultural issues. **Promotion:** audit
 rates by demographic. **Inclusion:** measure psychological safety. **Accountability:**
 include D&I metrics in quarterly strategy memo.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|-------------------|
+| Reorging every time delivery slips — rearranging teams instead of fixing strategy, process, or management gaps | Diagnose before restructuring: is the strategy clear? Are EMs effective? Are teams properly resourced? Require "three non-reorg alternatives considered" before any reorg proposal |
+| Becoming a super-EM: attending standups, reviewing IC PRs, bypassing EMs for direct team management | Time-box IC touchpoints to <15% of calendar; tell EMs explicitly what you're stepping back from; coach or replace EMs who need constant intervention |
+| Avoiding hard conversations — tolerating underperforming EMs because "they've been here forever" or "it's not that bad" | Conduct quarterly EM calibration: are they growing? Do their teams trust them? Are they delivering? PIP or transition EMs who consistently underperform — one weak EM damages 5-8 ICs |
+| Letting Conway's Law operate unchecked — architecture mirrors the org chart including historical accidents | Start from target architecture; design team boundaries around bounded contexts; explicitly document "this team owns this subsystem because it was convenient in 2021, not because it's correct" |
+| Communicating in engineering-only terms to exec team — reporting velocity, story points, and deployment frequency without business translation | Translate all metrics: "velocity is stable" → "we'll hit Q3 commitments." "Tech debt" → "engineering capacity investment with Z-month ROI." Speak outcomes, not output |
+| Delegating responsibility without authority or context — handing off a problem with "figure it out" and no decision rights | Frame delegation as: "You own X outcome. Your decision authority is Y. Escalate if Z happens. Here's the context you need." Delegation without clarity is abandonment |
+| Hiring for technical skills while ignoring team culture fit — filling seats with "smart engineers" regardless of collaboration style | Include culture contribution in every hiring rubric; debrief "would this person strengthen or weaken how we work together?" Technical brilliance that corrodes team trust is a net negative |
+| Letting postmortems become blame sessions — asking "who caused this?" instead of "what in our system allowed this?" | Use blameless postmortem templates; track action item completion (>90%); share learnings across teams; never name individuals in postmortem write-ups |
 
 ## Error Decoder
 <!-- DEEP: 10+min -->
