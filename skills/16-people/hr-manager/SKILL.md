@@ -286,7 +286,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
-
 ## Cross-Skill Coordination
 
 | Collaborates With | Purpose |
@@ -323,6 +322,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -368,7 +368,6 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 - **Performance review calibration** without bias training — managers rate their direct reports higher than cross-team reviewers because "my team is exceptional." Calibration needs: written evidence for every rating level, not manager opinion. "Exceeds expectations" requires 3 specific examples of exceeding.
 - **"Culture is our #1 priority"** but you only measure it during exit interviews when it's too late. Quarterly pulse surveys with anonymous free-text: "What would make you leave?" and "What keeps you here?" Track the ratio of positive-to-negative themes over time.
 
-
 ## Verification
 
 - [ ] Handbook: acknowledgment tracked — 100% of employees have acknowledged within 30 days of hire or update
@@ -376,7 +375,6 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 - [ ] Turnover: voluntary attrition tracked quarterly — ≤ company target, exit interview themes categorized
 - [ ] Pulse survey: response rate ≥ 70%, results shared with leadership within 2 weeks
 - [ ] PTO: minimum PTO taken per employee tracked — outliers (< 10 days/year for unlimited plans) flagged to managers
-
 
 ## References
 

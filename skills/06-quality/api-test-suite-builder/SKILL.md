@@ -157,6 +157,7 @@ How critical is this endpoint?
 │   → Standard: auth × 4, validation × 8, error codes
 └── Utility / Health check / Metadata (P2)
     → Smoke: auth × 2, happy path, 404 check
+
 ```
 
 ### Coverage Mode Selection
@@ -184,6 +185,7 @@ find ./app/api -name "route.ts" | while read f; do
   methods=$(grep -oE "export (async )?function (GET|POST|PUT|PATCH|DELETE)" "$f" | grep -oE "(GET|POST|PUT|PATCH|DELETE)")
   echo "$methods $route"
 done
+
 ```
 
 **Express:**
@@ -394,6 +396,7 @@ Every endpoint has tests covering auth, validation, error codes, and a happy pat
 ```mermaid
 graph LR
     A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -412,7 +415,6 @@ graph LR
 - **"Test passes locally, fails in CI"** — the test calls `https://api.internal/service-b`, which resolves on your machine (tailscale/vpn) but not in CI (different network). All test dependencies must run in Docker Compose with deterministic ports, or be mocked with wiremock/mslmock.
 - **Flaky test: API sometimes returns 200, sometimes 429** — you're sharing rate limit budget with other CI pipelines. Test suites need their own API keys with dedicated rate limits, or rate-limited endpoints must be mocked. A test that passes 80% of the time is noise — it will be ignored.
 
-
 ## Verification
 
 - [ ] Test data: zero PII in test fixtures — verified with `detect-secrets` or grep for common PII patterns
@@ -420,7 +422,6 @@ graph LR
 - [ ] CI reproducibility: tests pass 10/10 runs in CI — no network-dependent or timing-dependent tests
 - [ ] Coverage: every API endpoint has tests for 200, 400, 401, 403, 404, and 500 (if applicable) responses
 - [ ] Performance: test suite runs in < 5 minutes — long-running tests are flagged for optimization or split
-
 
 ## References
 

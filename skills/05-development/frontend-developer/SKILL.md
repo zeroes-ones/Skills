@@ -97,6 +97,7 @@ What are you trying to do?
 ├── Need code review → Invoke code-reviewer skill instead
 ├── Need localization/i18n → Invoke localization-engineer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -165,6 +166,7 @@ The same frontend task produces fundamentally different output depending on the 
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Rendering Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: SSR, SSG, or ISR? │
@@ -193,6 +195,7 @@ The same frontend task produces fundamentally different output depending on the 
 **When to choose SSG:** Content changes < once per deploy (blog posts, docs, marketing pages). Maximum cache hit ratio desired. Build time < 5 minutes.
 
 ### State Management Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: State type?       │
@@ -220,6 +223,7 @@ The same frontend task produces fundamentally different output depending on the 
 **When Zustand:** Client-only global state (theme, auth status, UI preferences). Cross-component shared state not tied to server. Avoids prop drilling across > 3 levels.
 
 ### CSS Architecture
+
 ```
                      ┌──────────────────────────┐
                      │ START: CSS approach?     │
@@ -248,6 +252,7 @@ The same frontend task produces fundamentally different output depending on the 
 **When CSS Modules:** Scoped styles per component. No utility-class learning curve. Complex pseudo-selectors or animations that don't map well to utilities.
 
 ### Component Testing Strategy
+
 ```
                      ┌───────────────────────────┐
                      │ START: How to test this   │
@@ -304,8 +309,8 @@ Is SEO critical OR do you need server-side rendering?
     └── MIXED → Remix (React Router v7)
                Best for: forms-heavy apps, progressive enhancement philosophy
                Tradeoff: smaller ecosystem than Next.js, less mature RSC support
-```
 
+```
 
 **What good looks like:** Storybook runs with every component rendering in light mode, dark mode, and all interactive states (hover, focus, active, disabled, loading, error). Lighthouse score ≥ 95 across Performance, Accessibility, Best Practices, and SEO. No console errors in production. The bundle ships under 200KB gzipped for initial load, and every page has a measured Core Web Vitals score from lab data before merge.
 
@@ -354,6 +359,7 @@ Design feasibility dispute? → UI/UX Designer → Product Strategist
 Performance SLO breach? → Observability Engineer → DevOps Engineer
 Security vulnerability in dependency? → Security Reviewer → Security Engineer
 Accessibility compliance gap? → QA Engineer → Compliance Officer
+
 ```
 
 ## Proactive Triggers
@@ -374,7 +380,6 @@ Accessibility compliance gap? → QA Engineer → Compliance Officer
 > Every page loads with a Lighthouse score of 95+, Core Web Vitals all green, and a JavaScript bundle under 150KB gzipped per route.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ### Cross-skills Integration
 
@@ -418,7 +423,6 @@ Common chains:
 - **Form autofill by browsers** doesn't fire `onChange` events in all cases. If your validation relies on `onChange`, it will miss autofilled fields. Listen to `onBlur` or use the `onInvalid` capture phase.
 - **React `key` prop on list items** must be stable across re-renders. Using `Math.random()` or `index` with sortable lists causes DOM thrashing and lost input focus.
 
-
 ## Verification
 
 - [ ] Run `npm run build` — zero build errors, bundle size within budget (< 20% increase)
@@ -427,7 +431,6 @@ Common chains:
 - [ ] Run Lighthouse: Performance > 90, Accessibility > 95, Best Practices > 90
 - [ ] Manual: tab through every interactive element — focus order is logical, focus rings visible
 - [ ] Manual: test at 320px, 768px, 1024px, and 1440px widths — no horizontal scroll, no overlapping content
-
 
 ## References
 

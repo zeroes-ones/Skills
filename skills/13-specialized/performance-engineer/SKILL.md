@@ -42,7 +42,6 @@ chain:
 
 End-to-end performance engineering framework covering profiling, load testing, bottleneck diagnosis, and optimization across the full stack — frontend, backend, database, and infrastructure.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -85,6 +84,7 @@ What are you trying to do?
 ├── Set up performance budgets and CI enforcement → Jump to "Performance Budgets" under Sub-Skills
 ├── Define SLOs with burn-rate alerts → Jump to "Production Checklist" — items S12, S14
 └── Not sure? → Describe the performance problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -155,6 +155,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. What to Optimize First
+
 ```
                      ┌───────────────────────┐
                      │ START: Where is the   │
@@ -182,6 +183,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Frontend LCP >2.5s → bundle analysis and rendering path optimization.**
 
 ### 2. Caching Strategy Selection
+
 ```
                    ┌──────────────────────────┐
                    │ START: What's the read   │
@@ -209,6 +211,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Volatile data → don't cache; scale reads with replicas.**
 
 ### 3. Load Test Strategy
+
 ```
                    ┌──────────────────────────┐
                    │ START: What's the test   │
@@ -238,6 +241,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Per-change → benchmark 60s, compare P95 against baseline.**
 
 ### 4. When to Profile
+
 ```
                    ┌──────────────────────────┐
                    │ START: P95 latency       │
@@ -269,6 +273,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **App is slow → flame graph to find the specific function burning CPU.**
 
 ### 5. When to Scale Horizontally
+
 ```
                     ┌──────────────────────────┐
                     │ START: Can you fix with  │
@@ -413,12 +418,12 @@ Performance is not a solo activity — it requires instrumentation from develope
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -439,7 +444,6 @@ graph LR
 - **Caching that hurts** — caching a frequently-written value with a 60-second TTL. If the value changes 100x/second and you cache for 60s, you're serving stale data 99.999% of the time. Cache frequently-read, rarely-written data; don't cache fast-changing data without understanding staleness tolerance.
 - **`gc.pause()` in Go** at 50ms looks fine on a dashboard. But if your request timeout is 100ms and GC pause is 50ms, 50% of your request budget is GC. P99 request latency will show sawtooth patterns aligned with GC cycles. Use `GOMEMLIMIT` and `GOGC` tuning.
 
-
 ## Verification
 
 - [ ] Profile before optimizing: `cProfile` / `py-spy` / `pprof` output confirms the bottleneck location
@@ -448,7 +452,6 @@ graph LR
 - [ ] No regression: all existing tests pass, benchmark for unchanged code paths within 5% of baseline
 - [ ] Load test: `k6` or `wrk2` at 2× expected peak RPS for 10 minutes — p99 latency within SLO, zero errors
 - [ ] Memory profile: `heapdump` or `memray` — memory usage stable over 30 minutes under load (no leaks)
-
 
 ## References
 - **API Performance**: See [api-performance.md](references/api-performance.md)

@@ -289,6 +289,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |

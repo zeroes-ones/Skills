@@ -140,6 +140,7 @@ What are you trying to do?
 ├── Need ML infrastructure for this? → Invoke mlops-engineer skill instead
 ├── Need health/medical AI safety review? → Invoke ai-safety-health-reviewer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -335,6 +336,7 @@ START: Designing retrieval for a RAG pipeline
 ```mermaid
 graph LR
     A[Build LLM<br/>pipeline] --> B[Evaluate<br/>rigorously] --> C[Find<br/>failure patterns] --> D[Re-architect<br/>for robustness] --> A
+
 ```
 
 | Level | Practice | Frequency |

@@ -100,6 +100,7 @@ What are you trying to do?
 ├── Manage a multi-environment infrastructure pipeline
 ├── Automate infrastructure compliance and policy
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -185,6 +186,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### IaC Tool: Terraform vs Pulumi vs CDK
+
 ```
                      ┌──────────────────────────┐
                      │ START: Choose IaC tool     │
@@ -211,6 +213,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 **When to choose Terraform:** Largest community, HCL acceptable, multi-cloud or AWS-dominant, >3 team members. **When to choose Pulumi:** Multi-cloud + real programming languages needed, team already writes TypeScript/Python, need unit-testable infra code. **When to choose CDK:** AWS-only, TypeScript/Python shop, want high-level constructs, CloudFormation under the hood acceptable.
 
 ### GitOps vs Push-Based CD
+
 ```
                      ┌──────────────────────────┐
                      │ START: Deployment strategy │
@@ -231,6 +234,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 **When to choose GitOps:** K8s-native, >3 services, need drift detection and auto-remediation, >5 engineers deploying independently. **When to choose Push-Based:** Non-K8s workloads (Lambda, ECS), <3 services, simpler pipeline, don't need drift detection.
 
 ### Secrets Management Approach
+
 ```
                      ┌──────────────────────────┐
                      │ START: Secrets strategy    │
@@ -253,6 +257,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 **When to choose Vault:** >50 secrets, dynamic database credentials needed, multi-cloud, auto-rotation with TTL, audit logging required. **When to choose Cloud-Native:** <50 secrets, single cloud, no dynamic secrets needed, simpler operational model, rotation via Lambda/Cloud Functions.
 
 ### Progressive Delivery Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: Safe production     │
@@ -274,6 +279,7 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 **When to choose Canary:** Error budget >0.1%, need gradual traffic shift (5%→50%→100%), metrics-based rollback, >10 deploys/week. **When to choose Blue-Green:** Instant rollback required (<1 min), simpler to reason about, can afford 2× infrastructure, <5 deploys/week.
 
 ### Disaster Recovery Topology
+
 ```
                      ┌──────────────────────────┐
                      │ START: DR architecture     │
@@ -377,7 +383,6 @@ DevOps skill manifests in the scope of infrastructure you own and the blast radi
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 DevOps skill is built in the crucible of failure — incident response, recovery drills, and chaos engineering. The engineer who has recovered from 50 failures is calm during the 51st.
@@ -386,6 +391,7 @@ DevOps skill is built in the crucible of failure — incident response, recovery
 
 ```
 BUILD → BREAK → FIX → AUTOMATE PREVENTION → repeat
+
 ```
 
 After every incident: the blameless post-mortem is your training data. Don't just fix the root cause — ask: "What would have caught this earlier? A test? An alert? A design review?" Close the class of failure, not just the specific instance.
@@ -412,7 +418,6 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 - **Helm's `--wait` flag** waits for pods to be "Ready" but doesn't check for CrashLoopBackOff — a pod that starts, crashes, restarts, crashes, restarting forever is "Ready" between crashes. Helm reports success on a failing deployment.
 - **Secret management**: `kubectl get secret -o yaml` reveals base64-encoded (NOT encrypted) secrets. Anyone with `get secret` permissions can decode them. Use External Secrets Operator or Sealed Secrets, never store plain secrets in Kubernetes Secret objects.
 
-
 ## Verification
 
 - [ ] Run `terraform validate` — configuration is valid
@@ -421,7 +426,6 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 - [ ] Verify state locking: run `terraform plan` in two terminals simultaneously — second one waits for lock, doesn't corrupt state
 - [ ] Secrets check: `tfsec` or `detect-secrets` confirms no plaintext secrets in configs
 - [ ] Deploy to staging, verify health, then promote to production — GitOps workflow is end-to-end functional
-
 
 ## References
 

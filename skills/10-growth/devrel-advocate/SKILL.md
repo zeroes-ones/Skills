@@ -350,8 +350,8 @@ TOXIC BEHAVIOR — What to do when a community member turns hostile?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
+
 ```mermaid
 graph LR
     A[content-strategist] --> B[devrel-advocate]
@@ -363,6 +363,7 @@ Run skills in the order shown:
 ```bash
 # Chain A: content-strategist → devrel-advocate → growth-engineer
 # Chain B: product-manager → devrel-advocate → technical-writer
+
 ```
 
 ## Deliberate Practice
@@ -370,6 +371,7 @@ Run skills in the order shown:
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -388,7 +390,6 @@ graph LR
 - **Tutorial documentation that worked 6 months ago** — the API changed, the SDK version is deprecated, and the tutorial's `package.json` installs security-vulnerable dependencies. A new developer follows it, gets errors on step 3, and concludes your product is broken. Tutorials need CI testing: `npm install && npm test` must pass on every commit to `main`.
 - **Developer NPS that only surveys your champions** — the 50 developers who speak at your conferences and contribute to your open source give you NPS 80. The 5,000 who tried your product once and left aren't surveyed. Segment: new developers (day 0-30), active developers (monthly active), and churned developers (inactive > 30 days). Each segment's NPS tells a different story.
 
-
 ## Verification
 
 - [ ] Content: last 5 pieces of content — all teach a skill, none pitch the product primarily
@@ -396,7 +397,6 @@ graph LR
 - [ ] Tutorial CI: top 10 tutorials tested in CI — `npm install && npm test` passes on latest product version
 - [ ] Developer NPS: surveyed by segment (new, active, churned) — churned segment NPS insights shared with product
 - [ ] Event ROI: every sponsored event has post-mortem — leads generated, content produced, community engagement
-
 
 ## References
 

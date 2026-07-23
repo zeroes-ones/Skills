@@ -74,6 +74,7 @@ What are you trying to do?
 ├── Validate put-call parity or detect arbitrage opportunities → Jump to "Decision Trees" — Arbitrage Detection
 ├── Run statistical validation (hypothesis tests, factor analysis, Monte Carlo) → Jump to "Decision Trees" — Statistical Validation
 └── Not sure? → Start at "Ground Rules" — read before anything else
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -147,6 +148,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### UOA Signal Classification: Trade Type Identification
+
 ```
                         ┌──────────────────────────────────┐
                         │ START: Incoming options trade     │
@@ -188,6 +190,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Floor Trade**: Executed on exchange floor (less common today). Usually hedges or institutional repositioning. Low signal for retail.
 
 ### Options Strategy Selection from UOA Signal
+
 ```
                         ┌────────────────────────────────────┐
                         │ START: Validated UOA signal         │
@@ -226,6 +229,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Key DTE thresholds**: <7 DTE = lottery/gambler flow (ignore unless extraordinary premium); 7-14 DTE = tactical but high Theta risk; 14-30 DTE = short-term conviction; 30-90 DTE = institutional sweet spot; >90 DTE = strategic positioning.
 
 ### Pricing Model Selection
+
 ```
                         ┌──────────────────────────────┐
                         │ START: Which pricing model?    │
@@ -264,6 +268,7 @@ P = K·e^(−rT)·N(−d₂) − S₀·N(−d₁)
 where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 
 ### Volatility Skew & Sentiment Interpretation
+
 ```
                         ┌────────────────────────────────────┐
                         │ START: Analyze IV skew pattern      │
@@ -361,15 +366,18 @@ where d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T), d₂ = d₁ − σ√T
 | Signal win-rate drops below 50% on 30-day rolling window | Data Scientist, Algorithmic Trader | Signal degradation — may need recalibration or model retraining |
 
 ### Escalation Path
+
 ```
 Signal with >5% of float in notional? → Algorithmic Trader → Business Strategist (market impact concern)
 Model performance degrading (win rate < 45%)? → Data Scientist → ML/AI Engineer (recalibration)
 Data pipeline failure blocking UOA? → Market Data Engineer → DevOps Engineer
 Regulatory inquiry about signal methodology? → Compliance Officer → Legal Advisor
 Sector-wide anomaly (10+ STRONG BUY in single sector)? → Business Strategist → CEO Strategist
+
 ```
 
 ### Skill Chain Commands
+
 ```bash
 # Full options flow pipeline: data → analysis → execution
 /market-data-engineer && /quantitative-analyst && /algorithmic-trader
@@ -430,6 +438,7 @@ Key quality markers:
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -448,7 +457,6 @@ graph LR
 - **p-hacking across 100 strategy variations** — you test 100 parameter combinations. At p < 0.05, you expect 5 false positives. You find 7 "significant" strategies, publish all 7, and 5 are noise. Multiple testing correction (Bonferroni, Benjamini-Hochberg, or Holm-Bonferroni) is non-negotiable when testing multiple hypotheses.
 - **Max drawdown in backtest is 15%** — but you only ran 1 simulation path. Monte Carlo with 10,000 paths shows max drawdown distribution: median 18%, 95th percentile 35%, worst case 52%. The single-path backtest gave you a false sense of safety. Report the DISTRIBUTION of drawdowns, not the point estimate.
 
-
 ## Verification
 
 - [ ] Stationarity: all time series tested for stationarity (ADF test) — non-stationary series differenced or cointegrated
@@ -456,7 +464,6 @@ graph LR
 - [ ] Multiple testing: p-values adjusted when testing > 1 hypothesis — adjustment method documented
 - [ ] Monte Carlo: key risk metrics (max drawdown, VaR, CVaR) reported as distributions, not point estimates
 - [ ] Reproducibility: full pipeline runs from raw data to final metrics with a single command
-
 
 ## References
 

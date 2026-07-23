@@ -313,6 +313,7 @@ The financial model opens in Excel/Google Sheets. Changing the "Hiring Start Dat
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -364,6 +365,7 @@ Round       Pre-Money    Raise     Post-Money   Dilution   New Investor
 Seed         $8M          $2M       $10M         20%        Seed fund
 Series A    $25M          $8M       $33M         24%        Tier-1 VC
 Series B    $70M         $20M       $90M         22%        Growth fund
+
 ```
 
 Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0.22) = 47.4% retained. Option pool expansion at each round adds 3-5% additional dilution.
@@ -377,7 +379,6 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 - **Headcount cost modeled as (salary + 30% benefits)** — you're missing: equipment ($3K/hire), software licenses ($500/person/month for enterprise tools), office space ($500-1500/person/month), training ($2K/person/year), and recruiting fees (20% of first-year salary). All-in cost is salary + 50-70%, not 30%.
 - **Revenue forecast based on sales pipeline × historical close rate** — but the pipeline is inflated (sales reps enter anything with a pulse) and the close rate is historical (pre-recession, pre-competitor-launch, pre-pricing-change). Pipeline-weighted forecasting amplifies both errors. Use committed + upside categories, not just pipeline × close rate.
 
-
 ## Verification
 
 - [ ] Budget vs actuals: monthly variance reports published within 5 business days of month close
@@ -385,7 +386,6 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 - [ ] Headcount cost: all-in cost model updated quarterly with actual benefits, equipment, and overhead data
 - [ ] Board reporting: financial package ready 5 business days before board meeting
 - [ ] Scenario planning: at least 3 scenarios modeled (base, upside, downside) updated quarterly
-
 
 ## References
 

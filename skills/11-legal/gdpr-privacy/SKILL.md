@@ -128,6 +128,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Legal Basis Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Which GDPR legal    │
@@ -165,6 +166,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Legitimate Interest:** Analytics, product improvement, fraud prevention — must pass 3-part balancing test (LIA documented), user has right to object (Art. 21).
 
 ### DPIA Trigger Assessment
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Is DPIA required?       │
@@ -205,6 +207,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When DPIA not required:** Low-risk processing, no special categories, small scale, no automated decisions. Document the decision not to do a DPIA.
 
 ### Data Breach Response
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Data breach detected    │
@@ -236,6 +239,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When no notification needed:** Breach unlikely to result in risk (encrypted data, keys safe), or no personal data was actually exposed. Document reasoning thoroughly.
 
 ### International Transfer Safeguard Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Transferring personal   │
@@ -268,6 +272,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use BCRs:** Intra-group transfers across multiple jurisdictions — Binding Corporate Rules approved by lead DPA, costly and slow to set up but durable.
 
 ### Cookie Consent Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Cookie compliance       │
@@ -418,16 +423,16 @@ Privacy compliance is everyone's responsibility — not just legal. Engineering,
 
 ## What Good Looks Like
 
-> When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede 
+> When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -447,14 +452,12 @@ graph LR
 - **"We are GDPR compliant" as a binary claim** — compliance is continuous, not binary. A processing activity that was compliant last month may become non-compliant after a new EDPB guideline, a Schrems III ruling, or a change in your data flows. Never claim binary compliance.
 - **Data retention: "we keep data forever just in case"** — GDPR requires specific retention periods. "Forever" or "until we don't need it" violates the storage limitation principle. Every data category must have: retention period, legal basis for that period, and deletion mechanism.
 
-
 ## Error Decoder
 
 - **"Consent string not valid" from IAB TCF** → Your CMP (Consent Management Platform) is not registered in the IAB's Global Vendor List (GVL), or the consent string format doesn't match TCF v2.2 spec. Check: (1) Is your CMP on the GVL? (2) Does your consent string validate against `iabtcf.com` decoder?
 - **DPA rejected by EU customer: "Doesn't include Standard Contractual Clauses"** → Since Schrems II, SCCs are required for data transfers outside the EU. Even if the US is "adequate" now (EU-US Data Privacy Framework), many EU customers still require SCCs. Your DPA must reference the current SCCs (June 2021 version).
 - **"Right to erasure request denied: data required for legal obligation"** → You must name the SPECIFIC legal obligation. "Tax law requires 7-year retention" is valid. "We might need it" is not. The exception must reference a specific statute, regulation, or legal order with the mandated retention period.
 - **Cookie scan reports 30 cookies but you only set 5** → Third-party scripts (analytics, embeds, CDNs) set cookies you didn't know about. A consent banner that lists 5 first-party cookies but 25 third-party cookies drop silently = non-compliant. Scan after every third-party integration update.
-
 
 ## Production Checklist
 
@@ -467,7 +470,6 @@ graph LR
 - [ ] Privacy policy: last reviewed within 12 months. Written in plain language. Covers all Article 13/14 requirements.
 - [ ] Cross-border transfers: transfer impact assessment for each third country. SCCs in place. Supplementary measures documented if needed.
 
-
 ## Gotchas
 
 - **Consent under GDPR must be FREELY given** — "Accept all or pay €5/month" (cookie paywalls) is being challenged in EU courts. Consent-or-pay models may be ruled non-compliant because consent isn't freely given if the alternative is a financial penalty. The EDPB's current leaning is that paywalls undermine freely given consent.
@@ -475,7 +477,6 @@ graph LR
 - **Data Processing Agreement (DPA) with sub-processors** — your processor (SaaS vendor) uses AWS. Your DPA with the vendor covers THEM, but not AWS directly. You need to verify the vendor has a DPA with AWS, AND you need to be notified when they add new sub-processors. Sub-processor changes without notification are GDPR violations.
 - **Right of access (Article 15)** — a user requests all their data, you export from your database. But "all data" includes: support tickets (Zendesk), analytics events (Mixpanel), email history (SendGrid), CRM records (Salesforce), and logs. Most companies provide only database records and miss 4-8 other data stores.
 - **72-hour breach notification** starts from WHEN YOU BECOME AWARE of the breach, not when the breach occurred. If an engineer discovers a 3-month-old exposed S3 bucket on Monday at 10 AM, you have until Thursday at 10 AM. The 72-hour clock includes weekends and holidays — no extensions.
-
 
 ## Verification
 
@@ -485,7 +486,6 @@ graph LR
 - [ ] Data Processing Agreements: all processors have signed DPA, sub-processor list is current
 - [ ] Breach notification: process tested — notification can be sent to DPA within 72 hours
 - [ ] Privacy policy: written in plain language (< 8th grade reading level), covers all required Art 13/14 information
-
 
 ## References
 

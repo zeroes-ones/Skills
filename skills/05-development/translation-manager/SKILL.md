@@ -140,6 +140,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- STANDARD: 3min -->
 
 ### MT Engine Selection
+
 ```
 What's your primary language pair?
 ├── European languages (EN↔DE/FR/ES/IT/NL/PL) → DeepL (highest quality)
@@ -149,9 +150,11 @@ What's your primary language pair?
 │   └── Supplement with DeepL for European subset if budget allows
 └── Domain-specific (medical, legal, financial) → ModernMT (adaptive context-aware)
     └── Or: custom model trained on your TM + glossary on Google AutoML
+
 ```
 
 ### Cost Optimization
+
 ```
 Translation volume per month?
 ├── < 10K strings → Pay-as-you-go per-char pricing, focus on quality not cost
@@ -160,6 +163,7 @@ Translation volume per month?
 │   └── Pattern: marketing pages → DeepL, help docs → Google, UI strings → TM first
 └── > 1M strings → Self-host open-source MT (LibreTranslate, OpenNMT) for base layer
     └── Premium MT only for customer-facing content
+
 ```
 
 <!-- DEEP: 10+min -->
@@ -230,6 +234,7 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -249,7 +254,6 @@ graph LR
 - **Pseudolocalization** with `en-XA` or `en-XB` BCP47 tags — if your UI doesn't handle 30% text expansion (English → German) or RTL layout, pseudo-localization reveals it before translators waste time. But pseudo must run in CI, not locally. One developer running pseudo-loc finds only their bugs, not integration bugs.
 - **String extraction from concatenation**: `t('views.') + viewName + t('.title')` — this produces 3 separate translation calls for ONE logical string. The concatenated result can't be in TM, can't benefit from context, and produces grammatically broken sentences in languages with different word order (Japanese, Korean, Turkish).
 
-
 ## Verification
 
 - [ ] Run `i18next-parser` or equivalent to extract new strings — zero untranslated keys
@@ -258,7 +262,6 @@ graph LR
 - [ ] Validate ICU syntax in all resource files with `icu-validator` — zero parse errors
 - [ ] Run MT quality threshold: BLEU score for MT output > 30 before skipping human review (or domain-specific threshold)
 - [ ] Verify `=0`, `=1`, and `other` plural cases render correctly for English + top 3 locales
-
 
 ## References
 

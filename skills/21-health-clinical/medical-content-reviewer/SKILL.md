@@ -307,6 +307,7 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |

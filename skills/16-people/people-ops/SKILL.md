@@ -186,6 +186,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When continuous feedback:** Mature coaching culture, comp decoupled from ratings — avoid rating-induced gaming. Requires high manager capability.
 
 ### Compensation Philosophy: Percentile Anchor Decision
+
 ```
                      ┌──────────────────────────────┐
                      │ START: What comp percentile?    │
@@ -219,6 +220,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **50-65th percentile:** Default for most Series A-C companies. Competitive enough to close, sustainable enough to maintain margins.
 
 ### 9-Box Talent Grid — Action Matrix
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Where does employee      │
@@ -366,6 +368,7 @@ A new hire receives a shipped laptop, fully-provisioned accounts, and a welcome 
 ```mermaid
 graph LR
     A[Apply<br/>framework] --> B[Observe<br/>outcome] --> C[Reflect on<br/>accuracy] --> D[Calibrate<br/>judgment] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -384,7 +387,6 @@ graph LR
 - **DEI initiatives measured by hiring demographics only** — you hire a diverse class but they all leave in 18 months because the culture didn't include them. Measure retention AND promotion rates by demographic. A diverse hire class + homogeneous leadership in 3 years = failed DEI.
 - **Benefits survey that asks "rate our benefits 1-5"** — you get 4.2 average and declare success. But the 25-year-old engineer doesn't care about 401(k) match and the 45-year-old parent doesn't care about gym reimbursement. Segment by life stage and measure satisfaction WITHIN each segment.
 
-
 ## Verification
 
 - [ ] Onboarding: 30/60/90-day check-ins completed for all new hires — satisfaction and productivity scores tracked
@@ -392,7 +394,6 @@ graph LR
 - [ ] DEI: hiring, retention, and promotion rates tracked by demographic — disparities identified and addressed
 - [ ] Benefits utilization: % of employees using each benefit tracked — underused benefits re-evaluated
 - [ ] Employee lifecycle: every stage (hire → onboard → develop → promote → exit) has documented process and metrics
-
 
 ## References
 

@@ -77,6 +77,7 @@ What are you trying to do?
 ├── Review existing architecture (Well-Architected)
 ├── Compare cloud providers for a specific workload
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -155,6 +156,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Compute Selection: EC2 vs ECS vs EKS vs Lambda
+
 ```
                      ┌──────────────────────────┐
                      │ START: New workload deploy │
@@ -180,6 +182,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 **When to choose Lambda:** Event-driven, <15 min runtime, <10GB memory, cold start acceptable (<1s for non-latency-critical). **When to choose EKS:** >5 microservices, team has K8s expertise, need service mesh, budget >$600/month. **When to choose ECS Fargate:** Containerized but <5 services, no K8s expertise, simpler than EKS, budget $200-500/month.
 
 ### Managed vs Self-Managed Database
+
 ```
                      ┌──────────────────────────┐
                      │ START: Database deployment │
@@ -202,6 +205,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 **When to choose Managed (RDS/Aurora):** Team <5, no DBA, automatic failover needed, compliance (automated patching). Saves 10-20 hrs/week in maintenance. **When to choose Self-Managed:** Custom PostgreSQL extensions, >$50K/month where 30-40% savings offset DBA cost, specific version pinning needed.
 
 ### VPC Networking Topology
+
 ```
                      ┌──────────────────────────┐
                      │ START: Networking design   │
@@ -221,6 +225,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 **When to choose Hub-Spoke:** >3 VPCs, multi-account, centralized egress/inspection needed, on-prem hybrid connectivity. **When to choose Simple Peering:** <3 VPCs, single account, no on-prem connectivity, no centralized inspection requirement.
 
 ### Disaster Recovery Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: DR topology choice  │
@@ -246,6 +251,7 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 **When to choose Active-Active:** 99.99% SLA, RTO <1 min, revenue loss >$10K/min during outage, budget for 3-5× infra cost. **When to choose Warm Standby:** 99.9% SLA, RTO <15 min, 2× cost acceptable. **When to choose Pilot Light:** 99.5% SLA, RTO <1 hr, cost-sensitive — replicate data continuously, scale compute on failover.
 
 ### Multi-Account Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: AWS Organizations  │
@@ -308,7 +314,6 @@ Cloud architecture scales from single-service cloud design to enterprise-wide mu
 4. Establish incident response runbooks specific to cloud attack vectors: compromised credentials, exposed buckets, cryptomining.
 5. Conduct regular Well-Architected Framework reviews and penetration tests.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -358,7 +363,6 @@ Common chains:
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Cloud architecture mastery comes from building, breaking, and rebuilding — in sandbox environments where the blast radius is contained.
@@ -369,6 +373,7 @@ graph LR
     B --> C[Test failure modes: AZ outage, traffic spike, credential compromise]
     C --> D[Refactor based on what broke — simplify, harden, document]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -389,7 +394,6 @@ graph LR
 - **CloudFormation rollback** can't delete resources it didn't create. If a resource creation succeeds but the next step fails, the successfully created resource lingers. Your account accumulates orphaned resources that appear in no stack and cost money indefinitely.
 - **Multi-region active-active** requires conflict-free replicated data types (CRDTs) or last-write-wins with a global clock. Two users updating the same record in different regions within the propagation window (50-200ms) will silently lose one update.
 
-
 ## Verification
 
 - [ ] Run `terraform plan` or `cdk diff` — no unexpected resource changes
@@ -398,7 +402,6 @@ graph LR
 - [ ] Verify backups: all stateful resources have backup policy with RPO ≤ 24 hours
 - [ ] Cost estimate: `infracost breakdown` — monthly cost within budget, no unbounded resources (e.g., NAT gateway per AZ)
 - [ ] Disaster recovery test: simulate region failure — failover procedure documented and tested
-
 
 ## References
 

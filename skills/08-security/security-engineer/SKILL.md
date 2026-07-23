@@ -73,7 +73,6 @@ secrets management, API hardening, zero trust adoption, and continuous security 
 | **A7** | `file_contains("*.py\|*.js\|*.go\|*.java", "jwt\|oauth\|openid\|saml\|ldap")` and not `file_exists("authz-policy/")` | Core Workflow → Phase 2 (App & API Security) | "I detect auth code without authorization policy — routing to App & API Security phase." |
 | **A8** | `file_exists("SECURITY.md")` or `file_exists(".github/SECURITY.md")` | Core Workflow → Phase 1 (Threat Modeling) | "I detect SECURITY.md — this is the security-engineer domain. Routing to Threat Modeling phase." |
 
-
 ## Ground Rules — Read Before Anything Else
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
@@ -88,7 +87,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **STOP and ASK when operating outside a known threat model.** Recommending controls without understanding the full system architecture and data flows misses critical gaps | Trigger: request asks for security recommendations but no threat model, architecture diagram, data flow description, or trust boundary definition is provided | STOP. Ask: "To design appropriate controls, I need: (1) System architecture diagram or description, (2) Data flows (what data, between which components, over what protocols), (3) Trust boundaries, (4) What are you protecting against? (external attacker, insider, supply chain)" |
 | **R6** | **DETECT and WARN about secrets in source code or config files.** Secrets in source code are the #1 initial access vector for cloud breaches — they survive in git history forever | Trigger: `grep -rn "API_KEY\|SECRET\|PASSWORD\|TOKEN\|private.key\|-----BEGIN" --include="*.py" --include="*.js" --include="*.yml" --include="*.json" --exclude-dir=.git --exclude-dir=node_modules` returns matches | WARN: "Secrets detected in source code. Every secret committed to git history is compromised — rotation is required even if you delete the file. Deploy pre-commit hooks (gitleaks, detect-secrets) and rotate all exposed credentials immediately." |
 | **R7** | **DETECT and WARN about unmaintained dependencies with known vulnerabilities.** Abandoned packages accumulate known vulnerabilities without fixes — they are time bombs | Trigger: `grep -rn "unmaintained\|deprecated\|no.longer.supported"` in dependency manifests, or `npm audit --json \| jq '.vulnerabilities[] \| select(.severity=="critical" or .severity=="high")'` returns results with no fix available | WARN: "Unmaintained dependencies with known CVEs detected. For each: find actively maintained alternative, fork and patch if critical to application, or isolate behind API boundary. Document risk acceptance if keeping (with expiration date)." |
-
 
 ## The Expert's Mindset
 
@@ -225,8 +223,8 @@ Team size?
 4. Hunt for threats proactively: run hypothesis-driven threat hunts monthly based on threat intelligence and MITRE ATT&CK.
 5. Tune alerting to balance signal-to-noise: measure mean time to detect (MTTD) and mean time to acknowledge (MTTA).
 
-
 ### Cross-skills Integration
+
 ```bash
 # Security review → Security implementation → Compliance mapping
 /security-reviewer && /security-engineer && /compliance-officer
@@ -240,7 +238,6 @@ Team size?
 > Every pull request runs SAST, SCA, and container scanning in CI, and critical findings block merge without exception.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Cross-Skill Coordination
 
@@ -276,6 +273,7 @@ Team size?
 ```mermaid
 graph LR
     A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -291,10 +289,9 @@ graph LR
 
 - **`crypto.randomBytes()` vs `Math.random()`**: `Math.random()` is a PRNG seeded from the current time (predictable). Using it for token generation produces tokens that can be brute-forced in minutes. All security tokens MUST use `crypto.randomBytes()` or equivalent CSPRNG.
 - **`bcrypt` has a 72-byte input limit** for the password. Passwords longer than 72 bytes are truncated silently. `sha256(password)` before bcrypt avoids truncation but reduces entropy if the sha256 output has known patterns. Use `bcrypt(sha512(password))` or switch to `argon2`.
-- **CORS `Access-Control-Allow-Origin: *`** with `Access-Control-Allow-Credentials: true` is forbidden by the spec — browsers will BLOCK the response. But `Access-Control-Allow-Origin: https://evil.com` WITH credentials WILL work if the attacker knows your domain. Never reflect the Origin header when credentials are enabled.
+- **CORS `Access-Control-Allow-Origin: *`** with `Access-Control-Allow-Credentials: true` is forbidden by the spec — browsers will BLOCK the response. But `Access-Control-Allow-Origin: <https://evil.com`> WITH credentials WILL work if the attacker knows your domain. Never reflect the Origin header when credentials are enabled.
 - **Content Security Policy `script-src 'unsafe-inline'`** disables XSS protection entirely. But `script-src 'unsafe-eval'` allows `eval()`, `new Function()`, and `setTimeout(string)` — all XSS vectors. CSP reporting (`report-uri` or `report-to`) tells you what's being blocked so you can remove unsafe directives.
 - **Session fixation**: If your app accepts a session ID from the URL query string (`?sessionid=xxx`), an attacker can send a victim `?sessionid=attacker_known_session`, the victim logs in, and now the attacker's session IS the victim's session. Always regenerate session IDs after login.
-
 
 ## Verification
 
@@ -304,7 +301,6 @@ graph LR
 - [ ] Test auth: attempt to access protected endpoint without token — returns 401, not 403 and not 200
 - [ ] Session security: login, copy token, logout, replay token — token is invalidated (returns 401)
 - [ ] Rate limiting: send 100 requests/second to login endpoint — requests after threshold return 429
-
 
 ## References
 - **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
@@ -316,8 +312,8 @@ graph LR
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 <!-- QUICK: 30s -- links to deeper reading -->
-- OWASP Top 10: https://owasp.org/www-project-top-ten/
-- MITRE ATT&CK Framework: https://attack.mitre.org/
-- NIST Zero Trust Architecture (SP 800-207): https://www.nist.gov/publications/zero-trust-architecture
-- OWASP Application Security Verification Standard (ASVS): https://owasp.org/www-project-application-security-verification-standard/
-- HashiCorp Vault Best Practices: https://developer.hashicorp.com/vault/docs/enterprise/best-practices
+- OWASP Top 10: <https://owasp.org/www-project-top-ten/>
+- MITRE ATT&CK Framework: <https://attack.mitre.org/>
+- NIST Zero Trust Architecture (SP 800-207): <https://www.nist.gov/publications/zero-trust-architecture>
+- OWASP Application Security Verification Standard (ASVS): <https://owasp.org/www-project-application-security-verification-standard/>
+- HashiCorp Vault Best Practices: <https://developer.hashicorp.com/vault/docs/enterprise/best-practices>

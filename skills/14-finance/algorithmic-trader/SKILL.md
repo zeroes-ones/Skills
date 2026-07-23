@@ -78,6 +78,7 @@ What are you trying to do?
 ├── Debug a losing streak or drawdown → Jump to "Error Decoder"
 ├── Need quantitative signal generation or pricing models → Invoke quantitative-analyst skill instead
 └── Not sure? → Describe the trade or problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -315,6 +316,7 @@ def validate_signal(signal: dict, portfolio: Portfolio, market_data: MarketData)
             return SignalDecision.EXPIRED
 
     return SignalDecision.ACCEPT
+
 ```
 <!-- DEEP: 10+min -->
 ### Phase 2 (~15 min): Position Sizing
@@ -372,6 +374,7 @@ Translate a validated signal into a concrete share/contract count. Position sizi
 
 # ML signal generation → Trade execution with confidence intervals
 /ml-ai-engineer && /algorithmic-trader
+
 ```
 
 ## Proactive Triggers
@@ -412,6 +415,7 @@ A production algorithmic trading system that executes this skill correctly has t
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -430,7 +434,6 @@ graph LR
 - **Transaction costs that are "2 bps"** in the model but market impact on a $5M order in a $2M/day-average-volume stock is 50-100 bps. Your model says "buy at $100.00" and you actually get filled at $100.75. Slippage + commission + market impact = model says profitable, P&L says breakeven.
 - **Overfitting detection** — your strategy has 15 parameters and Sharpe > 3. You've discovered a pattern that explains historical noise, not a real edge. The test: split data into in-sample (2000-2018) and out-of-sample (2019-2023). Out-of-sample Sharpe is 0.1. Your 15 parameters were memorizing, not learning.
 
-
 ## Verification
 
 - [ ] Backtest: no look-ahead bias — all signals use data that was available at the time of the trade
@@ -438,7 +441,6 @@ graph LR
 - [ ] Transaction costs: model accounts for commission, bid-ask spread, and market impact at trade size
 - [ ] Out-of-sample test: strategy performs on unseen data (different time period) within acceptable degradation
 - [ ] Walk-forward: strategy parameters re-optimized on rolling windows — performance stable across periods
-
 
 ## References
 

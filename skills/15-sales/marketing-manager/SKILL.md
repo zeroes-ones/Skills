@@ -340,6 +340,7 @@ Analyst evaluation outcome materially negative → CEO Strategist + VP Product +
 
 # Chain: marketing-manager → sales-engineer
 # Sales enablement: PMM builds battle cards & pitch decks → SE uses in demos and provides feedback loop
+
 ```
 
 ## Proactive Triggers
@@ -368,6 +369,7 @@ Positioning passes the logo-swap test — no competitor can say the same thing. 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -386,7 +388,6 @@ graph LR
 - **"We need a viral campaign"** — virality is an outcome, not a strategy. 99.9% of branded content gets < 10,000 views. Plan for the 99.9% outcome (success = X qualified leads) and treat virality as upside. Budgeting for viral reach with average content is hoping to win the lottery.
 - **Case study with logoless "Fortune 500 healthcare company"** as the reference — reads as "we couldn't get a real reference." Actual named customers (even mid-market) beat anonymous Fortune 500 logos. If they won't go on record, the case study isn't worth publishing.
 
-
 ## Verification
 
 - [ ] Campaign measurement: every campaign has primary KPI + leading indicators + lagging indicators defined BEFORE launch
@@ -394,7 +395,6 @@ graph LR
 - [ ] Brand consistency: last 10 pieces of content across all channels — same voice, same visual identity, same value proposition
 - [ ] Budget: spend vs plan by channel — variance < 10%, reallocation decisions documented
 - [ ] Competitive share of voice: tracked quarterly — your brand's share of total category conversation
-
 
 ## References
 

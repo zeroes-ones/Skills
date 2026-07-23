@@ -81,6 +81,7 @@ What are you trying to do?
 ├── Need clinical review of medical language? → Invoke medical-content-reviewer instead
 ├── Need regulatory review of disclaimers? → Invoke regulatory-specialist instead
 └── Not sure? → Describe the screen, audience, and the action the user needs to take — I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -163,6 +164,7 @@ Is the content clinical advice or treatment guidance?
 │   ├── YES → Persistent footer + link to full disclaimer
 │   └── NO → No disclaimer needed
 └── UNCERTAIN → Legal/regulatory review required before publishing
+
 ```
 
 ### Consent Complexity Decision Tree
@@ -267,6 +269,7 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

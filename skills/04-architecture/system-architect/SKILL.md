@@ -94,6 +94,7 @@ What are you trying to do?
 ├── Need database schema design → Invoke database-designer skill instead
 ├── Need network topology design → Invoke networking-engineer skill instead
 └── Don't know where to start? → Describe the problem in plain language and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -168,6 +169,7 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Monolith vs Microservices
+
 ```
                      ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
 
@@ -243,7 +245,6 @@ Architecture guidance, review, or approval for team-level design
   └── System Architect reviews, team implements. No escalation needed. ADR if decision affects other teams.
 ```
 
-
 **What good looks like:** Architecture Review Board signs off with zero unresolved critical findings. C4 diagrams (Context → Container → Component → Code) are accurate and up-to-date — a new team member traces the system's data flow from ingress to persistence in under 10 minutes. ADRs for the last 5 major decisions are written, reviewed, and merged. The architecture sketch passes the 'explain to a new hire in 5 minutes' test.
 
 ## Proactive Triggers
@@ -264,7 +265,6 @@ Architecture guidance, review, or approval for team-level design
 > Every stakeholder — from the junior developer to the CTO — can look at the C4 diagrams and understand how the system fits together without asking "what does this arrow mean?" Architecture Decision Rec
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
@@ -294,7 +294,6 @@ Architecture guidance, review, or approval for team-level design
 - **ADR (Architecture Decision Record)** titles must state the decision, not the topic. "ADR-003: Database" is useless months later. "ADR-003: Use PostgreSQL with Citus for tenant-isolated multi-tenancy" tells you what was decided.
 - **Capacity planning with percentiles**: "Average response time 200ms" means 50% of requests are below 200ms, but 1% might be 5 seconds. P95, P99, and P99.9 matter more than average. Architect for the P99, not the mean.
 
-
 ## Verification
 
 - [ ] C4 diagrams render correctly: PlantUML/Mermaid syntax valid, all components labeled
@@ -302,7 +301,6 @@ Architecture guidance, review, or approval for team-level design
 - [ ] Cross-reference ADRs: no two ADRs make contradictory recommendations
 - [ ] Capacity calculation: peak RPS × (1 + growth %) fits within provisioned capacity with 2x headroom
 - [ ] Failure mode walkthrough: for each component, document "what happens when this fails" — no single point of failure
-
 
 ## References
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)

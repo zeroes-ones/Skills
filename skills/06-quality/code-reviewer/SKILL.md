@@ -73,6 +73,7 @@ What are you trying to do?
 ├── Need frontend implementation review → Invoke frontend-developer skill instead
 ├── Need QA test strategy → Invoke qa-engineer skill instead
 └── Not sure where to start? → "Core Workflow > Phase 1" (Context Gathering) — understand intent first
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -161,7 +162,6 @@ Change type and risk?
 PR > 400 lines? → Request author to split into smaller PRs. If not possible, schedule live review session.
 ```
 
-
 **What good looks like:** Review covers all 6 dimensions (correctness, security, performance, maintainability, style, testing). Every finding has a severity, rationale, and suggested fix. Author can address all changes in under 2 hours. No critical or high findings remain.
 
 ### When Automated Tools Suffice
@@ -245,6 +245,7 @@ Security finding (Critical/High)? → Security Engineer → Compliance Officer
 Architecture dispute? → System Architect → CTO Advisor
 Repeated quality issues from same author? → Engineering Manager
 CI infrastructure issues? → DevOps Engineer
+
 ```
 
 ## Proactive Triggers
@@ -275,7 +276,6 @@ CI infrastructure issues? → DevOps Engineer
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Reviewing is a skill separate from coding — it requires different mental muscles (pattern matching for bugs, empathy for the author, calibration of severity). The best reviewers practice deliberately.
@@ -284,6 +284,7 @@ Reviewing is a skill separate from coding — it requires different mental muscl
 
 ```
 REVIEW → RECEIVE FEEDBACK ON YOUR REVIEW → CALIBRATE → repeat
+
 ```
 
 After every review cycle: ask the author which comments were most and least valuable. Did you catch the important bugs? Did you waste time on nits? Adjust your focus.
@@ -360,7 +361,6 @@ After every review cycle: ask the author which comments were most and least valu
 - **CI passing doesn't mean the code works**. The author may have changed tests to match broken behavior. Review modified test assertions as carefully as production code changes.
 - **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context.
 
-
 ## Verification
 
 - [ ] All identified issues have severity grading (blocker/critical/major/minor/nit) and specific file:line references
@@ -368,7 +368,6 @@ After every review cycle: ask the author which comments were most and least valu
 - [ ] Security issues are flagged separately with OWASP category reference
 - [ ] Review covers all 6 dimensions: security, performance, quality, error handling, testing, documentation
 - [ ] No style-only comments (leave formatting to automated formatters)
-
 
 ## References
 

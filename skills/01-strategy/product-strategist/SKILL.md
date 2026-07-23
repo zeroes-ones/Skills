@@ -175,7 +175,6 @@ Retention: 40%+ "very disappointed" without product? (Sean Ellis test)
 └── NO → No PMF. Interview users. Pivot or iterate.
 ```
 
-
 **What good looks like:** Product vision document that the entire leadership team can state in one sentence — no ambiguity, no 5-paragraph preamble. Sean Ellis survey shows >40% 'very disappointed' score with statistical significance. Competitive analysis identifies exactly 3 defensible advantages with evidence. OKRs cascade cleanly from product strategy to quarterly engineering goals with measurable targets.
 ### Go-to-Market Model Selection
 
@@ -185,6 +184,7 @@ Average deal size (ACV)?
 ├── $500-$5K → PLG + Sales hybrid: PQL → sales assist
 ├── $5K-$50K → SLG with product assist: demo-driven
 └── > $50K → Enterprise sales: high-touch, MSA, procurement
+
 ```
 
 ### Pricing Strategy Matrix
@@ -276,7 +276,6 @@ Product strategy sits at the intersection of business, design, engineering, and 
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Product strategy is pattern-matching refined through exposure to diverse business models, markets, and outcomes. The strategist who has studied 100 failures sees patterns the strategist who has only studied successes cannot.
@@ -285,6 +284,7 @@ Product strategy is pattern-matching refined through exposure to diverse busines
 
 ```
 HYPOTHESIZE → TEST → SYNTHESIZE → (update mental model) → repeat
+
 ```
 
 After every strategic decision: write down your explicit prediction. Check it at 3, 6, and 12 months. The gap between prediction and reality is your curriculum.
@@ -311,7 +311,6 @@ Solo developer building for yourself? → Dogfooding IS product management.
 Agency building for clients? → Client = PM. You execute.
 ```
 
-
 ### Cross-skills Integration
 
 This skill in a typical workflow chain:
@@ -336,7 +335,6 @@ Common chains:
 - **Competitive analysis** comparing your roadmap v1 against competitor v3 — the competitor will ship v4 by the time you ship v1. Compare against the competitor's likely trajectory, not their current state. Time-shifted comparisons systematically understate competitive risk.
 - **Platform vs point solution** decisions require a chicken-and-egg user base. A platform with no initial applications has no users; a point solution with no platform can't expand. The winning sequence is point-solution-first, then platform expansion — but only if you plan the expansion seams from day one.
 
-
 ## Verification
 
 - [ ] TAM/SAM/SOM: bottom-up calculation with documented assumptions and source data
@@ -344,7 +342,6 @@ Common chains:
 - [ ] Build vs buy vs partner: TCO calculated over 36 months for each option
 - [ ] Product-market fit: Sean Ellis survey conducted (if post-launch) or customer discovery interviews complete (if pre-launch)
 - [ ] Strategic assumptions: all assumptions documented, risk-ranked, and validated or invalidated with evidence
-
 
 ## References
 

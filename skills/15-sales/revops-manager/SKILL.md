@@ -80,6 +80,7 @@ What are you trying to do?
 ├── Need financial model / budget projections → Invoke fp-and-a-analyst skill instead
 ├── Need demand gen campaign performance data → Invoke demand-generation skill instead
 └── Not sure? → Describe the revenue problem and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -177,6 +178,7 @@ What is the primary revenue motion?
     |-- Multi-year deals: full year-1 commission at signing, 50% year-2 at renewal trigger
     |-- SPIFFs: $5K bonus for deals over $500K with C-suite involvement
     |-- Clawback: 12-month window, pro-rated monthly
+
 ```
 
 ### CRM Object Design
@@ -200,6 +202,7 @@ What is the core entity being managed?
     |-- Required fields: partner company name, contract type, agreement end date, MSL contact
     |-- De-dupe: company name + agreement type
     |-- Automation: auto-notify 90 days before contract expiration
+
 ```
 
 ### Attribution Model Selection
@@ -223,6 +226,7 @@ What question are you answering?
     |-- Custom Weighted -- define milestones (initial inquiry, demo, clinical evaluation, procurement, close)
         |-- Health-tech model: 15% first touch, 10% demo, 25% clinical evaluation, 20% procurement, 30% close
         |-- Rationale: clinical evaluation is the highest-friction gate in health-tech; procurement weight reflects legal/compliance review lift
+
 ```
 
 ### Integration Health Check
@@ -243,6 +247,7 @@ Which integration is suspect?
     |-- Sync check: closed-won opp to subscription creation under 1 hour -> provisioning delay risk
     |-- ARR truth check: CRM ARR vs billing system ARR within 2% variance -> reconciliation gap
     |-- Churn feed: cancelled subscriptions updating CRM within 24 hours -> forecast accuracy impact
+
 ```
 
 ## Core Workflow
@@ -347,6 +352,7 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 
 # Chain: bizdev-manager -> revops-manager -> fp-and-a-analyst
 # Partner economics: bizdev-manager defines partner program -> revops-manager models commission impact and pipeline attribution -> fp-and-a-analyst validates unit economics
+
 ```
 
 ## Proactive Triggers
@@ -380,6 +386,7 @@ Attribution model dispute between marketing and sales -> CEO Strategist (arbitra
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -398,7 +405,6 @@ graph LR
 - **CRM automation that auto-emails 5 days after form fill** — the prospect filled the form during a demo with a competitor. Your auto-email arrives while they're evaluating the competitor, and your name is added to the comparison matrix. Timing matters more than speed.
 - **"Attribution is solved"** via multi-touch model — the model gives equal credit to the last-click webinar and the first-touch cold call. But the cold call happened 18 months ago and the buyer doesn't remember it. Attribution models need RECENCY weighting — a touch 18 months ago != a touch last week.
 
-
 ## Verification
 
 - [ ] Data quality: CRM fields with > 50% "N/A" or "TBD" identified and validation rules added
@@ -406,7 +412,6 @@ graph LR
 - [ ] Forecast accuracy: end-of-quarter forecast vs actuals — accuracy within ±10%
 - [ ] Tech stack: all tools have active users (login within last 30 days) — unused tools flagged for removal
 - [ ] Process documentation: sales process documented, current (updated within last quarter), and version-controlled
-
 
 ## References
 

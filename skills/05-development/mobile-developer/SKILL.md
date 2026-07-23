@@ -80,6 +80,7 @@ What are you trying to do?
 ├── Need QA for mobile testing → Invoke qa-engineer skill instead
 ├── Need localization for mobile → Invoke localization-engineer skill instead
 └── Don't know where to start? → Describe your app idea and platform targets and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -149,6 +150,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Offline-First Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Offline support level?│
@@ -178,6 +180,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 **When read-only offline:** Content consumption app (news, docs, media). Users don't create data. Pre-cache on WiFi, serve from local when offline.
 
 ### Navigation Architecture
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Navigation pattern?   │
@@ -207,6 +210,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 **When Stack only:** Linear flows (onboarding, checkout wizard, setup). No persistent bottom navigation. Each screen leads to the next or back.
 
 ### Push Notification Strategy
+
 ```
                      ┌───────────────────────────────┐
                      │ START: Notification approach? │
@@ -237,6 +241,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 **When FCM/APNs with deep link:** Transactional alerts, marketing. Notification tappable → deep link to relevant screen. Rich media (images, video thumbnails) for engagement.
 
 ### State Management
+
 ```
                      ┌──────────────────────────┐
                      │ START: State solution?   │
@@ -329,6 +334,7 @@ Security vulnerability? → Security Engineer → Compliance Officer
 API breaking change? → Backend Developer lead → System Architect
 Critical performance regression? → Observability Engineer → CTO Advisor
 Cross-platform inconsistency? → UI/UX Designer → Product Strategist
+
 ```
 
 ## Proactive Triggers
@@ -351,7 +357,6 @@ These are signals that should trigger the mobile developer to investigate — no
 > The app launches cold in under 1.5 seconds, scrolls at a locked 60fps, and stays under 50MB of memory on low-end devices.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ### Cross-skills Integration
 
@@ -394,7 +399,6 @@ Common chains:
 - **`Image.prefetch()`** has a 50MB disk cache on iOS and no disk cache on Android (Android clears on app close). Don't rely on prefetch for offline image availability on Android.
 - **App State (`AppState.currentState`)** on iOS reports `"inactive"` during Control Center pull-down. If you pause video on `"background"` only, your video keeps playing when the user opens Control Center.
 
-
 ## Verification
 
 - [ ] Run `npm test` / `flutter test` / XCTest — all tests pass
@@ -403,7 +407,6 @@ Common chains:
 - [ ] Test offline: enable airplane mode — app shows cached data, not crash/white screen
 - [ ] Test permissions: deny camera/location/notifications — app degrades gracefully with explanation
 - [ ] Verify app size: `du -sh` the built .ipa/.apk — within budget (< 20% increase from baseline)
-
 
 ## References
 

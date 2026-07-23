@@ -76,6 +76,7 @@ What are you trying to do?
 ├── Need privacy engineering or compliance guidance? → Invoke privacy-engineer instead
 ├── Need detection infrastructure or ML classifiers? → Invoke trust-safety-engineer instead
 └── Not sure? → Describe your community (condition, size, vulnerability profile) and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -185,6 +186,7 @@ Does this content contain...
 ├── "I have hemophilia" (no identifiers) → NOT PHI → Allow
 ├── Photo with face + medical context → PHI → Remove or warn
 └── Doctor/facility name + complaint → Not PHI but potential legal → Flag for review
+
 ```
 
 ### Escalation Decision Tree
@@ -252,6 +254,7 @@ A patient can share their treatment experience without fear of harassment. Medic
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -294,6 +297,7 @@ graph LR
 - Phone-based support option (not everyone uses chat)
 - Scam detection enhanced (elderly are primary targets for health scams)
 - Large text, clear language in safety communications
+
 ```
 
 ## Gotchas
@@ -302,7 +306,6 @@ graph LR
 - **Moderation of terminal illness communities** — a member with stage 4 cancer posts "I'm stopping treatment, thanks for everything." Is this a goodbye post from someone entering hospice, or a suicide note? Moderators (often volunteers) are making life-or-death calls. Escalation protocols for end-of-life content must involve clinical professionals, not just community guidelines.
 - **Alternative medicine advice in chronic illness communities** — "I cured my lupus with this diet" — the post has 500 supportive comments. A newly diagnosed patient reads it and stops their prescribed treatment. The community's most engaged content is also its most dangerous. Evidence-based stickied posts + expert AMAs must provide counter-balance to anecdotal cures.
 
-
 ## Verification
 
 - [ ] Privacy: community rules include public-and-permanent warning — anonymous posting option available
@@ -310,7 +313,6 @@ graph LR
 - [ ] Medical misinformation: top 20 most-engaged posts audited for medical claims — % evidence-based tracked
 - [ ] Expert presence: at least 1 clinical expert engaged in the community (AMA, content review, or moderation) per quarter
 - [ ] Moderation training: all moderators trained on health-specific crisis escalation — refresher within last 6 months
-
 
 ## References
 

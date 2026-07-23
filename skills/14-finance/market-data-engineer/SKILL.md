@@ -72,6 +72,7 @@ What are you trying to do?
 ├── Build data warehouse on S3/Parquet for quant research → Jump to "Core Workflow" — Phase 5
 ├── Debug data quality: stale quotes, arbitrage violations, OI discrepancies → Jump to "Error Decoder"
 └── Not sure? → Describe your market data problem and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -144,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### Data Source Selection: Options Flow
+
 ```
                     +----------------------------------+
                     | START: Which options flow source? |
@@ -171,6 +173,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use multiple vendors:** Most production systems combine Unusual Whales (flow alerts) + Polygon.io (historical chains) + CBOE/Bloomberg (OPRA depth). Cross-reference volume/OI across sources for data quality validation.
 
 ### Storage Backend Selection: Tick Data
+
 ```
                     +----------------------------------+
                     | START: Where to store tick data?  |
@@ -199,6 +202,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Parquet/S3:** Cold archive (30 days to 7 years). Partition: `s3://market-data/options/year=YYYY/month=MM/day=DD/ticker=SYM/`. ZSTD compression level 9 (30-40% smaller than Snappy). Queryable via AWS Athena, DuckDB, or Spark without deserializing entire dataset. S3 Intelligent-Tiering for automatic cost optimization.
 
 ### Real-Time Pipeline Architecture
+
 ```
 +-------------------+     +------------------+     +------------------+     +------------------+
 | Unusual Whales    |     | Kafka/Redpanda   |     | Stream Processor |     | TimescaleDB Hot  |
@@ -221,6 +225,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Alert thresholds: consumer lag > 50K messages OR > 5 minutes during market hours (9:30-16:00 ET).
 
 ### Data Quality Decision Tree
+
 ```
                     +----------------------------------+
                     | START: Data quality check failed  |
@@ -350,6 +355,7 @@ python export_to_parquet.py --date 2024-06-14
 # Phase 2: Quantitative analyst consumes adjusted Parquet
 # Reads from s3://market-data/options/year=2024/month=06/day=14/
 python build_iv_surface.py --date 2024-06-14 --output signals/iv_skew.csv
+
 ```
 
 **Chain 2: Streaming → TimescaleDB → UOA Detection**
@@ -361,6 +367,7 @@ python stream_processor.py --topics options.flow.raw,options.flow.enriched
 # Data scientist runs unusual options activity model
 # Queries TimescaleDB hot storage for last 24 hours of flow
 python uoa_detector.py --lookback 24h --threshold 3.0 --output alerts/uoa_signals.json
+
 ```
 
 **Chain 3: Corporate Actions → Database Reliability → Backtesting**
@@ -411,12 +418,14 @@ Market data engineers sit at the intersection of infrastructure, quantitative re
 | **Data retention policy change** (e.g., extend cold storage from 7 to 10 years) | database-reliability-engineer, finops-engineer | S3 storage cost impact estimation, rehydration testing for older partitions |
 
 ### Escalation Path
+
 ```
 Market data pipeline down (production)? → devops-engineer → site-reliability-engineer (if SEV2+)
 Options data quality breach (widespread stale/corrupt data)? → quantitative-analyst → data-scientist
 API cost overrun > 200% daily budget? → finops-engineer → cto-advisor
 Corporate action missed for major index constituent? → quantitative-analyst → cto-advisor (legal/regulatory risk)
 PII discovered in raw market data feed? → security-engineer → compliance-officer
+
 ```
 
 ## Proactive Triggers
@@ -453,7 +462,7 @@ A production-quality market data pipeline that passes all 25 production checklis
 **What you should see when it works:**
 ```bash
 # Verify pipeline health
-$ curl https://monitoring.internal/api/v1/pipeline-health
+$ curl <https://monitoring.internal/api/v1/pipeline-health>
 {"status":"healthy","lag_ms":120,"rows_ingested_24h":43200000,"dlq_size":47,"cost_today":78.50}
 
 # Query yesterday's AAPL options flow — returns in < 500ms
@@ -469,6 +478,7 @@ $ psql -c "SELECT COUNT(*), SUM(premium) FROM options_flow
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -487,7 +497,6 @@ graph LR
 - **"Adjusted close" from different vendors uses different methodologies** — Yahoo adjusts for splits AND dividends, Google adjusts for splits only, Bloomberg adjusts for everything including spinoffs. Your model trained on Yahoo data and tested on Bloomberg data: performance is an artifact of different adjustment methodologies.
 - **Real-time feed disconnection during a volatility event** — the market drops 5% in 2 minutes, your feed disconnects for 30 seconds, you reconnect and your position is down 8%. Gap detection: "data gap > 5 seconds during volatility > 2 stddev" must trigger a safety pause, not resume trading on stale prices.
 
-
 ## Verification
 
 - [ ] Timestamps: all timestamps stored in UTC with timezone offset column — no timezone-naive data
@@ -495,7 +504,6 @@ graph LR
 - [ ] Data quality: missing bars, zero-volume periods, and stale prices flagged in monitoring
 - [ ] Cross-vendor: adjusted prices from all vendors reconciled within 0.1% tolerance
 - [ ] Feed resilience: gap detection tested — simulated disconnect during volatile market triggers safety pause
-
 
 ## References
 

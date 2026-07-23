@@ -84,6 +84,7 @@ What are you trying to do?
 ├── Need ML model productionization → Invoke `ml-ai-engineer` skill instead
 ├── Need growth experiments → Invoke `growth-engineer` skill instead
 └── Not sure? → Start at "Core Workflow" Phase 1 — frame before you analyze
+
 ```
 
 ## Ground Rules — Read Before Anything Else
@@ -176,6 +177,7 @@ Outcome variable type?
     ├── Linear relationship           → Pearson correlation
     ├── Monotonic (non-linear)        → Spearman rank correlation
     └── Predict Y from X1..Xn          → Linear/logistic regression
+
 ```
 
 ### Experiment Design Decision
@@ -300,8 +302,8 @@ What question are you answering?
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
+
 ```bash
 # Analytics models → Statistical analysis → ML models
 /analytics-engineer && /data-scientist && /ml-ai-engineer
@@ -315,6 +317,7 @@ What question are you answering?
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -335,7 +338,6 @@ graph LR
 - **SHAP values for tree models** with correlated features produce misleading importance scores. If `income` and `credit_score` are 0.7 correlated, SHAP splits importance between them arbitrarily. Use permutation importance as a sanity check.
 - **`random_state=42` everywhere** means your cross-validation folds, model initialization, AND data shuffling all use the same seed. This produces unrealistically consistent results. Use different random seeds for different sources of randomness.
 
-
 ## Verification
 
 - [ ] Train/test split before any preprocessing: `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)`
@@ -344,7 +346,6 @@ graph LR
 - [ ] Model comparison: at least 2 baseline models (e.g., logistic regression + random forest) compared against advanced model
 - [ ] Feature importance: reported with permutation importance (not just model-native importance) to avoid correlation bias
 - [ ] Notebook: "Restart kernel & Run All" — all cells execute in order, no hidden state dependencies
-
 
 ## References
 

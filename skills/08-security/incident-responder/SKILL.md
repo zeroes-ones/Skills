@@ -81,6 +81,7 @@ What are you trying to do?
 ├── Need observability and alerting → Invoke `observability-engineer` skill instead
 ├── Need reliability framework → Invoke `site-reliability-engineer` skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -151,6 +152,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Incident Severity Classification
+
 ```
                      ┌──────────────────────────┐
                      │ START: Declare incident  │
@@ -181,6 +183,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When SEV3/SEV4:** Cosmetic issue, non-blocking, workaround available. Affects < 5% of users. No data risk. Create ticket, address in next sprint.
 
 ### Escalation Trigger
+
 ```
                      ┌────────────────────────────┐
                      │ START: Should we escalate? │
@@ -208,6 +211,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to hold:** Progress is being made. Mitigation is active and working. ETA to resolution is credible and within SLA.
 
 ### Postmortem Depth
+
 ```
                      ┌───────────────────────────┐
                      │ START: Postmortem depth?  │
@@ -230,6 +234,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When light postmortem suffices:** SEV3 with quick resolution. Known failure mode with existing runbook. No user impact or < 1% user impact.
 
 ### Runbook Automation Priority
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Which runbooks to     │
@@ -317,8 +322,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Use error budgets to drive reliability investments: when the budget is exhausted, freeze feature launches and prioritize reliability work.
 5. Reduce toil: identify manual steps during incidents and automate them — runbook automation, auto-rollback, self-healing.
 
-
 ### Cross-skills Integration
+
 ```bash
 # Infrastructure reliability → Incident response → Security containment → Compliance reporting
 /site-reliability-engineer && /incident-responder && /security-engineer
@@ -339,7 +344,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | `security-engineer` | Incident scope, affected systems, blast radius assessment, containment status | Security team operates blind — threat can spread unchecked |
 | `compliance-officer` | Breach classification, regulatory clock start time, evidence chain of custody | Regulatory notification deadlines missed — legal liability |
 | `devops-engineer` | Infrastructure incident context, recent deploy log, change timeline, rollback assessment | DevOps can't contain infrastructure failures — outage extends |
-
 
 **What good looks like:** Incident timeline documented with all decisions and actions. Root cause identified and confirmed. Containment completed within SLA (SEV1 < 1 hour). Post-mortem published within 48 hours with action items, owners, and due dates.
 
@@ -371,12 +375,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -396,14 +400,12 @@ graph LR
 - **Incident commander who's also the subject matter expert** — the IC who's also SSH'd into production trying to fix it. They can't run the incident (coordinating, communicating, tracking timeline) AND fix the problem. Split roles: Incident Commander (coordinates) and Technical Lead (fixes). Never the same person.
 - **Post-incident review that becomes a blame session** — "Who deployed the bad config?" "Why wasn't this caught in review?" The room gets defensive, people hide details, and the same incident happens again with different people. Blameless postmortems ask: "What conditions allowed this to happen?" not "Who caused this?"
 
-
 ## Error Decoder
 
 - **PagerDuty: "Incident acknowledged but no one responding"** → The on-call engineer acknowledged (to stop the escalation) but is driving/driving/sleeping and can't respond. Escalation policy should auto-escalate if acknowledged but no activity (comment, status update) within 5 minutes.
 - **"Alert auto-resolved after 10 minutes"** → The condition that triggered the alert self-healed (CPU dropped below threshold, error rate returned to normal). But the underlying cause is still there (memory leak building up for next spike, race condition that hits 1% of requests). Auto-resolve = hiding real problems.
 - **"Can't find the runbook"** → The runbook is in a wiki that requires VPN. The VPN is down (that's the incident). Runbooks must be accessible WITHOUT the infrastructure they're documenting. Print critical runbooks or store them in an always-available external system.
 - **"All dashboards are empty" during an incident** → Your monitoring stack is in the same region that's down. Dashboards, logs, metrics, and traces all went dark simultaneously because they share infrastructure with production. Monitoring must be deployed in a separate failure domain (different region, different account).
-
 
 ## Production Checklist
 
@@ -415,7 +417,6 @@ graph LR
 - [ ] Post-incident process: review conducted within 5 business days. Findings tracked to remediation. Action items have owners and due dates.
 - [ ] Game day: incident response drill conducted within last quarter. Findings incorporated into runbooks and escalation policies.
 
-
 ## Gotchas
 
 - **"Revert to last known good"** as a first instinct — if the incident is a security breach, reverting destroys forensic evidence (access logs, modified files, attacker persistence mechanisms). For security incidents, isolate first, investigate, then remediate. Only revert for availability incidents.
@@ -423,7 +424,6 @@ graph LR
 - **IMOC (Incident Manager on Call) handoff** during long incidents — the new IMOC inherits the mental model of the old IMOC through a verbal handoff. Critical context is lost: "we ruled out database" becomes "database is fine" which becomes "why is the database down?" 2 hours later. Written handoff template with timeline is non-negotiable.
 - **`kill -9` on a production process** during incident response destroys thread dumps, heap dumps, and in-memory state needed for root cause analysis. Always `kill -3` (Java thread dump) or equivalent first, capture state, THEN terminate.
 - **Post-incident review timeline**: if the review happens the next day, details are fresh but emotions are high. If it happens 2 weeks later, emotions are lower but details are lost. The sweet spot is 3-5 days — enough distance for objectivity, close enough for accuracy.
-
 
 ## Verification
 
@@ -433,7 +433,6 @@ graph LR
 - [ ] Post-incident review template: timeline captured, contributing causes identified, action items assigned with owners and due dates
 - [ ] Comms template: status page update, internal #incident Slack post, customer-facing email — all templates tested within last quarter
 - [ ] Verify monitoring coverage: every service in production has an alert for "service is down" + "service is degraded"
-
 
 ## References
 

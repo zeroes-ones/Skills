@@ -111,6 +111,7 @@ What are you building?
 ├── Self-serve BI governance → Best Practices: Self-Serve Governance
 ├── Data quality / dbt tests → Phase 5: Data Quality
 └── Customer-facing embedded analytics → Phase 6: Embedded Analytics
+
 ```
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
@@ -145,6 +146,7 @@ What are you trying to do?
 ├── Need raw data pipelines? → Invoke data-engineer skill instead
 ├── Need financial modeling? → Invoke fp-and-a-analyst skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -418,6 +420,7 @@ START: Need to expose data for reporting or analysis
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |

@@ -151,6 +151,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### dbt Materialization Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: Which dbt          │
@@ -185,6 +186,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Incremental:** >1M rows or runtime >5 min — append-only for event data, merge for mutable entities.
 
 ### Metric Layer: dbt vs BI Tool vs Semantic Layer
+
 ```
                      ┌──────────────────────────┐
                      │ START: Where should this   │
@@ -215,6 +217,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose BI tool:** Single-tool consumption only, simple arithmetic (ratio, sum), rapid prototyping by analysts.
 
 ### A/B Test Design
+
 ```
                      ┌──────────────────────────┐
                      │ START: Designing an       │
@@ -254,6 +257,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use sequential testing:** Continuous monitoring needed for safety, want early stopping for clear winners/losers — control false-positive rate.
 
 ### SQL Performance Tuning
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Query too slow (>30s)?  │
@@ -287,6 +291,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use materialized CTE:** Same CTE referenced 3+ times — materialize to temp table to avoid redundant computation.
 
 ### Dashboard Design: Exploratory vs. Operational vs. Strategic
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Dashboard type?         │
@@ -333,7 +338,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    └── marts/          # fct_orders.sql — business-facing, single source of truth
                        #   Config: materialized='table' or 'incremental'
    ```
-
 
 **What good looks like:** dbt project with model documentation, tests, and lineage. BI dashboard loads in under 5 seconds. All metrics have definitions documented in a shared glossary. Data freshness meets SLA for every report. No hard-coded table references in SQL — all ref()'d.
 
@@ -423,8 +427,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
+
 ```bash
 # Data pipeline → Analytics models → Data science
 /data-engineer && /analytics-engineer && /data-scientist
@@ -438,6 +442,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -457,7 +462,6 @@ graph LR
 - **CTE (Common Table Expression) chains with 15+ CTEs** in a single model: dbt compiles these into a single massive query. Redshift/Postgres materialize every CTE as an in-memory temp table. On large datasets, you hit disk spillage at CTE #5. Use ephemeral materialization (`+materialized: ephemeral`) or split into multiple models.
 - **`dbt run` with `--select`** only runs the selected models. Downstream models that depend on the updated model are NOT auto-selected. If you `dbt run --select stg_orders` but `fct_orders` depends on it, `fct_orders` still has old data and you won't know until someone queries it.
 
-
 ## Verification
 
 - [ ] Run `dbt deps` — all dependencies resolve, no missing packages
@@ -466,7 +470,6 @@ graph LR
 - [ ] Run `dbt docs generate && dbt docs serve` — documentation renders, lineage graph shows complete DAG
 - [ ] Verify incremental models: `dbt run --full-refresh --select ${incremental_model}` in staging — output matches non-incremental equivalent row-for-row
 - [ ] Check model performance: no model exceeds SLA (e.g., `< 5 minutes` for daily runs)
-
 
 ## References
 

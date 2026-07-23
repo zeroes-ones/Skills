@@ -72,6 +72,7 @@ What are you trying to do?
 ├── Need expansion / growth engineering → Invoke `growth-engineer` skill
 ├── Need revenue analytics / NRR dashboard → Invoke `revops-manager` skill
 └── Customer wants to leave → Jump to "Core Workflow > Phase 4: Churn Intervention" immediately
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -144,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Health Score Model Selection
+
 ```
 What data signals are AVAILABLE (not desirable, but actually instrumented)?
 ├── Product usage telemetry ONLY → Usage-only model. Weight: login frequency (25%),
@@ -160,6 +162,7 @@ What data signals are AVAILABLE (not desirable, but actually instrumented)?
 ```
 
 ### Churn Intervention Strategy
+
 ```
 What is the churn risk level?
 ├── Healthy (score 80-100) → Standard cadence. QBR every 6 months. Monthly check-in.
@@ -179,6 +182,7 @@ What is the churn risk level?
 ```
 
 ### Customer Engagement Model Selection
+
 ```
 What is the ACV (Annual Contract Value)?
 ├── < $5K ACV → Digital-touch. Automated onboarding emails, in-app guides, self-serve KB.
@@ -296,6 +300,7 @@ A new CSM joining the team can run their first QBR within 2 weeks using the temp
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -314,7 +319,6 @@ graph LR
 - **Escalation "closed" because Engineering fixed the bug** — but nobody told the customer. The ticket sits in "Resolved" for 2 weeks until the customer asks for an update. Bug-fixed ≠ customer-informed. The CSM closes the loop: "The fix shipped on Tuesday. Can you confirm it's working as expected?"
 - **Churn prediction model that uses only usage data** — "low login frequency = churn risk." But your product is an API that customers integrate once and forget. Low logins = healthy (it's working). The model flags 40% of your installed base as "at risk" and the CS team ignores all flags because they're noise.
 
-
 ## Verification
 
 - [ ] Time-to-first-value: measured per account, segmented by plan/segment — benchmarked and improving
@@ -322,7 +326,6 @@ graph LR
 - [ ] Escalation SLA: time from engineering-fix to customer-notified tracked — target < 24 business hours
 - [ ] Digital CS: email open and click rates segmented by maturity and size — content optimized per segment
 - [ ] Churn: monthly churn rate tracked — trend line flat or declining, surprise churn incidents reviewed within 1 week
-
 
 ## References
 

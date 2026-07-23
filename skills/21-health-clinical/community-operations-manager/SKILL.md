@@ -76,6 +76,7 @@ What are you trying to do?
 ├── Need content policy or moderation guidance? → Invoke content-policy-manager
 ├── Need trust and safety infrastructure? → Invoke trust-safety-engineer
 └── Don't know where to start? → Describe your community (size, condition, maturity) and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -146,6 +147,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Community Growth Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Community needs to grow │
@@ -174,6 +176,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use clinical referral:** Established HTC/clinic relationships, care team willing to recommend community, HIPAA-compliant referral mechanism (opt-in, not automatic). Best for condition-specific communities where clinical endorsement drives trust. **When to use advocacy partnerships:** National/global patient organizations (NHF, HFA, WFH for hemophilia). Co-branded events, cross-promotion, shared resources. **When to use organic growth:** Early-stage community without clinical partnerships. Social media patient groups, condition-specific hashtags, SEO-optimized content, patient-to-patient invites.
 
 ### Community Segmentation Matrix
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Segment the community   │
@@ -307,6 +310,7 @@ The community feels alive and safe. Members support each other without staff int
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -324,7 +328,6 @@ graph LR
 - **"Community engagement is up 200%!"** — because a controversial post about vaccine safety went viral. Engagement metrics alone are dangerous. A spike in activity could be a crisis, not a success. Disaggregate engagement: supportive comments vs argumentative comments, new member welcome rate, post-reporting rate. Quality of engagement > quantity.
 - **Volunteer moderator burnout** — your 10 volunteer moderators handle 500 posts/day, including suicide ideation, terminal diagnosis grief, and caregiver trauma. After 6 months, 6 have vicarious trauma symptoms and 3 quit. Volunteer moderators need: psychological support (counseling access), mandatory breaks, and clear escalation paths for crisis content.
 
-
 ## Verification
 
 - [ ] Content safety: medical claims in community posts flagged and reviewed within SLA — misinformation rate < 1%
@@ -332,7 +335,6 @@ graph LR
 - [ ] Moderator wellness: volunteer moderators surveyed monthly — burnout indicators tracked, support offered
 - [ ] Crisis response: suicide/self-harm content responded to within 30 minutes — escalation protocol tested quarterly
 - [ ] Guidelines: community guidelines reviewed within last 6 months — updated for emerging health topics
-
 
 ## References
 

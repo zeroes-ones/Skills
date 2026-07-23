@@ -78,6 +78,7 @@ What are you trying to do?
 ├── Need container networking and service mesh → Invoke docker-kubernetes skill instead
 ├── Need site reliability for network → Invoke site-reliability-engineer skill instead
 └── Don't know where to start? → Describe your infrastructure and requirements and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -263,6 +264,7 @@ graph LR
     B --> C[Break it: simulate failure, misconfiguration, attack]
     C --> D[Fix it, document the lessons, update your patterns]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -283,7 +285,6 @@ graph LR
 - **Load balancer health checks** hitting `/health` on port 80 pass even when the app on port 8080 is down — the health check targets the wrong port. Always verify the health check port matches the actual application port.
 - **MTU 1500 with VXLAN/Geneve encapsulation** adds 50 bytes overhead. Packets at exactly 1500 bytes get fragmented or dropped. Set "do not fragment" and reduce MTU to 1450 on overlay networks.
 
-
 ## Verification
 
 - [ ] Run `terraform plan` — no unexpected resource changes, CIDR ranges don't overlap
@@ -292,7 +293,6 @@ graph LR
 - [ ] Verify load balancer health checks: `curl ${LB}/health` returns 200 on all backend instances
 - [ ] Test failover: stop one backend instance — traffic shifts to remaining instances within health check interval × 3
 - [ ] Verify TLS: `openssl s_client -connect ${host}:443` shows valid certificate chain, no expired certs
-
 
 ## References
 

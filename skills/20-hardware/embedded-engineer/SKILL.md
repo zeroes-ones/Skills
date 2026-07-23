@@ -325,6 +325,7 @@ Device bricks >0.1% rate? → Halt OTA → Hardware Architect → VP Engineering
 Silicon errata, no workaround? → Hardware Architect → Reselection → +8 weeks
 EMC failure >6dB over limit? → Hardware Architect → PCB respin → $15K-50K + 4-6 weeks
 Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA / physical recall
+
 ```
 
 ### Cross-Skill Chain
@@ -332,6 +333,7 @@ Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA /
 ```bash
 # Architecture → Embedded bring-up → Firmware → QA
 /hardware-architect && /embedded-engineer && /firmware-developer && /qa-engineer
+
 ```
 
 **Decision Gates & Handoff Artifacts:**
@@ -374,6 +376,7 @@ Bootloader security vuln, unpatchable? → Security Engineer → Emergency OTA /
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -393,7 +396,6 @@ graph LR
 - **Stack overflow in embedded** — RTOS creates a 2KB stack per task. A `char buffer[2048]` on the stack + function call overhead = stack overflow into the next task's stack. No MMU means no segfault — just silent corruption. Use `-fstack-usage` and `-fstack-protector-strong`, and measure worst-case stack depth.
 - **`printf` in an ISR** — `printf` blocks for milliseconds waiting for UART TX FIFO. You're in an ISR with interrupts disabled. A 3ms printf blocks the 1ms systick, the 500µs motor control loop, and everything else. Never block in ISRs; use a ring buffer and let the main loop do the printing.
 
-
 ## Verification
 
 - [ ] Build: firmware compiles with `-Wall -Werror` — zero warnings
@@ -402,7 +404,6 @@ graph LR
 - [ ] Watchdog test: force an infinite loop — watchdog resets the system within configured timeout
 - [ ] Power consumption: multimeter / power profiler — idle and active current within budget
 - [ ] Boot test: power-cycle 100 times — boots successfully 100/100 times, no brown-out corruption
-
 
 ## References
 

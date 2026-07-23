@@ -121,6 +121,7 @@ What are you trying to do?
 ├── Need content policy or taxonomy design? → Invoke content-policy-manager instead
 ├── Need privacy or compliance guidance? → Invoke privacy-engineer instead
 └── Not sure? → Describe the platform type, user base, and harm vectors — I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -390,6 +391,7 @@ Layer 2: ML Classification (async, post-write, 100-500ms)
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

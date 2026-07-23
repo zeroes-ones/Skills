@@ -66,6 +66,7 @@ What are you trying to do?
 ├── Test a migration — parallel verification, canary, data reconciliation → Jump to "Sub-Skills" — Migration Testing
 ├── Need architecture assessment first → Invoke system-architect skill instead
 └── Not sure? → Describe your current and target state, and I'll recommend a migration strategy
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -131,7 +132,6 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You need to backfill or transform 100K+ rows of data with checkpointing, batching, and consistency verification
 - You are migrating a large codebase and need a phased plan with stakeholder communication, risk assessment, and testing gates
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -148,6 +148,7 @@ Common chains:
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. Migration Strategy Selection
+
 ```
                      ┌────────────────────────┐
                      │ START: What's the      │
@@ -184,6 +185,7 @@ Common chains:
 **Refactor-and-Migrate:** When long-term ROI matters more than speed. Highest payoff, highest risk.
 
 ### 2. Database Migration Approach
+
 ```
                    ┌──────────────────────────┐
                    │ START: Can you tolerate  │
@@ -217,6 +219,7 @@ Common chains:
 **CDC:** For >100GB or high-throughput — Debezium/Kafka pipelines, no application changes needed for reads.
 
 ### 3. Framework/Library Migration Decision
+
 ```
                ┌───────────────────────────┐
                │ START: How many dependent │
@@ -272,6 +275,7 @@ Common chains:
 **Retain/Retire:** Keep on-prem if already optimized. Retire if app is deprecated.
 
 ### 5. When to Roll Back
+
 ```
                    ┌──────────────────────────┐
                    │ START: Is the migration  │
@@ -413,12 +417,12 @@ Migration architecture is inherently cross-functional — it spans databases, ap
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -472,7 +476,6 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Storage migration with `rsync`** on a live filesystem — files change during the sync. `rsync` copies file A, file A changes, then `rsync` is already past file A. The target has a version of file A that never existed on the source at any single point in time. Use filesystem snapshots or database-native replication.
 - **"Strangler Fig" migration** where the new system calls the old system via API — if the new system's availability depends on the old system, you've added a dependency without removing one. The combined system is LESS reliable than either alone. Cut the dependency before declaring migration complete.
 
-
 ## Verification
 
 - [ ] Source/target parity: row counts match ± 0.01% for every migrated table
@@ -481,7 +484,6 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - [ ] Performance comparison: p95 latency on target ≤ 110% of source (or documented improvement)
 - [ ] Rollback plan tested: switch back to source — application returns to source within documented rollback window
 - [ ] Cutover runbook: step-by-step with timing estimates and rollback triggers for each step
-
 
 ## References
 

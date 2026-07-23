@@ -218,6 +218,7 @@ C - Champion: Do you have an internal advocate with influence who will fight for
     2 = Champion is bought in but hasn't mobilized others
     1 = Contact is friendly but passive
     0 = No champion → Someone else's deal
+
 ```
 
 **Go/No-Go Threshold:** Score < 12 → Do not commit SE cycles beyond initial discovery. Score 12-14 → Engage with caution; focus on improving weak MEDDIC elements. Score 15-18 → Full engagement; green-lit for PoC/demo investment.
@@ -354,6 +355,7 @@ Product gap blocking >$500K pipeline → Product Manager + VP Product + VP Sales
 Competitor displacement threat across multiple accounts → VP Sales + Marketing Manager + Product Manager
 Demo environment instability >48 hours → Engineering Lead + DevOps + VP Sales
 RFP commitment exceeds current capability → Legal Advisor + VP Product + CEO Strategist
+
 ```
 
 ### Cross-skills Integration
@@ -367,6 +369,7 @@ RFP commitment exceeds current capability → Legal Advisor + VP Product + CEO S
 
 # Chain: marketing-manager → sales-engineer
 # Campaign launch: marketing-manager provides messaging/persona → sales-engineer builds demo tailored to campaign target
+
 ```
 
 ## Proactive Triggers
@@ -395,6 +398,7 @@ Demo opens in 5 seconds, environment is at latest version, first screen maps to 
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -414,7 +418,6 @@ graph LR
 - **ROI calculator that uses list price** without discounts, implementation costs, or training — your $100K/year tool with 20% discount + $50K implementation + 2 weeks of training for 10 people = $130K year 1. The buyer's finance team will build the same model. If your numbers don't match theirs, the deal stalls.
 - **"We don't have that feature yet, but it's on the roadmap"** — the roadmap is not a contract. If the deal closes based on a roadmap promise and the feature slips (all features slip), you have a customer threatening to churn before they've finished onboarding. Sell what exists today.
 
-
 ## Verification
 
 - [ ] Demo environment: refreshed within last 24 hours, all integrations working, no broken features
@@ -423,7 +426,6 @@ graph LR
 - [ ] ROI model: built with buyer's actual numbers (not industry averages), reviewed by a neutral party
 - [ ] Competition: differentiation documented — why us vs top 2 competitors (not "we're better", but specific gaps we fill)
 - [ ] Security review: security questionnaire completed, any open items have remediation plan with dates
-
 
 ## References
 

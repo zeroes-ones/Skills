@@ -153,6 +153,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Pricing Model Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: New pricing model? │
@@ -179,6 +180,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 **When to choose Tiered/Flat:** Predictable value delivery per customer. Buyers need budget predictability. Implementation cost is similar regardless of usage volume.
 
 ### GTM Channel Strategy
+
 ```
                      ┌────────────────────────┐
                      │ START: Which GTM motion?│
@@ -199,6 +201,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 **When to choose Enterprise Sales:** Requires procurement, security review, or executive approval. Implementation takes > 2 weeks. ACV justifies > $1K CAC.
 
 ### Market Entry Decision
+
 ```
                      ┌──────────────────────────┐
                      │ START: Enter new market?  │
@@ -219,6 +222,7 @@ Business strategy scales from a single product line to corporate strategy. The t
 **When to deepen:** Current market share < 15%. CAC is trending down. Unit economics improving with scale.
 
 ### Fundraising Readiness
+
 ```
                      ┌──────────────────────────┐
                      │ START: Time to fundraise? │
@@ -238,7 +242,6 @@ Business strategy scales from a single product line to corporate strategy. The t
 ```
 **When to fundraise:** > 6 months runway remaining. Clear use of funds tied to milestones. Strong founder-market fit narrative.  
 **When to wait:** < 4 months runway (emergency mode — bridge round). Growth is flat. Missing key hires needed to deploy capital effectively.
-
 
 ### Cross-skills Integration
 
@@ -343,7 +346,6 @@ Tactical business decision (segment targeting, campaign optimization, channel mi
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 The best business strategists treat strategy as a craft, not a meeting. Deliberate practice means regularly producing strategic artifacts, getting feedback from the market, and refining your mental models.
@@ -354,6 +356,7 @@ graph LR
     B --> C[Get market feedback or data]
     C --> D[Refine your model and assumptions]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -372,7 +375,6 @@ graph LR
 - **Pricing strategy based on "competitor price minus X%"** — you anchor to their value proposition, not yours. If your product delivers 3x the value (measured in revenue lift, time saved, or risk reduction), you should charge MORE, not less. Cost-plus and competitor-minus pricing both ignore the only thing that matters: value delivered.
 - **Market sizing that conflates TAM and SAM** — your Total Addressable Market is "every company with employees" ($100B). Your Serviceable Addressable Market is "US companies with 50-500 employees using cloud software" ($5B). Investors see through TAM inflation instantly, and it damages credibility for the rest of your pitch.
 
-
 ## Verification
 
 - [ ] Market analysis: Porter's Five Forces reviewed within last quarter, changes documented
@@ -380,7 +382,6 @@ graph LR
 - [ ] TAM/SAM/SOM: bottom-up sizing with documented assumptions, updated annually or after market shifts
 - [ ] Strategic bets: each bet has hypothesis, investment, success criteria, and kill date (when to stop if not working)
 - [ ] Pricing: pricing strategy reviewed within last 6 months — value-based, not competitor-minus
-
 
 ## References
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)

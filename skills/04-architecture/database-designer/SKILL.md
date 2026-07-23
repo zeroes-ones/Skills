@@ -82,6 +82,7 @@ What are you trying to do?
 ├── Need to build data pipelines (ETL/ELT) → Invoke data-engineer skill instead
 ├── Need database reliability and operations → Invoke database-reliability-engineer skill instead
 └── Don't know where to start? → Describe your data and access patterns and I'll route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -154,6 +155,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### SQL vs NoSQL Database Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: New data store     │
@@ -179,6 +181,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **When to choose PostgreSQL:** Structured data, complex JOINs/aggregations, >90% of use cases — start here unless a specific NoSQL advantage is clear. **When to choose MongoDB:** Rapidly evolving schema, deeply nested JSON documents, no cross-document JOINs needed. **When to choose Key-Value:** Simple GET/SET access patterns, p99 latency <5ms required, caching/session store.
 
 ### When to Add an Index
+
 ```
                      ┌──────────────────────────┐
                      │ START: Query runs >50ms   │
@@ -206,6 +209,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **When to add index:** Seq Scan on >10K rows, query runs >100× per minute, filtered column cardinality >100 distinct values. **When NOT to add index:** Table <1K rows, write-heavy table (>100 writes/sec) where read:write ratio <10:1, column with <10 distinct values.
 
 ### Normalize to 3NF vs Denormalize
+
 ```
                      ┌──────────────────────────┐
                      │ START: Data modeling      │
@@ -226,6 +230,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **When to denormalize:** Read:write >100:1, read p95 >20ms, denormalized column is small (<100 bytes), <1% of writes trigger the denormalized update. **When to keep 3NF:** Read:write <10:1, write correctness critical (financial data), data changes must propagate instantly.
 
 ### Online vs Maintenance-Window Migration
+
 ```
                      ┌──────────────────────────┐
                      │ START: Schema change on   │
@@ -252,6 +257,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **When to use Expand-Contract:** NOT NULL + DEFAULT on >1M rows, column rename/drop, type change. Steps: add nullable → backfill → set NOT NULL → add DEFAULT → drop old. **When maintenance window is acceptable:** Off-peak traffic <10% of peak, RTO <1hr acceptable, table <1M rows.
 
 ### Sharding Decision
+
 ```
                      ┌──────────────────────────┐
                      │ START: DB approaching     │
@@ -330,7 +336,6 @@ Database design skill scales from single-table decisions to org-wide data strate
 4. **Connection pooling**: PgBouncer (transaction mode) or built-in pool (HikariCP for JVM, `asyncpg` pool for Python).
 5. **Read replicas**: Route read queries to replicas; accept replication lag for non-critical reads.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -371,7 +376,6 @@ Routine schema change (new column, index addition, non-breaking type change)
   └── Database Designer reviews PR, team deploys with migration. No escalation needed.
 ```
 
-
 **What good looks like:** ERD covers all entities with named relationships and cardinalities. The 10 most expensive query patterns each have an EXPLAIN plan showing sequential scans eliminated by the chosen index strategy. Migration scripts have both up and down paths tested in CI. The schema survives a production load test at 2x peak QPS without connection pool exhaustion or lock contention.
 
 ## Proactive Triggers
@@ -391,7 +395,6 @@ Routine schema change (new column, index addition, non-breaking type change)
 > Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
@@ -422,7 +425,6 @@ Routine schema change (new column, index addition, non-breaking type change)
 - **`SERIAL`/`AUTO_INCREMENT`** gap on rollback: if you `BEGIN; INSERT; ROLLBACK;`, the sequence value is consumed. After enough rollbacks, your IDs have large gaps. This is expected behavior, not a bug, but it surprises developers who assume gapless.
 - **Migration that renames a column** deployed after the app code update: the old code references the old column name on the new schema, producing `column does not exist` errors during the deploy window. Always deploy schema changes first, then code.
 
-
 ## Verification
 
 - [ ] Run migration forward: `npm run migrate up` — all tables created without errors
@@ -431,7 +433,6 @@ Routine schema change (new column, index addition, non-breaking type change)
 - [ ] Verify foreign key constraints: `INSERT` a row with invalid FK — database REJECTS it, doesn't silently accept
 - [ ] Check index coverage: every column used in `WHERE`, `JOIN`, `ORDER BY` in application queries has a corresponding index
 - [ ] Load test with expected production volume — p99 query time within SLO
-
 
 ## References
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)

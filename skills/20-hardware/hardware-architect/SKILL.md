@@ -156,6 +156,7 @@ Silicon errata, no workaround? → System Architect → Chip reselection → +8 
 EMC failure >6dB over limit? → Performance Engineer → PCB respin → $15K-50K + 4-6 weeks
 BOM cost >25% over target? → Product Manager → Redesign or pricing adjustment
 Thermal junction temp exceeds rating? → Performance Engineer → Heatsink redesign or clock reduction
+
 ```
 
 ### Cross-Skill Chain
@@ -163,6 +164,7 @@ Thermal junction temp exceeds rating? → Performance Engineer → Heatsink rede
 ```bash
 # System Architecture → Hardware Architecture → Embedded bring-up → Firmware → QA
 /system-architect && /hardware-architect && /embedded-engineer && /firmware-developer && /qa-engineer
+
 ```
 
 ## Proactive Triggers
@@ -310,6 +312,7 @@ A well-designed hardware architecture is invisible when it's right — the produ
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -329,7 +332,6 @@ graph LR
 - **USB 3.0 SuperSpeed differential pairs** — at 5Gbps, a 2mm length mismatch between the differential pair creates a 10ps skew, closing the eye diagram by 5%. At 10mm mismatch, the eye is completely closed and the link drops to USB 2.0 speed. Length-match differential pairs to within 0.25mm.
 - **Thermal design with junction-to-ambient (θJA)** — the datasheet says θJA = 40°C/W, so 2W = 80°C rise. But θJA assumes a 4-layer board with 1oz copper, specific via density, and still air. Your 2-layer board with different copper weight has a θJA of 80°C/W. 2W = 160°C rise = junction exceeds Tj_max. Measure, don't trust datasheet θJA.
 
-
 ## Verification
 
 - [ ] Schematic review: DRC (Design Rule Check) passes — zero violations
@@ -338,7 +340,6 @@ graph LR
 - [ ] Thermal simulation: junction temperatures at max ambient + max load — all components within Tj_max
 - [ ] EMC pre-compliance: conducted and radiated emissions test — within 6dB of target limits (margin for production variance)
 - [ ] BOM review: all components have second-source alternative OR documented single-source risk with mitigation
-
 
 ## References
 

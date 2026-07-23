@@ -255,6 +255,7 @@ A - Ability to Execute (0-3)
     2 = Capability exists but needs investment (training, integration)
     1 = Significant gaps — 6+ months to enable
     0 = Cannot execute → You'd be building their capability
+
 ```
 
 **Go/No-Go Threshold:** Score <9 → Decline. Score 9-11 → Low priority, revisit in 6 months. Score 12-14 → Engage, structured pilot. Score 15 → Full investment, fast-track.
@@ -364,6 +365,7 @@ Partner program economics change (margin, tier structure) → VP Sales + Busines
 
 # Chain: bizdev-manager → product-manager
 # ISV ecosystem: BizDev identifies integration partners → PM prioritizes integration roadmap
+
 ```
 
 ## Proactive Triggers
@@ -392,6 +394,7 @@ Partner pipeline scored with SIMCA framework — only 12+ scoring partners progr
 ```mermaid
 graph LR
     A[Formulate<br/>thesis] --> B[Test in<br/>market] --> C[Study<br/>outcome] --> D[Refine<br/>mental model] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -409,7 +412,6 @@ graph LR
 - **Channel partner onboarding** that requires the partner to learn your product, your sales methodology, your implementation process, and your support escalation paths — that's 6 months of unpaid training. Partners make money selling, not learning. Onboarding must be under 2 weeks with pre-built sales playbooks and demo environments.
 - **MDF (Market Development Funds)** given without measurable ROI — you give a partner $50K for a webinar series. They run 3 webinars, 50 attendees total, 2 leads. The $50K could have bought 2 trade show booths with 500 leads. MDF must have pre-agreed success metrics and clawback for non-performance.
 
-
 ## Verification
 
 - [ ] Partner scorecard: every partner rated on pipeline, revenue, customer satisfaction, and integration quality
@@ -417,7 +419,6 @@ graph LR
 - [ ] Channel conflict: deal registration process tested — partner-registered deals are protected from direct sales
 - [ ] MDF ROI: every MDF investment has post-mortem with ROI calculation within 30 days of completion
 - [ ] Partner attrition: partners inactive for > 6 months identified — re-engage or offboard
-
 
 ## References
 

@@ -81,6 +81,7 @@ What are you trying to do?
 ├── Need AI safety validation for health content? → Invoke `ai-safety-health-reviewer` for clinical AI guardrail testing
 ├── Need backend integration for FHIR server? → Invoke `backend-developer` for FHIR API implementation
 └── Don't know where to start? → Describe the clinical data source and target system and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -149,6 +150,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### EHR Integration Path
+
 ```
                      ┌──────────────────────────────┐
                      │ START: EHR integration needed  │
@@ -174,6 +176,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use vendor-specific APIs:** Epic (App Orchard, MyChart Bedside, Epic FHIR) or Cerner (Millennium FHIR, PowerChart). >80% of US hospital EHR market. Leverage vendor-specific extensions for scheduling, medications, and provider directories that FHIR base resources don't cover. **When to use SMART on FHIR:** EHR-agnostic integration, single sign-on via OAuth2/OIDC, app launch from within EHR. Required for ONC Health IT Certification. **When to use HL7v2:** Legacy EHR systems without FHIR support, lab results (ORU^R01), ADT feeds (ADT^A01-A08). Map to FHIR as an intermediate normalization layer.
 
 ### Data Standard Selection
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Health data exchange    │
@@ -258,6 +261,7 @@ Data sharing violation (unauthorized data release)? → Health Compliance → Le
 Interoperability failure (data exchange down > SLA)? → Data Engineer → System Architect → CTO
 Clinical terminology mapping error (wrong code → wrong decision support)? → Clinical lead → Health Compliance
 Patient consent system failure (consent not enforced)? → Security Engineer → Health Compliance → Legal Advisor
+
 ```
 
 ### Regulatory Handoffs & Clinical Validation Gates
@@ -304,6 +308,7 @@ Clinical data flows seamlessly between EHRs, patient apps, and pharma partners. 
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -322,7 +327,6 @@ graph LR
 - **LOINC codes for lab tests** — `2951-2` is "Sodium [Moles/volume] in Serum or Plasma." `2947-0` is "Sodium [Moles/volume] in Blood." Different codes, same analyte, different specimen. A dashboard that groups by LOINC code without specimen type conflates serum and whole blood sodium (normal ranges differ by 2-3 mmol/L).
 - **FHIR `Bundle` search results** — you request 100 Observations, but the Bundle contains 98 entries and a `next` link. If you don't follow the `next` link, you silently process incomplete data. FHIR pagination is mandatory, not optional, and querying without pagination handling = clinical data gaps.
 
-
 ## Verification
 
 - [ ] FHIR validation: run `fhir-validator` against sample resources — all resources pass profile validation
@@ -330,7 +334,6 @@ graph LR
 - [ ] LOINC specimen type: lab queries group by LOINC code + specimen type — no cross-specimen conflation
 - [ ] Pagination: test FHIR search with `_count=10` and follow `next` links — all pages retrieved, no duplicates
 - [ ] Provenance: every clinical resource has `Provenance` resource documenting source system, timestamp, and actor
-
 
 ## References
 

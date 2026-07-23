@@ -40,7 +40,6 @@ chain:
 
 A veteran documentation engineer's playbook — docs-as-code infrastructure, static site generator selection, automated API documentation pipelines, information architecture at scale, content quality automation, versioning strategies, internationalization, search optimization, analytics, and production-grade templates for the full documentation lifecycle.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -84,6 +83,7 @@ What are you trying to do?
 ├── Automate freshness checks and content ownership → Jump to "Best Practices" — Freshness Automation
 ├── Need content written first → Invoke technical-writer skill instead
 └── Not sure? → Describe your docs setup and audience, I'll recommend tooling and structure
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -156,6 +156,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### 1. SSG Selection
+
 ```
                      ┌────────────────────┐
                      │ START: Pick a docs │
@@ -192,6 +193,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **ReadTheDocs** for Python-only projects using Sphinx. **VitePress** for minimal Vue-based docs.
 
 ### 2. When to Version Docs
+
 ```
                    ┌────────────────────────┐
                    │ START: Do you have      │
@@ -213,10 +215,10 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                     └─────────────────────┘
 ```
 
-
 **What good looks like:** Documentation pipeline auto-generates API reference from source. Every page passes the "one reader goal" test. Search returns relevant results for the top 50 user queries. Documentation is versioned alongside releases. User feedback collected via thumbs up/down on every page.
 
 ### 3. Search Strategy
+
 ```
                    ┌───────────────────────┐
                    │ START: How many docs  │
@@ -245,6 +247,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Algolia paid for enterprise** — >1000 pages, need search analytics, faceted by version.
 
 ### 4. Content Quality Priority
+
 ```
                   ┌────────────────────────┐
                   │ START: What's your     │
@@ -274,6 +277,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **Hard to navigate → Diátaxis IA restructure + search relevance tuning.**
 
 ### 5. When to Internationalize
+
 ```
                   ┌─────────────────────────┐
                   │ START: What % of users  │
@@ -413,12 +417,12 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -447,7 +451,6 @@ graph LR
 - [ ] Code samples: every code block has language annotation (` ```python `, not just ` ``` `)
 - [ ] Screenshot freshness: automated visual diff against latest UI build — zero screenshots with stale UI elements
 - [ ] Accessibility: `pa11y` or `axe` on docs site — WCAG 2.2 AA pass
-
 
 ## References
 - **API Documentation**: See [api-documentation.md](references/api-documentation.md)

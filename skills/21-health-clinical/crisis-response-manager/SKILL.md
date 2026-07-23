@@ -78,6 +78,7 @@ What are you trying to do?
 ├── Need content policy enforcement during crisis? → Invoke content-policy-manager
 ├── Need legal review of crisis communications? → Invoke legal-advisor
 └── Active crisis in progress? → Start at "Decision Trees" — Crisis Activation then follow escalation matrix
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -148,6 +149,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Safety Incident Classification
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Safety incident detected│
@@ -181,6 +183,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **S1 — Critical:** Death, life-threatening event, or immediate threat to patient population. Activate crisis team within 15 minutes. CEO, Legal Advisor, Health Compliance, Regulatory notified. **S2 — Severe:** Requires medical intervention or hospitalization. No death. Activate within 1 hour. VP-level notification. **S3 — High:** Affects >10 patients or has media/social media potential. Within 4 hours. Director-level. **S4 — Medium:** Isolated event, no media risk, affect <10 patients. Within 24 hours. **S5 — Low:** Near-miss, potential concern, no patient impact. Within 72 hours. Standard review.
 
 ### Mental Health Crisis Escalation
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Community post or       │
@@ -351,6 +354,7 @@ When a crisis hits, the response is swift, coordinated, and compassionate. Adver
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -368,7 +372,6 @@ graph LR
 - **First statement minimizes the incident** — "A minor service disruption affected a small number of users." Two hours later: "We're investigating reports of a data breach." Four hours later: "We confirm unauthorized access to 10 million accounts." Each escalating statement destroys credibility. If you don't know the full scope yet, say "We don't know the full scope yet. Here's what we know, what we're doing, and when we'll update."
 - **Internal communications that leak** — you send an "Internal Only — Do Not Share" email to all 500 employees. Within 15 minutes, it's on Twitter. The "leak" was inevitable; the "Internal Only" label was wishful thinking. Crisis communications must be written as if they'll be published on the front page. There is no "internal" during a crisis.
 
-
 ## Verification
 
 - [ ] Crisis templates: top 5 crisis scenarios have pre-drafted templates — reviewed and updated quarterly
@@ -376,7 +379,6 @@ graph LR
 - [ ] Stakeholder map: key stakeholders (board, investors, regulators, customers, media) identified with communication plan
 - [ ] First response SLA: initial public statement drafted within 60 minutes of crisis declaration
 - [ ] Post-crisis review: within 30 days — what worked, what didn't, templates and playbooks updated
-
 
 ## References
 

@@ -114,6 +114,7 @@ What are you trying to do?
 ├── Need system architecture decisions → Invoke system-architect skill instead
 ├── Need security review of backend → Invoke security-reviewer skill instead
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -200,6 +201,7 @@ Startup/Small team, rapid prototyping?
 Data-heavy with complex business logic? → Python/FastAPI
 Real-time, WebSocket-heavy? → Go or Node.js
 Enterprise, Java ecosystem? → Kotlin/Spring Boot
+
 ```
 
 ### Caching Strategy Decision Tree
@@ -268,7 +270,6 @@ Read:write ratio < 10:1? → Minimal caching, focus on write performance
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -335,6 +336,7 @@ Blocked by infrastructure? → DevOps Engineer → Cloud Architect
 Auth/security concern? → Security Engineer → Compliance Officer
 Data contract dispute? → System Architect → CTO Advisor
 Cross-team dependency blocking? → System Architect → Project Manager
+
 ```
 
 ## Proactive Triggers
@@ -360,15 +362,13 @@ Cross-team dependency blocking? → System Architect → Project Manager
 - **Health check endpoints** that only return 200 mask dependency failures. The `/health` endpoint should ping the database, cache, and message queue — not just the web server.
 - **`SELECT *` with ORMs** fetches all columns including large TEXT/BLOB fields. When the ORM generates the query from your model, it pulls every column unless you explicitly `.select()` or `columns=`.
 
-
 ## Verification
 
 - [ ] Run `npm test` / `pytest` / `go test ./...` — all tests pass, no regressions
 - [ ] Run linter: `eslint .` / `ruff check .` / `golangci-lint run` — zero new issues
 - [ ] Run type checker: `tsc --noEmit` / `mypy .` — zero type errors
-- [ ] Start the service and hit the health endpoint: `curl http://localhost:${PORT}/health` returns 200
+- [ ] Start the service and hit the health endpoint: `curl <http://localhost:${PORT}/health`> returns 200
 - [ ] Verify all new endpoints have integration tests covering success, auth failure, validation error, and not-found cases
-
 
 ## References
 

@@ -73,6 +73,7 @@ What are you trying to do?
 ├── Coordinated multi-service release → Route to `release-manager`
 ├── Cross-team API contract definition → Route to `api-designer`
 └── Not sure? → Start at "Decision Trees" — follow the ASCII tree
+
 ```
 
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
@@ -337,12 +338,12 @@ The TPM-to-System-Architect relationship is the bridge between program execution
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -361,7 +362,6 @@ graph LR
 - **Cross-team dependencies** where team A "promises" to deliver an API by March 15 — without a contract (API spec, SLA, test suite), March 15 arrives and team A says "it's ready" while team B says "it doesn't work." Inter-team delivery is not "code complete"; it's "integration tests passing for 48 hours."
 - **OKRs set at the program level** that cascade to teams — a program OKR of "99.9% availability" splits across 5 teams. All 5 teams hit 99.9%, but the COMBINED system has 99.5% because you multiplied availabilities (99.9%^5 = 99.5%). System-level OKRs can't be decomposed by simple division.
 
-
 ## Verification
 
 - [ ] Program schedule: critical path identified — any delay to critical path tasks escalates within 24 hours
@@ -370,7 +370,6 @@ graph LR
 - [ ] Risk register: top 5 program risks have mitigation plans, triggers, and owners — reviewed bi-weekly
 - [ ] Stakeholder comms: program status sent to stakeholders within last 2 weeks — format tailored to audience
 - [ ] Retrospective: program-level retrospective conducted at major milestones — findings tracked to process changes
-
 
 ## References
 

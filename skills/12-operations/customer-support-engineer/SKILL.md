@@ -314,12 +314,12 @@ The Support-Engineer-to-Backend-Developer handoff is the most critical quality g
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -338,7 +338,6 @@ graph LR
 - **Support escalation "L1 → L2 → L3 → Engineering"** with each level gathering the same information again — the customer explains the problem 4 times. Implement a shared investigation document that accumulates context across tiers, with each tier adding before escalating.
 - **"Cannot reproduce"** as a resolution — the customer's environment differs from yours in a way you didn't check: timezone, browser extensions, proxy configuration, firewall rules. Ask for HAR file, console logs, and environment details BEFORE trying to reproduce.
 
-
 ## Verification
 
 - [ ] Response time SLA: tickets acknowledged within SLA window (e.g., 1 hour for critical, 4 hours for normal)
@@ -347,7 +346,6 @@ graph LR
 - [ ] Debug safety: zero instances of DEBUG=* or inspector mode in production — verified via audit log
 - [ ] CSAT: customer satisfaction survey sent for every closed ticket — response rate >= 20%%, score >= target
 - [ ] Duplicate detection: "me too" reports linked to canonical first report as source of truth
-
 
 ## References
 

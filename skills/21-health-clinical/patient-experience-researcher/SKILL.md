@@ -74,6 +74,7 @@ What are you trying to do?
 ├── Need community-based participant recruitment? → Invoke `community-operations-manager` for patient community access and engagement
 ├── Need product management alignment on research priorities? → Invoke `product-manager` for roadmap implications of patient research findings
 └── Don't know where to start? → Describe your research question and patient population and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -142,6 +143,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Clinical Trial Research Path
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Clinical trial research │
@@ -179,6 +181,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to use recruitment barrier research:** Low trial enrollment (<30% of eligible patients), high screen-failure rate, demographic disparities in enrollment. Method: semi-structured interviews with patients who declined and patients who enrolled — compare to identify modifiable barriers. **When to use retention research:** >20% dropout rate, differential dropout by demographic group. Method: longitudinal diary study + exit interviews with dropouts. **When to route to clinical research:** Studying drug efficacy, safety, or a clinical intervention. This skill supports the patient experience component of clinical research but does not replace a clinical research protocol.
 
 ### IRB Determination Path
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Does this activity      │
@@ -315,6 +318,7 @@ Research findings directly shape product decisions. Patient voices are present i
 ```mermaid
 graph LR
     A[Design<br/>solution] --> B[Validate with<br/>stakeholders] --> C[Measure<br/>outcomes] --> D[Refine for<br/>safety & UX] --> A
+
 ```
 
 | Level | Practice | Frequency |

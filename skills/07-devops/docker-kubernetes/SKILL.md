@@ -76,6 +76,7 @@ What are you trying to do?
 ├── Configure ingress (cert-manager, external-dns)
 ├── Set up service mesh (Istio, Linkerd, Cilium)
 └── Not sure? → Describe your workload and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -153,6 +154,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Docker Compose vs Kubernetes
+
 ```
                      ┌──────────────────────────┐
                      │ START: Container           │
@@ -180,6 +182,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 **When to choose docker-compose:** <5 services, <5 engineers, <1K DAU, budget <$500/month, no auto-scaling needed. **When to choose ECS/Cloud Run:** 2-20 services, no K8s expertise, managed containers, $200-500/month. **When to choose K8s:** >5 services, >5 engineers, auto-scaling/self-healing required, budget >$1K/month, GitOps desired.
 
 ### Managed K8s vs Self-Managed
+
 ```
                      ┌──────────────────────────┐
                      │ START: K8s deployment      │
@@ -202,6 +205,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 **When to choose Managed (EKS/GKE/AKS):** <50 nodes, <2 dedicated K8s experts, want control plane managed, budget for $73-150/month per cluster. **When to choose Self-Managed:** >50 nodes, in-house K8s expertise (2+ FTEs), cost savings on control plane justify 20-40 hrs/week ops overhead.
 
 ### Ingress Controller Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Ingress controller  │
@@ -223,6 +227,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 **When to choose NGINX Ingress:** Cross-cloud, need custom Lua/OpenResty, advanced rate limiting, canary by header, >10 routing rules. **When to choose Cloud-Native LB:** Single cloud, simple host/path routing, want cloud WAF integration (AWS WAF), managed TLS termination.
 
 ### Service Mesh Decision
+
 ```
                      ┌──────────────────────────┐
                      │ START: Service mesh        │
@@ -246,6 +251,7 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 **When to deploy Service Mesh:** mTLS required, >10 services, need traffic splitting (canary), need L7 observability per service, team can absorb 0.5-2ms added latency. **When to skip:** <10 services, no mTLS requirement, NetworkPolicy sufficient, latency budget <5ms — mesh adds unnecessary complexity.
 
 ### Container Image Security Posture
+
 ```
                      ┌──────────────────────────┐
                      │ START: Image security      │
@@ -308,7 +314,6 @@ Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-clus
 4. Use request timeouts, circuit breakers, and retries at the sidecar level to implement resilience patterns.
 5. Ingress: use cert-manager with Let's Encrypt for automatic TLS; external-dns for automatic Route53/Cloud DNS record creation.
 
-
 ### Cross-skills Integration
 
 | Step | Skill | What it produces |
@@ -336,7 +341,6 @@ Common chains:
 | `platform-engineer` | Containerized workloads and Helm charts deployable via platform golden paths | Developer self-service stuck — no deployable artifacts |
 | `observability-engineer` | Container metrics, PodMonitors, OpenTelemetry sidecar injection, Fluent Bit config | Can't observe container workloads — blind spots in monitoring |
 
-
 **What good looks like:** Docker image builds in under 5 minutes and is under 200MB. Kubernetes manifests pass `kubeval` validation. Pod startup time < 10 seconds. Liveness and readiness probes configured on every deployment. Resource requests and limits set on every container.
 
 ## Proactive Triggers
@@ -358,7 +362,6 @@ Common chains:
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Kubernetes mastery is built through controlled destruction. The best K8s engineers have broken clusters in every possible way — in sandboxes, not in production.
@@ -369,6 +372,7 @@ graph LR
     B --> C[Observe: did self-healing work? what surprised you?]
     C --> D[Document the failure mode. Add to your mental model of K8s.]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -389,7 +393,6 @@ graph LR
 - **Readiness vs Liveness probes**: if the readiness probe fails, the pod is removed from Service endpoints but stays running. If the liveness probe fails, the pod is KILLED and restarted. A liveness probe that's too aggressive (checking external dependencies) restarts healthy pods during transient network blips.
 - **Image tag `:latest`** in Kubernetes with `imagePullPolicy: Always` pulls whatever `latest` currently resolves to. Two replicas started 10 seconds apart can run different image versions if a new build pushed during that window.
 
-
 ## Verification
 
 - [ ] Run `docker build -t app:test .` — builds without errors
@@ -399,7 +402,6 @@ graph LR
 - [ ] Run `kubectl apply --dry-run=client -f deployment.yaml` — manifests parse correctly
 - [ ] Run `kube-linter lint deployment.yaml` — zero checks with severity "critical" or "high"
 - [ ] Verify resource limits: every container has `resources.requests` AND `resources.limits` set
-
 
 ## References
 

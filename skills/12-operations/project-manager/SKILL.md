@@ -145,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Methodology Selection: Waterfall vs Agile vs Hybrid
+
 ```
                      ┌──────────────────────────┐
                      │ START: Project methodology? │
@@ -176,6 +177,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to choose Agile/Scrum:** Software with evolving requirements, co-located or async-capable team — 2-week sprints, backlog refinement, working software increments.
 
 ### Risk Response Strategy
+
 ```
                      ┌──────────────────────────┐
                      │ START: Risk response?       │
@@ -213,6 +215,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to Accept:** Low impact or low probability — document in RAID log, monitor triggers, no active mitigation unless threshold crossed.
 
 ### Stakeholder Communication Escalation
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Who needs what comms?   │
@@ -243,6 +246,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When to send General comms:** Wider org, indirect stakeholders — project newsletter, wiki update, Slack broadcast. Optional consumption, no action required.
 
 ### Project Health Assessment
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Is the project healthy? │
@@ -273,6 +277,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When GREEN (SPI/CPI > 0.95):** On or ahead of plan — continue monitoring, celebrate ahead-of-plan performance, but verify metrics aren't gamed.
 
 ### Resource Conflict Resolution
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Resource conflict       │
@@ -431,16 +436,16 @@ The project-manager-to-fullstack-developer handoff is the bridge between plannin
 
 ## What Good Looks Like
 
-> When project management is applied perfectly, every project has a clear charter with defined success criteria, the critical path is known and actively managed, risks are identified before they become 
+> When project management is applied perfectly, every project has a clear charter with defined success criteria, the critical path is known and actively managed, risks are identified before they become
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ## Deliberate Practice
 
 ```mermaid
 graph LR
     A[Execute<br/>process] --> B[Measure<br/>friction] --> C[Identify<br/>bottleneck] --> D[Re-design<br/>process] --> A
+
 ```
 
 | Level | Practice | Frequency |
@@ -459,7 +464,6 @@ graph LR
 - **Stakeholder who "approved" the spec but didn't actually read it** — they approved the idea, not the details. When the deliverable doesn't match their mental model: "This isn't what I approved." Approval must be specific: "I have reviewed the spec and confirm pages 3-7 accurately describe the workflow. I approve the design on page 8 with the noted changes on lines 45-50."
 - **Scope creep as "just a small change"** — 15 "small changes" later, the project is 40% over budget and 3 months late. Every change request goes through: impact assessment (schedule + budget + risk), stakeholder approval, and documentation. "Small" is a size, not a process exemption.
 
-
 ## Verification
 
 - [ ] Schedule: critical path identified — every task on the critical path has a single owner and a buffer
@@ -467,7 +471,6 @@ graph LR
 - [ ] Approvals: all spec approvals are specific — page/section-level, not document-level
 - [ ] Change log: every scope change has written impact assessment AND stakeholder sign-off
 - [ ] Risk register: top 5 risks have mitigation plans and triggers — reviewed weekly
-
 
 ## References
 

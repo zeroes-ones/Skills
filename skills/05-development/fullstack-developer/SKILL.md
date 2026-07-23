@@ -81,6 +81,7 @@ What are you trying to do?
 ├── Need DevOps/deploy pipeline → Invoke devops-engineer skill instead
 ├── Need QA test strategy → Invoke qa-engineer skill instead
 └── Don't know where to start? → Describe the feature in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -149,6 +150,7 @@ Debugging issues that cross the frontend-backend boundary
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Monorepo vs Polyrepo
+
 ```
                      ┌──────────────────────────┐
                      │ START: One repo or many? │
@@ -179,6 +181,7 @@ Debugging issues that cross the frontend-backend boundary
 **When Polyrepo:** Fully independent services with separate deploy cadences. Teams don't need each other's code. Published API contracts are sufficient.
 
 ### API Architecture Decision
+
 ```
                      ┌──────────────────────────────┐
                      │ START: REST, GraphQL, tRPC?  │
@@ -208,6 +211,7 @@ Debugging issues that cross the frontend-backend boundary
 **When REST:** Public API consumed by third parties. Caching via CDN/HTTP important. Simple CRUD with predictable resource patterns.
 
 ### Auth Strategy
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Auth approach?        │
@@ -236,6 +240,7 @@ Debugging issues that cross the frontend-backend boundary
 **When Clerk/WorkOS:** Enterprise SSO (SAML). Multi-tenant with org management. Need pre-built UI components. Don't want to store passwords.
 
 ### Deployment Platform
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Where to deploy?      │
@@ -351,6 +356,7 @@ Database migration failure? → Database Designer → DevOps Engineer
 Auth vulnerability discovered? → Security Engineer → CTO Advisor
 Cross-service integration broken? → Backend Developer → System Architect
 Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
+
 ```
 
 ## Proactive Triggers
@@ -370,7 +376,6 @@ Deploy blocked (infra)? → DevOps Engineer → Cloud Architect
 > Types flow end-to-end from database schema through API contracts to UI props — the compiler catches mismatches before they reach production.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
-
 
 ### Cross-skills Integration
 
@@ -413,7 +418,6 @@ Common chains:
 - **Session store** (Redis, DB, memory): if you use in-memory sessions during development, every server restart logs everyone out. Tests that depend on session state fail intermittently when the session store is not shared across parallel test workers.
 - **File uploads via `multipart/form-data`** bypass JSON body parsers. If your validation middleware assumes `req.body` is JSON, file upload endpoints will silently receive `{}` and pass validation on empty.
 
-
 ## Verification
 
 - [ ] Run `npm test` / `pytest` across frontend AND backend — both pass independently
@@ -422,7 +426,6 @@ Common chains:
 - [ ] Run integration test that touches frontend → API → database → back: `npm run test:e2e`
 - [ ] Check network tab: no 4xx or 5xx responses in normal flows
 - [ ] Verify CORS configuration: frontend origin exactly matches API's `Access-Control-Allow-Origin`
-
 
 ## References
 

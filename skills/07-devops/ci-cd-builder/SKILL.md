@@ -82,6 +82,7 @@ What are you trying to do?
 ├── Debug a failing pipeline
 ├── Need a specific pipeline platform (GitHub Actions, GitLab CI, CircleCI, Jenkins)
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -161,6 +162,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### CI Platform Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Choose CI platform  │
@@ -186,6 +188,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 **When to choose GitHub Actions:** Code on GitHub, <50 engineers, <100 concurrent jobs, need OIDC to cloud, DORA-focused. **When to choose GitLab CI:** Self-hosted requirement, GitLab ecosystem, >100 concurrent jobs, need integrated container registry. **When to choose Jenkins:** Legacy migration path only — avoid for greenfield.
 
 ### Deployment Strategy Selection
+
 ```
                      ┌──────────────────────────┐
                      │ START: Production deploy   │
@@ -213,6 +216,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 **When to choose Canary:** >1000 concurrent users, need metrics-based rollback, error budget >0.1%, can afford 10 min observation windows. **When to choose Blue-Green:** Instant rollback needed, DB schema compatible with both versions, can afford 2× infrastructure during deploy. **When to choose Rolling:** Standard case — sequential pod replacement, simplest, works for 90% of services.
 
 ### Build Optimization Tactic
+
 ```
                      ┌──────────────────────────┐
                      │ START: CI build >10 min    │
@@ -238,6 +242,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 **When to cache deps:** Dependencies stable, build time >5 min, cache hit rate >80% expected. **When to shard tests:** >200 test cases, tests CPU-bound, CI runner has 4+ cores. **When to split jobs:** Monorepo with independent modules, build >15 min, multiple teams.
 
 ### Supply Chain Security Depth
+
 ```
                      ┌──────────────────────────┐
                      │ START: Secure the pipeline │
@@ -268,6 +273,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 **When to target SLSA L1:** Internal tools, pre-production, non-critical services. **When to target SLSA L2:** All production services — signed provenance + hosted build platform + SBOM generation. **When to target SLSA L3:** Fintech, healthcare, gov — hermetic builds, isolated environments, policy-controlled deployments.
 
 ### Release Workflow Design
+
 ```
                      ┌──────────────────────────┐
                      │ START: Release strategy    │
@@ -298,7 +304,6 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                 └───────────┬───────────┘
                        Quality Gates
    ```
-
 
 **What good looks like:** Pipeline completes in under 15 minutes for a full build-test-deploy cycle. All stages pass on every PR merge. Failed deploys auto-rollback within 2 minutes. Secrets are injected at runtime — zero plaintext in pipeline config.
 
@@ -432,6 +437,7 @@ graph LR
     B --> C[Optimize the bottleneck — caching, parallelization, sharding]
     C --> D[Simulate failure: what breaks when a dependency is compromised?]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -452,7 +458,6 @@ graph LR
 - **`actions/checkout` by default** does a shallow clone (depth=1). `git diff origin/main...HEAD` fails because there's no shared history. Use `fetch-depth: 0` when you need git history.
 - **Artifact retention** defaults to 90 days. After that, deployment workflows that reference old artifacts silently fail with "artifact not found." Document artifact lifecycle in deployment runbooks.
 
-
 ## Verification
 
 - [ ] Push to branch — CI pipeline triggers automatically, all jobs pass
@@ -461,7 +466,6 @@ graph LR
 - [ ] Test deployment: deploy to staging from CI — application is healthy, version matches commit SHA
 - [ ] Test rollback: trigger rollback workflow — previous version is restored, health check passes
 - [ ] Verify `fail-fast: false` in matrix builds — one failing job doesn't cancel others
-
 
 ## References
 

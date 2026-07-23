@@ -74,6 +74,7 @@ What are you trying to do?
 ├── Need clinical/regulatory review of claims? → Invoke regulatory-specialist or clinical-informatics-specialist
 ├── Need product strategy or roadmap input? → Invoke product-strategist instead
 └── Not sure? → Describe the product, stage (pre-launch/growth/scale), and what's most urgent — I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -259,6 +260,7 @@ Product marketing is the connective tissue between product, sales, and market. K
 ```mermaid
 graph LR
     A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+
 ```
 
 | Level | Practice | Frequency |

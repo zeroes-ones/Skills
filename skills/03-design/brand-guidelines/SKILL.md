@@ -67,6 +67,7 @@ What are you trying to do?
 ├── Need design system tokens or component library? → `ui-ux-designer`
 ├── Need accessibility validation of brand colors or typography? → `accessibility-auditor`
 └── Not sure? → Describe the problem in plain language and I'll route you
+
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
@@ -143,6 +144,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Brand Architecture Model
+
 ```
                      ┌──────────────────────────┐
                      │ START: Brand architecture│
@@ -175,6 +177,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 **When House of Brands:** Acquired companies with existing equity. Targeting different audiences with conflicting brand promises. Risk isolation between brands.
 
 ### Logo System Complexity
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Logo variants needed? │
@@ -198,6 +201,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 **When minimal suffices:** Single-context use (web only). Logo always appears at predictable sizes. Internal or B2B tool with limited brand exposure.
 
 ### Color Palette Scope
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Palette complexity?   │
@@ -223,6 +227,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 **When core palette:** Marketing site + simple app. Light mode only. No data visualization beyond status indicators. Fast time to launch.
 
 ### Typography Hierarchy Depth
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Type scale depth?     │
@@ -248,6 +253,7 @@ Brand design scales from single-brand identity to multi-brand portfolio governan
 **When compact scale:** Dashboard, admin panel, B2B tool. Primarily UI components. Short text mostly. Consistency over typographic expression.
 
 ### Governance Model
+
 ```
                      ┌──────────────────────────────┐
                      │ START: Governance approach?  │
@@ -291,8 +297,8 @@ Decision framework:
 ├─ Multiple distinct audiences, different promises? ──► House of Brands
 │
 └─ Related products, shared trust? ───────► Endorsed Brand Architecture
-```
 
+```
 
 **What good looks like:** Brand guidelines document that a designer outside your company can pick up and produce an on-brand screen within an hour. Design token file (JSON/TS/CSS custom properties) matches the guidelines byte-for-byte — they're the same truth, not two documents that contradict each other. Every component pattern has examples of correct use, incorrect use, and edge cases.
 #### 1.2 Brand Strategy Foundation
@@ -387,7 +393,6 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
-
 ## Deliberate Practice
 
 Brand design mastery comes from exposure — seeing more brands, analyzing what works, and applying principles across diverse constraints.
@@ -398,6 +403,7 @@ graph LR
     B --> C[Apply that principle to your own brand work]
     C --> D[Get feedback from users, not designers]
     D --> A
+
 ```
 
 | Level | Practice Routine | Frequency |
@@ -417,7 +423,6 @@ graph LR
 - **"Brand in product"** — the marketing site has a bold, colorful brand; the product UI is gray with one accent color. Users don't perceive them as the same company. Brand expression in product must be proportional to brand expression in marketing: same color system, same typographic voice, same illustration style. Consistency > minimalism.
 - **Motion design tokens** (easing curves, duration scales) that are undocumented — the marketing site uses spring animations, the product uses CSS ease-in-out, the mobile app uses native platform curves. Brand motion feels disjointed. Define `easing-enter`, `easing-exit`, `duration-fast/normal/slow` as tokens.
 
-
 ## Verification
 
 - [ ] Color palette: all colors have HEX, RGB, CMYK, and P3 values — no conversions needed by implementers
@@ -425,7 +430,6 @@ graph LR
 - [ ] Logo: canonical SVG is clean (no inline styles, no external fonts), PNG variants at 1x/2x/3x
 - [ ] Motion: easing curves, duration tokens, and reduced-motion alternatives documented and implemented
 - [ ] Brand-in-product audit: product UI uses same color system, typographic scale, and tone as marketing — consistent brand experience
-
 
 ## References
 
