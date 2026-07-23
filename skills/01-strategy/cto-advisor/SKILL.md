@@ -93,6 +93,20 @@ The CTO's job is not to pick the best technology — it's to **ensure technology
 - **The CTO's technical depth must evolve with scale.** At 10 people, you should be the best IC on the team. At 100 people, you should be the best architect. At 1,000 people, you should be the best organizational designer. The skills that got you here won't get you there.
 - **Platform teams are underinvested.** A 5-person platform team that makes 100 engineers 20% more productive delivers the equivalent of 20 additional engineers. Most CTOs underinvest in internal platform because it's not customer-facing.
 
+## Operating at Different Levels
+
+CTO effectiveness is deeply tied to company stage. The skills that make a great 10-person CTO differ from what makes a great 500-person CTO.
+
+| Level | CTO Output Characteristics |
+|---|---|
+| **L1 — First-time CTO** | Learns technology leadership at scale. Needs frameworks for build-vs-buy, org design, and tech debt prioritization. |
+| **L2 — Seed CTO (10-30)** | Hands-on technical leader. Sets initial tech stack, hiring bar, and engineering culture. Writes code while building the team. |
+| **L3 — Growth CTO (30-150)** | Manages managers. Sets architecture strategy, tech org structure, and technical due diligence for fundraising. |
+| **L4 — Scale CTO (150-1000+)** | Runs a multi-hundred person engineering org. Technology vision, platform strategy, M&A technical assessment. "This is our 3-year technical direction." |
+| **L5 — Industry CTO** | Defines technology philosophies adopted across the industry. Board-level technology strategy for public companies. |
+
+**Usage**: Say "as a growth-stage CTO, help me design the engineering org for..." or calibrate by company size. Default: **Growth CTO** (30-150 engineers, managing managers).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Making build-vs-buy decisions for critical infrastructure or product components

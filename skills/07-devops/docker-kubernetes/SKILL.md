@@ -93,6 +93,20 @@ Containers and Kubernetes are not goals — they're **tools for solving the prob
 - **Helm charts are not configuration management.** Helm templates are for Kubernetes-native configuration. If you're generating 500 lines of YAML with complex conditionals, your abstraction is wrong. Consider a Kubernetes operator or a simpler templating approach.
 - **The cluster API is the source of truth, not your manifests.** `kubectl get` shows reality; your YAML files show intent. When they diverge, trust `kubectl get` and work backwards. Never assume the manifest was applied correctly.
 
+## Operating at Different Levels
+
+Docker/Kubernetes skill scales from writing a Dockerfile to designing multi-cluster Kubernetes architectures.
+
+| Level | Docker/Kubernetes Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Writes Dockerfiles from templates. Learns basic kubectl, pod lifecycle, and container concepts. |
+| **L2 — Practitioner** | Owns containerization for a service. Writes production Dockerfiles, multi-service docker-compose, and Kubernetes manifests independently. |
+| **L3 — Senior** | Designs Kubernetes architecture for a product. Helm chart design, service mesh decisions, pod security, ingress architecture. |
+| **L4 — Staff/Principal** | Sets container platform strategy for the org. Cluster fleet management, multi-cluster architecture, operator development. "This is our Kubernetes platform." |
+| **L5 — Industry-level** | Creates container orchestration patterns and Kubernetes tooling adopted across the industry. |
+
+**Usage**: Say "as an L3 Kubernetes engineer, design the deployment architecture for..." Default: **L2** (service-level containerization, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing or optimizing Dockerfiles for production with multi-stage builds and non-root users

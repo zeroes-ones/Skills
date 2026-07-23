@@ -102,6 +102,20 @@ The CEO's job is not to have all the answers — it's to **ask the right questio
 - **Your psychology becomes the company's psychology.** If you're anxious, the company is anxious. If you're calm under pressure, the company learns calm. Do the internal work — therapy, coaching, reflection — because your emotional state scales.
 - **The hardest decision is usually the right one.** Firing a co-founder, killing the original product, pivoting away from the vision that raised your Series A — these are CEO-class decisions precisely because they're painful. If a decision is easy, delegate it.
 
+## Operating at Different Levels
+
+CEO strategy is inherently tied to company stage. The same frameworks apply differently at seed, growth, and scale.
+
+| Level | CEO Output Characteristics |
+|---|---|
+| **L1 — First-time founder** | Learns CEO fundamentals: fundraising, hiring, basic board management. Needs frameworks and playbooks. |
+| **L2 — Seed-stage CEO** | Leads a company of 10-30. Runs fundraising process, builds initial exec team, establishes culture and operating cadence. |
+| **L3 — Growth-stage CEO** | Leads 50-200 people through Series B-C. Manages a board, multiple layers of leadership, capital allocation across functions. |
+| **L4 — Scale-stage CEO** | Leads 200-1000+. Multi-product, multi-geography. IPO readiness or public company operations. "This is the 5-year vision." |
+| **L5 — Industry-defining CEO** | Shapes the industry itself. Creates organizational and cultural models adopted by other companies. |
+
+**Usage**: Say "as a growth-stage CEO, help me think through..." or calibrate by company size/stage. Default: **Seed-stage** (early-stage, hands-on, building fundamentals).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom

@@ -112,6 +112,20 @@ QA is not about finding bugs — it's about **building confidence that the syste
 - **Exploratory testing finds what automated tests miss.** Automated tests check what you thought to test. Exploratory testing discovers what you didn't think of. The best QA strategies combine both.
 - **Performance testing is underinvested.** Most teams test correctness but not speed. A correct system that takes 10 seconds to respond is broken. Set performance budgets and test them in CI.
 
+## Operating at Different Levels
+
+QA engineering scales from test execution to org-wide quality strategy and culture.
+
+| Level | QA Engineer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Writes test cases from specs. Executes manual test runs. Learns automation tools (Playwright, Cypress). |
+| **L2 — Practitioner** | Owns testing for a feature. Writes automated E2E, integration, and API tests. Designs test cases for edge cases independently. |
+| **L3 — Senior** | Owns test strategy for a product. Designs test pyramid, CI/CD quality gates, performance testing. Mentors on test design. |
+| **L4 — Staff/QA Lead** | Sets quality strategy for the organization. Defines quality metrics, testing standards, and tool selection criteria. "This is how we ensure quality here." |
+| **L5 — Industry-level** | Creates testing methodologies and quality frameworks adopted across the industry. |
+
+**Usage**: Say "as an L3 QA engineer, design the test strategy for..." Default: **L2** (feature-level testing, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a test strategy for a new or existing project

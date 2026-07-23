@@ -85,6 +85,20 @@ UX research is not about confirming what you already believe — it's about **di
 - **The researcher's job is not to deliver findings — it's to deliver understanding.** A deck of 50 findings that nobody reads is worthless. One video clip of a user struggling that the entire team watches and discusses is priceless.
 - **Triangulation is the difference between science and storytelling.** Never make a product recommendation from a single method. At least two methods should point in the same direction before you recommend action.
 
+## Operating at Different Levels
+
+UX research skill manifests in the complexity of research questions tackled and strategic influence of findings.
+
+| Level | UX Researcher Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Runs usability tests from a script. Moderates sessions under supervision. Learns research methods. |
+| **L2 — Practitioner** | Owns research for a feature area. Chooses appropriate methods, conducts studies independently, delivers actionable findings. |
+| **L3 — Senior** | Owns research for a product. Triangulates across methods, influences product strategy with evidence, mentors junior researchers. |
+| **L4 — Staff/Principal** | Sets research strategy for the organization. Establishes research ops, participant panels, and insights repositories. "This is how we do research here." |
+| **L5 — Industry-level** | Creates research methodologies adopted across the industry. "Here's a new approach to understanding user behavior." |
+
+**Usage**: Say "as an L3 UX researcher, design a study for..." Default: **L2** (feature-area research, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves
