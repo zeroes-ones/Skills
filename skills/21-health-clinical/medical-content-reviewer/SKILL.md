@@ -10,6 +10,7 @@ description: >
   Do NOT use for regulatory submission writing, clinical trial protocol
   authoring, peer-reviewed journal publication, or non-health content review.
 license: MIT
+allowed-tools: Read Grep Glob
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable

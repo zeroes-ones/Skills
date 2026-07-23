@@ -8,6 +8,7 @@ description: >
   and reliability measurement. Do NOT use for observability stack setup, CI/CD
   pipeline design, or infrastructure provisioning.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - sre
 - reliability

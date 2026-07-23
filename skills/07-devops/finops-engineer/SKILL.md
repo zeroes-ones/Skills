@@ -8,6 +8,7 @@ description: >
   Kubernetes cost optimization, spot instance strategy, and unit economics. Do NOT
   use for financial planning and analysis, accounting, or general FP&A work.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - finops
 - cost

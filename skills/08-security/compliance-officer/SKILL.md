@@ -9,6 +9,7 @@ description: >
   privacy-specific compliance, legal contract review, or regulatory submission
   preparation.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - compliance
 - soc2

@@ -101,6 +101,9 @@ for f in changed:
     if 'Handles' not in desc:
         print(f'\n  ❌ MISSING \"Handles\" in description: {f}', file=sys.stderr)
         errors += 1
+    if 'Do NOT use' not in desc:
+        print(f'\n  ❌ MISSING \"Do NOT use\" negative trigger: {f}', file=sys.stderr)
+        errors += 1
 sys.exit(min(errors, 1))
 "
 echo "✅"

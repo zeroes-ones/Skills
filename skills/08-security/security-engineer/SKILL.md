@@ -8,6 +8,7 @@ description: >
   SAST and DAST integration, and continuous security monitoring. Do NOT use for
   compliance auditing, code review, or incident response management.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - security
 - threat-modeling

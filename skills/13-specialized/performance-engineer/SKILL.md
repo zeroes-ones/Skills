@@ -8,6 +8,7 @@ description: >
   budget enforcement. Do NOT use for infrastructure provisioning, CI/CD optimization, or security
   auditing.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
   - performance-engineer
   - profiling

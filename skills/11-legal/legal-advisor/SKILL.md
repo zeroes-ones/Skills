@@ -10,6 +10,7 @@ description: >
   regulatory compliance (FDA, HIPAA), privacy law implementation, or security
   engineering.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - legal
 - contracts

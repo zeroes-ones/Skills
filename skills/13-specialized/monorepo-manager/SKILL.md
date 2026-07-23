@@ -7,6 +7,7 @@ description: >
   governance, CI/CD optimization, versioning strategies, and polyrepo migration. Do NOT use for
   package-level development, CI/CD pipeline construction, or individual project builds.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
   - monorepo-manager
   - turborepo

@@ -7,6 +7,7 @@ description: >
   multi-tenant architecture, and cost-aware capacity planning. Do NOT use for schema design, application-level
   ORM configuration, ETL pipeline construction, or infrastructure provisioning.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - database
 - reliability
