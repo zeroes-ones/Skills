@@ -18,9 +18,6 @@ tags:
   - mastery-taxonomy
   - level-calibration
 token_budget: 4000
-output:
-  type: code
-  path_hint: ./
 chain:
   feeds_into:
     - backend-developer
@@ -56,8 +53,9 @@ chain:
     - networking-engineer
     - tdd-guide
     - scrum-master
----
 
+license: MIT
+---
 # Skill Levels — Universal Competency Taxonomy
 A 5-level mastery taxonomy defining what separates practitioners at every stage, from apprentice to transformative leader. Use this to calibrate skill output depth, set expectations, and define what excellence means concretely at each level.
 
