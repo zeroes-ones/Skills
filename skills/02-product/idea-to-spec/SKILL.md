@@ -242,7 +242,10 @@ Cross-team dependency deadlock (two teams block each other)
 
 ## What Good Looks Like
 
-> You've just completed the spec for this feature. Every requirement traces back to a user interview, analytics event, or support ticket — there are no orphan features that "seemed like a good idea." The API contract includes error schemas for every 4xx and 5xx response, pagination is consistent with existing conventions, and the `requestId` field is present in every response body. Every screen has defined loading, empty, error, and permission-denied states — the engineering team won't discover edge cases mid-sprint. Non-goals are explicit and agreed upon, so when a stakeholder asks "can we also just add X," you point to the document. The story map is ordered by dependency and value-to-effort ratio, and acceptance criteria are executable in GIVEN/WHEN/THEN format.
+> Every requirement traces back to a user interview, analytics event, or support ticket — there are no orphan features that "seemed like a good idea.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

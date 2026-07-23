@@ -382,7 +382,10 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## What Good Looks Like
 
-> Every training run is reproducible: pinned dependencies, versioned datasets, seeded randomness, and a logged git hash. The evaluation harness catches regressions across every slice before deployment, and the model registry gates promotion from staging to production with automated A/B validation. Drift monitoring fires a retrain pipeline before prediction quality degrades below threshold, and model cards document intended use, limitations, and fairness evaluations for every production model. A new ML engineer can reproduce a six-month-old experiment in under an hour.
+> Every training run is reproducible: pinned dependencies, versioned datasets, seeded randomness, and a logged git hash.
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

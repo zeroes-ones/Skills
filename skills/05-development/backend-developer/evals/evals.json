@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "backend-developer",
+  "description": "Per-skill evaluation for backend-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-backend-api",
+      "category": "trigger_routing",
+      "description": "Agent should activate backend-developer when user asks to build a REST API",
+      "input": "I need to build a REST API for a task management app with user authentication",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "backend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "FastAPI",
+            "Express",
+            "contract-first",
+            "OpenAPI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-backend-db",
+      "category": "trigger_routing",
+      "description": "Agent should activate when user asks about database integration in backend",
+      "input": "How should I set up database connection pooling for my Node.js backend?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "backend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "connection pooling",
+            "indexed queries"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-backend-auth",
+      "category": "trigger_routing",
+      "description": "Agent should activate for JWT/OAuth backend implementation questions",
+      "input": "Implement JWT authentication with refresh tokens in Python FastAPI",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "backend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "JWT",
+            "access token",
+            "refresh token"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-frontend-only",
+      "category": "negative_trigger",
+      "description": "Should NOT activate when user only asks about frontend UI",
+      "input": "Create a React component for the login form with Tailwind styling",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "backend-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-database-only",
+      "category": "negative_trigger",
+      "description": "Should NOT activate for pure database schema design without backend context",
+      "input": "Design a normalized PostgreSQL schema for an e-commerce platform",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "backend-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common backend anti-patterns",
+      "input": "Build an API endpoint for user registration in Express",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "eval(",
+            "exec(",
+            "secret hardcoded",
+            "console.log(password"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "validation",
+            "error handling",
+            "hash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items",
+      "input": "I'm deploying a new microservice to production, what should I check?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health check",
+            "migration",
+            "rollback",
+            "monitoring"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference files for detailed workflows, not inline everything",
+      "input": "Give me a complete backend development workflow",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

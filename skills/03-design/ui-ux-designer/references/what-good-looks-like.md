@@ -1,0 +1,5 @@
+# What Good Looks Like — Full Quality Standard
+
+The developer opens the Figma file, inspects any component, and immediately knows the exact spacing tokens, color variables, interactive states, keyboard behavior, and ARIA attributes needed — no guessing, no Slack pings, no "design intent" debates. Design tokens are exported as JSON and consumed directly by the codebase, so a palette change in Figma propagates to production in a single pull request with zero manual value updates. Every component spec covers loading, empty, error, and edge-case states before a single line of code is written. The responsive layout works seamlessly from 320px to 4K, and animations follow the same easing curves with a reduced-motion fallback that actually gets tested on a real device. Developer handoff takes minutes, not days, and the first implementation review surfaces cosmetic tweaks, not structural rework.
+
+> This is the full aspirational quality standard. The compressed version in SKILL.md is optimized for model token budgets.

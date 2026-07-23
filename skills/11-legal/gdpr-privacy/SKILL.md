@@ -418,7 +418,10 @@ Privacy compliance is everyone's responsibility — not just legal. Engineering,
 
 ## What Good Looks Like
 
-> When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede every high-risk processing activity, breach notification procedures trigger within 72 hours, and privacy-by-design principles govern every product decision — not as a checkbox exercise but as a competitive trust advantage.
+> When GDPR compliance is fully embedded, every data flow is mapped and lawful, consent mechanisms are transparent and granular, DSARs are fulfilled within 30 days with complete accuracy, DPIAs precede 
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

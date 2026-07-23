@@ -415,7 +415,10 @@ Regulatory compliance in healthcare, finance, and safety-critical domains requir
 
 ## What Good Looks Like
 
-> When regulatory strategy is executed flawlessly, product roadmaps account for regulatory pathways from ideation, submission packages are complete on first review with zero major deficiencies, multi-jurisdiction compliance is maintained through a single harmonized quality system, regulatory intelligence feeds product decisions before competitors react, and auditors and notified bodies remark on the maturity of the regulatory operation — turning compliance from a cost center into a market access accelerator.
+> When regulatory strategy is executed flawlessly, product roadmaps account for regulatory pathways from ideation, submission packages are complete on first review with zero major deficiencies, multi-ju
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

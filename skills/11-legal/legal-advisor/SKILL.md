@@ -440,7 +440,10 @@ Legal advice touches every function. Missed coordination creates liability; over
 
 ## What Good Looks Like
 
-> When legal advisory is applied perfectly, contracts are negotiated with precision using playbook-driven redlines that close in days not weeks, open source licenses are cataloged with zero copyleft surprises in shipping code, IP portfolios are strategically filed to create durable competitive moats, every partnership agreement protects the company's core assets while enabling commercial velocity, and the legal function is seen by the business as an enabler, not a gatekeeper.
+> When legal advisory is applied perfectly, contracts are negotiated with precision using playbook-driven redlines that close in days not weeks, open source licenses are cataloged with zero copyleft sur
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 

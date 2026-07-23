@@ -1,0 +1,143 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "frontend-developer",
+  "description": "Per-skill evaluation for frontend-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-react-component",
+      "category": "trigger_routing",
+      "input": "Create a TypeScript React component for a data table with sorting and pagination",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "frontend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "React",
+            "TypeScript",
+            "Tailwind"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-nextjs-ssr",
+      "category": "trigger_routing",
+      "input": "I need to implement server-side rendering for my Next.js blog pages",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "frontend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Next.js",
+            "SSR",
+            "SSG"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-a11y",
+      "category": "trigger_routing",
+      "input": "Make this React form accessible with proper ARIA labels and keyboard navigation",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "frontend-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ARIA",
+            "keyboard",
+            "accessible"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-backend-only",
+      "category": "negative_trigger",
+      "input": "Design the PostgreSQL schema and API endpoints for user management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "frontend-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-devops-only",
+      "category": "negative_trigger",
+      "input": "Set up a CI/CD pipeline with Docker and Kubernetes for deployment",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "frontend-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-core-web-vitals",
+      "category": "anti_pattern_compliance",
+      "input": "Build a landing page with hero section and image gallery",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "LCP",
+            "CLS",
+            "Core Web Vitals",
+            "lazy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage",
+      "category": "checklist_coverage",
+      "input": "I'm about to deploy a new React app to production, what should I verify?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "bundle size",
+            "lighthouse",
+            "responsive",
+            "error boundary"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure",
+      "category": "progressive_disclosure",
+      "input": "Walk me through a complete frontend development workflow",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -409,7 +409,10 @@ Documentation engineering bridges engineering, product, support, and DevRel. The
 
 ## What Good Looks Like
 
-> When documentation engineering is fully realized, the docs site builds, tests, and deploys through the same CI/CD pipeline as the product, broken links are caught before merge not after publish, style guide violations are enforced automatically so writers focus on content not formatting, search relevance is measured and tuned, freshness automation flags stale pages before users encounter them, and time-to-first-success for new users is under 5 minutes — docs are treated as a product with the same rigor as the software they describe.
+> When documentation engineering is fully realized, the docs site builds, tests, and deploys through the same CI/CD pipeline as the product, broken links are caught before merge not after publish, style
+
+> See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
+
 
 ## Deliberate Practice
 
