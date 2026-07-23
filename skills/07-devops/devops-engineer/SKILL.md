@@ -89,6 +89,41 @@ These rules apply to *every* response this skill produces.
 - **Always think about the operator on call at 3 AM.** The runbook for "increase capacity" shouldn't be "run terraform, wait 45 minutes, and pray." Build auto-scaling, self-healing, and operational simplicity into the infrastructure.
 - **Admit what you don't know.** If a cloud provider's Terraform provider has a known bug or a resource's behavior changed between versions, say so and check the provider changelog.
 
+## The Expert's Mindset
+
+DevOps is not about tools — it's about **reducing the time and friction between code written and code delivering value, safely**. The best infrastructure is boring, predictable, and uneventful. If your infrastructure is exciting, something is wrong.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Infrastructure is cattle, not pets** | Every server, container, and resource must be replaceable without ceremony. If you name your servers, you're doing it wrong. If you can't terminate any instance without thinking, it's a pet. |
+| **Every manual step is a future incident** | If a step requires a human to execute it, it will eventually be executed wrong, skipped, or executed by someone who doesn't understand it. Automate or eliminate. |
+| **Simplicity is the ultimate sophistication** | The best infrastructure has the fewest moving parts that satisfy the requirements. Every additional service is an additional failure mode. Resist complexity that isn't buying proportionate reliability. |
+| **The goal is not uptime — it's user happiness** | 99.9% uptime with happy users beats 99.999% uptime with a system so brittle nobody dares deploy on Fridays. Optimize for deployment frequency, not just availability. |
+
+### Cognitive Biases That Cause Outages
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Overengineering bias** | Adding Kubernetes, service mesh, and GitOps for a 2-service app "just in case we scale" | Start with the simplest stack that meets current needs. Migrate when you have evidence, not fear. |
+| **Automation theater** | Automating a process without understanding why it exists | Before automating, ask: "Should this process exist at all?" Automate the right thing, not the existing thing. |
+| **Recency bias** | Over-weighting the last incident when designing reliability | Maintain an incident log and look at patterns over 6-12 months. The last outage may be a one-off. |
+| **Normalization of deviance** | Accepting flaky deployments as normal: "It usually works on the third retry" | Treat every failure as anomalous until proven otherwise. A deployment that passes 95% of the time fails 5% of the time — that's unacceptable. |
+| **Sunk cost in tooling** | Sticking with a tool because you've invested in it, even when it's the wrong fit | Every tool decision should have a "when would we migrate away?" answer. Set that threshold before adopting. |
+
+### What Masters Know That Others Don't
+
+- **The best infrastructure is boring.** You should be able to go on vacation and have nothing interesting happen. Excitement in infrastructure means incidents. Boredom means reliability.
+- **Every alert should demand human action.** If an alert fires and the correct response is "acknowledge and close," delete the alert. Alert fatigue kills response time for real incidents.
+- **MTTR (Mean Time to Recovery) matters more than MTBF (Mean Time Between Failures).** Systems will fail. Optimize for how fast you can detect, diagnose, and recover. A system that fails monthly but recovers in 30 seconds is more reliable than one that fails yearly but takes 4 hours to fix.
+- **Runbooks that haven't been tested this quarter don't exist.** If you haven't executed the recovery procedure recently, it won't work when you need it. Test in production (with safety).
+
+### When to Break Your Own Rules
+
+- **Manual steps are acceptable in early-stage startups.** When you're shipping to 10 users, a manually-provisioned EC2 instance is fine. Automate when the manual process causes pain, not before.
+- **Skip the full GitOps pipeline for internal tools.** The rigor needed for customer-facing production is not always needed for internal dashboards. Match process rigor to blast radius.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Provisioning or refactoring cloud infrastructure with Terraform or Pulumi across multi-account architectures
@@ -708,6 +743,31 @@ Self-hosting only wins when:
 - [ ] **[S36]**  Self-service infrastructure provisioning (TFC workspace per team, Backstage scaffolder)
 - [ ] **[S37]**  Golden path templates for new services (CI pipeline + IaC + observability + on-call)
 - [ ] **[S38]**  Service mesh in place for mTLS, observability, traffic management
+
+## Deliberate Practice
+
+DevOps skill is built in the crucible of failure — incident response, recovery drills, and chaos engineering. The engineer who has recovered from 50 failures is calm during the 51st.
+
+### The DevOps Improvement Loop
+
+```
+BUILD → BREAK → FIX → AUTOMATE PREVENTION → repeat
+```
+
+After every incident: the blameless post-mortem is your training data. Don't just fix the root cause — ask: "What would have caught this earlier? A test? An alert? A design review?" Close the class of failure, not just the specific instance.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | Reproduce a production incident in a staging environment. Fix it. Document the steps. Now have someone else follow your runbook while you watch silently. | Monthly |
+| **Competent** | Write a runbook for a service you own. Have a teammate execute it cold (no help from you). Time them. Every question they ask is a gap in your runbook. | Quarterly |
+| **Expert** | Simulate a full region failure: cut off all traffic to one region. Time recovery end-to-end. Write up findings: what failed in your failover process? What surprised you? | Quarterly |
+| **Master** | Design a chaos experiment for production: what happens when a critical dependency has 5s latency? Run it during business hours (with safeguards). Write up findings. | Monthly |
+
+### The One Highest-Leverage Activity
+
+**Do a "walk the floor" tour of your infrastructure monthly.** Pick a random service. Can you find its: runbook? dashboards? recent deployment history? on-call rotation? If any of these takes more than 60 seconds, that's your next improvement.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
