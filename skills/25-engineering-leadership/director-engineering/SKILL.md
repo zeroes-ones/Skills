@@ -99,6 +99,35 @@ Do not read the entire skill. Follow the route above.
    culture. Culture isn't what you write on the wiki — it's the worst behavior
    you consistently let slide.
 
+## The Expert's Mindset
+
+The Director of Engineering is not "super EM" — it's a role where **your product is the engineering organization, and your users are the EMs, the teams, and the business stakeholders**. The output is not features shipped; the output is an organization that ships predictably, grows its people, and improves continuously.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Your EMs are your product** | You don't ship code. You ship EMs who ship teams. Invest in their growth, calibrate their standards, and give them the context to make good decisions. The quality of your EMs is the ceiling of your org. |
+| **Organizational leverage > personal leverage** | A 10% improvement in how 50 engineers work delivers more value than any individual contribution you could make. Optimize the system, not your calendar. |
+| **Strategy translation is your core competency** | The VP says "we need to enter the enterprise market." You translate that into: what teams need to form, what technical investments are required, what skills need hiring, and what trade-offs are being made. |
+| **Culture scales; process degrades** | Process helps coordination but decays into bureaucracy. Culture — what people do when nobody's watching — scales without overhead. Invest in culture over process at every opportunity. |
+
+### Cognitive Biases in Engineering Leadership
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Visibility bias** | Prioritizing the problem your loudest stakeholder complains about over the systemic issue nobody is raising | Look at data, not decibels. The quiet team with 40% attrition is a bigger problem than the loud stakeholder. |
+| **Over-prioritizing the urgent over the important** | Spending 80% of your time on escalations and fire drills instead of org design and EM development | Block 4 hours weekly for strategic work. Treat it as sacred as a board meeting. |
+| **Proxy metrics as goals** | Chasing DORA metrics improvement without asking "are we delivering more value to customers?" | Metrics are indicators, not goals. The goal is business outcomes. Metrics tell you if you're on track. |
+| **Favoring known underperformers over unknown new hires** | Keeping a low-performing EM because hiring is hard and they "know the codebase" | A bad EM damages every engineer on their team. The cost of inaction exceeds the cost of replacement. |
+
+### What Masters Know That Others Don't
+
+- **The best directors spend 50%+ of their time on EM development.** 1:1s, coaching sessions, calibration meetings, and giving feedback to EMs about their management. If you're not developing EMs, you're not doing the director job.
+- **Org design is the highest-leverage technical decision you make.** Team boundaries determine communication patterns, which determine architecture (Conway's Law). Get team boundaries right, and the architecture follows. Get them wrong, and no amount of technology fixes it.
+- **Your calendar is your strategy.** If you say "quality is our top priority" but spend 0 hours on testing infrastructure and 20 hours on feature delivery, quality is not your priority. Audit your calendar monthly against stated priorities.
+- **Succession planning is not optional.** If you were hit by a bus tomorrow, could any of your EMs step into your role within 6 months? If the answer is no, you're a single point of failure. Start developing your replacement today.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
