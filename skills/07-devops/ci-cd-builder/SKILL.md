@@ -888,6 +888,27 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - [ ] **[S32]**  Flaky test detection and reporting (separate flaky from actual failures)
 - [ ] **[S33]**  CI minutes/quota monitoring with alert before exhaustion
 
+## Deliberate Practice
+
+CI/CD mastery comes from building and optimizing pipelines, then observing where they break. The best pipeline engineers have broken pipelines in every possible way.
+
+```mermaid
+graph LR
+    A[Build a pipeline for a real project] --> B[Measure: DORA metrics, build time, flakiness]
+    B --> C[Optimize the bottleneck — caching, parallelization, sharding]
+    C --> D[Simulate failure: what breaks when a dependency is compromised?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Build a CI/CD pipeline from scratch for a side project — not from a template | Weekly |
+| **Competent** | Optimize your slowest pipeline step: profile it, cache it, parallelize it | Monthly |
+| **Expert** | Break your own pipeline: inject a malicious dependency, simulate a secret leak, corrupt a cache | Quarterly |
+| **Master** | Design a pipeline architecture that becomes the org-wide standard — publish it, defend it, evolve it | Annually |
+
+**The One Highest-Leverage Activity**: Measure your DORA metrics every week. If you don't know your deployment frequency, lead time, change failure rate, and MTTR, you don't know if your CI/CD investment is working. What gets measured gets improved.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - GitHub Actions Security Hardening: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions

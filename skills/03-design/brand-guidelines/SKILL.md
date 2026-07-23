@@ -981,6 +981,27 @@ Common chains:
 - [ ] **[S9]**  Motion tokens defined: durations (instant/fast/base/slow), easings (default/enter/exit), reduced-motion respect
 - [ ] **[S10]**  Brand governance: review process, violation tiers, asset distribution portal, versioned guidelines
 
+## Deliberate Practice
+
+Brand design mastery comes from exposure — seeing more brands, analyzing what works, and applying principles across diverse constraints.
+
+```mermaid
+graph LR
+    A[Analyze a brand system in the wild] --> B[Identify what works and what doesn't]
+    B --> C[Apply that principle to your own brand work]
+    C --> D[Get feedback from users, not designers]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Deconstruct a well-known brand: identify logo system, color logic, type pairings, and brand voice | Weekly |
+| **Competent** | Redesign a local business's brand identity as an exercise — same values, better expression | Monthly |
+| **Expert** | Run a brand audit across all touchpoints of your own product and produce a gap analysis | Quarterly |
+| **Master** | Define a brand system that outlasts your tenure — publish the principles, not just the assets | Annually |
+
+**The One Highest-Leverage Activity**: Take a screenshot of every touchpoint where your brand appears (product, marketing, support, invoices). Print them on one wall. The inconsistencies will scream at you.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [Design Tokens Format](https://design-tokens.github.io/community-group/format/) — W3C Community Group

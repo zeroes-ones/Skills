@@ -739,6 +739,27 @@ Tactical technical decision (tooling, framework version, CI pipeline change)
 - [ ] **[S9]**  Innovation funnel with clear gates and metrics; hackathon projects tracked to production
 - [ ] **[S10]**  Vendor evaluation scorecard with weighted criteria; TCO model for all major vendors
 
+## Deliberate Practice
+
+Great CTOs develop their judgment through structured exposure to technology and organizational problems across different contexts.
+
+```mermaid
+graph LR
+    A[Audit a tech org/system] --> B[Diagnose: what's the bottleneck?]
+    B --> C[Recommend strategy with trade-offs]
+    C --> D[Observe implementation outcome]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Study a public company's engineering blog and write a one-page analysis of their tech strategy | Weekly |
+| **Competent** | Do a mock build-vs-buy analysis for a realistic scenario | Monthly |
+| **Expert** | Conduct a real org health assessment: team topology, delivery metrics, tech debt inventory | Quarterly |
+| **Master** | Advise a portfolio company or startup through a strategic inflection point | Annually |
+
+**The One Highest-Leverage Activity**: Audit one team's entire tech stack end-to-end each month — from CI/CD to production monitoring. Write a one-page assessment: what's working, what's the bottleneck, what should change in the next quarter. Share with the team lead.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - Team Topologies (Skelton & Pais): https://teamtopologies.com/

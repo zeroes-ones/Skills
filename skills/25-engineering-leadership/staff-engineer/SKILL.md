@@ -524,6 +524,26 @@ You know you're succeeding as a Staff Engineer when:
 - **You're working on the hardest problem in the org**, and when you describe it to engineers
   outside the company, they say "I wish someone would solve that at my company."
 
+## Deliberate Practice
+
+Staff engineering is unique: you don't get better by writing more code — you get better by increasing the leverage of your influence. Practice means producing artifacts that scale beyond your personal output.
+
+```mermaid
+graph LR
+    A[Identify a problem affecting 3+ teams] --> B[Write an RFC or design doc proposing a solution]
+    B --> C[Collect feedback, revise, build consensus]
+    C --> D[Measure: did adoption of this pattern reduce incidents/confusion/churn?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Write an RFC for a cross-team technical decision — even if nobody asked for it | Monthly |
+| **Competent** | Run a design review for a system you don't own. Practice asking: "What happens when this fails?" | Monthly |
+| **Expert** | Mentor a senior engineer through their first cross-team architecture proposal. Don't do it for them — coach them through it. | Quarterly |
+| **Master** | Write an essay or give a talk that changes how your industry thinks about a technical problem | Annually |
+
+**The One Highest-Leverage Activity**: Write one RFC per month, even if it's for a problem nobody has asked to solve yet. Writing forces clarity. An RFC read by 50 engineers has 50× the impact of a conversation with one engineer.
 
 ## References
 <!-- STANDARD: 3min -->

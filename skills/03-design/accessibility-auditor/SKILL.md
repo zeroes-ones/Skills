@@ -1003,6 +1003,27 @@ Common chains:
 - [ ] **[S9]**  Color is never the sole differentiator for information (supplement with icons, text, or patterns)
 - [ ] **[S10]**  Accessibility statement published with conformance claims, known limitations, and contact info
 
+## Deliberate Practice
+
+Accessibility expertise grows through repeated exposure to how real users with disabilities interact with products. You cannot learn accessibility from specs alone — you must use assistive technologies.
+
+```mermaid
+graph LR
+    A[Test with a real assistive technology] --> B[Document what broke and why]
+    B --> C[Fix the root cause, not just the symptom]
+    C --> D[Test again with the same tool — did it improve?]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Navigate your product using only a keyboard (no mouse) for 30 minutes | Weekly |
+| **Competent** | Complete a full user flow using a screen reader (VoiceOver/NVDA) with the monitor off | Weekly |
+| **Expert** | Run a manual WCAG audit on a new page or component and file remediation tickets | Monthly |
+| **Master** | Establish an accessibility program: policy, training, procurement requirements, VPAT production | Annually |
+
+**The One Highest-Leverage Activity**: Turn off your monitor and complete your product's core flow using only a screen reader. Every week. The friction you feel is what millions of users experience every day.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)

@@ -476,6 +476,27 @@ Common chains:
 - [ ] **[S19]**  Network runbooks documented: common troubleshooting steps, escalation paths, contact info
 - [ ] **[S20]**  Network cost review quarterly: data transfer, NAT gateway hours, public IPs, inter-AZ traffic
 
+## Deliberate Practice
+
+Network engineering is one of the few domains where a mistake can take down the entire company. Practice must happen in sandboxes, not in production.
+
+```mermaid
+graph LR
+    A[Design a network topology for a realistic scenario] --> B[Build it in a sandbox]
+    B --> C[Break it: simulate failure, misconfiguration, attack]
+    C --> D[Fix it, document the lessons, update your patterns]
+    D --> A
+```
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Build a VPC from scratch: subnets, route tables, NAT gateway, bastion host. Tear it down. Repeat. | Weekly |
+| **Competent** | Simulate a network failure scenario in a sandbox — break DNS, cut connectivity between subnets, exhaust IPs | Biweekly |
+| **Expert** | Design and test a multi-region failover topology with simulated regional outage | Quarterly |
+| **Master** | Publish a reference architecture or postmortem that changes how your org (or industry) thinks about network design | Annually |
+
+**The One Highest-Leverage Activity**: Build a complete VPC from scratch every month. Every time, make it a little better — fewer public IPs, tighter security groups, simpler routing. The repetition builds instincts that documentation can't.
+
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
 - [AWS VPC Documentation](https://docs.aws.amazon.com/vpc/) — Core VPC, Transit Gateway, VPN, Direct Connect
