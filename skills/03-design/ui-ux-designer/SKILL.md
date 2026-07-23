@@ -58,6 +58,41 @@ These rules apply to *every* response this skill produces.
 - **Design tokens must be semantic, not presentational.** Do: `color-surface-primary`, `color-text-error`. Don't: `color-blue-500`, `color-red-600`.
 - **Admit what you don't know.** If you lack user research, brand tokens, or technical constraints from engineering, say so and tell the user to consult ux-researcher, brand-guidelines, or frontend-developer before finalizing designs.
 
+## The Expert's Mindset
+
+UI/UX design is not about making things pretty — it's about **making things understandable**. Every screen is a conversation between the system and the human. The designer's job is to make that conversation clear, efficient, and respectful of the human's cognitive load.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Design is how it works, not how it looks** | A beautiful interface that confuses users is bad design. An ugly interface that users navigate effortlessly is good design. Start with functionality; aesthetics amplify usability, not replace it. |
+| **Every pixel is a conversation** | Every element on screen asks the user to parse, decide, or act. Add elements only when the value of including them exceeds the cognitive cost. Remove ruthlessly. |
+| **Users don't read, they scan** | People don't consume interfaces linearly. They scan for the first thing that looks like it matches their goal. Design for scanning, not reading. |
+| **Consistency reduces cognitive load** | When the same action looks and behaves the same way everywhere, users learn once. When it doesn't, they have to relearn every time. |
+
+### Cognitive Biases That Distort Design
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Aesthetic-usability effect** | Assuming a visually pleasing design is more usable | Test with users before declaring victory. Ugly prototypes test better than you think. |
+| **False consensus bias** | Designing for yourself: "I find this intuitive, so users will too" | Test with 5 people outside your team. If 1 is confused, 30% of users will be. |
+| **Dunning-Kruger (novice designer)** | Overestimating ability to solve complex interaction problems without research | Before designing any flow: watch a user try to accomplish it in the current state. |
+| **Peak-end rule** | Over-focusing on the final screen (the "end") and neglecting the messy middle of a flow | Audit the entire journey, not just the happy path. Where do users get stuck? |
+| **Change blindness** | Users missing important UI changes because they're focused elsewhere | Never rely on a single visual change to communicate critical information. Use animation + color + position. |
+
+### What Masters Know That Others Don't
+
+- **The best designers spend more time removing than adding.** The first pass adds everything that might be needed. The second pass removes everything that isn't. The third pass removes one more thing.
+- **A design that can't be built within constraints is not a design — it's art.** Know the technical constraints (browser support, performance budget, API latency) before opening Figma.
+- **Design systems are for the 80%, not the 20%.** A design system that covers every edge case is too bloated to use. Cover the common cases; let teams extend for the uncommon.
+- **Copy is design.** Button labels, error messages, empty states — these are interface elements that determine usability as much as layout. Design them, don't fill them with lorem ipsum.
+
+### When to Break Your Own Rules
+
+- **Skip the design system when prototyping.** The design system is for production. When exploring ideas, move fast with rough components. Lock into the system once the direction is validated.
+- **Break consistency when the inconsistency improves clarity.** A red "Delete account" button that looks different from other buttons is worth the inconsistency. Use sparingly.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product needs a design system built or extended with new components
@@ -314,6 +349,31 @@ Common chains:
 - [ ] **[S8]**  Handoff walkthrough conducted and recorded
 - [ ] **[S9]**  Feedback loop established — developers know how to flag spec gaps
 - [ ] **[S10]**  Design system changelog published and migration guide updated for any breaking changes
+
+## Deliberate Practice
+
+Design skill is built through iteration with real users, not through polishing pixels in isolation. The designer who tests with 5 users weekly improves 10x faster than the designer who tests with 0.
+
+### The Design Improvement Loop
+
+```
+DESIGN → TEST WITH USERS → OBSERVE CONFUSION → REFINE → repeat
+```
+
+The key: you are not your user. Every time you're surprised by what a user does, that's a gap in your mental model. Close that gap.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | Recreate 5 well-known UI patterns from scratch (search bar, data table, onboarding flow). Compare your version to the canonical implementation. Identify 3 differences and understand why each exists. | Weekly |
+| **Competent** | Design the same component 3 different ways. Test each version with 3 users. Which performed best? Write down why you were surprised by at least one result. | Biweekly |
+| **Expert** | Conduct a heuristic evaluation of a product you didn't design (Nielsen's 10 heuristics). Write up findings with severity ratings. Compare with a peer's independent evaluation. | Monthly |
+| **Master** | Redesign a complex flow (checkout, onboarding, settings). Measure completion rate and time-on-task before and after. Write a case study: what improved, what didn't, and why. | Quarterly |
+
+### The One Highest-Leverage Activity
+
+**Watch a user use your design in silence.** Don't explain. Don't justify. Don't help. Just watch where they hesitate, where they click wrong, where they say "huh." One session of silent observation is worth 10 design critiques.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
