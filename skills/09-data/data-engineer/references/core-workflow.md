@@ -232,6 +232,6 @@
 # Database schema → Data pipeline → Analytics modeling
 /database-designer && /data-engineer && /analytics-engineer
 # System architecture → Data platform → ML pipelines
-/system-architect && /data-engineer && /ml-ai-engineer
+/system-architect && /data-engineer && /ml-engineer
 # Database designers define schemas. Data engineers build reliable pipelines. Analytics engineers and ML engineers consume.
 ```

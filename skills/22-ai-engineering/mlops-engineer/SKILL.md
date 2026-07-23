@@ -31,14 +31,16 @@ tags:
 token_budget: 5000
 chain:
   consumes_from:
-    - ml-ai-engineer
+    - ml-engineer
+    - ai-engineer
     - devops-engineer
     - data-engineer
     - llm-engineer
   feeds_into:
     - llm-engineer
     - ai-safety-engineer
-    - ml-ai-engineer
+    - ml-engineer
+    - ai-engineer
     - observability-engineer
 ---
 
@@ -150,7 +152,8 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 | Upstream Skill | What You Receive | Decision Gate |
 |---|---|---|
-| `ml-ai-engineer` | Model artifacts, training code, evaluation metrics, feature engineering logic | Validate model is production-ready before deploying; gate on reproducibility checks |
+| `ml-engineer` | Model artifacts, training code, evaluation metrics, feature engineering logic | Validate model is production-ready before deploying; gate on reproducibility checks |
+| `ai-engineer` | AI application artifacts, LLM pipeline specs, safety evaluation results | Validate AI pipeline is production-ready; gate on safety and performance checks |
 | `devops-engineer` | Infrastructure provisioning, Kubernetes clusters, CI/CD pipelines, networking and security | Align on infrastructure requirements before model deployment; coordinate autoscaling policies |
 | `data-engineer` | Data pipelines, feature computation jobs, data warehouse schemas, data freshness SLAs | Ensure feature pipeline latency meets serving SLAs before productionizing |
 | `llm-engineer` | LLM serving requirements (latency targets, throughput, GPU type), prompt pipeline specs | Right-size GPU infrastructure for LLM inference; validate streaming performance |
@@ -159,14 +162,14 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 |---|---|---|
 | `llm-engineer` | Model serving endpoints, GPU-optimized inference, autoscaling configs, latency dashboards | Serving URLs, GPU allocation specs, scaling policies, performance benchmarks |
 | `ai-safety-engineer` | Model monitoring data (drift metrics, performance degradation, data quality alerts) | Drift dashboards, model performance reports, data quality incident logs |
-| `ml-ai-engineer` | Production performance feedback, retraining triggers, A/B test results, infrastructure constraints | Retraining recommendations, production metric dashboards, infrastructure capacity reports |
+| `ml-engineer` | Production performance feedback, retraining triggers, A/B test results, infrastructure constraints | Retraining recommendations, production metric dashboards, infrastructure capacity reports |
 | `observability-engineer` | Model-specific metrics (inference latency, prediction distribution, feature drift), alerting rules | Model health dashboards, drift alert configurations, SLA monitoring |
 
 **Coordination cadence:**
 - **Pre-deployment:** Infrastructure review with `devops-engineer` on GPU provisioning and networking
 - **Daily:** Monitoring sync — review drift alerts and model performance dashboards
 - **Weekly:** Sync with `llm-engineer` on serving performance and cost optimization
-- **Bi-weekly:** Retraining review with `ml-ai-engineer` on model refresh candidates
+- **Bi-weekly:** Retraining review with `ml-engineer` on model refresh candidates
 - **Monthly:** Capacity planning with `data-engineer` and `devops-engineer` on growth projections
 
 ## Proactive Triggers
@@ -175,14 +178,14 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 | Trigger | Action | Why |
 |---------|--------|-----|
-| ML team ships 3 new models in one sprint, each with bespoke deployment scripts | Propose centralized model serving platform (Triton/vLLM) with standardized deployment config; sync with `ml-ai-engineer` on model packaging contract (ONNX/TensorRT) | Bespoke deployment per model creates N × deployment complexity; centralized serving with standardized config reduces deploy time from days to minutes and eliminates per-model infrastructure drift |
-| Data science team reports "model works in notebook but not in production" — training-serving skew suspected | Propose feature store (Feast/Tecton) with point-in-time correctness; implement training-serving feature validation in CI/CD; sync with `data-engineer` on feature computation pipeline and `ml-ai-engineer` on feature engineering code | Training-serving skew is the #1 silent ML failure — the model doesn't crash, it just produces wrong predictions; point-in-time feature store ensures training data reflects the world as it was when labels were generated |
-| Product team wants to launch a new recommendation model without A/B testing framework | Propose canary deployment pipeline (5% → 25% → 50% → 100%) with automated rollback on guardrail metric degradation; sync with `ml-ai-engineer` on evaluation criteria and `product-manager` on business KPIs | Deploying without A/B means you can't measure impact; a model with better offline metrics can reduce user engagement; automated rollback prevents 3-week degradation windows |
+| ML team ships 3 new models in one sprint, each with bespoke deployment scripts | Propose centralized model serving platform (Triton/vLLM) with standardized deployment config; sync with `ml-engineer` on model packaging contract (ONNX/TensorRT) | Bespoke deployment per model creates N × deployment complexity; centralized serving with standardized config reduces deploy time from days to minutes and eliminates per-model infrastructure drift |
+| Data science team reports "model works in notebook but not in production" — training-serving skew suspected | Propose feature store (Feast/Tecton) with point-in-time correctness; implement training-serving feature validation in CI/CD; sync with `data-engineer` on feature computation pipeline and `ml-engineer` on feature engineering code | Training-serving skew is the #1 silent ML failure — the model doesn't crash, it just produces wrong predictions; point-in-time feature store ensures training data reflects the world as it was when labels were generated |
+| Product team wants to launch a new recommendation model without A/B testing framework | Propose canary deployment pipeline (5% → 25% → 50% → 100%) with automated rollback on guardrail metric degradation; sync with `ml-engineer` on evaluation criteria and `product-manager` on business KPIs | Deploying without A/B means you can't measure impact; a model with better offline metrics can reduce user engagement; automated rollback prevents 3-week degradation windows |
 | Backend team reports model serving latency spikes during peak hours, GPU utilization at 15% | Propose dynamic batching with configurable max delay; implement GPU-aware autoscaling (not CPU-based); sync with `backend-developer` on serving API latency SLA and `devops-engineer` on Kubernetes HPA configuration | CPU-based autoscaling for GPU workloads is like monitoring tire pressure to decide when to refuel; dynamic batching can 4× throughput without adding GPUs; GPU utilization should drive scaling decisions |
-| CI/CD pipeline deploys model artifacts but no validation between training and production | Propose model CI/CD with automated gates: data validation → training → evaluation → registry → canary → full promotion; sync with `ml-ai-engineer` on evaluation harness and `devops-engineer` on pipeline orchestration | Manual model deployment is the root cause of "which version is serving right now?" incidents; automated CI/CD with gates ensures every production model passed the same validation |
+| CI/CD pipeline deploys model artifacts but no validation between training and production | Propose model CI/CD with automated gates: data validation → training → evaluation → registry → canary → full promotion; sync with `ml-engineer` on evaluation harness and `devops-engineer` on pipeline orchestration | Manual model deployment is the root cause of "which version is serving right now?" incidents; automated CI/CD with gates ensures every production model passed the same validation |
 | Monitoring team reports model performance dashboards are empty — no drift detection in place | Propose PSI/KS-test drift monitoring per feature with automated alerting; implement prediction distribution comparison between training and serving; sync with `observability-engineer` on metric pipeline and alert routing | Drift is invisible without monitoring — models silently degrade for weeks before business metrics detect it; per-feature PSI catches which specific input is drifting before aggregate metrics show impact |
-| Team manually retrains models when "someone notices accuracy dropped" | Propose automated retraining triggers: scheduled (weekly), performance-based (drift > threshold), and data-volume-based (N new labeled examples); sync with `ml-ai-engineer` on retraining criteria and `data-engineer` on data freshness | Reactive retraining means models serve degraded predictions for days after drift begins; automated triggers close the loop between detection and remediation |
-| Model registry is a shared spreadsheet with columns "model_name" and "where_deployed" | Propose MLflow/W&B model registry with stage transitions, approval workflows, metadata (training data hash, code commit, evaluation metrics); sync with `ml-ai-engineer` on registry integration | A spreadsheet model registry cannot answer "which model version is serving?" during an incident; a proper registry with automated stage transitions is the single source of truth for production ML |
+| Team manually retrains models when "someone notices accuracy dropped" | Propose automated retraining triggers: scheduled (weekly), performance-based (drift > threshold), and data-volume-based (N new labeled examples); sync with `ml-engineer` on retraining criteria and `data-engineer` on data freshness | Reactive retraining means models serve degraded predictions for days after drift begins; automated triggers close the loop between detection and remediation |
+| Model registry is a shared spreadsheet with columns "model_name" and "where_deployed" | Propose MLflow/W&B model registry with stage transitions, approval workflows, metadata (training data hash, code commit, evaluation metrics); sync with `ml-engineer` on registry integration | A spreadsheet model registry cannot answer "which model version is serving?" during an incident; a proper registry with automated stage transitions is the single source of truth for production ML |
 
 ## Core Workflow
 
@@ -251,7 +254,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
-| **Before** | ml-ai-engineer | Trained model, evaluation report, model card |
+| **Before** | ml-engineer | Trained model, evaluation report, model card |
 | **Before** | llm-engineer | RAG pipeline, prompts, guardrails for LLM applications |
 | **Before** | ci-cd-builder | CI/CD pipeline infrastructure, deployment automation framework |
 | **This** | mlops-engineer | Production deployment, monitoring, retraining, feature store |
@@ -260,7 +263,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | **After** | data-engineer | Feature pipeline orchestration, data quality monitoring, training data lifecycle |
 
 Common chains:
-- **Chain**: ml-ai-engineer → mlops-engineer → observability-engineer — Trained model deployed to production; observability monitors performance and drift
+- **Chain**: ml-engineer → mlops-engineer → observability-engineer — Trained model deployed to production; observability monitors performance and drift
 - **Chain**: llm-engineer → mlops-engineer → devops-engineer — LLM pipeline defined; MLOps deploys with GPU optimization; DevOps provisions infrastructure
 - **Chain**: ci-cd-builder → mlops-engineer → data-engineer — CI/CD automates ML pipeline stages; MLOps integrates model-specific gates; data engineer builds feature pipelines
 
@@ -326,6 +329,145 @@ START: You need to serve features for model training and inference
        └─ NO → FEATURE STORE. At production scale, the governance, reuse, and consistency benefits justify the infrastructure cost.
 ```
 
+### Serving Infrastructure: Triton vs vLLM vs Ray Serve vs BentoML
+
+```
+START: Choosing model serving infrastructure
+  │
+  ├─ Are you serving LLMs specifically (GPT-style, LLaMA, Mistral)?
+  │    ├─ YES → vLLM. Purpose-built for LLM inference with PagedAttention.
+  │    │   Throughput: 10-20× higher than vanilla HF Transformers. Continuous batching is LLM-native.
+  │    │   Trade-off: Only supports Transformer models. Not for non-LLM workloads.
+  │    └─ NO → Continue
+  │
+  ├─ Do you need to serve MULTIPLE model types (tree-based + neural + custom) on the same GPU cluster?
+  │    ├─ YES → NVIDIA Triton. Multi-framework support (PyTorch, TF, ONNX, TensorRT, XGBoost, custom backends).
+  │    │   Model ensembles: chain preprocessing → inference → postprocessing as one pipeline.
+  │    │   Concurrent model execution: run multiple different models on same GPU.
+  │    │   Trade-off: More complex config (config.pbtxt). NVIDIA ecosystem lock-in.
+  │    └─ NO → Continue
+  │
+  ├─ Is your serving pipeline Python-heavy with complex preprocessing/postprocessing logic?
+  │    ├─ YES → Ray Serve. Native Python, arbitrary code in serving pipeline, no model format restrictions.
+  │    │   Best for: complex feature engineering at request time, multi-model DAGs, Python-first teams.
+  │    │   Trade-off: Higher operational overhead (Ray cluster management). Less GPU-optimized than Triton/vLLM.
+  │    └─ NO → Continue
+  │
+  ├─ Is deployment simplicity and rapid prototyping the priority over maximum throughput?
+  │    ├─ YES → BentoML. Single `bentoml build` command. Easy packaging. Good for small teams.
+  │    │   Best for: <50 QPS, simple models, teams that want Docker-like simplicity.
+  │    │   Trade-off: Not for high-throughput GPU workloads. Limited multi-model orchestration.
+  │    └─ NO → Continue
+  │
+  ├─ Traffic pattern: steady 24/7 load or spiky/bursty?
+  │    ├─ STEADY → Any framework. Autoscaling not critical. Triton for GPU efficiency, BentoML for simplicity.
+  │    └─ SPIKY → Ray Serve or vLLM with aggressive autoscaling (scale-to-zero for cold models). Triton's autoscaling is less flexible.
+  │
+  ├─ Cold start SLA: must new instances be ready in <30s?
+  │    ├─ YES → vLLM with pre-warmed model cache OR BentoML with pre-built Docker images.
+  │    │   Triton model loading on cold start can take 2-10 minutes for large models.
+  │    └─ NO → Any framework acceptable. Triton's longer cold start is fine for stable deployments.
+  │
+  └─ Budget: managed service vs self-hosted?
+       ├─ MANAGED → SageMaker, Vertex AI, Azure ML — ops overhead minimized. 2-4× compute cost premium.
+       ├─ SELF-HOSTED → Triton/vLLM on your own K8s — ops overhead significant. GPU cost savings: 30-60% vs managed.
+       └─ HYBRID → Triton/vLLM on your K8s for base load. Managed for overflow/DR. Common enterprise pattern.
+
+DECISION MATRIX:
+  LLM-only, max throughput → vLLM
+  Multi-model, GPU-optimized → Triton
+  Python-heavy, complex DAGs → Ray Serve
+  Simple, fast to deploy → BentoML
+  Edge/mobile, cross-platform → ONNX Runtime / TFLite
+```
+
+### Deployment Strategy: Canary vs Blue-Green vs Shadow vs A/B
+
+```
+START: Choosing a deployment strategy for a new model version
+  │
+  ├─ Is rollback time critical (must be <1 minute)?
+  │    ├─ YES → BLUE-GREEN. Two identical environments. Switch traffic instantly via load balancer.
+  │    │   Cost: 2× infrastructure during deploy. Rollback: instant (switch back).
+  │    │   Best for: revenue-critical models where every minute of degraded predictions costs $1,000+.
+  │    └─ NO → Continue
+  │
+  ├─ Do you need GRADUAL validation of the new model on real traffic before full rollout?
+  │    ├─ YES → CANARY. 5% traffic → observe 15 min → 25% → observe → 50% → observe → 100%.
+  │    │   Requires: automated metric comparison (latency, error rate, business KPI) at each step.
+  │    │   Automated rollback if: p99 latency > 1.5× baseline OR error rate > 2× baseline OR business metric drops >2%.
+  │    │   Best for: most production models — balances safety with deployment speed.
+  │    └─ NO → Continue
+  │
+  ├─ Do you need to COMPARE old and new model on identical traffic without affecting users?
+  │    ├─ YES → SHADOW MODE. Send 100% traffic to old model (serves users). Mirror to new model (log predictions only).
+  │    │   After 24-72 hours, compare: prediction distribution, latency, resource usage.
+  │    │   Best for: high-risk changes (architecture swap, new framework). Zero user impact during validation.
+  │    │   Trade-off: 2× inference cost during shadow period. No user feedback on new model.
+  │    └─ NO → Continue
+  │
+  ├─ Is this a recommendation/ranking model where user engagement metrics are the ground truth?
+  │    ├─ YES → A/B TEST. Split users 50/50 between old and new model. Measure business metrics (CTR, conversion, revenue).
+  │    │   Requires: statistical significance calculator. Minimum 1-2 weeks for significance on most metrics.
+  │    │   Best for: models where offline metrics don't predict user behavior (recsys, ranking, personalization).
+  │    └─ NO → Continue
+  │
+  ├─ Is this a hotfix or critical bug fix that must go out immediately?
+  │    ├─ YES → CANARY (accelerated). 10% → 50% → 100% with 5-min observation windows.
+  │    │   Risk: compressed validation. Acceptable only for bug fixes where NOT deploying is more harmful.
+  │    └─ NO → Continue
+  │
+  └─ Default recommendation: CANARY for most production changes. BLUE-GREEN for revenue-critical. SHADOW for high-risk architecture changes. A/B for user-facing models with business metrics.
+```
+
+### GPU Optimization: Right-Sizing for ML Inference
+
+```
+START: Optimizing GPU utilization and cost for model serving
+  │
+  ├─ Is GPU utilization consistently <30% over 7-day average?
+  │    ├─ YES → GPU IS OVERPROVISIONED. Immediate actions:
+  │    │   1. Enable dynamic batching: accumulate requests for 10-50ms, process as batch. 2-4× throughput improvement.
+  │    │   2. Multi-model colocation: run 2-4 small models on same GPU. Triton supports concurrent model execution.
+  │    │   3. Scale DOWN GPU count. 4 A100s at 25% util = 1 A100 at 100%. Savings: $3 × 3 GPUs × 730hrs = $6,570/month.
+  │    │   4. Switch to smaller GPU: A100 → A10G at 60% util. Same throughput, 50% cost reduction.
+  │    └─ NO → Continue
+  │
+  ├─ Is p99 latency exceeding SLA but p50 is healthy?
+  │    ├─ YES → QUEUEING OR COLD START PROBLEM:
+  │    │   1. Check queue depth: if requests queue >10, add replicas or increase batch concurrency.
+  │    │   2. Cold start: keep 1 warm replica always. Pre-load models on node startup. Use model caching.
+  │    │   3. GPU memory fragmentation: check with `nvidia-smi`. Restart server weekly if memory leaks.
+  │    │   Cost: 1 extra warm replica = $3.50/hr × 730 = $2,555/month. Worth it if p99 latency drops from 5s to 500ms.
+  │    └─ NO → Continue
+  │
+  ├─ Are you serving multiple models with different traffic patterns?
+  │    ├─ YES → MULTI-MODEL GPU SHARING:
+  │    │   1. GPU partitioning: `NVIDIA MIG` (A100/H100) splits GPU into isolated instances. 7 MIG slices from 1 A100.
+  │    │   2. Time-slicing: GPU time-sharing for bursty models. Less strict isolation than MIG.
+  │    │   3. Model prioritization: latency-critical models get dedicated MIG slice. Batch models share remaining GPU.
+  │    │   Savings: 1 A100 serving 7 small models via MIG vs 7 GPUs = $15,330/month saved.
+  │    └─ NO → Continue
+  │
+  ├─ Is inference cost per 1M predictions higher than training cost?
+  │    ├─ YES → OPTIMIZE INFERENCE (this is common for LLMs):
+  │    │   1. Quantization: FP16 → INT8 (2× speed, 2× memory savings, <1% accuracy loss). INT4 for edge (4× savings, 1-3% loss).
+  │    │   2. Model compilation: TensorRT/ONNX Runtime. 2-5× inference speedup vs eager PyTorch.
+  │    │   3. Speculative decoding: small draft model generates tokens, large model verifies. 2-3× throughput for LLMs.
+  │    │   4. KV cache optimization: PagedAttention (vLLM), FlashAttention-2. 2-4× memory efficiency.
+  │    │   5. Token caching: cache common prompt prefixes (system prompts). 30-50% token savings for chat applications.
+  │    └─ NO → Continue
+  │
+  ├─ Spot/preemptible instances for inference?
+  │    ├─ YES → For batch inference and non-latency-critical serving. 60-90% cost reduction vs on-demand.
+  │    │   Pattern: on-demand baseline (20% capacity) + spot for overflow. Spot reclaim → fall back to on-demand.
+  │    │   NOT for: real-time user-facing inference with <2s SLA. Spot reclamation takes 30s-2min notice.
+  │    └─ NO → Continue
+  │
+  └─ GPU cost dashboard MUST include: $ per model per day, $ per 1M predictions, GPU utilization %, idle GPU hours.
+      Tag ALL GPU instances with model:version:environment. Without attribution, optimizing is guessing.
+```
+
 ## What Good Looks Like
 
 <!-- QUICK: 30s -- aspirational north star for this skill -->
@@ -349,13 +491,13 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
-## Gotchas
+## Gotchas — Highest-Value Content
 
-- **MLflow `log_model` with `conda_env`** creates a conda environment from scratch on each deployment. If `conda_env.yml` doesn't pin exact versions, the deployed model runs with different library versions than training. Use `pip_requirements` with exact pins OR container-based deployment.
-- **Feature store offline/online skew**: The offline store (used for training) uses batch aggregations (Spark). The online store (used for inference) uses real-time aggregations (Redis/KV store). If the aggregation logic differs (e.g., 30-day rolling mean computed differently), the model makes predictions on features it never saw during training.
-- **Model registry stage transitions** (Staging → Production) don't automatically trigger deployment. Setting the stage to "Production" in MLflow just updates metadata. Your CI/CD pipeline must LISTEN for that event — otherwise your "production" model is just a label on a dead artifact.
-- **Kubeflow Pipelines caching** is based on input hash. If your data ingestion step reads from `s3://bucket/data/date=2024-01-15/` and the data is identical to the previous run, the ENTIRE pipeline is cached — including model training, even if the code changed. Code changes don't invalidate data cache by default.
-- **Batch inference on GPU** with batch_size=1 underutilizes the GPU (10-20% utilization). But batch_size=256 on a model with sequence length 512 may exceed GPU memory. The optimal batch size is the largest power of 2 that fits in memory — profile with `torch.cuda.max_memory_allocated()`.
+- **MLflow `log_model` with `conda_env` creates a new conda environment from scratch on each deployment.** If `conda_env.yml` doesn't pin exact versions, the deployed model runs with different library versions than training. A numpy minor version difference can silently change model outputs — 0.1% prediction drift across 100 models processing 1M requests/day each = **$10,000-$50,000/day in bad business decisions**. Use `pip_requirements` with exact version pins (`numpy==1.26.3`) OR container-based deployment (Docker). Verify: `pip freeze > requirements.lock` and commit lockfile with model artifact.
+- **Feature store offline/online skew is the #1 silent ML failure.** The offline store (used for training) uses batch aggregations (Spark). The online store (used for inference) uses real-time aggregations (Redis/KV store). If aggregation logic differs — e.g., a 30-day rolling mean that Spark computes including current day but Redis computes excluding — every prediction uses features the model never saw during training. Detection is hard because model performance degrades gradually. **A financial fraud model with 5% skew produces $500,000-$2M/month in false positives/negatives.** Fix: implement training-serving skew validation in CI/CD. Sample 1,000 requests, compute features both ways, assert 100% match.
+- **Model registry stage transitions (Staging → Production) don't automatically trigger deployment.** Setting the stage to "Production" in MLflow just updates metadata. Your CI/CD pipeline must LISTEN for that event — otherwise your "production" model is a label on a dead artifact. **A model "promoted" but never actually deployed means the old model serves for weeks after it was supposed to be replaced.** In an e-commerce recommendation system, a stale model costs **$5,000-$20,000/day in lost revenue from suboptimal recommendations** ($0.01-0.05 lost per user session × 1M sessions). Fix: webhook → CI/CD pipeline → kubectl rollout. Verify: `curl` the model endpoint, check the `model-version` response header matches the registry.
+- **Kubeflow Pipelines caching is based on input hash, NOT code hash.** If your data ingestion step reads from `s3://bucket/data/date=2024-01-15/` and the data is identical to the previous run, the ENTIRE pipeline is cached — even if you rewrote the training code. **Code changes silently ignored for weeks.** A team that "retrained" a model with new architecture but actually served the cached old model for 3 weeks wasted **$15,000-$30,000 in GPU costs** retraining the wrong model and lost **$50,000-$200,000 in business impact** from the wrong model in production. Fix: include `git rev-parse HEAD` in pipeline input hash. Or disable caching on training steps: `dsl.component(base_image=..., annotations={'pipelines.kubeflow.org/caching_enabled': 'false'})`.
+- **Batch inference on GPU with batch_size=1 underutilizes the GPU at 10-20%.** But batch_size=256 on a model with sequence length 512 may exceed GPU memory and OOM. The optimal batch size is the largest power of 2 that fits in memory. **A team running 8 GPUs at 15% utilization with batch_size=1 is burning $8 × $3.50/hr × 730hrs = $20,440/month** for work that 2 GPUs at 80% utilization could handle ($5,110/month). **$15,330/month ($184,000/year) in wasted GPU spend.** Profile with `torch.cuda.max_memory_allocated()` and `nvidia-smi dmon -s pucv`. Benchmark throughput at batch sizes 1, 2, 4, 8, 16, 32, 64, 128 to find the knee before OOM.
 
 ## Verification
 

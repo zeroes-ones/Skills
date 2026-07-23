@@ -36,7 +36,8 @@ token_budget: 8000
 chain:
   consumes_from:
   - content-policy-manager
-  - ml-ai-engineer
+  - ml-engineer
+  - ai-engineer
   - patient-community-safety
   - security-engineer
   feeds_into:
