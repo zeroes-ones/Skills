@@ -83,6 +83,7 @@ Competent fullstack developers make the frontend work and the backend work. Mast
 - **Data ownership is not about the database — it's about the API contract.** Frontend owns UI state. Backend owns domain state. The API is the contract. Type generation from OpenAPI (frontend types from backend schema) eliminates an entire class of bugs.
 - **Validation lives in three places for different reasons.** Database constraints (integrity), backend validation (security/business rules), frontend validation (UX). None replaces the others. Backend validation without database constraints means a bug in the API can corrupt data. Database constraints without backend validation means cryptic errors reach users.
 - **The cost of crossing the network boundary is 1000× higher than crossing a function call.** Batch requests. Use GraphQL or BFF to fetch exactly what the screen needs in one round trip. Every additional API call adds 50-200ms of latency the user feels.
+- **Every refactor must remove dead code across the whole stack.** When you refactor, hunt for unused API endpoints, stale database columns, dead frontend components, and abandoned feature flags. Fullstack refactoring means cleaning both sides — a cleaner backend and a zombie frontend component creates confusion for the next developer.
 
 ### When to Break Your Own Rules
 - **Skip the API for internal tools.** An admin panel that queries the database directly (via a secure internal service) is faster to build and perfectly adequate for 5 internal users. Not every screen needs a REST API.
