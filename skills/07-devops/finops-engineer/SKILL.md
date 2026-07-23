@@ -354,6 +354,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **AWS Savings Plans apply BEFORE reserved instances** in the discount calculation. If you buy a 1-year EC2 Savings Plan ($0.10/hr) AND a Reserved Instance for the same instance type, the Savings Plan discount is applied first and the RI sits unused. One or the other, not both.
+- **"Unattached" EBS volumes** that are $0/month in the console are NOT free. An `available` volume that was created from a snapshot still incurs snapshot storage costs AND the EBS volume itself is billed. The console shows $0 for the volume alone but doesn't include snapshot costs.
+- **S3 Intelligent-Tiering** moves objects between access tiers automatically, but the monitoring cost is $0.0025 per 1,000 objects. On 100 million small objects, that's $250/month in monitoring alone — more than the storage cost. Intelligent-Tiering only saves money for objects > 128KB.
+- **Data transfer costs within AWS** between AZs in the same region are $0.01/GB inbound AND outbound. A microservice that calls another service across AZs pays twice per request. Co-locate chatty services in the same AZ (via topology spread constraints) or use VPC endpoints.
+- **AWS Budget alerts** can only notify on FORECASTED or ACTUAL spend exceeding thresholds. If you set a $10K monthly budget alert and spend $9K in the first 5 days, the alert fires AFTER you've already spent $9K — not before. Use anomaly detection alongside budgets.
+
+
 ## References
 
 Detailed reference material loaded on demand:

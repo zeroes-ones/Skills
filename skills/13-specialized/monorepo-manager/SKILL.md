@@ -417,6 +417,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **`git clone` with full history** on a 5-year monorepo with 2M commits takes 45 minutes and 15GB. Every CI runner, every new hire, every `git bisect` pays this cost. Use shallow clones (`--depth=1`), file-system-level clones (reference repos), or `--filter=blob:none` (partial clone).
+- **Turborepo/Nx cache invalidation** — `turbo run build --force` rebuilds everything. But without `--force`, Nx's computation hashing includes `package.json` dependencies and source files but NOT environment variables. If you change `NODE_ENV` from `development` to `production`, the hash doesn't change and stale builds are served from cache.
+- **`CODEOWNERS` file at root** with `* @team-platform` means EVERY file change requires platform team review. A README typo fix in `docs/` triggers a required review from the platform team, creating a bottleneck. Use directory-specific ownership and allow `**` wildcards for broad ownership patterns.
+- **Package version drift** — `packages/ui/package.json` depends on `react@18.2` and `packages/app/package.json` depends on `react@18.3`. The lockfile resolves both to one version, but CI installs might pick the other. Two React versions in one bundle causes "Invalid hook call" errors with no stack trace pointing to the root cause.
+- **Affected graph `--base=main`** compares against the local `main` branch. If CI hasn't fetched `main` recently, the affected graph computes against stale `main`, missing files that changed since. Always `git fetch origin main --depth=1` before computing affected projects.
+
+
 ## References
 - **Build System & CI/CD**: See [build-system-&-ci-cd.md](references/build-system-&-ci-cd.md)
 - **Dependency Management & Package Architecture**: See [dependency-management-&-package-architecture.md](references/dependency-management-&-package-architecture.md)

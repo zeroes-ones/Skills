@@ -385,6 +385,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **`volatile` in C does NOT guarantee atomicity** — `volatile uint32_t x; x++` on a 32-bit ARM is NOT atomic if an ISR can fire mid-instruction. `volatile` only prevents compiler optimization; use atomic operations (`atomic_fetch_add`) or critical sections for shared state between ISR and main loop.
+- **Watchdog timer** that's kicked in a timer ISR — the main loop is stuck in a hard fault handler, but the timer ISR keeps firing, kicking the watchdog. The system is frozen forever with a happy watchdog. Always kick the watchdog from the main loop, never from an ISR.
+- **Memory-mapped I/O with caching enabled** — writing to `*((volatile uint32_t*)0x40000000) = 0x01` but the CPU's write buffer reorders or caches the write. The peripheral never sees it. Mark MMIO regions as Device-nGnRnE (ARM) or Uncached (x86) in the MMU/MPU.
+- **Stack overflow in embedded** — RTOS creates a 2KB stack per task. A `char buffer[2048]` on the stack + function call overhead = stack overflow into the next task's stack. No MMU means no segfault — just silent corruption. Use `-fstack-usage` and `-fstack-protector-strong`, and measure worst-case stack depth.
+- **`printf` in an ISR** — `printf` blocks for milliseconds waiting for UART TX FIFO. You're in an ISR with interrupts disabled. A 3ms printf blocks the 1ms systick, the 500µs motor control loop, and everything else. Never block in ISRs; use a ring buffer and let the main loop do the printing.
+
+
 ## References
 
 Detailed reference material loaded on demand:

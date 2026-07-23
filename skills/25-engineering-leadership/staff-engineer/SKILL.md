@@ -444,5 +444,13 @@ graph LR
 
 **The One Highest-Leverage Activity**: Write one RFC per month, even if it's for a problem nobody has asked to solve yet. Writing forces clarity. An RFC read by 50 engineers has 50× the impact of a conversation with one engineer.
 
+## Gotchas
+
+- **Staff engineer as "tech lead but more senior"** — you spend 100% of your time on your team's execution. But the Staff role's multiplier is CROSS-team impact: fixing the thing that slows down 5 teams, not optimizing your team's output by 5%. If you're not working outside your team boundary, you're operating as a Senior.
+- **"Technical strategy" documents** that no one reads — you spend 3 weeks writing a 40-page architecture RFC, share it, and... silence. Engineers don't read 40-page docs. Write a 2-page decision brief (problem, options considered, recommendation, risks) and present it. Share the long version as appendix for the 2 people who want depth.
+- **"Golden path" that becomes the ONLY path** — you build a paved road for the standard use case, and every team that needs something slightly different (right-click context menu, webhook integration, batch processing) asks you to pave THAT path too. The golden path becomes a 15-lane highway maintained by one person. Build escape hatches: "if the golden path doesn't work, here's the manual override."
+- **Sponsorship vs mentorship** — mentoring (giving advice) helps individuals grow. Sponsoring (using your capital to get someone a high-visibility project, promotion support, or conference talk slot) changes careers. Senior→Staff transition requires sponsorship, not just mentorship.
+
+
 ## References
 - **Scale Depth: Solo → Small Team → Medium Team → Enterprise**: See [scale-depth-solo-small-team-medium-team-enterprise.md](references/scale-depth-solo-small-team-medium-team-enterprise.md)

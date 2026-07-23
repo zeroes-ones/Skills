@@ -394,6 +394,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **Apache Spark `collect()`** brings the entire distributed dataset to the driver node's memory. A 10GB DataFrame with `collect()` will OOM the driver (which typically has 2-4GB). Use `show()`, `take()`, or aggregate before collecting.
+- **DataFrames are immutable** — every `.filter()`, `.select()`, `.withColumn()` creates a new DataFrame. But Spark's lazy evaluation means these operations don't execute until an action (`count()`, `write`, `collect()`). A chain of 50 transformations hasn't cost anything yet; one action triggers all 50.
+- **`SELECT *` on columnar formats** (Parquet, ORC) is cheap in row count but expensive in column count — Parquet reads only requested columns. `SELECT *` reads them all, and on wide tables (500+ columns) this can be 100x slower than selecting 5 columns.
+- **Airflow DAG `catchup=True`** (default) backfills ALL missed DAG runs from `start_date` to now. Setting `start_date=datetime(2023, 1, 1)` on a daily DAG triggers 365+ backfill runs on first deploy, hammering your data sources.
+- **dbt `--full-refresh`** drops and recreates tables. On incremental models, this wipes all historical data. If your incremental model is the source for downstream models, the full refresh cascades. Always `--full-refresh` bottom-up, never top-down.
+- **Kafka consumer group rebalancing** during deployment — if your consumer takes 3 minutes to process a batch but the `max.poll.interval.ms` is 300 seconds, and deployment restarts take 2 minutes, the consumer group rebalance stalls all partitions for the full interval. Tune `max.poll.interval.ms` > (max batch time + max deployment time × 2).
+
+
 ## References
 
 Detailed reference material loaded on demand:

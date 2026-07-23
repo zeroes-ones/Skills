@@ -315,6 +315,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **HL7 FHIR `Observation.value[x]`** is a choice type — the field can be `valueQuantity`, `valueString`, `valueCodeableConcept`, or 8 other types. A query for `valueQuantity` only returns Quantity-typed observations. `value` is NOT a valid field. Lab values, vitals, and survey scores may use DIFFERENT value types even within the same `Observation` category.
+- **SNOMED CT vs ICD-10 mapping** — SNOMED `22298006 |Myocardial infarction|` is a clinical concept. ICD-10 `I21.3` is a billing classification. The mapping is MANY-TO-MANY and lossy. A single SNOMED code maps to 3 ICD-10 codes depending on episode of care (initial, subsequent, sequela). Auto-mapping without context produces billing rejections.
+- **LOINC codes for lab tests** — `2951-2` is "Sodium [Moles/volume] in Serum or Plasma." `2947-0` is "Sodium [Moles/volume] in Blood." Different codes, same analyte, different specimen. A dashboard that groups by LOINC code without specimen type conflates serum and whole blood sodium (normal ranges differ by 2-3 mmol/L).
+- **FHIR `Bundle` search results** — you request 100 Observations, but the Bundle contains 98 entries and a `next` link. If you don't follow the `next` link, you silently process incomplete data. FHIR pagination is mandatory, not optional, and querying without pagination handling = clinical data gaps.
+
+
 ## References
 
 Detailed reference material loaded on demand:

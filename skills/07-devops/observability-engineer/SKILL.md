@@ -396,6 +396,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: During every incident, write down every question you asked that you couldn't answer with your current dashboards. After the incident, make those questions answerable. Over time, your dashboards evolve from "what looks nice" to "what actually saves time."
 
+## Gotchas
+
+- **Prometheus `rate()` vs `irate()`**: `rate()` calculates the per-second average over the full range window. `irate()` uses only the last TWO samples. On a 5-minute window, `rate()` smooths spikes; `irate()` amplifies them. Dashboard spikes that appear in `irate()` but not `rate()` are often just two consecutive data points, not real spikes.
+- **Grafana dashboard variables** with `multi-select` and `All` option — the `All` value is literally the string `$__all` or `.*`, depending on the data source. Your PromQL query `up{job=~"$job"}` with `All` selected becomes `up{job=~".*"}` which works, but with MySQL it becomes `job=~'$__all'` which matches nothing.
+- **OpenTelemetry span context** propagates via W3C TraceContext headers (`traceparent`). If ANY service in the chain doesn't forward these headers (common in message queues, cron jobs, or legacy services), the trace breaks into disconnected fragments.
+- **Log sampling** at high volume: if you sample 1% of logs, you lose the 1 error in 10,000 requests that would have diagnosed the outage. Never sample ERROR-level logs; sample DEBUG/TRACE at 1%, INFO at 10%, WARN at 50%, ERROR at 100%.
+- **Alert fatigue**: If your `CPU > 80%` alert fires for 5 minutes every hour due to batch jobs, on-call engineers train themselves to ignore it. Then when a genuine CPU saturation occurs, no one responds. Alerts must require human action — if automation handles it, it's a notification, not an alert.
+
+
 ## References
 
 Detailed reference material loaded on demand:

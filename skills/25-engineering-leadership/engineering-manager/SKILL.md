@@ -394,6 +394,15 @@ After every difficult conversation: write down what you said, what they said, an
 
 **Write a "user manual for working with me" and ask each report to write theirs.** Share yours first — include your communication preferences, pet peeves, how you like to receive feedback, and when you're at your best/worst. Vulnerability from the leader creates permission for the team.
 
+## Gotchas
+
+- **1:1s that become status updates** — the engineer recites their Jira tickets for 25 minutes, you nod, meeting ends. The 1:1 is for them, not you. Ask about career growth, blockers they're uncomfortable raising publicly, and feedback on YOUR management. Limit status to 5 minutes max.
+- **Performance improvement plans (PIPs)** that surprise the engineer — "you've been underperforming for 6 months" but you've never given that feedback before. The engineer feels ambushed and trust is destroyed. Performance feedback must be continuous, documented, and NEVER first mentioned in a PIP.
+- **Promotion packet** that lists "what they did" without "what IMPACT it had" — "Migrated logging infrastructure" vs "Migrated logging infrastructure, reducing MTTR from 45 minutes to 12 minutes, saving ~$50K/year in engineering time." Impact-free packets get rejected by calibration committees.
+- **Hiring for "culture fit"** as code for "like me" — you build a team of people with the same background, same communication style, same blind spots. Culture ADD (what unique perspective does this person bring?) is more valuable than culture fit. Homogeneous teams make homogenous mistakes.
+- **Shielding your team from ALL organizational chaos** — your team doesn't know about the re-org, the budget cut, or the strategy pivot. When the decision lands, they're blindsided and feel you weren't transparent. Share context proportionally: enough to understand WHY decisions are made, not enough to distract from execution.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -404,6 +404,16 @@ Common chains:
 ### The One Thing
 **Ship a complete feature — database schema change through UI — in under 2 hours every month.** Speed reveals bottlenecks in your tooling, your understanding, and your stack. If you can't ship a complete feature in 2 hours, something in your stack is too complex. Find it. Simplify it. Repeat.
 
+## Gotchas
+
+- **Time zones across stack**: The browser sends local time in forms. Node.js `new Date()` parses as UTC. PostgreSQL `timestamp` stores without timezone, `timestamptz` normalizes to UTC. Always store UTC, convert only at display layer.
+- **CSRF tokens** are validated by comparing the cookie value to the request header. If your cookie `SameSite` is `Lax` but your frontend is on a different subdomain, the cookie won't send on POST — silent 403s with no console error.
+- **API response size**: Next.js `getServerSideProps` passes all returned data to the client as `__NEXT_DATA__`. If you return full database rows with 50 columns, every one ships to the browser — even unused columns.
+- **Prisma/Drizzle relation queries** in a loop produce N+1 queries. `include` or `with` clauses batch the relation but only one level deep. Nested relations need explicit `.findMany()` with `where: { id: { in: [...] } }`.
+- **Session store** (Redis, DB, memory): if you use in-memory sessions during development, every server restart logs everyone out. Tests that depend on session state fail intermittently when the session store is not shared across parallel test workers.
+- **File uploads via `multipart/form-data`** bypass JSON body parsers. If your validation middleware assumes `req.body` is JSON, file upload endpoints will silently receive `{}` and pass validation on empty.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -352,6 +352,15 @@ After every review cycle: ask the author which comments were most and least valu
 | **Low** | Style nit, minor improvement, naming suggestion | Optional; author discretion |
 | **Info** | Educational note, alternative approach suggestion | No action required |
 
+## Gotchas
+
+- **Reviewing only the diff** misses context. A one-line change that looks innocent (`if user`) may bypass a permission check on line 200 that you can't see in the diff. Always expand context +50 lines before and after critical changes.
+- **"LGTM" with no comments** is worse than no review — it signals the code was checked when it wasn't. If you genuinely found nothing, mention at least one specific thing you verified (e.g., "verified auth checks on all new endpoints").
+- **Security issues in test files** are still security issues. Hardcoded API keys in `test/setup.ts` get committed and leaked. Review test files with the same severity as production code.
+- **CI passing doesn't mean the code works**. The author may have changed tests to match broken behavior. Review modified test assertions as carefully as production code changes.
+- **Large PRs (>400 lines)** get rubber-stamped. The reviewer's attention degrades significantly after ~400 lines. Break large PRs or review in multiple sittings with fresh context.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -378,6 +378,16 @@ Minor API addition or non-breaking change
 ### The One Thing
 **Design an API by writing the consumer code first.** Before you write a single endpoint spec, write the code you wish you could write as a consumer. `const order = await api.orders.create({...})`. Let the ideal consumer experience drive the API design. An API that's easy to consume was designed from the outside in.
 
+## Gotchas
+
+- **OpenAPI `additionalProperties` defaults to `true`** in JSON Schema. If your spec doesn't explicitly set it to `false`, clients will silently accept extra fields. Every request body schema needs `"additionalProperties": false`.
+- **PATCH with `application/merge-patch+json`** (RFC 7396) uses `null` to mean "delete this field." But `application/json-patch+json` (RFC 6902) uses `{"op": "remove", "path": "/field"}`. Clients that send the wrong content type will corrupt data — `null` becomes a literal null value instead of a deletion.
+- **Cursor-based pagination** with `?after=xxx` requires a stable, unique sort order. Using `created_at` alone breaks when two records have the same timestamp. Always add a tiebreaker column (usually `id`).
+- **Rate limit headers** `X-RateLimit-Remaining` — if your gateway strips custom headers or renames them, the client sees no rate info. `RateLimit-*` (IETF draft) headers are increasingly preferred. Support both.
+- **`202 Accepted`** means "I queued this, no guarantee of completion." Clients that treat 202 as success will assume the resource exists when it may still be processing. Always include a `Location` header pointing to a status endpoint.
+- **API versioning in the URL path** (`/v1/users`) means every route has a version prefix. When you add `/v2/users`, the old `/v1/users` route still needs maintenance until deprecated. URL versioning creates N copies of every endpoint.
+
+
 ## References
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)
 - **Versioning Cost Analysis**: See [versioning-cost-analysis.md](references/versioning-cost-analysis.md)

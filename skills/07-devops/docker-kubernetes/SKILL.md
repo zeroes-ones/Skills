@@ -380,6 +380,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Once a month, break your staging cluster in a way you've never broken it before. The failure mode you discover is the one that would have caused a P1 incident in production. Fix the gap before it finds you.
 
+## Gotchas
+
+- **Docker `COPY . .`** includes `.git`, `node_modules`, `.env`, and everything in `.dockerignore` that you forgot to exclude. Image size balloons and secrets leak into the image layer history (visible via `docker history`).
+- **`docker build --no-cache`** rebuilds every layer, but doesn't pull updated base images. If your `FROM node:18` was cached 3 months ago, `--no-cache` rebuilds on the 3-month-old base. Use `--pull` to get the latest base image.
+- **Kubernetes `resources.requests` without `limits`** means the pod can burst to the node's entire capacity. One memory-leaking pod can OOM-kill every other pod on the node because there's no upper bound. Always set both.
+- **`kubectl apply -f`** merges the manifest with the live object using strategic merge patch. Deleting a field from the YAML does NOT delete it from the live object — you need `kubectl replace` or a specific patch to remove fields.
+- **Readiness vs Liveness probes**: if the readiness probe fails, the pod is removed from Service endpoints but stays running. If the liveness probe fails, the pod is KILLED and restarted. A liveness probe that's too aggressive (checking external dependencies) restarts healthy pods during transient network blips.
+- **Image tag `:latest`** in Kubernetes with `imagePullPolicy: Always` pulls whatever `latest` currently resolves to. Two replicas started 10 seconds apart can run different image versions if a new build pushed during that window.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -450,6 +450,15 @@ graph LR
 - [Link to CWE, OWASP, or vendor advisory]
 ```
 
+## Gotchas
+
+- **JWT `none` algorithm attack**: If your JWT library's `verify()` accepts `alg: "none"` (RFC 7518 allows it), an attacker can strip the signature and set the algorithm to `none`. Always explicitly whitelist accepted algorithms: `jwt.verify(token, secret, { algorithms: ['HS256', 'RS256'] })`.
+- **Regex DoS (ReDoS)**: `^([a-zA-Z]+)*$` looks innocent. On input `"aaaaaaaaaaaaaaaaaaaa!"` (20 a's + non-matching char), the backtracking engine tries ~2^20 combinations — potentially seconds of CPU per request. Any regex with nested quantifiers `(.+)+` or `(.*)*` is suspicious.
+- **Timing attacks on string comparison**: `password === storedHash` uses early-exit comparison — the comparison is faster when the first byte differs. Attackers can measure response times to brute-force byte by byte. Use `crypto.timingSafeEqual()`.
+- **Open redirect in login flow**: `GET /login?redirect=/dashboard` — if the redirect parameter is not validated against a whitelist, `redirect=//evil.com` sends the user's session token to an attacker's server.
+- **Prototype pollution in `Object.assign` or spread operators**: If user input like `{"__proto__": {"isAdmin": true}}` reaches a merge function, it pollutes `Object.prototype`. Every `{}` in the application now has `isAdmin: true`. Use `Object.create(null)` or libraries that sanitize keys.
+
+
 ## References
 
 Detailed reference material loaded on demand:

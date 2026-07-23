@@ -380,6 +380,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every quarter, run a Well-Architected Framework review on your most critical workload. The gap between what you designed and what actually exists is where the risk lives.
 
+## Gotchas
+
+- **IAM policy evaluation logic**: an explicit `Deny` ALWAYS overrides any `Allow`, even an `Allow` in a different policy attached to the same principal. A single `Deny` statement anywhere across all attached policies blocks the action — no warning, no log, just "Access Denied."
+- **AWS Lambda cold starts** are not just about initialization time. The Lambda execution environment is reused for ~5-45 minutes. During that window, global variables persist between invocations. A failed invocation that sets `global.isHealthy = false` poisons subsequent invocations.
+- **S3 eventual consistency (pre-2021)** is gone, but `LIST` after `PUT` is still eventually consistent under high-throughput workloads because object listing uses an eventually-consistent index. Newly created objects may not appear in LIST results for a few seconds under load.
+- **VPC PrivateLink endpoints** charge per ENI (~$7/mo per AZ) AND per GB processed (~$0.01/GB). A single endpoint across 3 AZs for low-traffic services still costs $21/month minimum. Consolidate services behind fewer endpoints or use VPC peering for low-traffic paths.
+- **CloudFormation rollback** can't delete resources it didn't create. If a resource creation succeeds but the next step fails, the successfully created resource lingers. Your account accumulates orphaned resources that appear in no stack and cost money indefinitely.
+- **Multi-region active-active** requires conflict-free replicated data types (CRDTs) or last-write-wins with a global clock. Two users updating the same record in different regions within the propagation window (50-200ms) will silently lose one update.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -403,6 +403,16 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 
 **Do a "walk the floor" tour of your infrastructure monthly.** Pick a random service. Can you find its: runbook? dashboards? recent deployment history? on-call rotation? If any of these takes more than 60 seconds, that's your next improvement.
 
+## Gotchas
+
+- **Terraform `count` vs `for_each`**: When you remove an item from the MIDDLE of a count-based list, Terraform shifts all subsequent resource indices. The resource at index 3 gets destroyed and recreated as index 2 — potentially destructive. `for_each` with stable keys prevents index shifting.
+- **Terraform state file** in S3 with DynamoDB locking — if the DynamoDB table is in a different region and that region has an outage, ALL Terraform operations fail with "Error acquiring state lock." Co-locate the lock table with the state bucket.
+- **`terraform plan -out`** saves the plan at planning time, but the plan is a snapshot of the state at that moment. If another CI pipeline applies changes between your plan and apply, the apply fails with "state has changed" — but the failure message doesn't tell you what changed.
+- **Kubernetes `imagePullPolicy: Always`** re-pulls the image every pod start, including restarts. During a registry outage, pods can't restart. Use `IfNotPresent` with digest-based tags (e.g., `myapp@sha256:...`) for production.
+- **Helm's `--wait` flag** waits for pods to be "Ready" but doesn't check for CrashLoopBackOff — a pod that starts, crashes, restarts, crashes, restarting forever is "Ready" between crashes. Helm reports success on a failing deployment.
+- **Secret management**: `kubectl get secret -o yaml` reveals base64-encoded (NOT encrypted) secrets. Anyone with `get secret` permissions can decode them. Use External Secrets Operator or Sealed Secrets, never store plain secrets in Kubernetes Secret objects.
+
+
 ## References
 
 Detailed reference material loaded on demand:

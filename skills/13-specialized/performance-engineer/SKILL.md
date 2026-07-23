@@ -430,6 +430,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **`timeit` vs profiling** — `timeit` tells you "this function took 2.3 seconds." It doesn't tell you it spent 2.1 seconds in `json.loads()` and 0.2 seconds doing actual work. Always use `cProfile` or `py-spy` before optimizing — the bottleneck is never where you think it is.
+- **Database N+1 with ORMs** — `User.objects.all()` then `for user in users: print(user.profile.bio)` executes 1 query for users + N queries for profiles. ORMs don't warn you. In development (10 users, SQLite on localhost), it's 11ms. In production (10K users, remote Postgres), it's 11,000ms.
+- **`SELECT COUNT(*)` on large InnoDB tables** — InnoDB doesn't store row count; it scans the smallest index. On 100M rows, COUNT(*) takes 30 seconds. Use `SHOW TABLE STATUS` for estimates or maintain application-level counters.
+- **P99 vs P99.9 latency** — P99 is 100ms, but P99.9 is 12,000ms. This means 1 in 1,000 requests takes 120x longer. That's every user hitting a 12-second hang once per ~10 minutes of active use. P99 alone hides the experience of your most active users.
+- **Caching that hurts** — caching a frequently-written value with a 60-second TTL. If the value changes 100x/second and you cache for 60s, you're serving stale data 99.999% of the time. Cache frequently-read, rarely-written data; don't cache fast-changing data without understanding staleness tolerance.
+- **`gc.pause()` in Go** at 50ms looks fine on a dashboard. But if your request timeout is 100ms and GC pause is 50ms, 50% of your request budget is GC. P99 request latency will show sawtooth patterns aligned with GC cycles. Use `GOMEMLIMIT` and `GOGC` tuning.
+
+
 ## References
 - **API Performance**: See [api-performance.md](references/api-performance.md)
 - **Concurrency & Async Patterns**: See [concurrency-&-async-patterns.md](references/concurrency-&-async-patterns.md)

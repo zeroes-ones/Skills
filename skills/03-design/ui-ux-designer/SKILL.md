@@ -282,6 +282,15 @@ The key: you are not your user. Every time you're surprised by what a user does,
 
 **Watch a user use your design in silence.** Don't explain. Don't justify. Don't help. Just watch where they hesitate, where they click wrong, where they say "huh." One session of silent observation is worth 10 design critiques.
 
+## Gotchas
+
+- **Design tokens as style dictionaries without inheritance** — `color-primary: #0066FF` defined once per platform (iOS, Android, Web) with the same value. When you change the primary color, 3 files need updating and one WILL be missed. Define tokens ONCE with platform transforms, not once per platform.
+- **Figma components nested 5 levels deep** with variant overrides — the outer component has `variant: primary`, the inner button has `variant: secondary`, and the user changes the button to `variant: destructive`. The resulting component is a Frankenstein that exists in 0 designs. Override control must cascade or be locked.
+- **Responsive breakpoints** at 768px, 1024px, 1440px — design for the breakpoints, but 35% of your users have screen widths between 1024px and 1440px. At 1100px, your layout snaps to 1024px (wasted space) or 1440px (overflow/hidden content). Design the IN-BETWEEN states, not just the breakpoints.
+- **"Design handoff"** as a Figma link thrown over the wall — the developer opens it, sees 47 screens with no interaction states (loading, empty, error, success, focus, hover, active, disabled). They implement the happy path and guess on the other 7 states. Handoff must cover ALL states, not just the ideal screen.
+- **Dark mode as color-flipping** — you invert the background and text, but shadows don't work in dark mode (dark shadow on dark background = invisible). Elevation must be communicated through LIGHT (higher surfaces are lighter). Dark mode needs its own elevation system keyed to ambient light, not shadow.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -461,6 +461,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Open-source license compatibility** — MIT code in an Apache 2.0 project is compatible (MIT is more permissive). GPLv3 code in an MIT project makes the ENTIRE project GPLv3 (copyleft propagation). Apache 2.0 and GPLv2 are INCOMPATIBLE (patent grant vs termination clauses). License compatibility must be checked at the dependency-graph level, not per-package.
+- **Contributor License Agreements (CLAs)** require contributors to sign over rights. But a CLA that says "you grant us an irrevocable, perpetual, worldwide license" without specifying what "us" can do — the contributor's employer may claim the code was created on company time. CLAs must include IP ownership attestation: "I certify this is my original work and not owned by my employer."
+- **Terms of Service "governing law" clause** — choosing Delaware because it's "business-friendly" applies Delaware law to a dispute between a French user and your UK entity. EU consumer protection laws (which can't be waived by contract) may override, creating a situation where no one knows which law applies. Consider local incorporation for major markets.
+- **Data residency vs data sovereignty** — your data is stored in Frankfurt (residency), but your parent company in the US can access it under the CLOUD Act (sovereignty). EU customers demand sovereignty (data can't leave the EU under any legal order), not just residency. Separate legal entity + data trustee required for true sovereignty.
+- **Indemnification clauses** in enterprise contracts — "Customer indemnifies Vendor against all third-party claims arising from Customer's use of the service." A third party sues YOU for something YOUR customer did with your software — and the customer pays your legal bills. But if YOUR software was the CAUSE (e.g., security vulnerability), customer indemnification doesn't apply. Mutual indemnification for IP infringement is standard; unilateral for customer conduct.
+
+
 ## References
 
 Detailed reference material loaded on demand:

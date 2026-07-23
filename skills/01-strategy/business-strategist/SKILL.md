@@ -365,6 +365,14 @@ graph LR
 
 **The One Highest-Leverage Activity**: Write a one-paragraph business strategy for a real or hypothetical company every week. If the strategy doesn't fit in a paragraph, you haven't understood it yet. Share with a peer and ask: "What's wrong with this?"
 
+## Gotchas
+
+- **Porter's Five Forces** analysis that's a one-time exercise — you do it in January, file it away, and the market shifts in March (new entrant, supplier consolidation, substitute product launch). The analysis is stale before it reaches the board. Five Forces must be a quarterly living document, not an annual ritual.
+- **"First mover advantage"** as universal truth — Google was the 18th search engine. Facebook was the 4th social network. Apple wasn't the first MP3 player, smartphone, or tablet. First movers pay the education cost; fast followers pay the execution cost. The winner is determined by execution quality, not chronological order.
+- **Pricing strategy based on "competitor price minus X%"** — you anchor to their value proposition, not yours. If your product delivers 3x the value (measured in revenue lift, time saved, or risk reduction), you should charge MORE, not less. Cost-plus and competitor-minus pricing both ignore the only thing that matters: value delivered.
+- **Market sizing that conflates TAM and SAM** — your Total Addressable Market is "every company with employees" ($100B). Your Serviceable Addressable Market is "US companies with 50-500 employees using cloud software" ($5B). Investors see through TAM inflation instantly, and it damages credibility for the rest of your pitch.
+
+
 ## References
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)
 - **GTM Cost by Channel (B2B SaaS)**: See [gtm-cost-by-channel-b2b-saas.md](references/gtm-cost-by-channel-b2b-saas.md)

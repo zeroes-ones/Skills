@@ -409,6 +409,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Take a screenshot of every touchpoint where your brand appears (product, marketing, support, invoices). Print them on one wall. The inconsistencies will scream at you.
 
+## Gotchas
+
+- **Color palette in HEX only** — you define `primary: #0066FF` and someone needs it for print (CMYK), they convert with an online tool and get `C100-M60-Y0-K0`. The actual CMYK equivalent of your brand color should be SPECIFIED — no one should be converting brand colors themselves.
+- **Logo in SVG exported from Figma/Illustrator** — the SVG has 147 inline styles, 23 `<clipPath>` definitions, and references fonts not available in production. The logo renders differently on every platform. Export with `presentationAttributes`, flatten, and convert text to paths for the canonical logo file.
+- **Typography scale on web using Google Fonts** — Google Fonts loads from `fonts.googleapis.com`, which adds 400-800ms to your LCP and risks the font server being blocked in China or by corporate firewalls. Self-host the WOFF2 files with `font-display: swap` and `preload` headers.
+- **"Brand in product"** — the marketing site has a bold, colorful brand; the product UI is gray with one accent color. Users don't perceive them as the same company. Brand expression in product must be proportional to brand expression in marketing: same color system, same typographic voice, same illustration style. Consistency > minimalism.
+- **Motion design tokens** (easing curves, duration scales) that are undocumented — the marketing site uses spring animations, the product uses CSS ease-in-out, the mobile app uses native platform curves. Brand motion feels disjointed. Define `easing-enter`, `easing-exit`, `duration-fast/normal/slow` as tokens.
+
+
 ## References
 
 Detailed reference material loaded on demand:

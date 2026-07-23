@@ -405,6 +405,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every quarter, audit your calendar against your stated priorities. If you say quality is #1 but spend 0 hours on testing infrastructure and 20 hours on feature delivery, quality is not your priority. Your calendar doesn't lie.
 
+## Gotchas
+
+- **Org chart as architecture** — Conway's Law means your system reflects your communication structure. If you split backend and frontend into separate teams with separate managers, you'll get an API that serves one frontend perfectly and breaks for every other client. Align team boundaries with subsystem boundaries, not skill sets.
+- **"We need more engineers"** as solution to missed deadlines — adding people to a late project makes it later (Brooks's Law). New engineers need onboarding, context, and mentorship from the SAME senior engineers who are already behind. Two months of ramp-up for 2 months of contribution = net zero for the first quarter.
+- **Skip-level 1:1s** where you ask "how are things going?" — you get sanitized answers. Ask: "What's the thing you're most worried about that your manager disagrees with?" and "What decision did we make in the last quarter that you think was wrong?" Specific, opinion-inviting questions surface real issues.
+- **Headcount planning** based on current roadmap projects — a 15% attrition rate means 15 of 100 engineers leave per year. If you hire exactly to roadmap needs, attrition puts you 15 engineers behind. Plan headcount for roadmap + attrition buffer + unexpected priorities (which always arrive).
+- **Tech debt "big rewrite"** approved by leadership — the rewrite takes 18 months, during which the old system gets zero investment. Customers leave because nothing improves. The rewrite launches, is missing 40% of edge cases the old system handled, and customers don't come back. Incremental strangler-fig migration always beats big rewrite.
+
+
 ## References
 
 Detailed reference material loaded on demand:

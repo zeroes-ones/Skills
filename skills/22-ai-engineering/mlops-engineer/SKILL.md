@@ -347,6 +347,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **MLflow `log_model` with `conda_env`** creates a conda environment from scratch on each deployment. If `conda_env.yml` doesn't pin exact versions, the deployed model runs with different library versions than training. Use `pip_requirements` with exact pins OR container-based deployment.
+- **Feature store offline/online skew**: The offline store (used for training) uses batch aggregations (Spark). The online store (used for inference) uses real-time aggregations (Redis/KV store). If the aggregation logic differs (e.g., 30-day rolling mean computed differently), the model makes predictions on features it never saw during training.
+- **Model registry stage transitions** (Staging → Production) don't automatically trigger deployment. Setting the stage to "Production" in MLflow just updates metadata. Your CI/CD pipeline must LISTEN for that event — otherwise your "production" model is just a label on a dead artifact.
+- **Kubeflow Pipelines caching** is based on input hash. If your data ingestion step reads from `s3://bucket/data/date=2024-01-15/` and the data is identical to the previous run, the ENTIRE pipeline is cached — including model training, even if the code changed. Code changes don't invalidate data cache by default.
+- **Batch inference on GPU** with batch_size=1 underutilizes the GPU (10-20% utilization). But batch_size=256 on a model with sequence length 512 may exceed GPU memory. The optimal batch size is the largest power of 2 that fits in memory — profile with `torch.cuda.max_memory_allocated()`.
+
+
 ## References
 
 Detailed reference material loaded on demand:

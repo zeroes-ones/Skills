@@ -439,6 +439,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Gotchas
+
+- **Consent under GDPR must be FREELY given** — "Accept all or pay €5/month" (cookie paywalls) is being challenged in EU courts. Consent-or-pay models may be ruled non-compliant because consent isn't freely given if the alternative is a financial penalty. The EDPB's current leaning is that paywalls undermine freely given consent.
+- **"Legitimate interest" as a catch-all** — article 6(1)(f) legitimate interest can't be used when data subject rights override your interest. Direct marketing to existing customers? Legitimate interest (maybe). Selling data to third parties? NEVER legitimate interest — consent required. The ICO has fined companies for LI overreach.
+- **Data Processing Agreement (DPA) with sub-processors** — your processor (SaaS vendor) uses AWS. Your DPA with the vendor covers THEM, but not AWS directly. You need to verify the vendor has a DPA with AWS, AND you need to be notified when they add new sub-processors. Sub-processor changes without notification are GDPR violations.
+- **Right of access (Article 15)** — a user requests all their data, you export from your database. But "all data" includes: support tickets (Zendesk), analytics events (Mixpanel), email history (SendGrid), CRM records (Salesforce), and logs. Most companies provide only database records and miss 4-8 other data stores.
+- **72-hour breach notification** starts from WHEN YOU BECOME AWARE of the breach, not when the breach occurred. If an engineer discovers a 3-month-old exposed S3 bucket on Monday at 10 AM, you have until Thursday at 10 AM. The 72-hour clock includes weekends and holidays — no extensions.
+
+
 ## References
 
 Detailed reference material loaded on demand:

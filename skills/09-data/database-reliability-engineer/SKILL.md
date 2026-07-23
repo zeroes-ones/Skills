@@ -348,6 +348,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **PostgreSQL `VACUUM` doesn't return disk space to the OS** — it marks dead tuples as reusable within the table file. The file stays the same size. Only `VACUUM FULL` (which locks the table exclusively) or `pg_repack` (online) shrinks the file on disk.
+- **MySQL `autocommit=1`** means every statement is a transaction. An `UPDATE` on 10M rows without explicit `BEGIN...COMMIT` runs as 10M individual transactions, taking 10-100x longer than wrapping in a single explicit transaction.
+- **Connection pool exhaustion** from long-running transactions: if pool size is 20 and 15 connections are in `idle in transaction` state (client opened transaction but hasn't committed), only 5 connections are available. A deadlock on those 5 brings down the app. Set `idle_in_transaction_session_timeout`.
+- **Replication lag monitoring**: `SELECT pg_last_wal_receive_lsn() - pg_last_wal_replay_lsn()` gives bytes behind, but a single giant transaction (e.g., batch delete of 50M rows) produces ONE WAL record that replays as 50M operations, taking hours. Bytes-behind shows zero while the replica is actually hours behind in wall-clock time.
+- **Indexes on low-cardinality columns** (boolean, status with 3 values) are often ignored by the query planner because the selectivity is too low. But a partial index `WHERE status = 'active'` on the 5% active subset IS selective and WILL be used.
+
+
 ## References
 
 Detailed reference material loaded on demand:

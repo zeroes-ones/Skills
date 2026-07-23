@@ -389,6 +389,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every time a bug reaches production, write the test that would have caught it BEFORE fixing the bug. The test should fail (proving it catches the bug), then pass after your fix. This one habit eliminates entire bug classes over time.
 
+## Gotchas
+
+- **`page.waitForSelector()` default timeout** is 30 seconds. If your test has 20 `waitForSelector` calls and the app is slow, the test takes 10+ minutes with no clear indication of which selector timed out. Always set explicit timeouts per-wait and log which selector is pending.
+- **Playwright's `--headed` mode** in CI reports differently than headless. Fonts render differently (no GPU), `prefers-reduced-motion` defaults differ, and `requestAnimationFrame` timing varies. Flaky visual regression tests that pass locally often fail in CI because of these differences.
+- **`expect(locator).toHaveText()`** uses `textContent` which includes hidden text (`display: none`, `visibility: hidden`). If a hidden error message happens to contain the expected string, the assertion passes even though users can't see it.
+- **`page.evaluate()` strings** run in browser context — they can't access Node.js variables. `const name = 'test'; page.evaluate('document.querySelector(".user").textContent = name')` fails because `name` is undefined in browser context. Pass variables as arguments: `page.evaluate((name) => {...}, name)`.
+- **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering.
+- **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01.
+
+
 ## References
 
 Detailed reference material loaded on demand:

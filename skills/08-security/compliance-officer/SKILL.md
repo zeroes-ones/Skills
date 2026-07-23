@@ -280,6 +280,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
+## Gotchas
+
+- **SOC 2 Type II** covers a period (usually 6-12 months), not a point in time. If you implemented a control on month 5, the auditor only tests months 5-12. Controls added mid-period have partial coverage, which may not satisfy the report's intended use.
+- **GDPR "right to erasure"** (Article 17) doesn't mean delete everything. You must erase personal data — but retain transaction records for tax law, fraud logs for security, and backup tapes that can't be surgically deleted. The exception for "legal obligation" must be documented per-request.
+- **Audit log immutability**: `chmod -w audit.log` prevents overwriting but not appending. An attacker with write access can APPEND fake log entries that look like normal activity. Immutable storage (S3 Object Lock, WORM drives) prevents both overwrite and append.
+- **Data retention policies** that say "delete after 7 years" — if you delete exactly at year 7, data from Jan-Dec is mixed. Records created Dec 31 need to live until Dec 31 + 7 years. Retention must be per-record, not per-calendar-year.
+- **"Encryption at rest" means different things** to different auditors. AWS RDS encryption (KMS-managed keys) counts. Application-level encryption (encrypt before writing) counts. But disk-level encryption (EBS volume encryption) doesn't count if the auditor requires separation of duties between data controller and infrastructure provider.
+
+
 ## References
 
 Detailed reference material loaded on demand:

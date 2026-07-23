@@ -336,6 +336,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Gotchas
+
+- **`Intl.NumberFormat` and `Intl.DateTimeFormat`** output the correct format but vary in whitespace across browsers. `new Intl.NumberFormat('fr-FR').format(1234.5)` produces `1 234,5` with a narrow non-breaking space in Chrome but a regular space in older Safari. Visual snapshot tests will fail.
+- **ICU MessageFormat plural rules** use CLDR data. `{count, plural, one {# item} other {# items}}` — the `one` rule activates for 1, but also for 0 in some languages (French, Brazilian Portuguese) where CLDR defines 0 as `one` category. Test plurals for 0, 1, 2, and many.
+- **RTL (right-to-left) text direction** doesn't flip everything. Numbers and Latin text remain LTR inside RTL paragraphs. CSS `direction: rtl` flips the layout but not the text direction of neutral characters like `+`, `-`, `/`, which stay LTR.
+- **Locale fallback chains** don't follow the obvious pattern. `fr-CA` (French Canadian) does NOT fall back to `fr` on all platforms — Android and ICU use `fr-CA → fr → root`, but Unicode CLDR uses `fr-CA → fr → und`. Resource bundle lookup must test both paths.
+- **Translation keys with interpolation** `Hello {name}` — if the translator omits `{name}`, the app shows literal `{name}`. Validate that every translated string has exactly the same placeholders as the source.
+- **Pseudo-localization** doubles string length and adds diacritics. But it doesn't catch: missing plural forms, date formats, currency codes, or word-order issues. Pseudo-loc is necessary but not sufficient.
+
+
 ## References
 
 Detailed reference material loaded on demand:

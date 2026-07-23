@@ -328,6 +328,15 @@ Common chains:
 - **User-centered strategy**: ux-researcher → product-strategist → product-manager — User insights → product strategy → feature specs
 - **Pricing & GTM**: product-strategist → business-strategist → growth-engineer — Pricing model → GTM strategy → growth experiments
 
+## Gotchas
+
+- **TAM (Total Addressable Market)** top-down calculations: "Global CRM market is $80B, if we capture 1%..." — that 1% number is the most important variable and it's made up. Bottom-up TAM (number of target customers × annual contract value) is slower to calculate but 10x more defensible.
+- **Product-market fit surveys** asking "How disappointed would you be if X didn't exist?" — the "40% very disappointed" threshold (Sean Ellis test) only works AFTER the product has active usage. Pre-launch surveys return noise because respondents imagine an idealized product, not yours.
+- **Build vs buy vs partner decisions** — "Buy" means "integrate and maintain forever." A $15K/year SaaS tool with 6-week integration and ongoing schema migrations may cost more over 3 years than a $120K internal build. Calculate TCO (total cost of ownership) over 36 months minimum.
+- **Competitive analysis** comparing your roadmap v1 against competitor v3 — the competitor will ship v4 by the time you ship v1. Compare against the competitor's likely trajectory, not their current state. Time-shifted comparisons systematically understate competitive risk.
+- **Platform vs point solution** decisions require a chicken-and-egg user base. A platform with no initial applications has no users; a point solution with no platform can't expand. The winning sequence is point-solution-first, then platform expansion — but only if you plan the expansion seams from day one.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -317,6 +317,15 @@ After every launch: what did you predict would happen? What actually happened? W
 
 **Watch a user use your product in silence.** Don't guide. Don't explain. Just watch. One hour of silent observation reveals more than 50 survey responses. Do this before writing any PRD.
 
+## Gotchas
+
+- **RICE scoring with false precision**: Reach (500K users) × Impact (3.5) × Confidence (87%) / Effort (6 person-months) = 253,750. The score looks objective but the inputs are all estimates. A competing feature scored 251,000 — that 1% difference is pure noise, not a real priority signal.
+- **User stories with "As a user, I want..."** create a false assumption that all users want the same thing. "As a power user" vs "As a first-time user" of the SAME feature produce diametrically opposed requirements. Split personas FIRST, then write stories per persona.
+- **Customer interview "would you use this?"** questions — people say yes to avoid conflict. 80% of users who say "I would definitely use this" in interviews never adopt. Instead, ask "when was the last time you had this problem?" and "how do you solve it today?".
+- **Roadmap as a Gantt chart** set 12 months out — the first unexpected customer escalation, competitor launch, or platform dependency change invalidates everything after month 2. Roadmaps should set outcomes and themes with rolling 6-week certainty windows, not fixed timelines.
+- **"Technical debt" as a catch-all** for "we need to refactor." Actual tech debt (trade-offs made knowingly) can be quantified with interest payments (e.g., "deployments take 3x longer due to X"). Vague "clean up the codebase" initiatives without interest-rate calculations never get prioritized.
+
+
 ## References
 
 Detailed reference material loaded on demand:

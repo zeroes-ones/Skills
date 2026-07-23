@@ -443,6 +443,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Measure your DORA metrics every week. If you don't know your deployment frequency, lead time, change failure rate, and MTTR, you don't know if your CI/CD investment is working. What gets measured gets improved.
 
+## Gotchas
+
+- **GitHub Actions `if: success()`** is the default for step execution — skipped jobs aren't failures, they're "skipped." If a previous job is skipped (not failed), `needs` downstream jobs RUN, but steps with `if: success()` inside them SKIP. This mismatch causes deployments to silently not run.
+- **`secrets.GITHUB_TOKEN`** expires at the end of the workflow, but its permissions are scoped to the CURRENT job only — it can't trigger other workflows. If you push a tag from a workflow hoping to trigger a release workflow, the push won't trigger a new workflow run (prevents infinite loops).
+- **Docker layer caching in CI**: `cache-from` pulls the previous image but doesn't cache layers unless BuildKit's `--cache-to` and `--cache-from` mode=max are both set. Without mode=max, only the final image layer is cached, not intermediate layers.
+- **Matrix strategy** with `fail-fast: true` (default) cancels ALL in-progress jobs when ANY one fails. A flaky test in Node 16 cancels the passing Node 18/20 jobs. Set `fail-fast: false` for independent matrix dimensions.
+- **`actions/checkout` by default** does a shallow clone (depth=1). `git diff origin/main...HEAD` fails because there's no shared history. Use `fetch-depth: 0` when you need git history.
+- **Artifact retention** defaults to 90 days. After that, deployment workflows that reference old artifacts silently fail with "artifact not found." Document artifact lifecycle in deployment runbooks.
+
+
 ## References
 
 Detailed reference material loaded on demand:

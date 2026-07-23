@@ -418,6 +418,15 @@ graph LR
 
 > See [references/vendor-due-diligence.md](references/vendor-due-diligence.md) for the full vendor due diligence checklist covering BAA requirements, sub-processor audits, breach notification SLAs, and PHI handling on contract termination.
 
+## Gotchas
+
+- **HIPAA "minimum necessary" rule** applies to access controls, not data storage. Storing all patient data in one table is HIPAA-compliant IF role-based access controls limit what each user can query. But a developer with `SELECT` on that entire table violates minimum necessary — access must be column-level or view-level.
+- **BAAs don't cover sub-processors** by default. If your cloud provider (who signed your BAA) uses a sub-processor for a specific service (e.g., AWS using a third party for text-to-speech), that PHI flow may not be covered. Audit sub-processor lists quarterly.
+- **PHI in logs** is the #1 source of reportable breaches. `logger.info(f"Patient {patient_id} diagnosed with {condition}")` writes PHI to logs. Logs are replicated, backed up, shipped to observability platforms — each copy is a data store that needs encryption, access control, and retention policy.
+- **Email is NOT HIPAA-compliant** by default. SMTP is unencrypted text. Office 365/Google Workspace with BAA cover the inbox, but CC'ing an external address, forwarding to personal email, or sending unencrypted attachments all breach HIPAA.
+- **De-identification safe harbor** requires removing 18 specific identifiers, but ZIP codes with populations < 20,000 count as an identifier. A dataset with ZIP+DOB+gender re-identifies 87% of the US population (Sweeney study). True de-identification is harder than it looks — use expert determination, not safe harbor.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -408,6 +408,17 @@ Common chains:
 ### The One Thing
 **Rebuild a component you built 6 months ago without looking at the original code.** Compare: is the new version simpler? More accessible? Smaller bundle impact? If it's not better, you haven't grown. If it's worse (over-engineered), you've learned the wrong lessons. Your own code, given 6 months of distance, is the best mirror of your growth.
 
+## Gotchas
+
+- **`useEffect` with empty deps `[]`** runs once on mount. But React 18 Strict Mode in development runs it twice to catch side effects. Your production code must tolerate double invocation.
+- **Next.js `getServerSideProps`** serializes everything with `JSON.stringify` internally. `Date` objects become strings, `undefined` becomes absent (not null), and `BigInt` throws. Return only JSON-safe primitives.
+- **Tailwind's JIT compiler** scans your source for class strings. Dynamic class construction like `bg-${color}-500` will NOT generate CSS unless you safelist it or use full class names.
+- **Core Web Vitals LCP** element changes during page load. The initial hero image may be the LCP candidate at 500ms, but a dynamically injected paragraph at 800ms becomes the new LCP. Measure after full hydration.
+- **`localStorage` is synchronous and blocking**. On slow disks, a `localStorage.getItem()` call can block the main thread for 10-50ms. Use `IndexedDB` or memory cache for hot paths.
+- **Form autofill by browsers** doesn't fire `onChange` events in all cases. If your validation relies on `onChange`, it will miss autofilled fields. Listen to `onBlur` or use the `onInvalid` capture phase.
+- **React `key` prop on list items** must be stable across re-renders. Using `Math.random()` or `index` with sortable lists causes DOM thrashing and lost input focus.
+
+
 ## References
 
 Detailed reference material loaded on demand:

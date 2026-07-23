@@ -268,6 +268,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Watch one user session recording every day. Not a highlight reel — a raw, unedited session. 15 minutes. You'll learn more about your product than from any dashboard.
 
+## Gotchas
+
+- **Usability test with 5 users** (Nielsen Norman Group heuristic) — 5 users find ~85% of usability problems IF the problems affect >30% of users. Rare problems (affecting 5% of users) need 50+ participants to surface. 5 users is for formative testing, not for making statistical claims about prevalence.
+- **Confirmation bias in interview questions** — "Would you say the navigation is confusing?" primes the participant. They say yes because you suggested it. The unbiased version: "Tell me about your experience finding the settings page." Let them surface the problem (or not surface it) organically.
+- **Persona creation from demographic stereotypes** — "Sarah, 34, marketing manager, 2 kids" tells you WHO she is, not WHAT she needs or HOW she behaves. Behavioral personas ("the batch processor," "the real-time monitor") based on observed usage patterns are actionable; demographic personas are fiction.
+- **A/B test that reaches significance at 7 days** — you stop it and declare the variant winner. But if you had run it for 14 days, the effect reversed (novelty effect wore off). Always pre-register test duration AND sample size. Peeking and stopping early inflates false positive rate to ~30%.
+- **"Users said they wanted X"** — what users SAY in interviews and what they DO in a live product correlate at ~0.3 (weak). Users said they wanted folders in Google Inbox; they actually needed search and archiving. Observe behavior; don't just ask for wishlists.
+
+
 ## References
 
 Detailed reference material loaded on demand:

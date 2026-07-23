@@ -326,6 +326,14 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
+## Gotchas
+
+- **Patient interview during treatment** — a patient interviewed while actively receiving chemotherapy reports high satisfaction ("the nurses are wonderful"). The same patient interviewed 2 weeks later reports the experience was "traumatic and dehumanizing." Timing relative to treatment changes the entire narrative. Interview at multiple timepoints.
+- **Patient satisfaction scores (HCAHPS)** — a hospital with 95% patient satisfaction has a 30% readmission rate (patients are happy but they come back sick). A hospital with 80% satisfaction has a 10% readmission rate (patients are less happy because they were discharged faster). High satisfaction != good outcomes. Measure outcomes.
+- **"Patient voice" tokenism** — you invite a patient to the design workshop, they share their story, everyone nods empathetically, and the design doesn't change. One patient's story is qualitative data (n=1), not design direction. True patient-centered design involves 8-12 patients, structured analysis of themes, and DESIGN CHANGES traceable to findings.
+- **Health literacy level** — your patient-facing material is written at a 10th-grade reading level and 60% of your patient population reads at or below 6th grade (US national health literacy baseline). Use readability formulas (Flesch-Kincaid, SMOG) and target 5th-6th grade for patient materials. Test with actual patients, not formulas.
+
+
 ## References
 
 Detailed reference material loaded on demand:

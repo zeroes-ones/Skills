@@ -413,6 +413,16 @@ Routine schema change (new column, index addition, non-breaking type change)
 ### The One Thing
 **Restore last night's production backup to a staging server and run your application against it.** Not a synthetic dataset. Not a truncated copy. The real data, real volume, real distribution. Your queries that ran in 2ms on dev will show their true colors on 500GB of production data.
 
+## Gotchas
+
+- **`VARCHAR(255)`** is a common default but it's rarely the right size. PostgreSQL stores VARCHAR with a 1-byte length prefix up to 126 bytes, then 2-byte prefix after. The 255 convention comes from MySQL's historical 255-byte index key limit — meaningless in Postgres.
+- **Foreign keys with `ON DELETE CASCADE`** chain silently. If A cascades to B which cascades to C, deleting one row in A can delete thousands in C with a single statement — no warning, no log. Application code often assumes it only deleted one row.
+- **Index on `status` column** with values like `'active'` (0.1%) and `'archived'` (99.9%) — PostgreSQL's query planner will sequential-scan because the index isn't selective enough. Use partial indexes: `CREATE INDEX ON table (id) WHERE status = 'active'`.
+- **`NULL` in unique constraints**: In PostgreSQL, `NULL != NULL`, so multiple rows with NULL in a unique column are ALL allowed. A unique index on `(email, deleted_at)` where `deleted_at IS NULL` for active users? Every soft-deleted user with the same email coexists.
+- **`SERIAL`/`AUTO_INCREMENT`** gap on rollback: if you `BEGIN; INSERT; ROLLBACK;`, the sequence value is consumed. After enough rollbacks, your IDs have large gaps. This is expected behavior, not a bug, but it surprises developers who assume gapless.
+- **Migration that renames a column** deployed after the app code update: the old code references the old column name on the new schema, producing `column does not exist` errors during the deploy window. Always deploy schema changes first, then code.
+
+
 ## References
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
 - **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)

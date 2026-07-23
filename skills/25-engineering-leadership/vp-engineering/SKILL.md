@@ -327,6 +327,15 @@ graph LR
 
 **The One Highest-Leverage Activity**: Build and maintain a peer network of 5-7 VPs of Engineering at other companies. Meet monthly. Share real decisions, real numbers, real mistakes. Your external network is your early warning system.
 
+## Gotchas
+
+- **Re-org as quarterly ritual** — every 6 months you shuffle teams, reporting lines, and ownership. Engineers spend 30% of their time learning new domains, rebuilding relationships, and navigating new decision processes. Organizational churn has a measurable velocity cost: ~20% productivity loss for 4-6 weeks post-re-org.
+- **"We need to move faster"** directive without changing constraints — you add pressure without removing process (compliance reviews, CAB approvals, test coverage gates). The only way to move faster under the same constraints is to cut corners. Speed comes from removing constraints, not adding urgency.
+- **C-level reporting with engineering metrics** — "deployment frequency up 40%, MTTR down 30%" — the CEO hears "engineering is doing stuff" and doesn't connect it to revenue, retention, or customer acquisition. Every engineering metric must be paired with a business outcome: "Deployment frequency up 40%, enabling us to ship the enterprise SSO feature that closed 3 deals worth $2.1M."
+- **"Top-down mandate" architecture decisions** — "we will use Kubernetes" or "we will use microservices" decided by VP without engineering input. The teams who have to implement it weren't consulted, don't understand the rationale, and resent the decision. Mandates set direction (WHAT); teams determine implementation (HOW).
+- **Equity refreshes** that are the same for a 4-year engineer who built your core systems and a 1-year engineer hired at market peak — the 4-year engineer's equity is likely under water or significantly below market comp. Refreshes based on impact AND tenure-gap-to-market, not just one.
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -411,6 +411,14 @@ graph LR
 
 **The One Highest-Leverage Activity**: Audit one team's entire tech stack end-to-end each month — from CI/CD to production monitoring. Write a one-page assessment: what's working, what's the bottleneck, what should change in the next quarter. Share with the team lead.
 
+## Gotchas
+
+- **Build vs buy decision** based on first-year cost alone — building costs $200K (3 engineers × 6 months) and buying costs $50K/year. At year 3: build = $200K + $40K/year maintenance = $320K. Buy = $150K (with 20% annual price increase). But build also gives you control over roadmap, integration depth, and zero vendor lock-in. TCO not year-1.
+- **Due diligence technical assessment** that reviews architecture diagrams and code quality — misses the #1 risk: key-person dependency. "What happens if your lead infrastructure engineer wins the lottery tomorrow?" If the answer is "we're in serious trouble," that's a material risk, regardless of code quality.
+- **"Innovation lab" or "skunkworks"** as a team siloed from the main engineering org — they build cool prototypes that can't integrate with production systems. The prototypes demo beautifully to the board and then die because the main engineering team wasn't part of the process. Innovation must be embedded, not siloed.
+- **"Move fast and break things"** applied to infrastructure decisions — choosing a database, message queue, or deployment platform requires 3-5 year commitments. Breaking things at the infrastructure layer means data migration, retraining, and service disruption. Fast iteration is for products, not platforms.
+
+
 ## References
 - **Consequences**: See [consequences.md](references/consequences.md)
 - **Context**: See [context.md](references/context.md)

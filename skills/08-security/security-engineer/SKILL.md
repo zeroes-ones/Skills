@@ -287,6 +287,15 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
+## Gotchas
+
+- **`crypto.randomBytes()` vs `Math.random()`**: `Math.random()` is a PRNG seeded from the current time (predictable). Using it for token generation produces tokens that can be brute-forced in minutes. All security tokens MUST use `crypto.randomBytes()` or equivalent CSPRNG.
+- **`bcrypt` has a 72-byte input limit** for the password. Passwords longer than 72 bytes are truncated silently. `sha256(password)` before bcrypt avoids truncation but reduces entropy if the sha256 output has known patterns. Use `bcrypt(sha512(password))` or switch to `argon2`.
+- **CORS `Access-Control-Allow-Origin: *`** with `Access-Control-Allow-Credentials: true` is forbidden by the spec — browsers will BLOCK the response. But `Access-Control-Allow-Origin: https://evil.com` WITH credentials WILL work if the attacker knows your domain. Never reflect the Origin header when credentials are enabled.
+- **Content Security Policy `script-src 'unsafe-inline'`** disables XSS protection entirely. But `script-src 'unsafe-eval'` allows `eval()`, `new Function()`, and `setTimeout(string)` — all XSS vectors. CSP reporting (`report-uri` or `report-to`) tells you what's being blocked so you can remove unsafe directives.
+- **Session fixation**: If your app accepts a session ID from the URL query string (`?sessionid=xxx`), an attacker can send a victim `?sessionid=attacker_known_session`, the victim logs in, and now the attacker's session IS the victim's session. Always regenerate session IDs after login.
+
+
 ## References
 - **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
