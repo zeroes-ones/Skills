@@ -97,6 +97,20 @@ SRE is not about keeping systems running — it's about **making systems reliabl
 - **SLOs without consequences are just metrics.** If the error budget is exhausted and nobody changes behavior (freezes features, invests in reliability), you don't have SRE — you have dashboards. The error budget must have teeth.
 - **On-call health is a reliability metric.** If your on-call engineers are burning out, reliability will degrade. Bus-factor, alert fatigue, and rotation sustainability are SRE concerns, not HR concerns.
 
+## Operating at Different Levels
+
+SRE skill scales from managing a single service's reliability to org-wide reliability strategy and culture.
+
+| Level | SRE Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Operates from runbooks. Responds to alerts under guidance. Learns SLO concepts and incident response. |
+| **L2 — Practitioner** | Owns reliability for a service. Defines SLIs, sets SLOs, handles incidents independently. Writes runbooks. |
+| **L3 — Senior** | Owns reliability for a product. Designs error budget policies, incident command, toil automation strategy. "Here's the reliability architecture." |
+| **L4 — Staff/SRE Lead** | Sets reliability strategy for the org. SLO framework across services, chaos engineering program, on-call health standards. "This is how we do reliability here." |
+| **L5 — Industry-level** | Creates SRE methodologies and reliability frameworks adopted across the industry. |
+
+**Usage**: Say "as an L3 SRE, define the SLO framework for..." Default: **L3** (product-level reliability, independent design).
+
 ## When to Use
 
 - You need to define SLIs (latency, error rate, throughput) and set SLO targets for a production service

@@ -88,6 +88,20 @@ Networking is not about connecting things — it's about **understanding that th
 - **Latency budgets are design constraints.** A 200ms budget for an API call means: 50ms for TLS handshake, 30ms for load balancer, 50ms for application, 30ms for database, 40ms margin. Design to the budget, not to "as fast as possible."
 - **Network observability is underinvested.** Most teams have great application monitoring and poor network visibility. When the app is slow, they can't tell if it's the network because they never instrumented it. VPC flow logs + synthetic probes = non-negotiable.
 
+## Operating at Different Levels
+
+Network engineering scales from single VPC design to global multi-cloud network architecture.
+
+| Level | Networking Engineer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Configures subnets and security groups from established patterns. Learns CIDR, routing, and DNS fundamentals. |
+| **L2 — Practitioner** | Designs VPC/VNet for a service. Configures load balancers, DNS, and network security independently. |
+| **L3 — Senior** | Designs multi-region network architecture. Transit gateway, hybrid cloud (VPN/Direct Connect), WAF/DDoS strategy. Trade-off analysis included. |
+| **L4 — Staff/Principal** | Sets network architecture standards for the org. Global network topology, multi-cloud networking strategy. "This is our network reference architecture." |
+| **L5 — Industry-level** | Creates networking patterns and architectures adopted across the industry. |
+
+**Usage**: Say "as an L3 networking engineer, design the VPC architecture for..." Default: **L3** (multi-region design, independent architectural decisions).
+
 ## When to Use
 
 - You are designing a new VPC/VNet with subnets, CIDR ranges, and routing tables from scratch

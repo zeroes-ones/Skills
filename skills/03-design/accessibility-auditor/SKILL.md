@@ -84,6 +84,20 @@ Accessibility is not a compliance checkbox — it's **the recognition that disab
 - **Start with semantics, not ARIA.** ARIA is a patch for when HTML isn't enough. A well-structured page with proper landmarks, headings, and native elements needs very little ARIA. "No ARIA is better than bad ARIA."
 - **The business case is stronger than the moral case for most stakeholders.** Accessibility expands your market by 15-20%, improves SEO, reduces legal risk, and makes your product better for everyone. Lead with the moral case; close with the business case.
 
+## Operating at Different Levels
+
+Accessibility auditing scales from single-page audits to org-wide accessibility governance and legal compliance programs.
+
+| Level | Accessibility Auditor Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Runs automated audit tools (axe-core, Lighthouse). Learns WCAG criteria and basic screen reader testing. |
+| **L2 — Practitioner** | Audits a feature or page end-to-end with automated + manual testing. Produces actionable remediation tickets with severity and WCAG SC references. |
+| **L3 — Senior** | Audits a product. Designs accessibility testing strategy for CI/CD. Trains teams on accessible development. Legal landscape awareness (ADA, Section 508, EAA). |
+| **L4 — Accessibility Lead** | Sets org-wide accessibility policy and governance. VPAT/ACR production, procurement accessibility requirements. "This is our accessibility program." |
+| **L5 — Industry-level** | Creates accessibility methodologies, tools, or standards adopted across the industry. Shapes WCAG evolution. |
+
+**Usage**: Say "as an L3 accessibility auditor, audit the checkout flow for..." Default: **L2** (feature-level audit, independent execution).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Auditing a web application for WCAG 2.2 compliance (A, AA, or AAA)

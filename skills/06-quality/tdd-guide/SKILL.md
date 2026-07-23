@@ -89,6 +89,20 @@ TDD is not about testing — it's about **using tests as a design tool to produc
 - **The refactor step is where skill shows.** Anyone can make tests pass. The difference between competent and master is what the code looks like after refactoring. The refactor step is where patterns, principles, and taste are applied.
 - **Tests are the first consumer of your API.** If the test is awkward to write, the API is awkward to use. This is the single most valuable design insight TDD provides.
 
+## Operating at Different Levels
+
+TDD skill manifests in the sophistication of test design — from writing tests for individual functions to designing testability into system architecture.
+
+| Level | TDD Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Follows red-green-refactor cycle for simple functions. Writes unit tests before implementation. |
+| **L2 — Practitioner** | TDDs features independently. Test doubles, test organization, and test naming conventions. Writes tests that document behavior. |
+| **L3 — Senior** | Designs testable architecture. Identifies test boundaries and seam points. "This design is hard to test because..." Mentors on TDD craft. |
+| **L4 — Staff/Principal** | Sets TDD standards for the org. Test strategy, testing pyramid design, test infrastructure. "This is how we test here." |
+| **L5 — Industry-level** | Creates testing methodologies and TDD approaches adopted across the industry. |
+
+**Usage**: Say "as an L2 practitioner, TDD this feature" or "as an L3 senior, help me design this for testability." Default: **L2** (independent TDD execution).
+
 ## When to Use
 <!-- QUICK: 30s — scan the bullet list to decide -->
 

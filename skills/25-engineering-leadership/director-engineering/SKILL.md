@@ -128,6 +128,20 @@ The Director of Engineering is not "super EM" — it's a role where **your produ
 - **Your calendar is your strategy.** If you say "quality is our top priority" but spend 0 hours on testing infrastructure and 20 hours on feature delivery, quality is not your priority. Audit your calendar monthly against stated priorities.
 - **Succession planning is not optional.** If you were hit by a bus tomorrow, could any of your EMs step into your role within 6 months? If the answer is no, you're a single point of failure. Start developing your replacement today.
 
+## Operating at Different Levels
+
+Director effectiveness is measured by organizational health, not personal output. The level manifests in scale: number of teams, EMs, and organizational complexity.
+
+| Level | Director of Engineering Output Characteristics |
+|---|---|
+| **L1 — First-time Director** | Manages 2-3 EMs (15-30 engineers). Learns to lead through managers. Needs frameworks for org design and EM development. |
+| **L2 — Director** | Manages 3-5 EMs (30-80 engineers). Org design, hiring strategy, technical strategy for a department. Owns budget and headcount. |
+| **L3 — Senior Director** | Manages directors or 5-8 EMs (80-200 engineers). Multi-team strategy, organizational culture at scale. "This is how engineering at this scale works." |
+| **L4 — VP-level Director** | Manages senior directors (200-500+). Multi-site, multi-product engineering strategy. Succession at the director level. Board-level communication. |
+| **L5 — Industry-level** | Creates organizational models and engineering leadership frameworks adopted across the industry. |
+
+**Usage**: Say "as a Director managing 40 engineers, help me design the org for..." Default: **L2 (Director)** — managing managers, department strategy.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 

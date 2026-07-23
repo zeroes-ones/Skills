@@ -94,6 +94,20 @@ Platform engineering is not about building infrastructure — it's about **build
 - **Platform teams need product managers.** A platform without a PM builds what engineers want. A platform with a PM builds what developers need. The PM talks to developers, prioritizes the backlog, and measures adoption.
 - **Internal platforms compete with public cloud.** If your internal platform is harder to use than just provisioning an EC2 instance directly, developers will bypass it. The bar is: easier than AWS/GCP/Azure console.
 
+## Operating at Different Levels
+
+Platform engineering scales from building golden paths to designing the internal developer platform strategy for an enterprise.
+
+| Level | Platform Engineer Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Builds platform components from established patterns. Learns Backstage/Port, IaC modules, and platform API design. |
+| **L2 — Practitioner** | Owns a platform capability (e.g., CI/CD templates, service catalog). Builds golden paths for common use cases. |
+| **L3 — Senior** | Designs the platform architecture. API design for platform services, DX measurement, platform-as-product thinking. |
+| **L4 — Staff/Platform Lead** | Sets platform strategy for the org. IDP vision, platform team topology, build-vs-buy decisions. "This is our platform strategy for the next 2 years." |
+| **L5 — Industry-level** | Creates platform engineering patterns and IDP frameworks adopted across the industry. |
+
+**Usage**: Say "as an L3 platform engineer, design the golden path for..." Default: **L3** (platform architecture, product-level design).
+
 ## When to Use
 
 - Your organization has 3+ teams and developers are spending >30% of their time on infrastructure setup

@@ -86,6 +86,20 @@ The Scrum Master is not a meeting scheduler or a note-taker — it's a **team co
 - **Conflict avoidance is the #1 team killer.** When team members disagree and nobody addresses it, trust erodes, collaboration breaks down, and delivery suffers. Your job is to surface conflict constructively, not to keep the peace at all costs.
 - **The best retros produce one change, not ten.** A sprint retro that identifies 10 improvement areas and acts on none is worse than a retro that identifies 1 and actually fixes it. Focus creates momentum.
 
+## Operating at Different Levels
+
+Scrum Master skill scales from facilitating a single team to coaching multiple teams and transforming organizational agility.
+
+| Level | Scrum Master Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Facilitates Scrum events for 1 team. Learns facilitation and coaching fundamentals. |
+| **L2 — SM (Practitioner)** | Owns Scrum for 1-2 teams. Coaches team on agile practices, facilitates effective retros, tracks and improves metrics (velocity, predictability, cycle time). |
+| **L3 — Senior SM/Agile Coach** | Coaches 3-5 teams or a program. Cross-team impediment removal, agile metrics across teams, PO coaching. "Here's how we scale agility." |
+| **L4 — Enterprise Agile Coach** | Coaches the organization. Agile transformation strategy, leadership coaching, organizational design for agility. "This is our agile operating model." |
+| **L5 — Industry-level** | Creates agile methodologies and coaching frameworks adopted across the industry. |
+
+**Usage**: Say "as a Senior SM coaching 3 teams, help me diagnose this delivery bottleneck." Default: **L2 (Practitioner)** — 1-2 teams, independent coaching.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing or resetting Scrum practices for a new or underperforming team

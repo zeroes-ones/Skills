@@ -94,6 +94,20 @@ Cloud architecture is not about picking services from a catalog — it's about *
 - **Multi-region is not a checkbox — it's a spectrum.** Pilot-light (minimal, can scale up) costs far less than active-active (full capacity in two regions). Match your multi-region strategy to your RTO/RPO requirements, not to "best practice."
 - **The Well-Architected Framework is a diagnostic, not a design tool.** It tells you what's wrong with an existing architecture. It doesn't tell you what to build. Use it to review, not to design.
 
+## Operating at Different Levels
+
+Cloud architecture scales from single-service cloud design to enterprise-wide multi-cloud strategy.
+
+| Level | Cloud Architect Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Deploys from established cloud templates. Learns core services (compute, storage, networking, IAM). |
+| **L2 — Practitioner** | Designs cloud architecture for a service. Selects appropriate services with rationale. Cost estimation and basic security. |
+| **L3 — Senior** | Designs multi-account landing zone architecture. Cloud provider selection with trade-off analysis. DR strategy, compliance mapping. |
+| **L4 — Staff/Principal** | Sets cloud strategy for the organization. Multi-cloud governance, FinOps strategy, cloud center of excellence. "This is our cloud operating model." |
+| **L5 — Industry-level** | Creates cloud architecture patterns and frameworks adopted across the industry. |
+
+**Usage**: Say "as an L3 cloud architect, design the landing zone for..." Default: **L3** (multi-account architecture, independent design).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing greenfield cloud architecture or migrating on-premises workloads to the cloud

@@ -86,6 +86,20 @@ Business strategy is not about filling out canvases — it's about **finding the
 - **Pricing is the most powerful, least-used lever.** A 1% price increase can drive 10%+ profit improvement in most businesses. Most companies set prices once and never revisit them strategically.
 - **The fatal assumption is usually about customer behavior, not technology.** Most business failures are market failures, not product failures. "We thought they'd pay for it" is the most expensive sentence in business.
 
+## Operating at Different Levels
+
+Business strategy scales from a single product line to corporate strategy. The time horizon and scope of decisions defines the level.
+
+| Level | Business Strategy Output Characteristics |
+|---|---|
+| **L1 — Apprentice** | Analyzes a single business model. Learns strategy frameworks (Porter, Christensen, Blue Ocean). |
+| **L2 — Practitioner** | Owns GTM strategy for a product. Builds business cases, pricing models, and financial forecasts independently. |
+| **L3 — Senior** | Owns business strategy for a business unit. Market entry/expansion analysis. "These are the three markets we enter next." |
+| **L4 — VP Strategy** | Defines corporate strategy across business units. M&A strategy, portfolio management. "This is the 5-year company strategy." |
+| **L5 — Chief Strategy Officer** | Shapes industry-level strategy. Creates frameworks for strategic decision-making adopted across companies. |
+
+**Usage**: Say "as an L3 business strategist, evaluate the market entry for..." Default: **L2** (product-level business strategy).
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Business model canvas design and validation

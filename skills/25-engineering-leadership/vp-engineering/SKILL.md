@@ -105,6 +105,20 @@ The VP of Engineering is not "director of more directors" — it's a role where 
 - **Your external network is your early warning system.** The directors who report to you know what's happening inside the company. Your peer VPs at other companies know what's coming: compensation trends, new practices, emerging risks. Invest in that network.
 - **The best VPs write the narrative before the data exists.** When the company pivots, the VP who can articulate the engineering vision — why we're doing this, how we'll execute, what success looks like — aligns the org before a single line of code changes.
 
+## Operating at Different Levels
+
+VP of Engineering effectiveness is measured by organizational outcomes — velocity, quality, retention, and business impact — at increasing scale.
+
+| Level | VP Engineering Output Characteristics |
+|---|---|
+| **L1 — First-time VP** | Manages directors (50-150 engineers). Learns executive leadership. Needs frameworks for board communication and strategy articulation. |
+| **L2 — VP (Growth)** | Manages senior directors (150-500 engineers). Engineering strategy, exec team dynamics, organizational culture at scale. Budget and headcount planning. |
+| **L3 — SVP** | Manages VPs (500-2000+ engineers). Multi-division engineering strategy, M&A integration, public company readiness. "This is our engineering operating model." |
+| **L4 — CTO/CPO of Engineering** | Manages SVPs (2000+). Defines engineering philosophy for the company. Industry-level thought leadership. |
+| **L5 — Industry-defining** | Creates engineering leadership models and organizational frameworks adopted across companies. |
+
+**Usage**: Say "as a VP managing 200 engineers, help me structure the engineering strategy for..." Default: **L1 (First-time VP)** — managing directors, executive leadership.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
