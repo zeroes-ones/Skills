@@ -63,6 +63,41 @@ These rules apply to *every* response this skill produces.
 - **Always tie product decisions to business outcomes.** Frame every prioritization, roadmap decision, and feature trade-off in terms of: retention impact, revenue lift, or strategic positioning. Never advocate for a feature because "users asked for it" or "competitors have it."
 - **Admit what you don't know.** If a question requires user behavior data, revenue analytics, or engineering capacity information you don't have access to, say so and tell the user what data to collect.
 
+## The Expert's Mindset
+
+Product strategy is not about picking the right framework — it's about **seeing what others don't see and having the conviction to act on it before the data is conclusive**. The output is not a strategy document; the output is a company aligned around a shared direction that wins.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Strategy = what you don't do** | A strategy that doesn't explicitly say what you're *not* pursuing is not a strategy — it's a wish list. The power is in the trade-offs. |
+| **Insight > framework** | Frameworks (SWOT, Porter, BCG) structure thinking but don't produce insight. Great strategy comes from a novel observation about the market that others have missed. |
+| **Distribution beats product** | In most markets, the best-distributed product wins, not the best product. Your GTM strategy is at least as important as your product strategy. |
+| **Speed of iteration > quality of initial strategy** | No strategy survives contact with customers intact. The best strategists iterate faster, not smarter. |
+
+### Cognitive Biases That Kill Strategies
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Planning fallacy** | Underestimating how long everything takes by 2-3x | Use reference-class forecasting: how long did it take 5 similar companies? |
+| **Confirmation bias** | Seeking data that supports your strategy, dismissing contradicting evidence | Appoint a "strategy skeptic" role in every review; their job is to find what's wrong |
+| **Anchoring** | First number you see (competitor price, market size estimate) shapes all subsequent thinking | Always generate independent estimates before looking at benchmarks |
+| **Survivorship bias** | Studying winners and extracting lessons without examining the graveyard of failures | For every successful strategy you admire, study 2 that failed with similar approaches |
+| **Sunk cost fallacy** | Continuing a failing strategy because you've already invested in it | Set kill criteria at strategy launch. If triggered, kill regardless of investment. |
+
+### What Masters Know That Others Don't
+
+- **The best strategy fits on one page.** If you need appendices to explain your strategy, you don't have clarity. Jeff Bezos's 1997 shareholder letter was 2 pages and ran Amazon for decades.
+- **Strategy is revealed in resource allocation, not documents.** Show me your budget and headcount allocation — that's your real strategy. Everything else is aspiration.
+- **Category creation beats category competition.** The highest-return strategies create new categories where you define the rules (Salesforce: "No software"; Tesla: EVs as desirable, not eco-compromises). But category creation is also the riskiest bet — most new categories fail.
+- **Timing is the least discussed, most important variable.** Being right too early is indistinguishable from being wrong. Ask: "Why now? What changed that makes this possible today that wasn't possible 2 years ago?"
+
+### When to Break Your Own Rules
+
+- **Skip competitive analysis when creating a new category.** There are no competitors when you're defining the market. But validate that users have an existing behavior you're replacing — even category creators compete with "the way it's done today."
+- **Ignore roadmap discipline during existential pivots.** When the company might die, throw out the roadmap and focus all resources on the one thing that might save it. Survival is the strategy.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Validating product-market fit for a new product or feature
@@ -334,6 +369,31 @@ Common chains:
 - [ ] **[S10]**  Retention cohort analysis: "aha moment" identified, time-to-value tracked
 - [ ] **[S11]**  GTM model validated with rationale
 - [ ] **[S12]**  Cross-skill coordination map documented for key decisions
+
+## Deliberate Practice
+
+Product strategy is pattern-matching refined through exposure to diverse business models, markets, and outcomes. The strategist who has studied 100 failures sees patterns the strategist who has only studied successes cannot.
+
+### The Strategy Improvement Loop
+
+```
+HYPOTHESIZE → TEST → SYNTHESIZE → (update mental model) → repeat
+```
+
+After every strategic decision: write down your explicit prediction. Check it at 3, 6, and 12 months. The gap between prediction and reality is your curriculum.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | Do a competitive analysis of 3 products in your space. For each, identify: what they say they are, what they actually are, and the gap between those two. | Monthly |
+| **Competent** | Write a 500-word strategy memo for a product move (launch, pivot, kill). Exchange with a peer for red-teaming. Rewrite based on critiques. | Biweekly |
+| **Expert** | Run a Sean Ellis PMF survey with real users. Calculate the "very disappointed" percentage. Benchmark against industry (40%+ is strong). Identify which segment drives the metric. | Quarterly |
+| **Master** | Study 1 failed product deeply per quarter: read post-mortems, founder interviews, investor letters. Write what you would have done differently — then write why you might have been wrong about that too. | Quarterly |
+
+### The One Highest-Leverage Activity
+
+**Write your strategy on one page, then delete it and write it again in half the words.** The second version reveals what you actually believe. The first version reveals what you think you should believe. Do this before every strategy presentation.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
