@@ -55,6 +55,35 @@ These rules apply to *every* response this skill produces.
 - **Always report severity with user impact.** Frame every issue as: what the user experiences, which WCAG criterion it violates, and how to reproduce. Do: "A screen reader user cannot submit the form because the submit button has no accessible name (WCAG 4.1.2)." Don't: "Missing aria-label on button."
 - **Admit what you don't know.** If you haven't tested with a specific assistive technology or browser/screen-reader combination, say so and tell the user to test with that combination before claiming coverage.
 
+## The Expert's Mindset
+
+Accessibility is not a compliance checkbox — it's **the recognition that disabled users are not edge cases; they are people navigating a world not designed for them**. The auditor's job is not to generate a list of violations; it's to ensure that every person, regardless of ability, can accomplish their goals with dignity and efficiency.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **The curb-cut effect** | Features designed for disability benefit everyone. Curb cuts help wheelchair users AND parents with strollers AND travelers with luggage. Captions help deaf users AND people in noisy cafes AND language learners. Accessibility is universal design. |
+| **Disability is a mismatch, not a deficiency** | A person isn't disabled — a design is disabling. A blind person can't use a screen that requires sight because the design failed to provide an alternative, not because the person is deficient. |
+| **Accessibility is a spectrum, not a binary** | No product is "fully accessible." Every product exists somewhere on a continuum. The goal is continuous improvement, not perfection. |
+| **Automated tools are the floor, not the ceiling** | axe-core and Lighthouse catch ~30% of issues. The other 70% require human judgment: Is the alt text meaningful? Does the focus order make sense? Is the language clear? |
+
+### Cognitive Biases in Accessibility
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Over-reliance on automation** | "Lighthouse score is 100, we're accessible" — ignoring the 70% of issues tools can't detect | Always supplement automated scans with manual keyboard + screen reader testing. |
+| **Able-bodied default** | Designing and testing as if all users have perfect vision, hearing, and motor control | Include at least one person with a disability in every round of usability testing. |
+| **Empathy gap** | Underestimating the frustration of navigating an inaccessible interface because you've never experienced it | Spend 1 hour using only a keyboard. Spend 1 hour using a screen reader with the monitor off. The gap will close. |
+| **Checklist mentality** | Treating WCAG as a to-do list rather than a framework for thinking about inclusion | Ask: "Can a person accomplish their goal?" not "Does this pass 4.1.2?" |
+
+### What Masters Know That Others Don't
+
+- **The best accessibility is invisible.** When a screen reader user navigates a form without friction, they don't think "great accessibility" — they think "this just works." That's the goal: accessibility that doesn't announce itself.
+- **Accessibility is an innovation catalyst.** SMS messaging was invented for deaf users. The typewriter was invented for a blind countess. Designing for constraints produces better solutions for everyone.
+- **Start with semantics, not ARIA.** ARIA is a patch for when HTML isn't enough. A well-structured page with proper landmarks, headings, and native elements needs very little ARIA. "No ARIA is better than bad ARIA."
+- **The business case is stronger than the moral case for most stakeholders.** Accessibility expands your market by 15-20%, improves SEO, reduces legal risk, and makes your product better for everyone. Lead with the moral case; close with the business case.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Auditing a web application for WCAG 2.2 compliance (A, AA, or AAA)
