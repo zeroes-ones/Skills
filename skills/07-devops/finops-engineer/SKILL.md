@@ -249,6 +249,19 @@ Cluster cost attack surface:
 | `vp-engineering` | Cost anomaly alerts, optimization opportunity backlog, team-level cost KPIs | Engineering budget overrun with no visibility — financial risk |
 | `fp-and-a-analyst` | Cost forecasts, commitment purchase ROI, provider discount analysis, unit economics data | Financial planning can't model cloud spend accurately — budget surprises |
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Cloud costs increase > 20% month-over-month with no corresponding traffic growth | Propose immediate cost attribution drill: identify top 5 cost drivers by service/tag, flag anomalies > 2σ from trailing 14-day average, report findings within 24 hours | Unexplained cost spikes are the #1 FinOps emergency; every hour of delay costs real money — 20% MoM growth without traffic means waste or leakage |
+| > 20% of resources are untagged — cost allocation impossible, showback reports are fiction | Propose tagging strategy with enforcement: mandatory tags (`Team`, `Service`, `Environment`, `CostCenter`), SCP/Azure Policy to block untagged resource creation, auto-shutdown after 24 hours untagged | Untagged resources are invisible costs; you can't optimize what you can't attribute — tagging is the foundation of every FinOps practice |
+| Reserved Instance/Savings Plan utilization < 60% — thousands in commitments producing zero savings | Propose RI/SP audit: identify unutilized commitments, exchange/modify where possible, right-size before next purchase, prefer Savings Plans for flexible workloads | Unused commitments are dead money; every dollar of unused RI is a dollar that could have been on-demand at the same cost |
+| No cost visibility for engineering teams — developers provision resources with no idea what they cost | Propose per-team cost dashboards with showback (not chargeback); embed cost estimates in CI/CD (Infracost on PR); weekly cost digest per team | Engineers optimize what they can see; cost visibility is the prerequisite for cost responsibility — showback before chargeback |
+| Storage costs growing linearly but no lifecycle policies — 2-year-old log files at hot-tier pricing | Propose storage lifecycle audit: S3 Intelligent Tiering for unpredictable access, lifecycle policies (30d → Infrequent Access, 90d → Archive/Glacier, 365d → delete), unattached volume reaper | Storage has infinite gravity — data accumulates, access patterns decay, but costs compound; lifecycle policies are the highest-ROI optimization |
+| Data transfer costs are 30%+ of cloud bill — cross-AZ traffic, NAT gateway egress, no CDN | Propose network cost audit: implement VPC endpoints for S3/DynamoDB, consolidate NAT gateways, enable CDN for static assets, use AZ-aware service discovery | Data transfer costs hide in plain sight; they're invisible in most dashboards but can exceed compute costs in data-heavy applications |
+| Kubernetes clusters running at 15% average CPU utilization — nodes over-provisioned 6:1 | Propose right-sizing: Vertical Pod Autoscaler in recommend mode, resource requests = P50 usage, limits = P95; bin-packing with cluster autoscaler; spot instances for non-production | Kubernetes waste is invisible without kubecost or similar; over-provisioned clusters are the norm, not the exception — right-sizing typically saves 40-60% |
+| Carbon footprint not tracked — sustainability goals exist but no measurement | Propose GreenOps integration: carbon-aware region selection (lower-carbon regions are often cheaper), spot instance preference, nightly non-production shutdown, carbon dashboard alongside cost dashboard | Carbon optimization and cost optimization are 80% aligned; tracking carbon alongside cost future-proofs for regulation and ESG reporting |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -324,7 +337,20 @@ Common chains:
 - **GreenOps is the next frontier**: carbon-aware scheduling and region selection often align with cost optimization (low-carbon regions tend to be cheaper). Track carbon alongside cost.
 
 
-### Error Decoder
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| "We'll optimize costs after launch" — no tagging, no budgets, no RI planning at design time | Tag from day one; set budget alerts before first production deploy; right-size resources at design time, not as a post-launch fire drill |
+| 100% Reserved Instance coverage — every workload committed, zero flexibility for change | Target 60-80% RI/SP coverage; keep 20-40% on-demand for variable workloads and new services; flexibility has value — unused RIs are dead money |
+| Cost optimization treated as a quarterly cleanup project — one person manually hunts for waste 4×/year | Continuous cost optimization: automated right-sizing recommendations weekly, anomaly detection real-time, idle resource cleanup nightly; cost is a daily practice, not a quarterly event |
+| Chargeback implemented before showback — teams get surprise bills and resent the FinOps program | Showback first: 6-12 months of cost visibility without financial accountability; build cost awareness and trust before adding chargeback |
+| Spot instances used for production databases — interruption causes outage, team declares "spot is unreliable" | Spot for stateless, fault-tolerant, interruptible workloads only (batch jobs, CI/CD, non-production); never for databases, message queues, or stateful production services |
+| Every resource gets its own RI — 200 individual RI purchases to manage, nobody tracks utilization | Use Savings Plans for broad coverage across instance families; consolidate RI purchases by family/region; automate utilization tracking with monthly report |
+| Cost data lives in a finance spreadsheet that engineers never see — "cost is finance's problem" | Embed cost data in engineering tools: Infracost in CI/CD, cost-per-PR estimates, Slack cost bot, per-team dashboards in observability platform |
+| Cloud provider bill is the only source of truth — no internal cost allocation or showback, no reconciliation | Multi-cloud cost platform (CloudHealth, Vantage, Kubecost) as single pane; allocate costs by team/service/environment; reconcile with provider bill monthly |
+
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
