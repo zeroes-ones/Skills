@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**103 skills across 25 domains. 1,074 chain edges with 0 asymmetries. 150+ reference documents. 30+ asset templates.**
+**106 skills across 25 domains. 1,130 chain edges with 0 asymmetries. 150+ reference documents. 30+ asset templates.**
 
 ### Cross-Skill Chain System
 
@@ -137,7 +137,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 103 skills in current project (team/company default) |
+| `skills-init` | Activate all 106 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -155,8 +155,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 103 skills
-skills-init               # All 25 domains, 103 skills, full lifecycle coverage
+# Startup or team project — full 106 skills
+skills-init               # All 25 domains, 106 skills, full lifecycle coverage
 ```
 
 **Auto-activation:** When you `cd` into any git repo, the shell prompts you to activate skills. It auto-detects the right tier based on your project location and structure.

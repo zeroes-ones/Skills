@@ -1,7 +1,8 @@
 ---
 name: compliance-officer
-description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation, control mapping, evidence collection, and policy writing. Triggered by compliance, SOC2, ISO 27001, GDPR, HIPAA,
-  PCI-DSS, audit, GRC, policy, control.
+description: SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS compliance frameworks, audit preparation,
+  control mapping, evidence collection, and policy writing. Triggered by compliance,
+  SOC2, ISO 27001, GDPR, HIPAA, PCI-DSS, audit, GRC, policy, control.
 author: Sandeep Kumar Penchala
 type: security
 status: stable
@@ -13,6 +14,8 @@ token_budget: 2625
 chain:
   consumes_from:
   - gdpr-privacy
+  - health-regulatory-submission
+  - hipaa-technical-implementation
   - incident-responder
   - legal-advisor
   - regulatory-specialist
@@ -24,6 +27,8 @@ chain:
   - clinical-informatics-specialist
   - content-policy-manager
   - gdpr-privacy
+  - health-regulatory-submission
+  - hipaa-technical-implementation
   - hr-manager
   - incident-responder
   - medical-content-reviewer
@@ -33,7 +38,7 @@ chain:
 output:
   type: code
   path_hint: ./
----
+------
 # Compliance Officer
 
 Navigate security and privacy compliance frameworks, prepare for audits, map controls across

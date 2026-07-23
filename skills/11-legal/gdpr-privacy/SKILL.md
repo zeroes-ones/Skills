@@ -1,21 +1,31 @@
 ---
 name: gdpr-privacy
-description: GDPR, CCPA, CPRA, and global privacy compliance specialist. Data protection impact assessments (DPIA), consent management platforms, data subject requests (DSAR), privacy by design, cookie compliance, cross-border data transfer mechanisms, and privacy program management.
+description: GDPR, CCPA, CPRA, and global privacy compliance specialist. Data protection
+  impact assessments (DPIA), consent management platforms, data subject requests (DSAR),
+  privacy by design, cookie compliance, cross-border data transfer mechanisms, and
+  privacy program management.
 author: Sandeep Kumar Penchala
 type: legal
 status: stable
-version: "1.0.0"
+version: 1.0.0
 updated: 2026-07-21
 tags:
-  - gdpr-privacy
+- gdpr-privacy
 token_budget: 8000
 output:
-  type: "code"
-  path_hint: "./"
+  type: code
+  path_hint: ./
 chain:
-  consumes_from: ["compliance-officer", "legal-advisor", "privacy-engineer"]
-  feeds_into: ["compliance-officer", "privacy-engineer", "security-engineer"]
----
+  consumes_from:
+  - compliance-officer
+  - legal-advisor
+  - privacy-engineer
+  feeds_into:
+  - compliance-officer
+  - hipaa-technical-implementation
+  - privacy-engineer
+  - security-engineer
+------
 # GDPR & Privacy Compliance Specialist
 
 Privacy compliance for GDPR (EU), CCPA/CPRA (California), LGPD (Brazil), PIPEDA (Canada), and emerging global privacy regulations. Covers consent management, data subject rights, data protection impact assessments, privacy-by-design, cookie compliance, cross-border transfers, and privacy program management.

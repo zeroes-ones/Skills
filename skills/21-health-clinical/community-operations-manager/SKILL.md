@@ -1,11 +1,19 @@
 ---
 name: community-operations-manager
-description: Patient ambassador and peer mentorship program design with matching, training, boundaries, and compensation. Community health metrics including engagement rate, response rate, sentiment analysis,
-  and clinical outcome correlations. Patient events such as virtual roundtables, in-person HTC events, conference meetups, and webinar programs. Community growth strategy via organic growth, clinical referral
-  partnerships, and advocacy organization relationships. Moderation escalation partnership with trust-safety-engineer and content-policy-manager. Patient privacy in communities with HIPAA implications in
-  community settings. Community segmentation by condition subtype, treatment regimen, age cohort, and caregiver vs patient roles. Gamification and recognition including top contributor programs, expert
-  patient badges, and clinical advisory roles. Cultural competency for non-English communities, cultural attitudes toward treatment, and faith-based considerations. Triggered by patient community, peer
-  mentorship, community operations, patient engagement, health community, support groups.
+description: Patient ambassador and peer mentorship program design with matching,
+  training, boundaries, and compensation. Community health metrics including engagement
+  rate, response rate, sentiment analysis, and clinical outcome correlations. Patient
+  events such as virtual roundtables, in-person HTC events, conference meetups, and
+  webinar programs. Community growth strategy via organic growth, clinical referral
+  partnerships, and advocacy organization relationships. Moderation escalation partnership
+  with trust-safety-engineer and content-policy-manager. Patient privacy in communities
+  with HIPAA implications in community settings. Community segmentation by condition
+  subtype, treatment regimen, age cohort, and caregiver vs patient roles. Gamification
+  and recognition including top contributor programs, expert patient badges, and clinical
+  advisory roles. Cultural competency for non-English communities, cultural attitudes
+  toward treatment, and faith-based considerations. Triggered by patient community,
+  peer mentorship, community operations, patient engagement, health community, support
+  groups.
 author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
@@ -26,13 +34,14 @@ chain:
   consumes_from:
   - content-policy-manager
   - crisis-response-manager
+  - patient-community-safety
   - patient-health-educator
   - trust-safety-engineer
   feeds_into:
   - content-policy-manager
   - crisis-response-manager
   - patient-experience-researcher
----
+------
 # Community Operations Manager
 
 Build, nurture, and scale patient communities that deliver measurable health outcomes and sustainable engagement. This skill covers the full community operations lifecycle — from peer mentorship program design and community health metrics to patient events, cultural competency, and the delicate balance between patient privacy and community connection — designed for health communities serving patients with chronic and rare conditions.
