@@ -81,6 +81,41 @@ These rules apply to *every* response this skill produces.
 - **Protect your team from organizational chaos — you're the shock absorber.** Re-orgs, strategy pivots, executive whims — your job is to translate these into coherent, actionable context. Filter the noise before it reaches the team. When priorities shift, explain *why* before explaining *what*.
 - **Calibrate constantly — what's high performance on one team may be coasting on another.** Calibration isn't just for review cycles. Talk to peer EMs monthly about what "meets expectations" looks like on their team. Your senior engineer might be operating at mid-level in a stronger team. Calibration prevents both grade inflation and unfair ratings.
 
+## The Expert's Mindset
+
+Engineering management is not "senior engineer plus meetings." It's a fundamentally different job: **your output is the output of your team, and your primary tools are questions, not answers**. The transition from IC to EM is the hardest career shift in tech because the skills that got you promoted (technical excellence) are not the skills that make you successful (people development, organizational navigation, communication).
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Your output = team's output** | If you code a feature yourself, your output is 1 engineer-month. If you unblock 6 engineers, your output is 6 engineer-months. Optimize for multiplier, not personal throughput. |
+| **Trust is infrastructure** | Trust with your reports, your peers, and your leadership is the infrastructure that all other work runs on. Building it is slow; losing it is instantaneous. Every interaction either deposits or withdraws. |
+| **The EM is the shock absorber** | Organizational chaos (re-orgs, strategy pivots, executive whims) must be filtered and translated before reaching the team. Absorb ambiguity; radiate clarity. |
+| **Problems don't improve with age** | A performance issue left unaddressed for 3 months becomes a morale problem. A missed date not communicated becomes a trust problem. Bad news is perishable — deliver it fresh. |
+
+### Cognitive Biases That Undermine Leadership
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Recency bias in performance** | Rating someone based on their last 4 weeks, not the full 6 months | Keep a running "praise file" and "concern log" for each report. Review the full log before any evaluation. |
+| **Halo effect** | A strong engineer in one dimension (e.g., coding speed) getting high ratings in all dimensions | Rate each competency independently before forming an overall assessment. Use a rubric. |
+| **Similarity bias** | Preferring reports who think, work, or communicate like you do | Actively seek out the perspective of the report you understand least. Their difference is often their strength. |
+| **Action bias** | Feeling the need to solve every problem your team brings you | Default response: "What do you think we should do?" Your job is to ask better questions, not provide better answers. |
+| **Fundamental attribution error** | Attributing your team's failures to external factors and other teams' failures to their incompetence | In every cross-team conflict, assume good intent and system causes before attributing to individual failure. |
+
+### What Masters Know That Others Don't
+
+- **The best EM spends 80% of their time on 20% of their people.** The struggling engineer and the rising star both need disproportionate attention. The solid middle needs autonomy and recognition. Allocate accordingly.
+- **Your calendar reveals your actual priorities.** If you say "people are my priority" but your calendar is 35 hours of meetings with 0 hours of 1:1 prep, you're lying to yourself. Audit your calendar quarterly against your stated priorities.
+- **The most important decision you make is who you hire.** A bad hire costs more than a missed hire. A great hire compounds for years. Spend disproportionate time on recruiting — it's not a distraction from the "real work," it IS the real work.
+- **Psychological safety is not "being nice."** It's creating an environment where someone can say "I don't understand," "I made a mistake," or "I disagree" without fear. The best teams have the most disagreements — and the most trust.
+
+### When to Break Your Own Rules
+
+- **Cancel a 1:1 when there's truly nothing to discuss.** The rule "never cancel 1:1s" exists because most EMs cancel too easily. But an experienced EM knows when the relationship is strong enough to skip a week. Ask: "Anything you want to discuss this week?" before canceling.
+- **Write code when it's the highest-leverage thing you can do.** Fix a flaky test that's wasting 2 hours of team time daily. Build a tool that automates a manual process. But set a time box (4 hours max) and return to management.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
@@ -449,6 +484,30 @@ Your director trusts you with hard problems. When something critical and ambiguo
 
 You sleep well. Not because there are no problems — there are always problems. But because you've built the relationships, systems, and practices to handle them. You know what to do when a key engineer resigns, a critical date slips, or a team conflict erupts. The playbook exists, and you've practiced it.
 
+## Deliberate Practice
+
+Engineering management is learned through hard conversations you can't take back, decisions with incomplete information, and the slow work of building trust. The EM who reflects systematically improves 10x faster than the EM who just survives each week.
+
+### The EM Improvement Loop
+
+```
+ACT → REFLECT → ADJUST → (build relationship capital) → repeat
+```
+
+After every difficult conversation: write down what you said, what they said, and what you'd do differently. Review before the next difficult conversation. Patterns will emerge.
+
+### Practice Routines by Skill Level
+
+| Level | Practice | Frequency |
+|---|---|---|
+| **Novice** | After every 1:1, write 3 bullet points: what mattered to them today, what's blocking them, what they're excited about. Review before the next 1:1. | Every 1:1 |
+| **Competent** | Record a difficult conversation you're about to have (performance feedback, missed promotion, scope disagreement). Script the opening 3 sentences. Practice out loud. Get feedback from a peer EM. | Before every difficult conversation |
+| **Expert** | Do a "team health audit" quarterly: survey your team anonymously on psychological safety, clarity of expectations, growth opportunities, and belonging. Compare quarter-over-quarter. Act on the lowest score. | Quarterly |
+| **Master** | Shadow another EM's 1:1s (with report consent) and have them shadow yours. Debrief: what did they notice that you didn't? Calibrate your standards and expand your pattern library. | Annually |
+
+### The One Highest-Leverage Activity
+
+**Write a "user manual for working with me" and ask each report to write theirs.** Share yours first — include your communication preferences, pet peeves, how you like to receive feedback, and when you're at your best/worst. Vulnerability from the leader creates permission for the team.
 
 ## References
 <!-- STANDARD: 3min -->
