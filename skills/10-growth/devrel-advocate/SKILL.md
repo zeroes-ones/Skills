@@ -32,8 +32,25 @@ chain:
 Design and execute developer relations programs that turn developers into champions, products into platforms, and documentation into onboarding. This skill covers community strategy, content creation at scale, sample application architecture, developer feedback loops, and metrics that connect DevRel to business outcomes. Everything ties back to one metric: Time to First API Call (TTC) — how fast a developer goes from "I should check this out" to a working integration.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
 
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately to the indicated section.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("README.md", "content calendar")` OR `file_exists("content-calendar.md")` | Developer content strategy — Jump to "Core Workflow > Phase 2" |
+| A2 | `file_contains("package.json", "\"sample\"")` OR `file_exists("quickstart/")` OR `file_exists("examples/")` | Sample app & quickstart work — Jump to "Sub-Skills > developer-onboarding" |
+| A3 | `file_exists("CODE_OF_CONDUCT.md")` AND `file_exists("CONTRIBUTING.md")` | Community governance & moderation — Go to "Core Workflow > Phase 3" |
+| A4 | `file_contains("README.md", "hackathon")` OR `file_exists("hackathon/")` | Hackathon design & execution — Jump to "Sub-Skills > hackathon-design" |
+| A5 | `file_contains("README.md", "cfp")` OR `file_exists(".github/speaking/")` | Conference & speaking strategy — Jump to "Sub-Skills > conference-speaking" |
+| A6 | `file_contains("README.md", "feedback")` OR `file_exists(".github/ISSUE_TEMPLATE/")` | Developer feedback loop — Go to "Sub-Skills > developer-feedback-loop" |
+| A7 | `file_contains("README.md", "champion")` OR `file_exists("champions/")` | Champion/MVP program design — Go to "Core Workflow > Phase 3" |
+| A8 | `file_contains("README.md", "docs")` OR `file_exists("docs/quickstart")` | Documentation & developer onboarding — Jump to "Core Workflow > Phase 1" |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
+```
 What are you trying to do?
 ├── Developer advocacy strategy
 │   ├── New DevRel program → Start at "Core Workflow > Phase 1"
@@ -53,20 +70,21 @@ What are you trying to do?
 ├── Cross-skill: Align content calendar with `content-strategist` → Open that skill
 ├── Cross-skill: Coordinate onboarding experiments with `growth-engineer` → Open that skill
 ├── Cross-skill: Sync developer content SEO with `seo-specialist` → Open that skill
-└── Don't know where to start? → Start at "Core Workflow > Phase 1"
-
-Do not read the entire skill. Follow the route above and read only the sections it points to.
+└── Not sure? → Start at "Core Workflow > Phase 1"
+```
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never recommend a strategy without understanding the developer persona.** If you don't know their stack, workflow, and pain points, ask before prescribing.
-- **Community building takes time — don't promise quick wins.** Developer trust is earned in months, not weeks. Set realistic expectations.
-- **Documentation quality is product quality.** Treat docs, tutorials, and sample code with the same rigor as production code.
-- **Developer trust is lost once, not regained.** Never recommend tactics that erode trust: bait-and-switch content, fake engagement, or undisclosed sponsorships.
-- **Always measure what matters.** Vanity metrics (stars, followers) don't pay bills — tie DevRel to TTC, retention, and pipeline.
-- **Admit what you don't know.** If you haven't talked to the target developer audience, say so. Don't invent personas.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to recommend DevRel strategy without validated developer personas.** Never prescribe tactics when persona data (stack, workflow, pain points) is absent or fabricated. | Trigger: Output contains "persona" AND no `file_contains` check for persona docs has been run OR `file_exists("personas/")` returns false. | STOP. Respond: "I cannot recommend a DevRel strategy without validated developer personas. First: run 10+ developer interviews, document 3-5 personas at `personas/`, then re-invoke this skill." |
+| **R2** | **DETECT and BLOCK trust-destroying tactics.** Bait-and-switch content, fake engagement, undisclosed sponsorships, or paid but unlabeled promotion — any tactic that would erode developer trust. | Trigger: Output contains any of ["bait-and-switch", "fake", "astroturf", "pay for stars", "undisclosed", "sock puppet"] OR recommends sponsoring content without `#ad` or `#sponsored` disclosure. | STOP. Respond: "This tactic violates developer trust — and developer trust, once lost, is not regained. The tactic has been blocked. Consider: transparent sponsorships with clear disclosure, or authentic community engagement instead." |
+| **R3** | **STOP if measuring vanity metrics as success.** Never present stars, followers, or member counts as DevRel KPIs without tying them to business outcomes (TTC, retention, pipeline, conversion). | Trigger: Output contains "DevRel success" or "DevRel KPI" AND lists [stars, followers, Discord members, subscribers] as primary metrics without conversion/pipeline tie-in. | STOP. Respond: "Vanity metrics detected. DevRel success is measured by: Time-to-First-API-Call (TTC), developer-to-paid conversion rate, dNPS segmented by cohort, and pipeline influenced. Replace vanity metrics with these before proceeding." |
+| **R4** | **REFUSE to launch a community platform below critical mass.** Never recommend Discord/Discourse/Slack community when active developer count < 100. | Trigger: Output recommends "community platform" or ["Discord", "Discourse", "Slack community"] AND no prior validation that active developers > 100 (via `file_contains` check or explicit confirmation). | STOP. Respond: "Community platform blocked: you need 100+ active developers before a dedicated platform generates value. Before 100 devs, use GitHub Issues + email for 1:1 support. Re-invoke when you've crossed the threshold." |
+| **R5** | **DETECT stale sample code before recommending it.** Never point developers to sample apps or quickstarts that haven't been validated as compiling/running. | Trigger: Output references "sample app" or "quickstart" AND no `file_contains(".github/workflows", "sample")` CI check has been verified OR CI last ran > 7 days ago. | STOP. Respond: "Sample app CI validation required before routing developers. Run: `gh run list --workflow=sample-apps --limit=1 --json status,conclusion` to verify CI is green. If failing, fix the sample apps before recommending them." |
 
 
 ## The Expert's Mindset
@@ -441,48 +459,50 @@ Run skills in the order shown:
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Launching a community platform (Discord/Discourse) before you have 100+ active developers | Use GitHub Issues + email for 1:1 support until critical mass; launch platform only when developers are asking for it, not when you're ready to build it |
-| Staffing conference booths with salespeople who can't do live demos or answer technical questions | Staff developer booths with engineers; follow up within 24 hours with personalized onboarding link; track conversions to first API call |
-| Selecting community champions by activity volume (posts made) instead of helpfulness (answers given, PRs reviewed) | Weight helpfulness over volume; champions represent your brand — selecting by activity selects for noise, not signal |
-| Building quickstarts that require reading docs, installing SDK, creating account, generating API key — each on a separate page | Build single-page quickstart with pre-filled keys, one-click code copy, and CodeSandbox/Replit embed — target < 5 minutes to first API call |
-| Paying community champions directly for contributions | Reward with access (early features, private channels), recognition (spotlight, speaker ops), and impact (feedback shapes product) — direct payment destroys authenticity |
-| Shipping sample apps without CI — they silently break on the next API change | CI-test every sample app on every API release; pin dependencies; update within 1 week of a breaking change |
-| Measuring DevRel success by vanity metrics: "5,000 Discord members" with no connection to business outcomes | Tie every metric to revenue or product impact: "Discord members convert to paid at 3× the rate of non-members" |
-| Letting developer feedback accumulate without closing the loop — features ship, requesters never hear about it | Personally notify every requester when their feature ships; credit by name; close the loop publicly — single highest-ROI trust activity |
-
-<!-- DEEP: 10+min -->
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Launching a community platform (Discord/Discourse) before you have 100+ active developers | Use GitHub Issues + email for 1:1 support until critical mass; launch platform only when developers are asking for it | `grep -r "Discord\|Discourse\|Slack community" --include="*.md"` in project docs — flag any community-platform recommendation without `file_contains("README.md", "active developers")` check | Pre-commit hook: block PRs adding `Discord` or `Discourse` URLs if `wc -l < active-developers.txt` < 100 |
+| Staffing conference booths with salespeople who can't do live demos or answer technical questions | Staff developer booths with engineers; follow up within 24 hours; track conversions to first API call | `grep -r "conference booth\|booth staff\|sales.*booth" --include="*.md"` — flag if booth staff list contains no `github.com/` contributor URLs | Conference planning template: require `engineer_count >= sales_count` and list GitHub handles for every booth staffer; block submission if ratio violated |
+| Selecting community champions by activity volume (posts made) instead of helpfulness (answers given, PRs reviewed) | Weight helpfulness over volume; champions represent your brand — selecting by activity selects for noise, not signal | `grep -r "champion.*select\|champion.*criteria" --include="*.md"` — flag if `posts_made` appears without `answers_given` or `prs_reviewed` | Champion nomination form: require `helpfulness_ratio = answers / posts` field; auto-reject nominees with ratio < 0.3 |
+| Building quickstarts that require reading docs, installing SDK, creating account, generating API key — each on a separate page | Build single-page quickstart with pre-filled keys, one-click code copy, and CodeSandbox/Replit embed — target < 5 minutes to first API call | `grep -rn "step\|Step" quickstart/ --include="*.md" \| wc -l` — flag if step count > 5; `grep -r "CodeSandbox\|Replit\|one-click" quickstart/` — flag if embed is missing | Lint rule: `quickstart-steps` CI check fails if any quickstart has > 5 numbered steps or lacks a CodeSandbox/Replit link |
+| Paying community champions directly for contributions | Reward with access (early features, private channels), recognition (spotlight, speaker ops), and impact (feedback shapes product) — direct payment destroys authenticity | `grep -r "pay.*champion\|stipend.*champion\|champion.*payment" --include="*.md"` — flag any monetary reward structure for champions | Champion agreement template: `payment` field locked to `none`; only `access`, `recognition`, `impact` tiers accepted in config |
+| Shipping sample apps without CI — they silently break on the next API change | CI-test every sample app on every API release; pin dependencies; update within 1 week of a breaking change | `grep -rn "sample\|example\|demo" .github/workflows/ --include="*.yml"` — flag if no workflow references sample directories; `grep -r "build\|test\|compile" .github/workflows/` — verify sample CI exists | CI gate: every `api-release` workflow MUST trigger downstream `sample-apps-verify` job; merge blocked if sample app CI is red |
+| Measuring DevRel success by vanity metrics: "5,000 Discord members" with no connection to business outcomes | Tie every metric to revenue or product impact: "Discord members convert to paid at 3× the rate of non-members" | `grep -r "member count\|follower count\|star count\|download count" --include="*.md"` in reports — flag any vanity metric without `conversion rate` or `pipeline` tie-in | DevRel dashboard template: require `conversion_to_paid` and `pipeline_influenced` columns; reject dashboards with only `count` metrics |
+| Letting developer feedback accumulate without closing the loop — features ship, requesters never hear about it | Personally notify every requester when their feature ships; credit by name; close the loop publicly — single highest-ROI trust activity | `grep -r "shipped\|released" CHANGELOG.md` then `grep -rn "reported by\|requested by\|credit" CHANGELOG.md` — flag if shipped features lack reporter attribution | Release template: `CHANGELOG.md` entries require `Reported by: @github_handle` field; CI blocks merges where shipped features lack requester credit |
 ## Error Decoder
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Developer community platform launched but has fewer than 10 posts after 6 months | Platform was set up before there was enough developer adoption -- a ghost town that scares away new visitors | Shut down the public community until you have 100+ active developers. Use GitHub Issues + email for 1:1 support until critical mass. | A community with fewer than 100 members is not a community -- it is a graveyard. Launch your platform only when developers are asking for it, not when you are ready to build it. |
-| Sample app has not compiled in 4 months and developers report broken quickstarts | No CI pipeline for sample apps -- API changes broke endpoints but nobody noticed until support tickets piled up | Add CI pipeline that builds and tests every sample app on every API release. Set up automated alerts for broken builds. Pin dependency versions. | A stale sample app is worse than no sample app. Developers who try your quickstart and fail are less likely to try again. CI-test every sample app on every release. |
-| Developer NPS dropped 20 points after champion program launched | Champion program selected top users by activity volume, not by helpfulness -- power users spammed the community with low-value posts | Restructure champion selection criteria: weight helpfulness (answers given, PRs reviewed) over activity (posts made). Add community moderation training. | Developer champions represent your brand. Choosing by activity volume selects for noise, not signal. Measure helpfulness, not volume. Enforce standards on everyone equally. |
-| Conference booth generated 500 leads but only 3 converted to active developers | Booth was staffed by salespeople who promised features the product did not have and collected business cards with no follow-up | Staff developer booths with engineers who can do live demos. Follow up within 24 hours with a personalized onboarding link. Track conversions from event to first API call. | A conference booth without engineering staffing and a structured follow-up funnel is a waste of money. DevRel events must convert to first API call, not just lead count. |
-| Time-to-First-API-Call averages 45 minutes despite having quickstart docs | Quickstart asks developers to read docs, install SDK, create account, generate API key, and call endpoint -- each step is a separate page with navigation required | Build a single-page quickstart with pre-filled API key, code samples that copy in one click, and a CodeSandbox or Replit embed that makes the first call in under 5 minutes. | TTC is the single most important DevRel metric. Every additional step between "I want to try this" and "it worked" costs you 50% of developers. Remove steps, do not add them. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep '"members": [0-9]' community-metrics.json` returns < 100 AND `grep '"posts_last_30_days": [0-9]'` returns < 10 | Community platform launched but fewer than 10 posts after 6 months — ghost town that scares away new visitors | Platform was set up before there was enough developer adoption | Shut down public community. Use GitHub Issues + email for 1:1 support until critical mass. Re-launch when active developers > 100. | `curl -s https://api.community-platform/stats \| jq '.members'` → if < 100: `echo "COMMUNITY_GHOST_TOWN" >> alerts.log` → run `scripts/archive-community.sh` → redirect users to GitHub Issues → set calendar reminder: check again in 90 days |
+| `grep -rn "sample\[" .github/workflows/ --include="*.yml" \| wc -l` returns 0 OR `gh run list --workflow=sample-apps --limit=1 --json conclusion \| grep failure` | Sample app hasn't compiled in 4 months and developers report broken quickstarts | No CI pipeline for sample apps — API changes broke endpoints silently | Add CI pipeline that builds/tests every sample app on every API release. Pin dependency versions. Set automated alerts for broken builds. | `gh workflow run sample-apps-ci.yml` → if fails: `grep "error:.*sample" build.log \| head -5` → `git checkout -b fix/sample-app-$(date +%Y%m%d)` → fix deps → `gh pr create --title "fix: broken sample app CI"` → merge → verify: `gh run watch $(gh run list --workflow=sample-apps --limit=1 --json databaseId -q '.[0].databaseId')` |
+| `grep -c "dNPS" quarterly-report.md` returns 0 OR `grep "dNPS: [-][0-9]"` shows drop > 10 | Developer NPS dropped 20 points after champion program launched | Champion program selected by activity volume, not helpfulness — power users spammed the community | Restructure champion criteria: weight helpfulness (answers given, PRs reviewed) over activity (posts made). Add community moderation training. | `python scripts/champion-audit.py --metric=helpfulness` → if top-10-by-activity != top-10-by-helpfulness: flag mismatch → `python scripts/rebalance-champions.py --weight-helpfulness=0.7` → notify flagged champions → re-run dNPS survey in 30 days |
+| `grep "event-leads" conference-report.csv \| awk -F',' '{print $5}' \| grep "active" \| wc -l` returns < 10 | Conference booth generated 500 leads but only 3 converted to active developers | Booth staffed by salespeople who promised nonexistent features and collected business cards with no follow-up | Staff developer booths with engineers who can do live demos. Follow up within 24 hours with personalized onboarding link. Track conversions from event to first API call. | `python scripts/event-audit.py --event=last --metric=lead_to_active` → if conversion < 2%: flag as `BOOTH_WASTE` → `python scripts/reassign-booth-staff.py --min-engineer-ratio=0.5` → update event playbook → require `follow_up_sent` column in lead spreadsheet within 24h |
+| `curl -s https://quickstart.example.com/health/ttc \| jq '.ttc_seconds'` returns > 300 | Time-to-First-API-Call averages 45 minutes despite having quickstart docs | Quickstart requires reading docs, installing SDK, creating account, generating API key — each on separate pages | Build single-page quickstart with pre-filled API key, one-click code copy, and CodeSandbox/Replit embed that makes the first call in < 5 minutes. | `python scripts/ttc-profiler.py --url=https://quickstart.example.com` → identify >5 steps or >300s TTC → `python scripts/generate-one-page-quickstart.py --template=single-page` → CI deploys to `quickstart/` → verify: `curl -s https://quickstart.example.com/health/ttc \| jq '.ttc_seconds'` < 300 |
+| `grep -rn "TODO\|FIXME" CONTRIBUTING.md CHANGELOG.md` returns > 0 items older than 30 days | Developer feedback loop is broken — features ship but requesters are never notified | No automated attribution or feedback close-loop process | Maintain public feature tracker (Canny, GitHub Discussions). Every shipped feature credits the requester by GitHub handle in CHANGELOG. | `python scripts/feedback-audit.py --since=30d` → for each `shipped` issue without `credited_to`: `gh issue comment ISSUE_NUM --body "Shipped in vX.Y! Thanks @reporter"` → update CHANGELOG → verify: `grep "credited" CHANGELOG.md \| wc -l` > 0 |
+| `grep -c "sample" Makefile` returns 0 AND `find . -name "Dockerfile" -path "*/sample*" \| wc -l` returns 0 | Developer onboarding page has 60% bounce rate and no one reaches first API call | No working, CI-verified sample app exists — developers must build from scratch to evaluate | Create 3 sample apps in top 3 frameworks. CI-test on every release. Pre-deploy each sample to a public sandbox URL. Link from docs homepage. | `python scripts/bootstrap-sample-apps.py --frameworks=node,python,go` → `gh workflow run sample-apps-ci.yml` → if green: deploy to `sandbox.example.com/samples/{framework}` → add to docs: `gh pr create --title "docs: add sample app links to homepage"` → verify: `curl -s https://sandbox.example.com/samples/node/ \| grep "200 OK"` |
 
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Community platform(s) live with published code of conduct and moderation guidelines
-- [ ] **[S2]**  Developer personas documented (3-5) and validated with 10+ developer interviews
-- [ ] **[S3]**  Developer journey mapped from discovery to champion with conversion rates and TTC baseline
-- [ ] **[S4]**  Quickstart enables a working API call in < 5 minutes; measured and tracked per release
-- [ ] **[S5]**  3-5 sample applications maintained and CI-tested on every API change
-- [ ] **[S6]**  90-day content calendar published with persona, funnel stage, and distribution channel per piece
-- [ ] **[S7]**  Champion program live with 5-20 members; tiers, benefits, and selection criteria defined
-- [ ] **[S8]**  Developer feedback loop formalized: weekly report to product, feature requests tracked with public status
-- [ ] **[S9]**  Weekly office hours running and recorded; questions answered in public (forum/Stack Overflow)
-- [ ] **[S10]**  dNPS measured quarterly; segmented by persona, tenure, and usage level
-- [ ] **[S11]**  Attribution tracking for developer acquisition sources (organic, social, referral, events, docs)
-- [ ] **[S12]**  Conference/event strategy: CFP calendar, talk abstracts, workshop materials prepared
-- [ ] **[S13]**  Hackathon playbook documented (if applicable): theme, platform, judging rubric, prize structure
-- [ ] **[S14]**  Swag strategy: champions, event attendees, new signups; inventory managed
-- [ ] **[S15]**  Moderation log reviewed weekly; community health survey run quarterly
-- [ ] **[S16]**  DevRel dashboard tracks: developer growth, engagement, TTC, dNPS, pipeline influenced
-- [ ] **[S17]**  Quarterly Business Review (QBR) delivered to leadership with DevRel impact on business outcomes
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Community platform(s) live with published code of conduct and moderation guidelines | `test -f CODE_OF_CONDUCT.md && test -f CONTRIBUTING.md && grep -q "moderation" CODE_OF_CONDUCT.md` | `cp templates/CODE_OF_CONDUCT.md . && cp templates/CONTRIBUTING.md . && echo "✅ S1: Community governance docs created"` |
+| **[S2]** | Developer personas documented (3-5) and validated with 10+ developer interviews | `ls personas/*.md 2>/dev/null | wc -l | xargs -I{} test {} -ge 3 && grep -rn "validated" personas/ | wc -l | xargs -I{} test {} -ge 3` | `python scripts/generate-persona-template.py --output=personas/ && echo "✅ S2: Persona templates created; schedule 10 interviews"` |
+| **[S3]** | Developer journey mapped from discovery to champion with conversion rates and TTC baseline | `test -f docs/developer-journey.md && grep -q "TTC" docs/developer-journey.md && grep -q "conversion" docs/developer-journey.md` | `python scripts/journey-mapper.py --output=docs/developer-journey.md && echo "✅ S3: Journey map scaffolded"` |
+| **[S4]** | Quickstart enables a working API call in < 5 minutes; measured and tracked per release | `curl -s https://quickstart.example.com/health/ttc | jq -e '.ttc_seconds < 300'` | `python scripts/ttc-validator.py --url=https://quickstart.example.com --threshold=300 --alert-on-fail` |
+| **[S5]** | 3-5 sample applications maintained and CI-tested on every API change | `gh run list --workflow=sample-apps --limit=1 --json conclusion -q '.[0].conclusion' | grep -q success` | `gh workflow run sample-apps-ci.yml && gh run watch $(gh run list --workflow=sample-apps --limit=1 --json databaseId -q '.[0].databaseId')` |
+| **[S6]** | 90-day content calendar published with persona, funnel stage, and distribution channel per piece | `test -f content-calendar.md && grep -q "persona\|funnel stage\|distribution" content-calendar.md` | `python scripts/calendar-generator.py --days=90 --output=content-calendar.md && echo "✅ S6: Content calendar generated"` |
+| **[S7]** | Champion program live with 5-20 members; tiers, benefits, and selection criteria defined | `test -f champions/README.md && grep -q "tier\|benefit\|selection" champions/README.md && test $(wc -l < champions/members.csv) -ge 6` | `python scripts/champion-bootstrap.py --min-members=5 --output=champions/ && echo "✅ S7: Champion program scaffolded"` |
+| **[S8]** | Developer feedback loop formalized: weekly report to product, feature requests tracked with public status | `test -f .github/ISSUE_TEMPLATE/feature_request.md && gh issue list --label "feedback" --limit 1 --json number -q '. | length > 0'` | `python scripts/feedback-workflow.py --init && gh label create "feedback" --color 0366d6 && echo "✅ S8: Feedback loop initialized"` |
+| **[S9]** | Weekly office hours running and recorded; questions answered in public (forum/Stack Overflow) | `python scripts/office-hours-check.py --last-7-days | grep -q "running"` | `python scripts/office-hours-scheduler.py --weekly --platform=Discord --auto-record && echo "✅ S9: Office hours scheduled"` |
+| **[S10]** | dNPS measured quarterly; segmented by persona, tenure, and usage level | `grep -rn "dNPS" reports/ --include="*.md" | grep -q "$(date +%Y)"` | `python scripts/dnps-survey.py --trigger=quarterly --segments=persona,tenure,usage && echo "✅ S10: dNPS survey deployed"` |
+| **[S11]** | Attribution tracking for developer acquisition sources (organic, social, referral, events, docs) | `grep -rn "utm_source\|referrer\|acquisition_channel" analytics/ --include="*.sql" --include="*.yml" | head -1 | grep -q "."` | `python scripts/attribution-setup.py --sources=organic,social,referral,events,docs --output=analytics/ && echo "✅ S11: Attribution config created"` |
+| **[S12]** | Conference/event strategy: CFP calendar, talk abstracts, workshop materials prepared | `test -f events/cfp-calendar.md && grep -q "CFP\|abstract\|workshop" events/cfp-calendar.md` | `python scripts/cfp-scanner.py --output=events/cfp-calendar.md && python scripts/abstract-generator.py --output=events/talks/ && echo "✅ S12: CFP strategy bootstrapped"` |
+| **[S13]** | Hackathon playbook documented (if applicable): theme, platform, judging rubric, prize structure | `test -f hackathon/playbook.md && grep -q "theme\|judging\|prize" hackathon/playbook.md` | `python scripts/hackathon-playbook.py --output=hackathon/playbook.md && echo "✅ S13: Hackathon playbook created"` |
+| **[S14]** | Swag strategy: champions, event attendees, new signups; inventory managed | `test -f swag/inventory.csv && grep -q "champion\|event\|signup" swag/inventory.csv` | `python scripts/swag-planner.py --output=swag/ && echo "✅ S14: Swag strategy scaffolded"` |
+| **[S15]** | Moderation log reviewed weekly; community health survey run quarterly | `python scripts/moderation-audit.py --since=7d | grep -q "reviewed"` | `python scripts/moderation-review.py --auto-flag --output=reports/moderation-$(date +%Y%m%d).md && echo "✅ S15: Weekly moderation review triggered"` |
+| **[S16]** | DevRel dashboard tracks: developer growth, engagement, TTC, dNPS, pipeline influenced | `curl -s https://dashboard.internal/api/health | jq -e '.metrics | contains(["growth","engagement","TTC","dNPS","pipeline"])'` | `python scripts/dashboard-generator.py --metrics=growth,engagement,TTC,dNPS,pipeline --deploy && echo "✅ S16: DevRel dashboard deployed"` |
+| **[S17]** | Quarterly Business Review (QBR) delivered to leadership with DevRel impact on business outcomes | `test -f reports/QBR-$(date +%Y)-Q*.md && grep -q "pipeline\|revenue\|conversion" reports/QBR-$(date +%Y)-Q*.md` | `python scripts/qbr-generator.py --quarter=current --output=reports/ && echo "✅ S17: QBR template generated"` |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from developer relations and community building -->

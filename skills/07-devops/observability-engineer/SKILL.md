@@ -41,33 +41,55 @@ coverage of OpenTelemetry instrumentation, Prometheus recording/alerting rules, 
 provisioning, Loki log aggregation, and Tempo distributed tracing.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("docker-compose*.yml", "prometheus")` OR `file_contains("docker-compose*.yml", "grafana")` | Go to "Core Workflow > Phase 1" (Instrumentation) — metrics stack detected |
+| A2 | `file_exists("otelcol-config.yml")` OR `file_contains("go.mod", "go.opentelemetry.io/otel")` | Go to "Core Workflow > Phase 3" (Tracing) — OpenTelemetry collector/setup detected |
+| A3 | `file_contains("**/alert*.yml", "expr:")` OR `file_contains("**/alert*.yml", "alert:")` | Go to "Core Workflow > Phase 5" (Alerting) — Prometheus alert rules detected |
+| A4 | `file_exists("grafana/**/*.json")` OR `file_contains("*.tf", "grafana_dashboard")` | Go to "Core Workflow > Phase 4" (Dashboards) — Grafana dashboards detected |
+| A5 | `file_contains("docker-compose*.yml", "loki")` OR `file_contains("docker-compose*.yml", "fluent-bit")` | Go to "Core Workflow > Phase 2" (Logging) — log aggregation stack detected |
+| A6 | `file_contains("**/slo*.yml", "objective:")` OR `file_contains("**/slo*.yml", "target:")` | Go to "Decision Trees > SLO Definition" — SLO config detected |
+| A7 | `file_contains("opentelemetry-collector*.yml", "sampling")` OR `file_contains("*.yaml", "tail_sampling")` | Go to "Best Practices > Sampling Strategy" — sampling config detected |
+| A8 | `file_exists("terraform/**/*.tf")` AND `grep -q "grafana_dashboard\|prometheus_rule" terraform/**/*.tf` | Go to "Best Practices > Dashboard as Code" — observability-as-code detected |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Instrument a service with metrics → Jump to "Core Workflow > Phase 1" (Instrumentation) and "Sub-Skills > metrics-instrumentation"
-├── Set up a logging pipeline → Go to "Core Workflow > Phase 2" (Logging) and "Sub-Skills > log-aggregation"
-├── Implement distributed tracing → Jump to "Core Workflow > Phase 3" (Tracing) and "Sub-Skills > distributed-tracing"
-├── Design a dashboard (RED/USE/Golden Signals) → Go to "Core Workflow > Phase 4" (Dashboards) and "Best Practices > Dashboard Design"
-├── Configure alerts (SLO-based, multi-window burn rate) → Jump to "Core Workflow > Phase 5" (Alerting) and "Best Practices > Alert Design"
-├── Define SLOs and error budgets → Go to "Decision Trees > SLO Definition" and "Core Workflow > Phase 5"
+├── Instrument a service with metrics → Jump to "Core Workflow > Phase 1" (Instrumentation)
+├── Set up a logging pipeline → Go to "Core Workflow > Phase 2" (Logging)
+├── Implement distributed tracing → Jump to "Core Workflow > Phase 3" (Tracing)
+├── Design a dashboard (RED/USE/Golden Signals) → Go to "Core Workflow > Phase 4" (Dashboards)
+├── Configure alerts (SLO-based, multi-window burn rate) → Jump to "Core Workflow > Phase 5" (Alerting)
+├── Define SLOs and error budgets → Go to "Decision Trees > SLO Definition"
 ├── Need infrastructure for monitoring → Invoke `devops-engineer` skill instead
 ├── Need reliability and SLO framework → Invoke `site-reliability-engineer` skill instead
 ├── Need incident response integration → Invoke `incident-responder` skill instead
 ├── Need platform observability → Invoke `platform-engineer` skill instead
-└── Not sure where to start? → "Core Workflow > Phase 1" — instrumentation comes first; you can't observe what you don't measure
+└── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never alert on symptoms without a runbook.** If the alert fires and the on-call engineer has no documented steps to diagnose and mitigate, it's not an alert — it's noise that wakes someone up.
-- **Dashboards must tell a story, not just show numbers.** Every dashboard should answer a specific question: "Is the service healthy?", "Where is latency coming from?", "Are we within SLO?" A grid of random graphs helps no one.
-- **Logs need structure (JSON).** Free-form text logs are impossible to query at scale. Every log line must be structured (JSON) with consistent field names and types across services.
-- **Cardinality kills metrics — watch label values.** A metric label with user IDs, request IDs, or full URLs creates a new time series for every unique value. Use high-cardinality data in logs/traces, not metrics.
-- **Always define what "normal" looks like before alerting.** Threshold-based alerts without understanding baseline patterns generate false positives. Use anomaly detection or multi-window burn rates where possible.
-- **Admit what you don't know.** If you're unfamiliar with a specific observability backend (Datadog, New Relic, Honeycomb), say so and stick to the principles — the tools change, the concepts don't.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to create an alert without a linked runbook URL.** If the alert fires and the on-call engineer has no documented steps to diagnose and mitigate, it's noise that wakes someone up. | Trigger: `grep -L "runbook_url\|runbook" **/alert*.yml **/rules*.yml` → any alert rule file missing runbook annotations | STOP. Respond: "Every alert needs a runbook URL in annotations. Add `runbook_url: https://...` to each alert rule before proceeding." |
+| **R2** | **REFUSE to create dashboards without a defined audience question.** Every dashboard must answer a specific question: "Is the service healthy?", "Where is latency coming from?", "Are we within SLO?" | Trigger: Dashboard JSON missing `"title"` or containing >12 panels with no `"description"` annotation | STOP. Respond: "Define the single question this dashboard answers. A dashboard with >12 panels without a clear question is dashboard sprawl." |
+| **R3** | **REFUSE to recommend unstructured (free-form text) logging in production.** Every log line must be structured JSON with consistent field names and types across services. | Trigger: `grep -rn "console\.log\|print\|fmt\.Print\|log\.Print" --include="*.go" --include="*.py" --include="*.js" | grep -v "JSON\|json\|structured"` → unstructured log calls detected | STOP. Respond: "All production logs must be structured JSON. Replace free-form log calls with structured logging (e.g., `logger.info(structured_data)` or `logrus.WithFields(...)`)." |
+| **R4** | **REFUSE to add high-cardinality labels to Prometheus metrics.** Labels with user IDs, request IDs, session IDs, or full URLs create a new time series per unique value — TSDB chokes. | Trigger: `grep -rn "user_id\|userID\|session_id\|sessionId\|request_id\|requestId" **/metrics/** **/prometheus*.go --include="*.go" --include="*.py"` → high-cardinality values used as metric labels | STOP. Respond: "High-cardinality data belongs in logs/traces, not metric labels. Move `user_id`/`request_id` to log context or span attributes. Keep label cardinality < 100 unique values." |
+| **R5** | **STOP and ASK when the observability backend is unspecified.** Different backends (Datadog, New Relic, Honeycomb, Grafana Cloud) have different configuration syntax, query languages, and capabilities. | Trigger: User mentions "setup monitoring" or "add observability" without naming a specific backend | STOP. Ask: "Which observability backend are you using? (Prometheus+ Grafana, Datadog, New Relic, Honeycomb, Grafana Cloud, Elastic APM, other)" |
+| **R6** | **DETECT and WARN about alert thresholds without baseline data.** Setting static thresholds (e.g., "CPU > 80%") without historical baselines generates false positives. | Trigger: `grep -rn "> [0-9]" **/alert*.yml` AND no corresponding recording rule or baseline query in the same file | WARN: "Static thresholds without baseline data cause alert fatigue. Use `for: 5m` on every alert and verify the threshold with ≥ 2 weeks of historical data. Consider multi-window burn-rate alerts instead." |
+| **R7** | **DETECT and WARN about tracing gaps at async boundaries.** Message queues, background jobs, and cron tasks often lack instrumentation — traces break at these boundaries. | Trigger: `grep -rn "publish\|enqueue\|SendMessage\|KafkaProducer" --include="*.go" --include="*.py" --include="*.js"` AND `grep -L "tracer\|span\|StartSpan\|withSpan"` on matching files | WARN: "Async boundaries without spans create tracing blind spots. Add span links for Kafka messages, background jobs, and cron tasks. The gap between publish and process is where latency lives." |
 
 ## The Expert's Mindset
 
@@ -635,17 +657,18 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 - **Monthly fire-drills** — Test the full alerting chain: synthetic failure → Prometheus alert → Alertmanager → PagerDuty → on-call acknowledges → runbook followed.
 
 ## Anti-Patterns
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|---|---|
-| Alerting on infrastructure metrics (CPU > 80%, disk > 90%) instead of user-facing symptoms | Alert on RED metrics (error rate > 1%, latency p99 > 500ms) and SLO burn rate; infrastructure metrics are debugging signals, not user-impact signals |
-| Every alert goes to the same PagerDuty channel — SEV1 and SEV4 pages are indistinguishable | Route by severity: SEV1 → page on-call, SEV2 → Slack + page if unacked in 15 min, SEV3 → Slack only, SEV4 → weekly digest; no single channel receives all severities |
-| Dashboards created via click-ops in Grafana UI — no version control, no review, no reproducibility | Dashboard as code: Terraform Grafana provider, Grafonnet, or JSON committed to Git; all dashboard changes go through PR review |
-| Structured logging implemented but log messages are useless — "Error occurred", "Failed" with no context | Every log line must include `trace_id`, `user_id` (hashed), `service`, `environment`, and actionable context; log in JSON with a schema |
-| 100% tracing sampling in production — tracing cost 3× the infrastructure cost | Use head-based sampling: 100% of errors, 10% of normal traffic; tail-based sampling at the collector for anomaly detection; store sampled traces for 7 days |
-| Metric cardinality explosion — `user_id` or `session_id` as a Prometheus label; TSDB chokes | Never use high-cardinality values as metric labels; use logs or traces for per-user/per-session data; keep label cardinality < 100 unique values per label |
-| Alerts fire but no one knows what to do — runbook is "check logs and escalate" | Every alert must link to a specific runbook with step-by-step diagnosis and remediation; runbook is tested in fire drills; update after every incident |
-| Observability is an afterthought bolted on after launch — "we'll add monitoring later" | Instrument during development: OpenTelemetry auto-instrumentation, structured logging from day one, RED metrics exported before first production deploy |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| Alerting on infrastructure metrics (CPU > 80%, disk > 90%) instead of user-facing symptoms | Alert on RED metrics (error rate > 1%, latency p99 > 500ms) and SLO burn rate; infrastructure metrics are debugging signals, not user-impact signals | `grep -rn "cpu_usage\|disk_usage\|memory_usage" **/alert*.yml` → infra-only alerts without corresponding RED/SLO alerts | CI check: alert rule files must include at least 1 RED-based alert (error_rate, latency_p99) alongside any infra alert |
+| Every alert goes to the same PagerDuty channel — SEV1 and SEV4 pages are indistinguishable | Route by severity: SEV1 → page on-call, SEV2 → Slack + page if unacked in 15 min, SEV3 → Slack only, SEV4 → weekly digest; no single channel receives all severities | `grep -rn "severity\|routes" alertmanager.yml` → single receiver for all routes | CI check: `alertmanager.yml` must define ≥ 3 distinct receivers with `match_re.severity` routing |
+| Dashboards created via click-ops in Grafana UI — no version control, no review, no reproducibility | Dashboard as code: Terraform Grafana provider, Grafonnet, or JSON committed to Git; all dashboard changes go through PR review | `grep -rn "grafana_dashboard" **/*.tf` → returns empty; no Terraform-managed dashboards | CI check: require `terraform plan` to show grafana resources; reject manual Grafana JSON imports without Terraform wrapping |
+| Structured logging implemented but log messages are useless — "Error occurred", "Failed" with no context | Every log line must include `trace_id`, `user_id` (hashed), `service`, `environment`, and actionable context; log in JSON with a schema | `grep -rn 'log\.Error\|log\.Info\|logger\.error\|logger\.info' --include="*.go" | grep -v "trace_id\|error\.stack"` → log calls missing context fields | Pre-commit hook: `structlog` or `zap` required; log calls without `trace_id` in the fields block CI |
+| 100% tracing sampling in production — tracing cost 3× the infrastructure cost | Use head-based sampling: 100% of errors, 10% of normal traffic; tail-based sampling at the collector for anomaly detection; store sampled traces for 7 days | `grep -rn "sampler.*=.*always_on\|sampler.*=.*1\.0\|sampling.*=.*100"` otelcol-config.yml → sampling disabled or set to 100% | CI check: `otelcol-config.yml` must have `probabilistic_sampler` with `sampling_percentage < 50` or tail_sampling processor configured |
+| Metric cardinality explosion — `user_id` or `session_id` as a Prometheus label; TSDB chokes | Never use high-cardinality values as metric labels; use logs or traces for per-user/per-session data; keep label cardinality < 100 unique values per label | `grep -rn '\.WithLabelValues\|\.With(.*user_id\|\.With(.*session_id\|\.Labels{.*user' --include="*.go"` → high-cardinality label usage | Linter: `promtool check rules` on alert/recording rules; cardinality analysis in CI via `prometheus-tsdb analyze` |
+| Alerts fire but no one knows what to do — runbook is "check logs and escalate" | Every alert must link to a specific runbook with step-by-step diagnosis and remediation; runbook is tested in fire drills; update after every incident | `grep -L "runbook_url" **/alert*.yml` → alert files missing runbook annotations | CI check: every alert rule must have `annotations.runbook_url` set to a valid URL (HTTP 200); block merge if missing |
+| Observability is an afterthought bolted on after launch — "we'll add monitoring later" | Instrument during development: OpenTelemetry auto-instrumentation, structured logging from day one, RED metrics exported before first production deploy | `grep -L "opentelemetry\|prometheus_client\|promhttp" **/main.go **/app.py` → services missing instrumentation imports | Template check: scaffold/golden-path templates must include OTel SDK dependency and `/metrics` endpoint by default |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -676,14 +699,15 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 
 
 ## Error Decoder
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Dashboard shows no data during incident | Dashboard queries against a different data source or time range than the alert that fired | Dashboard must share the same Prometheus/OTEL data source as the alert. Every dashboard panel should have a link to the alert that would fire if this metric goes bad. Test dashboard with actual incident data in post-mortems. | A dashboard that shows no data during an incident is worse than no dashboard — it wastes precious incident time on debugging the monitoring system instead of the actual problem. |
-| Alert fires every night at 3 AM, no one investigates | Threshold doesn't account for known maintenance windows | Add alert annotations for known maintenance windows (deploy window, batch jobs, backup window). Use mute timings or alert inhibition rules. If a team acknowledges the same alert 3 times without action, escalate to the manager. | An alert that fires predictably and is ignored every time is noise. Maintenance windows should silence alerts before they fire, not during the investigation. |
-| Distributed trace shows 5-second gap between services | No instrumentation on the message queue consumer — time is 'black holed' between publish and process | Instrument the queue consumer with start/end spans around dequeue → process → acknowledge. Add messaging system span (broker latency, queue depth). The gap is invisible without instrumentation at every async boundary. | Tracing is only as good as its coverage. Every async boundary without a span creates a blind spot where the most interesting latency lives. |
-| Memory leak undetected for 3 weeks | Container restarts reset the metric counter — Go/Java heap graphs show 'sawtooth' pattern that looks normal | Track rate of change (derivative) of memory usage per deploy. Alert on container restart frequency — restarts hide leaks. Use GAUGE metrics (current heap usage) not COUNTER (cumulative). p99 latency creep is often the first sign of a memory leak. | What looks like a healthy oscillation on a heap graph can be a memory leak hidden by container restarts. Always alert on restart frequency, not just absolute heap size. |
-| Pager fatigue — team silenced the critical alert channel | Too many low-severity alerts on the same channel as SEV1 alerts | Route alerts by severity: SEV1 (page), SEV2 (Slack notify), SEV3 (dashboard badge), SEV4 (weekly digest). No alert should fire more than once per 30 minutes per service. Maximum 5 pages per on-call per shift — if exceeded, review alert thresholds. | Alert fatigue is the #1 cause of missed critical incidents. Separate channels by severity and enforce strict page budgets per shift. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "Prometheus Data Source Error\|prometheus: 503\|query_error" grafana*.log` + `grep -rn "storage.tsdb.retention.size\|TSDB.*compaction\|out of disk" prometheus*.log` | Dashboard shows no data during incident | Prometheus TSDB hit retention size limit and entered emergency compaction; rejecting queries during the incident | Set time-based retention (`--storage.tsdb.retention.time=30d`), configure remote write to Thanos/Cortex, reserve 20% disk for compaction | 1. `df -h /prometheus` check disk 2. If >85%: `curl -X POST localhost:9090/api/v1/admin/tsdb/clean_tombstones` 3. Expand volume or enable remote_write 4. Set disk alert at 70%, 80%, 90% |
+| `grep -rn "firing" alertmanager*.log \| grep "03:00\|03:0[0-9]"` + `grep -rn "for: 5m\|for: 1m" **/alert*.yml` | Alert fires every night at same time, no one investigates | Threshold doesn't account for known maintenance windows or batch jobs; no alert inhibition rules | Add alert annotations for maintenance windows, use mute timings or `alertmanager` inhibition rules; escalate after 3 ignored acks | 1. `grep "for:" **/alert*.yml` check `for` duration 2. Identify window: `journalctl --since "02:00" --until "04:00" \| grep alert` 3. Add `time_intervals` to alertmanager.yml for known windows 4. Verify: `amtool silence query` |
+| `grep -rn "gap\|missing span\|5 second" tempo*.log` + `grep -rn "publish\|enqueue\|SendMessage" --include="*.go" \| grep -L "StartSpan\|tracer"` | Distributed trace shows 5-second gap between services | No instrumentation on the message queue consumer — time is 'black holed' between publish and process | Instrument queue consumer with start/end spans around dequeue → process → acknowledge; add messaging system span (broker latency, queue depth) | 1. `grep -L "otel.Tracer\|opentelemetry" **/consumer*.go` find uninstrumented consumers 2. Wrap dequeue/process/ack with `tracer.Start(ctx, "queue.process")` 3. Add `messaging.system` and `messaging.destination` span attributes 4. Verify: search trace ID in Tempo → no gaps |
+| `grep -rn "OOMKilled\|oom_kill\|memory.*leak" kubelet*.log` + `grep -rn "restart_count\|container_restarts" metrics.txt` AND `grep "rate(.*memory" **/rules*.yml` returns empty | Memory leak undetected for 3 weeks | Container restarts reset the metric counter — heap graphs show 'sawtooth' pattern that looks normal; no derivative alert on memory | Track `rate(container_memory_usage_bytes[5m])` per deploy; alert on `rate(container_restarts[15m]) > 0`; use GAUGE (not COUNTER) for heap; p99 latency creep is first sign | 1. `kubectl top pods -n prod \| sort -k3 -h` check memory leaders 2. `kubectl describe pod <name> \| grep "Restart Count"` 3. Add Prometheus rule: `rate(kube_pod_container_status_restarts_total[15m]) > 0` 4. Correlate with `histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))` |
+| `grep -rn "silence\|mute\|snooze" pagerduty*.log` AND `grep -rn "severity.*page\|severity.*critical" alertmanager.yml \| wc -l` > 10 | Pager fatigue — team silenced the critical alert channel | Too many low-severity alerts on the same channel as SEV1 alerts; no page budget enforcement | Route by severity: SEV1 (page), SEV2 (Slack+page if unacked 15min), SEV3 (Slack only), SEV4 (weekly digest); max 5 pages/shift | 1. `amtool alert ls --active \| wc -l` count active alerts 2. `amtool config routes show` verify severity routing 3. Define `max_pages_per_shift=5` in runbook 4. Monthly: `signal_noise_ratio = actionable_alerts / total_alerts`; if <20%, alert bankruptcy sprint |
 
 
 ## What Good Looks Like
@@ -691,52 +715,35 @@ debugging without additional queries. Include `trace_id`, `user_id` (hashed), `o
 > Every service emits structured logs, distributed traces, and meaningful metrics — the three pillars are unified by a single trace ID end to end. Dashboards answer the golden signals for every service: latency, traffic, errors, and saturation. Alerts fire on symptoms, not causes, and every alert links to a runbook with a documented response procedure. On-call engineers can triage any incident within five minutes using observability data alone. No alert fires without a documented response, and the team never gets paged for the same issue twice because every incident drives a dashboard or alert improvement.
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-### Instrumentation
-- [ ] **[S1]**  All services instrumented with OpenTelemetry SDKs (auto-instrumentation minimum)
-- [ ] **[S2]**  Manual instrumentation for critical business logic spans with domain attributes
-- [ ] **[S3]**  `trace_id` and `span_id` in all structured log lines
-- [ ] **[S4]**  Resource attributes set: `service.name`, `service.version`, `deployment.environment`
-- [ ] **[S5]**  Sampling strategy documented and tuned: head 10% + tail 100% errors/slow
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
 
-### SLOs & Alerting
-- [ ] **[S6]**  SLIs defined for all critical user journeys (3-5 journeys)
-- [ ] **[S7]**  SLO targets set with error budget policy per journey
-- [ ] **[S8]**  Multi-window burn-rate alerts configured for each SLO (5x, 14.4x, 36x)
-- [ ] **[S9]**  Alertmanager routing: severity-based → PagerDuty/Slack with inhibition rules
-- [ ] **[S10]**  Runbook URLs on every alert annotation
-- [ ] **[S11]**  Dead man's switch (Watchdog alert) monitoring pipeline health
-- [ ] **[S12]**  Monthly alerting fire-drill verifies end-to-end notification chain
-
-### Dashboards
-- [ ] **[S13]**  SLO compliance dashboard with burn-down charts per critical journey
-- [ ] **[S14]**  RED dashboards for every production service (Rate, Errors, Duration)
-- [ ] **[S15]**  USE dashboards for infrastructure: CPU, memory, disk, network per node
-- [ ] **[S16]**  Dashboards provisioned as code (Terraform/Grafonnet/Git)
-- [ ] **[S17]**  Recording rules for expensive PromQL queries
-
-### Logging
-- [ ] **[S18]**  Structured JSON logging with consistent schema across all services
-- [ ] **[S19]**  Log aggregation pipeline: Promtail/Fluent Bit → Loki or Elasticsearch
-- [ ] **[S20]**  Retention tiers configured (hot 7d, warm 30d, cold 1yr+)
-- [ ] **[S21]**  PII redaction pipeline at collection time (emails, credit cards, SSNs)
-- [ ] **[S22]**  Log-based metrics derived for error rates, latency distributions
-
-### Tracing
-- [ ] **[S23]**  Distributed tracing with head + tail sampling strategy
-- [ ] **[S24]**  OpenTelemetry Collector Agent (DaemonSet) on every node
-- [ ] **[S25]**  Gateway (≥ 3 replicas) for tail sampling and multi-backend routing
-- [ ] **[S26]**  Trace-log correlation working end-to-end: log → trace_id → full waterfall
-- [ ] **[S27]**  Semantic conventions followed for HTTP, DB, messaging spans
-
-### Operations
-- [ ] **[S28]**  On-call rotations, escalation policies, silence/maintenance windows configured
-- [ ] **[S29]**  Synthetic monitoring (black-box probes) validates critical paths from outside
-- [ ] **[S30]**  Runbooks exist for all P0/P1/P2 alerts with specific, actionable steps
-- [ ] **[S31]**  Blameless postmortem process established; action items tracked to completion
-- [ ] **[S32]**  Capacity planning: metrics retention ≥ 13 months for year-over-year trends
-
-## Footguns
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | All services instrumented with OpenTelemetry SDKs (auto-instrumentation minimum) | `grep -rn "go.opentelemetry.io/otel\|@opentelemetry/api\|opentelemetry-instrumentation" **/go.mod **/package.json **/requirements.txt` → found in every service | Add `go.opentelemetry.io/otel` to `go.mod`; run `otelauto -service=<name>` to bootstrap |
+| **[S2]** | Manual instrumentation for critical business logic spans with domain attributes | `grep -rn "tracer.Start\|startActiveSpan\|start_span" --include="*.go" --include="*.py" --include="*.js"` → spans exist in business logic paths | Add `tracer.startSpan('checkout.process')` with `{ 'order.total': order.amount }` attributes at each critical function entry |
+| **[S3]** | `trace_id` and `span_id` in all structured log lines | `grep -rn "trace_id\|traceId\|span_id\|spanId" --include="*.go" --include="*.py" --include="*.js" \| grep "log\."` → trace IDs in log context | `--set=otel.logs.inject-trace-context=true` in OTel SDK config |
+| **[S4]** | Resource attributes set: `service.name`, `service.version`, `deployment.environment` | `grep -rn "service\.name\|OTEL_RESOURCE_ATTRIBUTES" Dockerfile docker-compose*.yml` → resource attributes configured | `export OTEL_RESOURCE_ATTRIBUTES="service.name=checkout,service.version=$(git rev-parse --short HEAD),deployment.environment=production"` |
+| **[S5]** | Sampling strategy documented and tuned: head 10% + tail 100% errors/slow | `grep -rn "sampler\|sampling_percentage\|tail_sampling" otelcol-config.yml` → sampling config exists | Add `probabilistic_sampler(sampling_percentage: 10)` + `tail_sampling` processor with `latency > 500ms OR status_code = ERROR` |
+| **[S6]** | SLIs defined for all critical user journeys (3-5 journeys) | `grep -rn "objective:\|target:" **/slo*.yml` → SLO config files exist for ≥ 3 SLIs | Create `slo-checkout-latency.yml` with `objective: 99.9`, `target: 500ms p99` |
+| **[S7]** | SLO targets set with error budget policy per journey | `grep -rn "error_budget\|burn_rate" **/slo*.yml` → error budget config per SLO | Add `burn_rate_thresholds: [1, 5, 14.4, 36]` and `error_budget_policy: freeze_features` |
+| **[S8]** | Multi-window burn-rate alerts configured for each SLO (5x, 14.4x, 36x) | `grep -rn "burn_rate\|multi.*window\|short.*window\|long.*window" **/alert*.yml` → multi-window alerts exist | Generate with `sloth generate -f slo-checkout.yml` (Sloth SLO generator) |
+| **[S9]** | Alertmanager routing: severity-based → PagerDuty/Slack with inhibition rules | `grep -rn "severity\|routes\|inhibit" alertmanager.yml` → severity routing and inhibition configured | `amtool config routes test --alert.label=severity=critical` → verify routes to PagerDuty; `critical > warning` inhibition rule |
+| **[S10]** | Runbook URLs on every alert annotation | `grep -L "runbook_url" **/alert*.yml` → returns empty (all alerts have runbook URLs) | Add `annotations: { runbook_url: "https://wiki/runs/checkout-latency" }` to every alert rule |
+| **[S11]** | Dead man's switch (Watchdog alert) monitoring pipeline health | `grep -rn "Watchdog\|DeadMansSwitch\|heartbeat\|always_firing" **/alert*.yml` → watchdog alert exists | Add `expr: vector(1)` alert named `Watchdog` that fires to a separate "pipeline-health" receiver |
+| **[S12]** | Monthly alerting fire-drill verifies end-to-end notification chain | `grep -rn "fire.*drill\|chaos.*alert\|synthetic.*alert" docs/runbooks/` → drill procedure documented | Schedule: last Friday of month, `curl -X POST alertmanager:9093/api/v2/alerts -d '[{"labels":{"alertname":"FireDrill"}}]'` |
+| **[S13]** | SLO compliance dashboard with burn-down charts per critical journey | `grep -rn "slo\|burn.*down\|error.*budget" grafana/**/*.json` → SLO dashboard JSON exists | Import `grafana-slo-dashboard` from grafana.com/dashboards; configure per-SLO panels |
+| **[S14]** | RED dashboards for every production service (Rate, Errors, Duration) | `grep -rn "rate\|error\|duration\|latency" grafana/**/*.json \| grep -c "service"` → ≥ 3 RED panels per service dashboard | Template: `grafana-red-dashboard.jsonnet` with `rate()`, `errors/rate`, `histogram_quantile(0.99, duration)` per `service` label |
+| **[S15]** | Dashboards provisioned as code (Terraform/Grafonnet/Git) | `grep -rn "grafana_dashboard\|grafana_folder" **/*.tf` → Terraform-managed dashboards exist | `terraform import grafana_dashboard.checkout /dashboards/checkout-red.json` then manage in `.tf` |
+| **[S16]** | Recording rules for expensive PromQL queries | `grep -rn "record:" **/rules*.yml` → recording rules exist for percentile/aggregation queries | Add `record: job:http_request_duration_seconds:p99` with `expr: histogram_quantile(0.99, rate(...))` |
+| **[S17]** | Structured JSON logging with consistent schema across all services | `grep -rn "logrus\|zap\|structlog\|winston" **/main.go **/app.py **/index.js` AND `grep -rn "timestamp\|level\|message\|service"` → structured logger + standard fields | Adopt standard schema: `{"timestamp":"ISO8601","level":"info","message":"...","service":"checkout","trace_id":"...","span_id":"..."}` |
+| **[S18]** | Log aggregation pipeline: Promtail/Fluent Bit → Loki or Elasticsearch | `grep -rn "loki\|elasticsearch\|opensearch" docker-compose*.yml **/*.tf` → log sink configured | `helm install loki grafana/loki-stack --set promtail.enabled=true` |
+| **[S19]** | Retention tiers configured (hot 7d, warm 30d, cold 1yr+) | `grep -rn "retention\|retention_period\|retention_time\|table_manager" loki*.yml prometheus*.yml` → retention config exists | Set `--storage.tsdb.retention.time=30d` (Prometheus), `retention_period: 90d` (Loki), remote_write to S3 for cold tier |
+| **[S20]** | PII redaction pipeline at collection time (emails, credit cards, SSNs) | `grep -rn "redact\|mask\|drop.*pii\|replace.*email" fluent-bit*.conf promtail*.yml otelcol*.yml` → PII redaction config | Add `processors.redact` with regex: `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b` → `[REDACTED_EMAIL]` |
+| **[S21]** | Distributed tracing with head + tail sampling strategy | `grep -rn "probabilistic_sampler\|tail_sampling" otelcol-config.yml` → both sampling types configured | Add `processors: [probabilistic_sampler(10%), tail_sampling(policies: [latency>500ms, error])]` |
+| **[S22]** | OpenTelemetry Collector Agent (DaemonSet) on every node | `kubectl get daemonset -n observability otelcol-agent` → DaemonSet exists and `DESIRED == READY` | `helm install otelcollector open-telemetry/opentelemetry-collector --set mode=daemonset` |
+| **[S23]** | Gateway (≥ 3 replicas) for tail sampling and multi-backend routing | `kubectl get deployment -n observability otelcol-gateway -o jsonpath='{.spec.replicas}'` → ≥ 3 | `kubectl scale deployment otelcol-gateway --replicas=3 -n observability` |
+| **[S24]** | Trace-log correlation working end-to-end: log → trace_id → full waterfall | `grep trace_id app*.log \| head -1 \| xargs -I {} curl "tempo:3200/api/traces/{}"` → returns full trace waterfall | Verify: inject `trace_id` into logs via OTel SDK; Tempo/Loki datasource linked in Grafana |
+| **[S25]** | On-call rotations, escalation policies, silence/maintenance windows configured | `curl -s -H "Authorization: Token token=$PD_TOKEN" https://api.pagerduty.com/schedules \| jq '.schedules \| length'` → ≥ 1 schedule exists | `pd schedule:create --name="Primary On-Call" --rotation="weekly" --users=alice@,bob@` |
 <!-- DEEP: 10+min — war stories from production observability -->
 
 | Footgun | What Happened | Root Cause | How to Prevent |

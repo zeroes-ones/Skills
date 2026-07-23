@@ -33,36 +33,52 @@ multi-service development with compose, Kubernetes resource manifests, Helm char
 service mesh integration, security hardening, and traffic management.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+<!-- QUICK: 30s -- auto-route first, then intent-route -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_exists("Dockerfile")` AND NOT `file_exists("docker-compose.yml")` AND NOT `file_exists("Chart.yaml")` | Go to "Core Workflow > Phase 1" (Dockerfile) — write or optimize a Dockerfile |
+| A2 | `file_exists("docker-compose.yml")` OR `file_exists("docker-compose.yaml")` | Jump to "Core Workflow > Phase 2" (docker-compose) for local dev or MVP setup |
+| A3 | `file_exists("Chart.yaml")` AND `file_exists("templates/")` | Go to "Sub-Skills > helm-chart-authoring" for Helm chart work |
+| A4 | `file_exists("k8s/")` OR `grep -rn "apiVersion: apps/v1\|kind: Deployment" . --include="*.yaml" --include="*.yml"` returns matches | Jump to "Core Workflow > Phase 3" (Kubernetes Manifests) |
+| A5 | `file_contains("k8s/**/*.yaml", "securityContext\|NetworkPolicy\|PodSecurity")` OR `file_contains("Dockerfile", "USER")` | Go to "Core Workflow > Phase 4" (Security Hardening) |
+| A6 | `file_exists("terraform/")` OR `file_contains("main.tf", "eks\|aks\|gke\|kubernetes")` | Invoke `devops-engineer` skill instead — cluster provisioning |
+| A7 | `file_contains("k8s/**/*.yaml", "istio\|linkerd\|envoy\|service mesh")` OR `file_exists("istio/")` | Go to "Sub-Skills > service-mesh-integration" |
+| A8 | No Dockerfile, no k8s manifests, no Helm chart — project is not containerized | Jump to "Core Workflow > Phase 1" — start with containerizing the workload |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
+
 ```
 What are you trying to do?
-├── Write or optimize a Dockerfile → Go to "Core Workflow > Phase 1" (Dockerfile) and "Best Practices > Dockerfile"
-│   ├── Production hardening → Jump to "Core Workflow > Phase 4" (Security Hardening)
-│   └── Multi-stage build pattern → See "Decision Trees > Dockerfile Optimization"
-├── Set up docker-compose for local dev → Jump to "Core Workflow > Phase 2" (docker-compose)
-├── Create Kubernetes manifests (Deployment, Service, Ingress) → Jump to "Core Workflow > Phase 3" (Kubernetes Manifests)
-├── Build a Helm chart → Go to "Sub-Skills > helm-chart-authoring"
-├── Harden pod security (securityContext, PSP/PSA, network policies) → Go to "Core Workflow > Phase 4" (Security Hardening)
-├── Configure ingress (cert-manager, external-dns, multiple controllers) → Jump to "Decision Trees > Ingress Architecture"
-├── Set up service mesh (Istio, Linkerd, Cilium) → Go to "Sub-Skills > service-mesh-integration"
-├── Need cluster provisioning → Invoke `devops-engineer` skill instead
-├── Need observability for containers → Invoke `observability-engineer` skill instead
-├── Need platform developer experience → Invoke `platform-engineer` skill instead
-├── Need reliability for container workloads → Invoke `site-reliability-engineer` skill instead
-└── Not sure where to start? → "Core Workflow > Phase 1" — describe your workload
+├── Write or optimize a Dockerfile
+├── Set up docker-compose for local development
+├── Create Kubernetes manifests (Deployment, Service, Ingress)
+├── Build a Helm chart
+├── Harden pod security (securityContext, PSP/PSA, network policies)
+├── Configure ingress (cert-manager, external-dns)
+├── Set up service mesh (Istio, Linkerd, Cilium)
+└── Not sure? → Describe your workload and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+<!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
-These rules apply to *every* response this skill produces.
+These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
 
-- **Never run as root in containers.** Every Dockerfile must specify a non-root `USER`. Containers running as root are a security incident waiting to happen.
-- **Resource limits are not optional.** Every container needs `resources.requests` and `resources.limits` for CPU and memory. Without them, one noisy neighbor can take down the entire node.
-- **Never use `latest` tag in production.** `latest` is a moving target — you can't roll back to "latest from 3 hours ago." Pin to digest or immutable version tags.
-- **Liveness and readiness probes are different things.** Liveness tells Kubernetes to restart a stuck container. Readiness tells Kubernetes to stop sending traffic. Misconfiguring these causes cascading failures, not healing.
-- **Always think about the blast radius.** A misconfigured NetworkPolicy, a wildcard Ingress host, or a privileged container doesn't just break your app — it compromises the cluster.
-- **Admit what you don't know.** If you're unsure about a specific Kubernetes version's API deprecations or a cloud provider's ingress controller behavior, say so and point to the relevant docs.
+| # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
+|---|-------------------|---------------------------------------------|-------------------|
+| **R1** | **REFUSE to generate containers running as root** — root in container = root on host without user namespace remapping. | Trigger: `grep -n "USER" Dockerfile` returns zero matches OR `grep -rn "runAsUser: 0\|runAsNonRoot: false\|privileged: true" k8s/ --include="*.yaml"` returns matches | STOP. Respond: "Container [name] is configured to run as root. Add `USER 1000:1000` to Dockerfile and `securityContext.runAsNonRoot: true` to Kubernetes manifests. Containers running as root is the #1 container security finding." |
+| **R2** | **REFUSE to deploy without resource limits** — a container without `resources.requests` and `resources.limits` is a noisy-neighbor incident waiting to happen. | Trigger: `grep -rn "resources:" k8s/ --include="*.yaml"` returns zero matches for a Deployment OR `grep -rn "containers:"` exists but no `resources:` block follows | STOP. Respond: "No resource limits detected for [deployment]. Add `resources.requests` (P50 usage) and `resources.limits` (P99 + 20% headroom) for CPU and memory. Without limits, one container can starve the entire node." |
+| **R3** | **REFUSE to use `:latest` tag in production Kubernetes manifests** — `latest` is a moving target with no rollback target. | Trigger: `grep -rn "image:.*:latest\b" k8s/ --include="*.yaml" --include="*.yml"` returns matches | STOP. Respond: "Found `:latest` tag in [file:line]. Pin images by SHA256 digest: `image: myapp@sha256:abc123...`. CI should auto-generate pinned manifests — mutable tags guarantee you deploy something you didn't test." |
+| **R4** | **REFUSE to configure the same endpoint for liveness AND readiness probes** — under load, slow endpoint → K8s kills pod → cascade failure. | Trigger: `grep -rn "livenessProbe:" k8s/` AND `grep -rn "readinessProbe:" k8s/` share the same `path:` value in the same Deployment | STOP. Respond: "Liveness and readiness probes share the same endpoint in [deployment]. Liveness: `/healthz` (lightweight, always fast — process alive?). Readiness: `/ready` (service health — ready for traffic?). NEVER the same endpoint." |
+| **R5** | **STOP and ASK when the project has < 5 services but user requests Kubernetes** — K8s overhead for 3 services is 10x complexity for 0x benefit. | Trigger: `grep -rn "kind: Deployment" k8s/ --include="*.yaml"` returns ≤ 3 matches AND team size < 5 engineers AND no auto-scaling requirement expressed | STOP. Ask: "This project has [N] services and [M] engineers. Kubernetes control plane alone costs $73+/month (EKS). Consider: docker-compose on a $20-40 VM (handles 1K DAU) or ECS Fargate (managed containers, no K8s ops). Do you have requirements that justify K8s (auto-scaling, self-healing, GitOps, > 5 services)?" |
+| **R6** | **DETECT and WARN about Docker layer ordering that breaks caching** — `COPY . .` before `RUN npm ci` invalidates the dependency cache on every code change. | Trigger: `file_contains("Dockerfile", "COPY . .")` appears BEFORE `file_contains("Dockerfile", "RUN npm (ci|install)")` in the same Dockerfile | WARN: "`COPY . .` precedes dependency installation in [Dockerfile]. Reorder: COPY package.json + lock file → RUN npm ci → COPY . . This one reorder can turn an 8-minute build into 30 seconds." |
+| **R7** | **DETECT and WARN about `.env` files copied into Docker images** — baked-in `.env` files leak secrets to anyone who pulls the image. | Trigger: `file_contains("Dockerfile", "COPY.*\.env")` OR `file_contains("Dockerfile", "ENV.*=")` with DB credentials / API keys | WARN: "`.env` or credential-bearing ENV directives detected in [Dockerfile]. Use Docker secrets, Kubernetes Secrets (with etcd encryption), or External Secrets Operator. Add `.env*` to `.dockerignore`. Build-time env vars persist in image layers forever." |
 
 ## The Expert's Mindset
 
@@ -342,17 +358,18 @@ When this skill is invoked, the agent may need to drill into these specialized a
 - **Scan images**: integrate Trivy, Grype, or Snyk into CI; block deployment on HIGH/CRITICAL CVEs.
 
 ## Anti-Patterns
-<!-- STANDARD: 2min -->
+<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|----------------|-------------------|
-| "Let's use Kubernetes for our 3-service MVP" | Kubernetes overhead for 3 services is 10x the complexity for 0x the benefit. docker-compose on a $20 VM handles 1K DAU. Migrate to K8s when you hit: >5 services, need auto-scaling, or team >5 engineers. |
-| `COPY . .` before `RUN npm install` in Dockerfile | Order layers by change frequency: OS packages → dependencies (locked) → application code. When you change app code, you want to reuse the cached dependency layer. Put `COPY package*.json ./` and `RUN npm ci` BEFORE `COPY . .`. |
-| Using `:latest` tag in production deployment manifests | `latest` is mutable — your "working" deployment silently changes when a new build pushes to the same tag. Pin images by SHA256 digest: `image: myapp@sha256:abc123...`. CI should auto-generate pinned manifests. |
-| Setting resource limits based on average usage from load testing | Average hides spikes. That one API call that processes large files uses 3x the average memory. Set requests at P50, limits at P99+20% headroom over a 7-day production window. Use VPA recommender. |
-| Same endpoint for liveness AND readiness probes | Under load: endpoint slows → K8s thinks pod is dead → kills healthy pod → remaining pods get more load → cascade failure. Liveness: `/healthz` (lightweight, always fast). Readiness: `/ready` (service health). NEVER the same. |
-| `chmod 777` or running as root "to make it work" | Root containers + container escape = root on the host node. Every Dockerfile MUST have `USER 1000:1000`. Enforce with PodSecurityStandard `restricted`. Add CI check for missing USER directive. |
-| Copying `.env` files into Docker images | `.env` files baked into images leak secrets to anyone who pulls the image. Use Docker secrets, Kubernetes Secrets (with etcd encryption), or External Secrets Operator. Add `.env*` to `.dockerignore`. |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|--------------------------|-------------------|
+| "Let's use Kubernetes for our 3-service MVP" | docker-compose on a $20 VM handles 1K DAU; migrate to K8s when: > 5 services, need auto-scaling, or team > 5 engineers | `grep -rn "kind: Deployment" k8s/ --include="*.yaml" \| wc -l` → ≤ 3 Deployments AND no HPA configured → K8s overkill | Pre-commit hook: if Deployments ≤ 3 AND team size < 5 (from CODEOWNERS), warn "Consider docker-compose or ECS Fargate" |
+| `COPY . .` before `RUN npm install` in Dockerfile | Order layers by change frequency: OS packages → dependencies (locked) → application code. `COPY package*.json ./` THEN `RUN npm ci` THEN `COPY . .` | `grep -n "COPY \. \." Dockerfile` shows line N AND `grep -n "RUN npm (ci\|install)" Dockerfile` shows line M where M < N → wrong order | `hadolint` rule DL3059; pre-commit hook checking `COPY . .` line number < `RUN npm ci` line number |
+| Using `:latest` tag in production deployment manifests | Pin images by SHA256 digest: `image: myapp@sha256:abc123...`; CI should auto-generate pinned manifests | `grep -rn "image:.*:latest\b" k8s/ --include="*.yaml"` → finds mutable tags in production manifests | OPA/Gatekeeper admission policy: deny Deployments with `:latest` tag in production namespaces |
+| Setting resource limits based on average usage from load testing | Set requests at P50, limits at P99+20% headroom over a 7-day production window; use VPA recommender | `grep -rn "resources:" k8s/ --include="*.yaml" -A 5` shows `memory:` values with no percentile basis documented → average-based limits | VPA in recommendation mode auto-suggesting optimal limits; CI check requiring VPA annotation on all Deployments |
+| Same endpoint for liveness AND readiness probes | Liveness: `/healthz` (lightweight, always fast). Readiness: `/ready` (service health). NEVER the same endpoint | `grep -rn "livenessProbe:" k8s/ -A 3` AND `grep -rn "readinessProbe:" k8s/ -A 3` in same Deployment with identical `path:` → same endpoint | OPA policy: deny Deployment where `livenessProbe.httpGet.path == readinessProbe.httpGet.path` |
+| `chmod 777` or running as root "to make it work" | Every Dockerfile MUST have `USER 1000:1000`; enforce with PodSecurityStandard `restricted` | `grep -rn "chmod 777\|USER root\|USER 0" Dockerfile` OR `grep -rn "runAsUser: 0\|privileged: true" k8s/` → root/permissive config | `hadolint` rule DL3002; PodSecurityStandard `restricted` enforced cluster-wide; CI blocks images without USER directive |
+| Copying `.env` files into Docker images | Use Docker secrets, Kubernetes Secrets (with etcd encryption), or External Secrets Operator | `grep -rn "COPY.*\.env\|ENV.*=" Dockerfile` with credential-like values → baked-in env files | `.dockerignore` template with `.env*` rule; `hadolint` + Trivy scan blocking images with `.env` files |
+| Image vulnerability scan passed — but the image hasn't been scanned in 3 months | Integrate scanning into CI/CD: every image build must be scanned before deploy; block deployment on HIGH/CRITICAL findings | `grep -rn "trivy\|snyk\|grype\|clair" .github/workflows/` returns zero matches → no image scanning in pipeline | Trivy scan step auto-injected into CI template; OPA admission controller blocking unscanned images in production |
 
 ## When Kubernetes is Overkill
 
@@ -444,34 +461,37 @@ Don't adopt K8s until you can answer YES to:
 - **Medium → Enterprise**: 10+ clusters or multi-region. 50+ services. Dedicated platform team justified.
 
 ## Error Decoder
-<!-- STANDARD: 3min -->
+<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Container running as root — attacker who gained shell access had full node privileges | Dockerfile didn't have a `USER` directive. Container defaulted to root (UID 0). Root in the container = root on the host without proper user namespace remapping. | Every Dockerfile MUST have `USER 1000:1000` or similar non-root user. Enforce with PodSecurityStandard `restricted` level. Add a CI check that scans Dockerfiles for missing USER directive. Use `securityContext.runAsNonRoot: true` in Kubernetes manifests. | Containers running as root is the #1 container security finding. It's trivially fixable and fundamentally dangerous — there is no excuse for shipping a root container to production. |
-| Image vulnerability scan passed — but the image hadn't been scanned in 3 months | The container scan was configured as a manual step in the release process, not enforced in CI. The last scan covered a different image tag from 3 months ago. | Integrate image scanning into the CI/CD pipeline — every image build must be scanned before it can be deployed. Block deployment on HIGH/CRITICAL findings. Use admission controllers (OPA/Gatekeeper) to prevent deployment of un-scanned images. | A vulnerability scan that isn't enforced in the pipeline is security theater. If it can be skipped, it will be skipped — especially during a Friday afternoon release. |
-| Pod OOMKilled every 4 hours — 99th percentile memory usage was 3x the resource limit | Resource limits were set to `memory: 256Mi` based on average usage during load testing. But one API call consistently spiked to 800Mi — the limit was based on average, not P99. | Set resource requests based on P50 usage and limits based on P99 usage over a 7-day window. Use Vertical Pod Autoscaler in recommendation mode to suggest optimal requests/limits. Test with production traffic patterns before setting final limits. | Resource limits set by average usage guarantee OOM kills for anyone who hits the peak. Always use percentile-based sizing, not average-based. |
-| Image digest pinning failed — deployment rolled back because the tag changed between test and deploy | Helm chart referenced image by tag (`myapp:v1.2.3`), not digest. Between when the chart was tested and deployed, a new build pushed to the same tag. | Always reference images by SHA256 digest, not mutable tags. CI/CD pipeline should: build with SHA tag, scan, test, promote digest through environments. Use `imagePullPolicy: Always` for tags, `IfNotPresent` for digests (but prefer digests for all production deployments). | Immutable tags are a myth in practice. Only SHA256 digests guarantee that what you tested is what you deploy. |
-| Liveness probe incorrectly configured — Kubernetes killed healthy pods during traffic spike | Liveness probe used the same endpoint as the readiness probe. During a traffic spike, the endpoint became slow (> 5s). Kubernetes interpreted slow response as dead container and restarted healthy pods. | Liveness probes should check for process health (is the process alive?), not load health (is the service responsive?). Use a separate, lightweight liveness endpoint (`/healthz`) that returns quickly regardless of load. Readiness probes should check actual service health. | A liveness probe that fails under load makes every traffic spike worse. Liveness = process alive. Readiness = service healthy. Never use the same probe for both. |
-| Docker build cache always misses — every build takes 8+ minutes | `COPY . .` placed before `RUN npm ci` in Dockerfile. Changing any source file invalidates the dependency layer cache. | Reorder: COPY package.json + lock file → RUN npm ci → COPY . . Application code changes only invalidate the final COPY layer. Dependencies are cached. | Docker layer ordering is the single highest-leverage build optimization. One reorder can turn an 8-minute build into 30 seconds. |
+| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|---|---|---|---|---|
+| `grep -rn "USER" Dockerfile` returns zero matches AND `kubectl get pods -o yaml | grep -A2 securityContext | grep "runAsUser: 0"` shows root | Container running as root — attacker who gained shell access had full node privileges | Dockerfile didn't have `USER` directive; container defaulted to root (UID 0); root in container = root on host without user namespace remapping | Add `USER 1000:1000` to Dockerfile; enforce PodSecurityStandard `restricted` level; add CI check scanning Dockerfiles for missing USER directive; set `runAsNonRoot: true` in Kubernetes manifests | 1. `grep -rn "USER\|runAsUser" Dockerfile k8s/` 2. Add `USER 1000:1000` to Dockerfile 3. Add `securityContext.runAsNonRoot: true` to k8s manifests 4. Enable PodSecurityStandard `restricted` |
+| `grep -rn "trivy\|snyk\|grype" .github/workflows/` returns zero matches AND `docker images --digests` shows images older than 30 days | Image vulnerability scan passed — but the image hadn't been scanned in 3 months | Container scan was configured as manual step in release process, not enforced in CI; last scan covered a different image tag from 3 months ago | Integrate image scanning into CI/CD pipeline — every image build must be scanned before deploy; block deployment on HIGH/CRITICAL findings; use admission controllers to prevent deployment of unscanned images | 1. Add Trivy to CI: `trivy image --severity HIGH,CRITICAL <image>` 2. Block deployment on critical CVEs 3. Add OPA policy: deny unscanned images 4. Schedule daily re-scan of all deployed images |
+| `kubectl describe pod <pod> | grep "OOMKilled"` AND `kubectl get pods -o yaml | grep "memory: 256Mi"` | Pod OOMKilled every 4 hours — 99th percentile memory usage was 3× the resource limit | Resource limits set to `memory: 256Mi` based on average usage during load testing; one API call spikes to 800Mi — limit based on average, not P99 | Set resource requests at P50 usage and limits at P99 usage over a 7-day window; use VPA in recommendation mode; test with production traffic patterns before setting final limits | 1. Enable VPA recommender: `kubectl apply -f vpa-recommender.yaml` 2. Collect 7-day memory metrics at P50/P95/P99 3. Set `requests` at P50, `limits` at P99 + 20% 4. Monitor OOMKilled count drop to zero |
+| `kubectl get pods -o yaml | grep "image:" | grep -v "@sha256" | wc -l` returns > 0 | Image digest pinning failed — deployment rolled back because tag changed between test and deploy | Helm chart referenced image by tag (`myapp:v1.2.3`), not digest; between test and deploy, a new build pushed to the same tag | Always reference images by SHA256 digest; pipeline should: build with SHA tag, scan, test, promote digest through environments; prefer digests for all production deployments | 1. `grep -rn "image:.*:v" k8s/` to find tag-based references 2. Replace with `image: myapp@sha256:$(docker inspect --format='{{.RepoDigests}}' myapp:v1.2.3 | grep -oP 'sha256:\S+')` 3. Update CI to output pinned manifest 4. Verify with `kubectl get pods -o yaml | grep @sha256` |
+| `kubectl describe pod <pod> | grep -A10 "Liveness\|Readiness" | grep "path:" | sort | uniq -c | grep "2"` shows same path used for both | Liveness probe incorrectly configured — Kubernetes killed healthy pods during traffic spike | Liveness probe used same endpoint as readiness probe; during traffic spike, endpoint became slow (> 5s); K8s interpreted slow response as dead container and restarted healthy pods | Liveness: `/healthz` (lightweight, returns quickly regardless of load). Readiness: `/ready` (actual service health). Never use the same probe for both | 1. `grep -rn "livenessProbe\|readinessProbe" k8s/ -A 5` to find shared endpoints 2. Split into `/healthz` (liveness) and `/ready` (readiness) 3. Set `initialDelaySeconds: 10` and `periodSeconds: 5` for liveness 4. Verify no cascade restarts under load |
+| `docker build --no-cache . 2>&1 | grep "CACHED\|---> Using cache" | wc -l` returns < 3 AND build takes > 5 min | Docker build cache always misses — every build takes 8+ minutes | `COPY . .` placed before `RUN npm ci` in Dockerfile; changing any source file invalidates the dependency layer cache | Reorder: `COPY package*.json ./` → `RUN npm ci` → `COPY . .` Application code changes only invalidate the final COPY layer; dependencies stay cached | 1. Move `COPY package*.json ./` and `RUN npm ci` before `COPY . .` 2. Rebuild: `docker build --progress=plain .` 3. Verify cache hits: `docker build . 2>&1 | grep CACHED | wc -l` should be ≥ 3 4. Add `hadolint` CI check for layer ordering |
 
 ## What Good Looks Like
 
 > Containers are minimal, pinned by SHA256 digest, and run as non-root with all Linux security capabilities dropped. Kubernetes manifests are templated, versioned in Git, and deployed via GitOps — the cluster state always matches the repo. Resources have appropriate requests and limits, and the cluster auto-scales horizontally and vertically without human intervention. Health probes are configured correctly, and PodDisruptionBudgets ensure zero downtime during voluntary disruptions. The cluster self-heals from node failures, and every workload survives a random pod deletion without dropping a single request.
 
 ## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  All images pinned by SHA256 digest, not mutable tags
-- [ ] **[S2]**  Multi-stage builds produce minimal images; no build tools in the final layer
-- [ ] **[S3]**  Non-root user configured in every container; `allowPrivilegeEscalation: false`
-- [ ] **[S4]**  Resource requests and limits set for every container in every namespace
-- [ ] **[S5]**  Liveness and readiness probes configured with appropriate initial delays
-- [ ] **[S6]**  PodDisruptionBudget defined for all deployments with replicas > 1
-- [ ] **[S7]**  NetworkPolicy denies all by default; explicit allow rules for required flows
-- [ ] **[S8]**  PodSecurityStandard enforced at `restricted` level cluster-wide
-- [ ] **[S9]**  Image vulnerability scanning in CI pipeline; HIGH/CRITICAL CVEs block deployment
-- [ ] **[S10]**  Helm charts versioned, linted, and tested before release
-- [ ] **[S11]**  cert-manager and external-dns configured for automated TLS and DNS
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | All images pinned by SHA256 digest, not mutable tags | `grep -rn "image:.*:latest\b\|image:.*:v[0-9]" k8s/ --include="*.yaml" \| wc -l` → 0 | Replace tags with `@sha256:...` digests |
+| **[S2]** | Multi-stage builds produce minimal images; no build tools in final layer | `grep -rn "FROM.*as\|FROM.*AS" Dockerfile \| wc -l` → ≥ 2 | Convert single-stage Dockerfile to multi-stage |
+| **[S3]** | Non-root user configured in every container; `allowPrivilegeEscalation: false` | `grep -rn "USER" Dockerfile \| wc -l` → ≥ 1 AND `grep -rn "allowPrivilegeEscalation:\s*false" k8s/ \| wc -l` → ≥ 1 | Add `USER 1000:1000` + `allowPrivilegeEscalation: false` |
+| **[S4]** | Resource requests and limits set for every container in every namespace | `kubectl get pods -A -o json \| jq '[.items[].spec.containers[] | select(.resources.requests == null or .resources.limits == null)] | length'` → 0 | Add `resources.requests` and `resources.limits` via VPA recommender |
+| **[S5]** | Liveness and readiness probes configured with appropriate initial delays | `kubectl get deployments -A -o json \| jq '[.items[] | select(.spec.template.spec.containers[].livenessProbe == null or .spec.template.spec.containers[].readinessProbe == null)] | length'` → 0 | Add `/healthz` liveness and `/ready` readiness probes |
+| **[S6]** | PodDisruptionBudget defined for all deployments with replicas > 1 | `kubectl get pdb -A \| wc -l` → ≥ number of deployments with replicas > 1 | Add PDB: `minAvailable: 1` or `maxUnavailable: 25%` |
+| **[S7]** | NetworkPolicy denies all by default; explicit allow rules for required flows | `kubectl get networkpolicies -A \| wc -l` → ≥ 1 per namespace | Add deny-all NetworkPolicy + explicit allow rules per service |
+| **[S8]** | PodSecurityStandard enforced at `restricted` level cluster-wide | `kubectl get pods -A -o json \| jq '[.items[].spec.containers[] | select(.securityContext.allowPrivilegeEscalation != false)] | length'` → 0 | Apply `PodSecurity` admission label: `pod-security.kubernetes.io/enforce: restricted` |
+| **[S9]** | Image vulnerability scanning in CI pipeline; HIGH/CRITICAL CVEs block deployment | `grep -rn "trivy\|snyk\|grype" .github/workflows/ \| wc -l` → ≥ 1 | Add `aquasecurity/trivy-action` with `--severity HIGH,CRITICAL` |
+| **[S10]** | Helm charts versioned, linted, and tested before release | `grep -rn "helm lint\|helm unittest\|helm test" .github/workflows/ \| wc -l` → ≥ 2 | Add `helm lint` + `helm unittest` to CI pipeline |
+| **[S11]** | cert-manager and external-dns configured for automated TLS and DNS | `kubectl get pods -n cert-manager \| wc -l` → ≥ 1 AND `kubectl get pods -n external-dns \| wc -l` → ≥ 1 | `helm install cert-manager jetstack/cert-manager` + `helm install external-dns` |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production containers and Kubernetes -->

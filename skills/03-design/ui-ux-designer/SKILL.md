@@ -32,31 +32,49 @@ output:
 Define, govern, and deliver a cohesive design language that scales across products. Bridge the gap between visual design and production code through rigorous component specifications, design tokens, and structured developer handoff.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("design-tokens.json", "color")` AND `file_contains("design-tokens.json", "spacing")` | Design tokens exist. Jump to **Production Checklist**. |
+| A2 | `file_exists("*.figma")` AND `file_contains("*.figma", "@Component")` | Figma component file detected. Jump to **Core Workflow → Phase 2**. |
+| A3 | `file_exists("storybook/")` OR `file_contains("package.json", "@storybook")` | Storybook detected. Jump to **Core Workflow → Phase 5 (Developer Handoff)**. |
+| A4 | `file_contains("*.css", "@media")` AND NOT `file_contains("*.css", "@container")` | Media queries exist but no container queries. Jump to **Core Workflow → Phase 3 (Responsive Layout)**. |
+| A5 | `file_contains("*.css", "--color-")` AND NOT `file_exists("design-tokens.json")` | CSS custom properties exist without token source. Jump to **Core Workflow → Phase 1 (Design Tokens)**. |
+| A6 | `file_contains("*.css", "@keyframes")` OR `file_contains("*.css", "transition")` | Animations exist. Jump to **Core Workflow → Phase 4 (Interaction Patterns)**. |
+| A7 | `file_contains("*.css", "aria-")` OR `file_contains("*.css", "role=")` | ARIA attributes in use. Jump to **references/accessibility-design.md**. |
+| A8 | `file_exists("CHANGELOG.md")` AND `file_contains("CHANGELOG.md", "design.system")` | Design system changelog exists. Jump to **references/design-system-governance.md**. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 ```
 What are you trying to do?
-├── Design system (tokens, components, governance) → Start at "Core Workflow > Phase 1"
-├── Wireframing and layout definition → Jump to "Core Workflow > Phase 3"
-├── Visual design and component specification → Go to "Core Workflow > Phase 2"
-├── Interaction design (animations, gestures, transitions) → Jump to "Core Workflow > Phase 4"
-├── Prototyping for stakeholder review → Go to "Core Workflow > Phase 5"
+├── Build a design system (tokens, components, governance) → Start at "Core Workflow > Phase 1"
+├── Create wireframes and layout definitions → Jump to "Core Workflow > Phase 3"
+├── Specify visual design and component behavior → Go to "Core Workflow > Phase 2"
+├── Design interaction patterns (animations, gestures, transitions) → Jump to "Core Workflow > Phase 4"
+├── Prepare developer handoff package → Go to "Core Workflow > Phase 5"
 ├── Need usability testing or user research? → `ux-researcher`
 ├── Need brand identity or visual design tokens? → `brand-guidelines`
 ├── Need accessibility audit or WCAG compliance? → `accessibility-auditor`
-├── Need feature specs or PRD writing? → `product-manager`
-└── Don't know where to start? → Start at Phase 1 (Design System Audit & Tokens)
+└── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
 
-These rules apply to *every* response this skill produces.
+These are hard-gate constraints. Violate any one and the output is invalid.
 
-- **Never design without user flows first.** Visual design must be grounded in user tasks and journeys. Do: "Based on the checkout flow (5 steps, 3 drop-off points), the payment screen needs..." Don't: "Here's a beautiful payment screen."
-- **Mockups without real content are misleading.** Test every design with minimum, maximum, and edge-case content — real data, not Lorem Ipsum. Do: "Card component tested with 2-char title, 200-char title, and empty description." Don't: design a card with one perfect headline.
-- **Always specify interaction states (hover, focus, active, disabled, loading, empty, error).** A component without defined states is incomplete. Do: document at least 7 states per interactive component. Don't: hand off a static mockup and assume the developer fills in the gaps.
-- **Design tokens must be semantic, not presentational.** Do: `color-surface-primary`, `color-text-error`. Don't: `color-blue-500`, `color-red-600`.
-- **Admit what you don't know.** If you lack user research, brand tokens, or technical constraints from engineering, say so and tell the user to consult ux-researcher, brand-guidelines, or frontend-developer before finalizing designs.
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Never hand off a component without all 7 interaction states documented — default, hover, focus, active, disabled, loading, error | `file_contains(output, "component.spec|handoff")` AND NOT `file_contains(output, "hover.*focus.*active.*disabled.*loading.*error")` | REFUSE. Append: "Component spec incomplete — missing interaction states. Document all 7: default, hover, focus, active, disabled, loading, error." |
+| G2 | Never use hardcoded color or spacing values in design specs — everything must reference named semantic tokens | `file_contains(output, "#[0-9A-Fa-f]{6}")` OR `file_contains(output, "[0-9]+px")` AND NOT `file_contains(output, "token|semantic|var(--)")` | DETECT. Append: "Hardcoded values detected. Replace `#1A73E8` with `color-primary`, `16px` with `spacing-md` — all values must be semantic tokens." |
+| G3 | Never design responsive layouts at fixed breakpoints only — define behavior at content-breakage points and validate with continuous resize testing | `file_contains(output, "breakpoint")` AND NOT `file_contains(output, "content-break|resize|continuous|320px|4K")` | STOP. Append: "Responsive strategy incomplete. Breakpoints must be content-driven and validated from 320px to 4K." |
+| G4 | Never specify an animation without duration, easing curve, GPU-accelerated property list, and reduced-motion fallback | `file_contains(output, "animate|transition|spring")` AND NOT `file_contains(output, "duration.*ms|ease-out|ease-in|prefers-reduced-motion|transform|opacity")` | REFUSE. Append: "Animation spec incomplete. Every animation must specify: duration (ms), easing, GPU-only properties, and reduced-motion fallback." |
+| G5 | Never ship a component spec that wasn't stress-tested with min/max/zero/error content at all supported breakpoints | `file_contains(output, "component")` AND NOT `file_contains(output, "minimum.content|maximum.content|empty.state|error.state|edge.case")` | STOP. Append: "Component not stress-tested. Test with: 1-char min, 200-char max, zero content, network error, validation error at every breakpoint." |
+| G6 | Never provide a Figma handoff without an engineering walkthrough recorded and annotated with timing, token mappings, and platform-specific notes | `file_contains(output, "handoff")` AND `file_contains(output, "Figma")` AND NOT `file_contains(output, "walkthrough|recorded|token.map|platform")` | DETECT. Append: "Handoff incomplete. Every Figma handoff must include: token JSON export, recorded walkthrough, platform-specific notes, and a feedback channel for spec gaps." |
 
 ## The Expert's Mindset
 
@@ -229,16 +247,16 @@ Minor design drift (spacing off by 2px, wrong shade in one state)
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| Designing components with ideal content — perfect 12-character titles, balanced images, no extremes | Stress-test every component with minimum content (1 character), maximum content (200+ characters), zero content (empty state), and error content (network failure, validation error). Real user data breaks beautiful mockups within the first week of production |
-| Handing off a Figma file with no design tokens, no annotations, and no interaction states — "it's obvious" | Annotate every frame with: spacing tokens, color tokens, typography tokens, breakpoint behavior, and all interaction states (default, hover, focus, active, disabled, loading, error). If the developer has to guess any measurement, state, or behavior, the handoff is incomplete |
-| Designing at 1440px only and calling it "responsive" because "the developer will figure out mobile" | Design mobile-first or design mobile in parallel. Define breakpoints at content-breakage points (not device classes). Test by resizing continuously. A desktop-only design handed to engineering produces a broken mobile experience that takes 2x longer to fix than to design correctly from the start |
-| Building a design system in Figma with no engineering partnership — components look perfect but are impossible to implement | Co-design with engineering: designers own visual specs, engineers own implementation feasibility. Every new component is reviewed by an engineer before it enters the design system. A design system without engineering buy-in is a design portfolio, not a tool |
-| Using hardcoded color values (`#1A73E8`) throughout designs instead of semantic tokens (`color-primary`) | Use semantic design tokens for every color, spacing, and typography value. `#1A73E8` means nothing; `color-primary` means "the primary brand color" and can be updated in one place. Hardcoded values are technical debt that accrues every time the palette changes |
-| Designing dark mode as an afterthought — "we'll just invert the colors later" | Design dark mode tokens in parallel with light mode tokens. Dark mode is not an inversion — shadows become highlights, some colors need elevation adjustments, and the visual hierarchy shifts. Designing dark mode after the fact costs 2x the time of designing both palettes together |
-| Ignoring platform conventions — designing iOS with Material components or forcing identical layouts on iOS and Android | Follow platform conventions: iOS uses bottom tab bars, swipe-back gestures, SF Pro typography; Android uses top navigation bars, back button, Roboto typography. Users don't compare cross-platform screenshots — they compare your app against every other app on their device |
-| Specifying animations with "spring, 0.5s" and no easing curve, no reduced-motion fallback, no performance consideration | Define animation tokens: duration (instant/fast/base/slow in ms), easing (ease-out for enter, ease-in for exit), GPU-accelerated properties only (transform, opacity). Always provide `prefers-reduced-motion: reduce` alternative. Test on a low-end device, not just the designer's workstation |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|----------------------|------------------|
+| Designing components with ideal content — perfect 12-character titles, balanced images, no extremes | Stress-test every component with minimum content (1 character), maximum content (200+ characters), zero content (empty state), and error content (network failure, validation error) | `grep -c "Lorem|Ipsum" **/*.figma` — lorem ipsum in design files | Add visual regression tests with min/max/zero content strings; block PR if component renders differently from spec at any content length |
+| Handing off a Figma file with no design tokens, no annotations, and no interaction states — "it's obvious" | Annotate every frame with: spacing tokens, color tokens, typography tokens, breakpoint behavior, and all interaction states (default, hover, focus, active, disabled, loading, error) | `grep -L "token\|spacing\|color-" figma-handoff/*.md` — handoff docs missing token references | Require handoff checklist template: every frame must have token annotation, state table, and responsive behavior spec before merge |
+| Designing at 1440px only and calling it "responsive" because "the developer will figure out mobile" | Design mobile-first or design mobile in parallel. Define breakpoints at content-breakage points (not device classes). Test by resizing continuously | `grep "1440" figma-frames.json` — designs locked to single breakpoint | Require frames at 320px, 768px, 1024px, 1440px for every screen; block if fewer than 3 breakpoints represented |
+| Building a design system in Figma with no engineering partnership — components look perfect but are impossible to implement | Co-design with engineering: designers own visual specs, engineers own implementation feasibility. Every new component is reviewed by an engineer before it enters the design system | `grep -c "engineer.assignee\|eng.review" design-system-governance.md` — no engineering review process documented | Require at least one engineer approval on every component spec PR before it can be merged into the design system |
+| Using hardcoded color values (`#1A73E8`) throughout designs instead of semantic tokens (`color-primary`) | Use semantic design tokens for every color, spacing, and typography value. `#1A73E8` means nothing; `color-primary` means "the primary brand color" and can be updated in one place | `grep -oP '#[0-9A-Fa-f]{6}' **/*.css \| sort \| uniq -c` — count of hardcoded hex values | Adding stylelint rule `color-no-hex: true` and `declaration-property-value-disallowed-list` for raw px on spacing |
+| Designing dark mode as an afterthought — "we'll just invert the colors later" | Design dark mode tokens in parallel with light mode tokens. Dark mode is not an inversion — shadows become highlights, some colors need elevation adjustments | `grep -c "dark.mode\|dark-theme\|prefers-color-scheme" design-tokens.json` — dark mode token count | Require dark mode token definitions alongside every light mode token; CI diffs light vs dark token counts and fails on mismatch |
+| Ignoring platform conventions — designing iOS with Material components or forcing identical layouts on iOS and Android | Follow platform conventions: iOS uses bottom tab bars, swipe-back gestures, SF Pro typography; Android uses top navigation bars, back button, Roboto typography | `grep -r "identical\|pixel-perfect\|same.on.both" handoff-docs/` — language forcing cross-platform sameness | Platform-specific lint rules: flag iOS patterns in Android APK and vice versa using platform-aware component naming (e.g., `*.ios.tsx` vs `*.android.tsx`) |
+| Specifying animations with "spring, 0.5s" and no easing curve, no reduced-motion fallback, no performance consideration | Define animation tokens: duration (instant/fast/base/slow in ms), easing (ease-out for enter, ease-in for exit), GPU-accelerated properties only (transform, opacity) | `grep "animation\|transition" **/*.css \| grep -v "ease\|cubic-bezier\|linear\|prefers-reduced-motion"` — animation without easing or reduced-motion | CSS lint: every `animation` shorthand must include duration+easing; every animation declaration must be wrapped in `@media (prefers-reduced-motion: no-preference)` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -340,29 +358,32 @@ Common chains:
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Design doesn't match brand | Missing design token reference | Define all colors, spacing, typography as tokens before starting any screen. Style guide → component library. | A design without tokens is a collection of one-offs. Tokens are the contract between brand intent and visual execution — skip them and every pixel is negotiation. |
-| Accessibility gap found in audit | Not tested during design phase | Test with axe-core during design, not after. Color contrast and heading hierarchy are non-negotiable from the start. | Accessibility cannot be added after the fact — it must be designed in. A contrast violation caught in Figma costs seconds; the same fix post-launch costs a sprint. |
-| Dev implementation differs from design | No handoff spec beyond mockups | Annotate every element: breakpoints, hover/focus/active states, animation timing, empty states. Zeplin/Figma Dev Mode. | Every interaction state you don't specify will be invented by the developer. The cost of annotating a hover state is 30 seconds; the cost of rebuilding a component is 3 hours. |
-| Dark mode breaks screens | Only tested in light mode | Design dark mode in parallel. Every screen must support both from day one. | Dark mode is not a color swap — it is a redesign of every surface relationship. If you design light mode first, you will design dark mode twice. |
-| Component doesn't scale to content | Designed with one data example | Test components with minimum, maximum, and empty content. Real user data, not Lorem Ipsum. | Lorem Ipsum hides layout bugs. Test every component with its real content extremes — the shortest string, the longest string, and no string at all. |
-| Platform inconsistency (iOS vs Android) | No platform-specific adaptation | iOS uses tab bar (bottom); Android uses navigation bar (top). Design per platform, not pixel-perfect identical. | Users don't compare screenshots across platforms — they compare your app against every other app on their device. Design for OS conventions, not for a flat-lay hero shot. |
-| Motion causes dizziness | Uncontrolled animation | Respect `prefers-reduced-motion`. Use `motion-safe`/`motion-reduce` for all animations. | Motion is a powerful design tool that can harm users when overused. Every animation should answer: what does this movement communicate? If the answer is "it looks nice," consider removing it. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|-------------------|---------|-----------|-----|----------------------|
+| `Lighthouse: Background and foreground colors do not have a sufficient contrast ratio` or `axe: Elements must meet minimum color contrast ratio thresholds` | Components render with unreadable text — labels invisible on brand backgrounds, disabled states illegible | Design tokens assigned without contrast validation. Semantic token `color-text-on-primary` was never tested against `color-surface-primary` | Run axe-core audit on every token pairing. Add `contrast-safe-*` variants for every surface+text token combination. Ship with a contrast matrix in the handoff package | 1. Extract all surface/text token pairs from token JSON. 2. Compute contrast ratio for each pair. 3. Flag pairs below 4.5:1. 4. Auto-generate lighter/darker token variant. 5. Re-test. Loop until 0 failures |
+| `DOMException: The element has no supported sources` or blank image placeholder in component | Image component renders as broken icon — content-dependent components fail silently | Component spec defined for the happy path (image loads, text fits). No fallback defined for missing image, slow load, or large file | Add `<img onerror>` fallback with brand placeholder. Define `loading="lazy"` with explicit `width`/`height` to prevent CLS. Add skeleton state for slow connections | 1. Identify all image-dependent components in spec. 2. For each: add error fallback, skeleton/loading state, and CLS-prevention dimensions. 3. Test with Network throttled to Slow 3G. Loop until no broken-image states |
+| `CSS: Layout shift — CLS 0.25` in Lighthouse | Page jumps during load — ad banners push content down, fonts swap mid-read, images load without reserved space | Component dimensions not defined in the spec. Dynamic content loads without explicit width/height, causing reflow. Font swap without `size-adjust` | Reserve space for every dynamic element: `aspect-ratio` for images, `min-height` for async content, `size-adjust` in `@font-face` | 1. Run Lighthouse with `--form-factor mobile`. 2. For each CLS source: add explicit dimensions or `aspect-ratio`. 3. Re-run. Loop until CLS < 0.1 on mobile |
+| `focus-visible` outline is missing or `:focus { outline: none }` without replacement | Keyboard users cannot see which element is focused — tabbing through the page shows no visual indicator | Designer removed focus ring as "ugly" without providing an alternative. `outline: none` applied globally in CSS reset with no replacement | Replace `outline: none` with `outline: 2px solid var(--color-focus-ring)` and `outline-offset: 2px`. Never remove focus indicators — style them to match the brand | 1. Scan CSS for `outline: none` or `outline: 0`. 2. Cross-reference with `:focus-visible` selectors. 3. If `outline: none` exists without a custom focus style: add branded focus ring. 4. Test tab order. Loop until all focusable elements have visible indicator |
+| `Warning: component X expects prop Y but received undefined` (React/Vue/Angular console) | Component renders in broken default state — blank button text, 0px width containers, unstyled elements | Developer handoff didn't include required props and their defaults. Engineer guessed prop types and missed required values | Every component spec must include a prop table: name, type, required, default, and valid values. Add PropTypes/TypeScript interfaces in the handoff package | 1. Extract all component prop usage from codebase. 2. Diff against spec prop table. 3. For each mismatched or missing prop: add to spec or fix code. 4. Add runtime prop validation. Loop until 0 console warnings |
+| `pointer-events: none` on disabled button but visually identical to enabled | Users click disabled buttons repeatedly — no visual difference between enabled and disabled state, causing frustration | Component spec defined `disabled` as a prop but didn't specify visual treatment. Engineer applied `opacity: 0.4` which looks identical to enabled on certain backgrounds | Define disabled state visually: reduced opacity (0.4), no shadow, cursor `not-allowed`, and `pointer-events: none`. Add a visual regression test for each variant × state | 1. Run visual diff between enabled and disabled states for every component variant. 2. If any pair is indistinguishable: increase contrast delta (opacity, color shift, shadow removal). 3. Re-diff. Loop until all enabled/disabled pairs are visually distinct at 100% zoom |
+| `touch-action: manipulation` missing on interactive elements — 300ms tap delay on mobile | Buttons feel sluggish on mobile — 300ms delay between tap and response makes the app feel broken | Mobile viewport meta tag present but individual interactive elements lack `touch-action: manipulation`. Default browser behavior adds delay for double-tap zoom detection | Add `touch-action: manipulation` to all interactive elements (buttons, links, form controls). Test on real mobile device, not emulator | 1. Scan CSS for interactive selectors (`button, a, input, [role="button"]`). 2. Verify `touch-action: manipulation` present. 3. Add missing declarations. 4. Test on physical device. Loop until taps feel instant |
 
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Design tokens defined across colors, typography, spacing, elevation, border-radius, and motion
-- [ ] **[S2]**  Token JSON exported and validated against a schema
-- [ ] **[S3]**  Component specs cover all states: default, hover, focus, active, disabled, loading, error
-- [ ] **[S4]**  Each component documented with ARIA roles, states, and keyboard interaction model
-- [ ] **[S5]**  Responsive behavior specified for every layout region at every breakpoint
-- [ ] **[S6]**  Interaction patterns documented with duration, easing, and reduced-motion fallback
-- [ ] **[S7]**  Developer handoff package includes token JSON, component API docs, icons, and changelog
-- [ ] **[S8]**  Handoff walkthrough conducted and recorded
-- [ ] **[S9]**  Feedback loop established — developers know how to flag spec gaps
-- [ ] **[S10]**  Design system changelog published and migration guide updated for any breaking changes
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Design tokens defined across colors, typography, spacing, elevation, border-radius, and motion — all using semantic naming | `cat design-tokens.json \| jq -e '.color and .typography and .spacing and .elevation and .motion'` | Generate missing token categories from primitive palette using default scale presets |
+| S2 | Token JSON exported and validated against a JSON Schema that enforces `$type`, `$value`, and `$description` per token | `npx ajv validate -s token-schema.json -d design-tokens.json` | Auto-add missing `$description` and `$type` fields from token name inference rules |
+| S3 | Component specs cover all states: default, hover, focus, active, disabled, loading, empty, error, and overflow — with visual diff proof | `grep -c "default\|hover\|focus\|active\|disabled\|loading\|empty\|error\|overflow" component-specs/*.md \| awk -F: '{if ($2<9) exit 1}'` | Generate missing state placeholders from component state matrix template; flag for manual completion |
+| S4 | Each component documented with ARIA roles, states, keyboard interaction model, and focus management strategy | `grep -L "aria-\|role=\|keyboard\|focus" component-specs/*.md \| wc -l \| awk '{if ($1>0) exit 1}'` | Run `eslint-plugin-jsx-a11y` to detect missing ARIA; auto-suggest roles from component semantics |
+| S5 | Responsive behavior specified for every layout region at every breakpoint — with frames captured at 320px, 768px, 1024px, 1440px | `find frames/ -name "*.png" -o -name "*.svg" \| grep -c "320\|768\|1024\|1440" \| awk '{if ($1<4) exit 1}'` | Auto-generate scaled screenshots at missing breakpoints using Puppeteer viewport emulation |
+| S6 | Interaction patterns documented with duration tokens (ms), easing curves, GPU-accelerated properties only, and reduced-motion mapping to 0ms | `grep -c "duration\|easing\|transform\|opacity\|prefers-reduced-motion" interaction-patterns.md` | Add default easing curves and reduced-motion mappings to animation tokens in token JSON |
+| S7 | Developer handoff package includes: token JSON, component API docs with PropTypes/TypeScript, icon SVG sprite, and changelog | `ls handoff/ \| grep -c "tokens.json\|api-docs.md\|icons.svg\|CHANGELOG.md" \| awk '{if ($1<4) exit 1}'` | Auto-generate missing handoff artifacts from component specs and token files |
+| S8 | Handoff walkthrough conducted, recorded, and timestamped — covering token mapping, state behavior, responsive breakpoints, and platform notes | `grep -c "walkthrough\|recording\|timestamp" handoff-log.md` | N/A — requires human-led walkthrough with developer Q&A |
+| S9 | Feedback loop established — developers have a documented channel (Slack, GitHub Issues, Linear) to flag spec gaps with SLA response time | `grep -c "feedback\|SLA\|response.time\|spec.gap" design-system-governance.md` | Auto-create a "spec-gap" issue template in the design system repo with priority triage labels |
+| S10 | Design system changelog published with migration guide and automated codemod for any breaking API changes | `grep -c "BREAKING\|migration\|codemod\|upgrade.guide" CHANGELOG.md` | N/A — migration guides require manual write-up; codemod can be auto-generated from API diff |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production design systems -->

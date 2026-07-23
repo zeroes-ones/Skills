@@ -29,32 +29,48 @@ output:
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 
 ## Route the Request
-<!-- QUICK: 30s -- pick your path, skip the rest -->
+
+### Auto-Route (No User Input Required)
+Evaluate these file-system conditions in order. First match wins — jump immediately.
+
+| # | Condition | Action |
+|---|-----------|--------|
+| A1 | `file_contains("design-tokens.json", "brand")` OR `file_contains("tokens.json", "color")` | Brand tokens exist. Jump to **Production Checklist**. |
+| A2 | `file_exists("*.figma")` AND `file_contains("*.figma", "logo")` | Figma brand file detected. Jump to **Core Workflow**. |
+| A3 | `file_contains("*.css", "@font-face")` OR `file_exists("fonts/")` | Custom typography detected. Jump to **references/brand-guidelines.md → Typography**. |
+| A4 | `file_contains("tailwind.config.*", "colors")` OR `file_contains("*.css", "--color-brand")` | Color tokens in code. Jump to **references/brand-guidelines.md → Color Palette**. |
+| A5 | `file_exists("logo.svg")` OR `file_exists("logo.png")` | Logo assets exist. Jump to **references/brand-guidelines.md → Logo System**. |
+| A6 | `file_contains("*.css", "@media.*prefers-reduced-motion")` OR `file_contains("*.css", "@keyframes")` | Motion already defined. Jump to **references/brand-guidelines.md → Motion Design**. |
+| A7 | `file_contains("*.md", "brand.architecture")` OR `file_contains("*.md", "branded.house|house.of.brands")` | Brand architecture doc exists. Jump to **Decision Trees → Brand Architecture Model**. |
+| A8 | `file_exists("icons/")` AND `file_exists("*.svg")` | Icon set detected. Jump to **references/brand-guidelines.md → Iconography**. |
+
+### Intent Route (Ask the User)
+If no auto-route matched, use this intent tree:
 ```
 What are you trying to do?
-├── Brand architecture (house of brands, branded house, endorsed) → Start at "Decision Trees > Brand Architecture Model"
-├── Identity system design (logo, color, typography) → Jump to "references/brand-guidelines.md"
-├── Color palette with accessibility validation → Go to "references/brand-guidelines.md"
-├── Typography hierarchy and fallback stacks → Jump to "references/brand-guidelines.md"
-├── Iconography and imagery standards → Go to "references/brand-guidelines.md"
-├── Brand governance and asset management → Jump to "references/brand-guidelines.md"
+├── Brand architecture (house of brands, branded house, endorsed, hybrid) → Start at "Decision Trees > Brand Architecture Model"
+├── Create a complete identity system (logo, color, typography, icons, motion) → Jump to "Core Workflow"
+├── Audit an existing brand for consistency gaps → Jump to "What Good Looks Like"
+├── Build a brand governance process with violation tiers → Jump to "references/brand-guidelines.md → Brand Governance"
 ├── Need product-market positioning or competitive landscape? → `product-strategist`
 ├── Need design system tokens or component library? → `ui-ux-designer`
-├── Need marketing campaign assets or demand generation? → `marketing-manager`
-├── Need color contrast or typography accessibility validation? → `accessibility-auditor`
-└── Don't know where to start? → Start at Brand Architecture to determine your model, then build from there
+├── Need accessibility validation of brand colors or typography? → `accessibility-auditor`
+└── Not sure? → Describe the problem in plain language and I'll route you
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
 
-These rules apply to *every* response this skill produces.
+These are hard-gate constraints. Violate any one and the output is invalid.
 
-- **Never create brand assets without context (audience, market, competitors).** Brand identity must be grounded in strategy. Do: "Based on your target audience (SMB founders, price-sensitive) and competitors (Stripe, Paddle), we recommend a warm, approachable palette." Don't: "Here's a blue logo — blue means trust."
-- **Colors must pass WCAG contrast ratios.** Every color combination in the palette must be validated. Do: "Primary blue #2563EB on white passes AA (4.63:1); on gray-50 it fails (3.12:1) — use the dark variant instead." Don't: assign brand colors without contrast validation.
-- **Typography must specify fallback stacks.** Every font selection must include a complete fallback stack with similar x-height and width metrics. Do: "Display: 'Satoshi', 'Inter', system-ui, sans-serif." Don't: "Font: Satoshi."
-- **Always define brand-in-product, not just brand-in-marketing.** The brand system must include UI component theming guidance — how the brand expresses itself in buttons, forms, navigation, and states.
-- **Admit what you don't know.** If you lack audience research, competitive analysis, or market positioning data, say so and tell the user to consult product-strategist or ux-researcher before creating assets.
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Never generate a brand color without WCAG 2.2 AA contrast validation against both white (#FFFFFF) and the darkest brand background | `file_contains(output, "#[0-9A-Fa-f]{6}")` AND NOT `file_contains(output, "contrast.ratio|WCAG|AA|AAA")` | REFUSE. Append: "This palette has not been validated for accessibility. Run contrast checks before use." |
+| G2 | Never deliver a logo system that lacks responsive variants — primary, stacked, icon-only (32px), and favicon (16px) all required | `file_contains(output, "logo")` AND NOT `file_contains(output, "icon-only|favicon|responsive.variant")` | STOP. Append: "Logo system incomplete — add icon-only (32px) and favicon (16px) variants with minimum size and clear space rules." |
+| G3 | Never specify typography without a complete fallback stack including generic family | `file_contains(output, "font-family")` AND NOT `file_contains(output, "sans-serif|serif|monospace|system-ui")` | DETECT. Append: "Font stack missing fallback. Every font-family declaration must end with a generic family." |
+| G4 | Never define motion tokens that ignore `prefers-reduced-motion` — every duration must have a zero-motion mapped alternative | `file_contains(output, "animation-duration|transition-duration")` AND NOT `file_contains(output, "prefers-reduced-motion|reduced-motion")` | REFUSE. Append: "Motion tokens must map to 0ms when prefers-reduced-motion is active. Add reduced-motion fallback." |
+| G5 | Never output brand guidelines without semantic token naming — no raw hex or pixel values in guidelines meant for code consumption | `file_contains(output, "guidelines")` AND `file_contains(output, "#[0-9A-Fa-f]{6}|[0-9]+px")` AND NOT `file_contains(output, "token|semantic|primitive")` | DETECT. Append: "Brand values must reference named tokens (e.g., 'color-brand-primary'), not raw hex or pixel values. Convert to semantic tokens." |
+| G6 | Never recommend a brand decision without citing at least one of: audience research, competitive positioning, or accessibility requirement | `file_contains(output, "recommend|should use|best practice")` AND NOT `file_contains(output, "audience|competitive|WCAG|AA|research|target user")` | STOP. Append: "Brand recommendation lacks grounding. Cite audience data, competitive context, or accessibility requirement." |
 
 ## The Expert's Mindset
 
@@ -845,16 +861,15 @@ Minor brand drift (wrong shade, inconsistent spacing, outdated logo in one locat
 
 ## Anti-Patterns
 
-| ❌ Anti-Pattern | ✅ Do This Instead |
-|-----------------|---------------------|
-| Defining brand colors in Figma only — no design tokens file, no CSS custom properties, no code integration | Generate a design tokens JSON file as the single source of truth. Consume tokens in Figma (via Tokens Studio), code (via Style Dictionary → CSS custom properties/Swift/Kotlin), and documentation (auto-generated token reference). One token change propagates everywhere |
-| Creating a beautiful 100-page brand guidelines PDF that nobody reads because it's buried in a shared drive | Build a self-serve brand portal (Figma library + token reference + asset CDN + do/don't examples). Teams should find the right logo, color, or font in under 30 seconds without opening Slack. If the brand portal requires a password someone forgot, it doesn't exist |
-| Launching a logo that only works at 200px — no favicon variant, no icon-only mark, no responsive sizes | Design the complete logo system before launch: primary (horizontal + stacked), icon-only (32px mark), favicon (16px), responsive variants per breakpoint. Define minimum sizes, clear-space rules, and exclusion zones for every variant |
-| Brand governance as a bottleneck — every asset needs brand team approval before publication | Build self-serve templates with locked brand elements. Marketers, developers, and partners use templates where they can't change the logo, colors, or fonts. Brand review is reserved for net-new asset types, not every social media post |
-| Color palette looks beautiful on white but fails WCAG AA contrast on brand backgrounds and in dark mode | Validate every text-on-background combination in the brand palette against WCAG 2.2 AA (4.5:1 normal text, 3:1 large text). Design accessible variants of brand colors. Dark mode palette designed in parallel, not retrofitted. If the brand can't be accessible, the palette is wrong |
-| "Better UX" used as justification for brand decisions with no user evidence | Base brand decisions on audience research: "Our target users value clarity over cleverness" or "A/B testing showed the simpler logo variant had 23% higher brand recall." Brand is a user experience — validate brand decisions with the same rigor as product decisions |
-| Motion guidelines specify "delightful animations" with no timing, no easing, no reduced-motion respect | Define motion tokens: duration scale (100ms instant, 200ms fast, 300ms base, 500ms slow), easing curves (ease-out for enter, ease-in for exit), and mandatory `prefers-reduced-motion` fallback. "Delightful" is not a spec — it's a wish |
-| Typography scale chosen for aesthetics without testing at real content extremes — looks perfect with 3-word titles, breaks with 15-word titles | Stress-test typography with minimum content (1 word), maximum content (200+ characters), and zero content at every breakpoint (320px–4K). If the type scale breaks with real-world content lengths, it's not production-ready |
+| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
+|-----------------|---------------------|----------------------|------------------|
+| Defining brand colors in Figma only — no design tokens file, no CSS custom properties, no code integration | Generate a design tokens JSON file as the single source of truth. Consume tokens in Figma (via Tokens Studio), code (via Style Dictionary → CSS custom properties/Swift/Kotlin), and documentation | `grep -L "design-tokens|tokens.json" **/*.figma` — no token file alongside Figma | Add CI rule: block PR if `.figma` file exists without adjacent `tokens.json` in same directory |
+| Creating a beautiful 100-page brand guidelines PDF that nobody reads because it's buried in a shared drive | Build a self-serve brand portal (Figma library + token reference + asset CDN + do/don't examples). Teams should find the right logo, color, or font in under 30 seconds | `grep -c "password|login|request access" brand-portal.md` — barriers to self-serve | Scan brand portal for login walls; flag any asset requiring authentication beyond SSO |
+| Launching a logo that only works at 200px — no favicon variant, no icon-only mark, no responsive sizes | Design the complete logo system before launch: primary (horizontal + stacked), icon-only (32px mark), favicon (16px), responsive variants per breakpoint | `find . -name "logo*" \| wc -l` — fewer than 4 variants is a red flag | Require minimum 4 logo variants (primary, stacked, icon-only, favicon) before logo assets can be committed |
+| Brand governance as a bottleneck — every asset needs brand team approval before publication | Build self-serve templates with locked brand elements. Brand review reserved for net-new asset types, not every social media post | `grep -r "brand review required|brand approval"` — count of approval gates in workflow docs | Auto-approve template-based assets; only route net-new asset types to manual review queue |
+| Color palette looks beautiful on white but fails WCAG AA contrast on brand backgrounds and in dark mode | Validate every text-on-background combination against WCAG 2.2 AA (4.5:1 normal, 3:1 large). Design dark mode palette in parallel, not retrofitted | `grep -v "contrast|WCAG|AA" design-tokens.json` — tokens file with no contrast annotations | Pre-commit hook: run axe-core on brand color swatches; block commit if any pair fails AA |
+| Typography scale chosen for aesthetics without stress-testing at real content extremes | Stress-test typography with minimum content (1 word), maximum content (200+ characters), and zero content at every breakpoint (320px–4K) | `grep "font-size" **/*.css \| sort \| uniq` — fewer than 5 distinct sizes suggests untested scale | Require visual regression snapshots at 320px, 768px, 1440px with min/max/zero content strings for every type style |
+| Motion guidelines specify "delightful animations" with no timing, no easing, no reduced-motion respect | Define motion tokens: duration scale (100ms instant, 200ms fast, 300ms base, 500ms slow), easing curves (ease-out for enter, ease-in for exit), mandatory `prefers-reduced-motion` fallback | `grep "animation|transition" **/*.css \| grep -v "prefers-reduced-motion|ease|duration"` — animation without tokens | CSS lint rule: every `animation-duration` and `transition-duration` must be wrapped in `@media (prefers-reduced-motion: no-preference)` |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 
@@ -957,29 +972,32 @@ Common chains:
 ## Error Decoder
 <!-- DEEP: 10+min -->
 
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Design doesn't match brand | Missing design token reference | Define all colors, spacing, typography as tokens before starting any screen. Style guide → component library. | Brand drift happens one pixel at a time. Design tokens are the single source of truth — without them, every new screen is an opportunity for inconsistency. |
-| Accessibility gap found in audit | Not tested during design phase | Test with axe-core during design, not after. Color contrast and heading hierarchy are non-negotiable from the start. | Brand guidelines that ignore accessibility exclude users. Contrast ratios and reading order are brand requirements, not technical constraints — bake them into your design system from day one. |
-| Dev implementation differs from design | No handoff spec beyond mockups | Annotate every element: breakpoints, hover/focus/active states, animation timing, empty states. Zeplin/Figma Dev Mode. | A beautiful mockup with no annotations is a Rorschach test — every developer sees something different. The gap between design and code is proportional to the ambiguity in the handoff. |
-| Dark mode breaks screens | Only tested in light mode | Design dark mode in parallel. Every screen must support both from day one. | Dark mode is not an afterthought — it is a second color system. Brands that design dark mode retroactively ship inconsistent, inaccessible experiences. Plan both palettes in your token architecture. |
-| Component doesn't scale to content | Designed with one data example | Test components with minimum, maximum, and empty content. Real user data, not Lorem Ipsum. | One-data-example designs work exactly once. Test with content extremes — the shortest username, the longest product name, zero results — to build components that survive real-world data. |
-| Platform inconsistency (iOS vs Android) | No platform-specific adaptation | iOS uses tab bar (bottom); Android uses navigation bar (top). Design per platform, not pixel-perfect identical. | Brand consistency does not mean pixel-perfect replication across platforms. Users expect native patterns — fighting platform conventions creates confusion, not brand cohesion. |
-| Motion causes dizziness | Uncontrolled animation | Respect `prefers-reduced-motion`. Use `motion-safe`/`motion-reduce` for all animations. | Animation is a brand expression that can literally make users sick. Every motion in your brand system should pass the test: does it communicate meaning, or just look busy? Respect the user's motion preferences. |
+| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
+|-------------------|---------|-----------|-----|----------------------|
+| `aXe: color-contrast` or `Lighthouse: Background and foreground colors do not have a sufficient contrast ratio` | Brand elements invisible or illegible on specific backgrounds — text disappears on brand-colored surfaces | Design tokens assigned without contrast validation. Brand color used as background behind text without checking contrast ratio | Map every color token to a list of "safe-on" backgrounds. Replace hardcoded pairings with `color-on-primary`, `color-on-surface` semantic tokens that guarantee AA contrast | 1. Run `axe-core --rules color-contrast` on rendered brand surfaces. 2. For each violation: auto-generate a lighter/darker variant of the background token that passes AA. 3. Replace the offending pair. 4. Re-run audit. Loop until 0 violations |
+| `Warning: Font "Satoshi" not found. Falling back to serif.` | Type renders in unexpected serif font across production — brand identity broken system-wide | Font declared in CSS without `@font-face` rule or CDN import. No fallback stack defined, so browser defaults to Times New Roman | Add `@font-face` with `font-display: swap` and complete fallback stack: `font-family: 'Satoshi', 'Inter', system-ui, -apple-system, sans-serif` | 1. Scan CSS for every `font-family` declaration. 2. Verify each named font has a corresponding `@font-face` or `<link>` import. 3. Append `system-ui, sans-serif` as terminal fallback. 4. Run visual regression; fail if rendered text differs from design spec |
+| `Layout shift: CLS 0.31` (Google Lighthouse) | Page content jumps as custom fonts load — logo jumps, headings resize mid-read | Web fonts loading without `font-display: swap` or with mismatched fallback metrics. FOUT/FOIT causes cumulative layout shift | Set `font-display: swap` on all `@font-face` rules. Match fallback font metrics (x-height, ascent, descent) to web font using `size-adjust` or `ascent-override` | 1. Run Lighthouse CLS audit. 2. For each layout shift traced to font swap: add `size-adjust` to `@font-face` matching fallback metrics. 3. Re-run CLS audit. 4. Loop until CLS < 0.1 |
+| `SVG logo renders as blank box at 16px` | Favicon is an illegible blob or renders as empty space in browser tabs | Logo designed at 200px+ with fine detail that collapses at small sizes. No simplified mark variant exists for favicon dimensions | Design icon-only logo variant specifically at 16px, 32px grid. Test at 1x, 2x, 3x DPR. Export as optimized SVG with viewBox matching aspect ratio | 1. Render logo at 16px, 32px, 48px in browser DevTools responsive mode. 2. If any variant is unrecognizable: simplify — remove text, reduce detail, thicken strokes. 3. Re-test at all sizes. 4. Generate `<link rel="icon">` with all sizes |
+| `CSS: --color-brand-500 is not defined` (browser console) | Components render without brand color — falls back to browser default (blue links, gray buttons) | Design token name mismatch between Figma export and CSS custom property namespace. Tokens renamed in one system but not the other | Align token names across systems. Run a token sync script that validates every token referenced in CSS exists in `design-tokens.json` | 1. Extract all `var(--*)` references from CSS. 2. Extract all token names from `design-tokens.json`. 3. Diff the two sets. 4. For each missing token: either add to tokens file or update CSS reference. 5. Re-run diff. Loop until 0 mismatches |
+| `prefers-reduced-motion: reduce` is active but animations fire at full speed | Users with motion sensitivity experience dizziness from brand animations that ignore their OS-level preference | Motion tokens exported as static numeric values (e.g., `duration-base: 400ms`) with no conditional logic. `prefers-reduced-motion` documented in prose but not enforced in token pipeline | Export motion tokens as conditional: `duration-base: prefers-reduced-motion ? 0ms : 400ms`. Add CI lint that scans compiled CSS for bare `animation-duration` not wrapped in reduced-motion query | 1. Scan all CSS files for `animation-duration` and `transition-duration`. 2. Flag any not inside `@media (prefers-reduced-motion: no-preference)`. 3. Auto-wrap flagged declarations. 4. Verify with axe-core `prefers-reduced-motion` rule. Loop until 0 violations |
+| `Mixed Content: The page at 'https://...' was loaded over HTTPS, but requested an insecure image` | Logo and brand assets load over HTTP on HTTPS pages — browser blocks them, showing broken image icons | Asset CDN serving brand files over HTTP. Hardcoded `http://` URLs in email templates, third-party embeds, or legacy CMS | Migrate all brand asset URLs to protocol-relative (`//`) or HTTPS. Add CSP header: `Content-Security-Policy: upgrade-insecure-requests` | 1. `grep -r "http://"` across all templates, CSS, and config files for brand asset URLs. 2. Replace with `https://` or protocol-relative URLs. 3. Add CSP upgrade-insecure-requests header. 4. Audit with `Lighthouse > Best Practices > Uses HTTPS`. Loop until 0 mixed content warnings |
 
 
 ## Production Checklist
 <!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-- [ ] **[S1]**  Brand architecture model documented (Branded House / House of Brands / Endorsed / Hybrid)
-- [ ] **[S2]**  Logo system: primary, stacked, icon-only, wordmark, responsive variants all provided in SVG and PNG
-- [ ] **[S3]**  Clear space rule defined (equal to icon height) and enforced with visual diagrams
-- [ ] **[S4]**  Color palette with semantic tokens documented: primary, secondary, accent, neutral, semantic, dark mode
-- [ ] **[S5]**  All text-on-background color combinations validated for WCAG 2.2 AA (4.5:1 normal, 3:1 large text)
-- [ ] **[S6]**  Typography hierarchy: display, h1-h4, body-lg/body/body-sm, caption, overline — with sizes, weights, and usage rules
-- [ ] **[S7]**  Icon set consistent in style, stroke weight, corner radius, and grid alignment (24×24 base)
-- [ ] **[S8]**  Imagery/illustration direction documented with style keywords and composition rules
-- [ ] **[S9]**  Motion tokens defined: durations (instant/fast/base/slow), easings (default/enter/exit), reduced-motion respect
-- [ ] **[S10]**  Brand governance: review process, violation tiers, asset distribution portal, versioned guidelines
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|--------------------|----------|
+| S1 | Brand architecture model documented (Branded House / House of Brands / Endorsed / Hybrid) | `grep -l "brand.architecture|branded.house|house.of.brands|endorsed|hybrid" *.md` | N/A — architectural decision requires human judgment |
+| S2 | Logo system: primary, stacked, icon-only, wordmark, responsive variants all provided in SVG and PNG at 1x/2x/3x | `find . -name "logo*" \( -name "*.svg" -o -name "*.png" \) \| wc -l \| awk '{if ($1<8) exit 1}'` | Generate missing variants from primary using ImageMagick resize pipeline |
+| S3 | Clear space rule defined (equal to icon height) and enforced with visual exclusion zone diagrams | `grep -c "clear.space|exclusion.zone|minimum.size" brand-guidelines.md` | N/A — requires visual diagram generation |
+| S4 | Color palette with semantic tokens: primary, secondary, accent, neutral, semantic, dark mode — all exported as JSON | `cat design-tokens.json \| jq '.color \| keys' \| grep -c "primary|secondary|accent|neutral|semantic|dark"` | Generate missing semantic token groups from primitive palette using color mapping rules |
+| S5 | All text-on-background color combinations validated for WCAG 2.2 AA (4.5:1 normal, 3:1 large text) | `npx axe-cli --rules color-contrast brand-swatches.html --exit` | Run `contrast-ratio` CLI on each token pair; generate lighter/darker accessible variant for failures |
+| S6 | Typography hierarchy: display, h1–h4, body-lg/body/body-sm, caption, overline — with sizes, weights, line-heights, and usage rules | `grep -c "font-size|font-weight|line-height" design-tokens.json` | N/A — typographic scale requires design judgment |
+| S7 | Icon set consistent in style, stroke weight (1.5px or 2px), corner radius (2px or 4px), and grid alignment (24×24 base) | `find icons/ -name "*.svg" -exec grep -L "viewBox=\"0 0 24 24\"" {} \; \| wc -l \| awk '{if ($1>0) exit 1}'` | Run SVGO with `--config viewbox-24.json` to standardize viewBox and stroke attributes |
+| S8 | Imagery/illustration direction documented with style keywords, composition rules, and 3+ reference examples | `grep -c "illustration|imagery|photography|composition" brand-guidelines.md` | N/A — art direction requires creative brief |
+| S9 | Motion tokens defined: durations (instant/fast/base/slow in ms), easings (default/enter/exit), reduced-motion mapping to 0ms | `cat design-tokens.json \| jq '.motion \| keys' \| grep -c "duration|easing|reduced-motion"` | Auto-generate reduced-motion token mappings (all durations → 0ms) in tokens output |
+| S10 | Brand governance: review process, violation tiers (1–3), asset distribution portal, versioned guidelines with changelog | `grep -c "governance|violation.tier|review.process|changelog" brand-guidelines.md` | N/A — governance process requires organizational design |
 
 ## Footguns
 <!-- DEEP: 10+min — war stories from production brand systems -->
