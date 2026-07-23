@@ -269,6 +269,19 @@ These rules apply to *every* response this skill produces.
 - Repurpose content based on data, not hunches — only promote pieces that have already validated with the target audience.
 - Use the "skyscraper technique" for competitive topics: find the best existing content, make something 10x better, then promote it.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Building an editorial calendar from keyword targets alone without writer capacity planning | Schedule only what your team can actually produce — one great post beats four rushed posts; map every assignment to a named writer with estimated hours |
+| Publishing all content at top-of-funnel (awareness) with no consideration or decision-stage content | Balance 40% TOFU (traffic), 40% MOFU (nurture), 20% BOFU (convert); every piece needs a conversion goal tied to funnel stage |
+| Letting content accumulate as digital debt — 80% of posts from 2 years ago drive zero traffic but remain published | Quarterly content audit: categorize every post as keep/refresh/consolidate/delete; merge thin posts; 301 redirect consolidated pages |
+| Repurposing content by copy-pasting the same text across platforms without format adaptation | Tailor each format to its platform: blog → Twitter thread (bite-sized takeaways), LinkedIn (professional narrative with opinion), video (visual demo) |
+| Letting multiple writers use their own style with no tone-of-voice guidelines — brand sounds like different companies | Create 1-page tone-of-voice guide: 3 brand voice attributes with do/don't examples; enforce via editorial review checklist; use Vale linter |
+| Publishing content because "we haven't posted this week" without a documented content mission or audience need | Every piece maps to a documented customer journey stage, target keyword cluster, and measurable conversion goal — no content for content's sake |
+| Treating content ROI as "pageviews" without connecting to pipeline or revenue | Track content-sourced and content-influenced pipeline; attribute to revenue, not traffic; multi-touch attribution when possible |
+| Ignoring content that is already performing — always creating new instead of optimizing existing | Before creating new content, refresh top-performing posts with updated data, better depth, more internal links — a refreshed post compounds faster than a new one |
+
 ## Cross-Skill Coordination
 <!-- QUICK: 30s -- table of who to talk to when -->
 Content strategy sits between marketing, product, SEO, and brand. Content produced in silos underperforms; coordination amplifies reach and relevance.
@@ -330,6 +343,19 @@ Content strategy sits between marketing, product, SEO, and brand. Content produc
 - **`devrel-advocate`** — When creating developer tutorials, technical blog posts, or community-facing content
 - **`marketing-manager`** — When aligning content calendar with campaigns, demand gen, or multi-channel distribution
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Content audit reveals > 30% of pages are stale or driving zero traffic | Run refresh/consolidate sprint before creating anything new; merge thin posts into comprehensive resources; 301 redirect | Content debt compounds — old thin pages drag down site authority signal; fix debt before adding more |
+| High-performing pillar post loses > 20% traffic over 90 days | Flag for immediate refresh: update data, add new sections, improve internal links, check for competitor content that surpassed it | A declining pillar is a compounding loss — each month of decline costs more in lost organic traffic than fixing it costs |
+| Competitor publishes definitive content that outranks yours for a core keyword | Analyze competitor piece for depth, freshness, format; plan 10x better version; prioritize over net-new content | Defending existing rankings is cheaper than earning new ones — react within 30 days or cede the position permanently |
+| Keyword cannibalization detected — 2+ pages competing for same term, neither in top 3 | Merge cannibalized pages into one comprehensive resource; 301 redirect weaker pages; update internal links | Cannibalization splits your authority — one strong page beats three weak ones on the same keyword |
+| Content calendar slip > 3 weeks — multiple deadlines missed | Audit root cause: writer capacity, review bottleneck, unclear briefs; reduce calendar to sustainable cadence; add buffer days | A calendar with constant slips is a wish list — cut volume before stakeholders stop trusting publish dates |
+| Attribution gap identified — high-performing content generating leads not tracked in CRM | Implement UTM + CRM tracking; add content attribution to pipeline reporting; close the loop within one month | Content ROI is invisible without attribution — untracked leads are under-reported impact that costs budget justification |
+| Content team blocked by CMS or publishing tooling for > 2 weeks | Escalate to engineering/product; request temporary workaround (e.g., publish to staging URL, use alternative CMS); quantify opportunity cost | Blocked publishing is an operational emergency, not a nice-to-have — each week of delay compounds missed traffic and lead generation |
+| Brand voice inconsistency flagged in public by audience — "did someone else write this?" | Audit recent content for voice alignment; reinforce tone-of-voice guide with editorial team; add Vale linter to CI | Brand voice inconsistency erodes trust faster than grammatical errors — audience notices before internal review does |
+
 ## Scale Depth
 <!-- QUICK: 30s -- find your team size column -->
 ### Solo (1 person, 0-100 users)
@@ -384,7 +410,7 @@ Run skills in the order shown:
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|

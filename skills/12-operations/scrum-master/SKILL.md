@@ -276,6 +276,20 @@ These rules apply to *every* response this skill produces.
 - Daily scrum is team-to-team coordination, not status report to SM/PO.
 - Healthy backlog has top 2-3 sprints refined to task level.
 
+## Anti-Patterns
+<!-- STANDARD: 3min -- common failure modes and their correct alternatives -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| **Scrum Master as team secretary**: Taking meeting notes, updating Jira tickets for developers, sending calendar invites for ceremonies | Coach the team to own their process. Developers update their own tickets. Rotate facilitation duties. The SM's time is for impediment removal and coaching, not administrative tasks |
+| **Velocity as performance metric**: Management uses velocity to compare teams or evaluate individual performance | Velocity is a team-internal planning tool, never a management report card. Report sprint goal achievement and business outcomes to leadership. When velocity becomes a KPI, teams pad estimates and hide capacity |
+| **Daily scrum as status report**: The SM goes around the room asking "what did you do yesterday?" and developers report to the SM, not to each other | Walk the board right-to-left (Done → In Progress → To Do). Team members address each other. The SM speaks only to note impediments. The scrum is a coordination meeting, not a status meeting |
+| **Retrospective action theater**: Every retro produces action items that are documented and promptly forgotten — same complaints surface sprint after sprint | Limit to 1-3 action items per retro with named owners and sprint deadlines. First item of every retro agenda: "Did we complete last sprint's action items?" Track completion rate as a team health metric |
+| **Canceled retrospectives**: "We're too busy to retro this sprint — we'll do a double retro next time" | Never cancel the retro. If time is tight, run a 15-minute focused retro on one theme. The retro is the team's improvement engine — canceling it signals that improvement is optional |
+| **Over-commitment by default**: The team commits to 40 story points every sprint despite delivering 28 on average, because "this sprint will be different" | Use the 3-sprint rolling average velocity as the commitment ceiling. Factor in PTO, on-call, and known interruptions. Under-commit and over-deliver builds trust; over-commit and under-deliver erodes it |
+| **Scrum by the book without context**: Applying every Scrum ceremony and artifact to a 3-person startup team building an MVP | Right-size the framework: 3-person MVP team needs Kanban + weekly retro + async standup. Scrum's value scales with complexity — don't impose ceremony overhead on teams that don't need it |
+| **PO-less team syndrome**: The Product Owner is absent for multiple sprints and the team self-prioritizes from an unrefined backlog | Escalate PO unavailability as a blocking impediment to `engineering-manager` within 1 sprint. Use stakeholder proxies for critical decisions. An absent PO is not a Scrum problem — it's an organizational defect |
+
 ## MVP vs Growth vs Scale
 
 | Phase | Team Size | Priority | Scrum Approach |
@@ -421,6 +435,33 @@ The Scrum Master is a servant-leader who enables the team, removes impediments, 
 | Organizational impediment (procurement, policy, budget) | `cto-advisor` or `vp-engineering` | Authority beyond team level; systemic blocker |
 | Agile transformation resistance from leadership | `agile-coach` (external) + `cto-advisor` | Cultural change requires executive sponsorship |
 
+## Proactive Triggers
+<!-- QUICK: 30s -- trigger-action table for autonomous SM workflow -->
+
+The Scrum Master detects process friction before the team feels it. Every trigger below is tied to an observable metric or behavioral signal with a specific intervention.
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Cycle time p85 exceeds 5 days for 2 consecutive sprints | Pull the Cumulative Flow Diagram; identify the bottleneck column (usually "In Review" or "Blocked"); apply a WIP limit at that column equal to team size ÷ 2 | Cycle time inflation is the earliest signal of process debt — catch it before it becomes missed sprint goals |
+| `engineering-manager` reports that 2+ team members described the same blocker in 1:1s but didn't raise it in standup | Run an anonymous friction survey; use a safety-check retro format (e.g., "If our process were a car, what's making that noise?"); discuss psychological safety patterns with the EM | Blocker silence in standup is a psychological safety signal — the team doesn't trust that raising issues will lead to resolution |
+| Sprint goal missed 3 of last 5 sprints despite team completing 90%+ of committed story points | The team is committing to PBIs, not a sprint goal — refocus planning on crafting a single coherent goal sentence; all PBIs must contribute to that goal; measure goal achievement separately from velocity | Story point completion without goal achievement = busy work. The sprint goal creates coherence and gives the team a shared definition of success |
+| Retro action item completion rate drops below 50% for 2 retros | Reduce to exactly 1 action item for the next sprint; make it visible on the sprint board; assign a pair to own it; celebrate completion loudly | Action item completion is a habit, not a process — rebuild trust in the improvement loop by making it small, visible, and celebrated |
+| 3+ unplanned interrupts per sprint (SEV1 bugs, exec requests, dependency fire drills) for 3 consecutive sprints | Quantify interrupt cost in story points; present a "capacity vs. interrupt" chart to the `product-manager` and `engineering-manager`; propose a slack buffer (20-30% of capacity) or a dedicated interrupt rotation | Chronic interrupt load is an organizational problem, not a team problem — make the cost visible in the only language the business understands: lost delivery capacity |
+| Cross-team dependency blocked >5 days without resolution | Escalate to the owning team's `scrum-master` + `project-manager`; log in shared dependency board; propose a 30-min joint unblocking session with both teams' tech leads | Cross-team dependencies are the #1 cause of sprint goal failure — they decay silently because each team assumes the other is handling it |
+| Team health survey shows 2+ consecutive declining scores on "I feel safe speaking up" or "I would recommend this team" | Schedule a no-agenda team health retro; share trends anonymously; commit to one structural change (not a policy — a behavior change); loop in `engineering-manager` for support resources | Team health is a leading indicator of retention — a 2-sprint decline in psychological safety predicts attrition within 2 quarters |
+
+### Service Interaction: SM → Engineering Manager
+
+The Scrum-Master-to-Engineering-Manager partnership is the team's operating system kernel. The SM owns process health; the EM owns people health. They must share signals bidirectionally.
+
+| Interaction Point | What SM Provides | What EM Needs |
+|-------------------|-----------------|---------------|
+| **Velocity anomaly detection** | Objective sprint data: velocity trend, CFD bottleneck, cycle time p85, escaped defect count | Business context: was velocity down because of a re-org, hiring ramp, or morale issue? |
+| **Team health signal** | Anonymous survey trends, retro participation rate, standup engagement pattern | Individual context from 1:1s (without breaking confidentiality): is the signal team-wide or person-specific? |
+| **Impediment escalation** | Impediment log with business impact quantified (lost story points, delayed features, at-risk sprint goals) | Organizational authority to remove systemic blockers (procurement, cross-team priority conflicts, tooling budget) |
+| **Sprint commitment calibration** | Capacity calculation factoring in PTO, on-call, and historical interrupt rate | Headcount changes, upcoming training, re-org impact — factors the SM can't observe from sprint data |
+| **Continuous improvement tracking** | Retro action item completion rate, process experiment results, agile maturity assessment | Career growth alignment: is the team's process maturity enabling or constraining individual development? |
+
 ## Scale Depth
 
 ### Solo (1 person, 0-100 users)
@@ -474,7 +515,7 @@ Common chains:
 
 
 <!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
@@ -483,6 +524,8 @@ Common chains:
 | Daily standup has become a 30-minute status report to the Scrum Master | SM proactively asks "what did you do yesterday?" going around the room -- team members passively report to the SM instead of coordinating with each other | Flip the format: team members walk the board from right to left (Done to In Progress to To Do). Each person addresses the team, not the SM. SM only speaks to remove impediments. | When the standup faces the Scrum Master, it is a status meeting. When it faces the board, it is a coordination meeting. The SM's job is to make themselves invisible in the standup. |
 | Product Owner has been unavailable for backlog refinement for 3 sprints -- team is building without direction | PO is over-tasked across multiple teams, and the team has been self-prioritizing from an unrefined backlog | Escalate PO unavailability to the engineering manager and product leadership. Use the available time to refine the backlog with the team's best understanding. Invite a stakeholder proxy if needed. | A team without an available PO will self-prioritize, and that prioritization will not match the business goals. Unavailability of the PO is an impediment -- escalate it like one. |
 | Velocity has been declining for 3 sprints, and the team is demoralized | Management started using velocity as a performance metric -- team members are padding estimates and hiding capacity to avoid looking slow | Make velocity data visible only to the team for sprint planning. Report outcomes (sprint goal achievement, business impact) to management, not velocity. Rebuild trust through blameless retros. | Velocity is a planning tool, not a management report card. When velocity becomes a performance metric, teams game it. Protect the team from metric misuse -- your job is to be the shield. |
+| Team has adopted Scrum but their Definition of Done stops at "code merged" — no testing, no deployment, no monitoring. Escaped defects are rising, and the team has no visibility into production quality. | DoD was copied from a template without team discussion — the team never internalized why each criterion matters, so they treat it as optional paperwork | Facilitate a DoD workshop: for each criterion, ask "What breaks if we skip this?" Map 3 recent escaped defects to missing DoD items. Make DoD visible on every PR template. Have the team, not the SM, enforce it. | A DoD without team buy-in is a checklist, not a commitment. The team must feel the pain of skipping it. Connect DoD violations to real production incidents — data convinces where process mandates fail. |
+| Scrum of Scrums has degraded into 8 teams each giving a 5-minute status update — 40 minutes of monologue with zero cross-team problem-solving | No facilitation structure — the SM running it treated it as a scaled daily scrum instead of a coordination forum | Restructure: 15 minutes max. Each team answers: (1) What did our team complete that others depend on? (2) What will we complete next that others need? (3) What are we blocked on that another team can resolve? Teams that have nothing cross-team-relevant skip their turn. | Scrum of Scrums is not 8 daily standups in a row. It's a dependency resolution forum. If there are no cross-team dependencies to discuss, cancel it. An empty ceremony trains teams to disengage. |
 
 
 ## Production Checklist
