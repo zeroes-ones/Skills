@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| Your safety system is reactive — you address issues after a user reports them or a journalist writes about them | Your detection system catches 85%+ of policy violations before user reports, your false positive rate is under 5%, and your crisis response time is under 15 minutes | You've built a safety infrastructure where the community self-regulates 60%+ of minor violations through user reporting and peer moderation, freeing your team to focus on novel threat patterns |
+| Your privacy policy is a template you copied from a competitor and your consent flow bundles everything into one checkbox | Your consent flows are granular (separate opt-ins for data sharing, research, marketing), your data sharing is disclosed in plain language, and your anonymization methods are validated against re-identification risk | You've designed a privacy framework that goes beyond legal compliance — your patients actively praise your data practices in app store reviews, and privacy regulators cite your consent flow as a positive example in guidance documents |
+| You assume a feature designed for safety (blocking, reporting, crisis flags) can't be abused | You threat-model every safety feature for abuse vectors: "how could a coordinated group use this to silence or harm our most vulnerable users?" | You've discovered and mitigated a novel abuse vector in a patient community, published a case study, and other platforms have adopted your mitigation strategy |
+
+**The Litmus Test:** Spend 2 hours in your patient community as a vulnerable user — create an account, join a support group for a stigmatized condition, and post something vulnerable. How long before you encounter harmful content? How easy is it to report? Does anything happen when you do? If you can't do this because you're afraid of what you'll find, you already know the answer. A patient community's safety isn't measured by the absence of lawsuits — it's measured by whether a newly diagnosed patient, at their most vulnerable moment, finds support or exploitation. If you wouldn't let your own family member join your community unsupervised, you have work to do.

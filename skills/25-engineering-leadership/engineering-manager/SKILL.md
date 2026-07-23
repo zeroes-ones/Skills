@@ -48,12 +48,12 @@ chain:
 ---
 
 # Engineering Manager
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 First-line people management for engineering teams. You are the linchpin between individual contributors and the broader organization. Your output is your team's output. You manage people, process, and culture — not architecture, not code. When you succeed, engineers grow, teams deliver predictably, and the organization trusts you with hard problems.
 
 ## Route the Request
+
 <!-- Machine-executable routing: 8 file_contains/file_exists rows A1-A8 + Intent Route fallback -->
 
 ### Auto-Route (No User Input Required)
@@ -98,6 +98,7 @@ What are you trying to do?
 **Do not read the entire skill.** Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -162,6 +163,7 @@ Engineering management skill scales from managing individuals to managing manage
 **Usage**: Say "as an L3 engineering manager, help me handle a performance issue with..." Default: **L2** (team-level management, independent execution).
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
 - **Performance management** — an engineer is underperforming and you need to determine whether it's a skill gap or will gap, write a development plan, escalate to PIP, or manage a transition out.
@@ -172,6 +174,7 @@ Engineering management skill scales from managing individuals to managing manage
 - **Managing up and stakeholder communication** — your director needs weekly status updates, you need to communicate a slipped date, or you want to build trust with product and design partners.
 
 ## Decision Trees
+
 <!-- STANDARD: 3min -->
 <!-- REFERENCE: For every branch, follow the arrows to the right section -->
 
@@ -247,6 +250,7 @@ ADJUST: If actively hiring, shift to 30/20/40/10. If in crisis, 50/30/10/10.
 ```
 
 ## Core Workflow
+
 <!-- STANDARD: 3min -->
 
 ### Phase 1: 1:1 Cadence — Your Most Important Meeting
@@ -288,74 +292,10 @@ Your team ships. You're accountable for what ships, when, and at what quality. Y
 - Dependencies on other teams? You own the escalation. Don't make your engineers chase down other teams' EMs — you call the other EM directly
 - Ambiguous requirements? Schedule the SME meeting yourself and bring the clarity back to the team
 
-**Stakeholder communication:**
-- Weekly written status: what shipped, what's at risk, what's next, what help you need. Keep it to one page
-- When a date will slip, communicate immediately: "We're tracking to miss the July 15 date. Here's why, here's our new estimate, here's what we're doing differently"
-- Build trust by being boringly predictable. Stakeholders relax when they know bad news arrives early and good news is real
-
-**Timeline negotiation:**
-- Never negotiate on the spot. "Let me check with the team and get back to you by tomorrow"
-- Present options, not ultimatums: "Option A ships faster with reduced scope. Option B takes 2 more weeks but includes everything. Which matters more for this release?"
-- The engineering answer is not always "it takes as long as it takes" — understand the business context and make conscious trade-offs
-
-### Phase 3: Performance Management
-
-Performance management is a continuous loop, not an annual event. The annual review should contain zero surprises.
-
-**Continuous feedback:**
-- Praise publicly, critique privately. Specific praise ("the way you handled that outage postmortem set a new bar for the team") beats generic praise ("great job")
-- Corrective feedback within 24 hours of observation. Use SBI: Situation, Behavior, Impact. "In yesterday's design review (S), you interrupted three people mid-sentence (B), which caused them to stop contributing (I)"
-- Keep a running document for each direct report: notable wins, areas for growth, feedback you've given, commitments they've made. This is your single source of truth for reviews
-
-**Review cycles (annual or semi-annual):**
-- Self-review → Manager review → Peer feedback → Calibration → Delivery
-- Write reviews based on evidence from your running document, not memory
-- Calibration: defend your ratings with specific artifacts. "Meets expectations because they shipped 3 features on time and mentored 2 interns" — not "they're a solid engineer"
-- After delivery: schedule a 45-minute session, not a 15-minute drive-by. Send the written review 24 hours in advance so they can process before discussing
-
-**Managing underperformers:**
-- See "Decision Trees > Performance Issue Handling" for the full path
-- Key principle: the underperformer who stays too long is your failure, not theirs. Every month you delay, the rest of the team absorbs the cost
-- Partner with HR-manager from the first formal step. Don't go solo on PIPs
-
-**Promotions:**
-- Promotions recognize sustained performance at the next level, not one great project
-- Build the promotion packet 3-6 months before you plan to submit. Signal gaps early
-- A denied promotion with a clear path to next time builds trust. A surprise denial destroys it
-
-### Phase 4: Team Building
-
-**Hiring (partner with recruiting for execution):**
-- You own the bar, recruiting owns the pipeline. Write the JD with outcomes, not requirements (see recruiting skill)
-- Every interviewer on your panel must be calibrated. Run a norming session quarterly: review the same candidate packet together and align on scoring
-- Interview debriefs: read all feedback before the group discussion. Anchor on evidence, not gut feel. "Culture fit" is a dangerous phrase — replace with "demonstrates our values through specific behaviors"
-- Closing: the offer letter gets a signature, but *you* get the candidate excited. Paint a vivid picture of their first 6 months. Connect their work to business impact
-
-**Onboarding (first 90 days):**
-- Day 1: laptop, access, buddy assignment, team lunch
-- Week 1: ship something small to production. A README fix counts. Momentum matters
-- Week 2-4: pair with different team members. Build relationships, not just skills
-- Day 30: first structured check-in. "What's different from what you expected? What's confusing? What do you need?"
-- Day 60: first 360-light. Collect feedback from 3-4 peers. Surface issues before they solidify
-- Day 90: formal review. Go/no-go decision. If they're not ramping, escalate immediately
-
-**Team culture and psychological safety:**
-- Psychological safety means: team members believe they won't be punished or humiliated for speaking up with ideas, questions, concerns, or mistakes. It's not about being nice — it's about being safe to be honest
-- You model it first. Admit your mistakes openly. Ask "what am I missing?" and mean it
-- Watch for signs of low safety: people are quiet in meetings but vocal in 1:1s, retrospectives are "everything is fine," mistakes get hidden
-- Celebrate learning from failure, not just success. "That outage taught us X — here's how we're hardening the system" should be a valued contribution
-
-**Team charter:**
-- Every team should have a written charter: mission, scope, stakeholders, working agreements, definition of done
-- Revisit quarterly. Teams evolve, charters should too
-- Working agreements: meeting norms, communication channels, code review expectations, on-call responsibilities — written, explicit, agreed
-
-**Retention:**
-- Retention is proactive, not reactive. By the time someone has an outside offer, you've already lost (even if they stay)
-- Know what motivates each person: title, compensation, autonomy, mastery, purpose, flexibility. Their answer changes over time — ask regularly
-- The top reason engineers leave: they stop growing. Growth conversations aren't annual — they're woven into 1:1s
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Coordination
+
 <!-- STANDARD: 3min -->
 
 <!-- ORG DESIGN: EM is the first organizational lever — coordination decisions shape team topology and architecture governance -->
@@ -388,6 +328,7 @@ Performance management is a continuous loop, not an annual event. The annual rev
 | **cto-advisor** | Build-vs-buy decisions, technology strategy, org structure | Strategic guidance, architecture governance, vendor evaluation | Team capabilities, delivery forecasts, technical constraints | Monthly; quarterly strategy reviews |
 
 ## Proactive Triggers
+
 <!-- QUICK: 30s -- trigger-action table for autonomous EM workflow -->
 
 The EM detects team health and delivery signals before they become crises. Every trigger is tied to an observable behavioral or metric signal.
@@ -414,110 +355,8 @@ The EM-to-CTO-Advisor relationship is where team execution meets technical strat
 | **Hiring pipeline health** | Funnel metrics: candidates at each stage, pass rates by interview type, offer acceptance rate, time-to-hire; qualitative: candidate quality trends, competitor poaching patterns | Company-wide hiring strategy, employer brand positioning, compensation philosophy, diversity pipeline initiatives |
 | **Technology radar input** | Team-adopted tools and practices, tech debt that's constraining velocity, skills the team wants to develop, technologies the team is resisting | Industry trends, architectural north star, technology portfolio decisions, sunset/incubate/invest framework |
 
-## Best Practices
-<!-- DEEP: 10+min -->
-
-### 1. Running Effective 1:1s
-Prepare for every 1:1 — 5 minutes of prep transforms a rambling chat into a focused conversation. Keep shared running docs with each direct report. Alternate between tactical (this week's blockers) and strategic (career, growth, team dynamics) sessions. End every 1:1 with: "What else?" — the most important topic often comes last.
-
-### 2. Giving Hard Feedback
-Use SBI (Situation, Behavior, Impact) — never SBI-lite ("you're not communicating well"). Be specific, timely, and private. After delivering feedback, ask: "How does this land?" — then be quiet. The silence is where processing happens. Follow up within a week: "I've noticed you've been [specific improvement]. That's exactly what I was looking for." Hard feedback without follow-through is performative.
-
-### 3. Celebrating Wins
-Engineers are notoriously bad at self-promotion. Your job: notice and amplify. Specific team-wide callouts in standup. Written shout-outs in Slack/Teams with concrete impact. "Shipped the payments refactor — reduced checkout latency from 2s to 400ms, affecting 50k daily users" beats "great work everyone." Connect wins to business impact and individual growth narratives.
-
-### 4. Managing Up
-Your director should never learn about problems on your team from someone else. Send a weekly update: wins, risks, asks. Format it so they can forward it unchanged to *their* boss. When you need a decision, present: context (2 sentences), options (2-3), your recommendation, and what you need from them. A manager who makes their boss's job easier gets more autonomy.
-
-### 5. Delegation Without Abdication
-Delegation doesn't mean "here's a problem, I'll check back in a month." It means: clear outcome, clear constraints, clear check-in cadence. You retain accountability — if it fails, you own it publicly. The formula: "I need [outcome] by [date]. Constraints are [X, Y, Z]. Let's check in [weekly/daily]. What do you need from me to succeed?"
-
-### 6. Reading Team Morale Signals
-Engineering team morale doesn't crash — it erodes. Early signals: 1:1s become shorter, less candid. Retros go quiet. "Everything is fine" becomes the default answer. People stop asking questions in team channels. PR review turnaround slows. Monitor these like production metrics — they're leading indicators of attrition.
-
-### 7. Capacity Planning
-Team capacity isn't headcount — it's headcount minus on-call load, interviews, onboarding, meetings, and context-switching tax. A team of 8 engineers has roughly 4-5 focused engineers at any given time. Plan against *available* capacity, not theoretical capacity. When negotiating headcount, bring data: last quarter's throughput vs. committed work, not "we're busy."
-
-### 8. Managing Remote and Hybrid Teams
-Remote management amplifies all your weaknesses. Weak communication becomes zero communication. Unclear expectations become deadline misses. The fix: over-communicate context, write everything down, default to async, make in-person time count. Remote 1:1s need more deliberate relationship-building — schedule occasional "no agenda" conversations. Hybrid teams: never let remote engineers become second-class participants. If one person is remote, everyone dials in individually.
-
-## Anti-Patterns
-<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| **The player-coach who never stops playing**: Writing production code 30+ hours/week, canceling 1:1s because "I need to ship," team directionless | Redirect technical energy to code reviews, design doc feedback, and unblocking. One hour unblocking an engineer is worth 10 hours of your own coding | `grep -rn "git commit\|git push\|PR.*merged" --include="*.md"` in running notes → count personal contributions per sprint; >3 per sprint is a player-coach pattern | Sprint planning script: `scripts/em-code-audit.sh` — counts EM-authored commits vs. team commits; flags if EM >20% |
-| **The empathy trap**: Every 1:1 is a 45-minute venting session. Engineers feel heard but nothing changes. Same complaints persist for a year | Structure 1:1s: first 10 minutes for venting, then pivot to "What do we do about it?" Maintain a shared action-item doc. Blockers persisting across two 1:1s become escalation triggers | `grep -rn "action item\|follow.up\|TODO\|next step" --include="*1:1*"` → returns 0 in recent notes → empathy trap confirmed. Listening without action items | 1:1 template: `templates/1-1-agenda.md` — requires Action Items section; blocks save if empty |
-| **The conflict-avoidant manager**: Underperforming engineer stays 18 months. High performers leave. Manager rationalizes delays | Address performance concerns within 30 days. Document everything. Involve HR at day 31 if no improvement | `grep -rn "underperform\|needs improvement\|not meeting" --include="*performance*" \| grep -v "PIP\|written\|HR\|resolved"` → finds open concerns without formal action | Performance tracker: `templates/performance-concern-log.md` — auto-escalates to PIP template if unresolved after 30 days |
-| **The information firewall**: Shielding the team from all organizational noise — no business context, no strategy discussions | Share a weekly 5-minute context update: business priorities, leadership discussions, how the work connects. Protection isn't isolation | `grep -rn "business context\|strategy\|company update\|OKR\|revenue" --include="*standup*\|*team-meeting*" -mtime -14` → returns 0 → information firewall active | Standup template: `templates/standup-agenda.md` — requires "Business Context" slot (2 min max) |
-| **The promotion promiser**: "Keep doing what you're doing and the promotion will come" — given to 3 engineers, none promoted in 18 months | Never promise a promotion. Give a path: "Here's the level guide. Here are 3 gaps. Let's review in 3 months." | `grep -rn "you.*get promoted\|promotion is coming\|keep.*up.*promot" --include="*1:1*\|*career*"` → finds promise language without specific gap analysis | Career conversation template: `templates/career-growth.md` — requires Gap Analysis section with 3+ specific items and review date |
-| **The equal-treatment fallacy**: Giving every engineer the same 1:1 time, same projects, same growth conversations | Tailor to individual: junior → structure + frequent feedback, senior → autonomy + context, staff → org challenges | `grep -rn "1:1.*30 min\|weekly 1:1" --include="*calendar*"` — if every 1:1 is identical length/frequency, equal-treatment fallacy confirmed | 1:1 cadence calculator: `scripts/1-1-cadence.sh` — suggests frequency based on level (junior=weekly 45min, senior=biweekly 30min, staff=monthly 60min strategic) |
-| **Hiring for skills, firing for culture**: Interview assesses only technical ability. Brilliant jerk hired, team psychological safety collapses | Add values-alignment interview with behavioral questions. Include team members in hiring with veto on culture concerns | `grep -rn "interview\|hiring\|debrief" --include="*rubric*\|*loop*" \| grep -v "values\|culture\|behavioral\|collaboration"` → finds hiring processes without culture assessment | Interview rubric: `templates/hiring-rubric.md` — requires Culture Contribution score weighted at 25%+ |
-| **The invisible manager**: Director hasn't had a 1:1 with you in 3 weeks. No written update in a month. Achievements invisible to leadership | Send weekly written update: 3 wins, 2 risks, 1 ask. Format so director can forward unchanged. Invisible managers get surprise re-orgs | `find . -name "*director-1:1*\|*weekly-update*" -mtime -7` → returns 0 → invisible manager pattern | Weekly update template: `templates/weekly-update.md` — auto-fills from team board, pre-formatted for director forwarding |
-| **Toxic positivity in retros**: Every retro ends with "great job team!" — no real issues surfaced, no improvements proposed, team stagnating | Introduce "safety check" (anonymous 1-5 rating) before retro. If average <4, switch to anonymous format. Celebrate teams that surface the hardest problems | `grep -rn "retro\|retrospective" --include="*.md" -A 10 \| grep -c "action item\|improvement\|experiment"` → <1 action item per retro → toxic positivity | Retro template: `templates/retro-agenda.md` — requires minimum 2 action items, blocks save if empty |
-
-## Error Decoder
-<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -rn "git commit\|PR.*merged\|pushed to" run-notes*.md \| wc -l` > 3 per sprint + `grep -c "1:1.*cancel\|reschedule" calendar*.csv` > 0 | Promoted from IC to EM but still writing production code 30+ hours/week. 1:1s canceled, two engineers quit in 6 months citing lack of direction | Didn't internalize that output shifted from code to team throughput. Coding was safe and familiar; management felt uncomfortable | Stop taking sprint tickets cold. Redirect technical energy to code reviews, design doc feedback, and unblocking tools. Use freed time for 1:1 prep and stakeholder communication | 1. Count EM-authored PRs: `git log --author="EM_NAME" --since="last sprint" --oneline \| wc -l` 2. If >3: flag player-coach pattern 3. Generate delegation plan: `scripts/em-code-reduction.sh` 4. Template: `templates/delegation-reset.md` |
-| `grep -c "action item\|TODO\|next step\|follow.up" 1-on-1-notes*.md` returns 0 for 3+ consecutive 1:1s | Every 1:1 is a venting session. Engineers feel heard but nothing changes. Same complaints persist for a year. Team stagnates | Confused empathy with effectiveness. Listening without action is performative empathy | Restructure 1:1s: first 10 min venting, then "What do we do about it?" Shared action-item doc. Blockers persisting across two 1:1s become escalation triggers | 1. Audit: `scripts/audit-1-1-actions.sh` — counts action items per 1:1 2. If zero for 3+ sessions: flag empathy trap 3. Apply template: `templates/1-1-action-items.md` 4. Next 1:1: review action items from previous session first |
-| `grep -rn "underperform\|needs improvement\|not meeting" performance*.md \| grep -v "PIP\|written\|HR\|resolved\|closed"` returns matches from >30 days ago | Underperforming engineer stayed 18 months. Strongest engineers asked "why is this tolerated?" Two high performers left | Conflict avoidance. Liked the person, dreaded confrontation, rationalized delays | Set personal rule: address within 30 days. Document everything. Involve HR at day 31. Every month of delay costs your best engineers' trust | 1. `scripts/scan-open-concerns.sh` — finds unresolved performance issues 2. Flag any >30 days old 3. Auto-generate PIP timeline: `templates/em-pip-timeline.md` 4. Schedule HR consultation within 48 hours |
-| `grep -rn "values\|culture\|behavioral\|collaboration" hiring-rubric*.md \| wc -l` returns 0 | Hired brilliant engineer who dismissed teammates, refused feedback, belittled juniors. Psychological safety collapsed. Two engineers requested transfers | Hiring assessed technical skills but not collaboration behaviors. No behavioral interview or values assessment | Add values-alignment interview. Include team members with veto on culture. Define "brilliant jerk" explicitly in hiring rubric | 1. `scripts/audit-hiring-rubric.sh` — checks for culture/values assessment 2. If missing: apply template 3. Template: `templates/hiring-rubric-culture.md` 4. Require Culture score ≥ 3/5 for all hires |
-| `grep -rn "business context\|strategy\|OKR\|revenue\|company" standup-notes*.md -mtime -14 \| wc -l` returns 0 | Shielded team from all organizational noise. Team was productive but blindsided by re-org, felt betrayed | Overcorrected on "protecting the team." Shielding became information blackout | Create weekly 5-min context update: business priorities, leadership discussions, how work connects. Share challenges without panic | 1. `scripts/audit-standup-context.sh` — checks for business context in recent standups 2. If missing: inject template 3. Template: `templates/standup-context-update.md` 4. Add "Context" slot to recurring standup agenda |
-| `grep -rn "promotion.*coming\|you.*get.*promot\|keep.*doing.*promot" 1-on-1*.md` returns matches without `grep -rn "gap\|level guide\|competency\|3 months" 1-on-1*.md` alongside | "Keep doing what you're doing and the promotion will come" — given to 3 engineers, none promoted in 18 months, all interviewing elsewhere | Promises without paths. No gap analysis, no timeline, no review checkpoint | Never promise a promotion. Give a path: level guide, 3 specific gaps, 3-month review checkpoint | 1. `scripts/scan-promotion-promises.sh` — finds promise language in 1:1 notes 2. For each: auto-generate gap analysis 3. Template: `templates/promotion-path.md` 4. Schedule 3-month review checkpoint |
-| `grep -rn "sprint.*commitment.*miss\|deadline.*slip\|date.*push" status-updates*.md -mtime -7` returns matches + `grep -rn "escalat\|director\|VP\|heads.up" status-updates*.md -mtime -7` returns 0 | Missed sprint commitment not communicated upward. Director learned from another team's EM. Trust damaged | Sat on bad news hoping it would self-correct. Problems don't age well — they compound | Communicate missed dates within 24 hours of knowing. Format: what happened, impact, what you're doing about it, new ETA, what you need | 1. `scripts/scan-missed-commitments.sh` — finds delivery misses in status docs 2. Cross-reference with escalation docs 3. If miss without escalation: auto-draft escalation email 4. Template: `templates/escalation-email.md` |
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[EM1]** | Weekly 1:1 cadence established with every direct report — no cancellations in last 4 weeks | `scripts/check-1-1-cadence.sh` → parses calendar, verifies 1+ per week per report, flags cancellations | Calendar audit cron: weekly check + Slack reminder to reschedule missed 1:1s within 24h |
-| **[EM2]** | Career ladder or growth framework defined for team | `grep -rn "level guide\|career ladder\|competency\|growth framework" --include="*.md" \| wc -l` → must be >= 1 | Template: `templates/career-ladder.md` — partner with people-ops |
-| **[EM3]** | Performance review cycle running — every engineer has received written feedback within last 6 months | `scripts/check-performance-reviews.sh` → verifies review doc exists for each report, dated within 180 days | Calendar: recurring 6-month review cycle with auto-reminders |
-| **[EM4]** | Hiring pipeline active — job descriptions outcome-based, interview panels calibrated, debrief documented | `grep -rn "hiring rubric\|interview loop\|debrief template" --include="*.md" \| wc -l` → must return >= 3 files | Template: `templates/hiring-rubric.md` — includes Culture Contribution score |
-| **[EM5]** | Onboarding program documented — 0-30-60-90 day plan, buddy system, first-week ship-to-production | `grep -rn "onboarding\|0-30-60-90\|buddy\|first.*week\|ship.to.prod" --include="*.md" \| wc -l` → must be >= 4 matches | Template: `templates/onboarding-plan.md` |
-| **[EM6]** | Team charter exists and reviewed within last quarter — mission, scope, stakeholders, working agreements | `find . -name "team-charter*.md" -mtime -90` → must return file | Template: `templates/team-charter.md` — quarterly review reminder |
-| **[EM7]** | Bus factor above 2 for every critical system or component | `scripts/check-bus-factor.sh` → parses CODEOWNERS + system map, flags areas with <2 owners | Alert: notify EM + director when bus factor falls below 2 |
-| **[EM8]** | Stakeholder communication rhythm — weekly written updates, monthly roadmap reviews | `find . -name "*weekly-update*\|*status-update*" -mtime -7` → must return file | Template: `templates/weekly-update.md` — pre-formatted for director forwarding |
-| **[EM9]** | Escalation paths clear — team knows when/how to escalate, you know when to escalate to director | `grep -rn "escalation\|when to escalate\|escalation path" --include="*team-charter*\|*onboarding*"` → must match | Template: `templates/escalation-guide.md` — included in team charter |
-| **[EM10]** | Running document maintained for each direct report — wins, growth areas, feedback, commitments | `scripts/check-running-docs.sh` → verifies one running-doc per report, updated within 30 days | Template: `templates/running-doc.md` — auto-populated with commit/PR activity |
-| **[EM11]** | Team morale signals monitored — 1:1 candidness, retro engagement, PR review turnaround | `scripts/check-morale-signals.sh` → scores: 1:1 length trend, retro participation rate, PR review median time | Dashboard: `scripts/morale-dashboard.sh` — trend chart, alerts on 2+ consecutive declining signals |
-| **[EM12]** | Capacity planning against available (not theoretical) capacity — on-call, interview, meeting load factored | `scripts/check-capacity-plan.sh` → compares committed story points vs. available capacity (headcount × 0.6) | Template: `templates/capacity-plan.md` — auto-calculates available capacity from headcount |
-| **[EM13]** | Peer EM calibration happening at least quarterly | `find . -name "*EM-calibration*\|*manager-calibration*" -mtime -90` → must return file | Calendar: recurring quarterly calibration session with agenda template |
-| **[EM14]** | Personal development plan for yourself — growth goals, not the exception to your own rules | `grep -rn "personal development\|growth goal\|my.*development" --include="*running-doc*" \| grep "EM_NAME"` → must match | Template: `templates/em-personal-growth.md` — quarterly self-review |
-
-## Scale Depth
-<!-- DEEP: 10+min -->
-
-### Solo (0-10 users, 1 team)
-**Description:** Leads a single team of approximately 5 directs; survives the transition from IC to manager
-**When to use:** First-time manager who needs to master foundational management skills; small team where EM can stay close to technical work
-**Approach:** Master the 1:1 conversation; learn to delegate outcomes not tasks; build relationship with your own manager; read your team for who's thriving, struggling, or at risk; run first performance review cycle end-to-end. Pitfalls to avoid: doing the work yourself because it's faster, avoiding conflict, micromanaging, promising promotions you can't deliver.
-
-### Small Team (10-100 users, 2-3 teams)
-**Description:** Manages 8-10 directs across multiple teams; needs leverage through tech leads and senior engineers
-**When to use:** Team has grown beyond what one person can manage directly; need for delegation and scalable team processes
-**Approach:** Develop tech leads to own technical direction; build team processes that scale (async standups, written decision records, self-service onboarding); deepen stakeholder relationships with product, design, and business; run calibration across peer EMs; identify and grow your successor. Pitfalls to avoid: spreading too thin with too many shallow 1:1s, losing touch with individual work, becoming a bureaucratic layer.
-
-### Medium Team (100-10K users, 4-8 teams)
-**Description:** Managing managers is fundamentally different from managing ICs; coaches EMs on their own management practice
-**When to use:** Directs now have the same management job you just mastered; need for org-level strategy and cross-team systems
-**Approach:** Coach EMs through their own hard conversations — prepare them rather than handling it yourself; align multiple teams to shared goals; resolve cross-team conflict and allocate resources; design org boundaries, reporting structures, career paths; own org-level metrics (delivery, retention, engagement); start operating at director level with budgets and headcount planning.
-
-### Enterprise (10K+ users, 8+ teams)
-**Description:** Managing directors and senior EMs; span can exceed 80-200+ engineers; owns engineering P&L
-**When to use:** Organization needs multi-year strategic planning; executive and board-level stakeholder management required
-**Approach:** Coach directors on org design and strategy; focus on multi-quarter planning and budget strategy; build exec team relationships; partner cross-functionally with product, design, and business leadership; own engineering P&L with fp-and-a-analyst support.
-
-### Transition Triggers
-- Move from Solo to Small Team when: Managing more than 5-6 directs; need for tech leads and delegation becomes clear; team processes don't scale without formalization
-- Move from Small Team to Medium Team when: Managing other EMs; org-level strategy and cross-team systems needed; coaching managers rather than ICs
-- Move from Medium Team to Enterprise when: Managing directors; P&L responsibility; span exceeds 80 engineers; multi-year strategy and board-level communication become primary
-
 ## What Good Looks Like
+
 <!-- STANDARD: 3min -->
 
 When you're on vacation for 2 weeks, the team runs smoothly. Decisions get made without you. Incidents get handled. Stakeholders are updated. *That's* when you know you've built a team, not a dependency.
@@ -529,28 +368,6 @@ Your team is where internal transfers want to go. People hear about your team's 
 Your director trusts you with hard problems. When something critical and ambiguous lands, you get the call. Not because you code fast, but because you'll figure out the right approach, align the team, communicate clearly, and deliver predictably.
 
 You sleep well. Not because there are no problems — there are always problems. But because you've built the relationships, systems, and practices to handle them. You know what to do when a key engineer resigns, a critical date slips, or a team conflict erupts. The playbook exists, and you've practiced it.
-
-## Footguns
-<!-- DEEP: 10+min — war stories from engineering management -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Gave "meets expectations" to an engineer who was actually underperforming for 18 months — avoided the hard conversation; when layoffs came, they were first cut, and the broader team said "finally" | An EM had an engineer who consistently delivered 40% of team average, missed deadlines by 2-3 weeks, and produced code that required 2× the review cycles. The EM gave "Meets Expectations" ratings for 3 consecutive review cycles with vague feedback like "keep improving code quality." Reason: the engineer was nice, the EM hated conflict, and "it wasn't that bad." When a company-wide 10% RIF hit, HR asked managers to identify bottom performers. This engineer was first on the list. When the layoff was announced internally, 3 teammates privately told the EM: "We've been wondering when you'd address this — it's been 18 months." The EM realized the entire team had been carrying this person's weight silently, building resentment. The EM lost credibility with the team who now doubted whether they'd get honest feedback. | The EM prioritized being liked over being effective. They conflated "not terrible enough to PIP" with "meets expectations." The biannual review process enabled avoidance — 6 months between cycles means a problem can fester for a year. The EM had no framework for differentiating "needs improvement" from "meets expectations" from "exceeds." | **Address performance issues within 2 weeks of the first pattern, not at the next review cycle.** Keep a running document for each report: note the date and specifics of every instance where performance falls below expectations. After 3 instances of the same pattern, have the conversation: "I've noticed [specific pattern]. What's going on, and how can I help?" Calibrate ratings across peer EMs quarterly: if you can't explain to another EM why your "meets" report performs at the same level as their "meets" report, your rating is wrong. The best time to give critical feedback was 12 months ago. The second best time is today. |
-| Cancelled 1:1s for 6 weeks during a critical launch — missed that a senior engineer was interviewing; they gave notice on launch day; the retro revealed they'd been unhappy for 4 months | An EM was leading a Q4 launch with a hard regulatory deadline (FDA 510(k) submission). They cancelled all 1:1s for 6 weeks, telling the team: "Focus on the launch — we'll catch up after." The senior engineer leading the backend migration was struggling with scope creep and working 60-hour weeks. They'd tried to raise this in the last 1:1 before cancellations but the EM was distracted by launch logistics. The engineer started interviewing. On launch day, they submitted their resignation. The team retro revealed: 3 other engineers knew the senior was unhappy, 2 had been covering for their reduced output, and the team had assumed the EM knew and was handling it. The launch shipped on time, but the migration was now owned by someone with zero context. | The EM treated 1:1s as optional meetings rather than the primary management mechanism. The cancelled 1:1s were the only forum where the engineer felt safe raising concerns. The team's "focus on launch" message was heard as "your concerns aren't a priority." | **1:1s are the last thing you cancel, not the first.** If you're too busy for 1:1s, you're too busy to manage. Minimum viable 1:1 during crunch: 15 minutes, one question: "What's the hardest thing about your work right now?" Never go more than 2 weeks without a 1:1, regardless of deadlines. If you must cancel, reschedule within 48 hours and apologize — the message it sends when you cancel matters more than the meeting itself. |
-| Promised a promotion "in the next cycle" without checking budget or headcount — the cycle came, the slot didn't exist; the engineer left 2 weeks later and told coworkers "don't trust verbal promises" | An EM told a high-performing senior engineer: "You're on track for Staff in the next cycle — keep doing what you're doing." The engineer interpreted this as a commitment. They spent 6 months leading a cross-team initiative, mentoring 3 juniors, and documenting their impact specifically for the promotion packet. When the cycle arrived, the EM discovered: (1) the Staff promotion budget was allocated to another team's retention case, (2) their director had frozen Staff promotions due to org restructuring. The EM had to tell the engineer: "It's not happening this cycle — maybe next." The engineer left 2 weeks later for a competitor offering Staff title and 30% more. They told 3 other senior engineers: "If you're waiting for a promotion here, don't believe it until you see the comp change." 2 more seniors left within 6 months. | The EM made a promise they didn't have the authority to keep. They assumed budget and headcount would align with performance. They used "on track" as encouragement without understanding the promotion process end-to-end (slots, budget, calibration, timeline). | **Never promise a promotion. Say what's true: "I believe you're performing at the next level. Here's what needs to happen for promotion: [specific criteria], [specific timeline], [process details]. I'll advocate for you, and here's where the uncertainty is: [budget, slots, calibration]. Let's check in monthly on progress."** If you don't control the budget or final decision, say so explicitly. Document every career conversation in your running notes: date, what was said, what was committed, what was uncertain. |
-| Shielded the team from all organizational chaos — they delivered great work but had zero context when you got promoted; your replacement inherited a team with no stakeholder relationships | An EM protected their 8-person team from "distractions": stakeholder meetings, roadmap discussions, cross-team politics, budget conversations. The team loved it — they focused on code, shipped on time, and had high engagement scores. After 2 years, the EM was promoted to Director. The new EM inherited a team that: (1) couldn't name their primary stakeholders, (2) had never participated in roadmap prioritization, (3) didn't know why their project existed or who it served, (4) had zero relationships with product, design, or adjacent teams. The new EM spent 6 months rebuilding organizational context while delivery stalled. The previous EM got promoted for "building a high-performing team" — but they'd built a dependency, not a team. | The EM confused "protecting the team" with "isolating the team." Protection means filtering noise, not preventing context. The team was optimized for the EM's presence — when the EM left, the team's effectiveness collapsed. The EM measured their success by team output during their tenure, not by team resilience after their departure. | **Every engineer on your team should participate in at least one cross-functional meeting per month.** Rotate who attends roadmap reviews, stakeholder updates, and incident postmortems with other teams. After each meeting, debrief: "What did you learn about who uses our work and why?" Your goal is to make yourself unnecessary — if the team can't operate without you, you haven't built a team, you've built a dependency. The best onboarding for your replacement is a team that already knows the organization. |
-| Hired for "culture fit" — built a team of 8 people who all thought the same way; the first project that required a fundamentally different approach took 3× longer because nobody could see the blind spot | An EM hired 8 backend engineers over 2 years. Every hire had the same profile: 5-8 years experience, Java/Spring Boot, worked at similar mid-stage SaaS companies, quiet and analytical personality. The team was harmonious — no conflicts, fast consensus, smooth standups. A new product initiative required real-time data streaming (high-throughput, event-driven, eventually consistent). Nobody on the team had worked with Kafka, event sourcing, or async patterns. The team spent 3 months learning, made architectural decisions that an event-sourcing-experienced engineer would have flagged immediately, and delivered a system that lost events under load. The EM had optimized for "easy to manage" (no conflict, fast agreement) at the expense of "diverse thinking" (cognitive friction, better outcomes). | "Culture fit" became "culture clone." The EM's interview process screened for people like them — similar background, similar communication style, similar technical preferences. The team's speed of consensus was mistaken for quality of decision-making. The absence of conflict was mistaken for psychological safety. | **Hire for "culture add," not "culture fit."** For each hire, ask: "What perspective, skill, or experience does this person bring that NO ONE on the team currently has?" If the answer is "they're really solid" without a specific gap they fill, you're cloning. Track team diversity of thought: technical background (distributed systems, embedded, data engineering), industry experience (healthcare, finance, consumer), and cognitive style (big-picture vs detail-oriented, fast-paced vs methodical). A team that always agrees is a team that's missing something. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| Your 1:1s are status updates; you can't name what each of your engineers wants to be doing in 2 years; you've never given feedback that made someone uncomfortable | An engineer on your team gets promoted and when their promotion packet is reviewed, you can point to specific stretch assignments, specific coaching moments, and specific growth trajectory over 12+ months — not just "they deserved it" | Your director stops asking for status updates because they trust you'll escalate anything they need to know; when a crisis hits, your team handles it with calm competence and you spend your energy on the one decision that matters |
-| You think "managing" is assigning tickets and you've never had to let someone go | You've managed someone out with dignity — they landed a better-fit role, and the team's performance improved within weeks; you can have the hard conversation without procrastinating | Another EM asks to be on your team — not for the technology, but because they've heard you grow people into the leaders they want to become |
-| You spend your 1:1s talking about technology because that's what you're comfortable with | You spend 80% of your 1:1 time on career growth, team dynamics, and removing obstacles — technology is covered in design reviews and standups | Your former reports (now EMs and directors themselves) cite specific conversations with you as turning points in their careers — and you have a written record of those conversations |
-
-**The Litmus Test:** Can you name the single biggest growth area for each of your direct reports — and describe the specific assignment, project, or challenge you've given them THIS quarter to develop it? If any answer is "they're doing fine, I'll figure it out at review time," you're not L3 yet.
 
 ## Deliberate Practice
 
@@ -578,7 +395,15 @@ After every difficult conversation: write down what you said, what they said, an
 **Write a "user manual for working with me" and ask each report to write theirs.** Share yours first — include your communication preferences, pet peeves, how you like to receive feedback, and when you're at your best/worst. Vulnerability from the leader creates permission for the team.
 
 ## References
-<!-- STANDARD: 3min -->
 
-- **director-engineering, hr-manager, people-ops** and others — for upstream design decisions, specifications, and architectural context that inform Engineering manager — team leadership, 1:1s, performance management, delivery
-- **backend-developer, cto-advisor, director-engineering** and others — downstream skills that consume outputs from this skill for implementation and execution
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+

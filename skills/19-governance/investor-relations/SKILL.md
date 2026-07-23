@@ -37,13 +37,14 @@ chain:
   - fp-and-a-analyst
   - treasury-manager
 ---
-# Investor Relations — The Fundraising Operating System
 
+# Investor Relations — The Fundraising Operating System
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Investor relations and fundraising operations for founders, CEOs, and CFOs. Run efficient fundraises, manage investor communications at scale, handle due diligence, model dilution scenarios, and navigate the hardest IR moments — down rounds, tender offers, and crisis disclosures.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- QUICK: 30s -- negative constraints, mechanically triggered -->
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
@@ -55,7 +56,6 @@ Investor relations and fundraising operations for founders, CEOs, and CFOs. Run 
 | G5 | **DETECT spreadsheet-based cap table — escalate risk.** | `file_exists("*.xlsx")` AND `file_contains("*.xlsx", "(cap table|equity|option pool|share)")` | WARN: Spreadsheet cap tables compound errors. Escalate to Carta/Pulley migration. HALT any cap table scenario modeling until migrated. |
 | G6 | **REFUSE to put material non-public info in writing.** | `user_message_contains("off the record|just between us|confidentially share")` AND `user_message_contains("acquisition|IPO|material.*event|earnings surprise")` | STOP. Remind: "There is no 'off the record' for material information under Reg FD. If you say it to one, you must disclose to all." |
 | G7 | **STOP if fundraise process has no CRM/pipeline tracker.** | `user_message_contains("fundraise|fundraising|raise")` AND NOT `file_exists("*pipeline*|*crm*|*investor-track*")` | HALT. Create investor pipeline tracker (Affinity/Streak/Airtable) before any outreach.
-
 
 ## The Expert's Mindset
 
@@ -76,7 +76,9 @@ Master investor relationss understand that strategy is not about predicting the 
 ### When to Break Your Own Rules
 - **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
+
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -112,6 +114,7 @@ If no auto-route matched, use this intent tree:
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s — scan the bullet list to decide if this skill fits -->
 - Launching a fundraising process: strategy, materials, pipeline, close
 - Building and managing a data room: what goes in, what stays out, how to organize
@@ -174,6 +177,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | Secondary transaction proposed without employee-wide communication plan | Insert communication design into process: who sells, how much, who's eligible next, rationale, impact on 409A — communicate before, not after | Secondaries create winners and losers; silence breeds resentment and attrition among those excluded |
 
 ## Decision Trees
+
 <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
 ### Data Room Checklist — The 14 Folders Every Fundraise Needs
@@ -318,138 +322,12 @@ Scenario 4: Acquisition (stock vs. cash deal)
 | 2. Problem | Why does this matter? | The pain you solve. Use a customer quote, not a market stat. "I spend 4 hours a week manually reconciling..." beats "The TAM is $50B." |
 | 3. Solution | How do you solve it? | Product screenshot or 30-second demo GIF. Show, don't tell. |
 | 4. Why Now? | Why hasn't this been done? | Technology shift, regulatory change, behavioral change. "APIs didn't exist before 2023." "Remote work made this a top-3 pain." |
-| 5. Market Size | How big can this get? | Bottoms-up TAM: how many customers × your ASP × penetration rate. Tops-down is backup. Show the beachhead and expansion. |
-| 6. Traction | Is this working? | Revenue graph (MRR/ARR, month-by-month for 18+ months). Logo count. Key logos. Retention (logo and dollar-based net retention). |
-| 7. Product | What have you built? | Current product, roadmap highlights, key metrics (DAU/MAU, engagement). Not a feature list — show what's defensible. |
-| 8. Business Model | How do you make money? | Pricing model, ASP, sales motion (PLG vs. enterprise sales), CAC, LTV, payback period. Unit economics must be on this slide. |
-| 9. Competition | Why will you win? | Competitive matrix: you vs. incumbents vs. startups across key dimensions. Your unfair advantage: data, network effects, switching costs, brand. |
-| 10. Team | Why you? | Founders' photos, titles, 1-line bio (previous company, relevant achievement). Key hires. Why this team uniquely can solve this problem. |
-| 11. Financials | What do the numbers look like? | 3-year revenue projection with assumptions. Headcount plan. Burn rate. Key metrics: gross margin, CAC payback, LTV/CAC. |
-| 12. The Ask | What do you need? | "We're raising $X on a $Y pre-money valuation to achieve [milestone]." Use of funds: 50% engineering, 30% GTM, 20% G&A. |
+| 5. Market Size | How big can this get? | Bottoms-up TAM: how many customers × your ASP × penetration rate. Tops-down
 
-**What good looks like:** A partner at a VC firm forwards your deck to another partner with the note "Take a look at this — interesting team and traction." You know you have it when you get partner-level meetings (not associate screens) within 1 week of intro.
-
-### Phase 3 (~60 min setup + ongoing): Pipeline Management
-<!-- STANDARD: 3min -->
-1. **Set up investor CRM** (15 min): Use Affinity, Streak (Gmail), or a Notion/Airtable tracker. Fields: firm, contact name, role, intro source, date contacted, meeting date, stage (outreach → meeting 1 → partner meeting → term sheet → diligence → close), notes, next step.
-2. **Run the process in batches** (ongoing): Week 1-2: Tier 1 outreach (10 firms). Week 3-4: Tier 1 meetings + Tier 2 outreach. Week 5-6: Partner meetings and term sheet conversations. Never have >15 active conversations at once — you'll lose track.
-3. **Follow-up cadence** (ongoing): After meeting 1, send thank-you + any promised materials within 24 hours. If no response in 5 business days, follow up once. If still no response, move to "passive" and focus on active conversations. Silence is a pass.
-4. **Signal management** (ongoing): When one Tier 1 investor shows strong interest ("We'd like to meet the full partnership"), use it as leverage: "We're in active conversations with [Firm A] and [Firm B] and expect term sheets in the next 2 weeks. We'd love to include you in the process."
-5. **The close** (10 min post-term sheet): Signed term sheet → no-shop period (30-45 days) → legal diligence → definitive agreements → wire transfer. During no-shop: respond to all diligence requests within 24 hours. The #1 cause of blown-up deals: slow diligence response signals disorganization.
-
-### Phase 4 (~90 min): Due Diligence
-<!-- STANDARD: 3min -->
-1. **Financial DD preparation** (30 min): Unaudited monthly financials for the current year. Customer-level revenue data (anonymized). Cohort retention analysis. Gross margin by product. All material contracts >$50K. Tax returns.
-2. **Technical DD preparation** (30 min): Architecture overview (1-pager for non-technical investors). Tech debt register with severity and remediation plan. Security posture (SOC 2 report, penetration test results). IP ownership documentation (all code written by employees/contractors with IP assignment).
-3. **Customer reference preparation** (15 min): Identify 5-8 referenceable customers. Pre-brief each: "A potential investor may call. Here's what they'll ask. Here's what we'd love you to emphasize." Never put a customer on a reference call without pre-briefing them.
-4. **Background check readiness** (15 min): Every founder will be background checked. Disclose anything that will surface before it surfaces: prior lawsuits, bankruptcies, regulatory actions, academic credential discrepancies. Surprise in background check = deal killer.
-
-**War story:** A founder didn't disclose a prior startup that had failed and been sued by its investors. The VC's background check found the lawsuit (public record). The VC pulled the term sheet — not because of the failure, but because the founder hid it. The failure was defensible. The concealment was not.
-
-### Phase 5 (~30 min/month): Investor Communications
-<!-- STANDARD: 3min -->
-
-**Monthly Investor Update Template:**
-
-```
-Subject: [Company Name] — [Month Year] Update
-
-TL;DR (3 bullets):
-- [Win: e.g., Revenue grew 12% MoM to $[X]K MRR]
-- [Win: e.g., Closed [Customer Name], our largest deal at $[Y]K ACV]
-- [Concern: e.g., Sales hiring is behind plan — 2 of 3 open roles unfilled]
-
-KPIs:
-| Metric | This Month | Last Month | Plan | YoY |
-|--------|-----------|------------|------|-----|
-| MRR | $[X]K | $[Y]K | $[Z]K | +[%] |
-| ARR | $[X]M | $[Y]M | $[Z]M | +[%] |
-| Customers | [N] | [N-1] | [P] | +[%] |
-| Gross Margin | [X]% | [Y]% | [Z]% | - |
-| Net Revenue Retention | [X]% | [Y]% | - | - |
-| Burn | $[X]K | $[Y]K | $[Z]K | - |
-| Cash in Bank | $[X]M | $[Y]M | - | - |
-| Runway (months) | [N] | [N-1] | - | - |
-| Headcount | [N] | [N-1] | [P] | - |
-
-Wins (3-5):
-- [Specific win with metric]
-
-Challenges (2-3):
-- [Specific challenge, what you're doing about it]
-
-Asks (1-3):
-- [Specific intro, advice, or resource request]
-
-Thank you to [investor name] for [specific help they provided this month].
-```
-
-**What good looks like:** Investors reply "Great update, keep it coming" or offer specific help on your asks. Investors who never reply within 3 months get moved to a "passive" distribution list.
-
-## Best Practices
-<!-- STANDARD: 3min — operational principles for IR -->
-
-1. **Fundraise when you don't need the money**: The best time to raise is when you have 12+ months of runway and accelerating growth. The worst time is when you have 3 months of cash. Desperation is a negotiable term — and it always works against you.
-2. **Your data room is your resume**: Organized, complete, counsel-reviewed. A messy data room adds 2-4 weeks to diligence and invites deeper scrutiny. Every missing document raises a question: "What are they hiding?"
-3. **Pitch the problem, not the product**: Investors buy market insight, not features. "We built a better CRM" gets a pass. "The CRM market hasn't innovated for the 40% of sales teams that are field-based" gets a meeting.
-4. **Traction is the only real currency**: Revenue growth rate, net revenue retention, CAC payback, and gross margin. Everything else is narrative. If your metrics are weak, your pitch won't save you.
-5. **Term sheet comparison is about structure, not valuation**: A $50M clean cap is worth more than an $80M dirty cap. Liquidation preference, participation, board control, and anti-dilution determine your outcome, not the headline number.
-6. **Investor updates: always on time, always honest**: Same day every month. Bad news goes in the subject line ("Challenging month — revenue miss, plan to recover"). Investors fund lines of trust before lines of code. Breach trust once on an update and they'll never trust your projections again.
-7. **Never stop fundraising until the wire hits**: Between term sheet and close, 10-15% of deals blow up. Silent period means no active outreach, but maintain warm backup conversations. You need a Plan B investor who's met you 2-3 times and has done preliminary diligence.
-8. **Cap table hygiene is a monthly practice**: Reconcile your cap table monthly. Every option grant, every exercise, every transfer. One error discovered during Series B diligence will delay your close by 2-4 weeks and cost $20K+ in legal fees to fix.
-9. **Pitch deck design matters**: Good design signals attention to detail. Bad design signals sloppiness. Use one font family. One accent color. No clip art. No memes. Maximum 5 bullet points per slide. If a slide takes >30 seconds to understand, it's too complex.
-10. **References make or break your round**: A single bad customer reference kills a deal faster than any diligence finding. Pre-select your references. Pre-brief them. Know what each reference will say. If a reference is lukewarm, they're not a reference — they're a liability.
-11. **Secondary transactions require board approval and careful communication**: Tender offers and founder secondaries create winners and losers. Employees who can't sell watch colleagues cash out. Design secondaries so every employee gets at least some liquidity. Communicate the rationale transparently.
-
-## Anti-Patterns
-<!-- QUICK: 30s -- machine-detectable anti-patterns with auto-prevention -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|---|---|---|---|
-| Fundraising at 6 months runway with decelerating growth | Start at 12+ months runway while growth is accelerating | `file_contains("*", "runway.*[3-6] months")` AND `file_contains("*", "(declining|slowing|decelerating).*growth")` | STOP. Require 12+ month runway projection before any fundraising advice. |
-| Sending generic pitch deck to 50 investors | Customize first 3 slides per investor: why this firm, this partner, now | `grep -rl "\.pptx" \| xargs grep -l "pitch deck"` with no `investor-tailoring.md` | WARN. Generate per-investor tailoring brief before distribution. |
-| Accepting term sheet on valuation headline alone | Build full comparison: liq pref, participation, board, anti-dilution | `file_contains("*", "signed.*term sheet")` AND NOT `file_exists("*term-sheet-comparison*")` | STOP. Generate term sheet comparison matrix before signature. |
-| Cap table via Excel beyond 10 equity holders | Migrate to Carta/Pulley; reconcile monthly; counsel audit | `file_exists("*.xlsx")` AND `file_contains("*.xlsx", "(option pool|warrant|convertible note)")` AND `wc -l shareholders.csv > 10` | REFUSE cap table operations on Excel. Escalate to Carta/Pulley. |
-| Treating all investors equally in comms | Tier: active (weekly), warm (bi-weekly), passive (monthly), disengaged (quarterly) | `file_contains("*", "send.*update.*all.*investors")` AND NOT `file_contains("*", "(tier|segment).*investor")` | WARN. Generate investor tier list and cadence schedule. |
-| Data room as unstructured Dropbox folder | 14-folder data room, indexed, counsel-reviewed, Docsend access control | `file_exists("data-room/")` AND NOT `file_exists("data-room/00-index.md")` | STOP. Build structured data room with index before investor access. |
-| Disclosing bad news first time during diligence | Pre-disclose material challenges before term sheet | `file_mtime("*.md")` during diligence AND `grep "first time disclos"` in investor comms | STOP. Generate pre-disclosure memo for all material risks. |
-| Skipping investor updates "nothing to report" | Send monthly regardless — silence = suspicion | `file_mtime("investor-update*.md") > 60d` | ALERT. Auto-generate "steady progress" investor update. | 
-
-## Error Decoder
-<!-- DEEP: 10+min -- IR failures that kill companies -->
-
-| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -c "term sheet" investor-log.md` returns 0 after 30 meetings | Fundraise stalled — no term sheets after 30+ meetings | Weak traction, unclear narrative, or wrong investor targeting | Run no-term-sheet post-mortem with 3 friendly investors. Fix weakest link. Re-approach in 3-6 months. | **Loop 1:** (1) Detect: count meetings with no progress > 30. (2) Auto-generate post-mortem questions. (3) Send to 3 friendly investors. (4) Compile feedback into fix plan. (5) Re-check: if < 30 new meetings without TS, repeat. |
-| `grep -c "pulled\|withdrawn\|terminated" fundraise/*.md` > 0 | Term sheet pulled during no-shop | Material negative surfaced in diligence that wasn't pre-disclosed | Disclose all bad news before term sheet. Pre-disclosed challenge = negotiated. Surprise = pull. | **Loop 2:** (1) Detect: TS pull event. (2) Auto-generate full pre-disclosure memo. (3) Identify undisclosed items from diligence Q&A. (4) Re-approach investors with corrected disclosures. (5) Verify no new surprises before next TS. |
-| `grep "request.*information\|follow.up\|missing" diligence/*.md \| wc -l` > 50 | Data room requests overwhelm team (50+ follow-ups) | No data room structure before fundraise launch | Build data room completely before first investor meeting. Follow the 14-folders checklist. | **Loop 3:** (1) Detect: pending diligence items > 50. (2) Auto-sort requests into 14-folder categories. (3) Generate fulfillment plan with assignees. (4) Add new items to data room index for all future investors. (5) Re-check: pending items < 10. |
-| `grep -l "investor.*update" *.md \| xargs grep -c "reply\|response\|acknowledge"` returns 0 for 3+ months | Investor update goes unanswered for 3+ months | Update too long, too vague, or investor disengaged | Keep to 1 page. Lead with numbers. Move disengaged to quarterly. | **Loop 4:** (1) Detect: no investor engagement for 90 days. (2) Auto-trim update to 1-page bullet format. (3) Tag investor as "low-engagement" in pipeline. (4) Downgrade to quarterly updates. (5) Re-check engagement after 2 quarterly cycles. |
-| `grep "Excel\|spreadsheet\|\.xlsx" cap-table/*.md` AND manual cap table | Cap table error discovered during Series B diligence | Excel-based cap table with manual updates. No monthly reconciliation. | Migrate to Carta/Pulley. Reconcile monthly. Counsel audit before every fundraise. | **Loop 5:** (1) Detect: spreadsheet-based cap table flagged. (2) Auto-generate migration plan to Carta/Pulley. (3) Export current Excel to migration template. (4) Reconcile first month in new system. (5) Verify: 0 discrepancies after third monthly reconciliation. |
-| `grep "down round\|anti-dilution.*full.ratchet\|pay.to.play" *.md` | Down round destroys founder equity | Full ratchet anti-dilution + pay-to-play + option pool refresh crush common | Negotiate weighted-average anti-dilution. Model scenarios upfront. Negotiate recap or refresher grants. | **Loop 6:** (1) Detect: down round terms detected. (2) Auto-model 4 recap scenarios. (3) Generate weighted-average proposal. (4) Calculate founder refresher grant needs. (5) Verify: founder ownership post-round > dilution floor. |
-| `grep "customer.*reference.*call\|customer.*call.*went.*bad" *.md` | Customer reference call goes badly | Customer wasn't pre-briefed or wasn't enthusiastic | Only forward 9+/10 customers. Ask directly: "Would you take a fully candid call?" | **Loop 7:** (1) Detect: negative reference call outcome. (2) Auto-survey all reference candidates via NPS question. (3) Remove any < 9 from reference list. (4) Pre-brief top 3 with call script. (5) Verify: all active references are 9+. |
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|----------------|--------------------|----------|
-| IR1 | Data room built with all 14 folders populated and counsel-reviewed | `test -d data-room/ && test -f data-room/00-index.md && ls data-room/ | wc -l | awk '{exit $1<14}'` | Generate missing folder structure from 14-folder template. |
-| IR2 | Pitch deck finalized: 12 slides, no slide >5 bullets | `test -f pitch-deck.pptx && python -c "from pptx import Presentation; p=Presentation('pitch-deck.pptx'); assert len(p.slides)==12"` | Trim to 12 slides. Flag slides with >5 bullets for reduction. |
-| IR3 | Financial model with best/base/worst case scenarios, 24-month projections | `grep -l "best case\|base case\|worst case" *.xlsx && grep -c "202[6-9]" financial-model.csv` | Auto-generate scenario tabs and extend projections to 24 months. |
-| IR4 | Target investor list: 30-50 firms, tiered, warm intro path mapped | `test -f investor-target-list.csv && wc -l < investor-target-list.csv | awk '{exit $1<30}'` | Generate investor-scoring template. Populate from Crunchbase/Pitchbook CSV export. |
-| IR5 | Investor CRM set up with pipeline stages | `test -f pipeline-tracker.* && grep -q "stage\|status\|contacted\|responded\|meeting\|term sheet" pipeline-tracker.*` | Generate pipeline tracker template with standard stages. |
-| IR6 | Reference customers identified (5-8), pre-briefed | `grep -c "reference\|9\/10\|NPS.*[89]" reference-customers.md | awk '{exit $1<5}'` | Generate reference survey script. Auto-score customers from NPS data. |
-| IR7 | Term sheet comparison matrix completed for competing offers | `test -f term-sheet-comparison.md && grep -q "liquidation\|participation\|board\|anti-dilution" term-sheet-comparison.md` | Generate comparison matrix template with all 8 standard terms. |
-| IR8 | Cap table modeled in 4 scenarios: base, down round, exit waterfall, acquisition | `test -d cap-table-scenarios/ && ls cap-table-scenarios/ | wc -l | awk '{exit $1<4}'` | Auto-generate 4 scenario tabs from current cap table. |
-| IR9 | Cap table reconciled and counsel-audited within 30 days | `test -f cap-table-audit*.pdf && find cap-table-audit*.pdf -mtime -30 | grep -q .` | Alert: schedule counsel audit. Generate reconciliation workbook. |
-| IR10 | First investor update sent or schedule set | `find . -name "investor-update*.md" -mtime -30 | grep -q .` | Auto-generate monthly update from CRM pipeline and financial milestones. |
-| IR11 | Background check disclosures prepared upfront | `test -f background-disclosures.md && wc -l < background-disclosures.md | awk '{exit $1<5}'` | Generate disclosure checklist: litigation, regulatory, credential items. |
-| IR12 | All material customer contracts (>$100K) collected and redacted | `find data-room/05-commercial/ -name "*.pdf" | wc -l | awk '{exit $1<1}'` | Generate contract collection checklist. Flag missing contracts. |
-| IR13 | Competitive differentiation matrix with evidence | `test -f competitive-differentiation.md && grep -q "win.rate\|customer.quote\|benchmark\|evidence" competitive-differentiation.md` | Generate differentiation matrix template. Auto-extract win rates from CRM. |
-| IR14 | Fundraising FAQ answering top 20 diligence questions | `test -f fundraising-faq.md && grep -c "^### " fundraising-faq.md | awk '{exit $1<20}'` | Auto-generate FAQ from data room content. Flag unanswered questions. |
-| IR15 | No-shop diligence response SLA: 4h acknowledge, 24h fulfill | `grep "SLA\|acknowledge.*4.*hour\|fulfill.*24.*hour" diligence-process.md` | Generate SLA tracker template. Auto-log response times. |
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Integration
+
 <!-- QUICK: 30s — table of who to talk to when -->
 
 This skill in a typical IR and fundraising workflow chain:
@@ -475,52 +353,9 @@ Common chains:
 # 3. legal-advisor reviews term sheet and drafts definitive agreements
 ```
 
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo
-Founder-run board with informal meetings, no outside directors. Focus: legal compliance, basic minutes. Skip: board committees, formal evaluations, D&O insurance (though recommended).
-
-### Small Team
-Board with 1-2 outside investors, quarterly meetings, basic governance docs. Focus: strategic guidance, CEO accountability. Coordination: with legal counsel on board resolutions, with founders on pre-read quality.
-
-### Medium Team
-Board with independent directors, 2-3 committees (audit, comp, governance), formal evaluation. Focus: independent oversight, committee charters. Coordination: with audit committee chair on financial oversight, with comp committee on executive compensation.
-
-### Enterprise
-Fully independent board, all committees active, shareholder engagement, ISS/Glass Lewis engagement. Focus: public company governance, regulatory compliance. Coordination: with IR on shareholder outreach, with legal on SEC filings and proxy statements.
-
-### Transition Triggers
-| From → To | Trigger |
-|-----------|---------|
-| Solo → Small | First outside investor joins board; VC funding round |
-| Small → Medium | >$10M revenue; >50 employees; regulatory scrutiny |
-| Medium → Enterprise | IPO preparation; listing on public exchange |
-
 ## What Good Looks Like
 
 A fundraise that goes from first meeting to term sheet in 6 weeks, diligence to close in 4 weeks. The data room has zero follow-up requests because everything was there on day one. The pitch deck gets partner-level meetings within 1 week of warm intro. Investor updates go out on the 5th of every month — investors reply "great update" or offer specific help. Cap table is audited and reconciled. Term sheet comparison matrix is one page with the winner highlighted — the founder can explain why in one sentence. Down-round scenarios are modeled and stress-tested. Customer references are pre-briefed and enthusiastic. The wire hits on schedule. There is a Plan B investor in the wings throughout.
-
-## Footguns
-<!-- DEEP: 10+min — war stories from startup fundraising -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Sent an investor update email with "pipeline grew 40% QoQ, on track for $12M ARR by Q4" — an investor forwarded it to a TechCrunch reporter, who published it verbatim; the SEC cited it as an unregistered general solicitation during the pre-IPO quiet period | A Series C company was 6 months from IPO filing. Their monthly investor update included detailed forward-looking metrics. One LP forwarded the email to a journalist friend saying "check out this rocketship." The article published with exact revenue projections. The SEC enforcement division opened an inquiry: did the company use investor communications to condition the market pre-IPO? The IPO was delayed 4 months. Legal costs: $340K. | The "assume every email leaks" rule was written but not enforced. The investor update template had no legal review gate for pre-IPO companies. Forward-looking metrics in writing during a quiet period are Exhibit A in a securities investigation. | **Create a two-track investor update protocol.** Track A (pre-IPO/quiet period): backward-looking metrics only — actuals, no projections, no forward-looking statements, legal review before send. Track B (normal operations): forward-looking allowed with disclaimers. All investor communications must include: "This update contains confidential information. Do not forward without permission." Before IPO filing, have outside counsel review the last 12 months of investor updates for anything that could be construed as conditioning the market. |
-| Built the Series A data room in 48 hours after getting a term sheet — it had 3 conflicting versions of the cap table, customer contracts with unredacted pricing, and 2 contradictory financial models; the investor's counsel flagged 14 diligence items on day 1 and the deal died in week 3 | The CEO got a term sheet and thought "the hard part is done." They assigned an intern to build the data room over a weekend. The intern uploaded whatever they found in Google Drive: cap table v1 (spreadsheet), cap table v2 (from the last board deck), and cap table v3 (from Carta, but not reconciled). The investor's counsel spent 3 hours reconciling cap tables and gave up — "if they can't even track who owns the company, what else is broken?" The term sheet expired during the diligence extension. The company had to raise a bridge round at 30% lower valuation. | The data room was reactive — built AFTER the term sheet. Diligence is not about uploading files; it's about presenting a coherent, reconciled narrative. Conflicting documents signal operational chaos louder than any pitch deck signals opportunity. | **Build and maintain the data room BEFORE you start fundraising — update it quarterly, not when you need money.** All 14 standard folders (corporate docs, financials, cap table, customer contracts, IP, HR/employment, compliance, etc.) must be populated and reconciled. The cap table in the data room must match Carta/Pulley, the board deck, and the last 409A — one source of truth. Customer contracts must be redacted by counsel and organized by revenue. Have your own lawyer diligence the data room before investors see it — if they find 14 issues, investors will find 30. |
-| Accepted a term sheet with a 45-day no-shop clause, stopped talking to 4 other interested funds — the lead investor's partnership committee killed the deal in week 5, and the company had to raise a bridge round at 40% lower valuation with no competing offers | The term sheet arrived from a top-tier fund. The no-shop clause said "company will not solicit, discuss, or entertain any alternative financing proposals for 45 days." The CEO went dark with 4 other funds who were mid-diligence. Week 4: the lead investor's partnership committee had concerns about TAM. Week 5: term sheet pulled. The CEO called the other 4 funds — "sorry, we went exclusive, but we're back." Three passed because "we've already reallocated our reserves." One offered a bridge at a 40% discount to the original term sheet. | The CEO treated a signed term sheet as a closed deal. Term sheets are non-binding (except no-shop and confidentiality). Until the wire hits, nothing is closed. The no-shop period is when deals most commonly die — and going dark with other investors during that window leaves you with no leverage if the lead pulls out. | **Never stop nurturing the pipeline during no-shop.** Tell other interested investors: "We've accepted a term sheet and are in an exclusivity period. I can't share details, but if anything changes I'll call you immediately. Can we keep the relationship warm?" Most investors understand. Have a written plan: if the lead pulls out, within 24 hours you call the top 3 backup investors with a specific ask ("we need a term sheet within 10 days, we'll honor the same terms the lead offered"). Never enter a no-shop without identifying your Plan B investors first. |
-| Modeled the dilution waterfall in Excel with circular references — showed founders at 52% post-Series B; Carta showed 38% because the spreadsheet forgot the option pool refresh, outstanding warrants, and the secondary component of the raise | The founder built the cap table in a personal spreadsheet. When they imported to Carta before Series B, they discovered: (a) the option pool was modeled at 10% but needed to be refreshed to 15% (pre-money), (b) 50,000 warrants from an early advisor were never recorded, (c) a secondary component where 2 early employees sold $400K of shares to the new investors moved shares to preferred. The spreadsheet showed founders at 52%. Actual: 38%. The founder had told their spouse "we're worth $26M at a $50M valuation." Reality: $19M. The trust damage with the founder's family compounded the fundraising stress. | The cap table was maintained in a tool that couldn't handle dilution with multiple security classes. Spreadsheets with circular references for option pool refreshes are guaranteed to produce errors. Warrants, SAFEs, and convertible notes with discount rates and caps create complex dilution paths that spreadsheets handle badly. | **Use cap table software (Carta, Pulley) from day one and model dilution scenarios inside it, not in Excel.** Before every fundraise: (a) have outside counsel audit the cap table against board consents and option grant notices, (b) model the dilution in the cap table tool — not a spreadsheet — testing the option pool refresh pre-money vs. post-money, (c) include every security: common, preferred, SAFEs, convertible notes, warrants, option pool, RSUs. The cap table you present to investors must match the one your lawyer holds — if they differ by a single share, stop and reconcile. |
-| Pitched a $50M Series B on a "TAM is $200B" slide — the lead investor asked "how do you get from $200B to $50M in 5 years?" and the answer was "0.025% penetration" with no bottoms-up build; the investor passed and told 3 other funds | The pitch deck had the standard TAM slide: "The market for [category] is $200B (Gartner 2024)." The lead investor's first question: "How many customers is that? What's the average contract value? How many do you need to hit $50M?" The CEO: "We only need 0.025% market share." The investor: "0.025% of what? How many buyers actually exist for a $29K/year product? Show me the list." The CEO couldn't. The partner meeting notes (which leaked): "CEO can't articulate their addressable market beyond industry report citation. Pass." | The TAM slide was a credibility destroyer dressed as a growth story. Top-down TAM from broad industry reports includes segments you can't serve. $200B "cloud infrastructure" includes AWS, Azure, and GCP — none of which are addressable for a $29K/year DevOps tool. The CEO couldn't bridge TAM → SAM → SOM → revenue with real numbers. | **Every TAM slide must include bottoms-up math.** "There are 18,500 companies in the US with 50–500 engineers using AWS. Our ACV is $29K. Our SOM (next 3 years) = 3,200 of those companies, or $92.8M. Our SAM = 12,000 companies, $348M. Our TAM = 18,500 companies, $536M." Each number must trace to a verifiable source: Bureau of Labor Statistics for company counts, G2/Capterra for competitor install bases, LinkedIn Sales Navigator for buyer counts. If you can't name the customer, don't count them in TAM. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can update an investor CRM and send monthly updates but can't explain how a participating preferred liquidation preference with a 3× cap changes the exit waterfall vs. non-participating preferred | You run a fundraise that goes from first meeting to term sheet in 6 weeks, diligence to close in 4 weeks; the data room generates zero follow-up requests; the cap table is modeled in 4 scenarios with no errors; and investor updates go out on the 5th of every month | A term sheet dies during no-shop — within 48 hours you have 3 alternative term sheets in hand because you never stopped nurturing the pipeline, and the CEO never knows how close the company came to a bridge round at a discount |
-| You include a TAM slide that cites a Gartner report but can't answer "how many actual buyers are there at your price point for your specific product?" | You build a TAM model that reconciles bottoms-up (named customers × ACV) with top-down (market size × penetration rate) within 10%, and every number traces to a named source — BLS data, competitor install base, or LinkedIn Sales Navigator counts | An investor hands you a pitch deck from a company in a sector you've never covered and asks "should we take the meeting?" — within 20 minutes you identify the 3 questions that will determine whether the business has real traction or is selling a story |
-| You think "fundraising" is about the pitch deck and stop preparing once the term sheet is signed | You manage a fundraise where the CEO spends 90% of their time on pipeline (meetings with investors) and 10% on deck tweaks — the deck is finalized before a single investor meeting happens | You're the person a Series C CFO calls at 10 PM when they discover the cap table in Carta doesn't match the board consents and the lead investor's counsel has flagged it — within 3 hours you have a reconciliation, a remediation plan, and a board communication drafted |
-
-**The Litmus Test:** Can you take a raw cap table with common, 2 classes of preferred, outstanding SAFEs, a convertible note, and an unexercised option pool — model the dilution through 2 more rounds including option pool refresh and new investor stake — and produce an exit waterfall at 4 valuation scenarios? And can you do it in under an hour, with zero errors, in a tool that a VC's legal counsel can audit? If the answer is "I'd need to check the spreadsheet," you're not L3.
 
 ## Deliberate Practice
 
@@ -539,17 +374,15 @@ graph LR
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
 ## References
-<!-- QUICK: 30s — links to deeper reading -->
 
-- `references/data-room-checklist-detailed.md` — Expanded 14-folder data room checklist with document descriptions and common red flags
-- `references/term-sheet-anatomy.md` — Deep dive on every term sheet provision: liquidation preference math, anti-dilution formulas, protective provisions negotiation playbook
-- `references/cap-table-waterfall-examples.md` — Worked examples of liquidation waterfalls at $10M, $50M, $100M, and $500M exit values
-- `references/investor-pipeline-templates.md` — CRM setup guide for Affinity, Streak, Airtable, and Notion with pipeline stage definitions
-- `references/due-diligence-response-playbook.md` — Common diligence requests organized by category with response templates
-- `assets/pitch-deck-template.pptx` — 12-slide pitch deck template with layout, speaker notes, and design guide
-- `assets/investor-update-template.md` — Monthly investor update template with KPI definitions and example updates
-- `assets/data-room-index-template.xlsx` — Data room index with folder structure, document checklist, and status tracker
-- `assets/term-sheet-comparison-matrix.xlsx` — Side-by-side term sheet comparison tool with weighted scoring
-- Related skills: `ceo-strategist`, `board-manager`, `legal-advisor`, `fp-and-a-analyst`
-- Books: Venture Deals (Feld & Mendelson), Secrets of Sand Hill Road (Kupor), The Art of Startup Fundraising (Cremades)
-- Resources: NVCA model legal documents, YC Safe templates, Carta cap table benchmarks, PitchBook/NVCA Venture Monitor
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

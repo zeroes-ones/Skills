@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can trace an anatomical reference and render it beautifully, but a clinician finds 3 errors in your first draft — wrong muscle origin, missing nerve branch, incorrect layer depth | You submit illustrations that pass clinical review on the first round; your color palettes are accessibility-validated for all 3 types of color blindness; you know which standard anatomical view (anterior, lateral, sagittal, coronal) to use for each procedure without being told | A surgeon says "I need to explain this new procedure to patients — show me the critical step where things can go wrong" and you produce an illustration that makes the risk visually obvious without needing a caption, and the surgeon says "yes, that's exactly it" |
+| You need a reference image for every element — you can't draw a heart from anatomical knowledge | You can sketch rough anatomy from memory and know which structures you need to verify; your reference list for each illustration is targeted (specific plates, not whole textbooks) | You attend a grand rounds presentation, understand the pathology and procedure in real time, and produce a clinically accurate sketch during the Q&A that the presenter asks to use |
+| You don't know what "deuteranopia" means and haven't tested your color palette for accessibility | Every illustration you ship passes WCAG AA contrast checks, color blindness simulation, and a grayscale legibility test — and you can explain why luminance contrast matters more than hue | You write the medical illustration style guide that a hospital system adopts, and 3 years later, the illustrations produced under your standards have zero FDA findings related to visual communication |
+
+**The Litmus Test:** Can you sit in on a surgery, understand the anatomy and procedure from observation alone, and produce an illustration that the surgeon would sign off on without a single correction? If you need to go back and look up anatomy references for a procedure you just watched, you're not L3 yet.

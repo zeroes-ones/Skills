@@ -38,13 +38,14 @@ chain:
   - migration-architect
   - performance-engineer
 ---
-# Database Designer
 
+# Database Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -86,6 +87,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -100,6 +102,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **REFUSE to recommend an index without `EXPLAIN` evidence.** Never add an index because it "seems right." Every index costs write performance and storage. The query planner may ignore it due to low cardinality, outdated statistics, or a better sequential scan plan. | Trigger: recommending `CREATE INDEX` or adding an index to a migration without showing `EXPLAIN (ANALYZE, BUFFERS)` output before and after the index | STOP. Require: "Run `EXPLAIN (ANALYZE, BUFFERS) [query]` on production-like data volumes. Show the plan before and after the index. Verify: (1) the index is actually used (Index Scan/Bitmap Index Scan, not Seq Scan), (2) query time improves measurably, (3) the index has acceptable write overhead. An unused index is dead weight — it slows every INSERT for zero read benefit." |
 
 ## The Expert's Mindset
+
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
 ### The Mental Model Shift
@@ -136,6 +139,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **Usage**: Say "as an L3 database designer, design the schema for..." Default: **L2** (service-level schema design, independent execution).
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Designing a new database schema for a greenfield application
 - Choosing between SQL (PostgreSQL, MySQL) and NoSQL (MongoDB, DynamoDB, Cassandra, Redis)
@@ -147,6 +151,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 - Designing sharding, partitioning, or replication topologies
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### SQL vs NoSQL Database Selection
 ```
@@ -274,6 +279,7 @@ Database design skill scales from single-table decisions to org-wide data strate
 **When to shard:** Data >10TB, writes >10K/sec sustained, read replicas maxed out (5+), vertical scaling ceiling hit (r6i.8xlarge). **When NOT to shard:** <1TB data, <5K writes/sec, can add read replicas, team <5 engineers — sharding costs $500K+/year.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~15 min): Requirements Analysis & Technology Selection
 1. **Identify access patterns**: Read-heavy vs write-heavy, query shapes (point lookups, range scans, aggregations, joins, full-text search), expected QPS and data volume.
@@ -337,19 +343,6 @@ Common chains:
 - **Greenfield data model**: system-architect → database-designer → backend-developer — Architecture defines data boundaries, DB design creates the schema, backend codes the access layer
 - **API-driven schema**: api-designer → database-designer → database-reliability-engineer — API resources define data shape, DB designs for those access patterns, DBRE ensures reliability at scale
 
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-When this skill is invoked, drill into these specialized areas as needed:
-
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| `schema-design` | New project, new feature | This file — Phase 2: Schema Design |
-| `query-optimization` | Slow queries, scaling issues | This file — Phase 3 + Index Strategy section |
-| `migration-strategy` | Schema changes, zero-downtime | This file — Phase 1: Migration Planning |
-| `multi-tenancy` | SaaS, B2B | This file — Phase 2: Schema Design patterns |
-| `backup-recovery` | DR planning, compliance | This file — Production Checklist section |
-| `database-selection` | New project, scaling event | This file — When Postgres is All You Need |
-
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -393,159 +386,12 @@ Routine schema change (new column, index addition, non-breaking type change)
 | Using Redis/Memcached as a cache layer in front of the database | Before adding cache, propose a read-through or write-through pattern with TTL based on data freshness requirements. Discuss cache invalidation strategy: TTL-based (simple), event-driven (accurate but complex), or write-through (consistent but higher write latency). Propose cache-hit-rate monitoring with stale-data alerts | A cache without an invalidation strategy serves stale data silently. `SETEX user:123 3600 {...}` works until a profile update happens and users see old names for an hour. Write-through ensures consistency; TTL-only accepts staleness — pick deliberately, not by accident |
 | Designing a multi-tenant database schema | Before choosing shared-table vs schema-per-tenant vs database-per-tenant, propose evaluating: (a) tenant count (10 vs 10K), (b) isolation requirements (GDPR/HIPAA), (c) noisy-neighbor risk. Discuss connection pool routing — if database-per-tenant, how does the app route to the right pool? Discuss tenant-level backup/restore expectations | Row-level tenancy (`tenant_id` column + RLS) is simple but one tenant's heavy queries degrade all others. Database-per-tenant isolates perfectly but explodes connection counts (200 tenants × 10 connections = 2000 connections). The choice between "simple and shared" vs "isolated and complex" is a business decision masked as a technical one |
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- **Model for access patterns, not for "purity"**: Denormalize when read performance matters more than write simplicity.
-- **UUIDs over auto-increment IDs** for distributed systems: UUIDv7 (time-ordered) for primary keys to avoid hot spots.
-- **Soft deletes with caution**: `deleted_at` simplifies recovery but complicates every query (add `WHERE deleted_at IS NULL`). Consider archiving to separate tables instead.
-- **Separate read and write models**: CQRS pattern for high-scale systems with disparate read/write patterns.
-- **Connection management**: Set appropriate pool sizes (CPU cores * 2-4 for OLTP), statement timeouts, idle-in-transaction timeouts.
-- **Regular maintenance**: `VACUUM ANALYZE`, index rebuilds, statistics updates, bloat monitoring.
-
-## Anti-Patterns
-<!-- QUICK: 90s -- 4-column machine-checkable format. Every anti-pattern has a grep to find it and a lint/prevention config. -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Designing indexes by intuition without running `EXPLAIN ANALYZE` | Run `EXPLAIN (ANALYZE, BUFFERS)` on every query in staging with production-like data volumes. Verify index scans actually occur | `grep -rn 'CREATE INDEX\|CREATE UNIQUE INDEX' migrations/ \| grep -v 'EXPLAIN\|explain\|query.plan'` — indexes without EXPLAIN evidence | CI check: `scripts/verify-indexes.sh` — for each new index, require EXPLAIN output showing the index is used before merge |
-| Using `SELECT *` in production code against wide tables | Explicitly list columns. `SELECT *` breaks on schema changes, fetches unused blobs, and prevents index-only scans | `grep -rn 'SELECT \*\|select \*' src/ \| grep -v 'COUNT(\*)\|count(\*)\|EXISTS\|test\|\.spec\|\.test'` — production SELECT * occurrences | ESLint rule: `no-restricted-syntax` with pattern `SELECT *`. Pre-commit hook: `scripts/check-select-star.sh` blocks commits with new SELECT * |
-| Running migrations without a tested rollback path — "we tested up, we'll figure out down if needed" | Every `up` migration must have a `down` tested in CI. Use expand-contract for destructive changes across multiple release cycles | `find migrations/ -name '*.up.sql' \| while read f; do down="${f/.up.sql/.down.sql}"; [ ! -f "$down" ] && echo "MISSING: $down"; done` — missing down migrations | CI gate: `scripts/check-migration-pairs.sh` — fails if any .up.sql lacks a .down.sql. Dev environment: run `down` then `up` as integration test |
-| Relying on application-level constraints instead of database constraints | Add `NOT NULL`, `CHECK`, `UNIQUE`, and `FOREIGN KEY` at the database level. App validation is bypassed by background jobs, direct DB, data migrations | `grep -rn 'validates.*presence\|validates.*format\|validates.*uniqueness\|validate.*required' app/ \| grep -v 'null:\s*false\|CHECK\|UNIQUE'` — app validations without DB constraints for same columns | Lint rule: `scripts/check-constraint-alignment.sh` — for every `validates :presence` or `required: true` in app code, verify corresponding `NOT NULL` in schema |
-| Opening a new database connection per request without pooling | Use PgBouncer (transaction mode) for Postgres, or ORM pool with `pool_size = (cores * 2) + 1`. Set `idle_in_transaction_session_timeout` | `grep -rn 'new Client\|new Pool\|createConnection\|connect()' src/ \| grep -v 'pool\|Pool\|MAX_CONNECTIONS\|pool_size'` — connection creation outside pool | CI check: `scripts/check-connection-pool.sh` — verifies connection pool configured with max size, idle timeout, and leak detection |
-| Storing monetary values as `FLOAT`/`DOUBLE` | Use `NUMERIC(19,4)` or `DECIMAL` for exact decimal arithmetic. Store in smallest unit (cents) as `BIGINT` for integer-only ops | `grep -rn 'FLOAT\|DOUBLE\|float\|double.*amount\|price\|balance\|salary\|revenue\|cost\|fee\|payment\|charge' migrations/` — float columns for money | Pre-commit lint: `scripts/check-money-columns.sh` — blocks any `FLOAT`/`DOUBLE` column named `amount`, `price`, `balance`, `fee`, `payment`, `revenue`, `cost`, `salary`, `charge`, `refund` |
-| Not monitoring connection pool saturation, replication lag, and slow queries | Deploy alerts: connection pool >70%, replication lag >5s, slow queries >500ms. These three signals catch 90% of database incidents before users notice | `grep -L 'pool.*utilization\|replication.*lag\|slow.*query.*alert\|pg_stat' monitoring/*` — no database-specific monitoring | Monitoring template: `templates/db-monitoring.yml` — deploys Grafana dashboard with pool, lag, slow queries. Run `scripts/check-db-monitoring.sh` in CI |
-| Using application-level JOINs (N+1 pattern) instead of database JOINs | Write a single query with `JOIN` and proper indexes. Use ORM eager loading (`include`, `preload`, `joins`) or write the SQL | `grep -rn '\.each\|\.forEach\|for.*of\|\.map' src/ \| grep -v '\.includes\|\.preload\|\.eager\|\.join'` — loops that may be N+1 | Lint: `eslint-plugin-n-plus-one` or `bullet` gem in dev. Detect by monitoring: queries-per-request > 20 triggers alert |
-
-## When Postgres is All You Need
-
-```
-Need full-text search? → Postgres built-in tsvector + GIN index (good to 1M docs).
-Need caching? → Postgres UNLOGGED tables + materialized views (good to 10K QPS).
-Need message queue? → Postgres SKIP LOCKED (PGMQ / 1K msg/sec).
-Need time-series? → Postgres partitioning + TimescaleDB extension (good to 1B rows).
-Need JSON documents? → Postgres JSONB with GIN indexes (good to 10M documents).
-Need graph queries? → Postgres recursive CTEs (good to 100K nodes).
-
-The only reasons to leave Postgres:
-- > 10TB data with simple key-value access → DynamoDB/Cassandra
-- > 10K writes/sec sustained → Cassandra/ScyllaDB
-- > 100M graph traversals → Neo4j
-- Global multi-region with < 10ms writes → CockroachDB/Spanner
-```
-
-## Sharding Cost Analysis
-
-**Sharding increases complexity cost by 3-5×. Justify it:**
-
-| Sharding Trigger | Threshold | Alternative First |
-|-----------------|-----------|-------------------|
-| DB CPU > 70% | Add read replicas | 3-5 replicas handle most read-heavy workloads |
-| Write throughput > 5K/sec | Vertical scale (r6i.8xlarge) | $2K/month vs $100K+ in sharding complexity |
-| > 10TB data | Partitioning + archiving | Partition by date, archive cold partitions to S3 |
-| Multi-tenancy at scale | Database-per-tenant | Simpler than sharding; isolate noisy neighbors |
-
-**Sharding cost:** 3-6 months initial build + 1-2 dedicated DBREs at $180K/year each + application-level routing complexity. Minimum $500K/year overhead.
-
-## Denormalization ROI Calculator
-
-```
-For each denormalization: 
-ROI = (read_latency_reduction_ms × reads_per_second × user_value_per_ms) - (write_penalty_ms × writes_per_second × write_cost_factor) - (storage_cost)
-
-Example: Denormalizing `order_count` onto `users` table:
-- Reads: 1000/s, latency down from 50ms to 5ms (45ms saved)
-- Writes: 10/s, latency up from 10ms to 12ms (2ms penalty)
-- Storage: 4 bytes × 1M users = 4MB — negligible
-- ROI: (45ms × 1000 × 1000 reqs) - (2ms × 10 × 1000) = overwhelmingly positive
-
-Denormalize when: read:write ratio > 100:1 and read latency > 20ms.
-Do NOT denormalize when: read:write ratio < 10:1 (maintenance will kill you).
-```
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-
-### Solo (1 person, 0-100 users)
-- **What changes**: Database = SQLite for dev, managed Postgres for production (Supabase/Railway). No ORM (raw SQL or lightweight query builder). Migrations = manual or simple migration tool. Backups = managed service handles it. No replication. No connection pooling beyond default.
-- **What to skip**: Read replicas. Sharding. CQRS. Multi-tenancy design. PITR. Encryption-at-rest configuration. Monitoring dashboards.
-- **Coordination**: You are the DBA + developer. Make schema changes whenever.
-
-### Small Team (2-10 people, 100-10K users)
-- **What changes**: Managed Postgres with migration framework (Alembic, Prisma Migrate). ORM with escape hatches to raw SQL. Indexes on query patterns (EXPLAIN reviewed). Connection pooling (PgBouncer or built-in pool). Daily backups with PITR. Basic monitoring (slow query log, connection count).
-- **What to skip**: Read replicas (unless >1000 QPS). Sharding. Multi-tenancy beyond row-level. Materialized views. CQRS. Database selection matrix (Postgres covers 95% of needs).
-- **Coordination**: Schema changes reviewed in PR. Migration tested in staging before production. Weekly check on slow queries.
-
-### Medium Team (10-50 people, 10K-1M users)
-- **What changes**: Read replicas for read-heavy workloads. Expand-contract migration pattern for zero-downtime. Index strategy with regular review. Materialized views for complex aggregations. Multi-tenancy design (row-level or schema-per-tenant). Monitoring dashboards (slow queries, replication lag, disk, connections). Backup + restore tested quarterly. Database selection matrix for specialized needs (search → Elasticsearch, cache → Redis).
-- **What to skip**: Sharding (wait until >1TB or >10K writes/sec). CQRS with separate read/write stores (materialized views + replicas are enough). Multi-region active-active.
-- **Coordination**: Schema change RFC for cross-team impact. Monthly query performance review. Quarterly backup restore test.
-
-### Enterprise (50+ people, 1M+ users)
-- **What changes**: Dedicated DBA or database reliability team. Sharding strategy (when needed). Multi-region with failover. CQRS for high-scale domains. Data warehouse for analytics. Database CI/CD with automated migration testing. Encryption at rest + in transit + key rotation. Data retention and archival automation. Compliance audit trails (GDPR, HIPAA). Capacity planning with cost modeling.
-- **What's full production**: Database reliability engineering (DRE). Automated failover testing. Chaos engineering for database. Annual capacity planning. Data governance framework.
-- **Coordination**: Database reliability team weekly. Monthly capacity review. Quarterly DR test. Schema change governance board.
-
-### Transition Triggers
-- **Solo → Small**: Second developer making schema changes. Need migration framework to avoid conflicts.
-- **Small → Medium**: Read load exceeds single instance capacity (>1000 QPS). First zero-downtime migration needed.
-- **Medium → Enterprise**: >1TB data or >10K writes/sec. Multi-region or compliance (SOC 2, HIPAA, GDPR). >50 developers.
-
-
-## Error Decoder
-<!-- DEEP: 10+min -- 5-column format with grep matches and auto-recovery loops -->
-
-| 🖥️ Console Match (grep) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------|---------|-----------|-----|----------------------|
-| `grep -iP '(lock.*timeout\|ACCESS.EXCLUSIVE\|could.not.acquire.*lock\|waiting.for.*lock\|deadlock)' logs/db-errors.log` | Production database locked up for 20+ minutes during deployment — all queries blocked | Migration added `ALTER TABLE X ADD COLUMN Y TEXT NOT NULL DEFAULT 'value'` — DB rewrites entire table holding ACCESS EXCLUSIVE lock | Kill stuck migration. Use expand-contract: add nullable column → backfill in 10K batches → `ALTER COLUMN SET NOT NULL`. Test on staging copy of production data first | 1. Check `pg_stat_activity` for blocking query. 2. If migration is blocking: `SELECT pg_cancel_backend(pid)` or `pg_terminate_backend(pid)`. 3. Restore from replica if data corrupted. 4. Rewrite migration: ADD COLUMN (nullable) → batched UPDATE → SET NOT NULL. 5. Test migration time on staging clone. 6. Set `lock_timeout = '5s'` for all migrations |
-| `grep -iP '(seq.scan\|sequential.scan.*rows=\d{6,}\|Seq.Scan.*cost)' logs/db-errors.log` | Dashboard query times out at 60+ seconds — sequential scan on multi-million-row table | Missing index on JOIN/FILTER column. Query planner chooses Seq Scan because no usable index exists, scanning 10M+ rows | `CREATE INDEX CONCURRENTLY idx_name ON table(column)`. Run `EXPLAIN ANALYZE` to verify index is used. Query drops from 60s to < 100ms | 1. Identify slow query from `pg_stat_statements` or slow query log. 2. Run `EXPLAIN (ANALYZE, BUFFERS) [query]`. 3. Look for `Seq Scan on large_table (rows=10000000)`. 4. Identify filter/JOIN columns without indexes. 5. `CREATE INDEX CONCURRENTLY idx_...` (non-blocking). 6. Re-run EXPLAIN — must show Index Scan or Bitmap Index Scan. 7. Verify query time improvement |
-| `grep -iP '(float.*precision\|rounding.*error\|numeric.*overflow\|0\.30000000000000004\|decimal.*mismatch)' logs/db-errors.log` | Financial reports off by pennies/cents — cumulative rounding errors across thousands of transactions | Monetary values stored as `FLOAT`/`DOUBLE` instead of `NUMERIC(19,4)` or `BIGINT` (cents). Floating-point arithmetic is inexact by design | `ALTER TABLE X ALTER COLUMN amount TYPE NUMERIC(19,4)`. Recalculate historical balances. Add `CHECK (amount >= 0)` constraint | 1. Audit all tables with columns named `amount`, `price`, `balance`, `fee`, `payment`, `revenue`, `cost`. 2. For each FLOAT/DOUBLE: `ALTER COLUMN TYPE NUMERIC(19,4) USING (amount::numeric)`. 3. For integer-only ops: convert to `BIGINT` storing cents. 4. Recalculate all aggregate balances with `SUM(amount::numeric)`. 5. Add CHECK constraints. 6. Run financial reconciliation to verify totals match |
-| `grep -iP '(connection.*refused\|too.many.clients\|remaining.connection.slots.*reserved\|pool.*exhausted\|no.*connections.available)' logs/db-errors.log` | Application throws "too many clients" or "connection refused" — database unreachable | Connection pool exhausted. App opens new connections without pooling, or connections leak due to missing `idle_in_transaction_session_timeout` | Set pool max = `(cores * 2) + 1` (for direct Postgres) or `(cores * 4)` (for PgBouncer). Set `idle_in_transaction_session_timeout = 30000`. Add pool monitoring at 70% | 1. Check `pg_stat_activity` for idle-in-transaction connections. 2. `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction' AND age(now(), state_change) > '5 min'`. 3. Configure PgBouncer in transaction mode. 4. Set `pool_size` and `idle_timeout`. 5. Add Grafana alert: pool utilization > 70%. 6. Add application-side connection timeout + retry with backoff |
-| `grep -iP '(could.not.rollback\|down.migration.*fail\|column.*does.not.exist.*rollback\|cannot.undo)' logs/db-errors.log` | Migration rollback fails — data lost because rollback tries to re-add a dropped column but can't recover the data | Destructive migration (DROP COLUMN) deployed without a tested rollback. PITR is disaster recovery, not a rollback strategy | Restore from PITR to point before migration. Implement expand-contract: never drop columns in a single migration; deprecate first, drop after 2 release cycles | 1. Stop all writes. 2. Restore from PITR to timestamp before migration. 3. Extract lost data from PITR restored instance. 4. Replay safe portion of migration. 5. Implement expand-contract for future DROPs. 6. Add CI check: no DROP COLUMN without `deprecated_since` comment and 2-release waiting period |
-| `grep -iP '(N\+1\|n.plus.1\|hundreds.of.queries\|thousands.of.queries\|query.per.request.*\d{3,})' logs/db-errors.log` | Page load fires 200+ database queries — response time > 5 seconds under normal load | N+1 pattern: app fetches parent records, then loops and fetches child records one at a time instead of using JOIN or eager loading | Replace loop+query pattern with single JOIN query or ORM eager loading (`include`, `preload`, `joins`). 200 queries → 1 query. Response time drops from 5s to < 200ms | 1. Enable query logging in dev: log every query with duration. 2. Load the page — count queries. If > 20 queries per request: N+1 likely. 3. Find the loop: `grep -rn '\.each\|\.forEach\|for.*of'` in the controller/handler. 4. Inside the loop: find database calls. 5. Replace with `Model.findAll({ include: [ChildModel] })` or `SELECT ... LEFT JOIN ...`. 6. Re-count queries — must be 1-3 per request |
-
-
 ## What Good Looks Like
 
 > Every query in the application is backed by an index that makes it run in single-digit milliseconds, and `EXPLAIN ANALYZE` output confirms index-only scans on every critical path — no sequential scans hiding in production. The schema is normalized to 3NF with deliberate, documented denormalizations where read performance demands it, and no one has ever said "we'll fix the schema later" in a code review. Migrations apply in under 30 seconds with zero downtime via expand-contract patterns, and rollback plans are practiced, not theorized. Connection pools are sized so peak Black Friday traffic never exhausts them, and slow-query logs are empty for days at a time. Backups run on schedule, restores are exercised quarterly, and the team can answer "what was the state of this row at 3:14 PM last Tuesday?" because point-in-time recovery just works.
 
-## Production Checklist
-<!-- QUICK: 30s -- all items are machine-verifiable. Every item gets a validation command and auto-fix path. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **S1** | Database technology selected with documented rationale (SQL vs NoSQL, specific engine) | `grep -cP '(rationale\|decision.*record\|why.*chose\|chosen.*because)' db-decision.md` — must return >= 1 | Template: `templates/database-selection-adr.md` — architecture decision record with data model, access patterns, consistency requirements, and alternatives considered |
-| **S2** | Entity-relationship diagrams (ERDs) created and peer-reviewed | `file db-diagram.{svg,png,pdf,drawio}` — must exist. `grep -cP 'reviewed\|approved' erd-review.md` — must have review sign-off | Generate ERD from schema: `npx schemaspy -t pgsql -host localhost -db mydb -o docs/erd`. Or export from DBeaver/Prisma |
-| **S3** | Schema normalized to 3NF with deliberate, documented denormalizations | `grep -cP 'denormaliz\|materialized.view\|cache.table\|aggregate.table\|precomputed' schema-docs.md` — every denormalization must be documented with justification | Run `scripts/check-normalization.sh` — flags tables with transitive dependencies (non-3NF). Template: `templates/denormalization-justification.md` for each intentional denormalization |
-| **S4** | Indexing strategy aligned with all critical query patterns (EXPLAIN output reviewed) | `grep -cP 'Index.Scan\|Index.Only.Scan\|Bitmap.Index.Scan' explain-plans/*.txt` — every critical query must show index usage | Run `scripts/verify-indexes.sh` — for each query in `queries/*.sql`, run EXPLAIN and verify index usage. Report missing indexes |
-| **S5** | Migration framework in place with expand-contract for production changes | `find migrations/ -name '*.down.sql' \| wc -l` must match `find migrations/ -name '*.up.sql' \| wc -l` | `scripts/check-migration-pairs.sh` — fails CI if any .up.sql lacks .down.sql. Template: `templates/migration-expand-contract.md` |
-| **S6** | Connection pooling configured with appropriate limits and timeouts | `grep -cP 'pool.*size\|max_connections\|connection_timeout\|idle_in_transaction' config/database.{yml,yaml,toml,env}` — must have pool config | Template: `templates/pgbouncer.ini` or ORM pool config. Defaults: pool=20, idle_timeout=10s, idle_in_transaction_timeout=30s |
-| **S7** | Backup strategy defined (WAL archiving, PITR, daily snapshots) with tested restore | `grep -cP 'backup\|WAL.archiv\|PITR\|snapshot\|restore.*test' backup-plan.md` — >= 3 | Template: `templates/backup-strategy.md`. Run `scripts/test-restore.sh` in CI — restores latest backup to ephemeral instance and runs smoke tests |
-| **S8** | Encryption at rest (TDE/KMS) and in transit (TLS 1.3) configured | `grep -cP 'ssl\|tls\|encrypt\|KMS\|TDE\|pg_hba.*scram-sha-256' config/database.{yml,yaml,toml,env}` — >= 2 | Run `scripts/check-db-encryption.sh` — verifies TLS enabled, scram-sha-256 auth, and KMS key configured for managed DB |
-| **S9** | Monitoring dashboards for slow queries, connection counts, replication lag, disk usage | `curl -s -o /dev/null -w '%{http_code}' <grafana-db-dashboard-url>` must return 200 | Deploy `templates/db-monitoring.yml` — Grafana dashboard with: slow queries, pool utilization, replication lag, disk %, deadlocks, index hit ratio |
-| **S10** | Data retention and archival policy documented and automated | `grep -cP 'retention\|archive\|purge\|TTL\|delete.after' data-lifecycle.md` — >= 2 | Template: `templates/data-lifecycle-policy.md`. Cron jobs: `scripts/archive-and-purge.sh` for each table with TTL policy |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from production database systems -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Index on a `status` column with 3 values (pending/active/closed) — 98% of rows were "closed" so the query planner ignored the index and table-scanned 50M rows on every query | A task management system added an index on `tasks.status` to speed up "show me open tasks" queries. But after 3 years, 98% of the 50M rows had `status = 'closed'`. PostgreSQL's query planner looked at the histogram: "If I use the index, I'll still read 49M rows from the heap — faster to just sequential scan the table." The "open tasks" query took 8 seconds in production because the index was effectively useless for the dominant value. The team added 3 more indexes on the same column (partial, composite, expression) trying to fix it, bloating the database by 40GB. | Low-cardinality indexes degrade over time as data distribution changes. An index on a column with 3 values is useful when the values are evenly distributed. When one value dominates, the index becomes a liability — the planner ignores it but still maintains it on every write. The team never re-evaluated index effectiveness against current data distribution. | **Review index usage quarterly against current data distribution.** Query: `SELECT indexrelname, idx_scan, idx_tup_read, idx_tup_fetch FROM pg_stat_user_indexes`. If `idx_scan = 0` for 3+ months, the index is dead weight. For low-cardinality columns, use partial indexes: `CREATE INDEX ON tasks (created_at) WHERE status IN ('pending', 'active')`. This indexes only the 2% of rows you actually query, making it small, fast, and always used by the planner. |
-| Foreign keys enforced in development but missing in production RDS — 1.2M orphaned rows accumulated over 11 months because the DBA created tables with `CREATE TABLE ... ENGINE=InnoDB` but forgot `FOREIGN KEY` clauses | A SaaS platform ran MySQL in dev with strict mode and foreign keys. The production RDS instance was provisioned via Terraform with a raw SQL migration. The DBA exported the schema from dev using `mysqldump --no-data` but the output was truncated at 65KB — everything after the `orders` table was missing. The RDS instance ran without FK constraints for 11 months. When the team ran a data cleanup script that `DELETE FROM users WHERE last_login < '2023-01-01'`, it succeeded — but left 1.2M orders, 340K invoices, and 8M log entries referencing deleted users. The analytics dashboard showed revenue from "User #0" for 6 months before anyone investigated. | Foreign keys were assumed present because "the migration ran successfully." Nobody verified with `SHOW CREATE TABLE` on the production instance. The Terraform module had `apply_immediately = false` so schema validation never ran against the actual RDS instance after provisioning. | **Validate schema integrity in production, not just in dev.** Run a post-deploy check: `SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_NAME IS NOT NULL` and compare against expected FKs. Add a CI check that runs `pt-online-schema-change --dry-run` against a production-sized clone. Never assume — verify with `SHOW CREATE TABLE` on the actual production instance after every migration. |
-| Migration `ADD COLUMN last_login_at TIMESTAMP DEFAULT NOW()` on a 50M-row table locked all writes for 4 hours because PostgreSQL < 11 rewrites every row to fill the default value | A team added a `last_login_at` column to the `users` table (50M rows) with `ALTER TABLE users ADD COLUMN last_login_at TIMESTAMP DEFAULT NOW()`. On PostgreSQL 10.6, this triggered a full table rewrite — every row was copied to a new location on disk with the default value filled in. The `users` table was locked for writes (no logins, no signups, no password resets) for 4 hours. The migration started at 10:00 AM on a Monday. Support received 1,700 tickets before the migration completed. Management required all future migrations to be approved by a VP. Velocity cratered. | In PostgreSQL < 11, `ADD COLUMN ... DEFAULT` rewrites the entire table because the default value must be physically stored in each row. The team assumed "this is just adding a nullable column with a default — it'll be instant" based on experience with MySQL, where `ADD COLUMN` is metadata-only when the column is nullable. They never checked the PostgreSQL version or tested on a production-sized dataset. | **Always check your database version before writing migrations.** PostgreSQL 11+ supports instant `ADD COLUMN ... DEFAULT` for non-volatile defaults. If on < 11, split the migration: (1) `ALTER TABLE ADD COLUMN` (instant, nullable, no default), (2) backfill in batches of 10,000 with `UPDATE ... WHERE id IN (...) LIMIT 10000`, (3) `ALTER COLUMN SET DEFAULT` once backfill is complete. Test every migration on a production-sized anonymized clone before running against production. |
-| Connection pool sized at 20 connections based on average load — a marketing email drove 500 concurrent users, the pool saturated, and every service returned `502 Bad Gateway` for 18 minutes | A B2C platform configured HikariCP with `maximumPoolSize: 20` — reasonable for their average of 15 concurrent requests. A Black Friday email campaign went out at 9:00 AM. Concurrent users spiked to 500 in 60 seconds. The connection pool saturated at 20 — 480 requests queued waiting for connections. The `connectionTimeout` was 30 seconds, so every queued request blocked for 30 seconds before failing. The application server's thread pool also saturated. New requests from unaffected services couldn't reach the health check endpoint. Recovery required restarting all 12 application instances. Lost revenue: estimated $47,000 in 18 minutes. | The pool was sized for the average, not the peak. No one calculated: `pool_size = (peak_qps × p95_query_ms) / 1000 × 1.5`. The connection timeout (30s) was orders of magnitude too high — a `502` after 3 seconds is a blip; a `502` after 30 seconds is an outage. No circuit breaker protected downstream services from the pool saturation. | **Size your connection pool for peak, not average.** Formula: `pool_size = (peak_qps × p95_query_ms) / 1000 × 1.5`. For 500 QPS with 50ms p95 queries: (500 × 50) / 1000 × 1.5 = 37.5 → set pool to 40. Set `connectionTimeout` to 3 seconds — fail fast, don't queue. Add a circuit breaker on the application side that trips when 80% of pool connections are in use and returns degraded responses. Load-test with the peak scenario before every major campaign. |
-| Read replica lag exceeded 30 seconds during a nightly batch job — customers in Europe saw orders they placed 30 seconds ago disappear from their order history | A global e-commerce platform used a primary-write, replica-read topology. The primary was in us-east-1; a read replica in eu-west-1 served European traffic. A nightly analytics batch job ran `SELECT COUNT(*), SUM(amount) FROM orders WHERE ...` on the primary at 2:00 AM UTC. The query took 8 seconds and generated 2GB of WAL. The eu-west-1 replica fell 30 seconds behind applying WAL. European customers who placed orders and immediately viewed their order history saw... nothing. Their orders existed on the primary but hadn't replicated yet. Support received 140 "where is my order?" tickets. Three customers placed duplicate orders thinking the first one failed. | The read replica was treated as transparently consistent, but replication is asynchronous by default. No application-level logic handled replication lag. The batch job ran on the primary (generating WAL) instead of a dedicated analytics replica. No monitoring alerted on replica lag exceeding 5 seconds. | **Never assume read replicas are current.** Use `SHOW SLAVE STATUS` or `pg_stat_replication` to check `replay_lag` before routing reads to a replica. For read-your-own-writes: after a mutation, route the next N seconds of reads from that user session to the primary. Add an alert on replication lag > 5 seconds. Move analytics queries to a dedicated replica that doesn't serve user traffic, so batch jobs don't stall the replicas customers read from. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You add indexes to every column in a slow query without checking whether the query planner actually uses them | You can `EXPLAIN ANALYZE` any slow query, identify whether the bottleneck is a missing index, a bad join order, or a table scan, and deploy a fix that reduces query time by 10× or more — confirmed by production metrics | A developer asks "why is this query slow?" and you diagnose the root cause in under 2 minutes without looking at the code, just from the query plan — and you're right 90% of the time |
-| You design schemas by modeling "what the app needs right now" without thinking about what queries will run against it 12 months from now | You design schemas with 3-year query patterns in mind — you know which columns will be filtered, which will be sorted, and which will be joined — and the indexing strategy you define today still serves 80% of queries 2 years later | You lead a migration from one database technology to another (PostgreSQL → CockroachDB, MySQL → Vitess) with zero data loss, under 5 minutes of write downtime, and no application code changes beyond the connection string |
-| You run migrations during business hours by clicking "Apply" in a GUI | Every migration is expand-contract: add the new column/schema (compatible), backfill data, switch reads, switch writes, remove old column — and each step is individually reversible | You contribute a performance improvement or bug fix to the PostgreSQL/MySQL/SQLite query optimizer, not just the application layer — you understand why the planner makes its decisions, not just what it decided |
-
-**The Litmus Test:** Can you restore a production backup to a staging server, identify the 5 slowest queries by running `EXPLAIN ANALYZE` on each, and deploy fixes that improve each by at least 5× — all within 2 hours?
-
 ## Deliberate Practice
+
 <!-- DEEP: 10+min — how to improve, not just what you do -->
 
 ### The Database Improvement Loop
@@ -565,11 +411,6 @@ Do NOT denormalize when: read:write ratio < 10:1 (maintenance will kill you).
 **Restore last night's production backup to a staging server and run your application against it.** Not a synthetic dataset. Not a truncated copy. The real data, real volume, real distribution. Your queries that ran in 2ms on dev will show their true colors on 500GB of production data.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/current/) — Performance Tips, Index Types
-- [Use the Index, Luke!](https://use-the-index-luke.com/) — Markus Winand
-- [Database Migrations Done Right](https://www.brunton-spall.co.uk/post/2014/05/06/database-migrations-done-right/) — Michael Brunton-Spall
-- [Designing Data-Intensive Applications (Chapters 2-3, 5-7)](https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/) — Martin Kleppmann
-- [PostgreSQL Indexes](https://www.postgresql.org/docs/current/indexes.html) — PostgreSQL Official
-- [MongoDB Schema Design Best Practices](https://www.mongodb.com/docs/manual/core/data-modeling-introduction/)
-- [DynamoDB Best Practices](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
+- **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
+- **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)
+- **When Postgres is All You Need**: See [when-postgres-is-all-you-need.md](references/when-postgres-is-all-you-need.md)

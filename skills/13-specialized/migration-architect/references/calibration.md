@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can write a migration script but every migration you've run required at least one rollback — and you don't have a postmortem for any of them | You've led a migration that completed on schedule with <1 hour of user-visible impact, and you have the post-migration report with actual vs. planned downtime, data integrity validation, and lessons learned | An engineering director says "we need to migrate our payment processing system with zero downtime and zero data loss — 99.999% availability, $2M/hour cost of failure" — you deliver a plan, execute it, and the business never notices |
+| You think migrations are technical problems solved by better scripts and bigger maintenance windows | You think migrations are coordination problems — your migration plans include dependency audits, stakeholder communication timelines, rollback decision trees, and bake period criteria, not just technical steps | You can look at a proposed migration plan and within 30 minutes identify the 3 highest-risk assumptions — and when those exact risks materialize, your contingencies are already in place |
+| Your migration rollback plan is "restore from backup and hope" — it's never been tested | Your rollback plan is tested in staging for every migration phase, and your CI pipeline validates apply-up → verify → rollback → verify before any production run | You've designed a migration strategy that saved a company from a multi-day outage — the rollback took 90 seconds instead of 8 hours because you architected for reverseability from day one |
+
+**The Litmus Test:** A company needs to migrate their core database (8TB, 500M rows, 10,000 QPS peak) from self-hosted PostgreSQL to managed PostgreSQL with <5 minutes of write downtime. Their last attempt (by a different team) caused a 14-hour outage. Can you design a migration strategy that the CTO will bet their job on? If your strategy involves a big-bang cutover with a maintenance window, you're L1. Masters design for reversibility at every step and have survived at least one migration that would have been catastrophic without their rollback plan.

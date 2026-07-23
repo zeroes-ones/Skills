@@ -35,13 +35,14 @@ chain:
   alternatives:
     - account-manager
 ---
-# Partnerships Manager (Channel Manager / Partner Success)
 
+# Partnerships Manager (Channel Manager / Partner Success)
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Own partner execution: onboard integration, reseller, and referral partners, design co-selling motions, run partner training & certification, manage deal registration, operate the partner portal, allocate MDF, run partner QBRs, resolve channel conflict, and measure ecosystem health. BizDev structures the deal — you make it work.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- pick your path, skip the rest -->
 
 ### Auto-Route (machine-executable — do not show to user)
@@ -78,8 +79,8 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-
 ## Ground Rules — Read Before Anything Else
+
 <!-- QUICK: 30s -- mechanical rules. Every violation has a detectable trigger and a standardized response. -->
 
 These rules apply to *every* response this skill produces.
@@ -93,7 +94,6 @@ These rules apply to *every* response this skill produces.
 | **R5** | Treat partner NPS as seriously as customer NPS. A detractor partner will not send deals — they will tell other partners. | `grep -rn "partner NPS\|partner satisfaction" *.csv *.xlsx \| awk -F',' '{if($2<7) print "DETRACTOR:", $0}'` → flag any score <7 | **DETECT**: Flag all NPS scores <7. Auto-generate follow-up action item within 48 hours. Quarterly survey required; alert if last survey >90 days ago. |
 | **R6** | Never let partner tier benefits be cosmetic. If Silver and Platinum partners get essentially the same benefits, there's no incentive to invest. | `grep -rn "tier benefit\|tier perk\|tier advantage" tier-benefits.* \| awk -F':' '{print $2}' \| sort \| uniq -c \| awk '{if($1>2) print "DUPLICATE BENEFIT"}'` → flag if benefits overlap across tiers | **WARN**: Flag tiers where ≥3 benefits are shared across levels. Require each tier to have ≥1 exclusive benefit that partners genuinely value (margin, MDF access, lead sharing, exec sponsorship). |
 | **R7** | Never focus partner manager time on the loudest partner instead of the highest-potential. The squeaky wheel shouldn't starve the high-potential. | `grep -rn "PAM assignment\|partner manager ratio\|coverage" *.csv \| awk -F',' '{if($3=="Platinum" && $4>15) print "PAM OVERLOAD:", $0; if($2=="Silver" && $4!="self-serve") print "SILVER OVER-COVERED"}'` → check coverage ratios | **WARN**: Alert if Platinum ratio > 1:15 or Silver partners lack self-serve designation. Implement tiered coverage: Platinum = dedicated PAM (1:10-15), Gold = pooled (1:20-30), Silver = self-serve + quarterly check-in. |
-
 
 ## The Expert's Mindset
 
@@ -114,6 +114,7 @@ Master partnerships managers understand that strategy is not about predicting th
 ### When to Break Your Own Rules
 - **Bet the company when the asymmetry is right.** If downside = $1M and upside = $1B, the math doesn't care about your process.
 - **Ignore the data when you're creating a new category.** By definition, there's no data for something that doesn't exist yet.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -130,6 +131,7 @@ Master partnerships managers understand that strategy is not about predicting th
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
 - A new partner has signed an agreement and needs onboarding, training, and activation
@@ -143,6 +145,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You can't answer "how healthy is our partner ecosystem?" — need ecosystem health scoring
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Co-Sell Motion Design
@@ -301,6 +304,7 @@ Ecosystem Diversity (0-5)
 **Composite Score:** 21-25 = Excellent. 15-20 = Healthy, invest. 10-14 = Needs attention. <10 = Red alert, program at risk.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 <!-- DEEP: 10+min -->
@@ -319,57 +323,12 @@ Enablement is ongoing, not onboarding-only. Components: (1) **Content Library:**
 
 ### Phase 3 (~30 min): Partner Training & Certification
 
-Certification is the gate to tier benefits and deal registration. Design three certification tracks: (1) **Sales Certified** — required for all partners. Covers: positioning, discovery, demo, pricing, competition, deal registration process. Assessment: pitch recording reviewed by partner manager + written exam. Renewal: annual. (2) **Technical Certified** — required for reseller, OEM, and integration partners. Covers: architecture, integration patterns, API usage, troubleshooting, deployment best practices. Assessment: hands-on lab + technical exam. Renewal: annual. (3) **Specialized Certified** — optional, for specific verticals or use cases. Healthcare, Financial Services, Enterprise. Assessment: industry-specific case study + exam. Benefit: higher margin on specialized deals. Track certification status in partner portal. Auto-notify 60 days before expiration. Certification completion rate <50% across partners → program is too hard or not valued enough. Audit and simplify.
+Certification is the gate to tier benefits and deal registration. Design three certification tracks: (1) **Sales Certified** — required for all partners. Covers: positioning, discovery, demo, pricing, competition, deal registration process. Assessment: pitch recording reviewed by partne
 
-<!-- DEEP: 10+min -->
-
-### Phase 4 (~45 min): Partner Portal & Resource Hub
-
-The partner portal is the single source of truth for all partners. Design for self-serve: if a partner needs to email their partner manager for something that should be in the portal, the portal is failing. Required capabilities: (1) **Deal Registration:** Register new deals, track deal status, view deal history. Auto-validation against CRM for duplicates, (2) **Pipeline Tracking:** Partner sees their active pipeline, stage, deal value, next steps. Auto-expire stale deals, (3) **Training & Certification:** Course catalog, progress tracking, certification status, expiration dates, (4) **Content Library:** All enablement assets, searchable, filterable by tag, downloadable, (5) **MDF Requests:** Submit MDF proposals, track approval status, report on MDF spend, (6) **Performance Dashboard:** Partner sees their metrics — sourced revenue, influenced revenue, pipeline created, deals won, deals lost, certification status, tier level, (7) **Program Guide:** Partner program overview, tier requirements, benefits per tier, deal registration rules, rules of engagement, (8) **Support:** FAQ, knowledge base, "Contact Partner Manager" button, escalation path. Portal usage metric: partners logging in at least monthly >60% of active partner base.
-
-<!-- DEEP: 10+min -->
-
-### Phase 5 (~30 min): MDF Management
-
-Market Development Funds are co-marketing dollars allocated to partners. Budget: typically 1-3% of expected partner revenue. Process: (1) Partner submits MDF proposal through portal: activity description, target audience, expected outcomes (leads, pipeline, deals), budget breakdown, timeline, (2) You review within 5 business days: does this align with joint GTM priorities? is the ROI case credible? is the partner contributing (typically 50/50 split for Tier 1, 70/30 your contribution for Tier 2)? (3) Approved MDF is tracked: spend vs. budget, activity completion, outcome measurement, (4) Post-activity review within 30 days: what was delivered? what were the results? what would we do differently? If results significantly underperform the proposal (e.g., 0 leads from a $10K event), partner's future MDF approvals are scrutinized more heavily, (5) Unused MDF reallocated quarterly — if a partner hasn't used allocated funds by end of quarter, funds return to pool. MDF ROI tracking: total MDF spend / partner-sourced pipeline generated from MDF activities. Target: <20% of partner revenue equivalent spent on MDF.
-
-<!-- DEEP: 10+min -->
-
-### Phase 6 (~30 min): Partner QBR
-
-Quarterly Business Review with strategic partners. Structured agenda (60-90 minutes): (1) **Executive check-in (5 min):** Any org changes, strategy shifts, new priorities on either side? (2) **Performance review (20 min):** Revenue vs. JBP target. Pipeline created, deals closed, deals lost (with reasons). Partner NPS trend. Certification status. Time-to-first-deal for new partner reps. (3) **Joint pipeline review (15 min):** Top 5 active deals — stage, next step, blocker, help needed. Target accounts for next quarter. (4) **Enablement & marketing review (10 min):** Training completion. Content usage. MDF spend & ROI. Upcoming co-marketing activities. (5) **Product & roadmap update (10 min):** What's shipping next quarter. How it affects partner's GTM. Integration updates. (6) **Next quarter planning (15 min):** Revenue commitment. Target accounts. Key activities. Resource needs. Any JBP adjustments. (7) **Action items & owners (5 min):** Who will do what by when. Documented and shared within 24 hours. QBR outcome: a 1-page scorecard + action plan. If a partner misses QBR targets for 2 consecutive quarters, escalate from QBR to "partnership reset" conversation.
-
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-<!-- DEEP: 10+min -- these rules encode years of partner programs that looked good on paper and failed in execution -->
-
-- Time-to-first-deal is the single best predictor of long-term partner success. Partners who close a deal within 90 days are 3x more likely to be active in year 2. Measure it. Obsess over it. Intervene before day 90.
-- Partner portal adoption is a leading indicator of partner engagement. If partners aren't logging in, they're not self-serving — they're emailing your team for everything. Track monthly active partners in portal. Target >60%.
-- MDF without post-activity review is charity. Every MDF dollar must produce a post-activity report within 30 days. Partners who don't report lose future MDF eligibility. Harsh but necessary.
-- Partner communications should feel like insider access, not marketing blasts. Share roadmap details, win/loss patterns, competitive intel that partners can't get from your public website. Make the partner newsletter worth opening.
-- Certification must be meaningful or don't do it. A certification that 100% of partners pass without effort is worthless. Target 70-80% pass rate on first attempt. Provide remediation paths for those who fail.
-- Channel conflict is a process problem, not a people problem. When conflict happens, fix the process, don't blame the people. If the same conflict type recurs, your rules of engagement are ambiguous.
-- Partner tier benefits must escalate meaningfully or tiers are theater. If a Silver partner gets mostly the same benefits as Platinum, why climb? Each tier should unlock something the partner genuinely wants: margin, MDF access, lead sharing, executive sponsorship.
-- Track partner attach rate: what % of your new customers involve a partner? This is the ecosystem's real footprint. Target >25% attach rate for mature programs.
-- Segment partner communications by persona and activity level. A dormant partner and a Platinum partner should not receive the same email. Segment: active, at-risk, dormant. Each gets different outreach cadence and content.
-- Partner manager coverage ratios matter. One partner manager can handle ~20-30 active partners effectively. Beyond that, partners feel neglected and engagement drops. Calculate coverage and hire before burnout.
-
-## Anti-Patterns
-<!-- STANDARD: 3min -- patterns that predictably fail. Every anti-pattern is grep-detectable and auto-preventable. -->
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|---|---|---|---|
-| Treating partner onboarding as a content library dump — partners download a PDF once and never return | Build a 30-60-90 day onboarding: week 1 kickoff, week 2 product training, week 4 first deal review, week 12 activation check. Target first deal within 90 days | `grep -rn "30-60-90\|onboarding\|activation" *.xlsx \| awk -F',' '{if(!/kickoff\|deal review\|activation check/) print "MISSING MILESTONES"}'` | Onboarding tracker template requires populated `kickoff_date`, `training_complete_date`, `first_deal_date` fields before `activation_status` can be set to "active" |
-| Approving MDF without requiring post-activity pipeline reporting — MDF becomes charity with zero accountability | Require every MDF proposal: activity description, lead/pipeline target, capture mechanism, post-activity review within 30 days documenting leads and pipeline created | `grep -rn "MDF\|market development" *.csv \| awk -F',' '{if(!/post-activity\|pipeline created\|leads generated/) print "UNTRACKED MDF"}'` | MDF template requires `post_activity_report` field populated before next MDF request approved. Auto-reject if last activity's report is missing |
-| Making partner certification so easy everyone passes — 100% pass rate means the certification tests nothing | Target 70-80% first-attempt pass rate. Include active demonstration: pitch recording review, mock demo, discovery call role-play. Provide remediation paths | `grep -rn "certification pass rate\|pass rate" *.csv \| awk -F',' '{if($3>=95) print "PASS RATE TOO HIGH"}'` → flag if pass rate >95% | Certification CI: auto-flag any cert track with pass rate >95%. Require active demonstration component. Alert if no remediation path exists for failed attempts |
-| Resolving channel conflict case-by-case without fixing the process — same conflict type recurs, partner trust erodes | When conflict happens, fix the process: was the rule ambiguous? Was enforcement inconsistent? Update rules of engagement and publish. Track dispute patterns quarterly | `grep -rn "conflict\|dispute\|ROE\|rules of engagement" conflict-log/ \| awk -F',' '{print $4}' \| sort \| uniq -c \| awk '{if($1>2) print "RECURRING:", $0}'` → flag recurring types | Conflict resolution workflow: on close, prompt "Does this require a rules-of-engagement update?" Auto-generate ROE amendment draft if "yes" |
-| Sending the same partner newsletter to dormant and Platinum partners — one-size-fits-all communication wastes attention | Segment partner communications: Platinum gets executive-level strategic updates, active partners get enablement content, dormant partners get re-activation offers | `grep -rn "newsletter\|all-partner\|partner communication" *.eml *.csv \| awk -F',' '{if(!/segment\|tier\|Platinum\|Gold\|Silver/) print "UNSEGMENTED COMM"}'` | Partner comm template requires `segment` field. Auto-block send if `segment == "all"` on a segmented list. Require ≥3 segment variants |
-| Letting partner tier benefits be cosmetic rather than meaningful — no incentive to invest in the partnership | Each tier unlocks something genuine: higher margin, MDF access, lead sharing, executive sponsorship, co-selling priority. Benefits must escalate materially | `grep -rn "tier benefit\|Platinum benefit\|Gold benefit\|Silver benefit" tier-structure.* \| awk -F':' '{print $2}' \| sort \| uniq -c \| awk '{if($1>=3) print "DUPLICATE"}'` → flag if same benefit in ≥3 tiers | Tier structure validator: each tier must have ≥1 exclusive benefit not present in the tier below. Auto-reject tier definitions with no exclusive benefits |
-| Focusing partner manager time on the loudest partner instead of the highest-potential — squeaky wheel starves the high-potential | Tiered coverage: Platinum = dedicated PAM (1:10-15), Gold = pooled PAM (1:20-30), Silver = self-serve + quarterly check-in. Automate Silver nurture | `grep -rn "PAM ratio\|partner manager\|coverage" *.csv \| awk -F',' '{if($3=="Platinum" && $4>15) {print "OVERLOADED PAM"} if($2=="Silver" && $4!="self-serve") {print "SILVER NEEDS SELF-SERVE"}}'` | Coverage ratio monitor: auto-flag when Platinum ratio > 1:15 or Silver partners lack self-serve assignment. Rebalance quarterly |
-| Running QBRs as status updates instead of strategic planning sessions — partners tune out, partnership underperforms silently | QBR agenda: performance vs. JBP, joint pipeline review with named deals, enablement/marketing ROI, product roadmap alignment, next-quarter commitments, documented actions within 24 hours | `grep -rn "QBR\|quarterly business review" *.pptx *.csv \| awk '{if(!/JBP\|joint pipeline\|enablement ROI\|product roadmap\|action items/) print "STATUS-UPDATE QBR"}'` → flag QBRs with no strategic agenda | QBR template: all 6 agenda sections required. Auto-populate data from CRM for pipeline/performance. Auto-send action items to both parties within 24 hours of QBR close |
-
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 
 | Coordinate With | When | What to Share/Ask |
@@ -417,6 +376,7 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 ```
 
 ## Proactive Triggers
+
 <!-- QUICK: 30s -- when to proactively notify stakeholders -->
 
 | Trigger | Notify | Why |
@@ -430,89 +390,11 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 | MDF ROI drops below target (program spend >30% of attributed partner revenue) | Marketing Manager, BizDev Manager | MDF program is burning budget without pipeline return; tighten approval criteria, require stronger lead-capture mechanisms, audit past allocations |
 | Competitor partner program announces significantly better economics (higher margin, MDF, or rev share) | BizDev Manager, Business Strategist, VP Sales | Partner defection risk; benchmark your program against competitor within 1 week. Prepare retention offers for top 20% of partners by revenue |
 
-## Scale Depth: Solo → Small → Medium → Enterprise
-<!-- DEEP: 10+min -- how this skill changes as the company grows -->
-
-### Solo
-Direct 1:1 partnerships, founder-to-founder relationships. Get first integration partnerships live. Handshake deals; no program; personal relationships drive everything. Focus on landing 2-3 reference partners that prove the partnership model works.
-
-### Small Team
-Partner program v1, onboarding process, partner portal. Build repeatable partner motion. Structured partner tiers; self-serve onboarding; first co-marketing campaigns. Dedicated partner manager establishes processes that work without founder involvement.
-
-### Medium Team
-Channel sales, partner-sourced pipeline, deal registration. Drive revenue through partners. Deal registration incentives; partner sales training; channel conflict resolution. Partner program generates measurable pipeline with tiered coverage by partner value.
-
-### Enterprise
-Global partner ecosystem, GSIs, OEMs, resellers. Market expansion through partner network. Regional partner managers; multi-tier distribution; partner-sourced > 25% of revenue. Partner operations team manages the ecosystem as a scalable revenue channel.
-
-### Transition Triggers
-- **Solo → Small Team:** Partner count exceeds 5 active partnerships and founder can no longer personally manage all relationships.
-- **Small Team → Medium Team:** Partner-sourced pipeline exceeds $2M/quarter or partner count exceeds 20.
-- **Medium Team → Enterprise:** Partner-sourced revenue exceeds 25% of total revenue or operations span 3+ regions.
-
-
 ## What Good Looks Like
+
 <!-- QUICK: 30s -- concrete success description -->
 
 Partners are onboarded and have a first registered deal within 90 days for >60% of new partners. >70% of signed partners have closed at least 1 deal in the last 12 months. Partner-sourced revenue >30% of total revenue and growing. Partner NPS >50 and trending up. Deal registration conflicts resolved within 72 hours with documented rationale. MDF spend has measured ROI — every dollar traced to pipeline. Partner portal has >60% monthly active partners. Certification completion rate >70%. QBRs produce a 1-page scorecard and action plan within 24 hours. No single partner represents >40% of partner-sourced revenue. Channel conflict cases are declining quarter-over-quarter as rules of engagement mature.
-
-## Error Decoder
-<!-- DEEP: 10+min -- each row is a real partner program failure that cost pipeline and trust. Every error is grep-matchable in logs/dashboards. -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -rn "activation\|onboarded\|trained" *.xlsx \| awk -F',' '{if($3=="trained" && $4=="0") print "TRAINED-BUT-NO-DEALS"}'` | Partners trained but never register a deal — certification complete, pipeline empty | Training was passive (videos + PDFs). Partners consumed content but never practiced selling. Also: partner's target accounts may not fit your ICP | Add active certification: pitch recording review, mock demo, discovery call role-play. Verify partner's target accounts align with ICP before activating | **1.** Detect `certification_date` exists but `first_deal_date` is NULL for >90 days → **2.** Trigger "activation reassessment": review partner's target accounts against ICP → **3.** If accounts fit ICP, schedule 1:1 pipeline building session with PAM → **4.** If accounts don't fit ICP, reclassify as "ICP mismatch" and pause activation → **5.** Auto-generate remediation report for PAM |
-| `grep -rn "deal registration\|deal reg" *.csv \| awk -F',' '{print $3}' \| sort \| uniq -c \| sort -rn` — if any deal appears in 2+ partner registrations, flag | Deal registration is a source of constant conflict — partners accuse each other of stealing deals | Rules are ambiguous or inconsistently enforced. "First-to-engage" is subjective without timestamp proof | Automate deal registration validation in CRM. First-to-register with valid submission timestamp wins. Publish a "deal registration dispute log" — transparency reduces accusations of favoritism | **1.** Detect duplicate deal registration (same customer domain, 2+ partners) → **2.** Apply "first valid timestamp" rule automatically → **3.** Notify losing partner within 24 hours with timestamp evidence → **4.** Log dispute in public register → **5.** If dispute count > 0 for same rule, auto-flag ROE review |
-| `grep -rn "portal\|partner portal" *.csv \| awk -F',' '{if($4<1) print "INACTIVE"}'` — partners who haven't logged into portal in 90 days | Partner portal has all the content but nobody uses it — partners visit once, download a PDF, and never return | Portal is a content dump, not a workflow tool. Partners have no reason to return | Add deal registration, pipeline tracking, and MDF submission as portal workflows. Partners return because that's where they do their work, not just download files | **1.** Detect `last_portal_login` > 90 days ago → **2.** Auto-send "What you're missing" email highlighting workflow features they haven't used → **3.** If still inactive after 14 days, trigger PAM outreach → **4.** Survey inactive partners: "What would make you return to the portal?" → **5.** Aggregate feedback quarterly for portal roadmap |
-| `grep -rn "MDF\|market development" *.xlsx \| awk -F',' '{if($5=="spent" && $6=="0") print "MDF-NO-PIPELINE"}'` | MDF is spent but pipeline doesn't follow — dollars out, no leads back | MDF allocated to "brand awareness" activities with no lead capture mechanism. Events with no follow-up plan. Content with no CTA | Require every MDF proposal: specific lead/pipeline target, capture mechanism, follow-up plan. Post-activity: measure leads, pipeline created within 90 days, deals closed within 180 days | **1.** Detect MDF activity with `spend_date` > 90 days ago but `pipeline_created` == 0 → **2.** Flag partner for "MDF ROI review" → **3.** Freeze future MDF approval for that partner until post-activity report filed → **4.** Auto-generate MDF ROI dashboard showing spend vs. pipeline by partner → **5.** Partners with ROI < 1:1 for 2 consecutive quarters lose MDF eligibility |
-| `grep -rn "PAM\|partner manager\|tier" *.csv \| awk -F',' '{split($2, a, ":"); if(a[2]>15 && $3=="Platinum") print "PAM-OVERLOAD"}'` | Strategic partner gets all the attention, small partners atrophy — Platinum monopolizes PAM bandwidth | No tiered coverage model. Partner manager time is monopolized by the loudest partner, not the highest-potential | Implement coverage model: Platinum = Dedicated PAM (1:10-15), Gold = Pooled PAM (1:20-30), Silver = Self-serve + quarterly check-in. Automate Silver partner nurture to prevent complete neglect | **1.** Detect Platinum partner ratio > 1:15 or Silver partners with 0 touchpoints in 90 days → **2.** Auto-rebalance PAM assignments quarterly → **3.** Trigger self-serve nurture workflow for Silver tier → **4.** Alert PAM manager with "Coverage Health" dashboard → **5.** Quarterly coverage audit: are high-potential partners getting proportional attention? |
-| `grep -rn "certification\|cert complete\|cert rate" *.csv \| awk -F',' '{if($3/users<0.3) print "CERT-RATE-LOW"}'` | Partner certification completion rate <30% — enrollment high, completion abysmal | Certification is too hard, too long, or not valued. Partners don't see the benefit of completing it | Audit the certification: time-to-complete, pass rate, value proposition. If partners won't complete it, either (a) simplify, (b) tie to a benefit they actually want (higher margin, deal registration, lead sharing), or (c) both | **1.** Detect cert track with `completion_rate` < 30% → **2.** Survey non-completers: "What stopped you?" → **3.** If "too long" → modularize into micro-certifications → **4.** If "not valuable" → bundle completion with tangible benefit unlock → **5.** Re-measure completion rate after 90 days. If still <30%, deprecate track |
-
-
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[S1]** | Partner onboarding plan documented (30-60-90 day), tracked, and first deal within 90 days target | `grep -rn "30-60-90\|kickoff\|training complete\|first deal\|activation" *.xlsx \| awk -F',' '{print NF}'` → must have ≥5 milestone columns populated | Onboarding tracker template: require `kickoff_date`, `training_complete_date`, `first_deal_date` fields. Auto-flag if `first_deal_date - kickoff_date > 90` days |
-| **[S2]** | Partner activation rate >60% — >60% of active partners closed ≥1 deal in last 12 months | `grep -rn "partner\|active\|deal" *.csv \| awk -F',' '{active++; if($4>0) with_deal++} END {printf "Activation: %.0f%%\n", with_deal/active*100}'` → must be >60% | Activation dashboard: auto-flag partners with `status == "active"` AND `deals_12mo == 0`. Trigger PAM outreach at 6-month mark before 12-month zero |
-| **[S3]** | Partner-sourced revenue and partner-influenced revenue tracked and reported separately | `grep -rn "sourced\|influenced" *.csv \| awk -F',' '{print $2}' \| sort \| uniq` → must show "sourced" AND "influenced" as separate categories | Revenue tagging template: require `partner_revenue_type` = "sourced" OR "influenced" per deal. Auto-reject QBR reports that blend the two categories |
-| **[S4]** | Partner NPS measured quarterly — results acted upon within 30 days of survey close | `find partner-survey/ -name "nps-*.csv" -mtime -95 \| wc -l` → must be ≥1 survey in last 95 days; `grep "action_items\|follow_up_date" nps-*.csv \| awk -F',' '{split($2,d,"/"); if(mktime(d[3] d[1] d[2] " 0 0 0") < systime()-30*86400) print "OVERDUE"}'` → must return empty | Quarterly NPS cron: auto-flag if last survey > 95 days ago. Generate follow-up tickets for all detractors (score <7) within 48 hours |
-| **[S5]** | Deal registration rules documented, published, and enforced consistently via CRM automation | `grep -rn "deal registration\|deal reg\|ROE" *.docx *.pdf -l` → must find ≥1 rules document; `grep -L "timestamp\|first to register\|validation" deal-reg-rules.*` → must return empty | Deal registration automation: CRM validates `submission_timestamp`, enforces "first-to-register wins" rule. Auto-notify losing partner with timestamp evidence |
-| **[S6]** | Channel conflict resolution SLA: 72 hours from escalation to documented resolution | `find conflict-log/ -name "*.csv" -exec awk -F',' '{split($1,d,"-"); days=(systime()-mktime(d[1] " " d[2] " " d[3] " 0 0 0"))/86400; if(days>3 && $NF!="resolved") print "SLA BREACH:", $0}' {} \;` → must return empty | Conflict SLA monitor: auto-escalate to VP of Partnerships any conflict > 60 hours unresolved. Generate weekly SLA compliance report |
-| **[S7]** | Partner portal has >60% monthly active partners — portal is where partners do work, not download PDFs | `grep -rn "portal login\|portal active\|MAU" *.csv \| awk -F',' '{if($2/$3 < 0.6) print "MAU BELOW 60%:", $2 "/" $3}'` → must return empty | Portal engagement cron: auto-flag partners with 0 logins in 30 days. Send re-engagement email highlighting workflow features. Survey inactive partners quarterly |
-| **[S8]** | Certification program has: sales track, technical track, annual renewal, >70% completion rate, active demonstration | `grep -rn "certification\|cert track" *.csv \| awk -F',' '{enrolled+=$2; completed+=$3} END {printf "Rate: %.0f%%\n", completed/enrolled*100}'` → must be >70%; `grep -c "sales track\|technical track\|active demo\|role play" cert-program.*` → must return ≥4 | Certification CI: auto-flag tracks with completion rate <70%. Require `active_demonstration` component. Auto-expire certs after 365 days, trigger renewal notification at day 335 |
-| **[S9]** | MDF: every dollar allocated has a documented plan, success metrics, and post-activity review within 30 days | `grep -rn "MDF\|market development" *.csv \| awk -F',' '{if($5=="spent" && $6=="") print "MISSING POST-ACTIVITY"}'` → must return empty; `grep -rn "MDF request" *.csv \| awk -F',' '{if(!($3 && $4 && $5)) print "INCOMPLETE PLAN"}'` → must return empty | MDF approval gate: require `activity_description`, `lead_target`, `capture_mechanism`, `follow_up_plan` fields. Auto-freeze MDF for partners with overdue post-activity reports |
-| **[S10]** | QBR cadence: quarterly for Gold/Platinum partners, scorecard + action plan produced within 24 hours of meeting | `find qbr/ -name "qbr-*.pptx" -mtime -95 \| wc -l` → must match Gold+Platinum partner count; `grep -L "JBP\|pipeline review\|enablement ROI\|action items" qbr/*.pptx` → must return empty | QBR template: 6-section agenda required (JBP review, pipeline, enablement ROI, roadmap, commitments, action items). Auto-populate CRM data. Auto-send action items within 24 hours |
-| **[S11]** | Partner tier benefits escalate meaningfully — each tier unlocks ≥1 exclusive benefit partners genuinely value | `grep -rn "tier benefit\|Platinum\|Gold\|Silver" tier-structure.* \| awk -F',' '{print $3}' \| sort \| uniq -c \| awk '{if($1>=3) print "DUPLICATE:", $2}'` → must return empty | Tier structure validator: require each tier to have ≥1 exclusive benefit. Auto-reject tier definitions with 0 exclusive benefits. Quarterly tier-benefit audit |
-| **[S12]** | Ecosystem health scored quarterly: pipeline diversity, revenue concentration, activation, satisfaction — composite ≥15/20 | `grep -rn "ecosystem health\|health score\|composite" *.xlsx \| awk -F',' '{if($NF<15) print "ECOSYSTEM HEALTH DEGRADED:", $0}'` → must return empty; no single partner >40% of revenue | Ecosystem health dashboard: auto-calculate composite from `pipeline_diversity + revenue_concentration + activation_rate + nps_score + partner_diversity` sub-scores. Alert if composite <15 or revenue concentration >40% |
-
-
-
-## References
-
-## Footguns
-<!-- DEEP: 10+min — war stories from partner programs and channel management -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Recruited 200 partners in 12 months by removing all qualification criteria — 85% never closed a deal, partner portal became a ghost town, and the 15 productive partners left because the program had no credibility | A cloud storage company set a 2023 goal: "200 active partners by December." To hit the number, the partner team removed revenue minimums, certification requirements, and even the $500 onboarding fee. By Q4, they had 210 "partners" — but 85% had never closed a deal. The 15 productive partners noticed the portal was flooded with inactive accounts and complained that deal registration was being gamed by "partners" who submitted every deal they heard about. Two of the top 3 partners terminated their agreements by Q1 2024. | The KPI was partner count, not partner quality. When you remove barriers to entry, you don't get more good partners — you get more bad partners who dilute the experience for the ones generating revenue. | **Optimize for partner activation rate, not partner count.** An activation metric — "closed ≥1 deal within 90 days of onboarding" — is the only count that matters. Set minimum qualification criteria (revenue, certifications, technical capability) and enforce them. If pipeline per active partner is dropping as you add partners, you're recruiting too fast. The right speed: onboard only as many partners as you can personally enable to close their first deal within 90 days. |
-| Gave one partner exclusive territory rights for North America — they underperformed for 2 years, blocked 3 better partners who wanted to enter, and when terminated, sued for $1.2M in "lost business value" | An enterprise SaaS company granted a reseller exclusive North American rights in 2021, believing exclusivity would motivate investment. The partner committed to $5M in year-1 revenue, delivered $1.4M, $1.1M, and $700K over 3 years. Meanwhile, 3 larger VARs approached the company wanting to sell the product — but were turned away because of the exclusive. When the company finally terminated the agreement in 2024, the partner sued for $1.2M in "lost business value," claiming the company hadn't provided adequate enablement. The case settled for $400K. | Exclusivity was granted without performance clauses. The agreement said "exclusive rights" but had no minimum revenue thresholds, no quarterly review mechanism, and no termination-for-underperformance clause. The partner had no incentive to invest because underperformance had no consequence. | **Never grant exclusivity without performance gates.** Every exclusive territory agreement must include: (a) minimum quarterly revenue targets, (b) a cure period (miss one quarter = warning, miss two = territory becomes non-exclusive, miss three = termination), (c) right of first refusal on sub-territories the partner isn't covering. The penalty for missing targets must be automatic, not negotiable — remove the relationship from the enforcement conversation. |
-| Measured partner program success by "partner count" for 2 years — board presentation showed 500 partners generating 3% of company revenue, and the board asked why partner operations cost more than the revenue they produced | A martech company's VP of Partnerships proudly reported "500 partners" at the 2023 annual board meeting. A board member asked: "What percentage of revenue comes from partners?" Answer: 3%. Next question: "What's the fully loaded cost of the partner team?" Answer: $1.2M/year. The partner program was losing ~$840K/year. The board mandated a 50% team reduction and a pivot to "top 20 partners only." | Success was measured by a vanity metric (partner count) instead of a business metric (partner-sourced revenue as % of total). There was no partner P&L. Without tracking revenue contribution, the program looked successful on the surface while destroying value. | **Report partner program performance as a business, not a count.** Monthly partner P&L: partner-sourced revenue, partner-influenced revenue, COGS (partner margins, MDF, team cost, portal cost), and net contribution. If the program isn't net-positive by year 2, it's a marketing expense, not a channel — report it differently and fund it accordingly. Track partner-sourced vs partner-influenced revenue separately; don't let "influenced" inflate the channel's contribution. |
-| Built an entire partner program on personal relationships — when the Head of Partnerships quit, 6 of the top 10 partners left within 90 days because "we only trusted Sarah" | A fintech startup's Head of Partnerships (2021-2024) ran the entire program through personal relationships. Partner agreements were verbal ("Sarah said we'd get 25%"), deal registration was a WhatsApp message, and QBRs were dinner conversations. When she left for a competitor in Q1 2024, 6 of the top 10 partners terminated within 90 days. The new hire discovered there were no signed agreements for half of them — the "partnerships" were personal friendships, not business relationships. | The program was built on individual trust rather than institutional process. Partners were loyal to a person, not a company. There was no CRM record of partner interactions, no documented agreements, no shared Slack/email history accessible to anyone else. | **Institutionalize every partner relationship from day one.** All partner communication must happen in shared channels (partner-dedicated Slack Connect, CRM-logged emails, or a partner portal) — never in personal WhatsApp or texts. Every agreement must be signed and stored in a shared repository. Maintain a "partner relationship map" showing all contacts (exec sponsor, day-to-day lead, technical lead, procurement contact) for each partner. If any single employee can quit and take a partner with them, that's not a partnership — it's a hostage situation. |
-| Launched a partner certification program that took 40 hours to complete — 12 partners finished it in 18 months, and every partner complained it was "college for software we don't sell yet" | An infrastructure software company launched a partner certification in 2022: 40 hours of video training, a 200-question exam, and a required hands-on lab that took 8 hours. The goal was "highly certified partners who deeply understand the product." After 18 months, 12 people across 9 partner companies had completed it. The program cost $180K to build. Partners said: "I'm not spending a work week learning a product I haven't sold yet — prove the market demand first and I'll invest the time." | The certification was designed for the company's ideal world (deeply trained partners) rather than the partner's reality (busy people who need to see ROI before investing time). The 40-hour requirement was aspirational but not market-tested. | **Design certification for partner economics, not your wish list.** A partner's time investment must be proportional to the revenue they expect. Tier 1 certification: 2 hours online, qualifies partner to resell. Tier 2: 8 hours + exam, qualifies for higher margin. Tier 3: advanced technical, only required for implementation partners. Offer certification-as-they-sell: let partners start selling after 2 hours, require Tier 2 before their third deal. Track certification completion as a leading indicator of partner revenue — if partners aren't certifying, ask why before building more content. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| Your partner program description is "we have a partner portal where they can download our logo and a datasheet" — and 80% of partners never log in after onboarding | You can name your top 10 partners, their revenue contribution last quarter, their primary contact's biggest frustration, and the one thing you're doing this month to deepen each relationship | You walk into a company with no partner program, no channel revenue, and no partner team — and within 24 months, partners are generating >30% of new revenue with a documented, tiered program that would survive you leaving |
-| You measure your job by partner count and portal logins rather than partner-sourced pipeline and revenue | You've terminated 3 underperforming partners this year — and all 3 terminations were clean, professional, and preserved the door for a future relationship under different terms | A CEO asks you "should we go channel-first, direct-first, or marketplace-first in APAC?" and you deliver a go-to-market model with partner candidates, economic projections, and a 12-month launch plan — and it works |
-| Your partner agreements are forwarded to legal without your review of commercial terms, and you've never negotiated margin, territory, or IP ownership directly with a partner | Every partner in your portfolio has a Joint Business Plan updated within the last 90 days — and you review QBR scorecards with partners before sending them, because no partner should see a surprise on a slide | A partner program you designed 3 years ago is still growing partner-sourced revenue >25% YoY — and the partners who joined in year 1 have higher NPS and revenue than partners who joined in year 3, proving the program compounds |
-
-**The Litmus Test:** Take over a partner program with 50 partners, 0 documented processes, and a 90-day deadline to present a partner-sourced pipeline number to the board. If you can classify every partner into a tier, produce a revenue forecast from the top 10, and present a 12-month partner strategy — all without the previous partner manager's help — you're L3.
 
 ## Deliberate Practice
 
@@ -532,12 +414,14 @@ graph LR
 
 ## References
 
-- **bizdev-manager** — for partner deal structure, partnership agreements, JBP creation, and partner recruitment
-- **product-manager** — for integration roadmap, product capabilities, and partner-driven feature requests
-- **sales-engineer** — for partner technical enablement, co-sell deal support, and demo training
-- **customer-success-manager** — for partner-sourced customer onboarding, retention, and expansion
-- **marketing-manager** — for co-marketing execution, MDF allocation strategy, and partner content
-- **business-strategist** — for partner program economics, ecosystem strategy, and partner ROI modeling
-- **legal-advisor** — for agreement amendments, compliance, and channel conflict requiring legal interpretation
-- _The Channel Manager's Handbook_ by Jay McBain (Forrester) — for partner program design and ecosystem strategy
-- Partner Relationship Management (PRM) platforms: PartnerStack, Allbound, Impartner, Crossbeam (account mapping)
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

@@ -41,13 +41,14 @@ chain:
   alternatives:
   - content-strategist
 ---
-# Patient Health Educator
 
+# Patient Health Educator
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Design health education content that patients can understand, act on, and retain. This skill covers instructional design for health literacy, treatment adherence programming, disease-specific education (hemophilia, rare diseases), behavior change frameworks, and outcome measurement for patient community apps.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -85,6 +86,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- QUICK: 30s -->
 These rules apply to *every* response this skill produces. Patient education is clinical intervention — bad education causes harm, not confusion.
 
@@ -96,7 +98,6 @@ These rules apply to *every* response this skill produces. Patient education is 
 | **R4** | **REFUSE to design adherence interventions without diagnosing the actual barrier first.** Patients know they should take medication. The barrier is almost never lack of knowledge — it's forgetfulness, injection anxiety, cost, denial, or lifestyle disruption. Design for the real barrier. | Trigger: `file_contains("*", "adherence")` OR `file_contains("*", "compliance.program")` AND NOT `file_contains("*", "barrier.assessment")` AND NOT `file_contains("*", "diagnosed.barrier")` AND NOT `file_contains("*", "patient.survey")`. | STOP. Respond: "Adherence programs fail when they address the wrong barrier. Before designing: (1) survey patients: 'What makes it hard for you to take your factor?' (2) categorize barriers: financial, anxiety, forgetfulness, denial, lifestyle disruption, (3) select the intervention that matches the top barrier. A push notification to a patient who can't afford factor is noise, not help." |
 | **R5** | **REFUSE to treat education as content delivery instead of behavior change.** A single educational video does not change behavior. Design for: spaced repetition, peer support, goal setting, and feedback loops. Education without reinforcement is data transfer, not learning. | Trigger: `file_contains("*", "education.module")` OR `file_contains("*", "video")` OR `file_contains("*", "article")` AND NOT `file_contains("*", "reinforcement")` AND NOT `file_contains("*", "spaced.repetition")` AND NOT `file_contains("*", "feedback.loop")` AND NOT `file_contains("*", "goal.setting")`. | FLAG. Respond: "This education module is a one-time content delivery. Behavior change requires: (1) spaced repetition (content re-surfaced at Day 1, 3, 7, 30), (2) peer support (story or community connection), (3) goal setting (patient sets a specific, achievable target), (4) feedback loop (patient sees their own progress). Add these 4 elements before publishing." |
 | **R6** | **REFUSE to use peer stories without clinical accuracy review AND disclaimer.** A patient story about treatment carries clinical weight. Every peer story with medical content must pass clinical accuracy review and carry a disclaimer that this is one person's experience. | Trigger: `file_contains("*", "peer.story")` OR `file_contains("*", "patient.story")` OR `file_contains("*", "testimonial")` AND NOT `file_contains("*", "clinically.reviewed")` AND NOT `file_contains("*", "disclaimer")`. | STOP. Respond: "Peer stories with medical content require: (1) clinical accuracy review before publication, (2) disclaimer: '[Name]'s experience. Results vary. Talk to your doctor about what's right for you.' I cannot publish this peer story without both the clinical review gate and the disclaimer." |
-
 
 ## The Expert's Mindset
 
@@ -117,6 +118,7 @@ Master patient health educators carry a dual responsibility: technical excellenc
 ### When to Break Your Own Rules
 - **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -133,6 +135,7 @@ Master patient health educators carry a dual responsibility: technical excellenc
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 
 - Creating patient-facing education content about hemophilia, treatment options, prophylaxis, bleed management, and lifestyle
@@ -146,6 +149,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Creating culturally competent health education for diverse patient populations
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s — table of who to talk to when -->
 Patient health education bridges clinical content, instructional design, and patient experience. Every piece of educational content must be clinically accurate, health-literate, and behaviorally effective. Coordination ensures content is medically sound, readable, and drives real behavior change.
 
@@ -198,9 +202,10 @@ Regulatory concern about education content? → compliance-officer + legal-advis
 | Education program shows zero behavior change at 90-day assessment | Convene redesign workshop with UX researcher, data scientist, and clinical team within 30 days; identify whether content, delivery, or engagement is the failure point | Behavior change is the measure of education effectiveness — zero change means the program is consuming resources without improving outcomes |
 | Patient reports adverse event in education module feedback or comments | Flag within 1 hour; preserve content (do not delete); transfer to crisis response manager for AE triage; document timestamp | Education feedback channels are also safety surveillance channels — every comment is potential AE data |
 | New clinical guideline published that supersedes content in 3+ education modules | Flag all affected modules within 48 hours; prioritize update by clinical risk; notify patients who completed outdated modules if the change is clinically significant | Outdated clinical content is a patient safety risk — patients make self-management decisions based on your education |
-| Peer educator reports uncertainty about how to answer a clinical question from a patient | Provide immediate clinical backup: connect peer educator with medical content reviewer; document the question and response for future training | Peer educators are not clinicians — they need rapid access to clinical support to avoid giving incorrect medical advice | 
+| Peer educator reports uncertainty about how to answer a clinical question from a patient | Provide immediate clinical backup: connect peer educator with medical content reviewer; document the question and response for future training | Peer educators are not clinicians — they need rapid access to clinical support to avoid giving incorrect medical advice |
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Adherence Intervention Selection
@@ -271,6 +276,7 @@ Content is for which audience?
 ```
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 ### Phase 1 (~25 min): Content Design for Health Literacy
@@ -293,61 +299,8 @@ Content is for which audience?
 
 **What good looks like:** Outcome dashboard showing: health literacy score improvement (pre/post), adherence rate by patient, knowledge retention curve, and behavior adoption rate. Data used to iterate on education content — modules with poor retention get redesigned.
 
-## Best Practices
-<!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -- rules extracted from patient education experience -->
-
-- **One concept per page/screen.** A patient with low health literacy can hold 1-2 new concepts at a time. Don't explain factor VIII deficiency, prophylaxis dosing, joint bleeds, and injection technique in the same module. Split into 4 modules. Each module has one learning objective.
-- **Use the teach-back method in interactive content.** After explaining what a bleed is, ask: "In your own words, what happens in your body when you have a bleed?" The app must accept a voice recording or typed answer. Teaching back improves retention by 40% compared to reading alone.
-- **Patients with rare diseases often become experts, but never assume they did.** Some hemophilia patients know their clotting factor level, their trough target, and their inhibitor status. Others know "I take the blue box." Design content that lets experts skip ahead but starts at the beginning for new patients.
-- **Peer stories outperform clinical content for behavior change.** A video of a patient saying "I used to skip doses because I hated the burning sensation when the factor went in. Then my physiotherapist showed me how to warm it to room temperature first" will change more behavior than any clinical guideline.
-- **Cultural competence matters in health education.** Hemophilia affects all populations, but beliefs about medicine, injection fears, family involvement in care, and health literacy vary. Translate content with cultural adaptation — not just literal translation. Train peer educators from diverse backgrounds.
-- **Health education is an ongoing conversation, not a one-time event.** Patients need different information at different stages: newly diagnosed (what is this?), starting treatment (how do I do this?), managing long-term (how do I live well?), transitioning to adult care (how do I manage on my own?). Design content for each stage.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| One education module covering 4+ distinct concepts (factor deficiency + prophylaxis + joint bleeds + injection technique) | One concept per module; each module has exactly one learning objective; split complex topics into sequenced micro-modules | `grep -c 'learning.objective\|objective' module.md` — must be exactly 1 per module; flag modules where count >1 | Pre-commit hook: reject education files with >1 `learning_objective` metadata field |
-| Using clinical terminology without plain-language definition on first use | Define every clinical term in plain language on first use: "Prophylaxis (preventive treatment to stop bleeds before they happen)"; target 6th-8th grade reading level | `grep -rn 'prophylaxis\|hemarthrosis\|synovitis\|inhibitor.titer\|thrombocytopenia' --include='*.md' \| grep -v '(also called\|means\|is.a\|plain.language'` — flag undefined clinical terms | Pre-commit hook: `check-term-definitions --terms clinical-glossary.yaml` — block any clinical term used without inline definition |
-| Designing education content based on what clinicians think patients need to know | Co-design with patients: what do they WANT to know? What questions do they actually ask? Test content with target patient population before launch | `grep -r 'patient' module.md \| grep -v 'co-design\|tested.with\|patient.input\|asked.patients'` — flag content without patient co-design evidence | Pre-commit hook: education modules must include `patient_input: true` or `co_design: true` metadata |
-| Creating one-size-fits-all education and expecting it to work for newly diagnosed AND experienced patients | Design for patient journey stages: newly diagnosed, starting treatment, managing long-term, transitioning to adult care — each stage has different information needs | `grep -r 'newly.diagnosed\|experienced\|stage\|journey.stage' --include='*.md' \| wc -l` — must identify ≥2 stages; flag single-stage designs | CI gate: education modules must declare `patient_journey_stage` metadata; single-stage modules require justification |
-| Translating education content literally without cultural adaptation | Adapt for culture: beliefs about medicine, injection fears, family roles in care, health literacy norms; use cognitive debriefing with native speakers from target community | `grep -r 'translat' --include='*.md' \| grep -v 'cultural.adaptation\|cognitive.debrief\|native.speaker'` — flag translations without adaptation | Pre-commit hook: translated content must have `cultural_adaptation: true` + `cognitive_debrief: true` metadata |
-| Measuring education success by content views rather than behavior change | Measure behavior change: adherence improvement, knowledge gain (pre/post test), skill acquisition (observed/self-reported), health outcome changes at 90 days | `grep -r 'views\|impressions\|clicks\|page.views' --include='*.md' evaluation/ \| grep -v 'adherence\|knowledge\|behavior\|outcome'` — flag vanity metrics | Pre-commit hook: evaluation plans must include ≥1 behavior/outcome metric beyond views; block plans with only engagement metrics |
-| Using peer educator stories without clinical accuracy review | Every peer story with medical content must pass clinical accuracy review; add disclaimer: "[Name]'s experience. Results vary. Talk to your doctor about what's right for you." | `grep -r 'peer.story\|patient.story\|testimonial' --include='*.md' \| grep -v 'clinically.reviewed\|reviewed.by'` — flag unreviewed peer content | Pre-publish gate: peer stories with medical content require `clinically_reviewed: true` + `disclaimer: true` metadata |
-| Assuming patients with rare diseases are all experts or all novices | Allow experts to skip ahead (pre-assessment or "I already know this" option); start at the beginning for new patients; never assume knowledge level | `grep -r 'skip\|pre.assessment\|i.already.know\|knowledge.check' module.md` — must find skip mechanism; flag modules without one | Pre-commit hook: modules targeting rare disease must include `knowledge_pre_assessment: true` OR `skip_option: true` metadata |
-
-## Error Decoder
-<!-- DEEP: 10+min -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------------|---------|------------|-----|----------------------|
-| `completion.rate.*<20%` OR `module.dropoff.*>80%` | Only 20% of users complete the education module | Module is too long or reading level too high | Check Flesch-Kincaid score — target 6th grade. Cut module to under 5 minutes. Add a progress bar. Split into micro-modules of 3-4 screens with comprehension checkpoints. | 1. `flesch-kincaid module.md` → 2. `estimate-read-time module.md` — must be <5 min → 3. `split-module --max-screens 4 module.md` → 4. Add progress bar: `add-progress-bar module.md` → 5. Add checkpoint questions: `add-comprehension-check --after-screen 3 module.md` → 6. A/B test: original vs shortened module |
-| `adherence.no.change.*4.weeks` OR `intervention.no.effect` | Adherence program shows no improvement after 4 weeks | Intervention was designed for the wrong barrier (e.g., reminders for a cost-barrier patient) | Stop the current intervention. Survey patients on their actual barrier (financial, anxiety, forgetfulness, denial). Re-design using the decision tree. | 1. `stop-intervention <id>` → 2. `deploy-barrier-survey --to <cohort>` → 3. `analyze-barriers --survey responses.csv` → 4. Match top barrier to intervention: financial→copay assist, anxiety→CBT module, forgetfulness→smart reminders, denial→peer story → 5. `deploy-matched-intervention --barrier <type>` → 6. Re-measure at 4 weeks |
-| `patient.didnt.understand` OR `jargon.complaint` OR `instructions.unclear` | Patient reports "I didn't understand the instructions" | Medical jargon not defined or reading level too high | Audit the content for jargon. Define every clinical term the first time. Replace complex terms with plain language. | 1. `audit-jargon --file module.md --glossary clinical-terms.yaml` → 2. For each flagged term: add inline definition → 3. `replace-terms --map medical-to-plain.yaml module.md` (e.g., "administer"→"give", "subcutaneous"→"under the skin") → 4. `flesch-kincaid module.md` — re-target 6th grade → 5. Test with 3 patients from target population → 6. Re-publish |
-| `injection.training.failure` OR `real.world.mismatch` | Injection training module doesn't translate to real-world self-injection | Video shows a perfect clinical environment, not the patient's actual setting | Film injection training in a real bathroom/home setting. Show clutter, one-handed technique, what to do when supplies aren't perfectly arranged. | 1. `analyze-training-failure --study <id>` — identify scenarios where training failed → 2. Re-film in 3 real patient homes (not clinic) → 3. Include: cluttered counter, holding toddler, missing sharps container → 4. `add-troubleshooting-section --scenarios real-world` → 5. Test with 5 patients in their homes → 6. Measure self-injection success rate at 30 days |
-| `module.skipped` OR `education.bypassed` OR `0%.completion` (entire module) | Patients skip the education module entirely | It's presented as mandatory reading before they can use the app — patients perceive it as a chore, not a resource | Don't gate education behind a wall. Build it into the natural flow: deliver content at the moment it becomes relevant to their care. | 1. Remove mandatory education gate → 2. `add-contextual-triggers`: when patient logs first bleed → offer "Want to learn what's happening?" When starting prophylaxis → offer "Ready to learn self-infusion?" → 3. Track contextual vs mandatory completion rates → 4. If contextual still low: `add-micro-learning --length 30s` → 5. A/B test contextual vs mandatory → 6. Adopt higher-completion approach |
-| `peer.story.anxiety` OR `increased.fear.after.story` | Peer stories increase anxiety instead of reducing it | Stories focus on worst-case outcomes — suffering without coping strategies | Curate peer stories that show mastery and coping, not suffering. Every story must model a positive outcome or coping strategy. | 1. `audit-peer-stories --sentiment anxiety` — flag fear-inducing content → 2. Replace worst-case stories: "I had a bleed and couldn't walk for a month" → "I learned to recognize early signs and now I catch bleeds before they get bad" → 3. `add-coping-strategy` to every story → 4. `add-mastery-outcome` to every story → 5. Test with 5 patients: pre/post anxiety score → 6. Only publish stories that reduce or maintain anxiety levels |
-
-## Production Checklist
-<!-- QUICK: 30s -- all must pass before patient-facing content ships -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| [H1] | Reading level assessed and confirmed at 6th-8th grade (Flesch-Kincaid 60-70) for patient-facing content | `flesch-kincaid module.md` — must score 60-70 (6th-8th grade) | `simplify-text --target-grade 6 module.md` auto-simplifies; re-run readability check |
-| [H2] | "When to call your doctor" section included in every piece of clinical content | `grep -rL 'when.to.call\|call.your.doctor\|emergency\|seek.medical.attention' --include='*.md' modules/` — must return empty (all files have it) | `add-emergency-section --template when-to-call-doctor` auto-injects safety section into files lacking it |
-| [H3] | Every medical term defined in plain language on first use | `grep -rn 'prophylaxis\|hemarthrosis\|synovitis\|inhibitor\|factor.VIII\|thrombocytopenia' --include='*.md' modules/ \| grep -v '(also called\|means\|is.a\|plain.language'` — must return empty | `add-term-definitions --glossary clinical-terms.yaml` auto-injects definitions on first occurrence |
-| [H4] | Content reviewed by a clinician for medical accuracy before publication | `grep -rL 'clinically.reviewed\|reviewed.by' --include='*.md' modules/` — must return empty (all reviewed) | CI gate: block deployment of any module file lacking `clinically_reviewed` metadata |
-| [H5] | Adherence barrier diagnosed before intervention design (survey or data analysis completed) | `grep -r 'adherence' modules/ \| grep -v 'barrier.assessment\|barrier.survey\|diagnosed.barrier'` — flag adherence content without barrier diagnosis | `deploy-barrier-survey --to <cohort>` auto-deploys survey; gate blocks intervention design until survey complete |
-| [H6] | Behavior change framework (COM-B, HBM, or habit loop) explicitly chosen and documented | `grep -rL 'COM-B\|Health.Belief.Model\|habit.loop\|behavior.change.framework' --include='*.md' modules/` — flag modules without framework | `add-behavior-framework --suggest COM-B` auto-inserts framework reference based on module content |
-| [H7] | Feedback loop designed: patient sees their own data and progress | `grep -rL 'progress\|tracking\|feedback\|my.data\|my.results' --include='*.md' modules/` — flag modules without feedback loop | `add-progress-tracking --template patient-dashboard` auto-injects progress visualization component |
-| [H8] | Graceful degradation path for non-responders (escalation, peer support, clinical referral) | `grep -rL 'non.responder\|escalation\|peer.support\|clinical.referral\|if.this.doesnt.work' --include='*.md' modules/` — flag modules without fallback | `add-non-responder-path --options escalation,peer-support,referral` auto-injects degradation path |
-| [H9] | Cultural adaptation reviewed for target patient populations | `grep -rL 'cultural.adaptation\|cultural.review\|culturally.adapted' --include='*.md' modules/` — flag unreviewed content | `run-cultural-adaptation-audit --populations <list>` auto-flags content needing adaptation; generates checklist |
-| [H10] | Content is stage-appropriate (newly diagnosed vs experienced patient — separate tracks) | `grep -rL 'journey.stage\|newly.diagnosed\|experienced\|patient.stage' --include='*.md' modules/` — flag unstaged content | `tag-patient-stage --auto-detect` analyzes content complexity and auto-tags appropriate stage |
-| [H11] | Teach-back or comprehension check included in interactive modules | `grep -rL 'teach.back\|comprehension.check\|in.your.own.words\|quiz\|knowledge.check' --include='*.md' modules/` — flag modules without checks | `add-teach-back --after-section 3` auto-injects "In your own words..." prompt after key sections |
-| [H12] | Peer stories curated for positive reinforcement (not worst-case narratives) | `grep -r 'peer.story\|patient.story' --include='*.md' modules/ \| grep -v 'mastery\|coping\|positive\|overcame\|learned.to'` — flag fear-focused stories | `audit-peer-stories --sentiment anxiety` auto-flags negative stories; `rewrite-peer-story --tone mastery` suggests rewrite |
-
 ## Cross-Skill Integration
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 
 | Step | Skill | What It Produces |
@@ -359,63 +312,12 @@ Content is for which audience?
 | **After** | `ux-writer` | Patient-facing copy in app (notifications, tooltips, consent language) that matches tone with education content |
 | **After** | `data-scientist` | Education outcome data (adherence, knowledge retention, behavior change) → program effectiveness analysis |
 
-## Scale Depth
-<!-- DEEP: 10+min -->
-<!-- QUICK: 30s -- how this skill changes as the company grows -->
-
-### Solo (0-10 users, 1 person)
-**Description:** Single educator creates all patient content
-**When to use:** Get accurate, helpful content to patients
-**Approach:** One person writes and reviews everything; basic reading-level checks
-
-### Small Team (10-100 users, 2-5 people)
-**Description:** Content team creates multi-format education (text, video, interactive)
-**When to use:** Build a comprehensive education library
-**Approach:** Team of educators; video + text + quizzes; condition-specific modules
-
-### Medium Team (100-10K users, 5-20 people)
-**Description:** Multi-condition platform, personalized learning paths, outcomes tracking
-**When to use:** Educate diverse patient populations at scale
-**Approach:** Content for 10+ conditions; adaptive learning paths; adherence and outcome measurement
-
-### Enterprise (10K+ users, 20+ people)
-**Description:** Accredited education platform, clinical integration, research partnerships
-**When to use:** Become a trusted source, drive measurable health outcomes
-**Approach:** CME/CE accreditation; EHR integration; published outcomes research; patient registry linkage
-
-### Transition Triggers
-- Move from Solo to Small Team when: Content volume exceeds what one person can produce; need for multiple content formats (video, interactive) emerges; basic reading-level checks insufficient for diverse patient needs
-- Move from Small Team to Medium Team when: Covering 10+ conditions; need for personalized learning paths; adherence and outcome measurement becomes important
-- Move from Medium Team to Enterprise when: Need for accredited education (CME/CE); clinical integration with EHR systems; research partnerships and published outcomes become strategic priorities
-
 ## What Good Looks Like
+
 - **A newly diagnosed patient completes the onboarding module** and can correctly explain what hemophilia is, what a bleed feels like, and when to call their doctor. They're connected to a peer mentor within the app.
 - **Adherence improves from 45% to 78% over 12 weeks** after the right barrier is diagnosed and the right intervention deployed. Patients report feeling "more in control" of their condition.
 - **A teenager transitioning from pediatric to adult care** finds the app's content for "self-managing your hemophilia" and feels confident doing their first independent infusion without a parent present.
 - **The education team iterates based on outcome data** — modules with low knowledge retention are redesigned every quarter. The adherence program is tested against a control group. Patient outcomes improve measurably over time.
-
-
-## Footguns
-<!-- DEEP: 10+min — war stories from patient health education -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Education module "Understanding Hemophilia" written at 11.2 Flesch-Kincaid grade level — 68% of users in the target population (reading at 6th-8th grade level) completed less than 40% of the module before dropping off | A patient education team spent 3 months developing a comprehensive hemophilia education module. It was written by a medical writer with input from 2 hematologists — all reading and writing at postgraduate levels. The module used terms like "pathophysiology," "coagulation cascade," "pharmacokinetic profile," and "immunogenic response" without definitions. Analytics showed 68% of users dropped off before completing 40% of the module. A health literacy audit revealed the content scored at 11.2 on Flesch-Kincaid. When rewritten at 6.7 grade level with plain language definitions, completion jumped to 78%, and post-module knowledge assessment scores improved by 34%. | The content was written by and for clinical professionals — not for the target patient audience. No readability scoring was part of the content creation workflow. Subject matter experts wrote content without health literacy training. | **Every piece of patient-facing education content must pass through a readability checker (target: 6th-8th grade, Flesch-Kincaid 60-70) before clinical review.** Pair medical writers with a health literacy editor. Define every clinical term on first use: "Hemophilia is a bleeding disorder. This means your blood doesn't clot the way it should." Use the Hemingway app or built-in Word readability stats. If the content can't be explained at 6th-grade level, it's not the content that's too complex — it's the explanation that needs work. |
-| Adherence program sent push notification reminders for 8 weeks to patients who were non-adherent because they couldn't afford factor — adherence dropped further because notifications reminded them of treatment they couldn't access | A digital therapeutic launched an automated adherence program: patients received push notifications for missed factor doses, weekly adherence scores, and "tips for staying on track." After 8 weeks, adherence in the intervention group dropped from 62% to 54% — worse than the control group (61%). Patient interviews revealed that 40% of non-adherent patients couldn't afford their factor copays ($500-$2,000/month). Every notification reminded them of treatment they couldn't access, increasing anxiety and avoidance. The program had one intervention for all non-adherence — the COM-B model diagnosis step (Phase 1) was skipped. | The adherence program treated all non-adherence as capability/motivation (COM-B model: patient needs reminders and education) when the actual barrier for a significant subset was opportunity (financial, access, social support). No barrier diagnosis was performed before intervention deployment. | **Diagnose the adherence barrier before designing the intervention — every time.** Use the COM-B model: Capability (knowledge, skills) → education; Opportunity (cost, access, social environment) → financial navigation, peer support; Motivation (beliefs, habits, anxiety) → motivational interviewing, behavioral activation. Survey non-adherent patients first: "What is the main reason you miss doses?" with options mapped to COM-B categories. Deploy different interventions for different barriers — a push notification for a financial barrier is harm, not help. |
-| Self-injection training video filmed in a clinical simulation lab with perfect lighting, a clean counter, and the instructor's two hands free — patients watching at home with one hand, a cluttered bathroom, and a crying toddler couldn't reproduce the technique | A biotech company produced a series of injection training videos for home factor infusion. The videos were filmed in a hospital simulation lab: bright lighting, a spotless counter, all supplies pre-arranged, and the instructor using both hands with no distractions. Patient feedback was brutal: "I infuse at 6 AM before my kids wake up — my bathroom has a toothbrush holder where I hang the factor bag, I have one hand because my other arm is the infusion site, and my cat jumps on the counter." The company spent $80K reshooting videos in actual patient bathrooms with real-world constraints. | The training content was designed in a clinical environment by clinicians who hadn't performed a home infusion in years. The team assumed technique transfer from ideal conditions to real conditions was straightforward. It isn't — context is part of the skill. | **Film procedural training content in real patient environments, not clinical sim labs.** Recruit 3 patients to host filming in their actual homes. The video should show: how to set up when counter space is limited, how to manage with one hand partially occupied, what to do when you drop a supply (it happens). Include "real world" versions alongside the ideal demonstration. Test the video with 5 patients before release: can they perform the technique watching only the video, in their own home, under normal conditions? |
-| Peer story module included a patient narrative about "my worst bleed — I was in the ICU for 11 days and almost lost my leg" without a coping or resolution arc — 23% of newly diagnosed patients who read it reported increased anxiety about their condition at the 4-week follow-up | A patient education platform added a "Patient Stories" module featuring user-submitted experiences. One story described a catastrophic joint bleed requiring 11 days in the ICU, 3 surgeries, and permanent mobility loss. The story ended with "I live with this every day now." It was posted without editorial framing. A 4-week follow-up survey of newly diagnosed patients who read the module found that 23% reported increased anxiety about their condition. The module had been live for 3 months and read by an estimated 1,200 newly diagnosed patients. The story was removed and the editorial policy was revised to require all patient stories to include a mastery/coping/resolution component. | The content team valued authenticity ("real patient stories") over editorial curation. They didn't recognize that unframed trauma narratives teach newly diagnosed patients "this is what your future looks like" — not "this is one person's experience, and here's how they cope." | **Every patient story must include a mastery arc: the challenge, the response, the resolution or coping strategy, and the takeaway.** A "worst bleed" story must also include: "Here's what I learned about recognizing early signs of a bleed, here's how I advocate for myself in the ER now, and here's what I wish I'd known then." Curate for hope without sanitizing reality. Test stories with 5 patients from the target stage (newly diagnosed vs. experienced) and measure emotional response. A story that increases anxiety in newly diagnosed patients at 4-week follow-up is harmful regardless of its authenticity. |
-| Education module required completion before accessing the app's community features — 52% of new users never saw the community because the mandatory module was their first and only experience with the product | A health app required all new users to complete a 12-screen "Understanding Your Condition" education module before accessing community features, factor tracking, or peer matching. The rationale: "We need patients to be informed before they participate." Analytics showed that 52% of new users never completed the module — they abandoned the app entirely. Of users who were given the option to skip education and go directly to the community, 91% returned to education content within the first 2 weeks — but they did it on their own terms, when they had a specific question. The mandatory gate was removed. | The team confused "patients need this information" with "patients need this information now, before they do anything else." Education was treated as a prerequisite rather than a resource. The gate created a one-size-fits-all path that served no one — newly diagnosed patients needed community support before they could absorb education, and experienced patients resented being forced through basic content. | **Education should be contextual, not a gate.** Embed education at the moment of need: when a user logs their first bleed → "Want to understand what's happening in your joint?" When they start prophylaxis → "Ready to learn about how factor works?" When they join a treatment discussion → "Here's what the guidelines say about this." Track completion of education by context — you'll learn which moments drive genuine learning. Never make education a barrier to community or support — those are the very things that motivate patients to learn. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can write health content but don't check reading level before publishing, and you use "adverse event" instead of "side effect" because "that's what clinicians say" | You've designed a patient education module that scored at 6th-8th grade reading level, passed clinical accuracy review on first submission, and achieved >70% completion rate with a measurable knowledge improvement (pre/post assessment delta of 30%+) | A hospital system asks you to redesign their entire patient education library (400+ documents) for health literacy — within 6 months, their patient satisfaction scores for "understood my discharge instructions" improve from 62% to 88% |
-| Your adherence program is "send more reminders" — you haven't diagnosed the specific COM-B barrier (Capability, Opportunity, or Motivation) before choosing an intervention | You've run an adherence program where you diagnosed the barrier, deployed a targeted intervention, and measured a 20%+ improvement in adherence sustained at 12-week follow-up — and you can explain why it worked for one subgroup but not another | You design an adherence program for a pharma company's patient support program covering 3 products, 15,000 patients across 8 countries — the program segments patients by COM-B barrier automatically from intake survey data and routes them to the correct intervention within 48 hours of enrollment |
-| Your content teaches the medical facts about a condition but doesn't address what patients actually want to know: "Will this hurt?", "Can I play sports?", "Will my kids inherit this?" | Your content strategy includes patient journey-stage mapping — newly diagnosed patients get different content than patients managing their condition for 15 years — and you can point to engagement metrics that prove content-stage matching improved outcomes | Your education program is cited in a published clinical study as an effective patient education intervention that improved treatment adherence in a randomized controlled trial — and the journal's peer reviewers called your instructional design methodology "rigorous and replicable" |
-
-**The Litmus Test:** You have 48 hours to create an education module for newly diagnosed parents of a child with severe hemophilia A who just had their first joint bleed at age 11 months. The parents are Spanish-speaking, have 9th-grade education, and are currently in the ICU waiting room. Can you produce content that (a) explains what just happened at a 5th-grade reading level in Spanish, (b) includes what to expect in the next 72 hours, (c) gives them 3 things they can DO right now (not just information to absorb), and (d) connects them to a Spanish-speaking peer mentor parent before they leave the hospital? If you can deliver that in 48 hours, you're L3. If your first draft includes the phrase "coagulation cascade," you're not there yet.
 
 ## Deliberate Practice
 
@@ -434,7 +336,14 @@ graph LR
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
-<!-- STANDARD: 3min -->
 
-- **clinical-informatics-specialist, content-policy-manager, data-scientist** and others — for upstream design decisions, specifications, and architectural context that inform Patient-facing health education materials and health literacy
-- **community-operations-manager, medical-illustrator, ux-writer** and others — downstream skills that consume outputs from this skill for implementation and execution
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+

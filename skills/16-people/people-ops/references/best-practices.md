@@ -1,0 +1,15 @@
+# Best Practices
+
+<!-- DEEP: 10+min -->
+<!-- STANDARD: 3min — rules extracted from production people ops experience -->
+
+1. **Onboarding buddies are not optional.** A new hire with a buddy reaches full productivity 2x faster and rates onboarding 1.5 points higher. Buddy must be from a different team (cross-functional context), trained (1-hour session on what to do/not do), and recognized (small bonus or public thank-you).
+2. **Comp bands live in a shared document, not in your head.** Transparency is a spectrum: publish bands internally (Buffer model: everyone can see everyone's salary) or keep them manager-visible only. Either way, they must be WRITTEN DOWN. Verbal comp philosophy doesn't survive a single departure.
+3. **Calibration sessions are about the distribution, not the individual.** A manager arguing "but my report is exceptional!" for 50% of their team has a calibration problem, not exceptional reports. The session fixes the standard, not the person.
+4. **Performance ratings without comp impact are theatre.** If ratings don't affect bonus, equity refresh, or base adjustment, don't bother with ratings. Use narrative-only feedback. Ratings exist to differentiate compensation — if you won't differentiate, don't rate.
+5. **Geo-differential models must survive one senior hire in a low-cost city.** If your NYC-based VP moves to Boise and you cut their pay, they leave. If you don't cut their pay, your geo model is broken. Decide up front: do you adjust comp on relocation? If not, your model is location-agnostic — embrace it fully.
+6. **Employee surveys without visible action destroy trust.** If you ask "How's your workload?" for 3 quarters and the score stays at 2.8/5 with no change, employees stop responding. Publicize survey results within 2 weeks. Commit to 1-2 action items. Report back on progress next cycle.
+7. **Exit interview themes are a lagging indicator.** By the time someone is in an exit interview, they've been considering leaving for 3-6 months. The real signal is in stay interviews, pulse surveys, and manager 1:1s. Fix exit interview themes by addressing them while people are still employed.
+8. **HRIS implementation fails when you replicate bad processes.** Don't automate a broken performance review form in Workday. Fix the process first, then implement the system. HRIS migration is a process redesign project that happens to involve software.
+9. **I-9 compliance errors are the most common and most preventable HR liability.** Penalties: $250-$2,700 per form. Most common errors: Section 1 not completed by day 1, Section 2 not completed within 3 business days, acceptable documents not examined in person (remote I-9 requires authorized representative). E-Verify if required by state or federal contracts.
+10. **Internal mobility is the cheapest and fastest source of hire.** Internal candidates ramp 50% faster, have 30% higher retention at 12 months, and cost $0 in recruiting fees. Require: 12 months in current role before transfer eligibility, manager notification before application (not permission — notification), transparent internal job board.

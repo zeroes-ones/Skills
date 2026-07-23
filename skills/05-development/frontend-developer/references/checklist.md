@@ -1,0 +1,20 @@
+# Production Checklist
+
+<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|---------------|-------------------|----------|
+| **[S1]** | Framework documented with rationale (Next.js, Remix, Vite, Nuxt) | `grep -rn "\"next\"\|\"@remix-run\"\|\"vite\"\|\"nuxt\"" package.json` → must match | — |
+| **[S2]** | TypeScript strict mode; zero `any` in domain types; discriminated unions for async states | `grep -rn "strict.*:.*true" tsconfig.json` → must match; `grep -rn ": any\b" src/ --include="*.ts" --include="*.tsx" -c` → must return 0 | CI: `tsc --noEmit` with `strict: true` fails on `any` |
+| **[S3]** | State management follows taxonomy: TanStack Query for server, Zustand for client, React Hook Form + Zod for forms, URL for filters | `grep -rn "@tanstack/react-query\|useQuery\|zustand\|react-hook-form" src/ --include="*.tsx" -l` → must match > 0 files | `npm install @tanstack/react-query zustand react-hook-form zod` |
+| **[S4]** | CSS: Tailwind with design tokens; no hardcoded colors; mobile-first; dark mode | `npx tailwindcss --check` → must pass; `grep -rn "#[0-9a-fA-F]{6}\|#[0-9a-fA-F]{3}" src/ --include="*.tsx"` → must return 0 | `npx @tailwindcss/upgrade` or eslint `tailwindcss/no-custom-classname: error` |
+| **[S5]** | Core Web Vitals: LCP < 2.5s, INP < 200ms, CLS < 0.1 | `npx lighthouse http://localhost:3000 --only-categories=performance --throttling-method=simulate \| jq '.categories.performance.score'` → must be ≥ 0.9 | CI: `@lhci/cli autorun --assert.preset=lighthouse:recommended` |
+| **[S6]** | Lighthouse ≥ 90 (Performance, Accessibility, Best Practices, SEO) mobile + desktop | `npx @lhci/cli collect --url=http://localhost:3000 && npx @lhci/cli assert --preset=lighthouse:recommended` → must return 0 | CI: `.github/workflows/lighthouse.yml` with `@lhci/cli` |
+| **[S7]** | WCAG 2.2 AA: semantic HTML, heading hierarchy, keyboard nav, focus management, contrast ≥ 4.5:1 | `npx @axe-core/playwright --include="src/**/*.spec.ts"` → must return 0 violations | `npm install --save-dev @axe-core/playwright` + Playwright test fixture |
+| **[S8]** | Images: next/image or Nuxt Image; WebP/AVIF; explicit width/height; LCP image `fetchpriority="high"` | `grep -rn "<img\b" src/ --include="*.tsx" \| grep -v "next/image\|NuxtImg\|width=\|height="` → must return 0 | — |
+| **[S9]** | Bundle: initial JS < 150KB gzipped per route; dynamic imports for heavy libs; tree-shaking verified | `npx @next/bundle-analyzer` → each route chunk must be < 150KB gzipped | CI: `@next/bundle-analyzer` with `maxSize: 150KB` gate |
+| **[S10]** | Error boundaries at route + feature level; graceful fallback UI; error logging (Sentry) | `grep -rn "ErrorBoundary\|error\.tsx\|error\.jsx" src/ --include="*.tsx" --include="*.jsx" -l` → must match > 0 files | `npx @sentry/nextjs --configure` or copy `templates/error-boundary.tsx` |
+| **[S11]** | Security headers: CSP, X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy | `curl -sI https://localhost:3000 \| grep -iE "content-security-policy\|x-frame-options\|strict-transport-security"` → must return all headers | Copy `templates/security-headers.ts` into `next.config.js` |
+| **[S12]** | Sitemap, robots.txt, canonical URLs, Open Graph meta tags | `curl -s https://localhost:3000/robots.txt \| head -1` → must return 200; `grep -rn "og:" src/ --include="*.tsx"` → must match | `npm install next-sitemap` |
+| **[S13]** | Playwright E2E: critical flows + axe-core audit in CI; API mocking for error states | `npx playwright test --project=chromium` → must pass all; `grep -rn "@axe-core/playwright" e2e/` → must match | `npx playwright install` + copy `e2e/a11y-fixture.ts` |
+| **[S14]** | CI: TS check → ESLint → Prettier → Vitest → Playwright → Lighthouse CI; fails on regression | `npx concurrently "tsc --noEmit" "eslint src/" "prettier --check src/" "vitest run" "playwright test"` → must return 0 | Copy `.github/workflows/ci-frontend.yml` template |

@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| Your demos follow the same script regardless of the prospect — you show all 15 features in the same order every time, and your technical win rate is <25% | You start every demo by stating the prospect's top 3 pain points back to them (from discovery) — and they nod before you show a single screen because you've proven you listened | You walk into a demo with a Fortune 500 CTO having done 30 minutes of prep, adapt your narrative in real time based on their reactions, and close with a technical win — and the CTO says "that's the best demo I've seen this year" |
+| You've never asked a prospect "what happens if you don't solve this problem?" — and you've never discovered whether the deal has a budget, authority figure, or compelling event | You've killed 3 PoCs this year that didn't meet the Mutual Success Plan criteria — and all 3 prospects respected you more for it because you didn't waste their time | You design the demo strategy for a new product launch: environments, narratives, discovery frameworks, competitive positioning, and SE onboarding — and 6 months later, the team's technical win rate is >50% |
+| Your demo environment has broken twice in the last quarter and you didn't know it was broken until you were on the call | You maintain 3 environments (Clean, Realistic, Vertical) and a recorded backup — and you've never lost a demo to technical failure because you test every environment 30 minutes before the call | A VP of Sales asks you "should we do a PoC for this $2M deal?" and you say "no — their success criteria are unmeasurable and they have no compelling event" — and the VP trusts your judgment because you've been right about PoC qualification on the last 12 deals |
+
+**The Litmus Test:** You're given a product you've never seen, a prospect you've never met, and 48 hours. Can you: (a) learn enough of the product to demo 3 critical workflows, (b) design a narrative that addresses the prospect's pain points based on their public 10-K and Glassdoor reviews, and (c) deliver a 20-minute demo that produces a verbal "we want to move forward" from the prospect's decision-maker? If yes, you're L3.

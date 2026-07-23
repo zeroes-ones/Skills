@@ -34,7 +34,6 @@ chain:
 ---
 
 # Scrum Master
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Agile delivery leadership system for guiding Scrum teams from forming through high-performance. Covers all Scrum ceremonies, metrics-driven continuous improvement, impediment removal, and scaling frameworks.
@@ -74,6 +73,7 @@ What are you trying to do?
 ```
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -131,6 +131,7 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 **Usage**: Say "as a Senior SM coaching 3 teams, help me diagnose this delivery bottleneck." Default: **L2 (Practitioner)** — 1-2 teams, independent coaching.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Establishing or resetting Scrum practices for a new or underperforming team
 - Coaching a team through sprint planning — effective story decomposition, estimation, sprint goal crafting
@@ -315,6 +316,7 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 **When to choose Scrum of Scrums:** 3-5 teams, no enterprise governance needed — lightweight coordination with ambassador from each team meeting 2-3×/week.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
 ### Phase 1 (~15 min): Team Formation & Foundations
@@ -339,115 +341,8 @@ Scrum Master skill scales from facilitating a single team to coaching multiple t
 2. **Impediment Removal** — External and internal impediments. Maintain impediment log. Track resolution time.
 3. **Scaling** — Nexus (3-9 teams), LeSS (up to 8 teams, single backlog), SAFe (if organizational mandate). Goal: minimize cross-team dependencies.
 
-## Best Practices
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- The Scrum Master is a coach, not a secretary. Teach, don't do.
-- Sprint goals, not sprint backlogs, are the commitment.
-- Protect the retrospective — never cancel it.
-- WIP limits reduce cycle time: WIP = team size / 2.
-- Velocity is for team forecasting, not management performance review.
-- Daily scrum is team-to-team coordination, not status report to SM/PO.
-- Healthy backlog has top 2-3 sprints refined to task level.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| **SM as team secretary**: Taking meeting notes, updating Jira tickets for developers, sending calendar invites for ceremonies | Coach the team to own their process. Developers update their own tickets. Rotate facilitation duties. SM time is for impediment removal and coaching, not admin. | `python3 scripts/audit_sm_actions.py --team TEAM --max-admin-pct 5` exits 1 if SM assigned to >5% of dev tickets or sent >3 ceremony invites this sprint | Weekly CI: `python3 scripts/sm_role_check.py --team TEAM` — auto-flags SM-as-secretary pattern; blocks sprint close until SM admin load <5% |
-| **Velocity as performance metric**: Management compares teams by story points, uses velocity for headcount decisions | Velocity is team-internal planning tool. Report sprint goal achievement + business outcomes to leadership. When velocity becomes KPI, teams pad estimates and hide capacity. | `grep -ri "velocity.*dashboard\|team.*comparison\|velocity.*KPI\|fastest team" reports/ presentations/` — flags velocity-as-metric language in external communications | Pre-commit hook: `python3 scripts/velocity_gate.py --audience leadership` exits 1 with explanation; blocks any report containing cross-team velocity comparison |
-| **Daily scrum as status report**: SM goes around the room asking "what did you do yesterday?" — developers report to SM, not each other | Walk the board right-to-left (Done → In Progress → To Do). Team members address each other. SM speaks only to note impediments. Scrum is coordination, not status. | `python3 scripts/standup_monitor.py --team TEAM` logs SM question count; exits 1 if SM averaged >3 utterances per standup this sprint | Standup timer: `python3 scripts/standup_timer.py --team TEAM` — 15-min hard stop with parking lot; auto-logs SM utterance count; alerts EM if pattern persists 3+ days |
-| **Retrospective action theater**: Every retro produces action items documented and promptly forgotten — same complaints surface sprint after sprint | Limit to 1-3 action items per retro with named owners and sprint deadlines. First retro agenda item: "Did we complete last sprint's action items?" Track completion rate as team health metric. | `python3 scripts/retro_tracker.py --team TEAM --check-duplicates` exits 1 if same action item appears in 2+ consecutive retros; `--status incomplete` exits 1 if any item >2 sprints stale | Retro opener script: `python3 scripts/retro_opener.py --team TEAM` auto-loads previous action items; if completion rate <50%, blocks new items until stale resolved |
-| **Canceled retrospectives**: "We're too busy to retro this sprint — we'll do a double retro next time" | Never cancel the retro. If time is tight: 15-minute focused retro on one theme, async retro (Google Form), or combined review+retro in 60 min. | `grep -c "cancel.*retro\|skip.*retro\|no retro\|double retro" sprint_logs/*.md` — flags any canceled retro; exits 1 if any sprint lacks retro record | Sprint calendar guard: `python3 scripts/ceremony_guard.py --team TEAM` — emails SM+EM if retro not scheduled by sprint day 1; blocks sprint close without retro completion |
-| **Over-commitment by default**: Team commits to 40pts every sprint despite delivering 28 on average, because "this sprint will be different" | Use 3-sprint rolling average velocity as commitment ceiling. Factor PTO, on-call, and known interrupts (deduct from capacity). Under-commit + over-deliver builds trust. | `python3 scripts/sprint_health.py --team TEAM --compare committed completed` exits 1 if committed > 1.2× 3-sprint rolling average velocity | Sprint planning validator: `python3 scripts/planning_check.py --team TEAM` blocks commitment > (3-sprint-avg × 1.1); auto-factors PTO + on-call from calendar |
-| **Scrum-by-the-book on a 3-person MVP team**: Full ceremonies (planning, daily, review, retro) for a 3-person 2-week cycle consuming 20% of dev time | Right-size the framework: 3-person MVP team needs Kanban + weekly retro + async standup. Scrum's value scales with complexity — don't impose ceremony overhead on teams that don't need it. | `python3 scripts/framework_fit.py --team-size N --project-type TYPE` — exits 1 if team <4 and full Scrum detected (all 5 ceremonies scheduled) | Team onboarding: `python3 scripts/framework_recommend.py --team-size N --context CONTEXT` auto-recommends Kanban for <4, Scrum for 5-9, Nexus/LeSS for 10+ |
-| **PO-less team syndrome**: Product Owner absent for multiple sprints; team self-prioritizes from an unrefined backlog | Escalate PO unavailability as BLOCKING impediment to `engineering-manager` within 1 sprint. Use stakeholder proxies for critical decisions. An absent PO is not a Scrum problem — it's an organizational defect. | `python3 scripts/po_engagement.py --team TEAM --max-absence 1` exits 1 if PO missed >1 sprint review or >2 refinement sessions | PO health check: `python3 scripts/po_pulse.py --team TEAM` — auto-alerts `engineering-manager` + `product-manager` if PO misses 2 consecutive refinement sessions |
-
-## MVP vs Growth vs Scale
-
-| Phase | Team Size | Priority | Scrum Approach |
-|-------|-----------|----------|---------------|
-| **MVP (0→1)** | 1-3 devs | Ship fast, learn faster | Kanban over Scrum. 1-week cycles. No formal ceremonies — async standup in Slack. Retro = 15 min at end of cycle. DoD: "deployed + doesn't crash." No story points — just break work into small tasks. |
-| **Growth (1→10)** | 3-15 devs, SM may be rotating role or tech lead | Predictability + continuous improvement | Full Scrum: 2-week sprints, all ceremonies timeboxed, story points + velocity, backlog refinement weekly, retros with action items. |
-| **Scale (10→N)** | 15+ devs, dedicated SMs (1 per 1-2 teams) | Cross-team alignment, scaling | Scaling framework (Nexus/LeSS/SAFe). Scrum of Scrums, cross-team refinement, integrated increment, shared DoD. Program-level metrics. |
-
-**MVP rule:** Don't Scrum before you need it. A team of 3 doing daily standups, sprint planning, reviews, and retros for a 1-week cycle is ceremony overhead eating 20% of dev time. Kanban + 1 retro/week is enough.
-
-## Cost-Effective Decision Table
-
-| Decision | Free/Cheap Option | Paid Upgrade | When to Upgrade |
-|----------|------------------|--------------|-----------------|
-| Scrum board | GitHub Projects / Linear (free) / Trello (free) | Jira Software ($7.75/user/mo) | >10 people, need advanced reporting, or enterprise requirements |
-| Retrospectives | Google Docs + Miro free (3 boards) | Miro Team ($8/user/mo) or Parabol ($6/user/mo) | Remote team >5 or need structured retro formats with voting |
-| Sprint reports | Jira/GitHub built-in velocity chart (free) | ActionableAgile ($15/user/mo) | Need CFD, Monte Carlo forecasting, or flow metrics |
-| Agile coaching | Internal champion reads Scrum Guide + blogs | Professional coach ($150-300/hr) | Team stuck, persistent dysfunction, or scaling to 3+ teams |
-| Team health | Google Forms pulse survey, 1 question | Officevibe ($4/user/mo) or CultureAmp | >3 teams or need anonymized trend data |
-
-**Annual Scrum tool budget by phase:** MVP: $0. Growth: $500-5K. Scale: $10K-100K.
-
-## Scalability Decision Tree
-
-```
-Is your team size >7 people?
-├── YES → Split into 2 teams. Optimal size: 5-7. Don't scale one team to 12.
-└── NO → Single team is fine.
-
-Are sprints consistently finishing with >30% carryover?
-├── YES → <!-- DEEP: 10+min -->
-Root cause: overcommitment? scope creep? unplanned work? Fix the cause.
-└── NO → Carryover <20% is healthy.
-
-Is velocity variance >30% sprint-over-sprint?
-├── YES → Inconsistent sizing, team changes, scope changes. Stabilize.
-└── NO → Stable enough for forecasting. Use 3-sprint rolling average.
-
-Is cycle time >5 days for "ready to done" on average?
-├── YES → Bottleneck. Check CFD. Apply WIP limits at constraint.
-└── NO → Cycle time is healthy.
-
-Are retro action items being completed?
-├── YES → Improvement loop working.
-└── NO → Reduce to 1 action item. Track visibly. Build the habit.
-
-Do you have >3 teams on the SAME product?
-├── YES → Cross-team coordination needed. Nexus or LeSS. Single Product Backlog.
-└── NO → No scaling framework needed.
-```
-
-
-**What good looks like:** Team velocity tracked for 5+ sprints with predictable range. Sprint goal achieved in 8 of 10 sprints. Retro produces action items tracked to completion. Impediments removed within 24 hours. Team health score > 4/5 in retro survey.
-
-## When NOT to Use This Skill (Overkill)
-
-- **Solo developer or pair programming**: Scrum for 1-2 people is absurd. Use Kanban.
-- **Team of 3 building an MVP in 2 weeks**: Ceremonies consume more time than they save. Async check-ins. Skip planning. 1 retro at the end.
-- **Pure operations/support team (no development)**: Scrum is for complex product development. Ops teams do better with Kanban.
-- **Research team with unpredictable work**: Sprints assume you can estimate. If you can't, use Kanban with explicit policies.
-- **Team already high-performing with a different process (Shape Up, Kanban, XP)**: Don't "fix" what works. The goal is delivering value, not doing Scrum.
-
-## Token-Efficient Workflow
-
-```
-# Step 1: Sprint health check (query from issue tracker API)
-python3 scripts/sprint_health.py --team backend --output json
-# Returns: {"sprint":"W15","committed":34,"completed":28,"carryover":6,
-#           "velocity_3sprint_avg":31,"cycle_time_p85":4.2,"retro_items_done":2}
-
-# Step 2: Decision tree → action
-# carryover > 20% → Overcommitted. Reduce commitment by average carryover.
-# cycle_time_p85 > 5 days → Check CFD for bottleneck. Apply WIP limit.
-# retro_items_done == 0 → Retros need focus. Pick 1 action. Track.
-
-# Step 3: Generate retrospective data (pull metrics before retro)
-python3 scripts/retro_data.py --team backend --sprint 15 --output markdown
-
-# Step 4: Verify improvement
-python3 scripts/sprint_health.py --team backend --compare-sprint 14 --output json
-# Exit code 0 = metrics improved, 1 = worsened
-```
-
-**Principle:** `sprint_health.py` queries Linear/Jira API, returns JSON. Agent reads numbers, not narratives. Retro data auto-generated. Improvement tracked via exit codes.
-
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 The Scrum Master is a servant-leader who enables the team, removes impediments, and facilitates agile ceremonies. Coordination is about protecting the team while keeping stakeholders informed.
 
@@ -508,6 +403,7 @@ The Scrum Master is a servant-leader who enables the team, removes impediments, 
 | Agile transformation resistance from leadership | `agile-coach` (external) + `cto-advisor` | Cultural change requires executive sponsorship |
 
 ## Proactive Triggers
+
 <!-- QUICK: 30s -- trigger-action table for autonomous SM workflow -->
 
 The Scrum Master detects process friction before the team feels it. Every trigger below is tied to an observable metric or behavioral signal with a specific intervention.
@@ -534,111 +430,9 @@ The Scrum-Master-to-Engineering-Manager partnership is the team's operating syst
 | **Sprint commitment calibration** | Capacity calculation factoring in PTO, on-call, and historical interrupt rate | Headcount changes, upcoming training, re-org impact — factors the SM can't observe from sprint data |
 | **Continuous improvement tracking** | Retro action item completion rate, process experiment results, agile maturity assessment | Career growth alignment: is the team's process maturity enabling or constraining individual development? |
 
-## Scale Depth
-
-### Solo (1 person, 0-100 users)
-One Scrum Master serving 1 team part-time (often a developer wearing SM hat). Ceremonies: daily scrum (15 min), sprint planning (2 hours/biweekly), review + retro (1.5 hours combined). Backlog: Product Owner manages in Jira/Linear. No formal scaling needed. Metrics: velocity (basic), sprint burndown. SM focuses on facilitation + impediment removal, light coaching. Cost: $0-200/month (Jira/Linear). Overkill: SAFe, LeSS, Nexus, dedicated SM, agile coaching, portfolio Kanban.
-
-### Small (2-10 people, 100-10K users)
-Dedicated Scrum Master for 1-2 teams. Ceremonies standardized with team working agreements. Metrics: velocity, sprint burndown, cycle time, escaped defects. Retrospectives produce tracked action items. Sprint goal consistently achieved (>70% sprint success rate). SM coaches PO on backlog refinement. Cost: $200-1K/month. Overkill: scaling framework, release train, PI Planning.
-
-### Medium (10-50 people, 10K-1M users)
-2-3 Scrum Masters or Agile Coaches. Scaling: LeSS or Nexus for 3-8 teams on same product. Metrics: cumulative flow, throughput, lead time, defect density. Cross-team dependency management via Scrum of Scrums. SM community of practice. Agile health assessments (Spotify Squad Health Check). SM coaches leadership on agile principles. Cost: $2K-10K/month. Overkill: SAFe unless enterprise governance demands it.
-
-### Enterprise (50+ people, 10K+ users)
-Agile Coaches + Scrum Masters across multiple ARTs (SAFe) or product groups. Release Train Engineer (RTE) for PI Planning. Enterprise agile metrics: flow efficiency, time-to-market, employee NPS. Portfolio Kanban linking strategy to execution. Center of Excellence for agile practices. Value stream mapping. Cost: $20K-150K+/month.
-
-### Transition Triggers
-| From → To | Trigger | What to Change |
-|-----------|---------|----------------|
-| Solo → Small | 2+ teams needing SM, or sprint success rate <60% | Dedicate SM; standardize ceremonies; implement action tracking from retros |
-| Small → Medium | 3+ teams on same product, cross-team dependencies blocking sprints | Adopt LeSS/Nexus; implement Scrum of Scrums; add agile health assessments |
-| Medium → Enterprise | 5+ products, portfolio governance required, or 50+ developers | Adopt SAFe (if enterprise); add RTE role; implement portfolio Kanban; establish CoE |
-
-
-### Cross-skills Integration
-
-| Step | Skill | What it produces |
-|------|-------|------------------|
-| **Before** | project-manager | Project schedule, RAID log, milestone plan, resource allocation |
-| **This** | scrum-master | Sprint plans, retrospectives, backlog refinement, velocity metrics |
-| **After** | backend-developer | Working software increments delivered each sprint |
-
-Common chains:
-- **Chain**: project-manager → scrum-master → backend-developer — Project plan broken into sprints; the team delivers working increments.
-- **Chain**: product-manager → scrum-master → qa-engineer — Backlog priorities become sprint goals; QA validates the sprint output.
-
 ## What Good Looks Like
 
 > When scrum mastery is at its peak, sprint goals are clear and the team delivers a working increment every sprint, retrospectives produce actionable improvements that are implemented in the next sprint, the backlog is refined so that the top items are always ready for execution, impediments are removed before the team feels the friction, velocity is predictable within a range, and the team's morale and autonomy grow quarter over quarter — the scrum master's success is measured by how little the team needs them.
-
-## Sub-Skills
-
-| Sub-Skill | When to Use | Context |
-|-----------|-------------|---------|
-| **Sprint Facilitation** | Running sprint planning, daily scrum, review, and retrospective | Time-boxed facilitation, sprint goal crafting, capacity-based planning, visual boards (Miro, Jira) |
-| **Backlog Refinement Coaching** | Backlog >2 sprints deep, stories lack clear acceptance criteria, or PO overwhelmed | INVEST criteria, story splitting patterns, 3-amigos sessions, estimation (story points, t-shirt sizing) |
-| **Agile Metrics & Diagnostics** | Diagnosing delivery bottlenecks or reporting team health | Velocity trend, CFD, cycle time, throughput, escaped defects, sprint burndown — Jira, Linear, ActionableAgile |
-| **Impediment Removal** | Systematic blockers slowing team velocity | Impediment log, escalation paths, cross-team facilitation, organizational blocker quantification in business impact |
-| **Team Health & Psychological Safety** | Team engagement declining, conflict surfacing, or turnover rising | Retrospective formats (4Ls, sailboat, start-stop-continue), health checks, 1-on-1s, conflict mediation |
-| **Scaling Scrum (LeSS/Nexus/SAFe)** | 3+ teams on same product or multi-team coordination needed | LeSS (2-8 teams, single product), Nexus (3-9 teams), SAFe (enterprise, 5+ products, PI Planning) |
-| **Agile Transformation Coaching** | Organization transitioning from waterfall or ad-hoc to agile | Change management, leadership coaching, agile principles over practices, pilot teams, metrics-driven adoption |
-| **DoR/DoD Facilitation** | Quality issues from unclear readiness or completion criteria | Definition of Ready (DoR) checklist, Definition of Done (DoD) with quality gates, team agreement, PO + team alignment |
-
-
-<!-- DEEP: 10+min -->
-## Error Decoder
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `"carryover_pct":\s*[3-9]\d\|"carryover_pct":\s*100` | Sprint carryover >30% for 3+ consecutive sprints; team frustrated — "we never finish what we commit to" | Chronic over-commitment OR scope creep mid-sprint OR unplanned interrupt load not accounted for in capacity | Recalculate capacity: deduct PTO, on-call, interrupts from available hours. Set commitment ceiling to 3-sprint rolling average velocity. Add 20% interrupt buffer. Freeze scope mid-sprint — new requests go to next sprint. | `python3 scripts/sprint_health.py --team TEAM` → if carryover >30%: `python3 scripts/capacity_recalc.py --team TEAM` → `python3 scripts/interrupt_audit.py --last 3` → adjust commitment formula → monitor carryover weekly until <20% for 2 sprints |
-| `"cycle_time_p85":\s*([6-9]\|\d{2,})\.` | Cycle time p85 >5 days; stories stall in "In Review" or "Blocked" columns; CFD shows widening bands | WIP too high — more work in progress than the team can finish OR review bottleneck (1 reviewer for 8 devs) OR cross-team dependency wait times | Pull Cumulative Flow Diagram. Identify bottleneck column by widest band. Apply WIP limit at constraint = team_size ÷ 2. If review bottleneck: require 2-reviewer rotation, add review capacity. | `python3 scripts/cfd_analyze.py --team TEAM` → identify bottleneck column → `python3 scripts/wip_limit.py --column "In Review" --limit N` → `python3 scripts/review_capacity.py` if review-bottleneck → monitor cycle time weekly until p85 <5 days |
-| `"same_retro_item_count":\s*[2-9]` | Same retro action item appears in 2+ consecutive retros — "Groundhog Day retro"; team stops engaging | Action items too vague ("improve communication"), no owner, no deadline, no experiment design — wishes, not actions | Reduce to exactly 1 specific experiment: "We will [concrete change] for [time period] to see if [metric] improves. [Name] owns this, deadline [date]." Track visibly on sprint board. Celebrate completion loudly. | `python3 scripts/retro_tracker.py --team TEAM --check-duplicates` → if duplicate found: `python3 scripts/action_refiner.py --item "improve communication"` → assign owner+deadline+metric → pin to sprint board → verify completion before next retro |
-| `"sprint_goal_miss":\s*(?:[7-9]\|10)` | Sprint goal missed 7+ of last 10 sprints despite team completing 90%+ of committed story points | Team commits to individual PBIs, not a coherent sprint goal — each PBI is independent; no shared objective; work is parallel, not collaborative | Refocus planning: craft 1-sentence sprint goal first, then pull only PBIs that contribute to that goal. Every PBI must answer "how does this help achieve the goal?" Measure goal achievement rate separately from velocity. | `python3 scripts/sprint_goal_audit.py --team TEAM` → if goal miss rate >30%: `python3 scripts/goal_first_planning.py --team TEAM` → template sprint goal from PO priorities → next planning: goal-first PBI pull → track goal achievement independently |
-| `"velocity_variance_pct":\s*[3-9]\d` | Velocity variance >30% sprint-over-sprint; unreliable forecasting; "we can't plan more than 1 sprint out" | Inconsistent story sizing (some stories 1pt, similar work 8pt), team churn (members joining/leaving), estimation gaming, or high unplanned work ratio | Stabilize sizing: run relative estimation calibration (compare 5 stories as a team, align on what "3 points" means). Track unplanned work as separate category. Use 5-sprint rolling average for high-variance teams. | `python3 scripts/velocity_stability.py --team TEAM` → if variance >30%: `python3 scripts/estimation_calibration.py --team TEAM` → `python3 scripts/unplanned_work_audit.py --last 5` → report recommendations → re-measure after 2 sprints |
-| `"impediment_resolution_hours":\s*(?:4[8-9]\|[5-9]\d\|\d{3,})` | Impediment unresolved >48 hours; team member blocked and idle; morale dropping as blocker stays | Impediment escalated late (team "tried to resolve it themselves" for days) OR escalated to wrong person OR no resolution SLA exists | Re-triage: if team-resolvable (within team's span), assign owner within 4h; if cross-team, escalate to other SM within 24h with joint unblocking session; if organizational, escalate to leadership with quantified business impact (lost story points, delayed features). | `python3 scripts/impediment_scanner.py --team TEAM` → if age >24h: `python3 scripts/impediment_escalation.py --level [team\|cross-team\|org]` → if >48h: auto-escalate to next level → track resolution SLA daily → report mean-time-to-resolve in sprint review |
-| `"team_health_trend":\s*(-[2-9]\|-1[0-9])` | Team health score declining 2+ consecutive sprints; "I feel safe speaking up" or "I would recommend this team" scores dropping | Psychological safety erosion (conflict unaddressed, blame culture), burnout (sustained >110% utilization), or unresolved interpersonal tension | Run anonymous friction survey. Facilitate safety-check retro: "If our process were a car, what's making that noise?" Commit to 1 structural change (behavior, not policy). Involve `engineering-manager` for support resources. A 2-sprint decline in psychological safety predicts attrition within 2 quarters. | `python3 scripts/team_health.py --team TEAM --trend` → if decline >2 sprints: `python3 scripts/safety_check_retro.py --team TEAM` → `python3 scripts/health_intervention.py --output plan.md` → loop in EM → re-assess next sprint → escalate to HR if 4+ sprint decline |
-| `"dod_compliance_pct":\s*[0-7]\d` | DoD compliance <80%; "code merged" treated as "Done"; escaped defects rising; sprint review shows non-working software | DoD copied from a template without team discussion — team never internalized why each criterion matters; DoD is treated as optional paperwork | Facilitate DoD workshop: map 3 recent escaped defects to missing DoD items. For each criterion, ask "What breaks if we skip this?" Make DoD visible on every PR template. Have the team (not SM) enforce it. Connect DoD violations to real production incidents — data convinces where process mandates fail. | `python3 scripts/dod_audit.py --team TEAM --sample 5` → if compliance <80%: `python3 scripts/dod_workshop.py --defects last3` → map defects→DoD gaps → update DoD with team buy-in → add DoD checklist to PR template → re-audit next sprint |
-
-
-## Production Checklist
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[S1]** | Team charter established: purpose, working agreements, DoR, DoD, roles clarified and agreed by all members | `python3 scripts/validate_charter.py --team TEAM` exits 0 if charter contains: purpose, working agreements (≥3 norms), DoR criteria, DoD criteria, role definitions | `python3 scripts/gen_charter.py --team TEAM` generates charter template; facilitates team workshop to fill collaboratively |
-| **[S2]** | Product backlog exists: user stories with acceptance criteria, relative size estimates (Fibonacci), ordered by value | `python3 scripts/backlog_health.py --team TEAM --min-ready 20` exits 1 if <20 stories ready or any story missing acceptance criteria or estimate | `python3 scripts/backlog_bootstrap.py --team TEAM` generates backlog template from epic list; validates story format |
-| **[S3]** | Sprint cadence fixed: sprint length decided, all ceremony times published on shared calendar | `python3 scripts/sprint_calendar.py --team TEAM` exits 1 if any of 5 ceremonies missing from calendar or sprint length undefined | `python3 scripts/ceremony_scheduler.py --team TEAM` auto-creates recurring calendar invitations for all 5 ceremonies at standard durations |
-| **[S4]** | Sprint planning produces: a sprint goal (1 sentence), selected PBIs, and task decomposition (tasks <8h each) | `python3 scripts/sprint_planning_audit.py --team TEAM --sprint N` exits 1 if sprint goal missing, any PBI not decomposed to tasks, or any task >8h | `python3 scripts/sprint_goal_builder.py --team TEAM` facilitates goal-first planning flow: craft goal → pull PBIs → decompose |
-| **[S5]** | Daily scrum timeboxed at 15 minutes, focused on coordination toward sprint goal (board walk, not status round-robin) | `python3 scripts/standup_monitor.py --team TEAM` logs duration + SM utterance count; exits 1 if average >15min OR SM averaged >3 questions per standup this sprint | `python3 scripts/standup_timer.py --team TEAM` — 15-min hard-stop timer with parking lot; auto-alerts SM if they dominate |
-| **[S6]** | Backlog refinement occurs weekly (10% of capacity); top 2–3 sprints refined to task level with acceptance criteria | `python3 scripts/refinement_check.py --team TEAM --ready-sprints 2` exits 1 if <2 sprints refined to task level OR refinement skipped >1 week | `python3 scripts/refinement_scheduler.py --team TEAM` creates recurring weekly refinement event; alerts PO+SM if skipped |
-| **[S7]** | Sprint review demonstrates working increment (not slides); stakeholders provide feedback; backlog adapts based on feedback | `python3 scripts/review_check.py --team TEAM --sprint N` exits 1 if no demo artifact recorded OR no stakeholder feedback logged OR backlog unchanged post-review | `python3 scripts/review_template.py --team TEAM` generates review agenda with demo slots + structured feedback form |
-| **[S8]** | Sprint retrospective produces 1–3 actionable improvement experiments with owners, deadlines, and measurable success criteria | `python3 scripts/retro_tracker.py --team TEAM` exits 1 if any action item missing: owner, deadline, or measurable criteria OR completion rate <50% for >2 sprints | `python3 scripts/retro_action_builder.py --team TEAM` enforces experiment format: change + timebox + metric + owner + deadline |
-| **[S9]** | Agile metrics tracked and visible to team: velocity (3-sprint rolling avg), sprint burndown, CFD, cycle time p85, escaped defects | `python3 scripts/metrics_check.py --team TEAM` exits 1 if any required metric missing for >2 sprints or not updated within 3 days of sprint end | `python3 scripts/metrics_dashboard.py --team TEAM` auto-generates metrics dashboard from issue tracker API; caches missing data |
-| **[S10]** | Team health metric collected each sprint (anonymous pulse survey); declining trends (2+ consecutive) trigger intervention | `python3 scripts/team_health.py --team TEAM --trend` exits 1 if health score declined 2+ consecutive sprints without documented intervention | `python3 scripts/health_pulse.py --team TEAM` sends anonymous 3-question survey at sprint end; auto-alerts EM on decline |
-| **[S11]** | Impediment log maintained with resolution SLA tracked; resolution time measured; systemic impediments escalated with business impact data | `python3 scripts/impediment_scanner.py --team TEAM` exits 1 if any impediment unresolved >48h OR no impediment log exists OR mean-time-to-resolve >24h | `python3 scripts/impediment_board.py --team TEAM` creates visible impediment tracker; auto-escalates aged items |
-| **[S12]** | DoD enforced: no PBI marked "Done" without meeting all DoD criteria verified by automation or peer review | `python3 scripts/dod_audit.py --team TEAM --sample 5` exits 1 if DoD compliance <90% on sampled "Done" PBIs | `python3 scripts/dod_checklist.py --team TEAM` adds DoD verification to PR template; blocks merge if criteria unchecked |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from agile coaching and team dynamics -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Daily standup grew from 15 minutes to 45 minutes over 6 months because "everyone needs situational awareness" — developers started arriving late, then stopped attending entirely, then the team "voted" to cancel standups | A 9-person team's standup started at 15 minutes in January 2024. By March it was 25 minutes because the tech lead was deep-diving every ticket. By June it was 45 minutes — standup had become a working session where 2-3 people solved problems while 6-7 scrolled Slack. Two senior engineers started "having conflicts" during standup time. In July, the team voted 7-2 to cancel standups. Sprint goal achievement dropped from 85% to 40% in the next 6 weeks because the only cross-team sync mechanism was gone. | The SM didn't enforce the 15-minute timebox. When the tech lead started problem-solving, the SM should have said "let's take this offline" on day 1. Each failure to enforce made enforcement harder — by month 6, the pattern was entrenched. The SM confused "the team wants this" with "this is effective." | **The SM owns the timebox, not the team.** If standup exceeds 15 minutes, the SM interrupts at 15:00 with "Time's up — any parking lot items?" No exceptions. Problem-solving in standup is like smoke in a theater — address it immediately or people leave. Track standup duration as a metric. If it creeps above 15 minutes for 3 consecutive days, the SM's facilitation is failing. The team can vote to change format, but they can't vote to make a ceremony ineffective. |
-| Velocity shared with VP of Engineering as a "team health metric" — within 2 sprints, story points inflated 40%, two senior engineers privately admitted they were doubling estimates because "management uses it to compare teams" | A VP of Engineering asked all 5 SMs to report team velocity in a shared dashboard "to identify underperforming teams." The SM for Team Alpha complied. Sprint 1: velocity 42 points. Sprint 2: 48. Sprint 3: 67 — the team hadn't delivered more, they'd re-estimated everything at 1.5x. Team Bravo (a different SM) refused to share velocity, so their 28-point velocity made them look "slow" next to Alpha's inflated 67. The VP used velocity to decide headcount allocation. Team Alpha got 2 more engineers; Team Bravo lost one. Team Bravo's SM quit. | Velocity is a planning tool for the team, not a comparative metric for management. Sharing velocity upward inevitably creates gaming — teams optimize the number, not the outcome. The VP's request was reasonable on the surface ("I want to help") but the SM should have known the predictable second-order effects. | **Never share raw velocity outside the team.** If management wants productivity metrics, share outcomes: sprint goal achievement rate, cycle time, escaped defects, customer value delivered. If forced to share velocity, share it as a trend within each team (never cross-team comparison) with explicit annotation: "This number is meaningful only to this team for planning. A downward trend may mean we're getting better at estimation, not slower." If management insists on cross-team velocity comparison, escalate to the agile coach and your manager — this is the hill to die on. |
-| Definition of Done was copied from a Scrum template without team discussion — it said "code merged, tests passing, deployed to staging" but in practice nothing was deployed, tests weren't written, and 23 escaped defects shipped in 6 months | A team adopted Scrum in January 2024. The SM provided a DoD template from scrum.org: "Code reviewed, unit tests passing, UAT signed off, deployed to staging." The team nodded and moved on. In reality: code reviews were rubber-stamps ("LGTM"), unit tests had 12% coverage, UAT was the PO clicking around for 2 minutes, and "deployed to staging" was aspirational — there was no CI/CD pipeline. From February to July, 23 defects escaped to production, 4 were SEV1. When the SM finally audited the DoD, every criterion was being skipped by at least 2 team members. | The DoD was imposed, not co-created. The team didn't understand why each criterion existed, so they treated it as paperwork. The SM never verified that the DoD was actually executable — "deploy to staging" requires a pipeline that didn't exist. | **Co-create the DoD from pain, not templates.** Before writing the DoD, run a retro on the last 3 escaped defects. Ask: "What would have caught this before it reached production?" Those answers become the DoD. Each criterion must be verifiable by automation or a specific person. The DoD must be achievable with current tooling — if "deploy to staging" requires CI/CD that doesn't exist, either build the pipeline or change the DoD. Audit DoD adherence monthly: sample 5 "Done" PBIs and check each criterion. |
-| Three consecutive retrospectives produced the same action item: "improve communication" — no owner, no experiment, no measurement, no change | A team ran retros for Q1 2024. Retro #1 (January): top action item "improve communication between frontend and backend." Retro #2 (February): same item. Retro #3 (March): same item. The SM wrote it on the retro board each time and the team vaguely agreed "we should do better." No specific experiment was designed, no owner was assigned, and no metric was tracked. In April, the team stopped attending retros — "it's the same conversation every sprint." | The SM facilitated retros as a venting session, not an improvement engine. Action items were too vague to be actionable. "Improve communication" is a wish, not an experiment. No one was accountable for implementing it, so no one did. | **Every retro action item must be an experiment, not a platitude.** Format: "We will [specific change] for [time period] to see if [metric] improves. [Name] owns this." Example: "We will add a 15-minute frontend-backend sync every Tuesday for 2 sprints to see if cross-team rework drops. Alice owns this." Track action items sprint-over-sprint. If an action item appears in 2 consecutive retros, the SM has failed — the experiment wasn't run, or it was run but not measured. Retros without experiments are therapy, not improvement. |
-| Scrum of Scrums became 8 teams × 5 minutes of status updates = 40 minutes of monologue with zero cross-team issues resolved in 6 months | A 60-person organization scaled Scrum with a Scrum of Scrums meeting every Wednesday. Each team's representative gave a 5-minute status update: what we did, what we're doing, any blockers. The entire 40-minute meeting was monologue — no one responded to anyone else's update, no issues were resolved, and representatives multitasked through other teams' slots. An engineer calculated that the SoS consumed 320 person-hours per quarter (8 reps × 1 hour × 40 weeks) with zero documented cross-team issues resolved. | The SM treated SoS as a scaled daily scrum — the purpose of daily scrum is team coordination (planning the day), but the purpose of SoS is cross-team dependency resolution (unblocking). Status monologues don't resolve dependencies. | **Restructure SoS around dependency resolution, not status.** Format: 20 minutes max. Each team answers exactly 3 questions: (1) What did we complete that another team depends on? (2) What will we complete next that another team needs? (3) What are we blocked on that another team can resolve? Teams with no cross-team dependencies skip their turn. Track: how many cross-team blockers were raised and resolved per SoS? If the answer is zero for 3 consecutive sessions, cancel SoS — it's ceremony, not coordination. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can run standups, sprint planning, and retros from memory but if you disappeared tomorrow, the team wouldn't notice for a month — you're a meeting facilitator, not a coach | You've helped a team reduce cycle time by 40% through process experiments you designed, ran, and measured — and you have the before/after cycle time data with specific changes that caused the improvement | You walk into a team's standup for the first time and within 5 minutes you've identified the top impediment — not by what they say, but by what they don't say, body language, who's talking and who's silent — and when you name it, the team's reaction confirms you're right |
-| You introduce Scrum ceremonies without understanding why — you've never worked on a team that used them, you just read the Scrum Guide and implemented literally | You adapt Scrum to the team's context — you've dropped ceremonies that don't add value, modified others to fit the team's workflow, and can explain why each adaptation was made with evidence of improvement | A VP asks "are our teams actually agile or just doing the rituals?" — you can answer with data: cycle time trends, sprint goal achievement rates, team health scores, and specific examples of teams that have improved and teams that are stuck |
-| You measure team success by velocity and burndown charts because those are the numbers Scrum tells you to track | You measure team success by outcomes — sprint goal achievement, cycle time, escaped defects, team health — and you've stopped tracking velocity except as a planning input for the team | You've coached 3+ teams from "Scrum in name only" to self-organizing, high-trust teams that ship working software predictably — and you can point to specific conversations, experiments, and interventions that made the difference for each team |
-
-**The Litmus Test:** You're assigned to a team that's been "doing Scrum" for 2 years but has never hit a sprint goal, has 40% escaped defect rate, and the most senior engineer said "agile is a waste of time" in the last retro. Can you turn this team around within 6 months? If your answer involves adding more ceremonies or stricter enforcement, you're L1. If your answer involves listening first, identifying the specific dysfunctions, running small experiments, and building trust one conversation at a time, you're on the path to L3. Masters have turned around at least 2 teams that were actively hostile to agile.
 
 ## Deliberate Practice
 
@@ -662,10 +456,20 @@ graph LR
 **The One Highest-Leverage Activity**: After every retro, track whether the team's #1 action item was actually completed before the next retro. Completion rate is your effectiveness metric. If it's below 80%, you're facilitating discussions, not facilitating change.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- [Scrum Guide (Schwaber & Sutherland)](https://scrumguides.org/)
-- [LeSS — Large-Scale Scrum](https://less.works/)
-- [Nexus Guide](https://www.scrum.org/resources/nexus-guide)
-- [SAFe Framework](https://scaledagileframework.com/)
-- [Scrum.org — Evidence-Based Management](https://www.scrum.org/resources/evidence-based-management-guide)
-- [Actionable Agile — Metrics for Predictability](https://actionableagile.com/)
+
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Cost-Effective Decision Table**: See [cost-decisions.md](references/cost-decisions.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
+- **Scalability Decision Tree**: See [scalability-tree.md](references/scalability-tree.md)
+- **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
+- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+- **Token-Efficient Workflow**: See [token-workflow.md](references/token-workflow.md)
+- **When NOT to Use This Skill (Overkill)**: See [when-not-to-use.md](references/when-not-to-use.md)
+

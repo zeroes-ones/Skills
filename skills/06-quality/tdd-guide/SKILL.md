@@ -37,13 +37,14 @@ chain:
   - mobile-developer
   - qa-engineer
 ---
-# TDD Guide
 
+# TDD Guide
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Rigorous Test-Driven Development with explicit red-green-refactor cycle recognition, property-based testing, mutation testing, and outside-in workflow. Knows when to refactor, when to delete tests, and what to measure.
 
 ## Route the Request
+
 <!-- TWO-TIER ROUTING: Auto-Route table (machine) → Intent Route tree (human fallback) -->
 
 | # | Condition | Action |
@@ -69,6 +70,7 @@ Request: "Help me with TDD..."
 ```
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- STANDARD: 3min -->
 
 1. **Red first. Always.** Write a failing test before writing a single line of implementation. If you didn't see it fail red, you don't know if the test actually tests anything.
@@ -121,6 +123,7 @@ TDD skill manifests in the sophistication of test design — from writing tests 
 **Usage**: Say "as an L2 practitioner, TDD this feature" or "as an L3 senior, help me design this for testability." Default: **L2** (independent TDD execution).
 
 ## When to Use
+
 <!-- QUICK: 30s — scan the bullet list to decide -->
 
 - Adding a new feature — let the tests define the API before you implement it
@@ -132,6 +135,7 @@ TDD skill manifests in the sophistication of test design — from writing tests 
 - API or library design — outside-in TDD produces usable APIs by design
 
 ## Decision Trees
+
 <!-- STANDARD: 3min -->
 
 ### TDD Approach Selection
@@ -160,6 +164,7 @@ Do you see these signals?
 ```
 
 ## Core Workflow
+
 <!-- STANDARD: 5min -->
 
 ### The TDD Cycle
@@ -326,6 +331,7 @@ def test_transfer_preserves_total_money(amount, initial_balance):
 This single test explores thousands of random input combinations. Use for: financial calculations, data transformations, parsers, serializers, any pure function with clear invariants.
 
 ## Cross-Skill Coordination
+
 <!-- STANDARD: 3min -->
 
 | Upstream Skill | What to Expect | Communication Trigger |
@@ -348,6 +354,7 @@ This single test explores thousands of random input combinations. Use for: finan
 | `qa-engineer` | Mutation testing results, property-based test suites, quality reports | When test suite is built — hand off for quality evaluation |
 
 ## Proactive Triggers
+
 <!-- STANDARD: 2min — surface these WITHOUT being asked -->
 
 - **New feature without tests** → A spec or user story exists but no test file has been created. Offer to write the first failing acceptance test. 🔴
@@ -359,105 +366,8 @@ This single test explores thousands of random input combinations. Use for: finan
 - **Property-based testing opportunity** → A pure function with clear invariants (serialization, math, parsing) is being tested with individual examples. Suggest property-based approach. 🟠
 - **Outside-in opportunity** → A feature spans FE and BE. Suggest starting with an acceptance test that drives both sides. 🟠
 
-## Best Practices
-<!-- STANDARD: 3min -->
-
-1. **Time-box the cycle.** Red: 1-5 min. Green: 1-5 min. Refactor: 2-10 min. If any phase takes longer, the test is too big — split it.
-2. **Test behavior, not implementation.** `expect(component.queryByText('Welcome'))` not `expect(component.state.isLoggedIn).toBe(true)`. Tests survive refactors when they assert what the user sees.
-3. **One assertion per test (typically).** When a test has 5 assertions and fails on the 2nd one, you don't know if #3-5 would have failed. Multiple assertions for the same logical behavior are fine (e.g., checking multiple fields of a response).
-4. **Tests should be DAMP (Descriptive And Meaningful Phrases), not DRY.** Some duplication in tests is good — each test should tell a complete story without jumping to helper functions.
-5. **Don't test the framework.** If you're using Django REST, testing that `ModelSerializer` serializes fields correctly is testing Django, not your code. Test your business logic.
-6. **Use the Given-When-Then structure.** Arrange (Given), Act (When), Assert (Then). Separate them with blank lines. Consistency makes tests scannable.
-7. **Run tests on every save.** Use `pytest-watch` or `vitest --watch`. The feedback loop must be under 2 seconds for TDD to work.
-8. **Mutation testing reveals weak tests.** If you can change the implementation logic and tests still pass, your assertions are too weak. Run mutation testing monthly on P0 code.
-
-## Anti-Patterns
-
-| ❌ | ✅ | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|----|----|----------------------|------------------|
-| Writing implementation first, then tests | Write failing test first. If you didn't see it fail red, you don't know if it tests anything | `git log --oneline --diff-filter=A -- "*.test.*" "*.spec.*" \| while read commit file; do git show $commit -- $file \| grep -q "^+" && echo "test added with impl"; done` → if test+impl in same commit = violation | CI: Require 2 commits minimum: commit 1 = test (CI fails), commit 2 = impl (CI passes). Auto-label `test-after-disguised-as-tdd` if single commit |
-| Writing 5 tests at once | Write ONE test. Make it pass. Refactor. Then next test. Batch testing is not TDD | `git diff --stat \| grep "test\|spec" \| awk '{print $1}'` → if > 1 new test file per commit = violation | CI: danger.js — `if added_test_files > 1 and added_impl_files > 0: warn("One test at a time")`. Auto-comment: "Split into separate red+green+refactor commits" |
-| Refactoring without duplication trigger | Refactoring requires trigger: duplication OR poor expressiveness. "Making it nicer" without trigger adds complexity | `git show --stat HEAD \| grep "refactor\|cleanup\|improve" \| wc -l` → > 0 AND `git diff HEAD~1 \| grep "^+" \| wc -l` → > 0 AND `git diff HEAD~1 \| grep "^-[^-]" \| wc -l` → negligible = cosmetic refactor | CI: danger.js — `if commit_message contains "refactor" and test_files_changed == 0 and behavior_changed == false: warn("Refactoring without test safety net")`. Auto-label `refactor-no-safety-net` |
-| Tests that test mocks: `expect(mockFn).toHaveBeenCalled()` | Test behavior: `expect(result).toEqual(expectedOutput)`. Mock verification tests break on any refactor | `grep -rn "toHaveBeenCalled\|\.called\|\.mock\." tests/ -l \| wc -l` → > 20% of test files = violation | CI: eslint rule — `jest/no-mock-verify` or equivalent. Auto-label `mock-heavy-tests` when > 30% of assertions are mock verifications. Quarterly mock-audit |
-| Skipping refactor phase because "it's already clean" | Run all tests one more time. Duplication often hides in test file itself — check repeated setup or assertions | `git log --oneline \| grep -c "refactor\|clean"` → < 30% of commit count = skipping refactor phase | CI: danger.js — `if red_commits + green_commits >> refactor_commits: warn("TDD: refactor phase under-invested")`. Auto-label `tdd-skip-refactor`. Monthly TDD health report |
-| Tests with no assertions (verification by not-throwing) | Every test must have at least one explicit assertion. "It doesn't crash" is not a behavior spec | `grep -rn "it(\|test(" tests/ -A 5 \| grep -c "expect\|assert\|\.should\|verify"` → ratio < 0.95 = violation | ESLint: `jest/expect-expect` rule (error). CI: block merge if any test file has 0 assertions. Auto-label `missing-assertions` |
-| Over-mocking — every dependency is mocked | Only mock I/O boundaries (database, network, filesystem). Mocking your own code creates tests that pass despite broken logic | `grep -rn "jest.mock\|vi.mock\|mock(" tests/ -l \| while read f; do grep -c "jest.mock" $f; done \| awk '{sum+=$1} END {print sum}'` → > 2 mocks per test file on average = violation | CI: mock-ratio check — > 3 mocks per test file triggers auto-label `over-mocked`. ESLint: `jest/no-mocks-import` (error). Quarterly: review top 10 most-mocked files |
-| Commenting out failing tests instead of fixing them | A commented-out test is technical debt. Fix it, update expectation if behavior changed, or delete if requirement gone | `grep -rn "//.*it(\|//.*test(\|#.*def test\|/\*.*it(" tests/ \| wc -l` → > 0 = violation | CI: `grep -rn "//.*it(\|//.*test(" tests/ && echo "FAIL: Commented-out tests" && exit 1`. Auto-label `commented-out-tests`. Weekly: auto-file ticket per commented-out test |
-
-## Error Decoder
-
-| 🖥️ Console Match | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|-------------------|---------|------------|-----|------------------------|
-| `git log --oneline \| grep "test\|spec" \| wc -l` → > 0 AND `git log --oneline --diff-filter=A -- "*test*" \| while read c; do git show $c --stat \| grep -E "test.*\|\|spec.*\|" \| awk '{if($3>0)print}' \| wc -l; done` → > 0 (test added with impl) | Test passes on first run (never saw red) | Test doesn't test anything new — behavior already exists. Test was written after implementation | Delete the test or write stronger assertion. Verify by changing implementation — test should fail. If it doesn't fail, it's documentation, not a test | 1. `git diff HEAD~1 -- src/ \| grep "^+" \| head -20` 2. For each changed line, verify corresponding test existed BEFORE this change 3. If test committed same time as impl → replay: `git checkout HEAD~1 && npm test -- --testPathPattern=<test>` 4. Test MUST fail. If it passes → test was added after impl 5. CI: two-commit TDD gate — commit 1 (test, fails CI) → commit 2 (impl, passes CI) |
-| `grep -rn "toHaveBeenCalled\|\.mock\.\|vi\.fn()" tests/ -l \| wc -l` → > 30% of test files AND `git diff HEAD~1 -- src/ \| grep "^[-+]" \| grep -v "test\|spec" \| wc -l` → > 0 (non-test refactor) | Refactoring broke 20 tests | Tests coupled to implementation, not behavior. Changed a method name and tests mock that exact method — tests broke even though behavior didn't change | Rewrite tests to assert behavior (outputs, side effects), not implementation (method calls, internal state). Use real collaborators, not mocks, for code within same bounded context | 1. `grep -rn "jest.mock\|vi.mock" tests/ -l` 2. For each mock-heavy test → identify: is this an I/O boundary? 3. If mocking own code → replace mock with real instance 4. If mocking I/O → use test double with contract validation 5. CI: mock-audit — flag tests with > 3 mocks; quarterly mock-reduction sprint |
-| `time npx jest --testPathPattern="unit" \| grep "Test Suites\|Tests:" \| tail -1` → runtime > 5 seconds AND `find tests/ -name "*.test.*" \| wc -l` → > 50 | Test suite takes 10+ minutes — developers stop running locally | Integration tests dominate suite. Slow feedback destroys TDD discipline. Developers push and let CI run instead of running locally | Push integration tests to separate CI stage. Keep TDD cycle at unit test level (under 2s). Split: `tests/unit/` (fast) vs `tests/integration/` (slow, different CI stage) | 1. `npx jest --verbose --testPathPattern="unit" \| grep "✓\|✕" \| awk '{print $NF}' \| sed 's/ms//' \| sort -rn \| head -20` 2. Profile slowest 10 tests — move to integration if > 500ms 3. CI: unit suite must finish < 5s; integration < 5min 4. Auto-label `slow-unit-tests` if unit suite > 10s 5. Weekly test performance review |
-| `npx jest --coverage --json \| jq '.total.lines.pct'` → > 90 AND `npx stryker run --mutate 'src/**/*.ts' --json \| jq '.mutationScore'` → < 70 | 90% line coverage but bugs in production — weak assertions | Coverage measures execution, not assertion quality. Error paths are executed but assertions are too weak to catch mutants | Run mutation testing. If mutating code doesn't break tests, assertions are too weak. Strengthen assertions on error paths. Target ≥ 85% mutation score on P0 code | 1. `npx stryker run --mutate 'src/**/*.ts'` 2. For each surviving mutant → identify weak/missing assertion 3. Add assertion that kills mutant 4. Re-run Stryker; repeat until score ≥ 85% 5. CI: Stryker as blocking gate on P0 code paths |
-| `find src/ -name "*.ts" -not -name "*.test.*" \| while read f; do grep -q "import.*from\|require(" $f && grep -q "new \|\.create\|instantiate" $f && grep -q "class\|interface" $f && ! grep -q "constructor\|inject\|DI" $f && echo "$f: hard to test"; done` → non-empty | "Can't test this — too coupled" | Code not designed for testability: direct instantiation, hidden dependencies, static calls. Constructor calls `new Database()` instead of receiving it as dependency | Apply dependency inversion. Inject dependencies. Use test as design tool — if it's hard to test, the API is hard to use. Constructor injection, factory functions, hexagonal ports | 1. For each uncoupled file → extract dependency to constructor param 2. `class Service { constructor(private db: Database) {} }` 3. Test: `new Service(testDb)` instead of `new Service()` 4. CI: eslint rule — `no-new-in-class-constructor` (warn) 5. Monthly: review "most-mocked files" list — high mock count = design smell |
-
-## Production Checklist
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|--------------------|----------|
-| TD1 | Red-green-refactor cycle followed for every new feature and bug fix | `git log --oneline -20 \| grep -c "red\|RED\|failing test"` → ≥ 30% of commits AND `git log --oneline -20 \| grep -c "green\|GREEN\|pass"` → ≥ 30% AND `git log --oneline -20 \| grep -c "refactor\|REFACTOR\|clean"` → ≥ 20% | CI: danger.js — verify 3-phase commit pattern. Auto-label `no-tdd-cycle` if phase missing |
-| TD2 | Zero tests committed that never saw a red phase | For each new test file: `git log --diff-filter=A -- <test_file> \| head -1` → commit date < corresponding impl commit date | CI: Two-commit gate — commit 1 (test only, CI fails), commit 2 (impl, CI passes). Auto-reject single-commit test+impl |
-| TD3 | Mutation testing run on P0 code — ≥85% mutation score | `npx stryker run --mutate 'src/features/{auth,payments,core}/**/*.ts' --threshold-break 85` → mutation score ≥ 85 | CI: Stryker as blocking gate. Auto-file tickets per surviving mutant. Label `needs-mutation-testing` if score < 85% |
-| TD4 | Property-based tests for pure functions with clear invariants | `grep -rn "fast-check\|fc\.assert\|fc\.property\|hypothesis\|given\|QuickCheck" tests/ \| wc -l` → ≥ 1 per pure-function module | Generate property-test skeleton: "for any valid input, output must satisfy: commutativity, idempotency, round-trip" |
-| TD5 | Test suite runs in < 5 seconds for unit tests (TDD cycle speed) | `time npx jest --testPathPattern="unit" \| grep "Time:" \| awk '{print $2}' \| sed 's/s//'` → < 5.0 | CI: unit-test-time gate. Split slow tests (>500ms) to integration. Auto-label `slow-unit-suite` if > 10s |
-| TD6 | Integration tests separated from unit tests (different CI stage) | `grep -rn "testcontainers\|docker\|@integration\|integration.*test" tests/ -l \| sort \| uniq` → integration tests in `tests/integration/`, not interleaved with unit | CI: Separate CI stages — `unit: npm test -- --testPathPattern=unit` then `integration: npm test -- --testPathPattern=integration`. Fail if integration test in unit suite |
-| TD7 | Bug reproduction tests remain in suite after fixes (regression prevention) | `grep -rn "regression\|bug-\|fix-\|issue-#" tests/ \| wc -l` → ≥ bug count from last 3 months | CI: Require `@regression` tag on every bug-fix test. Auto-label `missing-regression-test` on PRs closing bug tickets without tagged test |
-| TD8 | No commented-out tests — either fix, update, or delete | `grep -rn "//.*it(\|//.*test(\|#.*def test\|/\*.*it(" tests/ \| wc -l` → 0 | CI: `grep -rn "//.*it(\|//.*test(" tests/ && echo "FAIL: Commented-out tests" && exit 1`. Auto-file cleanup ticket per commented-out test |
-| TD9 | Tests assert behavior, not implementation (survive refactors) | `grep -rn "toHaveBeenCalled\|\.mock\.\|spyOn\|vi\.fn" tests/ -l \| wc -l` → < 20% of test files | CI: mock-audit — > 30% mock-assertion ratio triggers auto-label `mock-heavy`. Quarterly: refactor top 10 most-mocked test files |
-| TD10 | Outside-in TDD used for features spanning frontend and backend | `find tests/ -name "*.e2e.*\|*.acceptance.*" \| wc -l` → ≥ 1 per cross-cutting feature | Generate acceptance-test skeleton for features touching 2+ layers. Outside-in: acceptance → integration → unit |
-| TD11 | Characterization tests written before legacy code refactoring | `grep -rn "@characterization\|characterization\|legacy.*snapshot" tests/ \| wc -l` → ≥ 1 per legacy module refactored | Auto-generate characterization test: feed inputs → capture outputs. Require `@characterization` tag and domain-expert review comment before refactoring |
-| TD12 | Team follows time-boxed cycles (red < 5 min, green < 5 min, refactor < 10 min) | Track: `git log --oneline --after="1 week ago" \| grep "red\|green\|refactor" \| wc -l` → all 3 phases present; time between red and green commits < 5 min | CI: danger.js — time-between-commits check. Auto-label `tdd-cycle-break` if > 30 min between phases. Weekly TDD cycle-time report |
-
-## Negative Constraints
-
-| # | Negative Constraint | Mechanical Trigger | Violation Response |
-|---|--------------------|--------------------|--------------------|
-| NC1 | **REFUSE** — Never write implementation before the test. Test must fail first | `git diff --cached --name-only \| grep -E "\.(ts\|js\|py\|go\|rs)$" \| grep -v "test\|spec" \| wc -l` → > 0 AND `git diff --cached --name-only \| grep -E "test\|spec" \| wc -l` → 0 | STOP. Block commit. Response: "TDD requires a failing test before implementation. No test file found in staged changes but implementation files are present. Write the failing test first, commit it, see CI fail, then implement." |
-| NC2 | **REFUSE** — Never fix a bug without a reproduction test | `grep -qi "bug\|fix\|hotfix\|patch\|regression" commit_msg.txt` → true AND `git diff --name-only \| grep -E "test\|spec" \| head -1` → empty | STOP. Block merge. Response: "Bug fixes require a reproduction test. Found a fix commit without corresponding test changes. Add a test that reproduces the bug, verify it fails on main, then the fix makes it pass." |
-| NC3 | **REFUSE** — Never mock code within the same bounded context | `grep -rn "jest.mock\|vi.mock" tests/ \| grep -v "node_modules\|database\|http\|fs\|redis\|s3\|sqs" \| wc -l` → > 0 (mocking own domain code) | STOP. Auto-label `mock-own-code`. Response: "Mocking code within the same bounded context creates tests that pass despite broken logic. Only mock I/O boundaries (database, HTTP, filesystem, queues). Replace with real instances or in-memory test doubles." |
-| NC4 | **STOP** — Block merge if any test file contains `.skip`, `.only`, or `.todo` | `grep -rn "\.skip\|\.only\|\.todo\|xit\|xdescribe\|it\.todo" tests/ \| grep -v "node_modules" \| wc -l` → > 0 | STOP. Block merge. Response: "Found `.skip`/`.only`/`.todo` tests in suite. These are quality gates disabled. Either: (1) remove `.skip` and fix the test, (2) remove `.only` (was likely debugging leftover), (3) convert `.todo` to real test or delete." |
-| NC5 | **DETECT** — Flag when refactor phase is under-invested (< 15% of TDD commits) | `git log --oneline -50 \| grep -ci "refactor\|clean\|improve"` → count < 8 (less than 15% of 50) AND `git log --oneline -50 \| grep -ci "test\|red\|green\|impl"` → count > 20 | WARN. Auto-label `tdd-skip-refactor`. Response: "Refactor commits are < 15% of TDD cycle commits. Skipping the refactor phase accumulates technical debt. Schedule a refactoring session: run tests, find duplication (jscpd), eliminate it, verify tests still pass." |
-| NC6 | **DETECT** — Flag when comment in diff says "test later" or "TODO: test" | `git diff \| grep -i "TODO.*test\|FIXME.*test\|test.*later\|add test\|should test\|will test" \| wc -l` → > 0 | WARN. Auto-comment on PR: "Found 'test later' TODO in diff. TDD principle: the test is the specification. If it's worth coding, it's worth testing now. Either write the test in this PR or create a ticket for it with a deadline." |
-| NC7 | **REFUSE** — Never accept test suite runtime > 5 seconds for unit tests | `time npx jest --testPathPattern="unit" 2>&1 \| grep "Time:" \| awk '{print $2}' \| sed 's/s//'` → > 5.0 | STOP. Auto-label `slow-test-suite`. Response: "Unit test suite takes > 5 seconds. TDD requires sub-second feedback. Profile slowest tests, move integration-level tests to integration suite, eliminate sleeps/timeouts, use in-memory fixtures." |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment rubric -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You write tests because the process says so — but you don't feel the design feedback, and you've never refactored a design because a test was "too hard to write" | You notice when code is hard to test ("why do I need 7 mocks for this?") and you refactor the DESIGN before writing more tests — because hard-to-test code is badly designed code | Teams you've coached ship with >40% fewer defects than before you started — and you have pre/post DORA metrics to prove it, not just anecdotes |
-| You mock every dependency without thinking — databases, file systems, other modules, even utility functions in the same file | You distinguish between "collaborators" (dependencies that should be mocked — external APIs, payment gateways) and "internals" (dependencies that should be real — database queries within the same bounded context) | You've designed a testing strategy adopted by multiple teams where TDD, BDD, contract testing, and property-based testing all coexist with clear boundaries — and new hires are productive in test-first mode within their first sprint |
-| Your test suite takes longer than 10 seconds to run and you think "that's normal for a real project" | Your unit test suite runs in under 5 seconds — fast enough that you never hesitate to run it. Integration tests run separately. You know TDD's speed is ITS primary design feedback mechanism. | You've inherited a legacy codebase with zero tests and 6 months later it has 80%+ coverage, mutation score >70%, a test suite that runs in <2 minutes, and the team practices TDD by choice, not mandate |
-
-**The Litmus Test:** Can you demonstrate TDD on a non-trivial problem (not FizzBuzz, not a string reverser) in front of a skeptical team of senior engineers — and have them agree that the resulting code is better designed than what they would have written test-after? If you can't name which design patterns TDD naturally pushes you toward (dependency injection, hexagonal architecture, composition over inheritance), you don't understand the DESIGN half of test-driven development.
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-<!-- STANDARD: 3min -->
-
-### Solo (1 developer, greenfield)
-**Description:** Building an MVP. No existing tests. Fast iteration speed.
-**Approach:** Classic TDD for business logic. Skip TDD for UI layout (visually driven). Time-box cycles strictly. Don't chase 100% coverage — test the behavior that matters. Property-based tests for core algorithms.
-**Time investment:** 15-20% overhead initially. Pays off in reduced debugging time within 2 weeks.
-
-### Small Team (2-10 developers, growing codebase)
-**Description:** Active development. Some tests exist. Starting to feel the cost of manual testing.
-**Approach:** Outside-in TDD for new features. Bug reproduction TDD for all fixes. Introduce mutation testing for P0 modules. Establish coverage gates (≥80%) in CI. Pair programming for TDD adoption. Weekly TDD kata sessions.
-**Time investment:** Initial 2-4 week adoption period. After that, development speed is net faster.
-
-### Medium Team (10-50 developers, multiple services)
-**Description:** Multiple teams. CI/CD pipeline. Dedicated QA. Microservices or modular monolith.
-**Approach:** Contract TDD between services. Test data factories as shared libraries. Property-based testing for shared utilities. Mutation testing in CI for all P0/P1 services. Outside-in TDD with acceptance tests driving service boundaries. TDD metrics tracked per team (cycle time, defect escape rate).
-**Time investment:** Ongoing culture. Expect 10-15% of sprint time allocated to test quality improvement.
-
-### Enterprise (50+ developers, compliance, high reliability)
-**Description:** 500K+ lines of code. Regulatory requirements. Zero-downtime deployments.
-**Approach:** Formal TDD policy. Characterization tests mandatory before any legacy refactor. Mutation testing gates block merges. Property-based testing for all business-critical pure functions. Automated test generation from specs for boilerplate. TDD training program for new hires. Test architecture decisions documented as ADRs. Annual TDD maturity assessment.
-**Time investment:** Permanent investment. Dedicated test enablement team (2-3 people).
-
 ## What Good Looks Like
+
 <!-- STANDARD: 3min -->
 
 Developers write tests first by habit, not by rule. Every bug fix starts with a reproduction test that stays in the suite forever. The test suite runs in under 5 seconds for unit tests — fast enough that nobody hesitates to run it. Coverage is high (85%+) but the real metric is mutation score: 85%+ means assertions are strong. When someone refactors, tests catch behavioral changes instantly. New team members learn the system by reading test descriptions. The codebase is clean because TDD enforces testability — and testable code is decoupled, injected, and modular by nature. Nobody says "this is too hard to test" because that's the first signal of a design problem, not a testing problem.
@@ -484,11 +394,14 @@ graph LR
 **The One Highest-Leverage Activity**: Code kata every week. Same kata, different approach. The repetition isn't about the problem — it's about the rhythm. Red. Green. Refactor. Until you don't think about the steps anymore.
 
 ## References
-<!-- STANDARD: 3min -->
 
-- **qa-engineer** — for test pyramid strategy, coverage goals, and quality metrics
-- **code-reviewer** — for test quality assessment during code review
-- **idea-to-spec** — for feature specifications that drive acceptance tests
-- **api-test-suite-builder** — for automated API test generation that complements manual TDD
-- **backend-developer** — for language-specific TDD patterns and test framework setup
-- **frontend-developer** — for component-level TDD with React Testing Library or Vue Test Utils
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can create a FHIR Patient resource but can't explain why US Core requires `Patient.extension:race` and `Patient.extension:ethnicity` even though the base FHIR spec doesn't | You've designed a FHIR Implementation Guide with custom extensions, published it on a FHIR registry, and at least one external system successfully validates against your profiles | An EHR vendor's interoperability architect asks you to review their FHIR API design before they publish their IG — and your feedback is incorporated into the final specification |
+| You know SNOMED CT and LOINC exist but can't explain when to use `372066002 | You've built a terminology service that maps between SNOMED CT, LOINC, ICD-10-CM, and RxNorm — and the mapping accuracy is >98% when spot-audited against manual clinical review | You catch a terminology error in a published clinical guideline because the coded value doesn't match the clinical intent — and the guideline author issues a correction based on your finding |
+| You can query an EHR's FHIR API with Postman but have never launched a SMART on FHIR app with OAuth2/OIDC in a production health system | You've integrated with 2+ EHR vendors (e.g., Epic + Cerner) in production, handling their different authentication, scoping, and rate-limit quirks without a single 401 incident | A health system with 50,000+ patients asks you to design their FHIR middleware layer — and 12 months later, their data exchange volume doubles without a single interoperability outage |
+
+**The Litmus Test:** A clinical director hands you a spreadsheet of 5,000 patient records with ICD-9-CM diagnoses, LOINC lab codes from 3 different versions, and free-text medication names. They need this converted to FHIR R4 resources with valid SNOMED CT conditions, current LOINC observations, and RxNorm-coded medications — within 2 weeks. If you can design the mapping pipeline, write the validation rules, and deliver a 100% pass rate against the FHIR validator at launch, you're L3. If you need to look up more than 3 of the terminology systems, you're not there yet.

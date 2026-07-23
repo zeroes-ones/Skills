@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You describe your product as "an AI-powered, end-to-end, enterprise-grade platform" — and you can't see why that's indistinguishable from 50 other products | You can walk into a sales call unannounced, hear the AE's first 5 minutes of pitch, and immediately identify the positioning mistake that's losing the deal — and fix it in real time | A CEO gives you a product you've never seen, a market you've never worked in, and 6 weeks — and you deliver positioning, messaging, and a launch plan that drives >20% pipeline growth in the first quarter post-launch |
+| Your launch plans are feature lists with dates — and you've never killed a launch because "it doesn't tell a story" | You've tested pricing with >100 target customers using Van Westendorp, can cite the optimal price point and acceptable range, and your recommendation generates <10% price-objection rate in sales | A product you positioned 2 years ago is still being used verbatim by the CEO in investor meetings and by AEs in discovery calls — because you built a narrative that outlasted the launch quarter |
+| You commission analyst reports to "validate" your product rather than influencing the analyst's category definition before the report is written | Every launch you've run in the last 12 months included a post-mortem with win/loss data, and you can point to 3 specific changes you made to positioning based on post-mortem findings | Competitors start reacting to your positioning — mimicking your language, counter-positioning against your claims, and restructuring their pricing to compete with your value metric |
+
+**The Litmus Test:** Pick a B2B product you've never worked on. In 48 hours, deliver positioning, a message house with 3 pillars, a homepage wireframe, and an AE pitch deck. Then walk into a room with 5 target buyers and test it. If they can explain the product back to you in their own words without using your jargon, you've done your job. If they say "sounds like [competitor X]," you haven't.

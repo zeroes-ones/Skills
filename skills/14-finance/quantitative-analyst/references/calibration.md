@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You report a backtest Sharpe of 2.5 and think "this strategy is ready for production" instead of "where is the data leak?" | You've had at least one strategy that backtested beautifully and failed live — and you can explain exactly which assumption broke and why you missed it | A quant brings you a backtest with Sharpe 3.0 and you find the look-ahead bias, survivorship bias, or multiple-testing error within 15 minutes of code review — and you're right 90% of the time |
+| You classify an options trade as "bullish" or "bearish" based solely on call vs put and ask vs bid | You cross-reference every large option trade against the underlying's block trade activity, the institution's existing position, and concurrent multi-leg activity before assigning direction | You've built a flow classification system that correctly identifies synthetic positions (e.g., risk reversal = bullish, collar = hedged) and your directional accuracy on $5M+ trades is above 65% over a 500-trade sample |
+| You generate signals with confidence labels like "HIGH" but can't quantify what "high" means in terms of historical win rate | Your confidence levels are calibrated: "HIGH" = historical win rate 65-75%, "MEDIUM" = 55-65%, and you recalibrate monthly based on rolling performance | Your signals have been running in production for 2+ years and the realized win rate per confidence bucket is within 3% of the stated range — and the algorithmic trader who executes them hasn't overridden a confidence level in 12 months |
+
+**The Litmus Test:** Take your last 100 generated signals. Can you compute the Brier score (mean squared error between predicted confidence and actual binary outcome)? If your HIGH-confidence signals have a historical win rate of 60% but you label them "80% confident," your calibration is broken. A properly calibrated quant can state "this signal has a 62% probability of being correct" and the long-run frequency will be 62% ± 3%. If you can't produce that number, you're not L3.

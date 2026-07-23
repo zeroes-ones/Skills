@@ -34,13 +34,14 @@ chain:
     - clinical-informatics-specialist
     - patient-health-educator
 ---
-# Patient Experience Researcher
 
+# Patient Experience Researcher
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Conduct rigorous, ethical, and inclusive research with patient populations — from journey mapping for chronic conditions and clinical trial recruitment studies to IRB-aware protocols and health-literate survey design. This skill specializes in the unique constraints of healthcare research: vulnerable populations, regulatory oversight, health literacy barriers, and the imperative to produce actionable insights without burdening patients.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -89,7 +90,6 @@ These rules apply to *every* response this skill produces.
 | **R5** | **DETECT when recruitment channels only capture engaged patients ("professional patients") and flag for diversification.** Purposive sampling with quotas for disengaged segments is required — the patients easiest to recruit are the least representative. | Trigger: `file_contains("*", "recruitment")` AND (`file_contains("*", "HTC")` OR `file_contains("*", "clinic")) AND NOT `file_contains("*", "community")` AND NOT `file_contains("*", "social.media")` AND NOT `file_contains("*", "home.health")`. | FLAG. Respond: "Your recruitment strategy relies on clinical settings only, which will miss disengaged patients. I recommend adding at least 2 of: (1) community organizations, (2) social media patient groups, (3) home health agencies. Set demographic quotas to ensure representativeness. Clinical-only recruitment yields 'professional patients' — the most engaged, least representative segment." |
 | **R6** | **REFUSE to treat caregiver proxy data as equivalent to patient self-report for children ≥8 years.** A caregiver's report of a child's pain or quality of life is not the same as the child's own report. Use child self-report instruments alongside caregiver proxy. | Trigger: `file_contains("*", "caregiver")` OR `file_contains("*", "parent.report")` OR `file_contains("*", "proxy")` AND `file_contains("*", "child")` OR `file_contains("*", "pediatric")` AND NOT `file_contains("*", "self.report")` AND NOT `file_contains("*", "child.report")`. | STOP. Respond: "For children ≥8 years, caregiver proxy data is NOT equivalent to patient self-report. Your design must include: (1) child self-report instrument alongside caregiver proxy, (2) documentation of which data source is primary for each age group, and (3) acknowledgment that caregiver report ≠ patient experience. For children <8: caregiver proxy is acceptable but note the limitation." |
 
-
 ## The Expert's Mindset
 
 Master patient experience researchers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
@@ -109,6 +109,7 @@ Master patient experience researchers carry a dual responsibility: technical exc
 ### When to Break Your Own Rules
 - **Escalate for safety, not for process.** If patient safety is at risk, bypass the chain of command.
 - **Simplify for the patient.** Clinical precision means nothing if the patient can't understand or act on it.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -125,6 +126,7 @@ Master patient experience researchers carry a dual responsibility: technical exc
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Mapping patient journeys for chronic conditions (hemophilia, bleeding disorders, rare diseases)
 - Researching barriers to clinical trial participation and designing retention strategies
@@ -137,6 +139,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Establishing and facilitating patient advisory boards for co-design of health products
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 ### Clinical Trial Research Path
 ```
@@ -207,6 +210,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 **When full IRB required:** Collecting identifiable health data for generalizable knowledge, testing an intervention, interacting with patients for research purposes beyond standard care. **When exempt:** Anonymous surveys, educational tests, benign behavioral interventions with adults (Category 3), secondary use of de-identified data. **Always confirm with your IRB office — this decision tree is guidance, not a regulatory determination.**
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 ### Phase 1 (~25 min): Patient Journey Mapping for Chronic Conditions
 1. Define the journey scope: condition subtype (hemophilia A, B, with/without inhibitors), treatment regimen (prophylaxis, on-demand, gene therapy, non-factor therapy), and journey stages (pre-diagnosis → diagnosis → treatment initiation → maintenance → transitions: pediatric-to-adult care, pregnancy, surgery, aging).
@@ -237,6 +241,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 5. Close the loop with participants: after the study, share a summary of findings with participants. Patients who contribute time to research deserve to know what was learned. This also builds trust for future research recruitment.
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 Patient experience research informs clinical product design, regulatory strategy, and patient-facing content. Coordination ensures research findings translate into better products without violating patient privacy or regulatory boundaries.
 
@@ -299,115 +304,11 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 | Consent form readability scores >8th-grade level for target population with known literacy challenges | Rewrite consent to target level immediately; re-test readability; submit amended consent to IRB before next participant enrollment | Consent at too high a reading level = invalid informed consent = research data that cannot be used |
 | Diary study compliance drops >30% after first week | Check-in with non-completing participants: is the instrument too long? Too frequent? Confusing? Adjust protocol if possible; document attrition for analysis | Diary fatigue is predictable — early detection allows mid-study correction that preserves data quality |
 | IRB review exceeds expected timeline by >2 weeks without communication | Proactively contact IRB coordinator; verify submission is complete; offer to address any preliminary concerns; do not assume "no news is good news" | IRB delays without communication often mean the reviewer found issues but hasn't formalized feedback yet |
-| Participant reports feeling coerced or pressured during recruitment or study participation | Pause recruitment from that channel immediately; investigate recruitment practices; retrain staff; document corrective action for IRB | Coercion in research — even perceived — violates ethical standards and can result in IRB suspension of the study | 
-
-## Best Practices
-<!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- **Co-design with patients, not about patients.** Patient advisory boards should be involved from research question formulation through findings review — not just as a "check the box" activity at the end. Compensate patients for their time at fair market rates.
-- **Readability is a safety issue.** A consent form at 12th-grade reading level when your patient population reads at 6th grade means you do not have valid informed consent. Run readability scores on every patient-facing document.
-- **Recruit where patients are, not where it's convenient.** HTC waiting rooms capture only patients who attend clinic. To understand disengaged patients, recruit through community organizations, social media patient groups, and home health agencies.
-- **Language access is not just translation.** Translated materials need cultural adaptation and cognitive debriefing with native speakers from the target community. A literal Spanish translation of an English PROM may measure a different construct.
-- **Caregiver proxy data has limitations.** A caregiver's report of a child's pain or quality of life is not the same as the child's own report. For children ≥8 years, use child self-report instruments alongside caregiver proxy when possible.
-- **Diary compliance drops after day 7.** For daily diaries, plan for 30% attrition after one week. Build this into your sample size calculation and design shorter instruments that patients can sustain.
-- **IRB review is not an obstacle — it's patient protection.** Frame IRB as a partner in ethical research, not a bureaucratic hurdle. Engage the IRB early with a clear protocol and consent materials. Most delays come from unclear descriptions, not from IRB intransigence.
-- **Return results to participants.** Patients who give their time for research deserve to know what was learned. Send a 1-page plain-language summary to every participant. This is ethical practice and builds your research recruitment pipeline.
-
-## Anti-Patterns
-
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep / lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Designing research "about patients" without patient co-design involvement | Involve patient advisory board from research question formulation through findings review; compensate patients at fair market rates ($50-75/hr) | `grep -r 'patient' --include='*.md' study-protocol/ \| grep -v 'advisory\|co-design\|patient.partner'` — flag protocols with patients as subjects only, not partners | Pre-commit hook: research protocols must include `patient_advisory_board: true` or `patient_co_design: true` in metadata |
-| Using consent forms at 12th-grade reading level for populations that read at 6th-grade level | Run readability scores (SMOG/Flesch-Kincaid) on every consent form; target ≤8th grade; validate with cognitive debriefing with target population | `grep -rL 'Flesch.Kincaid\|SMOG\|reading.level' --include='*.md' consent-forms/` — flag consent files missing readability scores | Pre-commit hook: `flesch-kincaid --max 8` on all consent forms; block if >8th grade; auto-suggest simplifications |
-| Treating IRB review as a bureaucratic hurdle to "get through" | Engage IRB early as a partner; most delays come from unclear protocol descriptions, not IRB intransigence; invest in protocol clarity upfront | `grep -r 'IRB' --include='*.md' \| grep 'hurdle\|obstacle\|get.through\|just.get'` — flag dismissive IRB language | Pre-commit hook: flag any IRB-related language that's dismissive or adversarial; suggest collaborative framing |
-| Recruiting only through clinical settings (HTC waiting rooms) — missing disengaged patients | Diversify recruitment: community organizations, social media patient groups, home health agencies; track demographic representativeness of recruited sample | `grep -r 'recruitment' --include='*.md' \| grep -v 'community\|social.media\|home.health\|diverse\|underserved'` — flag clinical-only recruitment | Pre-commit hook: recruitment plans must include ≥3 channel types (clinical, community, digital); block if only 1 |
-| Using literal translations of PROM instruments without cultural adaptation | Cognitive debrief translated instruments with native speakers from target community; validate that the construct measured is equivalent across languages | `grep -r 'translat' --include='*.md' \| grep -v 'cognitive.debrief\|cultural.adaptation\|native.speaker'` — flag translations without adaptation evidence | CI gate: translated PROM files must have `cognitive_debrief: true` + `native_speaker_review: true` metadata |
-| Treating caregiver proxy data as equivalent to patient self-report | For children ≥8 years, use child self-report alongside caregiver proxy; document which data source is used in analysis; caregiver report ≠ patient experience | `grep -r 'caregiver\|proxy\|parent.report' --include='*.md' \| grep -v 'self.report\|child.report'` — flag proxy-only designs for ≥8yo | Pre-commit hook: any protocol with participants ≥8yo must include child self-report instrument; block proxy-only designs |
-| Designing 30-day daily diaries without accounting for 30% attrition after Day 7 | Plan for attrition in sample size; design shorter instruments; build in check-in prompts at Day 5; consider ecological momentary assessment (shorter, random sampling) | `grep -r 'diary\|daily.log\|EMA' --include='*.md' \| grep -v 'attrition\|drop.out\|sample.size.adjustment'` — flag diary designs without attrition planning | CI gate: diary study protocols must include `attrition_plan` with sample size adjustment for 30% Day-7 attrition |
-| Collecting patient data without returning results to participants | Send 1-page plain-language summary to every participant; this is ethical practice, builds trust, and creates a recruitment pipeline for future studies | `grep -r 'participant\|data.collection' --include='*.md' \| grep -v 'results.summary\|return.results\|plain.language.summary'` — flag studies without result-return plan | Pre-commit hook: research protocols must include `participant_results_summary: true` metadata; auto-generate summary template |
-
-## Error Decoder
-<!-- DEEP: 10+min -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|--------------------------------|---------|------------|-----|----------------------|
-| `IRB.insufficient.consent` OR `consent.description.incomplete` | IRB returns protocol with "insufficient consent description" | Consent form exceeds 8th-grade reading level or omits key elements (purpose, procedures, risks, benefits, alternatives, confidentiality, voluntary nature) | Run readability check; ensure consent covers all 7 required elements; revise to ≤8th grade; re-submit | 1. `flesch-kincaid consent-form.md` → 2. If >8th grade: `simplify-text --target-grade 8 consent-form.md` → 3. `grep -c 'purpose\|procedures\|risks\|benefits\|alternatives\|confidentiality\|voluntary' consent-form.md` — verify all 7 elements → 4. Add missing elements → 5. Re-run readability → 6. Re-submit to IRB |
-| `recruitment.bias` OR `professional.patients` OR `non.representative.sample` | Patient recruitment yields only "professional patients" (highly engaged, non-representative) | Recruitment channels biased toward engaged patients — clinical settings capture only treatment-adherent patients | Expand recruitment to community organizations, social media groups, home health; use purposive sampling with quotas for disengaged segments | 1. `analyze-recruitment-sources` → identify channel imbalance → 2. Add ≥2 new channels: community orgs, social media, home health → 3. Set demographic quotas: `add-quota --segment disengaged --target 30%` → 4. Track recruitment funnel by channel → 5. If quota not met after 2 weeks: increase incentive for disengaged segment → 6. Re-assess sample representativeness |
-| `floor.effect.*>20%` OR `ceiling.effect.*>20%` | PROM floor/ceiling effects (>20% at min/max score) | Instrument not sensitive for this population's impairment level — measuring too high or too low on the scale | Switch to a PROM with better measurement range for this population; consider computer-adaptive testing (CAT) for PROMIS measures | 1. `calc-floor-ceiling --instrument <name> --data responses.csv` → 2. If >20%: `find-alternative-prom --condition <condition> --severity <level>` → 3. Evaluate alternative: check validation in target population → 4. Pilot alternative with 5 patients → 5. Compare measurement range → 6. Switch instrument and document rationale |
-| `diary.completion.*<50%` OR `week.2.attrition.*>50%` | Diary study has <50% completion rate at week 2 | Entry burden too high; lack of reminders; no incentive; patients lose motivation after week 1 | Reduce to 3-5 items per entry; add SMS reminders at patient-preferred times; add per-week incentive ($10-15/week) | 1. `analyze-diary-dropout --study <id>` — identify dropout timing → 2. Reduce items: `trim-diary --max-items 5` → 3. `add-sms-reminders --time patient.preferred` → 4. `add-incentive --amount 15 --frequency weekly` → 5. Send re-engagement message to dropped participants → 6. Re-launch with n+30% to account for attrition |
-| `finding.not.actionable` OR `patients.are.frustrated` (without specifics) | Research findings not actionable — "patients are frustrated" without specifics | Research questions too broad; interview guide lacked probes; findings summarize sentiment not behavior | Restructure around specific touchpoints and decisions; use critical incident technique — "Tell me about the last time you..." | 1. `grep -c 'frustrated\|difficult\|hard\|confusing' findings.md` — count vague sentiment → 2. For each vague finding: `add-probe --technique critical-incident` → 3. Re-interview or follow-up with 3 participants → 4. Replace "patients are frustrated" with "8/12 patients abandoned the prior auth form at step 3 because..." → 5. Map each finding to a specific touchpoint → 6. Validate with 2 additional participants |
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. All must pass. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| [PR1] | IRB determination documented for the research activity (exempt, expedited, full board, or not human subjects research) | `grep -r 'IRB.determination\|exempt\|expedited\|full.board\|not.human.subjects' --include='*.md' protocol/` — must return determination | Run `irb-determination-wizard` to auto-classify activity and generate determination letter template |
-| [PR2] | Consent forms scored at ≤8th-grade reading level (SMOG or Flesch-Kincaid) and available in all participant languages | `flesch-kincaid consent-form.md` — must score ≤8; `grep -c 'language' consent-meta.yaml` — must match participant languages | `simplify-text --target-grade 8 consent-form.md` auto-simplifies; `translate-consent --languages es,vi,zh` for translations |
-| [PR3] | Research protocol documented: objectives, methods, participant criteria, recruitment strategy, analysis plan | `grep -c 'objectives\|methods\|participant.criteria\|recruitment\|analysis' protocol.md` — must cover all 5 | Run `protocol-scaffold --template patient-research` to auto-generate all 5 sections |
-| [PR4] | Participant screener validated — recruits match target condition, demographics, and journey stage | `grep -r 'screener\|eligibility' --include='*.md' \| grep -v 'validated\|piloted\|tested'` — flag untested screeners | Run `screener-pilot --n 5` to auto-test screener with 5 mock participants; report mismatch rate |
-| [PR5] | Recruitment strategy includes channels that reach underserved and disengaged populations | `grep -c 'community\|social.media\|home.health\|rural\|language.access' recruitment-plan.md` — must have ≥3 channel types | `add-recruitment-channel --type community-org --demographic underserved` auto-suggests channels |
-| [PR6] | Accessibility accommodations documented: remote options, caregiver proxy, language access, assistive technology compatibility | `grep -c 'remote\|caregiver.proxy\|language.access\|assistive.tech\|screen.reader' protocol.md` — must cover ≥4 | Run `accessibility-audit --template research` to auto-generate accommodation checklist |
-| [PR7] | PROM/Instrument validation evidence documented for the target population (condition, age, language, literacy) | `grep -r 'validation\|validated.in\|population' prom-selection.md \| grep '<target-condition>'` — must match target pop | Run `prom-validation-check --instrument <name> --population <condition,age,lang>` to auto-verify |
-| [PR8] | Patient advisory board (or patient reviewers) engaged at protocol design and findings review stages | `grep -r 'advisory.board\|patient.reviewer\|co-design' protocol.md` — must reference engagement at ≥2 stages | Run `advisory-board-onboard --stages design,findings-review` to auto-generate engagement plan |
-| [PR9] | Compensation documented with rationale (fair value, non-coercive, IRB-approved if applicable) | `grep -c 'compensation\|incentive\|payment' protocol.md \| grep -v 'rationale\|fair.value\|non.coercive'` — flag undocumented compensation | Run `compensation-calculator --activity interview --duration 60` to auto-calculate fair rate + rationale |
-| [PR10] | Data management plan: storage, access controls, de-identification, retention, and destruction schedule | `grep -c 'storage\|access.control\|de.identif\|retention\|destruction' dmp.md` — must cover all 5 | Run `dmp-scaffold --template patient-research` to auto-generate data management plan |
-| [PR11] | Plain-language findings summary prepared for return to participants | `grep -r 'findings.summary\|plain.language\|participant.summary' --include='*.md' \| grep -v 'draft\|TODO'` — must find completed summary | Run `generate-plain-language-summary --findings findings.md --target-grade 6` to auto-create summary |
-| [PR12] | All patient-facing materials tested with 2+ patients from target population before full deployment | `grep -r 'piloted\|tested.with\|cognitive.debrief' --include='*.md' \| grep 'n='` — must show ≥2 participants | Run `pilot-materials --n 3 --target <population>` auto-scheduler; block deployment until pilot complete |
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-<!-- DEEP: 10+min -->
-
-### Solo (1 person, 0-100 patients)
-- **What changes**: Research = you talking to 5 patients. No formal IRB (confirm exempt). No PROMs. Plain language summaries, not formal reports. Journey maps in Miro or FigJam, not research repositories.
-- **What to skip**: Full IRB protocol (confirm exempt). Professional recruiting. Formal readability scoring (use Hemingway or built-in checker). Diary studies. Patient advisory boards.
-- **Coordination**: You are the researcher + recruiter + analyst. Talk to patients directly.
-
-### Small Team (2-10 people, 100-10K patients)
-- **What changes**: Structured patient interviews with discussion guides. Journey maps for key clinical workflows. PROM selection with validation evidence review. IRB protocol for non-exempt studies. Basic readability scoring (SMOG). Recruitment through HTC partnerships.
-- **What to skip**: Multi-language research. Longitudinal diary studies (>4 weeks). Formal patient advisory board charter. Cross-cultural PROM validation. Advanced statistical analysis.
-- **Coordination**: Monthly research share-out with clinical and product teams. IRB liaison designated.
-
-### Medium Team (10-50 people, 10K-100K patients)
-- **What changes**: Mixed-methods patient research program. Multi-language research with cultural adaptation. Formal PROM program with ongoing monitoring. Longitudinal diary studies for treatment adherence. Patient advisory board with charter and compensation policy. Research repository (Dovetail/Condens) with searchable transcripts. Diverse recruitment pipeline with community partnerships.
-- **What to skip**: Multi-country global research. Advanced psychometric analysis (IRT, DIF). Continuous patient panel (>500 participants).
-- **Coordination**: Bi-weekly research review with clinical + product. Quarterly patient advisory board meeting. Monthly IRB/regulatory review.
-
-### Enterprise (50+ people, 100K+ patients)
-- **What changes**: Patient research team (3+ researchers). Global research capability (multi-country, multi-language). Patient advisory board with governance role in product decisions. PROM center of excellence with psychometric expertise. Longitudinal patient panel for rapid-cycle research. Research operations function. Democratized research (clinicians and PMs do lightweight studies). Formal health equity research program.
-- **What's full production**: Annual patient research strategy. Quarterly research program review. Patient advisory board integrated into product governance. PROM lifecycle management. Health equity metrics in all research.
-- **Coordination**: Monthly patient research program review. Quarterly stakeholder alignment. Weekly IRB/regulatory check-in for active studies.
-
-### Transition Triggers
-- **Solo → Small**: Multiple conditions or patient segments to research. IRB-required research. >500 patients.
-- **Small → Medium**: Multi-language patient population. PROM program launched. Longitudinal research needed. >10K patients.
-- **Medium → Enterprise**: Global patient population. Regulatory-grade research for FDA submissions. >100K patients.
+| Participant reports feeling coerced or pressured during recruitment or study participation | Pause recruitment from that channel immediately; investigate recruitment practices; retrain staff; document corrective action for IRB | Coercion in research — even perceived — violates ethical standards and can result in IRB suspension of the study |
 
 ## What Good Looks Like
 
 Research findings directly shape product decisions. Patient voices are present in every sprint review. Research operations scale without sacrificing participant care. Pharma partners cite your patient insights in their regulatory submissions. The research team is as diverse as the patient population.
-
-## Footguns
-<!-- DEEP: 10+min — war stories from patient experience research -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Patient journey mapping study with 28 participants recruited from an email list — all 28 were ages 28-42 with college degrees, and the "patient journey" had zero contact with financial toxicity despite it being the #1 barrier for 60% of the target population | A digital therapeutic company mapped the hemophilia patient journey to inform product design. Recruitment was via their existing email list and HTC partner referral. The 28 participants were: median age 34 (vs. hemophilia median age 42), 89% college-educated (vs. 47% of the broader patient population), 100% English-speaking, and all actively engaged with an HTC. The resulting journey map showed no major barriers to care access. In reality, the #1 barrier for hemophilia patients is financial toxicity — factor products cost $300K-$800K/year, and 60% of patients report financial strain. The email-list sample was systematically wealthier, better-insured, and more engaged than the target population. The product built from this research missed the needs of the majority of patients. | Recruitment used convenience channels — existing email lists and HTC partners who serve already-engaged patients. No purposive sampling for underrepresented segments. No financial toxicity screening in the recruitment screener. | **Define quota targets for recruitment BEFORE launching any study.** Minimum quotas: 30% low health literacy, 25% non-English-preferring (or your population's %), 20% financial strain (screen with "have you ever skipped treatment due to cost?"), representation across insurance types (Medicaid/Medicare/private/uninsured). If you can't fill a quota segment, document it as a limitation — don't pretend your sample is representative. |
-| Consent form scored at 12.4 Flesch-Kincaid grade level — 41 of 78 participants signed without understanding that their de-identified data could be shared with pharma partners | A patient research study included a consent form written by the legal team. It scored at 12.4 grade level (college sophomore reading level). A passage read: "De-identified data may be utilized for secondary research purposes including but not limited to pharmacoeconomic analysis performed by collaborative industry partners." In post-study debriefs, 41 of 78 participants (53%) said they didn't understand their data could go to pharma companies. They understood "research" to mean the academic hospital, not industry. The IRB flagged this as a consent validity concern during a routine audit. The study had to re-consent all 78 participants with a plain-language version, delaying analysis by 8 weeks. | Legal wrote the consent form for regulatory compliance, not participant comprehension. No readability check was required in the study launch checklist. The 12.4 grade level meant the consent failed its primary purpose: informed consent. | **Every consent form must score ≤8th-grade reading level (Flesch-Kincaid) before IRB submission.** Use plain language: "We may share information that does not identify you with drug companies to help them understand how patients use their medicines." Test the form with 3 people from your target population: ask them to explain what the study involves, what happens to their data, and what risks they face. Any misunderstanding = rewrite that section. |
-| PROMIS-29 administered in English to a Spanish-speaking majority study population (63%) — the instrument wasn't validated in Spanish for this condition, and 22% of responses showed response-pattern anomalies indicating comprehension failure | A multi-site study of pain outcomes in hemophilia used PROMIS-29 with 340 participants — 214 (63%) were native Spanish speakers. The PROMIS-29 was administered in English because "the Spanish version exists but hasn't been validated specifically for hemophilia." Analysis revealed response-pattern anomalies in 22% of Spanish-speaker responses: flat-line responses (all items scored the same), alternating extreme responses, and completion times under 90 seconds (suggesting random clicking). The study team excluded these 47 participants from analysis, reducing the sample size by 14% and introducing systematic bias — the excluded participants were disproportionately Spanish-speaking and lower-literacy. | The team prioritized using a "validated" instrument (English PROMIS-29) over using an accessible instrument. They assumed random English comprehension was better than an unvalidated Spanish translation. Neither choice was right — both produce invalid data. | **PROM instruments must be validated in the language and population you are studying, or you must acknowledge the limitation and adjust your analysis plan.** Options: (a) use the Spanish PROMIS-29 with a note that hemophilia-specific validation is pending — this is better than English with non-English speakers, (b) incorporate cognitive interviewing — test the instrument with 5 Spanish-speaking patients and identify comprehension issues before full deployment, (c) if neither is possible, exclude non-English speakers from the PROM component and use qualitative methods for those participants. |
-| Diary study with 14-day protocol and twice-daily entries — dropped from 92% completion on Day 1 to 34% on Day 7 among adolescent participants aged 12-17 | A treatment adherence study asked 60 adolescents with hemophilia (ages 12-17) to complete a 14-day diary with twice-daily entries: morning (pain level, bleed check, factor taken?) and evening (activity log, pain level, mood). Day 1 compliance was 92%. By Day 3, it was 68%. By Day 7, 34%. By Day 14, 11% of adolescents completed both entries. The primary outcome (pain variability) couldn't be analyzed because the missing data was systematic — participants who stopped were those with the highest pain scores on Day 1, meaning the study systematically lost data from the patients most affected by pain. | The entry burden (14 items per entry × 2/day × 14 days = 392 items) was designed for researcher data needs, not adolescent attention spans. No pilot test was done with the target age group. The protocol didn't adapt to early drop-off. | **Pilot test diary study protocols with 5 participants from the actual target demographic for 3 days before launching.** For adolescents: maximum 5 items per entry, maximum once-daily entry, maximum 7-day protocol. Add a "rescue day" — if a participant misses 2 consecutive entries, trigger a personalized SMS from the study coordinator asking if the burden is too high and offering a shorter version. The data you get from 80% compliance on a 5-item diary is better than 11% compliance on a 14-item diary. |
-| Co-design workshop with patient advisory board produced 4 feature recommendations — product team implemented all 4 without validation, and 2 features reduced engagement because the advisory board (8 members, all "super-users") didn't represent the broader patient base | A health app convened a patient advisory board of 8 members — all highly engaged, app-daily-users, ages 28-45, comfortable with technology. A co-design workshop produced 4 feature recommendations: detailed factor tracking, a social feed, gamification challenges, and a complex data export tool. The product team implemented all 4 over 6 months. Post-launch data showed: factor tracking and data export were used by <3% of users (only the super-users); the social feed increased time in app but also increased anxiety among newly diagnosed patients; gamification was used by 12%. Meanwhile, the most-requested feature from the broader user base — appointment reminders synchronized with HTC calendars — was never surfaced by the advisory board because super-users already managed their appointments independently. | The advisory board was self-selected for high engagement. Their needs (advanced tools, social features) were systematically different from the majority of users who needed basic care coordination support. The product team treated advisory board input as validated requirements. | **Patient advisory board recommendations are hypotheses, not requirements.** Every board-generated feature recommendation must be validated with a broader sample before implementation: survey 100+ patients, check analytics on feature requests from all users (not just super-users), run a concept test with 20 non-board members. The advisory board advises — they don't decide. Maintain a "feature request register" that tracks whether requests came from the board, general users, or clinicians, and what % of each group supports each request. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can run a patient interview but your recruitment always skews toward engaged, college-educated, English-speaking patients — and you don't adjust your findings for this bias | You've conducted a study where your sample matches your target population demographics within 10% across 3 dimensions (education, insurance type, language) — and you can document your purposive sampling method that achieved this | A health equity researcher reviews your study protocol and findings and says: "This is how patient research should be done" — because your methods section demonstrates you actively recruited for diversity, your analysis disaggregates findings by demographic subgroups, and your limitations section honestly addresses who you missed |
-| You treat IRB as a checkbox — you submit your protocol and hope it gets approved — rather than understanding when research crosses into clinical research requiring IRB review | You've designed a study that an IRB approved on first submission because your consent form was at 7th-grade reading level, your recruitment strategy included underserved populations, and your risk mitigations were comprehensive | A patient dies by suicide 3 months after participating in your study. The IRB investigation finds that your consent form disclosed emotional-distress risk, your protocol had a distress-response procedure, and you followed it — the IRB clears your study with no protocol changes |
-| Your research findings are "patients want better communication" or "patients feel frustrated" — headlines, not insights tied to specific touchpoints, decisions, or measurable behaviors | Your research delivers findings like "patients abandon factor tracking after 14 days because manual entry takes 4 minutes and they don't see value until they have 30 days of data — the intervention point is Day 10 with a personalized summary of what their data shows so far" | A pharma company's regulatory submission includes your patient research as patient experience data supporting their FDA submission — and FDA reviewers cite your methodology as "rigorous and representative of the intended use population" |
-
-**The Litmus Test:** You're asked to study the patient experience of transitioning from pediatric to adult hemophilia care — a population that is 14-25 years old, 40% non-English-speaking at home, and historically has 50% loss-to-follow-up rates. Can you design a study protocol that (a) recruits participants who are NOT already engaged in care, (b) uses methods appropriate for adolescents (not 60-minute Zoom interviews), (c) produces findings specific enough that the product team builds a feature from them within 3 months, and (d) gets IRB approval on the first submission? If you can produce this protocol in a week, you're L3. If your first draft involves a survey (adolescents don't fill out surveys), you're not there yet.
 
 ## Deliberate Practice
 
@@ -426,14 +327,14 @@ graph LR
 **The One Highest-Leverage Activity:** Every project post-mortem must include a "patient impact" section. If you can't trace your work to a patient outcome, you're building in the dark.
 
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- **ux-researcher** — for general research methodology, interview techniques, and synthesis frameworks
-- **accessibility-auditor** — for accessible research design, WCAG for research tools, inclusive participant accommodations
-- **compliance-officer** — for IRB guidance, HIPAA in research, consent requirements, and regulatory strategy
-- **ui-ux-designer** — for translating patient research into accessible, health-literate designs
-- **clinical-informatics-specialist** — for PROM implementation in ePRO systems and FHIR Questionnaire modeling
-- [PROMIS HealthMeasures](https://www.healthmeasures.net/) — Validated PRO instruments with population norms
-- [SMOG Readability Formula](https://en.wikipedia.org/wiki/SMOG) — Health literacy assessment tool
-- [NIH Plain Language](https://www.nih.gov/institutes-nih/nih-office-director/office-communications-public-liaison/clear-communication/plain-language) — Plain language guidelines for health materials
-- [45 CFR 46 — Protection of Human Subjects](https://www.hhs.gov/ohrp/regulations-and-policy/regulations/45-cfr-46/index.html) — Common Rule for IRB
-- [FDA Patient Engagement](https://www.fda.gov/patients) — Patient engagement in medical product development
+
+Detailed reference material loaded on demand:
+
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+

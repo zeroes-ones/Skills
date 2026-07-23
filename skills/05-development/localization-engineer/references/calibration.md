@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You can install i18next and extract strings but can't explain why Arabic users see a mirrored UI — you blame "the library doesn't support RTL" | You can configure a CI pipeline that: generates a pseudo-locale build, runs automated screenshot comparison across top 5 locales, catches ICU syntax errors, and blocks merge on any layout breakage | Your i18n architecture handles 40 locales, RTL and LTR, and 3 new locales added per quarter — and none of the last 20 locale additions required a single CSS hotfix post-launch |
+| You test localization by switching the locale in your browser and eyeballing the result — you've never run pseudo-localization | You have a pseudo-localization pipeline that catches 100% of missing keys, string truncation, and concatenation bugs before any real translation is purchased | You onboard a new RTL locale (Arabic or Hebrew) and the first production build shows zero layout issues — no overflow, no misaligned icons, no clipped text — verified by automated visual diff |
+| You hardcode `margin-left` and `padding-right` and "fix RTL later" — later never comes | You use CSS logical properties (`margin-inline-start`, `padding-inline-end`) throughout the codebase, enforced by Stylelint, and RTL layout "just works" without a separate stylesheet | You audit another team's codebase and identify 14 i18n bugs in 30 minutes — missing `dir="auto"` on UGC, ICU syntax in concatenated strings, fallback chain masking untranslated keys — and they fix all 14 before shipping |
+
+**The Litmus Test:** Add Arabic support to a 200-component React app with complex layouts (grid, flexbox, absolute positioning, modals, carousels) running on CSS Modules. The app must: (a) render RTL correctly on first build — no CSS hotfixes, (b) handle bidirectional user-generated content (phone numbers, URLs, code snippets inside Arabic text), (c) use ICU MessageFormat for all pluralized strings correctly across Arabic's 6 plural forms, and (d) pass automated visual diff against expected screenshots. If you touch a single `margin-left` during the migration, you're not L3.

@@ -59,7 +59,6 @@ chain:
 ---
 
 # Skill Levels — Universal Competency Taxonomy
-
 A 5-level mastery taxonomy defining what separates practitioners at every stage, from apprentice to transformative leader. Use this to calibrate skill output depth, set expectations, and define what excellence means concretely at each level.
 
 **Inspired by**: Google Engineering Ladder (L3→L9), Stripe Engineering Levels, Dropbox Career Framework, Dreyfus Model of Skill Acquisition, Nielsen Norman Design Maturity, SVPG Product Career Levels.
@@ -76,6 +75,37 @@ What are you trying to do?
 ├── Define what "world-class" means at each level → Read "The Expert's Mindset" + "What World-Class Means at Each Level"
 └── Compare levels (e.g., Senior vs Staff) → Jump to "Level Transitions"
 ```
+
+---
+
+## The Expert's Mindset
+
+Levels are a map, not the territory. The best practitioners don't think about their level — they think about the problem in front of them and apply whatever level of thinking it demands. A world-class L2 will occasionally think at L4 depth on a critical feature. A world-class L4 will occasionally write L2-level code when that's what's needed. **Mastery is knowing what level of thinking the situation requires and having the full range available.**
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Levels are lenses, not labels** | "I'm an L4" is a prison. "I can think at L4 depth when the problem demands it" is a superpower. Use levels to calibrate your thinking, not to constrain your identity. |
+| **The best at any level operate one level up in critical moments** | When the most important project of the quarter hits a crisis, the world-class L2 thinks like an L3. The world-class L3 thinks like an L4. Not always — just when it matters. |
+| **Promotion is a lagging indicator** | You get promoted to L4 after you've been operating at L4 for 6-12 months. The title recognizes what you've already become. Don't chase the title; chase the capability. |
+| **Every level has its own form of excellence** | The goal is not to reach L5. The goal is to be world-class at whatever level you're at. A world-class L3 is worth more than a mediocre L5 in almost every context. |
+
+### Cognitive Biases in Leveling
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Title inflation** | Assuming a "senior" title at a 20-person startup means the same thing as a "senior" title at Google | Always calibrate against behavioral anchors, not titles. "What's your scope? How many people do your decisions affect?" |
+| **Level envy** | Feeling inadequate because you're "only L2" while peers are L3 | Compare yourself to the behavioral anchors, not to peers. Are you world-class at your level? That's the only comparison that matters. |
+| **The Peter Principle** | Getting promoted to your level of incompetence because the skills at L(N) don't prepare you for L(N+1) | Every level transition requires deliberate skill-building in new dimensions. Don't assume L3 excellence predicts L4 success. |
+| **Credentialism** | Over-weighting level/title in evaluation and under-weighting demonstrated capability | Evaluate the work, not the level. Some of the best code ever written was by L2 engineers. |
+
+### What Masters Know That Others Don't
+
+- **The quietest person in the room is often operating at the highest level.** L4s and L5s don't need to prove themselves. They ask questions that reframe the problem. They speak less and change the conversation more.
+- **The best career strategy is to be undeniable.** Don't lobby for promotion. Produce work so clearly at the next level that promoting you becomes the obvious decision. Make your manager's case for them.
+- **Levels are most useful for self-calibration, not for judging others.** Use the taxonomy to identify your growth edges. Using it to rank colleagues is a misuse that destroys psychological safety.
+- **The skills that get you promoted are not the skills that make you fulfilled.** Many people reach L4 or L5 and discover they miss the craft work of L2/L3. The best career is the one where the work you do every day energizes you, regardless of level.
 
 ---
 
@@ -353,53 +383,9 @@ If no level is specified:
 
 ---
 
-## The Expert's Mindset
-
-Levels are a map, not the territory. The best practitioners don't think about their level — they think about the problem in front of them and apply whatever level of thinking it demands. A world-class L2 will occasionally think at L4 depth on a critical feature. A world-class L4 will occasionally write L2-level code when that's what's needed. **Mastery is knowing what level of thinking the situation requires and having the full range available.**
-
-### Mental Models
-
-| Model | Description |
-|---|---|
-| **Levels are lenses, not labels** | "I'm an L4" is a prison. "I can think at L4 depth when the problem demands it" is a superpower. Use levels to calibrate your thinking, not to constrain your identity. |
-| **The best at any level operate one level up in critical moments** | When the most important project of the quarter hits a crisis, the world-class L2 thinks like an L3. The world-class L3 thinks like an L4. Not always — just when it matters. |
-| **Promotion is a lagging indicator** | You get promoted to L4 after you've been operating at L4 for 6-12 months. The title recognizes what you've already become. Don't chase the title; chase the capability. |
-| **Every level has its own form of excellence** | The goal is not to reach L5. The goal is to be world-class at whatever level you're at. A world-class L3 is worth more than a mediocre L5 in almost every context. |
-
-### Cognitive Biases in Leveling
-
-| Bias | How It Shows Up | Defense |
-|---|---|---|
-| **Title inflation** | Assuming a "senior" title at a 20-person startup means the same thing as a "senior" title at Google | Always calibrate against behavioral anchors, not titles. "What's your scope? How many people do your decisions affect?" |
-| **Level envy** | Feeling inadequate because you're "only L2" while peers are L3 | Compare yourself to the behavioral anchors, not to peers. Are you world-class at your level? That's the only comparison that matters. |
-| **The Peter Principle** | Getting promoted to your level of incompetence because the skills at L(N) don't prepare you for L(N+1) | Every level transition requires deliberate skill-building in new dimensions. Don't assume L3 excellence predicts L4 success. |
-| **Credentialism** | Over-weighting level/title in evaluation and under-weighting demonstrated capability | Evaluate the work, not the level. Some of the best code ever written was by L2 engineers. |
-
-### What Masters Know That Others Don't
-
-- **The quietest person in the room is often operating at the highest level.** L4s and L5s don't need to prove themselves. They ask questions that reframe the problem. They speak less and change the conversation more.
-- **The best career strategy is to be undeniable.** Don't lobby for promotion. Produce work so clearly at the next level that promoting you becomes the obvious decision. Make your manager's case for them.
-- **Levels are most useful for self-calibration, not for judging others.** Use the taxonomy to identify your growth edges. Using it to rank colleagues is a misuse that destroys psychological safety.
-- **The skills that get you promoted are not the skills that make you fulfilled.** Many people reach L4 or L5 and discover they miss the craft work of L2/L3. The best career is the one where the work you do every day energizes you, regardless of level.
-
----
-
-## Production Checklist
-
-- [ ] Level taxonomy understood — L1 through L5 with scope, autonomy, impact, and craft dimensions
-- [ ] Role family calibration referenced for the relevant domain
-- [ ] Target level specified when invoking a skill (or default accepted)
-- [ ] Level-appropriate output depth confirmed
-- [ ] "World-class at level" understood as the goal, not racing to the next level
-
----
-
 ## References
 
-- [Google Engineering Practices](https://google.github.io/eng-practices/) — Code review, testing, and engineering standards
-- [Dropbox Engineering Career Framework](https://dropbox.github.io/dbx-career-framework/) — Detailed behavioral anchors per level
-- [Staff Engineer: Leadership Beyond the Management Track](https://staffeng.com/) — Will Larson
-- [The Staff Engineer's Path](https://www.oreilly.com/library/view/the-staff-engineers/9781098118723/) — Tanya Reilly
-- [Dreyfus Model of Skill Acquisition](https://en.wikipedia.org/wiki/Dreyfus_model_of_skill_acquisition) — Foundational skill development theory
-- [Inspired](https://www.svpg.com/books/inspired/) — Marty Cagan (product management career levels)
-- [Nielsen Norman Group Design Maturity Model](https://www.nngroup.com/) — UX maturity and capability levels
+Detailed reference material loaded on demand:
+
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+

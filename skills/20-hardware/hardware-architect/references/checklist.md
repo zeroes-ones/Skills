@@ -1,0 +1,20 @@
+# Production Checklist
+
+<!-- QUICK: 30s -- binary pass/fail with validation commands and auto-fix -->
+
+| ID | Checklist Item | Validation Command | Auto-Fix |
+|----|----------------|--------------------|----------|
+| H1 | SoC/processor selected with documented rationale, alternatives considered, second-source identified | `test -f docs/soc-selection-matrix.md && grep -c "Option [1-3]" docs/soc-selection-matrix.md | awk '{exit $1<3}'` | Generate selection matrix template. Require 3+ scored options. |
+| H2 | Memory architecture documented: memory map, type, size, timing for each region | `test -f docs/memory-architecture.md && grep -q "DDR\|FLASH\|SRAM\|SDRAM\|NAND\|NOR" docs/memory-architecture.md` | Auto-generate memory map table from datasheet. |
+| H3 | Power tree calculated with 30% margin and simulation or bench measurement confirming | `test -f docs/power-tree.md && grep -q "30%.*margin\|derating\|max.*current" docs/power-tree.md` | Generate power tree diagram. Verify 30% margin on every rail. |
+| H4 | Power sequencing defined: rail order, ramp timing, sleep mode configuration | `test -f docs/power-sequencing.md && grep -q "VDD_CORE\|VDD_IO\|VDD_DRAM\|ramp\|sequence" docs/power-sequencing.md` | Auto-generate power sequencing diagram from PMIC datasheet. |
+| H5 | Critical nets identified for length matching: DDR, high-speed serial, differential pairs | `grep -q "length.match\|differential.pair\|impedance\|DDR\|PCIe\|USB3\|HDMI" docs/routing-constraints.md` | Generate routing constraints document from interface specs. |
+| H6 | PCB stackup defined: layer count, layer order, dielectric material, target impedance | `test -f docs/pcb-stackup.md && grep -q "layer.*[4-9]\|FR4\|Megtron\|impedance.*[0-9][0-9].*ohm" docs/pcb-stackup.md` | Generate stackup calculator output. Verify impedance targets. |
+| H7 | Decoupling strategy documented: bulk per rail, HF per IC, placement guidelines | `test -f docs/decoupling-strategy.md && grep -q "bulk\|10uF\|100nF\|1uF\|placement\|ESR" docs/decoupling-strategy.md` | Generate per-IC decoupling checklist from datasheet recommendations. |
+| H8 | Thermal simulation completed: junction temp of all hot components within spec at worst-case ambient | `test -f sim/thermal-report.pdf && grep -q "Tj_max\|junction\|margin.*[0-9].*°C\|pass" sim/thermal-report*` | Generate thermal simulation checklist. Alert if Tj margin < 10°C. |
+| H9 | Derating review completed for all critical components (caps, resistors, MOSFETs, connectors) | `test -f docs/derating-review.md && grep -q "voltage.*derating\|power.*derating\|temp.*derating" docs/derating-review.md` | Generate derating calculator per component class. |
+| H10 | Pre-compliance EMC test scheduled or completed: radiated emissions, conducted emissions, ESD | `test -f test/emc-precompliance-report* && grep -q "radiated\|conducted\|ESD\|margin.*dB" test/emc-precompliance-report*` | Generate EMC pre-compliance test plan. Block fab release without scheduled test date. |
+| H11 | Certification plan documented: required certifications per target market, budget, timeline | `test -f docs/certification-plan.md && grep -q "FCC\|CE\|UL\|ISED\|budget\|timeline" docs/certification-plan.md` | Generate certification plan template per target market. |
+| H12 | BOM risk assessment completed: single-source parts identified with backup alternatives | `test -f BOM-risk-assessment.csv && grep -c "single.source" BOM-risk-assessment.csv | awk '{print $1}'` | Auto-flag single-source items. Generate Octopart search for alternates. |
+| H13 | Test points included for: all power rails, critical signals, programming interface, UART debug | `grep -c "TP[0-9]\|test.point\|TEST_POINT" *.kicad_sch | awk '{exit $1<8}'` | Auto-generate test point checklist per net class. |
+| H14 | Schematics peer-reviewed, layout constraints documented for layout engineer handoff | `test -f docs/schematic-review-checklist.md && test -f docs/layout-constraints.md` | Generate schematic review checklist. Auto-extract constraints from interface specs. |

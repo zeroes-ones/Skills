@@ -1,0 +1,13 @@
+# Best Practices
+
+<!-- STANDARD: 3min -- rules extracted from production experience -->
+1. **Measure performance on low-end devices, not your flagship phone:** Target a $200 Android device (2GB RAM) for baseline. If cold start < 1.5s and scrolling hits 60fps there, it works everywhere. Your iPhone 15 Pro Max is not representative.
+2. **Local DB is source of truth; server is the sync target:** In offline-first apps, the local database drives the UI. API calls update the local DB, which triggers reactive UI updates. Never show a spinner waiting for the network when local data exists.
+3. **Request permissions at point of need with rationale:** Don't ask for camera access on app launch. Ask when the user taps "Scan QR code." Show a rationale dialog before the system prompt. If denied, show a disabled state with a link to Settings.
+4. **Deep-link every shareable screen:** Every screen a user might share, receive as a notification target, or bookmark must have a deep-link URL. Test universal links (iOS) and app links (Android) with `apple-app-site-association` and `assetlinks.json` validators.
+5. **Push notifications: token refresh on every launch, silent notification for data sync:** Register for push on each app launch — tokens change. Use silent/background notifications to trigger data sync, not to deliver content. Content notifications should wake the app and fetch fresh data.
+6. **Design for platform conventions, not pixel-perfect cross-platform parity:** iOS users expect bottom tab bars, swipe-to-go-back, and SF Symbols. Android users expect Material Design 3, top app bars, and system back button. Delight comes from feeling native, not identical.
+7. **Graceful degradation for offline, permissions denied, and low battery:** Every feature should define its degraded experience: offline (stale data with indicator), permissions denied (disabled with explanation), low battery (reduce animation, pause background sync).
+8. **Automate store submission, don't manually upload:** CI should build, sign, and upload to TestFlight/Play Console on every merge to main. Manual uploads lead to wrong versions, missing symbols, and late-night App Store Connect panic.
+9. **Crash reporting with breadcrumbs, not just stack traces:** Log user actions (screen visited, button tapped, API called) as breadcrumbs before the crash. A stack trace tells you what crashed; breadcrumbs tell you what the user was doing — and how to reproduce it.
+10. **Security is defense-in-depth:** Certificate pinning + Keychain/Keystore + ProGuard/R8 + root detection + disable screenshots in app switcher + jailbreak detection. Each layer alone can be bypassed; together they raise the bar from opportunistic to targeted attack.

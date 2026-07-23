@@ -40,13 +40,14 @@ chain:
   - medical-illustrator
   - patient-health-educator
 ---
-# UX Writer / Content Designer (Health Tech)
 
+# UX Writer / Content Designer (Health Tech)
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
 Craft the words that make digital health products feel safe, clear, and human. From onboarding microcopy to medical disclaimers, consent flows to error messages — every word builds trust, reduces anxiety, and drives health outcomes.
 
 ## Route the Request
+
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
 ### Auto-Route (No User Input Required)
@@ -84,6 +85,7 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
+
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
 
 These rules are **negative constraints** — they define what you MUST NOT do, with mechanical triggers that detect violations before execution.
@@ -97,7 +99,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN about error messages that don't confirm data safety.** Every error that interrupts a clinical workflow must explicitly state: "Your information is saved. You can resume where you left off." | Trigger: generated error message is in a health/clinical context AND does not contain `saved\|safe\|preserved\|not.lost\|resume` within the error copy | WARN: "This error message doesn't confirm data safety — in a clinical context, users will worry their data is lost. Add: 'Your information is saved. You can resume where you left off.' before the error explanation." |
 | **R6** | **DETECT and WARN about source strings that will break localization.** Concatenated strings, English idioms, hardcoded plurals, and missing translator context are the top 4 causes of localization bugs. | Trigger: generated strings use `"You have " + count + " messages"` (concatenation) OR `"break a leg"` (idiom) OR `"1 files"` (hardcoded plural) OR no translator comment on ambiguous strings | WARN: "This string will break in localization. Fix: (1) use ICU MessageFormat `{count, plural, =1 {1 message} other {# messages}}`, (2) replace idioms with literal language, (3) add translator context comment `<!-- i18n: context for this string -->`." |
 | **R7** | **STOP and ASK before using cheerful/playful tone for serious medical conditions.** Tone mismatch erodes trust faster than factual errors. "You're crushing it!" for a cancer treatment app is harmful. | Trigger: generated copy uses `!\|🔥\|awesome\|amazing\|crushing\|killing.it\|woohoo` AND `file_contains("*", "cancer\|chronic\|terminal\|serious\|severe\|oncology\|palliative")` is true | STOP. Ask: "This tone may be inappropriate for the clinical context. For serious conditions, use compassionate + clear register. For wellness/prevention, warm + encouraging may be appropriate. Confirm the register before I proceed." |
-
 
 ## The Expert's Mindset
 
@@ -118,6 +119,7 @@ Master ux writers operate at the intersection of trust, safety, and human experi
 ### When to Break Your Own Rules
 - **Intervene before the process completes when harm is imminent.** Policy can wait; safety can't.
 - **Over-communicate during incidents.** "We don't know yet but here's what we're doing" beats silence every time.
+
 ## Operating at Different Levels
 
 | Level | Scope | You... |
@@ -134,6 +136,7 @@ Master ux writers operate at the intersection of trust, safety, and human experi
 For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 ## When to Use
+
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Writing onboarding flows, empty states, tooltips, or confirmation messages for a health product
 - Drafting medical disclaimers for a patient-facing or provider-facing interface
@@ -146,6 +149,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Auditing content for screen reader compatibility and plain-language alternatives
 
 ## Decision Trees
+
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
 ### Disclaimer Placement Decision Tree
@@ -174,6 +178,7 @@ What is the data sensitivity?
 **What good looks like:** A patient reads your onboarding flow and completes it without calling support. A clinician sees your disclaimer and nods — it's where they expect it, says exactly what's needed, and doesn't slow them down. A regulator reviews your consent language and finds no gaps. A usability test participant with 6th-grade reading level correctly explains what they just consented to.
 
 ## Core Workflow
+
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 ### Phase 1 (~20 min): Product Copy Design
@@ -203,102 +208,10 @@ Craft disclaimers that protect legally without degrading the user experience.
 
 Design consent flows that are truly informed — not just legally compliant.
 
-1. **Informed consent UX**:
-   - **Pre-consent summary**: 3 bullet points max. What data, why, who sees it. "Your symptom logs help us personalize your care plan. Only your care team can see them."
-   - **Granular options**: Separate toggles for treatment, research, marketing, third-party sharing. Default all to OFF.
-   - **Comprehension check**: Ask one question to confirm understanding. "In your own words, who can see your health data?" with multiple-choice options.
-   - **Withdrawal pathways**: "You can change these settings anytime in Settings > Privacy. Withdrawing consent won't affect your care."
-2. **Reading levels by audience**:
-   - Patient-facing: ≤6th grade. "We'll use your health info to give you better care. You can say no anytime."
-   - Caregiver-facing: ≤8th grade. "Your child's treatment data helps us track progress and adjust the care plan."
-   - Provider-facing: Professional level with clear summaries.
-3. **Consent for minors**: Age of consent varies by jurisdiction (13-18). Parental consent flows with child assent language for ages 7-17.
-4. **Research consent**: Distinguish between treatment consent and research consent explicitly. "Participating in this study is separate from your treatment. Declining won't affect your care."
-
-### Phase 4 (~20 min): Health Literacy Messaging
-
-Make health information understandable to everyone, regardless of education level.
-
-1. **Plain language principles**:
-   - ≤8th grade reading level (target ≤6th for patient-facing)
-   - Active voice: "Take this medicine with food" not "This medication should be administered with meals"
-   - Short sentences: ≤15 words per sentence
-   - Common words: "high blood pressure" not "hypertension"; "blood thinner" not "anticoagulant"
-   - Define unavoidable clinical terms inline: "Hemophilia (a condition where blood doesn't clot normally)"
-2. **Visual reinforcement**: Every written instruction pairs with an illustration. Pill identification = photo. Injection site = anatomical diagram. Treatment schedule = calendar visualization.
-3. **Translations and localization**: Design English source strings for translatability. Avoid idioms ("feeling under the weather"), cultural references, and English-only wordplay. Allow 30% text expansion for Romance languages, 40% for German.
-4. **Readability testing tools**: Flesch-Kincaid Grade Level, SMOG Index, PEMAT (Patient Education Materials Assessment Tool). Test with actual patients from your target demographic.
-
-### Phase 5 (~20 min): Error Message Design for Health Contexts
-
-Error messages in health apps carry higher stakes. Design for trust preservation.
-
-1. **Session timeout**: "Your session timed out to protect your privacy. Your last entry was saved. Log in again to continue." Never: "Session expired."
-2. **Clinical data save failure**: "We couldn't save your last entry. Don't close this screen — your data is still visible here. Try saving again or take a screenshot." Provide recovery path.
-3. **Connectivity loss during data entry**: "Connection lost. Your entries since [timestamp] are saved on your device and will sync when you're back online."
-4. **Medication interaction warning**: "This medication may interact with [drug name] in your profile. Please contact your doctor before taking it." Red banner, not subtle toast.
-5. **Lab result unavailable**: "Your lab results aren't ready yet. We'll notify you when they are — typically within 24-48 hours." Set expectations.
-6. **Generic error replacement rule**: Never show "Error 500" or stack traces. Every error = what happened + what it means for the user + what to do next.
-
-### Phase 6 (~25 min): Voice and Tone Systems
-
-Define how your health product sounds in different contexts.
-
-1. **Voice dimensions (stable)**:
-   - **Clear**: Jargon-free, concrete, scannable
-   - **Compassionate**: Acknowledges emotion, never dismissive
-   - **Trustworthy**: Evidence-based, accurate, transparent about limitations
-   - **Empowering**: Gives users agency, never paternalistic
-2. **Tone shifts (context-dependent)**:
-   - **Sensitive health topics** (cancer, mental health, sexual health): Compassionate + gentle. "We understand this is difficult. Take your time. You're not alone."
-   - **Clinical information** (lab results, treatment plans): Professional + clear. "Your A1C is 7.2%, down from 8.1%. This shows your treatment plan is working."
-   - **Treatment adherence** (medication reminders, PT exercises): Encouraging + specific. "You've taken your medication 5 days in a row. That's a new record! 🎉"
-   - **Urgent safety** (drug interactions, critical results): Direct + actionable. "Important: Contact your doctor before taking this medication. [View interaction details]"
-   - **Errors and setbacks**: Supportive + solution-focused. "It looks like you missed your last 2 doses. That's okay — here's what to do now."
-3. **Tone anti-patterns**: Never cheerful for serious conditions ("Congrats on your diabetes!"), never clinical-jargon with patients, never blame the user ("You entered an invalid value"), never minimize ("Just a little lump").
-
-### Phase 7 (~20 min): Content Design Systems
-
-Build reusable, scalable content infrastructure.
-
-1. **Reusable content patterns**: Error message template, empty state template, confirmation message template, disclaimer snippet library, consent language components, notification templates (push, email, in-app).
-2. **Content tokens**: Define variables for product name, company name, support contact, app store links. Use `{{product_name}}` not hardcoded strings.
-3. **Localization-ready string design**:
-   - Never concatenate strings: `"You have " + count + " messages"` breaks in every language
-   - Use ICU MessageFormat: `{count, plural, one {# message} other {# messages}}`
-   - Provide translator context comments: `/* Button: initiates medication refill. Max 20 chars. */`
-4. **Character limits per component**:
-   - Push notification title: 40 chars
-   - Push notification body: 120 chars
-   - Button label: 25 chars (20 for mobile)
-   - Modal title: 50 chars
-   - Toast/ snackbar: 80 chars
-   - Tooltip: 150 chars
-   - Error message body: 200 chars
-5. **Content audit**: Quarterly review of all strings. Flag outdated medical claims, broken links, non-inclusive language, reading level regressions.
-
-### Phase 8 (~15 min): Microcopy Testing
-
-Test whether your words actually work.
-
-1. **A/B testing error messages**: Test trust impact. "Something went wrong" vs "We hit a snag — your data is safe." Measure: task completion rate, support tickets generated, trust survey score.
-2. **Comprehension testing**: 5-second test — show the consent screen for 5 seconds, then ask: "What did you just agree to?" If >80% can't answer correctly, rewrite.
-3. **Trust impact of phrasings**: "We share your data with partners" vs "Your data helps us improve care for everyone." Test trust before and after with Likert scale.
-4. **Click-through on CTAs**: "Learn more" vs "See how this works" vs "Understand your results." Measure actual clicks.
-5. **Readability validation**: Run every patient-facing string through Flesch-Kincaid. Flag anything above 8th grade. Test with users who have limited health literacy.
-
-### Phase 9 (~15 min): Accessibility in Content
-
-Ensure content is accessible to all users.
-
-1. **Screen reader content**: Every non-decorative image needs alt text. Medical diagrams need descriptive alt text: "Diagram showing the ankle joint with labels for tibia, fibula, and talus bones. Arrow indicates common sprain site." Provide text alternatives for infographics and charts.
-2. **Alt text for medical diagrams**: "Illustration of the heart showing four chambers. Left ventricle highlighted in red to indicate the site of the myocardial infarction described below."
-3. **Plain language alternatives**: For every clinical term, provide a tooltip or parenthetical with plain language: "Myocardial infarction (heart attack)." Ensure screen readers can access these alternatives.
-4. **Link text**: Never "click here" or "read more." Use descriptive links: "View your full lab results" or "Learn about treatment options."
-5. **Reading order**: Content must make sense when linearized. Headings must follow hierarchy (H1 → H2 → H3, no skips).
-6. **Cognitive accessibility**: Allow users to hide complex medical explanations behind "Show plain-language version" toggles. Provide summaries before detailed clinical reports.
+> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
 ## Cross-Skill Coordination
+
 <!-- QUICK: 30s -- table of who to talk to when -->
 
 UX writing sits at the intersection of design, clinical, regulatory, and engineering. Know when to coordinate:
@@ -341,46 +254,27 @@ UX writing sits at the intersection of design, clinical, regulatory, and enginee
 | Accessibility audit reveals missing alt text, heading hierarchy skips, or non-descriptive link text in UX copy | Fix within same sprint: add descriptive alt text, fix heading hierarchy (H1→H2→H3 no skips), rewrite link text to be descriptive out of context | Content accessibility starts at the writing stage — these aren't engineering defects, they're writing defects |
 | Trust survey or NPS shows statistically significant drop quarter-over-quarter | Audit tone across all user-facing copy: check for mismatched register (cheerful tone for serious condition), cop-out disclaimers, inconsistent voice; prioritize fixes by user touchpoint volume | Tone mismatches erode trust faster than factual errors — the right register for the right context is critical in healthcare |
 | New product feature adds >50 new strings without content design review | Halt string freeze until UX writer reviews all strings: check for consistency, reading level, translatability, error states, empty states, and loading states | Content design review before implementation prevents rework — every string without review is technical debt |
-| Regulatory finding cites missing disclaimer for AI-generated content or overly broad consent scope | Add per-feature disclaimers; narrow consent options to specific purposes; document regulatory rationale; update consent flow template to prevent recurrence | Regulatory requirements evolve — build disclaimers and consent flows with flexibility for changing compliance landscapes | 
+| Regulatory finding cites missing disclaimer for AI-generated content or overly broad consent scope | Add per-feature disclaimers; narrow consent options to specific purposes; document regulatory rationale; update consent flow template to prevent recurrence | Regulatory requirements evolve — build disclaimers and consent flows with flexibility for changing compliance landscapes |
 
-## Best Practices
-<!-- DEEP: 10+min -->
-<!-- STANDARD: 3min -- rules extracted from production experience -->
-- **Write for scanning, not reading**: Users don't read health information — they scan for what matters to them. Use headings, bullets, and bold keywords.
-- **Test with real patients, not colleagues**: Your team has 100x the health literacy of your users. Test with people who match your target demographic.
-- **Design content before design**: Wireframe with real copy, not lorem ipsum. If the content doesn't fit, the design is wrong.
-- **One action per screen**: Especially in consent flows. Don't ask users to consent to research, marketing, and data sharing on one screen.
-- **Error messages are UX, not engineering**: Don't let developers write error strings. Every error message is a content design opportunity.
-- **Translations are not an afterthought**: Design strings for internationalization from day one. Retrofitting i18n costs 3x more.
-- **Disclaimers are content, not legal CYA**: A disclaimer that no one reads is not a disclaimer. Design it for comprehension.
+## What Good Looks Like
 
-## Anti-Patterns
-<!-- DEEP: 5min -- each anti-pattern includes machine-detectable patterns -->
+> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without disrupting flow, all patient-facing content reads at or below 8th grade level, consent flows use granular options with comprehension checks, error messages explain what happened, the impact, and the next action, and the voice is consistent from onboarding to recovery — words build trust, reduce support tickets, and make the product feel human.
 
-| ❌ Anti-Pattern | ✅ Do This Instead | 🔍 Detect (grep/lint) | 🛡️ Auto-Prevent |
-|-----------------|---------------------|--------------------------|-------------------|
-| Writing dense paragraphs of clinical copy without scanning affordances — users scan health info, they don't read | Use headings, bullets, bold keywords, and one-idea-per-paragraph structure. Front-load the most important information. Every paragraph must pass the "5-second scan test." | `npx readability-check --text "$COPY" --metrics "sentence_length,paragraph_length"` → sentences >25 words OR paragraphs >3 sentences = flag. `grep -cP "^[A-Z].{200,}" *.md` → paragraphs >200 chars without line breaks | Content lint: `npx textwall-detector --max-paragraph-chars 200 --max-sentence-words 25`. Auto-format: `npx content-chunker --file copy.md --add-headings --max-chunk 3` |
-| Testing copy exclusively with colleagues who have 100× the health literacy of users — the gap is invisible to your team but glaring to patients | Test with 5+ people matching target demographics. Health literacy gaps only appear when you test with actual patients, not your PM who has a PhD. | `grep -rn "tested\|validated\|user.test" testing_log.md | grep -v "patient\|target.audience\|demographic\|representative"` → flag tests without representative participants | Testing gate: `npx participant-screen --file testing_recruits.csv --require-health-literacy-match --min-n 5`. CI fails if all test participants have graduate degrees |
-| Wireframing with lorem ipsum instead of real copy — hides content-design conflicts until implementation | Design content before design: if real copy doesn't fit, the design is wrong. Lorem ipsum masks truncation, overflow, and readability issues. | `grep -rn "lorem\|ipsum\|dolor\|sit.amet" --include="*.fig\|*.sketch\|*.xd\|*.svg"` → any match = flag. CI: `npx lorem-ipsum-detector --directory design/` | Pre-commit: `npx lorem-blocker` — fails if any design file contains placeholder text. Auto-replace: `npx lorem-replacer --source content_strings.json --directory design/` |
-| Bundling multiple consent asks (research, marketing, data sharing, third-party) on one screen — "agree to all or don't use the app" | One purpose per screen. Granular consent with: what data, shared with whom, for what purpose, how to withdraw. Comprehension check after each. | `grep -rn "consent\|agree\|opt.in" consent_flow.md -A 20 | grep -cP "(and\|also\|additionally\|plus)" ` → >0 = multiple asks bundled. `npx consent-granularity-check --file consent_flow.md --max-asks-per-screen 1` | Consent lint: `npx consent-flow-validator --require-granular --max-purposes-per-screen 1 --require-comprehension-check`. Auto-split: `npx consent-splitter --file consent_flow.md --output-dir consent_screens/` |
-| Letting developers write error message strings — "Error 500: Internal Server Error" means nothing to a patient managing their medication | Every error message is a content design opportunity. UX writer owns the words. Format: [what happened] + [user impact] + [concrete next action]. Engineering owns the logic. | `grep -rn "Error [0-9]\{3\}\|Internal.Server.Error\|Bad.Request\|Unauthorized" --include="*.json" --include="*.tsx"` → flag raw HTTP errors in UI strings. `npx error-message-audit --require-user-language` | Error lint: `npx error-copy-check --forbid-http-status --forbid-technical-jargon --require-user-action`. Template: `npx error-template-apply --pattern "what_happened + impact + next_action"` |
-| Treating internationalization as a post-launch retrofit — retrofitting costs 3× more | Design strings for i18n from day one: ICU MessageFormat for plurals/gender, translator comments on every string, 30% expansion buffer for German/Finnish, RTL support in layout. | `grep -rn "ICU\|MessageFormat\|{count,\|{gender," --include="*.json" *.json | wc -l` → must match total string count. `npx i18n-readiness-check --directory locales/ --require-icu --require-translator-comments` | i18n lint: `npx i18n-validator --require-icu-messageformat --require-translator-comments --require-expansion-buffer`. Auto-fix: `npx i18n-migrate --source strings.json --output locales/en.json --format icu` |
-| Using cheerful/playful tone for serious medical conditions — "You're crushing it! 🔥" in a cancer treatment app | Match register to context: compassionate + clear for serious conditions, warm + encouraging for wellness/prevention. Maintain a tone map: condition → appropriate register. | `grep -rn "!\|🔥\|awesome\|amazing\|crushing\|killing\|woohoo\|yay" --include="*.json" --include="*.md" | grep -rn "cancer\|oncology\|terminal\|chronic\|severe\|palliative\|ICU\|diagnosis" -` → flag celebratory tone in serious contexts | Tone lint: `npx tone-context-check --file strings.json --condition-map conditions.yaml`. Auto-flag: `npx tone-auditor --forbid-enthusiasm-in "cancer,terminal,palliative,chronic,severe"` |
-| Burying disclaimers in page footers where no one reads them — a disclaimer no one sees is no disclaimer at all | Place inline at the decision point with progressive disclosure. Test: "Without scrolling, can the user see the disclaimer?" If no, it's buried. | `grep -rn "disclaimer\|disclosure\|warning\|caution" --include="*.md" | grep -v "decision.point\|inline\|modal\|progressive"` → flag disclaimers not placed at action point. `npx disclaimer-placement-check --require-above-fold` | Placement lint: `npx disclaimer-audit --file screen_specs/ --require-decision-point --forbid-footer-only`. Auto-move: `npx disclaimer-relocator --file screen.html --target adjacent-to-cta` |
+## Deliberate Practice
 
-## MVP vs Growth vs Scale
+```mermaid
+graph LR
+    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
+```
 
-| Concern | MVP (Pre-launch) | Growth (Active users) | Scale (Enterprise/Regulated) |
-|---------|-----------------|----------------------|------------------------------|
-| Copy volume | 50-100 strings | 500-1000 strings | 5000+ strings across products |
-| Disclaimers | 1 general medical disclaimer | Inline + modal + footer | Per-feature disclaimers, jurisdiction-specific |
-| Consent | Simplified single-purpose | Granular multi-purpose | Multi-jurisdiction, multi-product, audit-ready |
-| Reading level | ≤8th grade target | ≤6th grade patient-facing, validated | PEMAT-certified, continuous monitoring |
-| Voice/tone | 2-page guide | Full system with tone shifts | Automated tone scoring, brand voice AI |
-| Localization | English only | 5-10 languages | 30+ languages, RTL support, locale-specific disclaimers |
-| Testing | Internal review only | A/B testing, comprehension testing | Continuous experimentation, trust NPS tracking |
-| Accessibility | Basic alt text | Screen reader audit | WCAG AAA content, cognitive accessibility features |
-| System | Spreadsheet | CMS + TMS integration | Content design system with tokens, API-driven strings |
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
+| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
+| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
+| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
+
+**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
 
 ## When NOT to Write UX Content
 
@@ -411,135 +305,18 @@ Common chains:
 - **Accessible content**: accessibility-auditor → ux-writer → ui-ux-designer — Accessibility requirements → accessible copy → accessible design
 - **Brand-aligned content**: brand-guidelines → ux-writer → content-strategist — Brand voice → product voice → content strategy
 
-## Sub-Skills
-<!-- QUICK: 30s -- table of deeper dives by topic -->
-
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| `product-copy-design` | Writing onboarding, empty states, CTAs | Phase 1 |
-| `medical-disclaimers` | Drafting regulatory disclaimers | Phase 2 |
-| `consent-language` | Designing informed consent flows | Phase 3 |
-| `health-literacy` | Simplifying clinical content | Phase 4 |
-| `error-message-design` | Crafting health-context error states | Phase 5 |
-| `voice-tone-systems` | Defining product voice | Phase 6 |
-| `content-design-systems` | Building reusable content infrastructure | Phase 7 |
-| `microcopy-testing` | A/B testing copy variants | Phase 8 |
-| `content-accessibility` | Screen reader and alt text | Phase 9 |
-
-## Scale Depth: Solo → Small → Medium → Enterprise
-<!-- DEEP: 10+min -->
-
-### Solo (1 writer, 1 product)
-- **What changes**: You write everything. Spreadsheet for string tracking. One general disclaimer. Flesch-Kincaid check in Word. No A/B testing — judgment calls.
-- **What to skip**: Content design system, content tokens, automated tone scoring, multi-jurisdiction consent, continuous testing.
-- **Coordination**: Weekly sync with designer. Monthly review with legal for disclaimers.
-
-### Small Team (2-5 writers, 2-3 products)
-- **What changes**: Shared content guidelines. Glossary in a wiki. Disclaimers in a shared library. Manual readability checks. Basic A/B testing on critical flows. 5-10 languages.
-- **What to skip**: Full content design system (shared templates are enough), automated readability monitoring, continuous trust NPS tracking.
-- **Coordination**: Bi-weekly content review. Quarterly voice/tone audit. Monthly sync with translation team.
-
-### Medium Team (5-15 writers, multi-product)
-- **What changes**: Content design system with tokens. TMS integration for strings. Automated readability checks in CI. A/B testing program. Designated clinical content reviewer. 20-30 languages. Per-feature disclaimers.
-- **What to skip**: AI-assisted tone scoring (manual review at this scale), fully automated consent personalization.
-- **Coordination**: Weekly content design system review. Bi-weekly cross-product consistency audit. Quarterly accessibility audit.
-
-### Enterprise (15+ writers, global products)
-- **What changes**: Full content design system with API-driven strings. Automated tone and readability scoring in CI/CD. Multi-jurisdiction consent engine. Continuous experimentation across all copy. Dedicated health literacy specialist. 30+ languages with locale-specific disclaimers. WCAG AAA content accessibility.
-- **What's full production**: Content ops function. Brand voice AI training. Real-time translation quality monitoring. Trust NPS as a KPI. Regulatory change monitoring for disclaimer updates.
-- **Coordination**: Daily content system standup. Weekly experimentation review. Monthly regulatory alignment. Quarterly board-level trust report.
-
-### Transition Triggers
-- **Solo → Small**: >200 strings, second product launch, first international market
-- **Small → Medium**: >1000 strings, >10 languages, first FDA-regulated product, consent complexity exceeds manual management
-- **Medium → Enterprise**: >5000 strings, multi-jurisdiction regulatory requirements, patient safety-critical content
-
-## Error Decoder
-<!-- DEEP: 5min -- each entry includes a console-string matcher for automatic recovery loops -->
-
-| 🖥️ Console Match (grep pattern) | Symptom | Root Cause | Fix | 🔄 Auto-Recovery Loop |
-|---|---|---|---|---|
-| `grep -cP "Authentication.failed\|Unauthorized\|Access.denied" error_strings.json` → `>0` AND `grep -c "token.expired\|link.expired\|session.timeout" error_strings.json` → `0` | Error message "Authentication failed" on password reset flow — users think account is hacked; actual issue: expired reset token | Generic auth error reused from login page for password reset. The error describes the system state (authentication failed), not the user's situation (link expired). Users interpret "authentication failed" as intrusion. | Write error messages as `[what happened] + [user impact] + [concrete next action]`. For password reset: "This reset link expired after 30 minutes. Your password hasn't been changed. Request a new link below." | **1.** `npx error-message-audit --file error_strings.json --check-user-perspective` → flag any error describing system state, not user situation. **2.** Map errors to user scenarios: `npx error-scenario-mapper --errors error_strings.json --scenarios user_flows/` **3.** Rewrite flagged errors: `npx error-rewriter --template "what_happened + impact + next_action"` **4.** Test comprehension: `npx error-message-test --n 5 --demographic target --message "$ERROR"` → ≥90% must correctly identify what happened and what to do. **5.** Quarterly audit: `npx error-audit --all --alert-on "would_cause_support_call"` |
-| `grep -cP "I.Agree\|Continue\|Accept\|Submit" consent_screen.md` → single button AND `grep -c "checkbox\|granular\|comprehension\|withdraw" consent_screen.md` → `0` | Consent comprehension <50% — users don't know what they agreed to | Single checkbox or "Continue" button with pre-checked consent. "Continue" is a navigation verb, not a consent verb. No comprehension check. GDPR Art. 7 requires "clear affirmative action." | Split consent into granular options — one per purpose. Use "I agree to share [specific data] with [named recipient] for [explicit purpose]." Add comprehension check: "Which of these will be shared?" Require explicit opt-in per category. | **1.** `npx consent-flow-audit --file consent_screen.md --require-granular --require-comprehension-check` **2.** If single checkbox: `npx consent-splitter --file consent_screen.md --purposes "research,marketing,data_sharing,third_party"` **3.** Add comprehension: `npx consent-comprehension-inject --questions 3 --min-pass 100%` **4.** Verify legally: `npx gdpr-consent-check --file consent_screen.md --jurisdiction EU` **5.** Test with 10 users: ≥90% must correctly explain what they consented to |
-| `npx readability-check --file strings.json --grade-level` → `> 8` AND `file_contains("strings.json", "patient")` | High support tickets for "how do I..." — users can't understand the interface | Onboarding/UI copy written at 10th-12th grade reading level for a population averaging 6th-8th grade. Flesch-Kincaid check was never run. | Simplify to ≤6th grade for patient-facing content. Replace clinical terms with plain language. Short sentences (≤15 words). Active voice. Add tooltips with definitions for necessary clinical terms. | **1.** `npx readability-check --file strings.json --grade-level` → identify all strings above grade 8. **2.** `npx simplify-copy --file strings.json --target-grade 6 --preserve-clinical-accuracy` **3.** For clinical terms that can't be simplified: `npx inline-definition-inject --term "contraindication" --definition "a reason you should not take this medicine"` **4.** Re-test: `npx readability-check --file strings.json --grade-level` → all ≤6 for patient-facing. **5.** Monitor: `npx readability-monitor --file strings.json --alert-on-regression --threshold 8` |
-| `grep -cP "concatenat\|\\+ .* \\+\|sprintf\|template.literal" strings.json` → `>0` AND `file_contains("strings.json", "ICU.MessageFormat")` → `false` | Translation quality complaints — "the Spanish version doesn't make sense" | Concatenated strings ("You have " + count + " messages"), English idioms ("break a leg"), hardcoded plurals, no translator context comments. String fragments can't be translated independently. | Rewrite all strings in ICU MessageFormat: `{count, plural, =1 {1 message} other {# messages}}`. Replace idioms with literal language. Add translator comments: `<!-- i18n: Button label for submitting lab results. Keep under 20 chars. -->` | **1.** `npx i18n-audit --file strings.json --check "concatenation,idioms,plurals,translator_comments"` **2.** For concatenated: `npx icu-migrate --file strings.json --pattern concatenation` **3.** For idioms: `npx idiom-detector --file strings.json --replace-with-literal` **4.** For missing comments: `npx translator-context-inject --file strings.json --auto-generate` **5.** Test: `npx pseudo-localization --file locales/en.json --output locales/x-test.json` → verify UI renders without truncation |
-| `grep -cP "alt=\"\"\|role=\"presentation\|aria-hidden=\"true" --include="*.md" --include="*.html" screen_specs/` → `>0` AND `file_contains("*.md", "medical\|clinical\|health\|diagram")` | Accessibility audit fails — missing alt text, heading skips (H1→H3), non-descriptive link text ("click here") | Content accessibility was treated as a dev task, not a writing task. Alt text, heading hierarchy, and link text are content design decisions made at the writing stage. | Add descriptive alt text for all images. Fix heading hierarchy: no skipped levels. Rewrite link text to be descriptive out of context: "Download lab results (PDF)" not "Click here." | **1.** `npx pa11y-ci --sitemap screen_specs/ --runner axe` → list all content-related violations. **2.** `npx alt-text-generator --images screen_specs/ --context medical --output alt_text.md` **3.** `npx heading-hierarchy-fix --file screen_specs/*.md --no-skips` **4.** `npx link-text-audit --forbid "click here,read more,learn more" --auto-rewrite` **5.** Re-audit: `npx pa11y-ci --sitemap screen_specs/` → 0 content violations |
-| `grep -cP "!\|awesome\|amazing\|crushing\|congrats\|woohoo" strings.json | grep -rn "cancer\|oncology\|terminal\|palliative\|diagnosis" strings.json -l` → same file matches both | Trust survey score drops 15 points in one quarter — users rate the app as "insensitive" | Tone mismatch: cheerful gamification language ("Congrats on completing your treatment log! 🎉") used in a serious clinical context. Users with chronic conditions feel the product doesn't understand their experience. | Audit all strings for tone-context alignment. Create a condition → register map. Replace celebratory language with compassionate acknowledgment: "Your log is complete. Your care team can review this before your next appointment." | **1.** `npx tone-context-audit --file strings.json --condition-map conditions.yaml` → flag all tone mismatches. **2.** `npx register-mapper --condition "$(cat .condition)" --output appropriate_register.md` **3.** Rewrite flagged strings: `npx tone-rewriter --file strings.json --register compassionate --preserve-meaning` **4.** Review with patient advisory board: `npx copy-review --reviewers patient_advisors --strings flagged_strings.json` **5.** Re-survey trust NPS at 30 and 90 days post-fix |
-
-
-
-## What Good Looks Like
-
-> When UX writing is applied perfectly, every screen state — empty, loading, error, success — has clear, concise copy that guides the user forward, medical disclaimers appear at decision points without disrupting flow, all patient-facing content reads at or below 8th grade level, consent flows use granular options with comprehension checks, error messages explain what happened, the impact, and the next action, and the voice is consistent from onboarding to recovery — words build trust, reduce support tickets, and make the product feel human.
-
-## Production Checklist
-<!-- QUICK: 30s -- binary pass/fail items. Each has a mechanical validation command. -->
-<!-- Run: `bash scripts/checklist-ux-writer.sh` for automated pass/fail on all items. -->
-
-| ID | Checklist Item | Validation Command | Auto-Fix |
-|----|---------------|-------------------|----------|
-| **[UW1]** | Product copy reviewed for all screen states: onboarding, empty, loading, error, success, zero-data | `npx screen-state-audit --directory screen_specs/ --states "onboarding,empty,loading,error,success,zero-data"` → must find copy for all 6 states | `npx screen-state-bootstrap --directory screen_specs/ --template all_states --auto-populate` |
-| **[UW2]** | Medical disclaimers placed at decision points with appropriate pattern (inline/modal/persistent), not footer-only | `npx disclaimer-placement-check --directory screen_specs/ --require-decision-point --forbid-footer-only` → must return 0 violations. `grep -rn "disclaimer\|disclosure" screen_specs/*.md | wc -l` → must be ≥1 per regulated screen | `npx disclaimer-relocator --directory screen_specs/ --target adjacent-to-cta --auto-move` |
-| **[UW3]** | All patient-facing content at ≤8th grade reading level (Flesch-Kincaid validated); ≤6th for Medicaid/population-health | `npx readability-check --file strings.json --grade-level --audience patient` → all strings must return ≤8. `npx readability-check --file strings.json --grade-level --audience medicaid` → all strings must return ≤6 | `npx simplify-copy --file strings.json --target-grade 6 --preserve-clinical-accuracy --audience patient` |
-| **[UW4]** | Consent flows use granular options with comprehension checks and withdrawal pathways | `npx consent-flow-audit --directory consent_screens/ --require-granular --require-comprehension-check --require-withdrawal-path` → must pass all checks | `npx consent-flow-bootstrap --purposes "research,marketing,data_sharing,third_party" --jurisdiction US --output-dir consent_screens/` |
-| **[UW5]** | Every error message includes: what happened + user impact + concrete next action | `npx error-message-audit --file error_strings.json --require "what_happened,user_impact,next_action"` → must pass all error strings. `grep -c "Error [0-9]\{3\}" error_strings.json` → must be 0 | `npx error-rewriter --file error_strings.json --template "what_happened + impact + next_action" --apply-all` |
-| **[UW6]** | Voice and tone system documented with register shifts for sensitive/clinical/encouraging contexts | `grep -rn "register\|tone.shift\|compassionate\|clinical\|encouraging\|serious\|celebratory" voice_and_tone.md | wc -l` → must be ≥5 register definitions. `npx tone-map-validator --file voice_and_tone.md --min-registers 4` → must pass | `npx voice-tone-bootstrap --product "$(cat .product)" --registers "compassionate,clinical,encouraging,instructional" --output voice_and_tone.md` |
-| **[UW7]** | All strings use ICU MessageFormat with translator context comments | `npx i18n-validator --file strings.json --require-icu-messageformat --require-translator-comments` → must pass all strings. `grep -c "ICU\|MessageFormat\|{count,\|{gender," strings.json` → must match total dynamic string count | `npx icu-migrate --file strings.json --apply-all --auto-comment` |
-| **[UW8]** | Character limits defined and enforced per component type (button: 30, toast: 80, modal title: 50, error: 120) | `npx char-limit-audit --file strings.json --rules "button:30,toast:80,modal_title:50,error:120,tooltip:150"` → must return 0 violations | `npx char-limit-enforcer --file strings.json --rules "button:30,toast:80,modal_title:50,error:120,tooltip:150" --truncate-ellipsis` |
-| **[UW9]** | Microcopy A/B test results documented with trust impact analysis (not just conversion) | `ls ab_tests/ | grep -c "trust_impact\|trust_NPS\|comprehension"` → must be ≥1 per test. `npx ab-test-audit --directory ab_tests/ --require-trust-metric` → must pass | `npx ab-test-bootstrap --test-id "$(date +%Y%m%d)" --metrics "conversion,comprehension,trust_NPS,time_to_complete" --output-dir ab_tests/` |
-| **[UW10]** | All images have descriptive alt text; complex medical diagrams have long description alternatives | `npx pa11y-ci --runner axe --rules "image-alt,image-redundant-alt" --sitemap screen_specs/` → 0 violations. `grep -rn 'alt=""' screen_specs/*.md` → must be 0 | `npx alt-text-generator --directory screen_specs/ --context medical --inject --require-longdesc-for-diagrams` |
-| **[UW11]** | Heading hierarchy valid (H1→H2→H3, no skips) and content linearizes sensibly when CSS is disabled | `npx pa11y-ci --runner axe --rules "heading-order" --sitemap screen_specs/` → 0 violations. `npx linearization-check --directory screen_specs/` → must pass reading order | `npx heading-hierarchy-fix --directory screen_specs/ --no-skips --auto-renumber` |
-| **[UW12]** | Content tokens defined for product name, company name, repeated dynamic values, and regulatory terms | `grep -rn "{{product_name}}\|{{company}}\|{{support_email}}\|{{app_name}}" content_tokens.yaml | wc -l` → must be ≥4 tokens. `npx token-usage-audit --directory screen_specs/ --tokens content_tokens.yaml` → 0 hardcoded values found | `npx content-token-extractor --directory screen_specs/ --min-occurrences 3 --output content_tokens.yaml` |
-| **[UW13]** | Disclaimer language reviewed by Legal and Regulatory with documented sign-off before publishing | `grep -rn "reviewed.by\|approved.by\|legal.sign.off\|regulatory.sign.off" disclaimers/*.md | wc -l` → every disclaimer must have ≥2 approvals (Legal + Regulatory). `npx signoff-check --directory disclaimers/ --required "Legal,Regulatory"` → must pass | `npx disclaimer-review-request --directory disclaimers/ --approvers "Legal,Regulatory" --deadline "T-2 weeks"` |
-| **[UW14]** | Content audit completed: no outdated medical claims, broken links, non-inclusive language, or banned terms for sensitive conditions | `npx content-audit --directory screen_specs/ --checks "outdated_claims,broken_links,inclusive_language,banned_terms"` → 0 violations. `grep -rn "crazy\|insane\|nuts\|psycho\|suffering\|victim\|confined" screen_specs/*.md` → must be 0 | `npx content-audit-fix --directory screen_specs/ --auto-fix "broken_links,inclusive_language,banned_terms" --manual-review "outdated_claims"` |
-| **[UW15]** | Empty states include: illustration, what this screen will show, a clear CTA to populate it | `grep -rn "empty.state\|zero.state\|no.data\|nothing.here" screen_specs/*.md -A 5 | grep -cP "(illustration\|what.this\|CTA\|action\|add\|create)"` → every empty state must match ≥3 of 4 elements | `npx empty-state-bootstrap --directory screen_specs/ --template "illustration + description + CTA" --auto-populate` |
-
-## Footguns
-<!-- DEEP: 10+min — war stories from UX writing -->
-
-| Footgun | What Happened | Root Cause | How to Prevent |
-|---------|---------------|------------|----------------|
-| Error message "Authentication failed" on a password reset flow — 14,000 support calls in 3 days because users thought their account was hacked; actual issue: an expired password reset token | A health app's password reset flow sent an email with a 30-minute token. When users clicked the link after the token expired, the screen said "Authentication failed. Please try again." Users interpreted "authentication failed" as "someone tried to log into my account" — 14,000 of them called support in 72 hours. Support was overwhelmed; average hold time went from 2 minutes to 47 minutes. The actual issue was a 4-word fix: "Your reset link has expired. Request a new one." The UX writer had reused the generic auth error from the login page. | The error message described the system state (authentication failed), not the user's situation (link expired). The writer didn't map error states to user mental models. The token expiry was a known edge case but was handled by the generic error handler, not a purpose-written message. | **Map every error state to the user's perspective, not the system's.** For each error, answer: (1) What did the user just try to do? (2) What actually happened? (3) What should they do next? Write error messages as `[what happened] + [why it matters to the user] + [concrete next action]`. For the password reset: "This reset link expired after 30 minutes. [What happened] Your password hasn't been changed. [User impact] Request a new link below. [Next action]" Audit all error messages quarterly — if any message would make a user call support "just to be safe," rewrite it. |
-| A/B tested "I Agree" vs "Continue" on a consent screen — "Continue" increased conversions 22% but a GDPR audit found it violated explicit consent requirements; had to revert and self-report to the DPA | A health app's UX writer A/B tested the consent screen for sharing health data with researchers. Variant A: button labeled "I Agree" with a checkbox. Variant B: button labeled "Continue" with pre-checked consent. "Continue" increased the opt-in rate from 64% to 78% — celebrated as a win. Six months later, during a GDPR compliance audit, the DPO flagged that "Continue" didn't constitute explicit consent (GDPR Art. 7 requires "clear affirmative action" and pre-checked boxes are explicitly prohibited under Recital 32). The company had to: (1) revert to "I Agree" with unchecked box, (2) re-consent 22,000 users who had been enrolled under the non-compliant flow, (3) self-report to the Irish DPA, (4) update their ISO 27001 certification. | The A/B test optimized for conversion, not compliance. The UX writer didn't consult legal/regulatory before testing consent language. "Continue" is a navigation verb, not a consent verb — it implies "go to the next step," not "I understand and agree." The writer wasn't trained on GDPR consent requirements. | **Any copy that involves consent, legal agreements, data sharing, or medical decisions must be reviewed by Legal/Regulatory BEFORE it goes to A/B test.** Maintain a "regulated copy" registry: strings that cannot be changed without legal review, including consent language, disclaimer text, error messages that reference patient data, and any copy adjacent to a legal obligation. Train UX writers annually on GDPR/HIPAA/21st Century Cures Act requirements for user-facing text. Never A/B test regulated copy without compliance review of all variants. |
-| Changed button text from "Delete" to "Remove" for a "softer" tone — users thought "Remove" meant "hide from view," 37 irreversible data loss complaints in one week | A product designer felt "Delete" was too harsh for removing items from a list in a clinical documentation tool. The UX writer agreed and changed the action label to "Remove" — it tested better in usability sessions (users rated it as "friendlier"). Within 48 hours of release, 37 clinicians reported that patient encounter notes had "disappeared." They'd used "Remove" on a patient's note list, expecting the note to be hidden or archived — not permanently deleted from the EHR. The clinical data was in an audit log but not recoverable through the UI. A hotfix reverted to "Delete [permanent]" with a confirmation modal. One clinician lost 3 hours of unrecovered documentation and filed a formal complaint with the hospital's patient safety officer. | "Remove" is an ambiguous verb — in UI conventions, it can mean "hide," "archive," "remove from this view," or "delete permanently." The writer optimized for tone (friendly) over clarity (irreversible). Usability testing didn't test the consequence — nobody asked participants "what do you think happens to the data?" | **Destructive actions must use unambiguous, consequence-signaling verbs.** "Delete" = permanent removal. "Archive" = hidden but recoverable. "Remove from list" = remove from this view only. Pair destructive verbs with: (1) an explicit consequence statement ("This permanently deletes the note and all versions"), (2) a confirmation step that can't be accomplished with a single click, (3) a recovery path if available. Test not just "which label feels better" but "what do you think happens to your data after this action?" — if more than 5% get it wrong, rewrite. |
-| Wrote onboarding copy at a 12th-grade reading level for a Medicaid population app — 40% of target users abandoned during signup; a Flesch-Kincaid check would have caught it in 30 seconds | A UX writer crafted onboarding copy for a Medicaid member app targeting low-income populations across 5 states. The writer was a former journalist who valued precise language. The signup flow used terms like "adjudicate eligibility," "remuneration period," and "attest to the veracity." A health literacy consultant reviewed the copy 3 months post-launch and found it scored at grade 12.4 on Flesch-Kincaid. The target population's average reading level: grade 6-8. Signup abandonment was 42% — when rewritten at grade 6, it dropped to 18%. 40,000 eligible members had abandoned the app, missing preventive care appointment reminders for 8 months. | The writer wrote for themselves (educated, health-literate) and didn't use a readability tool. The organization had no health literacy standard for product copy. The PM approved the copy because "it sounded professional." No one tested the flow with a representative sample of the target population. | **Set a reading level standard and enforce it with automated checks.** For patient-facing content in the US: ≤6th grade (Flesch-Kincaid). For clinical-provider content: ≤10th grade. Run every string through a readability checker (Hemingway, readable.com, or built-in in Figma plugins). Add a CI check if strings are in a CMS or translation file: `flesch_kincaid_grade(text) <= 6`. Test the full flow with 5 representative users from the target population — not colleagues, not usability experts. If they stumble on a word, replace it. |
-| Used "crazy" and "insane" in onboarding microcopy for a mental health app — a user posted screenshots on Twitter, 2,800 retweets, VP of Product issued a public apology within 4 hours | A mental health startup launched a CBT-based anxiety management app. The onboarding flow included gamified copy: "Crazy how much progress you'll make!" and "Your streak is insane! 🔥" — intended as casual, enthusiastic encouragement. A user with generalized anxiety disorder took screenshots and tweeted: "My mental health app just called me crazy. Ironic." The tweet got 2,800 retweets in 3 hours. Mental health advocates, therapists, and journalists picked it up. The VP of Product issued a public apology within 4 hours. The app's App Store rating dropped from 4.6 to 3.1 in 2 days. The UX writer had no mental health background and was using tech-startup casual tone conventions. | The writer applied general tech product voice to a clinically sensitive context. "Crazy" and "insane" are ableist terms that are particularly harmful in a MENTAL HEALTH product. The content review had no mental health professional or lived-experience reviewer. The tone guidelines didn't include prohibited terms for sensitive contexts. | **Create a "banned terms" list for each sensitive domain.** Mental health: crazy, insane, nuts, psycho, schizo, "committed suicide" (use "died by suicide"). General health: sufferer, victim, afflicted, "confined to a wheelchair" (use "uses a wheelchair"). Medications: "happy pills," "chill pills." These lists must be reviewed by clinicians AND people with lived experience in the condition. Add a pre-publish checklist: "Does this copy use any language that could be harmful to someone with the condition this product serves?" Run the copy past at least one person with lived experience before shipping. |
-
-## Calibration — How to Know Your Level
-<!-- STANDARD: 3min — honest self-assessment -->
-
-| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
-|---|---|---|
-| You can write clear button labels but you can't explain why "Sign Up Free" tests differently than "Get Started" for a healthcare product — you think it's just "word preference" | Every piece of copy you ship has a documented rationale — reading level, tone register, A/B hypothesis, regulatory review status — and your error messages measurably reduce support ticket volume | You can look at a 50-screen Figma flow and in 30 minutes identify every trust-eroding word choice, every ambiguity that could cause a support call or a medical error, and every place the copy is working against the design |
-| You reuse error messages from other products without understanding the context | You have a personal error message pattern library organized by context (auth, payment, data loss, medical); you can write a crisis communication screen in 15 minutes that reduces panic rather than amplifying it | A regulatory auditor reviews your copy and finds zero findings — not because you were conservative, but because you embedded compliance into your writing process so naturally that every string is both compliant and human |
-| You think accessibility means "add alt text" | You structure content with proper heading hierarchy, write alt text that describes medical images clinically, and your forms work with screen readers without any developer fixes | You teach product teams that "good UX writing is accessible by default" — and 2 years later, the products you've influenced have zero accessibility-related customer complaints about content |
-
-**The Litmus Test:** Can you reword a medication instruction from "Take with food" to a version that accounts for low health literacy, non-native English speakers, and seven common food-drug interaction misunderstandings — in under 5 minutes — and have a pharmacist approve it on first review? If your first draft would need a pharmacist to add all the nuance, you're not L3 yet.
-
-## Deliberate Practice
-
-```mermaid
-graph LR
-    A[Create/Review] --> B[Test with<br/>diverse users] --> C[Identify<br/>unintended harm] --> D[Iterate<br/>safeguards] --> A
-```
-
-| Level | Practice | Frequency |
-|-------|----------|-----------|
-| **Novice** | Review 10 past decisions in your domain; for each, identify who might have been harmed and how | Monthly |
-| **Competent** | Run a "red team" exercise on your own work: how would you exploit or misuse it? | Monthly |
-| **Expert** | Design a new policy framework for an emerging risk area; pressure-test it with adversarial scenarios | Quarterly |
-| **Master** | Contribute to industry-wide standards; share case studies of failures (your own) so others learn | Annually |
-
-**The One Highest-Leverage Activity:** Once a month, sit in on a user support session. Nothing teaches you about trust failures faster than hearing directly from affected users.
-
 ## References
-<!-- QUICK: 30s -- links to deeper reading -->
-- [Strategic Writing for UX](https://www.amazon.com/dp/1492049395) — Torrey Podmajersky
-- [Content Design](https://www.amazon.com/dp/B09ZYRWGHX) — Sarah Winters
-- [Nicely Said](https://www.amazon.com/dp/0321988191) — Nicole Fenton & Kate Kiefer Lee
-- [Health Literacy Online](https://health.gov/healthliteracyonline/) — Office of Disease Prevention and Health Promotion
-- [Plain Language in Healthcare](https://www.plainlanguage.gov/) — U.S. General Services Administration
-- [FDA Guidance on Medical Device Patient Labeling](https://www.fda.gov/regulatory-information/search-fda-guidance-documents) — FDA
-- [PEMAT (Patient Education Materials Assessment Tool)](https://www.ahrq.gov/health-literacy/patient-education/pemat.html) — AHRQ
-- [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — W3C Web Content Accessibility Guidelines
-- [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/) — Unicode Consortium
+
+Detailed reference material loaded on demand:
+
+- **Core Workflow — Full Implementation**: See [core-workflow.md](references/core-workflow.md)
+- **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- **Best Practices**: See [best-practices.md](references/best-practices.md)
+- **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)
+- **Production Checklist**: See [checklist.md](references/checklist.md)
+- **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
+- **Footguns**: See [footguns.md](references/footguns.md)
+- **MVP vs Growth vs Scale**: See [mvp-growth-scale.md](references/mvp-growth-scale.md)
+- **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
+- **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+

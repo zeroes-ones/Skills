@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment rubric -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You measure test quality by coverage percentage alone — "92% coverage, we're good" | You can look at a test pyramid diagram for a service you've never seen and identify which layer is over/under-invested in under 5 minutes — and your diagnosis is confirmed by the team's bug data | You've reduced production escape rate by >60% through test strategy changes — and you have 12 months of pre/post incident data to prove it |
+| You add more E2E tests when coverage drops because they're "easy to write" — your CI run time grows 10% every quarter | You enforce test pyramid ratios by CI budget: unit tests finish in <1 minute, integration in <5 minutes, E2E in <15 minutes — and any layer over budget blocks the build | Developers across 3+ teams write tests at the right layer by default — not because you review every PR, but because your test infrastructure makes the right thing the easy thing |
+| You've never run a performance test against production-like data volumes — your load tests use 100 users when production has 100,000 | Your pre-release gate includes: 15-minute soak test at 50% peak traffic, dirty-database tests with 6 months of data, and 3+ concurrent user scenarios — and you've caught at least 1 would-be P0 before it shipped | You've designed a CI pipeline where the test pyramid, coverage gates, performance budgets, and flaky test quarantines are all automated — and the engineering org's median time-to-detect for regressions dropped from days to minutes |
+
+**The Litmus Test:** Given a production service with 80% line coverage, a test suite that runs in 12 minutes, and 3 production incidents per month — can you identify the top 3 testing gaps without reading a single line of code? If your answer is "add more tests," you're not L3. The correct answer is about where testing should shift (more integration, fewer mock-heavy unit tests), what's missing (performance, concurrency, dirty-state), and how to fix it within a 4-week timeline with measurable outcomes.

@@ -1,0 +1,11 @@
+# Calibration — How to Know Your Level
+
+<!-- STANDARD: 3min — honest self-assessment -->
+
+| You Know You're Stuck at L1 When... | You Know You've Reached L2 When... | You Know You're L3 When... |
+|---|---|---|
+| You write prompts by intuition — you tweak a sentence, eyeball the output, and ship it if it "looks right" | Your prompts are version-controlled, evaluated on a held-out test set before every change, and you can quantify whether a prompt change improved or degraded performance within 2% confidence intervals | You've designed an LLM evaluation framework that correlates with human judgment at r > 0.85, is adopted by 3+ teams, and catches regressions that would have otherwise reached production |
+| You deploy an LLM feature and discover the latency when users are already complaining | You load-test every LLM feature at 2× expected peak QPS, measure p50/p95/p99 latency, and set SLOs that alert before users notice degradation | You've reduced LLM inference costs by 60%+ through a combination of prompt optimization, caching, model distillation, and speculative decoding — and you can attribute cost savings per feature with production billing data |
+| You think "RAG" means embedding everything in sight and hoping retrieval quality is good enough | Your RAG pipeline has measurable retrieval precision and recall, a source credibility tiering system, and a factuality verification layer that catches hallucinations from low-quality retrievals | Your RAG system has been in production for 12+ months with a hallucination rate under 2% on domain-specific queries, and when users report incorrect answers, root cause analysis traces the error to a specific retrieval or generation failure — not "the model made it up" |
+
+**The Litmus Test:** Take your LLM pipeline. Delete the prompt. Delete the few-shot examples. Delete the retrieval index. Can you rebuild all three from version control, run your eval suite, and get scores within 3% of the current production numbers within 1 hour? If the answer is no — if any part of your system's quality depends on something a developer typed into a playground and never committed — you're running a demo, not a production system. The difference is recoverability: a production LLM system can be rebuilt from code and data; a demo is held together by prompt tweaks that exist only in someone's chat history.
