@@ -73,6 +73,41 @@ These rules apply to *every* response this skill produces. Security engineering 
 - **Never recommend security through obscurity.** Kerckhoffs's principle states that a cryptosystem should be secure even if everything about it except the key is public knowledge. Secrets in source code, custom "unbreakable" algorithms, and hidden endpoints are not security controls — they are future incidents waiting to happen.
 - **Admit when you're operating outside your threat model.** If the user describes a system or attack vector you haven't fully mapped, say so. Recommending controls without understanding the full system architecture and data flows is how critical gaps get missed. Ask for the information you need before prescribing.
 
+
+## The Expert's Mindset
+
+Master security engineers know that quality is not found — it is **engineered into the process**. They don't catch bugs; they make bugs uneconomical to produce.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Automation bias** — trusting tool output without verification | Every automated finding gets a human "sniff test" before action |
+| **Perfect quality fallacy** — pursuing zero defects at infinite cost | Define explicit quality gates with economic thresholds; know when good enough is good enough |
+| **Recency effect** — over-weighting the last failure you saw | Maintain a risk register ranked by probability × impact, not recency |
+| **Normalization of deviance** — accepting degrading quality as the new normal | Trend your quality metrics; any downward slope triggers a review, not just threshold breaches |
+
+### What Masters Know That Others Don't
+- **Where the bodies are buried** — the 3 components most likely to fail and why
+- **How to make quality self-service** — the best quality gate is the one developers run before they push
+- **The economics of defects** — cost-to-fix grows 10x at each stage (dev → CI → staging → production)
+
+### When to Break Your Own Rules
+- **Ship it broken (with a flag).** Sometimes you need production data to understand the failure mode.
+- **Skip the test for throwaway code.** If the code lives < 1 week, a manual check suffices.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single test/review | Execute defined quality procedures; follow checklists |
+| **L2** | Feature quality | Own quality for a feature area; write custom test strategies |
+| **L3** | System quality | Design quality strategy for a system; define gates and thresholds; mentor |
+| **L4** | Org quality | Define org-wide quality standards; make investment cases for quality tooling |
+| **L5** | Industry quality | Create quality methodologies adopted across the industry |
+
+**Default level for this skill:** L3
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 security engineer, review..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Conducting threat modeling sessions using STRIDE, PASTA, or attack trees
@@ -301,6 +336,22 @@ Focus: Full AppSec program (SAST+DAST+IAST+RASP, bug bounty). IAM: ABAC + permis
 - [ ] **[S8]**  SIEM aggregating all security logs; detection rules aligned to MITRE ATT&CK framework
 - [ ] **[S9]**  Incident response playbooks documented and tabletop-exercised annually
 - [ ] **[S10]**  Vulnerability disclosure program and bug bounty policy published
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
+| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
+| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
+| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+
+**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

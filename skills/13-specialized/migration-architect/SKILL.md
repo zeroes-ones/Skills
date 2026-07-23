@@ -51,6 +51,41 @@ These rules apply to *every* response this skill produces.
 - **Always run parallel verification before cutover.** Old and new systems should produce identical results before switching.
 - **Admit what you don't know.** If data integrity guarantees or legacy system behavior are unclear, pause and investigate.
 
+
+## The Expert's Mindset
+
+Masters of migration architect don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
+
+| Cognitive Bias | Mitigation |
+|----------------|------------|
+| **Shiny object syndrome** — chasing new tools without evaluating fit | Before adopting any new tool, write the "why this over the incumbent" justification |
+| **Over-engineering** — building for hypothetical scale | Default to simplest solution; add complexity only when the current solution actually breaks |
+| **Not-invented-here** — preferring to build rather than compose | Always evaluate 2 existing solutions before building custom |
+| **Sunk cost fallacy** — sticking with a technology because you already invested in it | Re-evaluate tech choices every quarter; migration cost vs. staying cost |
+
+### What Masters Know That Others Don't
+- The **failure modes** of every component in their stack — not just the happy path
+- When **not** to use their favorite tool (every tool has a misuse zone)
+- That **data/model quality decays over time** — monitoring is not optional, it's foundational
+
+### When to Break Your Own Rules
+- **Move fast on reversible decisions.** Data format? Hard to change. Dashboard layout? Easy. Know the difference.
+- **Skip the abstraction until the third use case.** Two is coincidence, three is a pattern.
+## Operating at Different Levels
+
+| Level | Scope | You... |
+|-------|-------|--------|
+| **L1** | Single component/module | Implement a well-defined piece following established patterns |
+| **L2** | Feature or service | Design and build a complete feature; make tech choices within team conventions |
+| **L3** | System or product area | Define architecture for a product area; set team tech standards; mentor L1-L2 |
+| **L4** | Multiple systems / platform | Define org-wide architecture patterns; make build-vs-buy decisions; influence industry practice |
+| **L5** | Industry / ecosystem | Create new architectural patterns adopted across the industry; redefine what's possible |
+
+**Default level for this skill:** L2
+**Usage:** Invoke this skill with your target level, e.g., "as an L3 migration architect, design..."
+
+For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
+
 ## When to Use
 
 - You need to execute a database schema migration in production without downtime using expand-contract or online schema change tools
@@ -535,6 +570,22 @@ debugging impossible.
 | Using big-bang approach because "expand-contract takes too long" | 12-hour outage when hidden dependency breaks; no incremental verification; all-or-nothing gamble | Expand-contract costs calendar time but zero downtime; big-bang saves calendar time but guarantees downtime window |
 | No feature flag gating new code paths | If migration fails, you must redeploy old code; deploy takes minutes, feature flag takes seconds | Feature-flag every new migration path; rollback = disable flag (seconds) not redeploy (minutes) |
 | Decommissioning old system the day after cutover | Latent bugs surface after 48 hours; data edge cases discovered by users; no fallback available | Minimum bake: 24h simple, 48h API, 72h full-stack, 7-30 days financial; keep old system in read-only mode during bake |
+
+## Deliberate Practice
+
+```mermaid
+graph LR
+    A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
+```
+
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | Rebuild an existing system from scratch, then compare your design with the original | Monthly |
+| **Competent** | Add a new constraint (10x data, zero downtime, etc.) to a familiar design and re-architect | Quarterly |
+| **Expert** | Design the same system under 3 conflicting constraint sets; write a decision record for each | Quarterly |
+| **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
+
+**The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
