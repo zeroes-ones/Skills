@@ -388,6 +388,34 @@ graph LR
 
 **The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
 
+## Anti-Patterns
+
+- **"Let's just reboot everything"** — rebooting destroys forensic evidence (memory dumps, active connections, attacker persistence mechanisms). For security incidents, isolate and preserve evidence FIRST. For availability incidents, rebooting is the LAST resort after evidence capture.
+- **Incident declared 2 hours after the first alert** because "we thought it was a false positive." Every alert that isn't triaged within 5 minutes is an untriaged incident. If you've been ignoring a critical alert for months, it IS an incident when it finally fires for real — the response time starts at alert, not at declaration.
+- **"Engineering is fixing it, we'll update when it's fixed"** as the ONLY external communication. Silence during an outage tells customers "we don't know what's happening" (worse than "it's broken"). Update every 30 minutes even if the update is "still investigating, no ETA yet."
+- **Incident commander who's also the subject matter expert** — the IC who's also SSH'd into production trying to fix it. They can't run the incident (coordinating, communicating, tracking timeline) AND fix the problem. Split roles: Incident Commander (coordinates) and Technical Lead (fixes). Never the same person.
+- **Post-incident review that becomes a blame session** — "Who deployed the bad config?" "Why wasn't this caught in review?" The room gets defensive, people hide details, and the same incident happens again with different people. Blameless postmortems ask: "What conditions allowed this to happen?" not "Who caused this?"
+
+
+## Error Decoder
+
+- **PagerDuty: "Incident acknowledged but no one responding"** → The on-call engineer acknowledged (to stop the escalation) but is driving/driving/sleeping and can't respond. Escalation policy should auto-escalate if acknowledged but no activity (comment, status update) within 5 minutes.
+- **"Alert auto-resolved after 10 minutes"** → The condition that triggered the alert self-healed (CPU dropped below threshold, error rate returned to normal). But the underlying cause is still there (memory leak building up for next spike, race condition that hits 1% of requests). Auto-resolve = hiding real problems.
+- **"Can't find the runbook"** → The runbook is in a wiki that requires VPN. The VPN is down (that's the incident). Runbooks must be accessible WITHOUT the infrastructure they're documenting. Print critical runbooks or store them in an always-available external system.
+- **"All dashboards are empty" during an incident** → Your monitoring stack is in the same region that's down. Dashboards, logs, metrics, and traces all went dark simultaneously because they share infrastructure with production. Monitoring must be deployed in a separate failure domain (different region, different account).
+
+
+## Production Checklist
+
+- [ ] On-call rotation: current (no gaps), primary and secondary assigned, escalation policy tested within last month
+- [ ] Runbooks: top 10 incident scenarios have runbooks. All runbooks tested within last quarter. Runbooks accessible without production infrastructure.
+- [ ] Communication templates: pre-drafted for data breach, service outage, security incident, and false alarm. All templates reviewed within last 6 months.
+- [ ] Monitoring: monitoring stack in separate failure domain from production. Dead-man's switch alert configured (alerts if monitoring itself goes down).
+- [ ] Incident roles: Incident Commander and Technical Lead identified per shift. Both roles trained (not just assigned).
+- [ ] Post-incident process: review conducted within 5 business days. Findings tracked to remediation. Action items have owners and due dates.
+- [ ] Game day: incident response drill conducted within last quarter. Findings incorporated into runbooks and escalation policies.
+
+
 ## Gotchas
 
 - **"Revert to last known good"** as a first instinct — if the incident is a security breach, reverting destroys forensic evidence (access logs, modified files, attacker persistence mechanisms). For security incidents, isolate first, investigate, then remediate. Only revert for availability incidents.

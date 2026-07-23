@@ -439,6 +439,35 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Patterns
+
+- **Consent banner with no "Reject All" button** — the banner has "Accept All" and "Manage Settings" but no single-click reject. GDPR requires refusing consent to be as easy as giving it. One-click accept + three-click reject = violation.
+- **"Legitimate interest" used for everything** — marketing emails, third-party data sharing, analytics tracking all claimed as legitimate interest. LI requires a balancing test where data subject rights override your interest. Marketing and analytics rarely pass the balancing test.
+- **Privacy policy copied from a competitor** — their policy covers different data processing, different third parties, and different jurisdictions. Copying a privacy policy is false representation. It's discoverable in litigation and destroys credibility with regulators.
+- **"We are GDPR compliant" as a binary claim** — compliance is continuous, not binary. A processing activity that was compliant last month may become non-compliant after a new EDPB guideline, a Schrems III ruling, or a change in your data flows. Never claim binary compliance.
+- **Data retention: "we keep data forever just in case"** — GDPR requires specific retention periods. "Forever" or "until we don't need it" violates the storage limitation principle. Every data category must have: retention period, legal basis for that period, and deletion mechanism.
+
+
+## Error Decoder
+
+- **"Consent string not valid" from IAB TCF** → Your CMP (Consent Management Platform) is not registered in the IAB's Global Vendor List (GVL), or the consent string format doesn't match TCF v2.2 spec. Check: (1) Is your CMP on the GVL? (2) Does your consent string validate against `iabtcf.com` decoder?
+- **DPA rejected by EU customer: "Doesn't include Standard Contractual Clauses"** → Since Schrems II, SCCs are required for data transfers outside the EU. Even if the US is "adequate" now (EU-US Data Privacy Framework), many EU customers still require SCCs. Your DPA must reference the current SCCs (June 2021 version).
+- **"Right to erasure request denied: data required for legal obligation"** → You must name the SPECIFIC legal obligation. "Tax law requires 7-year retention" is valid. "We might need it" is not. The exception must reference a specific statute, regulation, or legal order with the mandated retention period.
+- **Cookie scan reports 30 cookies but you only set 5** → Third-party scripts (analytics, embeds, CDNs) set cookies you didn't know about. A consent banner that lists 5 first-party cookies but 25 third-party cookies drop silently = non-compliant. Scan after every third-party integration update.
+
+
+## Production Checklist
+
+- [ ] Consent mechanism: Reject All is one click (or equally easy as Accept All). Consent is granular per purpose. Consent records are stored with timestamp and proof.
+- [ ] Cookie scan: completed within last 30 days. All cookies categorized. Third-party cookies identified with consent status.
+- [ ] Data inventory (Article 30 record): all processing activities documented with purpose, legal basis, data categories, recipients, retention periods, and transfer mechanisms.
+- [ ] Data Processing Agreements (DPAs): signed and current for ALL data processors. Sub-processor list updated within last quarter.
+- [ ] DSAR process: tested end-to-end within last month. Response includes ALL data stores. Response time under 30 days.
+- [ ] Data breach response plan: tested within last 6 months. 72-hour notification process documented. Contact list for all EU DPAs current.
+- [ ] Privacy policy: last reviewed within 12 months. Written in plain language. Covers all Article 13/14 requirements.
+- [ ] Cross-border transfers: transfer impact assessment for each third country. SCCs in place. Supplementary measures documented if needed.
+
+
 ## Gotchas
 
 - **Consent under GDPR must be FREELY given** — "Accept all or pay €5/month" (cookie paywalls) is being challenged in EU courts. Consent-or-pay models may be ruled non-compliant because consent isn't freely given if the alternative is a financial penalty. The EDPB's current leaning is that paywalls undermine freely given consent.

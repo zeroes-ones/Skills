@@ -436,6 +436,33 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Patterns
+
+- **"Check the box" compliance** — you implement every control on the checklist, collect evidence that the control exists (policy document, screenshot, configuration file), and declare compliance. But the control doesn't actually work. The firewall rule exists but allows 0.0.0.0/0. Compliance theater creates paper security.
+- **Monitoring regulatory changes via news headlines** — "FDA Issues New Guidance on AI/ML Devices" — but the headline doesn't tell you effective date, transition period, enforcement discretion, or impact on your specific device class. Regulatory monitoring requires primary sources: Federal Register, EUR-Lex, agency guidance documents, not news aggregation.
+- **"We're compliant with [Regulation]"** on your website — every regulator, plaintiff's attorney, and journalist now has a public statement to use against you when you inevitably have a gap. Never claim compliance as a binary state. "We maintain a compliance program aligned with [Regulation] requirements" is accurate and defensible.
+- **Responding to an FDA 483 (inspection observations) with "We'll fix it"** without a timeline, root cause analysis, and corrective action plan — the FDA sees this as "they don't understand the severity." A 483 response must address: root cause, corrective action, preventive action, timeline, and responsible person for EACH observation.
+- **Assuming international regulations don't apply because "we're US-based"** — GDPR applies to any company processing EU residents' data. EU MDR applies to any medical device sold in the EU. PIPL (China) applies to processing Chinese citizens' data. Territorial reach of modern regulations is global.
+
+
+## Error Decoder
+
+- **"FDA refuses to accept 510(k) — not substantially equivalent"** → Your predicate device is either: (1) not legally marketed (was recalled/withdrawn), (2) has a different intended use, or (3) has different technological characteristics that raise new safety questions. The FDA's SE (Substantial Equivalence) decision isn't a "rejection" — it's a finding that you chose the wrong predicate or didn't demonstrate equivalence.
+- **"Notified Body suspends CE certificate"** → This is a MAJOR nonconformity, not a routine audit finding. Check: (1) Did you fail to address a previous minor nonconformity? (2) Did post-market surveillance reveal safety issues? (3) Did unannounced audit find serious QMS failures? CE suspension means you can't sell in the EU. Remediation timeline is measured in weeks, not months.
+- **"Warning Letter posted on FDA website"** → The FDA publishes Warning Letters publicly. Your investors, customers, and competitors all see it simultaneously. The clock to respond is 15 business days, but the reputational damage is immediate. Pre-drafted crisis communication for regulatory actions is as important as the regulatory response itself.
+
+
+## Production Checklist
+
+- [ ] Regulatory intelligence: monitoring sources cover ALL jurisdictions you operate in. A known recent regulatory change verified to appear in your monitoring feed.
+- [ ] Regulatory calendar: all submission deadlines, renewal dates, transition periods, and reporting dates tracked with 90/60/30-day pre-alerts.
+- [ ] Submission readiness: last mock audit/inspection within 12 months. Findings tracked to remediation. SMEs trained on inspection procedures.
+- [ ] Gap analysis: regulatory requirements mapped to controls. ALL controls have operational evidence (not just design documentation). Evidence current (within audit period).
+- [ ] Change management: any change to product, process, or supplier triggers regulatory impact assessment. Assessment documented and approved BEFORE change implementation.
+- [ ] Public statements: all compliance-related public statements reviewed by legal/regulatory within last quarter. No absolute compliance claims.
+- [ ] Post-market: adverse event reporting process tested. Complaint handling procedure current. Vigilance reporting timelines verified.
+
+
 ## Gotchas
 
 - **Regulatory gap analysis that maps requirements to controls** but doesn't test whether the controls ACTUALLY WORK — you have a policy that says "access reviewed quarterly." The control is the policy document. The auditor asks "show me the last 4 quarterly reviews." You have 1. The control existed on paper, not in practice. Every mapped control needs evidence of OPERATION, not just design.
