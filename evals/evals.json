@@ -1,0 +1,236 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "description": "Evaluation harness for Skills repository — validates trigger routing, output quality, anti-pattern compliance, checklist coverage, and token discipline.",
+  "suites": [
+    {
+      "id": "frontmatter-compliance",
+      "description": "Every SKILL.md must have valid YAML frontmatter with required fields",
+      "skills": ["*"],
+      "scenarios": [
+        {
+          "id": "frontmatter-valid-yaml",
+          "input": "Run validation on all SKILL.md files",
+          "expected": "All files parse as valid YAML frontmatter between --- delimiters",
+          "validator": "scripts/validate-skills.sh --check frontmatter"
+        },
+        {
+          "id": "description-trigger-format",
+          "input": "Check every skill description",
+          "expected": "All descriptions contain 'Use when...' and 'Handles...' trigger format",
+          "validator": "scripts/validate-skills.sh --check description"
+        },
+        {
+          "id": "all-required-fields",
+          "input": "Audit frontmatter completeness",
+          "expected": "All skills have name, description, license, tags, author, type, status, version, updated, token_budget, chain",
+          "validator": "scripts/validate-skills.sh --check sections"
+        }
+      ]
+    },
+    {
+      "id": "trigger-routing-accuracy",
+      "description": "Agent must route to the correct skill based on user input triggers",
+      "skills": ["backend-developer", "frontend-developer", "devops-engineer", "code-reviewer", "product-manager"],
+      "scenarios": [
+        {
+          "id": "route-backend-api",
+          "input": "Build me a REST API with FastAPI for user authentication",
+          "expected": "Routes to backend-developer",
+          "trigger_match": ["backend", "FastAPI", "REST API", "API development"]
+        },
+        {
+          "id": "route-frontend-react",
+          "input": "Create a React dashboard with Tailwind CSS and dark mode",
+          "expected": "Routes to frontend-developer",
+          "trigger_match": ["React", "Tailwind", "frontend"]
+        },
+        {
+          "id": "route-devops-pipeline",
+          "input": "Set up a CI/CD pipeline with GitHub Actions and Docker",
+          "expected": "Routes to devops-engineer",
+          "trigger_match": ["CI/CD", "pipeline", "GitHub Actions", "Docker"]
+        },
+        {
+          "id": "route-code-review",
+          "input": "Review this pull request for security vulnerabilities",
+          "expected": "Routes to code-reviewer",
+          "trigger_match": ["code review", "pull request", "CR"]
+        },
+        {
+          "id": "route-product-prd",
+          "input": "Write a PRD for a mobile payment feature",
+          "expected": "Routes to product-manager",
+          "trigger_match": ["PRD", "product", "feature"]
+        },
+        {
+          "id": "negative-route-design",
+          "input": "I need a brand identity with logo and color palette",
+          "expected": "Routes to brand-guidelines, NOT ui-ux-designer",
+          "must_not_route": ["ui-ux-designer"]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-detection",
+      "description": "Skills must detect and reject known anti-patterns in agent output",
+      "skills": ["backend-developer", "frontend-developer", "code-reviewer", "security-reviewer"],
+      "scenarios": [
+        {
+          "id": "backend-hardcoded-credentials",
+          "input": "Generate a database connection string with password in code",
+          "expected": "Agent rejects: hardcoded credentials anti-pattern",
+          "anti_pattern": "HARDCODED_CREDENTIALS"
+        },
+        {
+          "id": "frontend-uncontrolled-input",
+          "input": "Create a form that renders raw HTML from user input",
+          "expected": "Agent flags: XSS vulnerability, uncontrolled input",
+          "anti_pattern": "XSS_UNCONTROLLED_INPUT"
+        },
+        {
+          "id": "review-missing-error-handling",
+          "input": "Review code that calls external API without try/catch",
+          "expected": "Agent flags: missing error handling anti-pattern",
+          "anti_pattern": "MISSING_ERROR_HANDLING"
+        },
+        {
+          "id": "security-plaintext-secrets",
+          "input": "Store JWT secret in the codebase",
+          "expected": "Agent rejects: plaintext secrets in code",
+          "anti_pattern": "PLAINTEXT_SECRETS"
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage",
+      "description": "Agent output must satisfy all items in the skill's production checklist",
+      "skills": ["backend-developer", "frontend-developer", "devops-engineer"],
+      "scenarios": [
+        {
+          "id": "backend-checklist-authentication",
+          "input": "Implement user login endpoint",
+          "expected": "Output includes: rate limiting, password hashing, token expiry, input validation, error responses",
+          "checklist": ["rate_limiting", "password_hashing", "token_expiry", "input_validation", "error_responses"]
+        },
+        {
+          "id": "frontend-checklist-a11y",
+          "input": "Build a form component with validation",
+          "expected": "Output includes: aria labels, keyboard navigation, focus management, error announcements, color contrast",
+          "checklist": ["aria_labels", "keyboard_nav", "focus_management", "error_announcements", "color_contrast"]
+        },
+        {
+          "id": "devops-checklist-security",
+          "input": "Create a Docker deployment pipeline",
+          "expected": "Output includes: non-root user, image scanning, secret management, health checks, rollback strategy",
+          "checklist": ["non_root_user", "image_scanning", "secret_management", "health_checks", "rollback_strategy"]
+        }
+      ]
+    },
+    {
+      "id": "negative-constraint-enforcement",
+      "description": "Skills must enforce negative constraints from Ground Rules section",
+      "skills": ["backend-developer", "code-reviewer", "security-reviewer"],
+      "scenarios": [
+        {
+          "id": "backend-no-raw-sql",
+          "input": "Write a database query using string concatenation",
+          "expected": "Agent refuses: violates 'NEVER concatenate user input into SQL' constraint",
+          "negative_constraint": "NO_RAW_SQL_CONCATENATION"
+        },
+        {
+          "id": "review-no-style-comments",
+          "input": "Review this PR and focus on formatting issues",
+          "expected": "Agent declines: 'Code review ONLY reports bugs, security issues, and logic errors — NEVER style'",
+          "negative_constraint": "NO_STYLE_REVIEW"
+        },
+        {
+          "id": "security-no-assume-fix",
+          "input": "There's probably an XSS in this form, tell me how to fix it without looking at the code",
+          "expected": "Agent refuses: 'NEVER assume or guess vulnerabilities — must examine actual code'",
+          "negative_constraint": "NO_GUESSING_VULNERABILITIES"
+        }
+      ]
+    },
+    {
+      "id": "token-discipline",
+      "description": "SKILL.md files must stay within token budget when loaded by agent",
+      "skills": ["*"],
+      "scenarios": [
+        {
+          "id": "skill-body-under-5000-words",
+          "input": "Load any SKILL.md body (after frontmatter)",
+          "expected": "Body word count < 5000",
+          "validator": "scripts/validate-skills.sh --check budget"
+        },
+        {
+          "id": "description-under-1024-chars",
+          "input": "Parse description field from frontmatter",
+          "expected": "Character count < 1024",
+          "validator": "scripts/validate-skills.sh --check description"
+        },
+        {
+          "id": "no-duplicate-content",
+          "input": "Compare SKILL.md body with references/ files",
+          "expected": "No prose duplicated verbatim between SKILL.md and its references",
+          "validator": "scripts/validate-skills.sh --check duplication"
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure",
+      "description": "Reference links must resolve and be exactly one level deep",
+      "skills": ["*"],
+      "scenarios": [
+        {
+          "id": "all-references-resolve",
+          "input": "Check all `[text](./references/file.md)` links in every SKILL.md",
+          "expected": "Every linked file exists on disk",
+          "validator": "scripts/validate-skills.sh --check links"
+        },
+        {
+          "id": "no-nested-references",
+          "input": "Check all .md files in references/ for cross-references",
+          "expected": "No references/ file links to another references/ file (max 1 level deep)",
+          "validator": "scripts/validate-skills.sh --check nesting"
+        },
+        {
+          "id": "core-sections-present",
+          "input": "Verify all 12 core sections exist in every SKILL.md",
+          "expected": "Route the Request, Ground Rules, Core Workflow, When to Use, Anti-Patterns, Best Practices, Error Decoder, Checklist, Footguns, Calibration, Scale Depth, Sub-Skills, Cross-Skill Coordination — all present in SKILL.md",
+          "validator": "scripts/validate-skills.sh --check sections"
+        }
+      ]
+    }
+  ],
+  "gold_standards": [
+    {
+      "skill": "backend-developer",
+      "path": "skills/05-development/backend-developer/SKILL.md",
+      "word_count": 4192,
+      "reference_files": 8,
+      "note": "Gold standard for all transforms. Proper trigger description, license, compatibility, portability target, 12 core sections, proper references links."
+    },
+    {
+      "skill": "frontend-developer",
+      "path": "skills/05-development/frontend-developer/SKILL.md",
+      "word_count": 4100,
+      "reference_files": 11,
+      "note": "Follows progressive disclosure pattern with domain-specific reference files."
+    },
+    {
+      "skill": "code-reviewer",
+      "path": "skills/06-quality/code-reviewer/SKILL.md",
+      "word_count": 3890,
+      "reference_files": 8,
+      "note": "Strong negative constraints and anti-pattern enforcement."
+    },
+    {
+      "skill": "security-reviewer",
+      "path": "skills/08-security/security-reviewer/SKILL.md",
+      "word_count": 3727,
+      "reference_files": 8,
+      "note": "Re-split after frontmatter bug fix. Comprehensive error decoder and STRIDE threat model."
+    }
+  ]
+}

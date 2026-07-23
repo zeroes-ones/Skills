@@ -1,0 +1,111 @@
+name: Skills Governance Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'skills/**/SKILL.md'
+      - 'skills/**/references/*.md'
+      - 'scripts/validate-skills.sh'
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**/SKILL.md'
+      - 'skills/**/references/*.md'
+      - 'scripts/validate-skills.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Skills
+        id: validate
+        run: bash scripts/validate-skills.sh
+
+      - name: Token Budget Report
+        if: always()
+        run: |
+          echo "## Token Budget Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          import os, re
+          for root, _, files in os.walk('skills'):
+              for f in files:
+                  if f == 'SKILL.md':
+                      path = os.path.join(root, f)
+                      with open(path) as fh:
+                          content = fh.read()
+                      parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+                      if len(parts) < 3:
+                          continue
+                      words = len(parts[2].split())
+                      status = '✅' if words <= 5000 else '⚠️'
+                      print(f'{status} **{words}** words — `{path}`')
+          " >> $GITHUB_STEP_SUMMARY
+
+      - name: PR Comment
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const body = `## ⚠️ Skills Governance Gate Failed
+
+            The automated validation checks found issues with one or more skill files.
+            Please check the [workflow run](${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
+
+            **Common fixes:**
+            - Frontmatter: ensure \`---\` delimiters are exactly 3 dashes
+            - Descriptions: must include "Use when..." and "Handles..."
+            - All 12 core sections must be present
+            - Reference links must point to existing files
+            - SKILL.md body must be under 5000 words`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Markdown Lint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: 'skills/**/SKILL.md'
+          config: |
+            {
+              "default": true,
+              "line-length": false,
+              "no-inline-html": false,
+              "no-duplicate-heading": { "siblings_only": true },
+              "no-emphasis-as-heading": false,
+              "no-trailing-punctuation": false,
+              "first-line-heading": false,
+              "no-hard-tabs": false
+            }
+
+      - name: Link Check
+        run: |
+          grep -roPh '\[.*\]\(\./references/[^)]+\)' skills/ | sort | while read -r line; do
+            file=$(echo "$line" | grep -oP '(?<=\().*(?=\))')
+            dir=$(echo "$line" | cut -d: -f1 | xargs dirname)
+            if [ ! -f "$dir/$file" ]; then
+              echo "BROKEN: $dir/$file (from $line)"
+            fi
+          done
