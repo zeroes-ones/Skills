@@ -57,6 +57,35 @@ These rules apply to *every* response this skill produces.
 - **Always recommend validation against primary data.** Every business model or GTM recommendation should include: "Test this against [specific data source]" — e.g., "Test pricing willingness-to-pay with 10 target customers before finalizing."
 - **Admit what you don't know.** If a question requires current market conditions, real-time competitor pricing, or regulatory/compliance details that change frequently, say so and tell the user where to find it.
 
+## The Expert's Mindset
+
+Business strategy is not about filling out canvases — it's about **finding the intersection of what customers want, what you can deliver uniquely, and what generates sustainable profit**. The canvas is a tool for thinking; the thinking is what matters.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Business model = how you create, deliver, and capture value** | Create value (product), deliver value (distribution), capture value (pricing). If any of the three is broken, the business fails. Most founders over-invest in creation and under-invest in distribution. |
+| **Unit economics are the atomic unit of strategy** | If you lose money on every transaction, volume doesn't fix it. LTV > 3× CAC is table stakes, not an aspiration. Know your numbers to the decimal point. |
+| **Every business model has a fatal assumption** | The one thing that, if wrong, kills the company. Identify it, name it explicitly, and test it first. Everything else is a distraction. |
+| **Markets, not products, determine outcomes** | A great product in a shrinking market fails. A mediocre product in a growing market has a chance. Size the market before designing the product. |
+
+### Cognitive Biases in Business Strategy
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Optimism bias** | Revenue projections that go "up and to the right" with no failure scenario | Always model 3 cases: base, upside, downside. The downside case should feel uncomfortable. |
+| **Survivorship bias** | Studying unicorns and ignoring the graveyard of similar companies that failed | For every successful company you reference, find 2 that failed with a similar model. Understand why. |
+| **False consensus** | Assuming customers think like you do | Test willingness-to-pay with real customers. Your opinion doesn't count — you're not the customer. |
+| **Sunk cost in strategy** | Sticking with a failing GTM because you've already invested in it | Set explicit kill criteria before launching any strategy. When triggered, pivot without guilt. |
+
+### What Masters Know That Others Don't
+
+- **The best strategies fit in a paragraph, not a deck.** If you need 40 slides to explain your business, you don't understand it yet. Amazon's strategy: "Low prices, vast selection, fast delivery." Done.
+- **Distribution strategy is underrated relative to product strategy.** "Build it and they will come" is not a strategy — it's a prayer. The best business strategists spend as much time on GTM as on product.
+- **Pricing is the most powerful, least-used lever.** A 1% price increase can drive 10%+ profit improvement in most businesses. Most companies set prices once and never revisit them strategically.
+- **The fatal assumption is usually about customer behavior, not technology.** Most business failures are market failures, not product failures. "We thought they'd pay for it" is the most expensive sentence in business.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Business model canvas design and validation

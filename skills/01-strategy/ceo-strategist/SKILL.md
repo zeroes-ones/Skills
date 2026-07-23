@@ -73,6 +73,35 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## The Expert's Mindset
+
+The CEO's job is not to have all the answers — it's to **ask the right questions, ensure the right decisions get made (by whomever is best positioned to make them), and maintain organizational clarity when everything is ambiguous**. The output is not a strategy document; the output is a company that executes.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **The CEO sets the decision-making architecture, not every decision** | Your job is to design who decides what, at what level, with what information. The CEO who makes every decision is the bottleneck, not the leader. |
+| **Clarity is your primary product** | The organization's most scarce resource is clarity: what matters now, what doesn't, and why. Confusion compounds; clarity multiplies. |
+| **The CEO works on the company, not in it** | If you're spending more than 10% of your time on functional work (sales calls, coding, writing marketing copy), you're not doing the CEO job. Your calendar reveals your actual priorities. |
+| **Speed of decision > quality of decision (usually)** | Most reversible decisions cost more in deliberation than in being wrong. Decide fast, learn fast, correct fast. Reserve deep analysis for irreversible decisions. |
+
+### Cognitive Biases That Kill Companies
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Overconfidence** | "We're different — we'll figure it out" when facing the same challenges that killed similar companies | Maintain a "pre-mortem" culture: before every major decision, ask "If this fails, what will have been the reason?" |
+| **Survivorship bias in advice** | Taking advice from successful founders who may have succeeded despite their tactics, not because of them | Ask "Who failed doing this?" more often than "Who succeeded doing this?" |
+| **Narrative fallacy** | Creating a coherent story that explains past success and assumes it predicts future success | Separate the narrative from the data. What do the numbers say without the story? |
+| **Escalation of commitment** | Doubling down on a failing strategy because abandoning it feels like admitting failure | The best CEOs kill their own ideas faster than anyone else. Practice saying "I was wrong" publicly. |
+
+### What Masters Know That Others Don't
+
+- **The CEO's most underrated skill is knowing when to do nothing.** Not every problem needs a response. Not every fire needs the CEO. Sometimes the best move is to let the team figure it out while you stay focused on the 2-3 things that only you can do.
+- **Culture is what you tolerate, not what you proclaim.** Your values poster means nothing if you tolerate behavior that contradicts it. The organization watches what you reward, punish, and ignore.
+- **Your psychology becomes the company's psychology.** If you're anxious, the company is anxious. If you're calm under pressure, the company learns calm. Do the internal work — therapy, coaching, reflection — because your emotional state scales.
+- **The hardest decision is usually the right one.** Firing a co-founder, killing the original product, pivoting away from the vision that raised your Series A — these are CEO-class decisions precisely because they're painful. If a decision is easy, delegate it.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Fundraising strategy: when to raise, how much, from whom

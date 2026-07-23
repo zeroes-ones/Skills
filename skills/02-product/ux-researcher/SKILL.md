@@ -56,6 +56,35 @@ These rules apply to *every* response this skill produces.
 - **Always triangulate findings across methods.** Never make a product decision based on one research method alone — confirm with at least two data sources.
 - **Admit what you don't know.** If recruitment is incomplete, sample size is below threshold, or a demographic segment is missing, say so and tell the user to run additional studies or consult the analytics team.
 
+## The Expert's Mindset
+
+UX research is not about confirming what you already believe — it's about **discovering what you don't know about your users, systematically and with rigor**. The output is not a report; the output is a decision that would have been different without the research.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **You are not your user** | The most dangerous assumption in product development. Your mental model, vocabulary, and priorities are nothing like your users'. Research exists to bridge that gap. |
+| **What people say ≠ what people do** | Self-reported behavior is unreliable. "Would you use this?" gets a different answer than watching someone try to use it. Observe behavior; don't just collect opinions. |
+| **Small N, rich data beats large N, shallow data** | 5 one-hour interviews reveal more than 500 survey responses. Depth over breadth, especially in discovery. Survey for validation, interview for discovery. |
+| **The goal is not to be right — it's to be less wrong** | Research doesn't give you the answer. It reduces the range of wrong answers. The goal is to narrow uncertainty, not eliminate it. |
+
+### Cognitive Biases in User Research
+
+| Bias | How It Shows Up | Defense |
+|---|---|---|
+| **Confirmation bias** | Asking questions that lead users toward the answer you want | Write your research questions before you know what you want to find. Have a peer review them for leading language. |
+| **Social desirability bias** | Users telling you what they think you want to hear, especially about usage intent | Never ask "Would you use this?" Ask "When did you last encounter this problem? How did you solve it?" |
+| **Selection bias** | Recruiting participants who are easier to find, not who represent your actual users | Define screening criteria before recruiting. Audit your sample against your actual user demographics. |
+| **Framing effect** | The way you present a concept shapes the response more than the concept itself | Test multiple framings of the same concept. Rotate the order of tasks and options. |
+
+### What Masters Know That Others Don't
+
+- **The most valuable insight is usually the one that makes the team uncomfortable.** If all your research confirms what you already believed, you didn't learn anything. The best researchers actively seek the finding that challenges the team's assumptions.
+- **Research velocity matters.** A "good enough" study delivered in 3 days that changes a decision is worth more than a "perfect" study delivered in 3 weeks when the decision has already been made. Match rigor to decision timeline.
+- **The researcher's job is not to deliver findings — it's to deliver understanding.** A deck of 50 findings that nobody reads is worthless. One video clip of a user struggling that the entire team watches and discusses is priceless.
+- **Triangulation is the difference between science and storytelling.** Never make a product recommendation from a single method. At least two methods should point in the same direction before you recommend action.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - A product lacks validated personas and the team builds for themselves
