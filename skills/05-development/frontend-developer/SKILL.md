@@ -81,6 +81,28 @@ These rules apply to *every* response this skill produces.
 - **Always measure Core Web Vitals.** LCP < 2.5s, INP < 200ms, CLS < 0.1. Run Lighthouse CI on every PR. Do not ship performance regressions.
 - **Admit what you don't know.** If you haven't seen the design specs, API contract, or target browser matrix, say so and ask before building.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent developers ship features that look right on their machine. Masters ship experiences that **work on every device, for every user, at every network speed.** The shift: stop thinking about your code and start thinking about the user's device. Your MacBook Pro on gigabit WiFi is not the median user. The median user is on a 3-year-old Android phone with 4GB RAM on a spotty 4G connection. Build for them first, enhance for everyone else.
+
+### Cognitive Biases That Kill Frontend Experiences
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Shiny framework syndrome** | Rewriting in the newest framework before measuring if the current one is the bottleneck | Framework migrations cost 3-6 months. A new framework must be 2× better, not just newer. |
+| **Premature component splitting** | Extracting every UI element into a reusable component before the pattern repeats 3 times | Don't abstract until you see the same pattern in 3 different places. One occurrence is an implementation; two is a coincidence; three is a pattern. |
+| **Lighthouse blindness** | Shipping with 100 Lighthouse scores on desktop while mobile users experience 12-second loads | Test on emulated Moto G4 with 4G throttling. Desktop Lighthouse scores are vanity; mobile scores are reality. |
+
+### What Frontend Masters Know That Others Don't
+- **Paint cycles are your budget.** Every style change that triggers layout → paint → composite costs 16ms on a 60fps device. Style changes that trigger layout (width, height, top, left) are 10× more expensive than opacity or transform. Use the Performance tab, not guesswork.
+- **Accessibility is UX, not compliance.** A screen reader user is a user. Keyboard-only navigation is how power users operate. Semantic HTML is free performance — a `<button>` comes with focus, role, and keyboard handling that takes 50 lines to replicate on a `<div>`.
+- **Bundle size is a product metric.** Every 100KB of JavaScript costs 1 second on a median mobile device. Your imports are a tax your users pay. Tree-shake aggressively. Lazy-load everything below the fold.
+
+### When to Break Your Own Rules
+- **Skip SSR for internal dashboards.** Server-side rendering adds complexity. If your users are 50 employees on office WiFi, a client-side SPA is faster to build and perfectly adequate.
+- **Use a `<div>` when semantics don't help.** Not every container needs to be `<section>`, `<article>`, or `<aside>`. Semantic HTML matters for landmarks and interactive elements. For purely visual grouping, a `<div>` is fine.
+
 ## When to Use
 <!-- QUICK: 30s -- scan the bullet list to decide if this skill fits -->
 - Choosing between Next.js, Vite React, Remix, Astro, or Nuxt for a new web project
@@ -850,6 +872,25 @@ Common chains:
 - [ ] **[S12]**  Sitemap, robots.txt, canonical URLs, Open Graph meta tags configured
 - [ ] **[S13]**  Playwright E2E tests: critical user flows covered; axe-core accessibility audit in CI; API mocking for error states
 - [ ] **[S14]**  CI pipeline: TypeScript check → ESLint → Prettier → Vitest → Playwright → Lighthouse CI; fails on regression
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what to do -->
+
+### The Frontend Improvement Loop
+1. **Audit the real user experience** — Open Chrome DevTools → Performance tab → record a critical user flow on a throttled Moto G4. Find the longest task.
+2. **Profile the bottleneck** — Is it a large bundle? Expensive re-render? Layout thrashing? Unoptimized image?
+3. **Fix one thing** — Target the single biggest regression. Re-audit. Did Core Web Vitals improve?
+4. **Repeat every sprint** — Frontend performance is a garden, not a monument. It degrades with every feature.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Rebuild a UI from Dribbble/UIFry using only HTML/CSS — no JS, no framework. Must work at 320px and 1920px | Weekly | Internalizes layout algorithms, responsive patterns, and CSS capabilities without framework crutches |
+| Competent → Expert | Audit a popular website's accessibility: navigate it with keyboard only, then with VoiceOver. Document every failure | Monthly | Develops a11y intuition — can spot focus trap, missing label, color-only indicator from a screenshot |
+| Expert → Master | Contribute a bug fix to React, Next.js, or a major component library. Read the source of a framework you use daily | Quarterly | Understands the framework's internals — makes better design decisions because they know what happens under the hood |
+
+### The One Thing
+**Rebuild a component you built 6 months ago without looking at the original code.** Compare: is the new version simpler? More accessible? Smaller bundle impact? If it's not better, you haven't grown. If it's worse (over-engineered), you've learned the wrong lessons. Your own code, given 6 months of distance, is the best mirror of your growth.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->

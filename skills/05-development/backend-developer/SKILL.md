@@ -102,6 +102,28 @@ These rules apply to *every* response this skill produces.
 - **Always version your API contract.** Breaking changes need a new version or a migration window. Use deprecation headers (Sunset, Deprecation) before removal.
 - **Admit what you don't know.** If you don't know the database schema, expected QPS, deployment environment, or auth provider, say so and ask before writing code.
 
+## The Expert's Mindset
+<!-- DEEP: 10+min — how masters think, not just what they do -->
+
+### The Mental Model Shift
+Competent developers make things work. Masters make things **unbreakable under load.** The shift: stop thinking about code paths and start thinking about failure modes. For every endpoint, ask "what happens when 10,000 requests hit this simultaneously?" The database connection pool, the memory allocator, the garbage collector — these are your real constraints. Code you haven't load-tested is code you haven't finished.
+
+### Cognitive Biases That Kill Backend Systems
+| Bias | How It Manifests | Antidote |
+|-------|------------------|----------|
+| **Premature optimization** | Adding Redis before measuring if Postgres is the bottleneck | Profile first. Optimization without a flame graph is superstition. |
+| **Resume-driven development** | Choosing Kafka for a 100 msg/day queue or Kubernetes for a single service | Every infrastructure choice must solve a measured problem. If you can't point to the bottleneck, you don't need the tool. |
+| **Abstraction addiction** | Wrapping every database query in a repository pattern "in case we switch databases" | You won't switch databases. Build abstractions around behavior, not storage. One good abstraction beats five premature ones. |
+
+### What Backend Masters Know That Others Don't
+- **Connection pool math is deterministic.** `pool_size = (expected_qps × avg_query_ms) / 1000`. If this exceeds your database's max_connections, you have a scaling problem before you write a line of code.
+- **Idempotency is not a feature — it's insurance.** Every payment, order, and write endpoint needs an idempotency key. Retries without idempotency = duplicates. Every retry mechanism without idempotency is a bug.
+- **Backpressure propagates.** A slow database makes slow APIs makes slow clients makes angry users. Every layer in the stack needs a timeout shorter than the layer above it. The database timeout must be shorter than the API timeout must be shorter than the client timeout.
+
+### When to Break Your Own Rules
+- **Skip the abstraction for one-off scripts.** A 50-line migration script doesn't need repository pattern, dependency injection, or a service layer. It needs to run once and be correct.
+- **Use raw SQL when the ORM creates N+1 queries.** ORMs optimize for developer convenience, not query efficiency. When you see 500 queries in your logs for a single endpoint, drop to raw SQL. The ORM is a tool, not a religion.
+
 ## When to Use
 
 - You are building a new REST API or GraphQL service and need to choose the right language and framework
@@ -723,6 +745,25 @@ Common chains:
 - [ ] **[S10]**  Integration tests on database, cache, and external service interactions
 - [ ] **[S11]**  Load tested at 2× expected peak QPS before production launch
 - [ ] **[S12]**  Monitoring: error rate, P95 latency, throughput, DB connection pool, queue depth
+
+## Deliberate Practice
+<!-- DEEP: 10+min — how to improve, not just what to do -->
+
+### The Backend Improvement Loop
+1. **Profile under load** — Run `wrk` or `k6` at 2× expected peak QPS. Find the slowest endpoint.
+2. **Flame graph the bottleneck** — Is it a missing index? N+1 query? Serialization overhead?
+3. **Fix one thing** — Optimize the single biggest bottleneck. Re-profile. Did it move?
+4. **Repeat monthly** — Systems degrade. Last month's profile is not this month's reality.
+
+### Practice Routines
+| Skill Level | Practice | Frequency | Expected Result |
+|-------------|----------|-----------|-----------------|
+| Novice → Competent | Build the same API in 3 different frameworks; compare ergonomics, performance, error handling | Monthly | Can articulate when to use FastAPI vs Express vs Go based on actual data |
+| Competent → Expert | Design a system for 1000 QPS, then 10,000, then 100,000. Find the breaking point of your architecture | Quarterly | Can identify the bottleneck before writing code |
+| Expert → Master | Contribute a performance fix to an open-source framework you use. Read 1000 lines of its source code | Quarterly | Understands why the framework works, not just how to use it |
+
+### The One Thing
+**Write a production service from scratch with zero frameworks every 6 months.** No FastAPI. No Express. Just the standard library and a database driver. You'll learn what your frameworks actually do, what abstractions are worth the cost, and where the real complexity lives. Framework fluency ≠ backend mastery.
 
 ## References
 <!-- QUICK: 30s -- links to deeper reading -->
