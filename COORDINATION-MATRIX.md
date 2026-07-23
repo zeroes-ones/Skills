@@ -15,7 +15,7 @@ chain:
   feeds_into: [frontend-developer, fullstack-developer, code-reviewer, qa-engineer, devops-engineer]
 ```
 
-If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,032 chain edges are symmetric.
+If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,130 chain edges are symmetric.
 
 ## Phase 1: Ideation & Validation
 
