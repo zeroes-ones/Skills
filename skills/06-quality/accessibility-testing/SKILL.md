@@ -270,6 +270,16 @@ graph LR
 - **`display: none` and `aria-hidden="true"`** both hide from screen readers, but `display: none` also hides from keyboard focus while `aria-hidden` does not. An `aria-hidden` modal overlay is still keyboard-navigable — users can tab to invisible elements.
 
 
+## Verification
+
+- [ ] Run `axe-core` in CI: zero violations at WCAG 2.2 AA level
+- [ ] Run `pa11y` or `lighthouse --only-categories=accessibility` — score ≥ 95
+- [ ] Keyboard audit: tab through every interactive element — no keyboard traps, logical focus order
+- [ ] Screen reader audit: Navigate main flow with VoiceOver (macOS) or NVDA (Windows) — all content announced, all actions reachable
+- [ ] Color contrast: verify all text/UI components pass 4.5:1 (text) and 3:1 (large text/icons) using `axe` or `contrast-ratio` tool
+- [ ] Verify `eslint-plugin-jsx-a11y` passes with zero errors in CI
+
+
 ## References
 
 Detailed reference material loaded on demand:

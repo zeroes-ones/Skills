@@ -388,6 +388,16 @@ Minor API addition or non-breaking change
 - **API versioning in the URL path** (`/v1/users`) means every route has a version prefix. When you add `/v2/users`, the old `/v1/users` route still needs maintenance until deprecated. URL versioning creates N copies of every endpoint.
 
 
+## Verification
+
+- [ ] Run OpenAPI validator: `redocly lint openapi.yaml` or `spectral lint openapi.yaml` — zero errors
+- [ ] Generate and inspect docs: `redocly build openapi.yaml` — all endpoints documented, all schemas have examples
+- [ ] Test with mock server: `prism mock openapi.yaml` and `curl` each endpoint — responses match schema
+- [ ] Verify pagination: all list endpoints return `next`/`cursor` link when more results exist
+- [ ] Verify error responses: every endpoint's 4xx and 5xx responses match `ErrorResponse` schema
+- [ ] Check `servers[].url` in OpenAPI: matches all environments (dev/staging/prod), no localhost URLs
+
+
 ## References
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)
 - **Versioning Cost Analysis**: See [versioning-cost-analysis.md](references/versioning-cost-analysis.md)

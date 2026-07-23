@@ -422,6 +422,15 @@ Architecture guidance, review, or approval for team-level design
 - **Capacity planning with percentiles**: "Average response time 200ms" means 50% of requests are below 200ms, but 1% might be 5 seconds. P95, P99, and P99.9 matter more than average. Architect for the P99, not the mean.
 
 
+## Verification
+
+- [ ] C4 diagrams render correctly: PlantUML/Mermaid syntax valid, all components labeled
+- [ ] ADR (Architecture Decision Record) template complete: Context, Decision, Consequences all filled
+- [ ] Cross-reference ADRs: no two ADRs make contradictory recommendations
+- [ ] Capacity calculation: peak RPS × (1 + growth %) fits within provisioned capacity with 2x headroom
+- [ ] Failure mode walkthrough: for each component, document "what happens when this fails" — no single point of failure
+
+
 ## References
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)
 - **When Monolith Wins**: See [when-monolith-wins.md](references/when-monolith-wins.md)

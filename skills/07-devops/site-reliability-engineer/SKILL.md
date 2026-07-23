@@ -356,6 +356,16 @@ graph LR
 - **MTBF (Mean Time Between Failures)** is misleading for distributed systems with partial failures. A system that has 100 micro-failures per day (each affecting 0.1% of requests) has terrible MTBF but users experience 99.9% availability. Use window-based availability, not MTBF.
 
 
+## Verification
+
+- [ ] SLI metrics: query Prometheus for 30-day window — SLI correctly measures good events / total events
+- [ ] SLO compliance: error budget remaining > 0 for all services (or documented why budget is exhausted)
+- [ ] Alert testing: trigger each alert condition in staging — alert fires within configured `for` duration (not instant, not never)
+- [ ] Runbook test: pick an alert, follow its runbook in a game day — runbook is accurate, complete, and resolves the issue
+- [ ] Toil measurement: track time spent on manual, repetitive tasks for 1 week — toil < 50% of total engineering time
+- [ ] Capacity planning: current peak utilization < 60% of provisioned capacity — 2x headroom for failover + growth
+
+
 ## References
 
 Detailed reference material loaded on demand:

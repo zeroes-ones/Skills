@@ -250,6 +250,16 @@ graph LR
 - **String extraction from concatenation**: `t('views.') + viewName + t('.title')` — this produces 3 separate translation calls for ONE logical string. The concatenated result can't be in TM, can't benefit from context, and produces grammatically broken sentences in languages with different word order (Japanese, Korean, Turkish).
 
 
+## Verification
+
+- [ ] Run `i18next-parser` or equivalent to extract new strings — zero untranslated keys
+- [ ] Run pseudo-localization in CI: verify no layout breaks from 30% text expansion
+- [ ] Check TM leveraging: fuzzy match rate for new strings against TM > 60%
+- [ ] Validate ICU syntax in all resource files with `icu-validator` — zero parse errors
+- [ ] Run MT quality threshold: BLEU score for MT output > 30 before skipping human review (or domain-specific threshold)
+- [ ] Verify `=0`, `=1`, and `other` plural cases render correctly for English + top 3 locales
+
+
 ## References
 
 Detailed reference material loaded on demand:

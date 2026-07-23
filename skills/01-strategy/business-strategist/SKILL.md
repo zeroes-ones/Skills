@@ -373,6 +373,15 @@ graph LR
 - **Market sizing that conflates TAM and SAM** — your Total Addressable Market is "every company with employees" ($100B). Your Serviceable Addressable Market is "US companies with 50-500 employees using cloud software" ($5B). Investors see through TAM inflation instantly, and it damages credibility for the rest of your pitch.
 
 
+## Verification
+
+- [ ] Market analysis: Porter's Five Forces reviewed within last quarter, changes documented
+- [ ] Competitive intelligence: top 5 competitors tracked quarterly — funding, product launches, pricing changes, leadership moves
+- [ ] TAM/SAM/SOM: bottom-up sizing with documented assumptions, updated annually or after market shifts
+- [ ] Strategic bets: each bet has hypothesis, investment, success criteria, and kill date (when to stop if not working)
+- [ ] Pricing: pricing strategy reviewed within last 6 months — value-based, not competitor-minus
+
+
 ## References
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)
 - **GTM Cost by Channel (B2B SaaS)**: See [gtm-cost-by-channel-b2b-saas.md](references/gtm-cost-by-channel-b2b-saas.md)

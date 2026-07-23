@@ -418,6 +418,15 @@ graph LR
 - **Motion design tokens** (easing curves, duration scales) that are undocumented — the marketing site uses spring animations, the product uses CSS ease-in-out, the mobile app uses native platform curves. Brand motion feels disjointed. Define `easing-enter`, `easing-exit`, `duration-fast/normal/slow` as tokens.
 
 
+## Verification
+
+- [ ] Color palette: all colors have HEX, RGB, CMYK, and P3 values — no conversions needed by implementers
+- [ ] Typography: all fonts are self-hosted (WOFF2), `font-display: swap`, preloaded on critical pages
+- [ ] Logo: canonical SVG is clean (no inline styles, no external fonts), PNG variants at 1x/2x/3x
+- [ ] Motion: easing curves, duration tokens, and reduced-motion alternatives documented and implemented
+- [ ] Brand-in-product audit: product UI uses same color system, typographic scale, and tone as marketing — consistent brand experience
+
+
 ## References
 
 Detailed reference material loaded on demand:

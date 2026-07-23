@@ -390,6 +390,17 @@ graph LR
 - **Image tag `:latest`** in Kubernetes with `imagePullPolicy: Always` pulls whatever `latest` currently resolves to. Two replicas started 10 seconds apart can run different image versions if a new build pushed during that window.
 
 
+## Verification
+
+- [ ] Run `docker build -t app:test .` — builds without errors
+- [ ] Run `docker scout quickview app:test` or `trivy image app:test` — zero critical/high CVEs
+- [ ] Run `docker run --rm app:test` — container starts, health check passes, `docker logs` shows no errors
+- [ ] Verify `.dockerignore`: `docker build` output shows "context: X MB" — X is reasonable (< 100MB for most apps)
+- [ ] Run `kubectl apply --dry-run=client -f deployment.yaml` — manifests parse correctly
+- [ ] Run `kube-linter lint deployment.yaml` — zero checks with severity "critical" or "high"
+- [ ] Verify resource limits: every container has `resources.requests` AND `resources.limits` set
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -473,6 +473,16 @@ graph LR
 - **Funnel conversion rates** are ratios, not counts. A funnel that goes 1000 → 200 → 40 (4% overall) can't be decomposed as 20% × 20% = 4% if the 200 users who reached step 2 are DIFFERENT from the 200 in the 20% step-1-to-2 rate. Joined vs unjoined funnels produce different numbers — report both.
 
 
+## Verification
+
+- [ ] A/B test duration pre-registered: start date, end date, sample size, and success metric documented BEFORE test starts
+- [ ] Sample ratio mismatch (SRM): chi-squared test passes — control and variant groups are within 0.1% of expected split
+- [ ] CUPED covariates: all covariates are pre-experiment data (timestamp < experiment start time)
+- [ ] Multiple testing correction: Bonferroni or Benjamini-Hochberg applied if testing multiple metrics
+- [ ] Cookie-less tracking: server-side identity resolution works — login event associates anonymous session with user ID
+- [ ] Funnel analysis: both joined AND unjoined funnel conversion rates reported — discrepancy explained
+
+
 ## References
 
 Detailed reference material loaded on demand:

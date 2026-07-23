@@ -470,6 +470,15 @@ graph LR
 - **Indemnification clauses** in enterprise contracts — "Customer indemnifies Vendor against all third-party claims arising from Customer's use of the service." A third party sues YOU for something YOUR customer did with your software — and the customer pays your legal bills. But if YOUR software was the CAUSE (e.g., security vulnerability), customer indemnification doesn't apply. Mutual indemnification for IP infringement is standard; unilateral for customer conduct.
 
 
+## Verification
+
+- [ ] License audit: `fossa` or `license-checker` — all dependencies have licenses, no GPLv3 in non-GPL projects
+- [ ] CLA/contributor agreement: reviewed within last 12 months, includes IP ownership attestation
+- [ ] Terms of Service: last updated date visible, governing law specified, dispute resolution process documented
+- [ ] Privacy: privacy policy and ToS are consistent (no "we never share data" in privacy + "we share with affiliates" in ToS)
+- [ ] Open source: projects with > 100 stars have contributing guide, code of conduct, and license
+
+
 ## References
 
 Detailed reference material loaded on demand:

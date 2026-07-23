@@ -336,6 +336,16 @@ graph LR
 - **Equity refreshes** that are the same for a 4-year engineer who built your core systems and a 1-year engineer hired at market peak — the 4-year engineer's equity is likely under water or significantly below market comp. Refreshes based on impact AND tenure-gap-to-market, not just one.
 
 
+## Verification
+
+- [ ] Engineering metrics: DORA metrics (deploy frequency, lead time, MTTR, change failure rate) tracked and trending
+- [ ] Budget: actual spend vs budget within 5% per quarter
+- [ ] Headcount: hiring plan vs actuals — variance < 10%
+- [ ] Org health: attrition < 15% annualized, eNPS score tracked and improving
+- [ ] Business alignment: every team's roadmap items traceable to company OKRs
+- [ ] Succession: at least 2 internal candidates identified for every director+ role
+
+
 ## References
 
 Detailed reference material loaded on demand:

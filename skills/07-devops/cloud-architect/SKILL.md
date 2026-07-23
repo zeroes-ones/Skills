@@ -390,6 +390,16 @@ graph LR
 - **Multi-region active-active** requires conflict-free replicated data types (CRDTs) or last-write-wins with a global clock. Two users updating the same record in different regions within the propagation window (50-200ms) will silently lose one update.
 
 
+## Verification
+
+- [ ] Run `terraform plan` or `cdk diff` — no unexpected resource changes
+- [ ] Verify IAM: `iam-live` or access analyzer — no overly permissive policies (no `*` resources with `*` actions)
+- [ ] Verify encryption: all S3 buckets, RDS instances, EBS volumes have encryption enabled
+- [ ] Verify backups: all stateful resources have backup policy with RPO ≤ 24 hours
+- [ ] Cost estimate: `infracost breakdown` — monthly cost within budget, no unbounded resources (e.g., NAT gateway per AZ)
+- [ ] Disaster recovery test: simulate region failure — failover procedure documented and tested
+
+
 ## References
 
 Detailed reference material loaded on demand:

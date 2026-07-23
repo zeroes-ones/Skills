@@ -423,6 +423,16 @@ Routine schema change (new column, index addition, non-breaking type change)
 - **Migration that renames a column** deployed after the app code update: the old code references the old column name on the new schema, producing `column does not exist` errors during the deploy window. Always deploy schema changes first, then code.
 
 
+## Verification
+
+- [ ] Run migration forward: `npm run migrate up` — all tables created without errors
+- [ ] Run migration rollback: `npm run migrate down` — all tables dropped cleanly (or rollback to previous state)
+- [ ] Run `EXPLAIN ANALYZE` on top 5 queries — all use indexes (no sequential scans on large tables)
+- [ ] Verify foreign key constraints: `INSERT` a row with invalid FK — database REJECTS it, doesn't silently accept
+- [ ] Check index coverage: every column used in `WHERE`, `JOIN`, `ORDER BY` in application queries has a corresponding index
+- [ ] Load test with expected production volume — p99 query time within SLO
+
+
 ## References
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
 - **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)

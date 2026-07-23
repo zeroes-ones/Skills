@@ -326,6 +326,16 @@ After every launch: what did you predict would happen? What actually happened? W
 - **"Technical debt" as a catch-all** for "we need to refactor." Actual tech debt (trade-offs made knowingly) can be quantified with interest payments (e.g., "deployments take 3x longer due to X"). Vague "clean up the codebase" initiatives without interest-rate calculations never get prioritized.
 
 
+## Verification
+
+- [ ] PRD review: stakeholders from Engineering, Design, QA, and Support have reviewed and approved
+- [ ] User stories: each story has acceptance criteria written in Given/When/Then format
+- [ ] RICE scoring: inputs (Reach, Impact, Confidence, Effort) are documented with sources/assumptions
+- [ ] Competitive analysis: reviewed within last 90 days, includes at least 3 competitors
+- [ ] Customer validation: at least 5 customer interviews support the problem hypothesis
+- [ ] Success metrics: North Star metric identified, baseline measured, target set with timeline
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -330,6 +330,16 @@ graph LR
 - **Thermal design with junction-to-ambient (θJA)** — the datasheet says θJA = 40°C/W, so 2W = 80°C rise. But θJA assumes a 4-layer board with 1oz copper, specific via density, and still air. Your 2-layer board with different copper weight has a θJA of 80°C/W. 2W = 160°C rise = junction exceeds Tj_max. Measure, don't trust datasheet θJA.
 
 
+## Verification
+
+- [ ] Schematic review: DRC (Design Rule Check) passes — zero violations
+- [ ] Power budget: sum of all component max currents × voltage < power supply rating × 0.8 (20% margin)
+- [ ] Signal integrity: differential pairs length-matched within 0.25mm, impedance controlled to spec (±10%)
+- [ ] Thermal simulation: junction temperatures at max ambient + max load — all components within Tj_max
+- [ ] EMC pre-compliance: conducted and radiated emissions test — within 6dB of target limits (margin for production variance)
+- [ ] BOM review: all components have second-source alternative OR documented single-source risk with mitigation
+
+
 ## References
 
 Detailed reference material loaded on demand:

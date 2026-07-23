@@ -356,6 +356,16 @@ graph LR
 - **Batch inference on GPU** with batch_size=1 underutilizes the GPU (10-20% utilization). But batch_size=256 on a model with sequence length 512 may exceed GPU memory. The optimal batch size is the largest power of 2 that fits in memory — profile with `torch.cuda.max_memory_allocated()`.
 
 
+## Verification
+
+- [ ] Feature pipeline runs end-to-end: `python features.py --date=${TODAY}` — features written to online AND offline stores
+- [ ] Training pipeline: `python train.py` — model artifact produced, registered in model registry with version
+- [ ] Model serving: `curl -X POST ${ENDPOINT} -d '{"features": [...]}'` — response in < 200ms, prediction shape correct
+- [ ] Online/offline feature parity: sample 1000 requests, compare feature values — 100% match (no skew)
+- [ ] Model stage promotion: promote model from Staging to Production via CI/CD — deployment triggered, health check passes
+- [ ] Rollback: deploy previous model version — serving switches to previous version within deployment window
+
+
 ## References
 
 Detailed reference material loaded on demand:

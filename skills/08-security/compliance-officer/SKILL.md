@@ -289,6 +289,16 @@ graph LR
 - **"Encryption at rest" means different things** to different auditors. AWS RDS encryption (KMS-managed keys) counts. Application-level encryption (encrypt before writing) counts. But disk-level encryption (EBS volume encryption) doesn't count if the auditor requires separation of duties between data controller and infrastructure provider.
 
 
+## Verification
+
+- [ ] Control mapping: every compliance requirement (SOC 2, ISO 27001, GDPR) maps to at least one implemented control
+- [ ] Evidence collection: for each control, evidence is current (collected within the audit period, not from last year)
+- [ ] Policy review: all policies reviewed within last 12 months, version history shows updates
+- [ ] Access review: quarterly access review completed — all accounts have documented business justification
+- [ ] Vendor risk assessment: all vendors handling sensitive data have current (≤ 12 months) risk assessment
+- [ ] Incident response test: tabletop exercise conducted within last 6 months, findings tracked to remediation
+
+
 ## References
 
 Detailed reference material loaded on demand:

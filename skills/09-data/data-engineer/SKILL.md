@@ -404,6 +404,16 @@ graph LR
 - **Kafka consumer group rebalancing** during deployment — if your consumer takes 3 minutes to process a batch but the `max.poll.interval.ms` is 300 seconds, and deployment restarts take 2 minutes, the consumer group rebalance stalls all partitions for the full interval. Tune `max.poll.interval.ms` > (max batch time + max deployment time × 2).
 
 
+## Verification
+
+- [ ] Run pipeline locally on sample data: `dbt run --select ${model}` or `python pipeline.py --sample` — completes without error
+- [ ] Run data quality tests: `dbt test --select ${model}` — uniqueness, not-null, and referential integrity tests pass
+- [ ] Verify schema: `dbt docs generate && dbt docs serve` — all models documented, lineage graph shows correct dependencies
+- [ ] Check partition freshness: `SELECT MAX(partition_date) FROM ${table}` — within expected freshness SLA (e.g., today for daily)
+- [ ] Run `EXPLAIN` on the 3 most expensive queries — all use partition pruning, no full table scans
+- [ ] Verify row counts: source row count ± 1% = target row count (accounting for filters/joins)
+
+
 ## References
 
 Detailed reference material loaded on demand:

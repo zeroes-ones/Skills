@@ -361,6 +361,15 @@ Cross-team dependency blocking? → System Architect → Project Manager
 - **`SELECT *` with ORMs** fetches all columns including large TEXT/BLOB fields. When the ORM generates the query from your model, it pulls every column unless you explicitly `.select()` or `columns=`.
 
 
+## Verification
+
+- [ ] Run `npm test` / `pytest` / `go test ./...` — all tests pass, no regressions
+- [ ] Run linter: `eslint .` / `ruff check .` / `golangci-lint run` — zero new issues
+- [ ] Run type checker: `tsc --noEmit` / `mypy .` — zero type errors
+- [ ] Start the service and hit the health endpoint: `curl http://localhost:${PORT}/health` returns 200
+- [ ] Verify all new endpoints have integration tests covering success, auth failure, validation error, and not-found cases
+
+
 ## References
 
 Detailed reference material loaded on demand:

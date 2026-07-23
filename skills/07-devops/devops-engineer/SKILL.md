@@ -413,6 +413,16 @@ After every incident: the blameless post-mortem is your training data. Don't jus
 - **Secret management**: `kubectl get secret -o yaml` reveals base64-encoded (NOT encrypted) secrets. Anyone with `get secret` permissions can decode them. Use External Secrets Operator or Sealed Secrets, never store plain secrets in Kubernetes Secret objects.
 
 
+## Verification
+
+- [ ] Run `terraform validate` — configuration is valid
+- [ ] Run `terraform plan` — plan is clean (no unexpected creates/destroys)
+- [ ] Run `checkov` or `tfsec` on Terraform — zero high/critical findings
+- [ ] Verify state locking: run `terraform plan` in two terminals simultaneously — second one waits for lock, doesn't corrupt state
+- [ ] Secrets check: `tfsec` or `detect-secrets` confirms no plaintext secrets in configs
+- [ ] Deploy to staging, verify health, then promote to production — GitOps workflow is end-to-end functional
+
+
 ## References
 
 Detailed reference material loaded on demand:

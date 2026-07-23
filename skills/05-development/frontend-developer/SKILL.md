@@ -419,6 +419,16 @@ Common chains:
 - **React `key` prop on list items** must be stable across re-renders. Using `Math.random()` or `index` with sortable lists causes DOM thrashing and lost input focus.
 
 
+## Verification
+
+- [ ] Run `npm run build` — zero build errors, bundle size within budget (< 20% increase)
+- [ ] Run `npm test` — all tests pass, no snapshot regressions without review
+- [ ] Run `npm run lint` — zero ESLint errors, zero TypeScript errors
+- [ ] Run Lighthouse: Performance > 90, Accessibility > 95, Best Practices > 90
+- [ ] Manual: tab through every interactive element — focus order is logical, focus rings visible
+- [ ] Manual: test at 320px, 768px, 1024px, and 1440px widths — no horizontal scroll, no overlapping content
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -399,6 +399,15 @@ graph LR
 - **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01.
 
 
+## Verification
+
+- [ ] Run `npm test` — unit tests pass, coverage meets threshold (≥ 80%)
+- [ ] Run `npm run test:integration` — integration tests pass against real dependencies (DB, cache, queue)
+- [ ] Run `npx playwright test` or `npx cypress run` — e2e tests pass, no flaky tests (rerun 3x: all pass)
+- [ ] Test matrix covers: happy path, auth failure, validation error, not-found, rate limit, timeout
+- [ ] Performance test: `k6 run load-test.js` — p99 latency within SLO at expected peak RPS
+
+
 ## References
 
 Detailed reference material loaded on demand:

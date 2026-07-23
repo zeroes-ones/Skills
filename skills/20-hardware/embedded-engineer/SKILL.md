@@ -394,6 +394,16 @@ graph LR
 - **`printf` in an ISR** — `printf` blocks for milliseconds waiting for UART TX FIFO. You're in an ISR with interrupts disabled. A 3ms printf blocks the 1ms systick, the 500µs motor control loop, and everything else. Never block in ISRs; use a ring buffer and let the main loop do the printing.
 
 
+## Verification
+
+- [ ] Build: firmware compiles with `-Wall -Werror` — zero warnings
+- [ ] Static analysis: `cppcheck` or `clang-tidy` — zero high/critical findings
+- [ ] Stack analysis: `-fstack-usage` output — no function's stack depth exceeds RTOS task stack size
+- [ ] Watchdog test: force an infinite loop — watchdog resets the system within configured timeout
+- [ ] Power consumption: multimeter / power profiler — idle and active current within budget
+- [ ] Boot test: power-cycle 100 times — boots successfully 100/100 times, no brown-out corruption
+
+
 ## References
 
 Detailed reference material loaded on demand:

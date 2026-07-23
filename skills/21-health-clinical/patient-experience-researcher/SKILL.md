@@ -334,6 +334,16 @@ graph LR
 - **Health literacy level** — your patient-facing material is written at a 10th-grade reading level and 60% of your patient population reads at or below 6th grade (US national health literacy baseline). Use readability formulas (Flesch-Kincaid, SMOG) and target 5th-6th grade for patient materials. Test with actual patients, not formulas.
 
 
+## Verification
+
+- [ ] Interview sample: ≥ 12 participants across relevant demographics (age, condition, treatment stage)
+- [ ] Data saturation: coding shows no new themes emerging in final 3 interviews
+- [ ] Multi-timepoint: participants interviewed at ≥ 2 timepoints (e.g., during + 2 weeks post treatment)
+- [ ] Health literacy: all participant materials at ≤ 6th grade reading level, tested with patients
+- [ ] Findings traceability: every design recommendation traceable to specific participant quotes/themes
+- [ ] IRB/ethics: study approved by IRB or ethics committee (if applicable), informed consent documented
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -405,6 +405,16 @@ graph LR
 - **Alert fatigue**: If your `CPU > 80%` alert fires for 5 minutes every hour due to batch jobs, on-call engineers train themselves to ignore it. Then when a genuine CPU saturation occurs, no one responds. Alerts must require human action — if automation handles it, it's a notification, not an alert.
 
 
+## Verification
+
+- [ ] Prometheus config: `promtool check config prometheus.yml` — syntax valid, no rule conflicts
+- [ ] Grafana dashboard: JSON model validates — all panels render, no "Template variables not found" errors
+- [ ] Alert rules: `promtool test rules alerts.yml` — test cases pass (alert fires when expected, doesn't fire when not)
+- [ ] SLO dashboard: error budget visible, burn rate alerts configured for 1h, 6h, and 24h windows
+- [ ] Verify log correlation: trace ID appears in logs AND in traces for the same request
+- [ ] Test alert routing: trigger a test alert — arrives at correct channel (Slack/PagerDuty) within 60 seconds
+
+
 ## References
 
 Detailed reference material loaded on demand:

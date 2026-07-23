@@ -414,6 +414,16 @@ Common chains:
 - **File uploads via `multipart/form-data`** bypass JSON body parsers. If your validation middleware assumes `req.body` is JSON, file upload endpoints will silently receive `{}` and pass validation on empty.
 
 
+## Verification
+
+- [ ] Run `npm test` / `pytest` across frontend AND backend — both pass independently
+- [ ] Run `npm run build` for frontend — zero build errors
+- [ ] Start full stack: `docker-compose up` or `npm run dev` — app starts, login works, CRUD flow works
+- [ ] Run integration test that touches frontend → API → database → back: `npm run test:e2e`
+- [ ] Check network tab: no 4xx or 5xx responses in normal flows
+- [ ] Verify CORS configuration: frontend origin exactly matches API's `Access-Control-Allow-Origin`
+
+
 ## References
 
 Detailed reference material loaded on demand:

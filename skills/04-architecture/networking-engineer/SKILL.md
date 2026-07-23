@@ -386,6 +386,16 @@ graph LR
 - **MTU 1500 with VXLAN/Geneve encapsulation** adds 50 bytes overhead. Packets at exactly 1500 bytes get fragmented or dropped. Set "do not fragment" and reduce MTU to 1450 on overlay networks.
 
 
+## Verification
+
+- [ ] Run `terraform plan` — no unexpected resource changes, CIDR ranges don't overlap
+- [ ] Verify DNS: `dig +short ${service}.internal` resolves to expected private IP
+- [ ] Verify firewall: `nc -zv ${host} ${port}` from allowed subnet succeeds; from blocked subnet times out
+- [ ] Verify load balancer health checks: `curl ${LB}/health` returns 200 on all backend instances
+- [ ] Test failover: stop one backend instance — traffic shifts to remaining instances within health check interval × 3
+- [ ] Verify TLS: `openssl s_client -connect ${host}:443` shows valid certificate chain, no expired certs
+
+
 ## References
 
 Detailed reference material loaded on demand:

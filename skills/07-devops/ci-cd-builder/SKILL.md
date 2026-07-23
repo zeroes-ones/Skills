@@ -453,6 +453,16 @@ graph LR
 - **Artifact retention** defaults to 90 days. After that, deployment workflows that reference old artifacts silently fail with "artifact not found." Document artifact lifecycle in deployment runbooks.
 
 
+## Verification
+
+- [ ] Push to branch — CI pipeline triggers automatically, all jobs pass
+- [ ] Check pipeline duration: end-to-end CI < 10 minutes (or within team SLA)
+- [ ] Verify artifact: download the built artifact from CI, inspect contents — all expected files present
+- [ ] Test deployment: deploy to staging from CI — application is healthy, version matches commit SHA
+- [ ] Test rollback: trigger rollback workflow — previous version is restored, health check passes
+- [ ] Verify `fail-fast: false` in matrix builds — one failing job doesn't cancel others
+
+
 ## References
 
 Detailed reference material loaded on demand:

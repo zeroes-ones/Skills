@@ -360,6 +360,16 @@ graph LR
 - **Interrupt latency stacking** — a UART RX ISR (priority 2) fires while inside a SPI DMA ISR (priority 1). Then the systick ISR (priority 3) fires. Now 3 ISRs are stacked, each adding latency. A motor control loop (priority 0) misses its deadline by 47µs and the motor jitters. ISR priorities must reflect real-time deadlines, not peripheral importance.
 
 
+## Verification
+
+- [ ] Build: bootloader + application both compile with zero warnings (`-Wall -Werror`)
+- [ ] OTA update test: push update to a test device — update applies, device boots new version, version number confirmed
+- [ ] OTA rollback test: push bad update (invalid checksum) — bootloader rejects it, stays on current version
+- [ ] Flash wear: estimated erase cycles within flash endurance spec (e.g., < 10K cycles for consumer NAND)
+- [ ] ISR timing: oscilloscope measurement — all ISR handlers complete within deadline, no nesting beyond max depth
+- [ ] Brown-out test: lower supply voltage below BOD threshold during flash write — BOD triggers, flash is NOT corrupted
+
+
 ## References
 
 Detailed reference material loaded on demand:

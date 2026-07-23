@@ -426,6 +426,16 @@ graph LR
 - **Affected graph `--base=main`** compares against the local `main` branch. If CI hasn't fetched `main` recently, the affected graph computes against stale `main`, missing files that changed since. Always `git fetch origin main --depth=1` before computing affected projects.
 
 
+## Verification
+
+- [ ] `git clone --depth=1` — clone completes in < 2 minutes, repo size < 500MB
+- [ ] Affected graph: `turbo run build --filter=[HEAD^1]` or `nx affected:build --base=HEAD~1` — only changed projects build
+- [ ] Build cache: second build with no changes — `FULL TURBO` or `Nx Cloud` reports 100% cache hit rate
+- [ ] CI pipeline: changed `packages/ui/` only runs `ui` tests, not `app` or `admin` tests
+- [ ] Package consistency: `npx syncpack list-mismatches` — zero version mismatches across packages
+- [ ] Lint all: `npm run lint` at root — zero errors, all packages pass
+
+
 ## References
 - **Build System & CI/CD**: See [build-system-&-ci-cd.md](references/build-system-&-ci-cd.md)
 - **Dependency Management & Package Architecture**: See [dependency-management-&-package-architecture.md](references/dependency-management-&-package-architecture.md)

@@ -362,6 +362,17 @@ graph LR
 - **Hreflang tags** with incorrect language+country codes silently fail. `en-uk` is invalid (correct: `en-gb`). `pt-br` is valid. Missing reciprocal tags (page A points to B, but B doesn't point back to A) causes Google to ignore all hreflang annotations on both pages.
 
 
+## Verification
+
+- [ ] Run Lighthouse: Performance ≥ 90, SEO = 100, Best Practices ≥ 90
+- [ ] Crawl test: `screamingfrog` or `sitebulb` crawl — zero broken links, zero orphan pages, canonical tags correct
+- [ ] Structured data: Google Rich Results Test — all pages have valid structured data, zero errors
+- [ ] Robots.txt: `googlebot` can access all SEO-critical pages, blocked from admin/login/checkout-success
+- [ ] Sitemap: `sitemap.xml` contains all indexable pages, `lastmod` dates are correct
+- [ ] Mobile-friendly: Google Mobile-Friendly Test — all pages pass
+- [ ] Hreflang: for each locale pair, reciprocal tags exist and point to correct URLs
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -357,6 +357,16 @@ graph LR
 - **Indexes on low-cardinality columns** (boolean, status with 3 values) are often ignored by the query planner because the selectivity is too low. But a partial index `WHERE status = 'active'` on the 5% active subset IS selective and WILL be used.
 
 
+## Verification
+
+- [ ] Backup: `pg_dump` or `xtrabackup` completes successfully — restore from backup verified in staging
+- [ ] Replication lag: `SELECT pg_last_wal_replay_lsn() - pg_last_wal_receive_lsn()` on replica — lag < 100MB (or configured threshold)
+- [ ] Failover test: promote replica to primary — application switches to new primary within failover window
+- [ ] Connection pooling: `SHOW POOLS` — zero connections in `idle in transaction` state for > 5 minutes
+- [ ] Query performance: `pg_stat_statements` top 10 queries by total_time — all have appropriate indexes
+- [ ] Disk space: `df -h` on data directory — usage < 80%, auto-extend or alerts configured
+
+
 ## References
 
 Detailed reference material loaded on demand:

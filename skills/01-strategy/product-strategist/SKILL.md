@@ -337,6 +337,15 @@ Common chains:
 - **Platform vs point solution** decisions require a chicken-and-egg user base. A platform with no initial applications has no users; a point solution with no platform can't expand. The winning sequence is point-solution-first, then platform expansion — but only if you plan the expansion seams from day one.
 
 
+## Verification
+
+- [ ] TAM/SAM/SOM: bottom-up calculation with documented assumptions and source data
+- [ ] Competitive landscape: positioning map updated within last 90 days
+- [ ] Build vs buy vs partner: TCO calculated over 36 months for each option
+- [ ] Product-market fit: Sean Ellis survey conducted (if post-launch) or customer discovery interviews complete (if pre-launch)
+- [ ] Strategic assumptions: all assumptions documented, risk-ranked, and validated or invalidated with evidence
+
+
 ## References
 
 Detailed reference material loaded on demand:

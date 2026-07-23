@@ -277,6 +277,16 @@ graph LR
 - **"Users said they wanted X"** — what users SAY in interviews and what they DO in a live product correlate at ~0.3 (weak). Users said they wanted folders in Google Inbox; they actually needed search and archiving. Observe behavior; don't just ask for wishlists.
 
 
+## Verification
+
+- [ ] Research plan: objectives, methodology, participant criteria, and sample size documented BEFORE data collection
+- [ ] Interview guide: questions are open-ended, non-leading, and pilot-tested with 1-2 participants
+- [ ] Data saturation: analysis shows thematic saturation (no new themes emerging in last 20% of sessions)
+- [ ] Findings report: themes supported by multiple participant quotes, recommendations traceable to specific findings
+- [ ] Bias documented: researcher positionality, recruitment channels, and methodological limitations stated
+- [ ] Share-out: findings presented to stakeholders, decisions documented, follow-up research planned for open questions
+
+
 ## References
 
 Detailed reference material loaded on demand:

@@ -424,6 +424,16 @@ graph LR
 - **Color contrast ratio of 4.5:1 for text, 3:1 for large text (18px+ bold or 24px+)** — but large text on a gradient background: the contrast varies across the gradient. Measure at the WORST point where the text crosses the gradient, not the best.
 
 
+## Verification
+
+- [ ] Automated scan: `axe-core` or `WAVE` — zero violations at WCAG 2.2 AA
+- [ ] Keyboard audit: every interactive element reachable and operable by keyboard alone — no traps, logical order
+- [ ] Screen reader: navigate main flows with VoiceOver + Safari or NVDA + Firefox — all content announced, all actions reachable
+- [ ] Color contrast: manual verification of gradient text, image text, and UI components not caught by automated tools
+- [ ] Focus management: modals trap focus, closing returns focus to trigger element, dynamic content updates announce to screen readers
+- [ ] Report: findings prioritized by severity and user impact, remediation recommendations specific and verifiable
+
+
 ## References
 - **Conformance Status**: See [conformance-status.md](references/conformance-status.md)
 - **Feedback**: See [feedback.md](references/feedback.md)

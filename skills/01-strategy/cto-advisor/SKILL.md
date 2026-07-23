@@ -419,6 +419,15 @@ graph LR
 - **"Move fast and break things"** applied to infrastructure decisions — choosing a database, message queue, or deployment platform requires 3-5 year commitments. Breaking things at the infrastructure layer means data migration, retraining, and service disruption. Fast iteration is for products, not platforms.
 
 
+## Verification
+
+- [ ] Technology radar: reviewed within last 6 months — all technologies classified (adopt/trial/assess/hold)
+- [ ] Build vs buy: all major build/buy/partner decisions in the last 12 months have documented TCO analysis
+- [ ] Architecture review: all production services have current architecture diagrams, ADRs for key decisions
+- [ ] Tech debt: quantified in business terms (velocity impact, risk exposure, cost), prioritized in roadmap
+- [ ] Innovation: at least 1 experiment per quarter with success/failure criteria and documented learning
+
+
 ## References
 - **Consequences**: See [consequences.md](references/consequences.md)
 - **Context**: See [context.md](references/context.md)

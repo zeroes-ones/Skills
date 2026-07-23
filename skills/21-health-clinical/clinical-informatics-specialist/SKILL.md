@@ -323,6 +323,15 @@ graph LR
 - **FHIR `Bundle` search results** — you request 100 Observations, but the Bundle contains 98 entries and a `next` link. If you don't follow the `next` link, you silently process incomplete data. FHIR pagination is mandatory, not optional, and querying without pagination handling = clinical data gaps.
 
 
+## Verification
+
+- [ ] FHIR validation: run `fhir-validator` against sample resources — all resources pass profile validation
+- [ ] Code system mapping: SNOMED → ICD-10 map tested with 50 common codes — ≥ 95% have valid 1:1 mappings
+- [ ] LOINC specimen type: lab queries group by LOINC code + specimen type — no cross-specimen conflation
+- [ ] Pagination: test FHIR search with `_count=10` and follow `next` links — all pages retrieved, no duplicates
+- [ ] Provenance: every clinical resource has `Provenance` resource documenting source system, timestamp, and actor
+
+
 ## References
 
 Detailed reference material loaded on demand:

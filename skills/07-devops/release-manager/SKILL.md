@@ -376,6 +376,16 @@ graph LR
 - **Release train "all aboard"** cutoff — if you allow commits until 2 PM and release at 3 PM, a commit at 1:58 PM gets 2 minutes of CI. If CI takes 45 minutes, the release goes out without those changes tested. Cutoff must be `release_time - CI_duration - buffer`.
 
 
+## Verification
+
+- [ ] Release checklist: all items checked, each has owner, each verifiable (not "verify performance is good" → "p99 < 200ms under 1K RPS")
+- [ ] Canary deployment: canary metrics collected for at least 10x the expected mean-time-to-failure at target error rate
+- [ ] Rollback test: trigger rollback — previous version is serving traffic within rollback window (e.g., < 5 minutes)
+- [ ] Database migration: migration runs forward and BACKWARD (rollback) — both complete without error in staging
+- [ ] Release notes: CHANGELOG.md updated, breaking changes documented with migration guide
+- [ ] Stakeholder sign-off: QA, Security, Product — all have explicitly approved (not "no one said no")
+
+
 ## References
 
 Detailed reference material loaded on demand:

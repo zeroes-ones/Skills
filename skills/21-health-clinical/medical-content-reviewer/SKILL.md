@@ -326,6 +326,15 @@ graph LR
 - **Preprint (medRxiv/bioRxiv) cited as evidence** — preprints are NOT peer-reviewed. A high-profile preprint was retracted 6 months later after peer review found fabricated data. The content that cited the preprint is now evidence-free. Cite published, peer-reviewed sources. If preprint is the only source, flag it as "awaiting peer review."
 
 
+## Verification
+
+- [ ] Source audit: every claim linked to a specific published, peer-reviewed source — no preprints cited as fact
+- [ ] Statistics: every "X% reduction" claim accompanied by absolute risk and NNT
+- [ ] Conflict check: all authors on cited papers checked for industry disclosures in addition to declared conflicts
+- [ ] Readability: patient-facing content at ≤ 6th grade reading level (Flesch-Kincaid or SMOG verified)
+- [ ] Date check: all cited sources published within last 5 years (or documented why older source is authoritative)
+
+
 ## References
 
 Detailed reference material loaded on demand:

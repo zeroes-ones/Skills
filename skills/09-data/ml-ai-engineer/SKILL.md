@@ -412,6 +412,16 @@ graph LR
 - **GPU memory fragmentation**: `empty_cache()` frees memory but doesn't defragment. After 100 cycles of allocating/deallocating different-sized tensors, you may have 4GB "free" but can't allocate a 2GB contiguous tensor. Restart the process or use `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`.
 
 
+## Verification
+
+- [ ] Training runs to completion without NaN loss or exploding gradients — monitor `grad_norm` throughout
+- [ ] Validation loss plateaus (not decreasing AND not increasing) — no overfitting signal
+- [ ] Checkpoint saved and can be loaded: `model = load_from_checkpoint('best.ckpt')` succeeds
+- [ ] Inference test: run inference on 100 samples — output shape correct, values in expected range (e.g., probabilities in [0, 1])
+- [ ] GPU memory: `nvidia-smi` shows memory usage < 90% of GPU RAM — no OOM risk during peak batch
+- [ ] Reproducibility: train twice with same seed — metrics within 1% (GPU non-determinism tolerance)
+
+
 ## References
 
 Detailed reference material loaded on demand:
