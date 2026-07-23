@@ -8,6 +8,7 @@ description: >
   management systems for life sciences. Do NOT use for general compliance auditing
   (SOC 2, ISO 27001), privacy law implementation, or legal contract drafting.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - fda
 - mdr

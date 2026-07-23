@@ -9,6 +9,7 @@ description: >
   for implementing accessibility fixes, general UI design, or non-digital
   accessibility consulting.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - accessibility
 - a11y

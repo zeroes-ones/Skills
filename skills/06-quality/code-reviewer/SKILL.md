@@ -9,6 +9,7 @@ description: >
   security penetration testing, or writing new code.
 author: Sandeep Kumar Penchala
 license: MIT
+allowed-tools: Read Grep Glob
 type: quality
 status: stable
 version: 1.1.0

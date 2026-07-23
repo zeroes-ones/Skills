@@ -9,6 +9,7 @@ description: >
   compliance auditing, or incident response.
 author: Sandeep Kumar Penchala
 license: MIT
+allowed-tools: Read Grep Glob
 type: quality
 status: stable
 version: 1.1.0

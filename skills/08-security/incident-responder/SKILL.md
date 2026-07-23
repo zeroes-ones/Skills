@@ -8,6 +8,7 @@ description: >
   and on-call rotation design. Do NOT use for observability stack setup, CI/CD
   pipeline design, or security vulnerability assessment.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - incident
 - on-call

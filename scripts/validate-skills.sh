@@ -70,14 +70,14 @@ sys.exit(errors)
 # --- 2. DESCRIPTION FORMAT ---
 echo "[2] Description trigger format..."
 
-check "All descriptions use 'Use when...' trigger format" python3 -c "
+check "All descriptions use 'Use when... Handles... Do NOT use for...' trigger format" python3 -c "
 import os, re, yaml, sys
 errors = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
         if f == 'SKILL.md':
             if '00-framework' in root:
-                continue  # skip meta-framework skill
+                continue
             path = os.path.join(root, f)
             with open(path) as fh:
                 content = fh.read()
@@ -96,6 +96,9 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
                 errors += 1
             if 'Handles' not in desc:
                 print(f'  MISSING \"Handles\" in description: {path}', file=sys.stderr)
+                errors += 1
+            if 'Do NOT use' not in desc:
+                print(f'  MISSING \"Do NOT use\" negative trigger: {path}', file=sys.stderr)
                 errors += 1
 sys.exit(errors)
 "
@@ -156,13 +159,11 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
-# --- 5. TOKEN BUDGET ---
-echo "[5] Token budget enforcement (5000 words)..."
-
-# Token budget is advisory — warn but don't block
+# --- 5. TOKEN BUDGET (SPEC: 500 lines) ---
+echo "[5] Token budget enforcement (500 lines)..."
 python3 -c "
 import os, re, sys
-MAX = 5000
+MAX_LINES = 500
 warnings = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
@@ -173,14 +174,14 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
             parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
             if len(parts) < 3:
                 continue
-            words = len(parts[2].split())
-            if words > MAX:
-                print(f'  WARN: {words} words in {path} (budget: {MAX})', file=sys.stderr)
+            lines = parts[2].count('\n') + 1
+            if lines > MAX_LINES:
+                print(f'  WARN: {lines} lines in {path} (budget: {MAX_LINES})', file=sys.stderr)
                 warnings += 1
 if warnings > 0:
-    print(f'  {warnings} skills over token budget (advisory)', file=sys.stderr)
-" && echo -e "  ${GREEN}PASS${NC} Token budget check" || echo -e "  ${YELLOW}ADVISORY${NC} Token budget check"
-echo "  ${YELLOW}INFO${NC} 8 skills between 5000-5500 words (within 10% tolerance)"
+    print(f'  {warnings} skills over line budget (advisory)', file=sys.stderr)
+" && echo -e "  ${GREEN}PASS${NC} Token budget check (500 lines)" || echo -e "  ${YELLOW}ADVISORY${NC} Token budget check"
+echo "  ${YELLOW}INFO${NC} Per agentskills.io spec: <500 lines recommended"
 
 # --- 6. PORTABILITY TARGET ---
 echo "[6] Portability target declaration..."
@@ -229,6 +230,54 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 print(f'{notes} grep pattern notes (advisory - patterns may be valid shell quoting)', file=sys.stderr)
 "
 echo -e "  INFO Non-blocking advisory check"
+
+# --- 8. ALLOWED-TOOLS FOR READ-ONLY SKILLS ---
+echo "[8] Allowed-tools for read-only skills..."
+
+READONLY_SKILLS=(
+    "code-reviewer" "security-reviewer" "accessibility-auditor" "security-engineer"
+    "compliance-officer" "regulatory-specialist" "legal-advisor" "gdpr-privacy"
+    "incident-responder" "observability-engineer" "performance-engineer"
+    "site-reliability-engineer" "chaos-engineer" "database-reliability-engineer"
+    "finops-engineer" "monorepo-manager" "ai-safety-health-reviewer"
+    "medical-content-reviewer"
+)
+
+check "Read-only skills have allowed-tools restriction" python3 -c "
+import os, re, yaml, sys
+
+READONLY = {
+    'code-reviewer', 'security-reviewer', 'accessibility-auditor', 'security-engineer',
+    'compliance-officer', 'regulatory-specialist', 'legal-advisor', 'gdpr-privacy',
+    'incident-responder', 'observability-engineer', 'performance-engineer',
+    'site-reliability-engineer', 'chaos-engineer', 'database-reliability-engineer',
+    'finops-engineer', 'monorepo-manager', 'ai-safety-health-reviewer',
+    'medical-content-reviewer'
+}
+
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            try:
+                fm = yaml.safe_load(parts[1])
+            except:
+                continue
+            if not isinstance(fm, dict):
+                continue
+            name = fm.get('name', '')
+            if name in READONLY:
+                if 'allowed-tools' not in fm:
+                    print(f'  MISSING allowed-tools on read-only skill: {path}', file=sys.stderr)
+                    errors += 1
+sys.exit(errors)
+"
 
 # --- SUMMARY ---
 echo ""

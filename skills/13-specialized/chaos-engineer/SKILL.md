@@ -8,6 +8,7 @@ description: >
   and resilience pattern validation (circuit breaker, retry, bulkhead). Do NOT use for general
   monitoring setup, standard incident response, capacity planning, or routine performance testing.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
   - chaos-engineer
   - resilience

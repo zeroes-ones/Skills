@@ -14,6 +14,7 @@ description: >
   LIME, chain-of-thought audit). Do NOT use for general AI safety unrelated to healthcare,
   LLM pipeline engineering, or traditional ML model evaluation.
 license: MIT
+allowed-tools: Read Grep Glob
 author: Sandeep Kumar Penchala
 type: ai-engineering
 status: stable

@@ -9,6 +9,7 @@ description: >
   design, and incident-ready runbooks. Do NOT use for incident response management,
   CI/CD pipeline design, or infrastructure provisioning.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - observability
 - monitoring

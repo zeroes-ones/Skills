@@ -10,6 +10,7 @@ description: >
   use for security engineering, compliance auditing for non-privacy frameworks
   (SOC 2, ISO 27001), or legal contract drafting.
 license: MIT
+allowed-tools: Read Grep Glob
 tags:
 - gdpr
 - ccpa
