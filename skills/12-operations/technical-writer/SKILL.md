@@ -381,6 +381,36 @@ Technical writing serves developers, product teams, support, and users. Docs deg
 | Feature launches and user persona context | `product-manager` | Target audience, release timeline, and key messaging for documentation |
 | SEO and discoverability for public-facing docs | `seo-specialist` | Content hierarchy, meta descriptions, and crawlability |
 
+## Proactive Triggers
+
+<!-- QUICK: 30s — triggers that demand immediate action -->
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New API endpoint merged without docs (`GET /v2/users` with 0 doc coverage) | Block merge; hold `api-designer` gate; write OpenAPI `summary` + `description` + request/response examples before deploy | OpenAPI spec is the source of truth for API docs — gaps create cascading issues in SDK generation, frontend integration, and support |
+| Docs site build failing in CI (broken links, missing pages, failed Vale lint) | Halt deployment pipeline; notify `documentation-engineer`; fix links and lint before next release | Published docs with dead links or lint errors erode developer trust — users assume the product is equally broken |
+| Support reports >5 tickets referencing same undocumented feature/behavior in a week | Prioritize doc for that feature; coordinate with `customer-support-engineer` for ticket triage data; publish within 48 hours | Docs gaps directly increase support cost — every undocumented feature is a recurring support ticket |
+| Product Manager announces feature launch without documentation timeline | Raise immediate flag in launch checklist; gate the release until docs are drafted and reviewed | Docs are not a post-launch nice-to-have — public launch without docs guarantees first-impression failure |
+| Content audit reveals >15% of docs pages stale (>6 months without update) | Schedule freshness sprint; archive dead pages; flag remaining stale pages with `product-manager` for ownership assignment | Stale docs are worse than no docs — they actively mislead users and erode trust in the entire docs corpus |
+| OpenAPI spec drift detected — code behavior differs from spec (e.g., field removed, type changed, new required field) | Halt dependent SDK generation; sync spec with `api-designer` and `backend-developer`; validate with contract tests before regenerating docs | Spec-code divergence makes every downstream consumer (SDKs, frontend, mobile, third-party) break silently |
+| Security-sensitive content (architecture diagrams, IPs, internal endpoints) accidentally committed to public-facing docs | Immediately redact and force-push clean version; notify `security-reviewer`; audit git history for the exposure window; update docs review checklist | Public disclosure of internal architecture increases attack surface — must be treated as a security incident |
+| Translation/localization request for a new market (locale not yet supported in the toolchain) | Coordinate with `translation-manager` and `localization-engineer`; assess glossary coverage, TM readiness, and MT quality for the target locale; budget 2–4 weeks pipeline setup | Rushing localization without proper TM, glossary, and pipeline produces garbled docs that harm brand in new markets |
+
+## Anti-Patterns
+
+<!-- STANDARD: 2min — mistakes observed in real projects, with correct alternatives -->
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|---------------------|
+| **Docs-as-afterthought** — writing all documentation in the last sprint before launch, with no stakeholder review | Treat docs as a feature: include docs tasks in every sprint, review docs in the same PR as code changes, and require docs approval in the launch checklist alongside QA sign-off |
+| **Copy-paste API docs** — manually copying endpoint signatures, parameters, and response shapes into prose docs | Auto-generate API reference from OpenAPI spec using Redoc, Swagger UI, or Scalar — only write conceptual guides, tutorials, and examples that machines can't generate |
+| **Wiki graveyard** — scattering documentation across Confluence, Notion, Google Docs, and Git wikis with no single source of truth | Use docs-as-code: Markdown in the repo alongside source code, version-controlled, PR-reviewed, CI-tested, and deployed to a single docs site — one URL to rule them all |
+| **Assume-the-reader-knows** — skipping prerequisites, environment setup steps, or dependency versions because "everyone knows that" | Every tutorial and guide must include a prerequisites section listing exact versions (Node 20.x, Python 3.12, etc.), required accounts, and expected knowledge level — test the guide on a new hire with zero context |
+| **Unrunnable code examples** — publishing code snippets with missing imports, placeholder variables, or hardcoded secrets that don't actually work | Every code example must be extractable into a test file and run in CI; use `<!-- auto-generated -->` markers and extract-from-tests tooling — if it doesn't compile, it doesn't ship |
+| **Over-documentation** — writing 50-page architecture documents for a 3-service system, or documenting every internal function with JSDoc | Follow Diátaxis: separate tutorials (learning-oriented), how-to guides (task-oriented), explanation (understanding-oriented), and reference (information-oriented) — not every function needs prose; reference docs come from types/specs |
+| **No freshness mechanism** — docs written once and never revisited, accumulating stale screenshots, deprecated APIs, and outdated versions | Implement a freshness gate in CI: flag pages not updated in 6 months; run quarterly content audits; display "Last updated" date prominently; archive or mark deprecated content with migration links |
+| **Siloed writer** — technical writer works in isolation, receiving feature specs secondhand and never talking to developers or users | Embed the writer in the engineering team: attend standups, review PRs, test features firsthand, and shadow support calls — documentation quality is proportional to the writer's product proximity |
+
 ## Scale Depth
 
 ### Solo (1 person, 0-100 users)
@@ -433,8 +463,7 @@ Common chains:
 | **Docs-as-Code Pipeline** | Treating documentation like software — version-controlled, reviewed, tested | Markdown in Git, CI/CD (link checking, spell check, Vale linting), PR reviews, automated deploy to docs site |
 
 
-<!-- DEEP: 10+min -->
-### Error Decoder
+## Error Decoder
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|------------|-----|--------|
