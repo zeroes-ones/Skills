@@ -263,6 +263,19 @@ Do not read the entire skill. Follow the route above and read only the sections 
 9. **Initialize all stack memory.** FreeRTOS `configCHECK_FOR_STACK_OVERFLOW` paints stack with 0xA5. Catches overflow early instead of silent corruption for weeks.
 10. **First 100ms after power-on are most dangerous.** Rails stabilizing, oscillators locking, BOD not armed. External supervisor IC (TPS3839) holds MCU in reset until rails stable. Firmware delays peripheral init 10ms after clock lock.
 
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Committing generated code (pin mux, clock config) to version control without review | Generated code goes through same PR review as hand-written code; reviewers verify against datasheet — a wrong clock divisor can brick remote devices |
+| Using `volatile` defensively on every shared variable instead of proper synchronization | Use `volatile` only for MMIO registers, ISR-modified variables, and DMA descriptors; use memory barriers and atomic operations for multi-core/ISR thread safety |
+| Removing assertions from release builds to "save flash" | Keep assertions in release: a 200-byte assert handler that logs file+line+reset reason before reboot is worth 10× its flash cost in field debugging time |
+| Linking against newlib without understanding the heap pull-in | Audit linker map diff after every dependency change — `printf("%f")` pulls 15KB into flash; use `iprintf` or `mpaland/printf` (1.4KB) for embedded |
+| Shipping firmware without versioned flash layout | Magic number + layout version at known offset (0x0800F000); bootloader checks compatibility and refuses to boot mismatched layout |
+| Trusting the compiler to optimize away unused code without verifying | Post `arm-none-eabi-nm --size-sort` diff in every CI run; a stray `__weak` override or template instantiation can silently add 10KB |
+| Building firmware without reproducible build verification | CI must produce bit-identical `.bin` from same commit; non-reproducible = cannot ship; check for timestamps, random seeds, build path embedding |
+| Deploying OTA updates to entire fleet simultaneously | Staged rollout: 1% → 5% → 25% → 100% with auto-halt on elevated crash rate or boot failure; fleet-wide brick requires physical recall | 
+
 ## Error Decoder
 <!-- QUICK: 30s -- exact error → root cause → fix -->
 <!-- DEEP: 10+min -- war stories from production hardware failures -->
@@ -282,19 +295,6 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | Race condition on interrupt handler causing random crashes | Shared global variable written from ISR and main loop without volatile or critical section | All ISR-main shared data must be volatile, accessed atomically or within critical section. Use message queue pattern, not shared globals. | A motor controller occasionally jumped to full speed. Root cause: ISR set a new target speed that the main loop read non-atomically — half old, half new value. |
 | Flash wear from excessive writes — device failed after 3 months | Logging system wrote to same flash sector every 5 minutes; sector endurance (10K cycles) exhausted in 90 days | Implement wear leveling. Move frequent writes to SPI NOR (100K cycles) or FRAM (10^13 cycles). Use internal flash for infrequent updates only. | An environmental sensor stopped recording after 87 days. Root cause: the data log sector had 25K+ erase cycles. Wear leveling would have extended life to 10+ years. |
 | Production test fails 30%, all pass on re-test | Test firmware not executing full power-on self-test before measurement; residual state from previous test | Always execute a known device reset + POST before each production test. Include a reference measurement (precision resistor) at start of test sequence. | A contract manufacturer tested 10K units; 3K failed initially but passed retest. The $250K in rework was unnecessary — the test sequence didn't reset the ADC between units. |
-
-### Error Decoder
-
-| Problem | Root Cause | Fix | Lesson |
-|---------|------------|-----|--------|
-| Device crashes randomly in the field | Watchdog timer not configured or reset incorrectly | Configure the hardware watchdog timer with a proper reset handler. The watchdog must be kicked (reset) only in the main loop after all critical subsystems have reported healthy. Never kick the watchdog in an interrupt handler — it masks the crash. | Never kick watchdog in ISR. Kick only in main loop after all healthy checks. |
-| I2C bus locks up after 24 hours of operation | No bus recovery mechanism on lock condition | Implement I2C bus recovery: if the bus is busy for >100ms without a stop condition, toggle SCL 9 times to reset slave devices. Add a bus health monitor that detects lockups and triggers re-initialization. Missing this is the #1 cause of "works in the lab, fails in the field." | Bus recovery after 100ms of no stop condition. Works-in-lab/fails-in-field #1. |
-| Firmware OTA update bricks 5% of devices | No rollback mechanism in bootloader | Every OTA update requires: dual-bank flash with a confirmed-good fallback image, CRC check before applying the update, and a bootloader that boots the previous image if the new one fails to start. If the bootloader can't roll back, every OTA is a potential bricking event. | Dual-bank flash with CRC + rollback is mandatory for any OTA-capable device. |
-| ADC readings drift with temperature | No temperature compensation in firmware | Add a temperature sensor near the ADC reference. Read temperature at each conversion cycle and apply a compensation curve. If the ADC has an internal temperature sensor, use it. ADC drift without compensation can be 10-50% across the operating temperature range. | Temperature compensation is essential for accurate ADC across operating range. |
-| Production test fails 30% of units, all pass in re-test | Test fixture has poor contact or timing issues | Review test fixture: pogo pin alignment, contact resistance, settling time after power-up. Add a "pretest" sequence that checks fixture contact before running tests. The first test after a power cycle should be a known-good reference measurement. | Pretest reference measurement catches fixture issues before false failures. |
-| Interrupt latency causes missed events | Shared interrupt priority or long critical sections | Assign interrupt priorities carefully: time-critical interrupts (timers, communication) get highest priority. Limit critical section duration to <10μs. Use a real-time trace (logic analyzer or Segger SystemView) to measure worst-case interrupt latency. If latency exceeds your timing budget, restructure critical sections. | Map critical sections with logic analyzer. Keep <10μs for hard real-time. |
-| Power budget exceeded by 40% | Sleep mode not configured for peripherals | Every peripheral must be in its lowest power state when not in use. GPIO pins should not float (internal pull-up/down or driven). Use the MCU's lowest sleep mode that can wake from the required source. Measure actual current at the PSU, not the datasheet typical — it's always higher. | Every peripheral must be in lowest power state. Measure at PSU, not datasheet. |
-
 
 ## Production Checklist
 <!-- QUICK: 30s — binary pass/fail. All must pass before release. -->
@@ -364,6 +364,19 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 - **Handoff to `embedded-engineer`:** BSP implementation, HAL API, peripheral drivers, bootloader integration. Artifact: Firmware binary with version manifest and release notes.
 - **Handoff to `qa-engineer`:** Factory test firmware, HIL test scenarios, OTA test plans, regression test list. Artifact: QA test package with test firmware and test specifications.
 - **Handoff to `security-reviewer`:** Secure boot implementation, OTA signing pipeline, key management architecture. Artifact: Security architecture document with threat model.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| Build reproducibility check fails — same commit produces different binary | Audit toolchain pins: check for embedded timestamps (`__DATE__`, `__TIME__`), random seeds, build path in debug symbols; fix within 24 hours | Non-reproducible builds cannot be audited — if you can't verify the binary matches the source, you can't ship |
+| OTA download failure rate exceeds 5% fleet-wide | Investigate CDN health, TLS certificate expiry, storage availability; halt rollout if download failures correlate with specific region or device model | High download failure rate may indicate CDN outage or expired certificate — not a firmware bug but equally disruptive |
+| CI pipeline skips HIL tests because runner is down | Halt pipeline — never silently skip hardware tests; HIL runner down = pipeline fails noisily; maintain standby HIL rig | Silent HIL skip is a process failure that masks real bugs; the most dangerous CI failure mode is the one you don't notice |
+| New dependency (library, RTOS version) adds >5KB to flash footprint | Audit linker map diff before merge; identify what pulled in the new code; reject if not justified by feature value | Flash bloat is death by a thousand cuts — each dependency adds a little, and one day you're out of flash |
+| Factory test firmware doesn't match production firmware version | Halt production; factory test must run same version as shipping; version mismatch = untested code paths in production | Testing one version and shipping another defeats the purpose of factory testing |
+| Stack overflow pattern detected in field crash dumps (0xA5 paint corrupted) | Increase affected task stack by 50% immediately; run 24-hour stress test with stack monitoring; audit all task stacks quarterly | Stack overflow in the field is nearly impossible to debug post-hoc — proactive monitoring is the only defense |
+| Security researcher reports bootloader vulnerability with proof of concept | Acknowledge within 4 hours; assess severity and exploitability; if remotely exploitable, prepare emergency OTA within 48 hours; publish advisory | Delayed response to security reports erodes trust and may trigger regulatory obligations |
+| Fleet boot success rate drops below 99.9% for any firmware version | Auto-halt OTA rollout for affected version; investigate within 2 hours; compare boot failure patterns across hardware revisions and geographies | Boot success rate is the single best fleet health metric — degradation precedes major incidents |
 
 ## Scale Depth: Solo → Small → Medium → Enterprise
 

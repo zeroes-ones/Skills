@@ -495,6 +495,19 @@ Q1 Review Cycle:
 - **Quarterly:** Full policy review with `legal-advisor`, `medical-content-reviewer`, and all downstream consumers
 - **Emergency:** `crisis-response-manager` and `legal-advisor` within 1 hour of imminent harm detection
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| New misinformation pattern detected across 3+ independent posts within 48 hours | Deploy interim guidance within 48 hours — do not wait for quarterly review cycle; classify severity, draft enforcement rules, communicate to moderation team | Misinformation mutates faster than policy cycles — a 48-hour response window prevents new patterns from becoming normalized |
+| Moderator appeal rate for a specific policy rule exceeds 15% | Flag rule for policy-in-practice review within 1 week; investigate whether the rule is ambiguous, overly broad, or being inconsistently enforced | High appeal rate = policy is failing in practice; moderators enforce abstractions poorly when examples are unclear |
+| New regulation or regulatory guidance published affecting content moderation (FDA social media, FTC endorsement rules, state-level health claims) | Review within 2 weeks; produce regulatory impact memo; update affected policies before enforcement deadline | Regulatory non-compliance exposes platform to enforcement actions; proactive updates demonstrate good-faith compliance |
+| Clinical reviewer flags policy as making clinical determinations without medical expert input | Halt enforcement of affected policy immediately; convene medical expert review board; revise policy with clinical input before re-deploying | Content policy managers are not clinicians — making medical determinations without expert input is practicing medicine without a license |
+| Survivor speech or personal health narrative incorrectly flagged by automated detection | Review within 4 hours; restore content if it's personal narrative, not treatment claim; update detection rules to distinguish "I experienced X" from "X works for Y" | Silencing patient narratives causes more reputational harm than any single piece of misinformation |
+| Transparency report shows enforcement disparity across demographic or condition communities | Conduct disparity audit within 30 days; investigate root cause (detection bias, moderator bias, policy ambiguity); publish findings and corrective actions | Enforcement disparity undermines platform legitimacy and invites regulatory scrutiny — transparency without corrective action is performative |
+| Crisis event triggers emergency content rules without pre-documented escalation pathways | After crisis resolution: document what worked, what didn't, and codify emergency bypass rules within 1 week; pre-documented escalation prevents decision paralysis in the next crisis | If you're inventing crisis response during a crisis, you've already failed — pre-documentation is the difference between decisive action and paralysis |
+| Enforcement severity tiers haven't been recalibrated against real-world harm outcomes in 6+ months | Convene calibration review with trust-safety-engineer, medical-content-reviewer, and legal-advisor; test tier definitions against recent harm cases | Severity tiers drift from reality over time — what was "high severity" 6 months ago may be moderate today based on actual harm data | 
+
 ## Best Practices
 <!-- DEEP: 10+min -->
 
@@ -515,6 +528,19 @@ Q1 Review Cycle:
 7. **Policy review cycles must outpace misinformation evolution.** Medical misinformation mutates faster than quarterly review cycles. Build a rapid-response mechanism: when a new misinformation pattern emerges (e.g., a novel conspiracy theory about a newly approved drug), the policy team must be able to deploy interim guidance within 48 hours, not wait for the next quarterly review.
 
 8. **Never make clinical determinations without clinical input.** Content policy managers are not clinicians. A policy that classifies specific treatments as "misinformation" or "evidence-based" without medical expert review is practicing medicine without a license. Maintain a medical expert review board with defined review cadences and dispute resolution processes.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Writing enforcement rules before defining taxonomy of what you're enforcing against | Define clear taxonomy (diagnostic claims, treatment claims, conspiracy theories, miracle cures, anti-vaccine) with severity tiers FIRST — enforcement rules derive from taxonomy |
+| Publishing community guidelines without concrete examples of boundary cases | Every rule needs 2 examples: one barely allowed (boundary case) and one barely not allowed; moderators enforce examples, not abstractions |
+| Calibrating severity tiers to offensiveness rather than potential harm | Calibrate every tier to the worst plausible outcome if content is believed and acted upon: life-threatening (immediate removal) vs. low-quality (label, not removal) |
+| Treating survivor speech ("I experienced X side effect") as equivalent to treatment claims ("X cures Y") | Explicitly distinguish personal narrative from treatment claims in policy language; when in doubt, protect the narrative and flag the claim for clinical review |
+| Waiting for quarterly review cycle to respond to new misinformation patterns | Build rapid-response mechanism: deploy interim guidance within 48 hours when new patterns emerge; quarterly review is for refinement, not first response |
+| Designing enforcement workflows without consulting detection engineering team | Jointly design policies with trust-safety-engineer: policy must align with technical detection capabilities — aspirational policies without detection support are unenforceable |
+| Publishing transparency reports as PR exercises without actionable follow-through | Include: takedown statistics, appeal rates, policy change logs, enforcement disparities; publish corrective actions for any disparities found |
+| Assuming policy language is clear because the policy team understands it | Test every policy with moderators before deployment: can they correctly classify 10 test cases with >90% accuracy? If not, rewrite with more examples | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

@@ -123,6 +123,19 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 - **Regulatory review gate:** Any content making therapeutic claims about prescription drugs, medical devices, or biologic products requires regulatory review before publication. No exceptions.
 - **Clinical accuracy sign-off:** All patient-facing health content requires sign-off from a qualified clinical reviewer before publication. Content without sign-off is held from publication.
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| New clinical guideline published by WFH, NHF MASAC, or ISTH that supersedes content on your platform | Flag all affected content within 72 hours; prioritize review by clinical risk level (treatment/dosing first, lifestyle/general last); update or retire outdated content | Outdated clinical guidelines in patient-facing content are a patient safety and liability risk — patients make treatment decisions based on your content |
+| AI-generated health content queued for publication without human clinical review | Halt publication immediately; route to qualified clinical reviewer; verify every citation (AI hallucinates DOIs); check against current guidelines | AI-generated health content without human review is indistinguishable from reviewed content to patients — and it can contain dangerous, subtle errors |
+| Adverse event signal pattern detected across 3+ community posts mentioning same drug + same side effect | Flag for AE triage within 1 hour; preserve all source content (do not delete); escalate to crisis response manager; document for regulatory record | Community-detected AE signals have identified safety issues that formal pharmacovigilance missed — this is not noise, it's surveillance data |
+| Content makes therapeutic claim about a prescription drug without regulatory review sign-off | Halt publication; route to compliance officer for FDA labeling review; add appropriate disclaimers or remove claim if unsupported | Unapproved drug claims expose the organization to FDA warning letters and patient harm — regulatory review is never optional |
+| Medical misinformation detected at scale (>100 posts across multiple threads) | Activate misinformation response protocol: triage → pattern analysis → clinical risk assessment → policy update → community notification within 24 hours | Misinformation at scale normalizes dangerous beliefs — speed of response determines whether it becomes "common knowledge" in the community |
+| Content review backlog exceeds 48 hours for high-risk content (treatment, dosing, procedures) | Escalate to medical director; bring in additional reviewers; prioritize by clinical risk — low-risk lifestyle content can wait, treatment content cannot | A 48-hour delay on treatment content review means patients may see unverified claims for 2 days — that's unacceptable for high-risk content |
+| Off-label use discussed in patient community without clinical context | Do NOT delete; add moderator note with balanced information: "This medication is FDA-approved for [indication]. Some doctors prescribe it off-label for [other use]. Here's what the evidence says. Talk to your doctor." | Patients discuss off-label use because they're seeking options — suppressing the conversation drives it underground; balanced context serves safety |
+| Reviewer disagreement on content accuracy between two qualified clinicians | Route to third reviewer (medical director or specialist) within 48 hours; document the disagreement and resolution; use as training case for future reviews | Disagreement between qualified reviewers is not failure — it surfaces genuine clinical nuance that patients benefit from understanding | 
+
 ## Decision Trees
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
@@ -215,6 +228,19 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 - **Language matters in health content.** "Prophylaxis prevents bleeds" is accurate. "Prophylaxis guarantees you won't bleed" is not. Always include appropriate qualifiers: may, can, some patients, in clinical trials, depending on your specific condition. Absolute statements in health content are almost always wrong.
 - **Community content about side effects is both a risk and an opportunity.** Risk: unverified claims may scare patients away from effective treatments. Opportunity: real-world side effect patterns that clinical trials missed may be detected early. Treat community side effect discussion as safety surveillance, not noise.
 - **AI-generated health content must meet the same standard as human-written content.** Never publish AI-generated health content without clinical review. The AI may cite papers that don't exist (hallucinated DOIs), quote guidelines that have been superseded, or make subtle errors that a non-clinician would miss.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Single clinician reviews high-risk content (treatment, dosing, procedures) without second review | Two independent reviewers for all treatment/dosing/procedure content; disagreements go to medical director or specialist for tie-breaking |
+| Publishing content with absolute statements about health outcomes | Always include appropriate qualifiers: "may," "can," "some patients," "in clinical trials" — absolute statements in health content are almost always wrong |
+| Treating all off-label drug discussions as policy violations | Distinguish between "not FDA-approved" and "not proven"; add balanced clinical context rather than deleting — patients discuss off-label use because they're seeking options |
+| Content review schedule not aligned with guideline update cycles | Map all content to governing guidelines (WFH: every 4-5 years; NHF MASAC: annually); schedule re-review when guidelines update; flag content referencing superseded guidance |
+| AI-generated health content published without human clinical verification | Every AI-generated health output must pass human clinical review; verify every citation (AI hallucinates DOIs); check all claims against current guidelines before publication |
+| Dismissing community side-effect discussions as anecdotal noise | Treat community side-effect reports as safety surveillance data: log patterns, track frequencies, escalate clusters — patient-reported signals have detected issues clinical trials missed |
+| Content flagged as medically inaccurate but left online pending "review cycle" | Remove or gate inaccurate content immediately if it poses clinical risk; the review cycle can wait — patient safety cannot |
+| Using complex medical terminology in patient-facing content without plain-language alternatives | Every clinical term must have a plain-language equivalent on first use; target 6th-8th grade reading level; validate with health literacy assessment tool | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->

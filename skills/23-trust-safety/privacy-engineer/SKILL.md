@@ -227,6 +227,19 @@ Deletion request validated → Choose deletion method:
 3. New data pipelines or ETL jobs → notify `data-engineer` to register in data catalog BEFORE data flows (retroactive data flow mapping is 10x harder)
 4. Legal holds or deletion requests that conflict → escalate to `legal-advisor` with both requirements documented; do not independently resolve conflicts between legal obligations
 
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---|---|---|
+| New data pipeline or ETL job registered without privacy review in the data catalog | Block launch; require data flow mapping (origin → transformations → destinations) and PIA before data flows; retroactive mapping is 10x harder | Privacy controls require complete data inventory — you cannot protect data you don't know exists |
+| Consent withdrawal event fails to propagate to all downstream consumers within configured timeframe | Trigger incident response: identify which consumers did not acknowledge within 24 hours, halt processing in non-compliant systems, document for potential breach notification | Consent is distributed state — a partial propagation is a compliance violation |
+| Sub-processor BAA approaching expiration (90-day automated reminder fires) | Initiate renewal review: verify SOC 2/ISO 27001 status, audit sub-sub-processor list, risk-tier reassessment; escalate if sub-processor has added sub-sub-processors since last review | Expired BAAs are compliance findings — automated tracking prevents "nobody noticed" gaps |
+| DSAR response automation flags content containing potential third-party PHI or clinical distress information | Route to human review gate; do not auto-release; a DSAR response that includes another patient's data in a group chat export is a breach | Automation handles volume; human review catches catastrophic edge cases |
+| PHI detected in application logs, analytics data, or error tracking systems | Immediate containment: quarantine affected logs, scan for pattern, fix logging configuration; this is a potential breach — PHI in logs is one of the most common HIPAA violations | PHI-in-log is a systemic failure that can persist undetected for months — every log line is discoverable |
+| Cookie consent banner adds >100ms to page load time | Optimize tag manager configuration: ensure non-essential scripts don't load pre-consent, defer consent management initialization, remove synchronous third-party dependencies | A consent banner that's legally compliant but slow drives users to reject all cookies out of frustration, not informed choice |
+| Quarterly cascade deletion test reveals data still present in a downstream system | Immediate remediation: identify the broken link in deletion pipeline; add specific test case; re-test weekly until clean; the test should fail CI if any system returns deleted user data | A deletion pipeline that works in theory but breaks in practice is a regulatory liability — quarterly testing is the minimum |
+| Privacy review first happens at pre-launch checklist — no PIA was triggered during development | Root cause analysis: why didn't the CI/CD-integrated PIA trigger fire? Fix the trigger (new PHI fields, new third-party data sharing, new processing purposes); add design-phase privacy gate to PRD template | Privacy review at launch is too late — architecture is already fixed; shift left to design phase | 
+
 ## Core Workflow
 <!-- STANDARD: 3min -->
 
@@ -658,6 +671,19 @@ l-Diversity:
 7. **Cookie Consent UX Optimized for Both Compliance and Performance.** Do not load third-party tracking scripts before consent. Use a tag manager that respects consent signals — scripts in the "Marketing" category must not fire until consent is granted. The consent banner must load synchronously (render-blocking for non-essential scripts). Measure the performance impact: consent management should add < 100ms to page load. A consent banner that's legally compliant but adds 2 seconds to page load will drive users to reject all cookies out of frustration, not informed choice.
 
 8. **Right-to-Be-Forgotten Cascade Testing.** The deletion pipeline is only as strong as its weakest link. Test cascade deletion end-to-end quarterly: submit a test deletion, then verify the data is gone from the primary database, search indexes, caches, object storage, analytics warehouse, CDN, and all third-party sub-processors. Then test backup restoration: restore from the most recent backup and confirm the deleted user's data is excluded. The test should fail if any system still returns the user's data. A deletion pipeline that works in theory but breaks in practice is a regulatory liability.
+
+## Anti-Patterns
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| Implementing privacy controls before completing data flow mapping | Map every system that stores/processes/transmits PHI first: origin → transformations → destinations; automate change detection for new data flows |
+| Treating consent as a database field instead of distributed state | Design consent changes as events published to a message bus with guaranteed delivery; every downstream consumer must acknowledge processing within 24 hours |
+| Relying on access control policies for audit log integrity | Use WORM storage (S3 Object Lock Compliance mode), cryptographic chaining, and separate accounts for log storage; if one admin can modify logs, they're not forensically sound |
+| Auto-releasing DSAR responses that contain third-party PHI or clinical content | Automate heavy lifting but insert human review gate for: (a) other individuals' data, (b) clinical information that may cause distress, (c) third-party sub-processor data with contractual sharing restrictions |
+| Managing BAAs as a static filing cabinet with annual manual checks | Maintain centralized sub-processor inventory with 90/60/30-day automated expiration reminders, SOC 2/ISO 27001 status tracking, and risk-tier classification |
+| Running privacy review only at pre-launch checklist | Integrate PIAs into CI/CD: trigger automatically when new PHI fields, third-party data sharing, or new processing purposes are detected; add Data Collection Impact section to every PRD |
+| Loading third-party tracking scripts before consent is granted | Use tag manager with consent-respecting signals; consent banner loads synchronously (render-blocking for non-essential scripts); target <100ms performance impact |
+| Skipping backup restoration test in deletion verification | Test backup restoration quarterly: restore from most recent backup and confirm deleted user data is excluded; test should fail CI if any system returns deleted data | 
 
 ## Error Decoder
 <!-- DEEP: 10+min -->
