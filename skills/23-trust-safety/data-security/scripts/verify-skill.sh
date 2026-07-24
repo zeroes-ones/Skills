@@ -25,7 +25,7 @@ for s in "Ground Rules" "The Expert's Mindset" "Operating at Different Levels" "
 done
 
 echo "--- Decision Trees ---"
-DT_COUNT=$(sed -n '/^## Decision Trees/,/^## Cross-Skill Coordination/p' "$SKILL_MD" | grep -c '^###')
+DT_COUNT=$(sed -n '/^## Decision Trees/,/^## Gotchas/p' "$SKILL_MD" | grep -c '^###')
 if [ "$DT_COUNT" -ge 5 ]; then
   echo "  [PASS] Decision trees: $DT_COUNT (minimum 5)"
 else
@@ -54,7 +54,7 @@ echo "--- Reference Links ---"
 BROKEN=0
 REF_DIR="$SKILL_DIR/references"
 if [ -d "$REF_DIR" ]; then
-  for ref in $(grep -oh '(references/[^)]*\.md)' "$SKILL_MD" 2>/dev/null | sed 's|(references/||;s|)||'); do
+  for ref in $(grep -oh '(\.\./references/[^)]*\.md)' "$SKILL_MD" 2>/dev/null | sed 's|(\.\./references/||;s|)||'); do
     if [ ! -f "$REF_DIR/$ref" ]; then
       echo "  [FAIL] Broken reference: references/$ref"
       BROKEN=$((BROKEN + 1))

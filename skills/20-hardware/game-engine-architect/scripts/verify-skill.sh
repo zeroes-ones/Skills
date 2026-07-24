@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SKILL_MD="$SKILL_DIR/SKILL.md"
+SKILL_NAME="$(basename "$SKILL_DIR")"
+FAILURES=0
+
+check_section() {
+  if grep -q "^## $1" "$SKILL_MD"; then
+    echo "  [PASS] Section: $1"
+  else
+    echo "  [FAIL] Section: $1 — MISSING"
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+echo "=== Verifying $SKILL_NAME ==="
+
+[ ! -f "$SKILL_MD" ] && echo "[FAIL] SKILL.md not found" && exit 1
+
+echo "--- Required Sections ---"
+for s in "Ground Rules" "The Expert's Mindset" "Operating at Different Levels" "When to Use" "Route the Request" "Core Workflow" "Decision Trees" "Cross-Skill Coordination" "Proactive Triggers" "What Good Looks Like" "Deliberate Practice" "Gotchas" "Verification" "References"; do
+  check_section "$s"
+done
+
+echo "--- Decision Trees ---"
+DT_COUNT=$(sed -n '/^## Decision Trees/,/^## Core Workflow/p' "$SKILL_MD" | grep -c '^###')
+if [ "$DT_COUNT" -ge 6 ]; then
+  echo "  [PASS] Decision trees: $DT_COUNT (minimum 6)"
+else
+  echo "  [FAIL] Decision trees: $DT_COUNT (need at least 6)"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Gotchas ---"
+GOTCHA_COUNT=$(grep -c '\$[0-9]' "$SKILL_MD" || echo 0)
+if [ "$GOTCHA_COUNT" -ge 8 ]; then
+  echo "  [PASS] Dollar-quantified gotchas: $GOTCHA_COUNT (minimum 8)"
+else
+  echo "  [FAIL] Dollar-quantified gotchas: $GOTCHA_COUNT (need at least 8)"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Ground Rules ---"
+if grep -q "Mechanical Trigger" "$SKILL_MD" && grep -q "Violation Response" "$SKILL_MD"; then
+  echo "  [PASS] Ground rules have Mechanical Trigger and Violation Response columns"
+else
+  echo "  [FAIL] Ground rules missing required columns"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Reference Links ---"
+BROKEN=0
+REF_DIR="$SKILL_DIR/references"
+if [ -d "$REF_DIR" ]; then
+  for ref in $(grep -o '(references/[^)]*\.md)' "$SKILL_MD" 2>/dev/null | sed 's|(references/||;s|)||'); do
+    if [ ! -f "$REF_DIR/$ref" ]; then
+      echo "  [FAIL] Broken reference: references/$ref"
+      BROKEN=$((BROKEN + 1))
+    fi
+  done
+fi
+[ "$BROKEN" -eq 0 ] && echo "  [PASS] All reference links resolve" || FAILURES=$((FAILURES + BROKEN))
+
+echo "--- Frontmatter ---"
+if grep -q "^name: game-engine-architect" "$SKILL_MD"; then
+  echo "  [PASS] Frontmatter name correct"
+else
+  echo "  [FAIL] Frontmatter name missing or incorrect"
+  FAILURES=$((FAILURES + 1))
+fi
+
+if grep -q "^portability:" "$SKILL_MD"; then
+  echo "  [PASS] Portability field present"
+else
+  echo "  [FAIL] Portability field missing"
+  FAILURES=$((FAILURES + 1))
+fi
+
+if grep -q "consumes_from:" "$SKILL_MD" && grep -q "feeds_into:" "$SKILL_MD"; then
+  echo "  [PASS] Chain consumes_from and feeds_into present"
+else
+  echo "  [FAIL] Chain section missing"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- C++ Code Snippets in Gotchas ---"
+CPP_COUNT=$(sed -n '/^## Gotchas/,/^## Verification/p' "$SKILL_MD" | grep -c '```cpp\|```csharp' || echo 0)
+if [ "$CPP_COUNT" -ge 2 ]; then
+  echo "  [PASS] Code snippets in gotchas: $CPP_COUNT (minimum 2)"
+else
+  echo "  [FAIL] Code snippets in gotchas: $CPP_COUNT (need at least 2)"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Reference File Count ---"
+if [ -d "$REF_DIR" ]; then
+  REF_COUNT=$(ls "$REF_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$REF_COUNT" -ge 10 ]; then
+    echo "  [PASS] Reference files: $REF_COUNT (minimum 10)"
+  else
+    echo "  [FAIL] Reference files: $REF_COUNT (need at least 10)"
+    FAILURES=$((FAILURES + 1))
+  fi
+else
+  echo "  [FAIL] references/ directory not found"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Token Budget ---"
+if grep -q "token_budget: 4500" "$SKILL_MD"; then
+  echo "  [PASS] Token budget set to 4500"
+else
+  echo "  [FAIL] Token budget incorrect or missing"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "--- Line Count ---"
+LINE_COUNT=$(wc -l < "$SKILL_MD" | tr -d ' ')
+if [ "$LINE_COUNT" -ge 700 ]; then
+  echo "  [PASS] Line count: $LINE_COUNT (target >= 700)"
+else
+  echo "  [WARN] Line count: $LINE_COUNT (target >= 700)"
+fi
+
+echo ""
+if [ "$FAILURES" -eq 0 ]; then
+  echo "SKILL_CHECK: PASSED — $SKILL_NAME: ALL CHECKS PASSED"
+  exit 0
+else
+  echo "SKILL_CHECK: FAILED — $SKILL_NAME: $FAILURES check(s) FAILED"
+  exit 1
+fi

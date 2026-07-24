@@ -31,3 +31,6 @@ build/
 
 # Session files
 .session/
+
+# Compiled skill XML output
+.skills-compiled/

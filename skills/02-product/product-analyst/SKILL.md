@@ -66,7 +66,7 @@ What are you trying to do?
 └── Not sure? -> Describe your product and I will route you
 ```
 
-## Anti-Rationalization
+## Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
 |---|---:|
@@ -200,6 +200,95 @@ Default: **L2**.
 | **Heap** | Auto-capture (no manual instrumentation), retroactive analysis | Free (<10K sessions/mo) | Limited customization, noisy data |
 | **Pendo** | In-app guides + analytics, product-led adoption | Contact sales (~$1000+/mo) | Expensive for small teams |
 | **GA4** | Web-focused, marketing attribution, free at any scale | Free | Not built for product analytics (no user profiles, limited cohorts) |
+
+### Experiment Design Flow
+
+```
+                      +--------------------------+
+                      | START: Experiment needed   |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Traffic > 10K users/week   |
+                     | AND effect size known?      |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | Full A/B test |   | Can you run a    |
+                     | (RCT with     |   | pre/post with    |
+                     | power calc)   |   | control group?   |
+                     +-------------+   +--+-----+----------+
+                                           | YES       NO
+                                      +----+----+ +----+------+
+                                      | Quasi-    | | Qualitative|
+                                      | experiment| | only: user |
+                                      | (diff-in- | | interviews,|
+                                      | diff)     | | usability  |
+                                      +----------+ | testing    |
+                                                   +-----------+
+```
+
+### Retention Diagnosis
+
+```
+                      +--------------------------+
+                      | START: Retention dropping  |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Newest cohort retention    |
+                     | worse than older cohorts?  |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | Onboarding or   |   | All cohorts     |
+                     | acquisition     |   | declining?      |
+                     | problem: audit  |   +--+-----------+
+                     | new-user flow   |      | YES     NO
+                     +-------------+      +----+----+ +--+------+
+                                          | Product | | Old cohort|
+                                          | value   | | churning: |
+                                          | erosion | | check     |
+                                          | - check | | pricing,  |
+                                          | core     | | competitor|
+                                          | action   | | launch,   |
+                                          | quality  | | support   |
+                                          +---------+ | quality   |
+                                                     +----------+
+```
+
+### User Segmentation Strategy
+
+```
+                      +--------------------------+
+                      | START: Segment users       |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Have behavioral data       |
+                     | (event history, sessions)? |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | Behavioral    |   | Demographic/     |
+                     | segmentation: |   | firmographic     |
+                     | power/core/   |   | only: industry,  |
+                     | casual/at-risk|   | company size,    |
+                     +----+--------+   | geo — limited     |
+                          |            | predictive power  |
+                     +----+--------+   +------------------+
+                     | Usage frequency |
+                     | AND recency =   |
+                     | highest signal  |
+                     +----+--------+---+
+                          |            |
+                +---------+--+    +----+---------+
+                | RFM analysis|    | Propensity    |
+                | (Recency,   |    | modeling for  |
+                | Frequency,  |    | conversion/   |
+                | Monetary)   |    | churn risk    |
+                +------------+    +--------------+
+```
 
 ## Core Workflow
 
@@ -419,3 +508,28 @@ Every product decision traces to data: an experiment result with confidence inte
 - `data-visualization-engineer` — Builds dashboards from your metric definitions and requirements
 - `ab-testing-specialist` — Provides experiment infrastructure; consumes your experiment designs
 - `ux-researcher` — Provides qualitative context; you provide quantitative patterns to investigate
+
+## Gotchas
+
+| # | Gotcha | Why It Bites | $ Impact | Prevention |
+|---|--------|-------------|----------|------------|
+| **G1** | Shipping a false-positive A/B winner | p=0.049 with 200 users and no power analysis — the "lift" is noise. Feature ships, underperforms, team spends 3 sprints debugging a phantom | **$150K–$500K** in wasted engineering + lost opportunity cost | Require pre-registered MDE + sample size calculation before test launch. Never ship on p-value alone. |
+| **G2** | Event taxonomy drift across platforms | `signup_completed` fires on page load on iOS, on button click on Android, and on API response on Web. Three "same" metrics, three different meanings | **$200K+/year** in wasted analytics tooling + bad product decisions from dirty data | Maintain a single-source-of-truth tracking plan document. Validate event payloads in CI against the taxonomy schema. |
+| **G3** | Underpowered experiment runs for months | Baseline conversion = 2%, MDE = 5% relative (tiny), traffic = 500/week. Required sample size = 200K users. Test would need 400 weeks — but nobody did the math upfront | **$100K–$250K** in experiment runtime cost with no valid conclusion | Always calculate required duration BEFORE launching. If traffic insufficient, increase MDE or use quasi-experimental methods. |
+| **G4** | Mixing calendar-month and weekly cohorts | December cohort has 3 weeks of holiday behavior; June cohort has 4 normal weeks. Comparing them produces a phantom "retention decline" that triggers a fire drill | **$80K–$150K** in misdirected retention initiatives + exec distraction | Standardize on weekly cohorts (ISO week). Never compare cohorts of different durations. Seasonally adjust before trending. |
+| **G5** | Dashboard sprawl — 40+ dashboards, zero decisions | Every stakeholder request spawns a dashboard. Two years later: 40+ dashboards, 300+ tiles, zero documented decisions, $60K/year in tooling cost | **$60K–$120K/year** in tooling + analyst maintenance time | Quarterly dashboard audit: kill any tile that cannot complete "When X crosses Y, we do Z." Archive unused dashboards. |
+| **G6** | Not segmenting by acquisition channel | Paid users churn at 3x organic rate but aggregate retention looks "fine." Marketing doubles spend on the channel that is bleeding users — retention collapses 6 months later | **$300K–$1M+/year** in wasted ad spend + churn-driven revenue loss | Segment every metric by acquisition channel. Paid vs organic vs referral are different populations with different behaviors. |
+| **G7** | Novelty effect misinterpreted as product improvement | Redesign test shows +15% engagement at day 3. Team celebrates and ships. By day 21, engagement is back to baseline — it was never the design, it was the novelty | **$50K–$200K** in design + engineering for a change with zero durable impact | Minimum experiment duration = 2 full weeks (capture weekday + weekend). Exclude first-time users. Check for decay trend before concluding. |
+
+## Verification
+
+| # | Check | Pass Condition | Fix If Failing |
+|---|-------|---------------|----------------|
+| **V1** | North Star decomposes to input metrics | Every team can name the input metric they own and how it connects to North Star | Run a metric-mapping workshop: North Star → input metrics → team ownership. Any orphan metric is either miscategorized or irrelevant. |
+| **V2** | Every experiment has pre-registered sample size | Sample size calculation (baseline, MDE, alpha, power) documented BEFORE test launch in experiment tracker | Block experiment launch until sample size is calculated and documented. Use a launch checklist template. |
+| **V3** | Retention measured by cohort, not aggregate | Cohort table shows 3+ sequential weekly cohorts with confidence bands | If only aggregate retention exists, build the cohort query. It needs: user acquisition timestamp, retention event timestamp, cohort size. |
+| **V4** | Funnel identifies highest-impact bottleneck | Bottleneck = step with max(drop_size × reachable_users × fixability_score) | If funnel shows drops but no bottleneck analysis, rank steps by: absolute drop size, then apply qualitative fixability scoring. |
+| **V5** | Counter-metrics exist for every KPI | For every input metric, a counter-metric is defined and monitored on the same dashboard | Audit each KPI: "If we optimize this to 2x, what breaks?" Define that as the counter-metric. No KPI ships without its counter. |
+| **V6** | Tracking plan validates in CI | Event payload schema checked against taxonomy on every PR. Schema drift alert fires if production events deviate. | Add JSON Schema validation of event payloads to CI pipeline. Set up production event sampling that compares payloads to taxonomy. |
+| **V7** | Dashboard tiles trace to decisions | Every tile on every dashboard completes: "When [metric] crosses [threshold], we [action]." | Review dashboards quarterly. Remove tiles that fail this test. Redesign dashboard with decision-first layout. |
+| **V8** | Segmentation uses behavior, not just demographics | At minimum: power users, core users, casual users, at-risk users are defined with event-based criteria | Define segments by usage frequency + recency in the last 28 days. Power: top 10% frequency. Core: 50-90th percentile. Casual: 10-50th. At-risk: <10th percentile AND >14 days since last visit. |
