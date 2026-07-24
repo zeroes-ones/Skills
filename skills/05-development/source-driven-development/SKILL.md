@@ -10,6 +10,16 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I've used React for 5 years — I know the APIs. Checking docs for every import is a waste of time." | React hooks changed semantics between v18 and v19. Express middleware patterns shifted in v5. The API you memorized in 2022 may be deprecated, have different edge-case behavior, or not exist at all. Familiarity is the #1 source of framework bugs — you're coding against a version in your head, not the version in your `package.json`. |
+| "The LLM knows the latest version — it was trained recently." | LLMs confidently hallucinate API signatures that never existed, mixing methods from different major versions into plausible-but-wrong code. Your model doesn't know your project's exact dependency versions. Every LLM-generated framework call is a guess until verified against the current docs. |
+| "Everyone on Stack Overflow says this is the fix — 500 upvotes can't be wrong." | Stack Overflow answers are version-frozen at the moment of posting. The accepted answer for React 16 patterns may be actively harmful in React 19. Community consensus is often right about common cases and catastrophically wrong about edge cases. Official docs and issue trackers are the only sources of truth. |
+| "I'll check the docs if something breaks — let's not slow down for citation comments." | When something breaks 6 months later during a dependency upgrade, the engineer debugging it has no idea which version you verified against, which doc section you referenced, or whether you checked at all. A one-line `// Source:` comment takes 5 seconds to write and saves hours of forensic archaeology. |
+| "This config block is identical to my last project — I can copy-paste without re-reading the docs." | Configuration schemas change between major versions. Options get renamed, defaults shift, and deprecated settings silently break. Copy-paste from a project on a different version is code you haven't verified. The 2 minutes you save is the 2 hours someone else spends debugging a config that "should work." |
+
 Every framework and library decision must be traceable to official documentation. No Stack Overflow-driven development. No "it works on my machine" assumptions. No hallucinated APIs.
 
 ```

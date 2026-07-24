@@ -78,6 +78,16 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Just use conservative market estimates — directionally correct is fine" | A TAM estimate off by 2x changes your addressable revenue from viable to impossible. Investors spot fabricated numbers in 30 seconds — and fabricated TAM kills fundraising credibility permanently. |
+| "Everyone knows Competitor X has ~Y% market share" | Private company revenue is unverifiable gossip. Pitching competitor market share you can't source is the fastest way to lose investor trust. "Everyone knows" is not due diligence — it's rumor dressed as analysis. |
+| "The financial model is directional — assumptions are implied" | Models without explicit assumptions are Rorschach tests. Your "implied" 20% growth rate becomes the team's committed target. When projections miss, the blame lands on the model — but the real failure was hiding assumptions. |
+| "We'll validate the business model after we launch" | Post-launch validation means your burn rate IS your validation budget. Pivoting a business model after 6 months of hiring, building, and marketing costs $500K-$2M depending on stage. Validate before you spend, or budget for the pivot. |
+| "Single channel is fine — we'll diversify when growth slows" | Channels break overnight: one algorithm change, one ad price spike, one platform policy shift. Single-channel GTM = your entire customer acquisition is one executive decision away from zero. Diversify channels before you need to — because when you need to, it's already too late. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
@@ -374,6 +384,9 @@ graph LR
 - **"First mover advantage"** as universal truth — Google was the 18th search engine. Facebook was the 4th social network. Apple wasn't the first MP3 player, smartphone, or tablet. First movers pay the education cost; fast followers pay the execution cost. The winner is determined by execution quality, not chronological order.
 - **Pricing strategy based on "competitor price minus X%"** — you anchor to their value proposition, not yours. If your product delivers 3x the value (measured in revenue lift, time saved, or risk reduction), you should charge MORE, not less. Cost-plus and competitor-minus pricing both ignore the only thing that matters: value delivered.
 - **Market sizing that conflates TAM and SAM** — your Total Addressable Market is "every company with employees" ($100B). Your Serviceable Addressable Market is "US companies with 50-500 employees using cloud software" ($5B). Investors see through TAM inflation instantly, and it damages credibility for the rest of your pitch.
+- **Unit economics modeled on "first 100 customers" data.** Early adopters are 3-5x cheaper to acquire than mainstream customers. If your CAC from the first cohort is $500 and you extrapolate that to a $2M demand gen budget expecting 4,000 new customers, actual CAC for the next cohort will be $1,500-$2,500 as you exhaust the enthusiast channel and must pay for awareness. **Total cost: $750K-$1.5M in wasted ad spend and missed pipeline in the first scaling year.** Fix: Segment CAC by channel and cohort; model CAC increasing 20-40% year-over-year as you saturate early channels, and validate with industry benchmarks (SaaS CAC typically 1.5-3x higher at scale than at launch).
+- **Revenue concentration risk ignored in strategic planning.** Your top 2 customers represent 45% of ARR. One gets acquired and consolidates vendors — they're gone in 90 days. The revenue hole triggers a down-round, layoffs, and board panic because there was no diversification plan. **Total cost: $2M-$10M in lost ARR plus 30-50% valuation haircut at next raise.** Fix: Set a hard cap of 15% ARR from any single customer; build a concentration risk dashboard reviewed monthly at leadership meetings; create a "what if" contingency plan for each top-5 customer.
+- **GTM strategy without channel unit economics** — "we'll do content, paid ads, outbound, and partnerships." Each channel has different CAC, payback period, and scaling ceiling. Launching all four simultaneously without measuring per-channel efficiency means you can't cut the $50K/month channel that produces $10K in pipeline. **Total cost: $200K-$500K in wasted GTM spend over 12 months with no ability to attribute failure.** Fix: Launch channels sequentially, not simultaneously; establish per-channel CAC and LTV targets before scaling spend; kill channels that don't hit 50% of target efficiency within 90 days.
 
 ## Verification
 

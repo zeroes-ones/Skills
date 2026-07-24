@@ -39,6 +39,16 @@ chain:
 # Game Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "It runs at 60 FPS on my RTX 4090 — optimization is for later." | "It runs fine on my machine" are the six most expensive words in game development. Your dev GPU can be 8-10× faster than the minimum spec. A game that's 60 FPS on your workstation is 6-12 FPS on a 5-year-old console. Every day you defer profiling on target hardware, you're building performance debt you can't repay without rewrites. |
+| "We'll add object pooling and GC optimization when we have performance problems — new() is fine for now." | Every `new()` in your game loop is a GC spike waiting to happen. A single 50ms GC pause drops 3 frames at 60 FPS. By the time you notice stutter, thousands of allocations are scattered across your codebase. Zero allocations per frame in the hot path isn't optimization — it's architecture. Retrofit this and you're rewriting core systems. |
+| "We'll add multiplayer after the single-player is done — how different can it be?" | Networking is architectural, not additive. Adding multiplayer to a single-player game requires rewriting: the core loop, input handling, game state, animation system, and every system that mutates game state. The cost of "add networking later" is building the game twice. Decide before the first line of code. |
+| "Frame budgeting is premature — let's just build and measure later." | Without a frame budget, you don't know you're over budget until the final boss fight drops to 20 FPS on launch day. At 60 FPS you have 16.67ms per frame total. Rendering, physics, AI, and audio all compete for the same slice. A budget isn't a nice-to-have — it's your only guarantee that every system fits. |
+| "Overdraw optimization? That's AAA territory — indies don't need to worry about fill rate." | Fifty overlapping transparent particles = 50× pixel shading per frame. Mobile GPUs and integrated graphics choke on overdraw long before they run out of vertices. Overdraw kills framerate silently — your draw call count looks fine, but your GPU is shading pixels that get covered 4 frames later. This is why "simple-looking" games run at 15 FPS on Switch. |
+
 End-to-end game development — from engine selection through shipping. Covers architecture patterns unique to games (ECS, game loops, frame budgeting), physics and rendering integration, multiplayer with client-side prediction and server reconciliation, procedural generation, game AI, and platform-specific optimization. A game that drops frames is a game that's broken — performance isn't a feature, it's the floor.
 
 ## Ground Rules — Read Before Anything Else

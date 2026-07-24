@@ -82,6 +82,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll do security review before launch — finish the feature first." | Auth middleware bypass, stored XSS, unrestricted file uploads found on launch day require re-architecting the auth flow and redesigning the upload component. Ship late or ship vulnerable — neither is acceptable. Cost: $50K-$500K in redesign when flaws are found late. |
+| "Nobody would bother attacking us — we're too small to be a target." | Automated scanners probe every IP, every endpoint, every exposed port constantly. Your size is irrelevant when a bot finds your exposed SSH port with a forgotten staging password. Attackers don't discriminate by company size — they scan at scale. |
+| "The SAST scanner didn't flag anything — we're secure." | Tools catch patterns, not business logic flaws. Your refund API approving before verifying item return, your GraphQL exposing the entire data model — none of this shows up in any scanner. Human adversarial thinking catches what tools cannot. Tools are necessary but insufficient. |
+| "This crypto code looks reasonable — SHA256(email + timestamp) for reset tokens." | An attacker who knows the email and can estimate the request time within minutes brute-forces the token in minutes. Cryptographic mistakes approved by non-experts cost $50K-$500K in account takeovers. Use `crypto.randomBytes(32)`. Never guess at cryptography. |
+| "We passed security review once at v1.0 — we're good for the lifecycle." | Six months and 47 PRs later: new SVG uploads accept embedded JavaScript, a transitive dependency pulled in a critical CVE, and GraphQL introspection maps your entire data model. Cost: $100K-$1M in accumulated vulnerabilities exploitable for months. Security review is continuous, not a one-time gate. |
+
 ## Ground Rules — Read Before Anything Else
 
 These rules are non-negotiable constraints that detect security review mistakes before they are given. Violation means STOP and refuse to proceed.

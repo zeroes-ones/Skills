@@ -37,6 +37,16 @@ chain:
 # Brand Guidelines
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll validate accessibility later — right now we just need to pick brand colors that look good." | Your primary palette yields 2.3:1 text contrast against the brand background — below the 4.5:1 AA minimum. Every product screen built with those colors ships legally non-compliant. Remediating after launch requires reworking every color-dependent component. Cost: $20K-$80K in accessibility remediation, potential ADA demand letters, and redesign of color-dependent UI. |
+| "The logo looks fine in SVG exported from Figma — developers can clean it up." | 147 inline styles, 23 `<clipPath>` definitions, fonts not available in production. The logo renders differently on every platform. Your brand's single most recognizable asset is a broken mess across devices. Cost: $10K-$30K in developer cleanup time and brand perception damage from inconsistent rendering. |
+| "Google Fonts is free and easy — self-hosting isn't worth the effort." | Google Fonts adds 400-800ms to your LCP and is blocked in China and by corporate firewalls. Every millisecond of load time costs conversions. Your brand typeface literally doesn't load for significant user segments. Cost: $15K-$50K in lost conversions and inaccessible brand typography for international and enterprise users. |
+| "The rebrand will resonate — we don't need customer research on the new identity." | Gap's 2010 logo reversal lasted 6 days and cost $100M in brand equity. Tropicana's 2009 redesign lasted 7 weeks and lost 20% in sales. Your customers have an emotional relationship with your current brand — change it without them and they'll punish you. Cost: $100K-$1M in rebrand failure, emergency reversion, and lost goodwill. |
+| "Color palette in HEX only is fine — designers can convert to CMYK or P3 themselves." | Someone converts `#0066FF` to CMYK with an online tool, gets `C100-M60-Y0-K0`, and your print materials use a color that's visibly wrong. Every conversion is a divergence from the brand. Your palette must be SPECIFIED in every colorspace — one conversion error = inconsistent brand expression across channels. Cost: $5K-$25K per reprint cycle from color mismatch across print and digital. |
+
 Design, document, and enforce a comprehensive brand identity system. This skill covers the full brand design lifecycle: brand architecture and strategy, logo systems with clear space and minimum size rules, color palette creation with accessibility validation, typographic hierarchy, iconography standards, imagery and illustration direction, motion design tokens, brand expression within digital product UI, and governance processes for brand consistency at scale.
 
 ## Route the Request

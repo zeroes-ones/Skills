@@ -91,6 +91,8 @@ These rules are non-negotiable constraints that detect localization mistakes bef
 | R5 | DETECT hardcoded user-facing strings in generated code | Trigger: Generated code contains user-visible text as plain string literals (`"Loading..."`, `"Save changes"`) instead of i18n translation function calls (`t('common.loading')`) | STOP. Respond: "Hardcoded strings found: [specific strings]. Every user-visible string must use the i18n translation function (`t()`). Hardcoded strings cannot be translated without code changes — each one is a bug report waiting to happen when the first non-English locale goes live. Replace with `t()` calls using semantic keys." |
 | R6 | DETECT concatenated translatable fragments | Trigger: Generated code concatenates individually-translated fragments to form a sentence (e.g., `t('page') + ' ' + t('of') + ' ' + t('total')`) instead of a parameterized whole-string | STOP. Respond: "Concatenating translated fragments (`t('page') + ' ' + t('of')`) is untranslatable — word order, number agreement, and grammatical gender differ across languages. Use a parameterized whole-string: `t('pagination', { current, total })` producing 'Page 1 of 10' in English, '10ページ中1ページ目' in Japanese. Each locale controls its own sentence structure." |
 | R7 | DETECT MT engine selected for unsupported or poor-performing language pair | Trigger: User chooses an MT engine (DeepL, Google Cloud Translation, Azure Translator) for a language pair where that engine has no support or documented poor quality | STOP. Respond: "This MT engine may not support or perform well for [language pair]. DeepL supports ~30 European languages. Google Cloud Translation covers 130+ languages but quality varies significantly by domain. Benchmark with your actual content — marketing copy, error messages, legal text — not generic test strings. Engine quality is language-pair and domain specific." |
+| R8 | DETECT and WARN when translation keys are generated programmatically without a naming convention. | Trigger: translations without structured key convention or with auto-generated/auto-incrementing keys | WARN. Keys like `homepage_banner_title_v2_final_3` communicate nothing about context, break when the page is redesigned, and make it impossible to identify stale strings. After 2 years, 40% of your translation keys point to strings that no longer exist in the codebase — you're paying to translate dead text. Institute a structured key convention: `[feature].[component].[element]` — e.g., `checkout.payment.card_number_label`. The key communicates context even without seeing the UI. Run quarterly unused-key audits. Keys with no matching usage in 90 days → deprecated. |
+| R9 | REFUSE to accept "the translation is the same length as English" as adequate layout testing. | Trigger: localization QA that only tests English UI with translated strings | STOP. German text is typically 30-35% longer than English. Arabic is right-to-left. Chinese characters are taller. Japanese doesn't use spaces between words. A UI that works perfectly with English strings breaks in 5 predictable ways when localized: text overflow, truncated labels, misaligned RTL layouts, broken concatenation, and missing fonts for CJK characters. Require: (1) pseudo-localization testing in CI (adds 30% length + Unicode accents to every string), (2) RTL layout screenshot comparison for Arabic/Hebrew, (3) CJK font rendering test on at least one device per platform. These catch 80% of i18n bugs before human QA sees a single translated string. |
 
 ## The Expert's Mindset
 
@@ -138,6 +140,12 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - You are optimizing translation costs across locales and MT providers
 - You need to integrate a TMS API for automated pull/push workflows
 - You are adding pseudo-localization to your QA pipeline
+- You need to clean up stale translations and audit TM health
+- You are setting up translation memory sharing across multiple teams or products
+- You need to benchmark MT engine performance per language pair with domain-specific content
+- You are designing a localization budget model with per-locale cost tracking
+- You need to detect and purge dead translation keys that no longer map to active code
+- You are evaluating whether to build vs. buy a localization automation platform
 
 ## Decision Trees
 
@@ -168,6 +176,90 @@ Translation volume per month?
 └── > 1M strings → Self-host open-source MT (LibreTranslate, OpenNMT) for base layer
     └── Premium MT only for customer-facing content
 
+```
+
+### Glossary & Termbase Strategy
+
+```
+Building your first glossary for translation?
+├── Single product, 1-3 locales → Manual glossary in TMS (Lokalise/Phrase/Crowdin)
+│   ├── Start with top 50 brand/product terms that MUST be consistent
+│   ├── Review quarterly with in-market reviewers
+│   └── Cost: 2-4 hours initial setup, 1 hour/month maintenance
+├── Multi-product, 5-15 locales → Automated glossary with term extraction
+│   ├── Extract candidate terms from codebase: grep for capitalized proper nouns, repeated phrases
+│   ├── Classify: brand terms (translate: false), product features (approved translation), UI verbs (style guide)
+│   ├── Enforce at TMS level: flag or hard-block deviations from approved terms
+│   └── Run automated termbase coverage audits quarterly — target > 95% term consistency
+├── Enterprise, 20+ locales with regulatory content → Termbase with legal validation
+│   ├── Legal-reviewed glossary for compliance terms (privacy policy, terms of service, disclaimers)
+│   ├── Per-locale legal review of all glossary entries touching liability, rights, or obligations
+│   ├── Version-controlled glossary with change log and approval workflow
+│   └── Automated scan for glossary violations in translation PRs — block merge on legal term deviations
+└── Starting from zero (no existing glossary) → Minimum viable glossary
+    ├── Step 1: Extract top 30 terms from your most-trafficked 5 pages
+    ├── Step 2: Get one in-market reviewer to approve translations for top 3 locales
+    ├── Step 3: Enforce in CI — flag any translation that diverges from glossary
+    └── Step 4: Expand by 10 terms per sprint until all product surfaces are covered
+
+```
+
+### Machine Translation Quality Strategy
+
+```
+How should you approach MT for your language portfolio?
+├── Tier 1 languages (ES, FR, DE, PT, IT, NL) → MT + light post-editing
+│   ├── Neural MT (DeepL, ModernMT) produces publishable quality 80%+ of the time
+│   ├── Post-editing: review MT output, fix terminology and tone (not full retranslation)
+│   ├── Cost: 30-50% of human translation. Turnaround: 1-2 days for 10K words.
+│   └── QA: BLEU score > 40, human sample review of 10% of strings
+├── Tier 2 languages (JA, ZH, KO, RU, TH, AR) → MT + full human review
+│   ├── MT quality is 60-70% for these pairs — post-editing is closer to retranslation
+│   ├── Human review: linguist reviews every string against source and glossary
+│   ├── Cost: 60-80% of human translation. Turnaround: 3-5 days for 10K words.
+│   └── QA: BLEU > 30, human review of 100% of strings, native speaker QA on UI screenshots
+├── Tier 3 languages (FI, HU, VI, TR, PL, CS) → Human-first with MT assistance
+│   ├── MT provides a draft, but morphology complexity means human retranslation is necessary
+│   ├── Human translator starts from source (not MT output), uses MT as reference only
+│   ├── Cost: 90-100% of human translation. Turnaround: 5-7 days for 10K words.
+│   └── QA: native speaker review of 100%, in-context screenshot review for top 20% of strings by visibility
+└── Enterprise decision: build MT quality dashboard
+    ├── Track per-language-pair: BLEU, TER, human adequacy score (1-5), post-editing time per word
+    ├── Use data to move languages between tiers as MT improves
+    ├── Re-evaluate quarterly: MT quality is improving ~5-10%/year, language tiers are not static
+    └── Budget optimization: Tier 1 at scale (50K+ words/year) can fund Tier 3 quality improvements
+```
+
+### Translation Memory Maintenance & Cleanup
+
+```
+TM health degrading — where to start?
+├── High duplicate rate (> 15% of TM entries are duplicates) → Deduplication run
+│   ├── Identify exact duplicates (same source, same target, same locale) → keep newest
+│   ├── Identify near-duplicates (same source, slightly different targets) → flag for review
+│   ├── Automated dedup with `tmx-cleaner` or TMS built-in tools
+│   └── Schedule: monthly for active TMs, quarterly for stable ones
+├── Stale entries > 2 years without a match → Archive
+│   ├── Entries unused for 24+ months likely correspond to removed/changed features
+│   ├── Archive (don't delete) — move to `tm-archive` database
+│   ├── Before archiving, cross-reference against active i18n keys in codebase
+│   └── Stale TM bloats match queries and increases API costs — trim quarterly
+├── TM leverage dropping quarter-over-quarter → Key migration gap
+│   ├── Compare current i18n keys against TM keys — identify renamed keys
+│   ├── Build a key migration map: old_key → new_key
+│   ├── Apply migration to TM entries so translations survive refactors
+│   └── Root cause: developers renaming keys without updating TM — add CI check
+├── Inconsistent quality scores across TM entries → Quality tier labeling
+│   ├── Tag TM entries with quality tier: `approved` (human-reviewed), `mt-unreviewed`, `legacy` (pre-TM era)
+│   ├── Prefer `approved` entries for auto-population; `mt-unreviewed` for suggestions only
+│   ├── Run periodic quality audit: sample 5% of `approved` entries for accuracy
+│   └── Downgrade or flag entries with low BLEU scores against fresh human translations
+└── No TM for a new product → Bootstrap from scratch
+    ├── Step 1: Extract all existing translations from codebase locale files
+    ├── Step 2: Normalize to TMX format, tag with source context (file + key path)
+    ├── Step 3: Run MT pre-translation for initial fill (tag as `mt-unreviewed`)
+    ├── Step 4: First 1,000 post-edited strings → promote to `approved`
+    └── Goal: reach 60%+ TM leverage within 3 months of pipeline launch
 ```
 
 <!-- DEEP: 10+min -->
@@ -226,29 +318,48 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 | ICU syntax error in translated locale file passes CI | Strengthen ICU validation in quality gate; strip variables before MT, re-insert after; add pre-deploy syntax check | ICU variables like `{count}` are code, not content — MT engines corrupt them; protect structural syntax |
 | Continuous localization pipeline latency exceeds 12 hours | Audit TMS API throughput; check webhook reliability; add pipeline health alert | When translations take >12 hours from merge to PR, developers bypass the pipeline and hardcode strings |
 | Accessibility string (aria-label) translated with MT-only, no human post-editing | Flag accessibility strings for TM+human review only; never raw MT for screen reader content | Screen reader users rely on label accuracy — a mistranslated aria-label is a broken interface, not just a bad string |
+| Dead translation keys detected (> 10% of TM entries reference keys not in codebase) | Run dead-key audit: grep all TM source keys against current codebase; archive unmatched entries; update TM | You're paying to store and serve translations for features that don't exist — dead keys bloat API payloads and slow match queries |
+| Single MT engine used for all content types (marketing, legal, UI, help docs) | Classify content by domain; benchmark engine quality per domain; route accordingly | Marketing copy needs brand voice (DeepL); legal text needs precision (custom model); help docs need low cost (Google) — one engine can't optimize all three |
+| TMX file size exceeds 100MB | Partition TM by project/domain; switch to database-backed TM storage (not flat TMX files); implement incremental sync instead of full export/import | Giant TMX files corrupt silently, timeout during import, and make every pipeline run a bottleneck — partition before it breaks |
+| No per-locale cost tracking — budget is a single line item | Implement cost tagging: tag every MT API call with locale, content type, and project; build per-locale cost dashboard | You can't optimize what you don't measure — per-locale costs typically vary 5-10x, and the expensive locales aren't necessarily the high-ROI ones |
+| Pseudolocalization passes but real locale screenshots show layout breaks | Add locale-specific length ratio checks: German (1.35x English), Arabic (1.1x + RTL), Japanese (0.8x + vertical height); requre screenshot diffs for top 3 non-English locales | Pseudo-loc shows the worst case but not every case — German word compounding creates overflow patterns that generic pseudo-loc padding doesn't catch |
 
 ## What Good Looks Like
 
-<!-- STANDARD: 3min -->
+### BEFORE (Novice) → AFTER (World-Class)
+
+**Pipeline Maturity:**
+- **BEFORE:** Developer manually copies English JSON to `fr.json`, Google Translates each string one at a time, commits without quality checks. French launch reveals: 4 broken placeholders (crashed UI), 2 buttons that overflow their containers (40% text expansion unhandled), and "Save" translated differently on 3 different pages.
+- **AFTER:** Developer merges PR with English strings. CI extracts source strings, pushes to TMS, machine-translates for 12 locales with glossary enforcement, runs automated quality gates (placeholder integrity, ICU syntax, length constraints, forbidden characters), and opens a PR with translated JSON files — all within 30 minutes. Pseudolocalization CI gate caught the layout issues before translators touched a single string. TM leverage at 78%. Total human intervention: zero.
+
+**Glossary Discipline:**
+- **BEFORE:** "Dashboard" rendered as "tableau de bord" (web), "panneau de contrôle" (mobile), "tableau de commande" (marketing). Users can't search for the feature across platforms. Support documentation references terms that don't match any product label.
+- **AFTER:** Centralized glossary in TMS with `translate: false` for brand names, approved translations for all product terms, and automated enforcement. Termbase coverage audit shows 97% consistency across all 15 locales. Support teams reference the same glossary — user-facing terms match across every surface.
+
+**Quality Gates:**
+- **BEFORE:** Translation quality assessed by "spot-checking 3 random strings" before release. QA passes because the strings are linguistically correct — but nobody tested them IN the UI. German buttons overflow. Arabic form validation errors render before field labels.
+- **AFTER:** Automated quality gates in CI: placeholder count matching (30% weight), ICU syntax validity (25%), length compliance per UI element (25%), glossary/termbase consistency (20%). Gate threshold: score ≥ 90 to pass, 80-89 warns, &lt; 80 blocks. Functional QA signs off in 2 non-English locales before release. Pseudolocalization runs in CI on every PR.
+
+**Continuous Localization Pipeline:**
+- **BEFORE:** Translations are a release bottleneck. Developers finish features, then wait 2 weeks for human translators. The "translation freeze" blocks the entire release train. Emergency hotfixes can't include translations because the pipeline takes days. Marketing launches in English-only while translated pages lag by 3-4 weeks — international users get a second-class experience.
+- **AFTER:** Git-based continuous localization pipeline: merge to main triggers source string extraction → push to TMS → MT auto-translate with glossary enforcement → automated quality gates → PR with translated locale files opened automatically. Pipeline latency is under 2 hours from code merge to translated strings ready for review. Developers never wait on translations. Hotfixes include translations because the pipeline is fast enough. All 12 locales ship simultaneously with English — no more "English first, translations later" releases.
+
+**Cost Awareness:**
+- **BEFORE:** Translation budget is a single line item — "Localization: $15K/month." Nobody knows which locales cost the most, which content types drive spending, or what the ROI per locale is. The budget gets cut by 20% during belt-tightening and the team freezes 3 locales arbitrarily. MT engines are chosen by developer preference, not cost-quality trade-off analysis.
+- **AFTER:** Per-locale cost dashboard: dollars per word by engine, post-editing cost by language tier, TM leverage savings (dollars saved by fuzzy matches), and cost per 1,000 active users per locale. Glossaries reduced re-translation costs by 22% through term consistency. MT routing saves $8K/month by sending help docs to a cheaper engine. Budget conversations start with data: "We spend $0.12/user in Germany and $0.08/user in Spain — both are below the $0.20/user threshold. Here's what cutting Japanese would actually save vs. cost in user churn."
 
 **What good looks like:** A developer merges a PR with a new feature. Within 30 minutes, source strings are extracted, pushed to TMS, machine-translated for 12 locales, quality-checked automatically, and a PR opens with translated JSON files. The QA team tests the pseudolocalized build and finds zero layout bugs before any real translation costs are incurred. TM leverage is 78% — new strings reuse existing translations where possible. MT quality scores average 93/100 across all locales. Total human intervention: zero. Total time from code merge to translated build: under 2 hours.
 
 ## Deliberate Practice
 
-```mermaid
-graph LR
-    A[Build] --> B[Measure<br/>failure modes] --> C[Study<br/>post-mortems] --> D[Re-build<br/>with constraints] --> A
-
-```
-
 | Level | Practice | Frequency |
 |-------|----------|-----------|
-| **Novice** | Rebuild an existing system from scratch, then compare your design with the original | Monthly |
-| **Competent** | Add a new constraint (10x data, zero downtime, etc.) to a familiar design and re-architect | Quarterly |
-| **Expert** | Design the same system under 3 conflicting constraint sets; write a decision record for each | Quarterly |
-| **Master** | Teach a junior to design a system; your role is to ask questions, not give answers | Monthly |
+| **Novice** | Set up a localization pipeline from scratch for a sample React app: i18next extraction, TMS connection (Lokalise free tier), MT auto-translate for 3 locales, quality gates, CI integration. Time yourself — target under 4 hours end-to-end. | Monthly |
+| **Competent** | Take a production app's locale files and run a full quality audit: placeholder integrity, ICU syntax, length constraints, glossary consistency, forbidden characters. Find and fix every violation. Compare your findings against the existing QA process — what did it miss? | Quarterly |
+| **Expert** | Design a multi-engine MT routing system: classify content type (marketing/legal/UI/help-docs), route to optimal MT engine per language pair per content type, measure BLEU/COMET scores per route, optimize for cost vs quality trade-off. Build a cost model showing savings vs single-engine approach. | Quarterly |
+| **Master** | Build a translation quality monitoring dashboard: per-locale quality scores over time, MT engine performance trends, TM leverage rates, cost-per-locale trends, pipeline latency metrics. Set up automated alerts for quality regressions and cost anomalies. Document the ROI of each quality gate in dollars saved. | Annually |
 
-**The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
+**The One Highest-Leverage Activity:** Every quarter, run a pseudolocalized build of your entire product and walk through every screen. Count the layout breaks. If the number isn't decreasing quarter-over-quarter, your localization pipeline has a feedback gap.
 
 ## Gotchas
 
@@ -262,6 +373,9 @@ graph LR
 - **No glossary or termbase enforcement across projects.** Translators render "dashboard" as "tableau de bord" in the web app, "panneau de contrôle" in the mobile app, and "tableau de commande" in marketing — all correct French but inconsistent. Users searching for "tableau de bord" can't find the feature on mobile, brand terminology fractures across surfaces, and support documentation references terms that don't match any actual product label. **Total cost: $10,000-$30,000 per year in terminology inconsistency remediation, customer confusion driving support escalations, and diminished trust in localization quality across international markets.** Fix: Build and maintain a centralized glossary/termbase with approved translations for every product and brand term; enforce glossary compliance at the TMS level — flag or hard-block translations that deviate from approved terms; run automated termbase coverage audits quarterly and before each release.
 - **Translation quality measured only by linguistic review without functional UI testing.** LQA scores rate translations as linguistically correct, but nobody tests whether the translated strings actually render and function in the application UI. A German button label grows 40% longer and breaks a flex layout constraint. An Arabic translation reverses the order of form validation messages — the error appears before the field label. QA passes (strings are correct), but the localized product is broken. **Total cost: $15,000-$50,000 in post-localization UI bug fixes per release, missed international launch dates, and hotfix deployments for translation-induced functional breakage.** Fix: Integrate localization testing into the QA pipeline — run automated screenshot comparisons in every target locale; require functional QA sign-off in at least 2 non-English locales before release; use pseudo-localization as a CI gate to catch layout issues before translators ever touch the strings.
 - **Using different MT engines per project with no consistency management.** The mobile team uses DeepL for German, the web team uses Google Cloud Translation for German, and marketing sends German copy to a human translator. The same English product term gets three different German translations across platforms because each engine has different training data, style biases, and terminology defaults. The product voice becomes fragmented — users notice and trust erodes. **Total cost: $5,000-$20,000 per year in inconsistency fixes, brand voice dilution across platforms, and user trust erosion from seeing different translations for identical features.** Fix: Standardize on one MT engine per language pair across the organization; when multiple engines are unavoidable, run all output through the shared glossary/termbase for post-processing consistency; maintain a per-language style guide with approved terminology for every product surface; feed MT post-editing corrections back into the engine's custom glossary to improve future output.
+- **Concatenating translated strings to form sentences.** "You have" + itemCount + "items" works in English but breaks in languages with grammatical gender, dual/plural forms, and different word orders. In Arabic: "لديك 3 عناصر" (you have 3 items) — but the word for "items" changes form. In Russian: different plural forms for 1, 2-4, and 5+. "You have 21 items" is singular in Russian grammar. String concatenation produces grammatically-incorrect output in 70%+ of non-English languages. **Total cost: $15K-$50K per incident — emergency retranslation, hotfix release, brand damage in localized markets.** Fix: Always use ICU MessageFormat with plural rules: `{count, plural, =0 {You have no items} =1 {You have 1 item} other {You have # items}}`. Never concatenate translated fragments.
+- **Translating UI strings before the design is finalized.** Every design change after translation starts invalidates translations. A button label expands from "Save" to "Save Changes" — now 32 languages need retranslation. A new error state adds 3 strings. The backlog of "minor copy changes" accumulates across sprints until the translation debt is larger than the initial translation investment. **Total cost: $8K-$20K per release for re-translation of changed strings, plus $5K-$15K in delayed release costs.** Fix: Freeze UI copy 2 weeks before translation starts. Any changes post-freeze go into a "next release" translation batch. Use a string freeze checklist signed by PM, design, and content. Tag strings that can still change vs locked strings in your TMS.
+- **Assuming machine translation quality is consistent across language pairs.** MT quality varies dramatically by language pair. English→Spanish (DeepL): near-human quality. English→Korean (Google Translate): requires significant post-editing. English→Finnish (any MT): high error rate due to complex morphology. Using the same MT engine and post-editing budget for all languages wastes money on easy pairs and underfunds hard ones. **Total cost: $10K-$30K/year in either overpaying for unnecessary human review on easy pairs OR shipping poor quality in hard pairs (resulting in user churn in those markets).** Fix: Segment languages into MT quality tiers: Tier 1 (ES, FR, DE, PT — light post-editing), Tier 2 (JA, ZH, KO, RU — full human review required), Tier 3 (FI, HU, AR, VI — MT + mandatory native-speaking reviewer). Budget post-editing proportionally.
 
 ## Verification
 

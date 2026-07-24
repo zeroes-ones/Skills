@@ -42,6 +42,16 @@ chain:
 # Database Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "The migration ran fine in staging — it'll be fine in production." | Staging has 10K rows; production has 500M. Your `ALTER TABLE ... ADD COLUMN ... NOT NULL DEFAULT` takes 3 seconds in staging and acquires an ACCESS EXCLUSIVE lock for 45 minutes in production, blocking all reads and writes. Cost of untested migrations: $50K-$500K in downtime at $10K-$100K/hour for revenue-generating systems. |
+| "EXPLAIN ANALYZE is overkill — I know this query needs an index." | You add an index. The query planner ignores it because of low cardinality, outdated statistics, or a better sequential scan plan. You pay write-performance tax for an index nobody uses. Every unused index is dead weight slowing every INSERT. Cost of cargo-cult indexing: $1K-$50K/month in excess cloud database spend. |
+| "The ORM handles everything — I don't need to review the SQL it generates." | `user.posts` in a loop becomes 1,003 queries when 3 queries with a JOIN would suffice. A single page load that should be 3 queries becomes 3,003. Nobody notices until 5M rows and the database falls over. Cost of ORM blind trust: $5K-$50K in inflated database tier costs from N+1 queries generating 1,000x excess work. |
+| "App-level validation is enough — database constraints are redundant." | Background jobs, direct DB access, data migrations, ORM `update_all`, and bugs bypass every application-level validation. A single missing constraint = corrupted data that violates business invariants forever. Cost of app-only validation: $20K-$100K in data corruption incidents requiring manual repair and customer notification. |
+| "Connection pooling can wait — we'll add it when we need it." | 20 app instances × 50 connections each = 1,000 direct database connections. PostgreSQL forks a process per connection, consuming 1-2GB of RAM and context-switching the CPU to death. A pooler handles the same workload with 20-50 connections. Cost of no pooling: $10K-$100K in unnecessary database tier scaling (2-3x instance size) to handle connection overhead instead of actual query work. |
+
 Design efficient, scalable, and maintainable database schemas across relational and NoSQL paradigms. This skill covers logical and physical data modeling, normalization levels, indexing strategies, migration management, query performance optimization, and database technology selection based on access patterns and consistency requirements.
 
 ## Route the Request

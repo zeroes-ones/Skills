@@ -40,6 +40,16 @@ chain:
 # Fullstack Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll define the API contract as we build — frontend and backend can evolve together." | Without a shared contract, integration fails at the boundary every time. Mismatched field names, missing properties, and type drift don't surface until runtime — and then both teams blame each other. Define the contract once (OpenAPI, typed DTOs, or GraphQL schema) and both sides build against truth. Skipping this step costs 40%+ of integration time in rework. |
+| "This discount logic is simple — putting it on the frontend avoids an API call and feels faster." | Business logic on the client is a security hole, not an optimization. Anyone can modify your pricing in devtools before checkout. When you need that logic in mobile, admin panel, and batch jobs, you'll reimplement it 3 times — each with different bugs. Server-side is the single source of truth. |
+| "Let's set this up as microservices from day one — we'll need to scale eventually." | Premature microservices create distributed system problems (network failures, data inconsistency, deployment complexity) before you have a working product. A monolith with clean boundaries ships in weeks. Microservices with 3-person team ship in months — if they ship at all. Scale when you have measured bottlenecks, not hypothetical ones. |
+| "Unit tests on the frontend AND backend cover everything — integration tests are redundant." | The boundary is where 80% of fullstack bugs live: serialization mismatches, auth token handling, error response parsing. Isolated tests pass while the feature is broken. One cross-boundary integration test catches more real bugs than 50 unit tests on either side. |
+| "Server-side validation can wait — the frontend already validates all inputs before sending." | Client-side validation is bypassable with a single `curl` command. Every form field that's only validated in the browser is an open door to your database. One malicious POST with crafted JSON can corrupt your data, bypass your business rules, or inject garbage that crashes your backend. Frontend validation is a UX convenience — backend validation is the lock on the door. |
+
 Deliver complete features across the entire stack — from database to UI. This skill covers end-to-end feature development: TypeScript monorepos with shared types, full-stack frameworks (Next.js, Remix, SvelteKit), API integration patterns, database access from server-side code, authentication flows spanning frontend and backend, deployment orchestration, and comprehensive testing across all layers.
 
 ## Route the Request

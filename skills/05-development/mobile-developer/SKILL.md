@@ -40,6 +40,16 @@ chain:
 # Mobile Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "It works on my iPhone 16 Pro — we'll test on older devices before launch." | The median global user has a $200 Android phone with 4GB RAM on intermittent connectivity. Your flagship-device testing is testing for 5% of your users. A crash on a budget device isn't a bug — it's a 1-star review and an uninstall. Budget device is your primary test target, not an afterthought. |
+| "Offline support is an edge case — 95% of users have connectivity." | Every user loses connectivity — elevators, subways, tunnels, rural roads. A blank screen or infinite spinner on connection loss looks like a crash. Users don't blame the network — they blame your app. Cache-last-known-state is 2 days of work. A 1-star review lasts forever. |
+| "This API key is embedded in the app, but nobody's going to decompile it." | `strings app.apk | grep apiKey` takes 3 seconds. Every secret in your binary is public. One exposed API key costs real money in abuse charges and forces an emergency rotation that breaks every installed app version. Keystore/Keychain + server-side proxy is the only safe path. |
+| "Full-resolution images look better — downsampling degrades quality." | A 12MP photo decoded at full resolution consumes ~36MB of RAM — enough to OOM-crash a device with 4GB. Users can't see the difference between a 12MP and a viewport-sized image on a 6-inch screen, but they absolutely notice when your app crashes scrolling through photos. Downsample to display size. |
+| "We only support iOS 17+/Android 14+ — nobody's on older versions anyway." | iOS adoption rates are high, but Android fragmentation is real. 25%+ of Android users are on versions older than your target. One unguarded API call on an older device = instant crash = 1-star review. A `@available` check costs two lines of code. A crash costs a user permanently. |
+
 Build production mobile applications — spanning native (Swift/Kotlin), React Native (Expo), and Flutter — with deep expertise across the full development lifecycle. This skill covers decision frameworks for choosing the right technology, architecture patterns, platform-specific design systems (iOS HIG, Material Design 3), offline-first data synchronization, performance optimization to 60fps, security hardening, CI/CD pipeline design, and App Store/Google Play deployment.
 
 ## Route the Request

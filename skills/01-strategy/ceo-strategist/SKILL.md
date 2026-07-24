@@ -50,6 +50,16 @@ chain:
 
 Executive-level strategy for company formation, fundraising, organizational design, and governance. Think like a founder/CEO making resource-constrained decisions under uncertainty.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I know my numbers — just give me the strategy, I'll adapt" | Strategic advice without your actual metrics is calibrated for someone else's company. A burn-rate calculation off by 2x with 6 months of runway = you're out of business in 3 months instead of 6. |
+| "Best practices are best practices — just tell me what works" | "Best practice" is the average of every company that isn't yours. Your stage, team size, industry, and constraints make the average actively dangerous. Framework without context is cargo-cult leadership. |
+| "We're too early-stage for rigorous validation" | Early-stage decisions compound the hardest. A wrong strategic bet at seed stage costs you the company — not a quarter. The smaller you are, the less margin you have for unvalidated assumptions. |
+| "I'll handle verification myself — just give me the recommendation" | Strategic recommendations without built-in validation steps become unchecked assumptions. By the time you discover the assumption was wrong, you've already burned $200K-$1M in salary, runway, and opportunity cost. |
+| "Directional advice is fine — I don't need precision" | "Directional" hiring advice off by 30% = $300K/year in unnecessary payroll for a 20-person team. Precision isn't pedantry — it's the difference between a funded company and a dead one. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
@@ -345,6 +355,9 @@ graph LR
 - **OKRs set top-down without team input** — "VP sets OKRs → Directors cascade → Teams execute." The teams closest to the problem know what's achievable and what's delusional. Top-down OKRs ask for 40% revenue growth when the product can't handle 20% more users. Bottom-up input on feasibility prevents OKRs from being aspirational fiction.
 - **Board deck** that buries problems in appendix slide 47 — board members find problems through their networks anyway. The CEO who says "here are our 3 biggest problems and what we're doing about them" gets more trust and better advice than the CEO who says "everything is great." Bad news early is a leadership superpower.
 - **Fundraising timing** — if you have 18 months of runway, you start fundraising at month 12. You'll close at month 16, with 2 months of cash remaining. The board sees desperation and terms get worse. Start fundraising when you have 12+ months of runway AND strong momentum. Desperation is a negotiating position you never want.
+- **Executive hire without reference calls to former direct reports.** The VP of Sales crushed their interview, has a great track record, and references (all peers/bosses) are glowing. Six months in, you discover they burned out their last two teams — 60% attrition in 18 months. Your top 3 AEs quit within the quarter. **Total cost: $150K-$300K in recruiting fees and severance, $1M-$3M in lost pipeline from departed AEs, and 12-18 months of lost sales momentum.** Fix: Always speak to 2-3 former direct reports during reference checks; ask "would you work for this person again?" and "how did they handle underperformance?"; include a 90-day probation clause with reduced severance.
+- **Acquisition integration treated as an afterthought.** You acquire a $5M ARR company for $50M. The deal closes, and nobody owns integration. Engineering teams clash over tech stacks, the acquired CEO leaves after 6 months of frustration, and 40% of the acquired customer base churns within 18 months because the product roadmap stalled. **Total cost: $20M-$35M in destroyed acquisition value — you paid $50M for what became $15M-$30M in retained ARR.** Fix: Appoint a dedicated integration lead 90 days BEFORE close; create a 100-day integration plan with cultural, technical, and customer retention workstreams; hold weekly integration reviews for the first 6 months.
+- **No succession plan for critical roles.** Your CTO gives notice — they're burned out and joining a startup. There's no #2 ready, no documented architecture decisions, and 3 senior engineers who know critical systems are also interviewing. The board demands an interim CTO search that takes 6 months, and 2 platform projects stall entirely. **Total cost: $500K-$1M in executive search fees and interim coverage, plus 6-9 months of engineering roadmap delay that pushes your Series B timeline back by 2 quarters.** Fix: Identify successors for every C-suite and VP role; require key-person documentation (ADR repos, runbooks, vendor contacts) updated quarterly; maintain relationships with 2-3 "break glass" interim executives.
 
 ## Verification
 

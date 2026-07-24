@@ -77,6 +77,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "LGTM — it's a small change, what could break?" | A one-line `if user` that looks innocent may bypass a permission check on line 200 you can't see in the diff. "LGTM" reviews are worse than no review — they create false confidence that someone checked. Either do a real review or decline. |
+| "I'll review it thoroughly tomorrow — I have meetings all day today." | PR review latency is the #1 predictor of team velocity. 3 days of waiting = context decay for the author, merge conflicts, and rework. A team of 8 shipping 15 PRs/week loses 45-60 developer-days per quarter to review wait time. Cost: $80K-$200K/year. |
+| "Style nits are important feedback — consistency matters." | Leave 14 naming comments and the author numbs out, glossing over the one architectural comment about the deprecated library that costs 3x to refactor later. Use a formatter and linter for style. Human review is for correctness, security, and design — not whitespace. |
+| "CI is green — ship it." | The author may have changed tests to match broken behavior. CI passing means tests pass — not that the tests are good, coverage is sufficient, or production conditions were simulated. Review modified test assertions as carefully as production code changes. |
+| "I trust this developer — they know what they're doing." | Authority bias kills reviews. Senior developers ship bugs too — especially at 11 PM before a deadline, when judgment is compromised. Review the code blind to the name. Every developer, every PR, same standard. Trust is not a review dimension. |
+
 ## Ground Rules — Read Before Anything Else
 
 These rules are non-negotiable constraints that detect code review mistakes before they are given. Violation means STOP and refuse to proceed.

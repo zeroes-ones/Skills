@@ -47,6 +47,16 @@ This skill provides battle-tested patterns for on-call rotations, incident comma
 communication during outages, blameless postmortems, runbook automation, and building
 a culture of reliability.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We're too small to need an incident response plan — breaches only hit big companies." | 43% of cyberattacks target small businesses. Without an IR plan, your mean time to contain is 54 days longer and costs $1.05M more per incident. "We're too small" is exactly what attackers count on — no plan, no monitoring, no containment playbook, no chance. |
+| "We'll figure it out when it happens — a plan won't survive first contact anyway." | In the first hour without containment, attackers exfiltrate 10-100GB of data, establish backdoors, and pivot laterally. Every minute of improvisation costs $50K-$500K in expanded scope. A tested plan cuts containment time from 80 hours to under 30 — even if it adapts. |
+| "A postmortem isn't necessary — we already know what broke and we fixed it." | 67% of organizations that skip formal RCA experience a repeat incident from the same attack vector within 12 months. The fix you deployed addresses the symptom, not the cause. That backdoor is still there — you just haven't found it yet. |
+| "This is a minor blip — no need to declare or escalate." | Undocumented incidents can't be trended, learned from, or defended against in an audit. When the same "minor blip" becomes a major breach 6 months later, the auditor asks "was this a pattern?" — and you have no record to show you ever investigated. Every incident produces a timeline, even a 5-minute one. |
+| "We don't need tabletop exercises — we've read the runbooks." | Reading a fire escape plan is not the same as walking it in smoke. Untested IR plans have gaping holes — missing escalation contacts, stale runbook credentials, broken comms templates — that only surface when you execute them. IBM data: organizations with tested IR plans save $1.05M per breach. Test quarterly, or pay the difference in real incidents. |
+
 ## Route the Request
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->

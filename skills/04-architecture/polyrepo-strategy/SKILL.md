@@ -52,6 +52,16 @@ chain:
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Monorepo is the answer — Google does it, so should we." | Google spent hundreds of millions building Blaze, Piper, and Critique. Your 20-person team does not have that budget. You'll spend $250K-$1.5M in engineering hours over 2 years on slow builds, CI failures, and monorepo tooling you build instead of buying. Monorepo is a tool, not a religion. |
+| "Teams will naturally coordinate breaking changes — we all talk to each other." | Without a formal deprecation process, breaking changes are discovered when downstream CI fails — hours or days after the breaking merge. Average cross-repo breakage: 4-12 engineer-hours to diagnose and fix. Cost across a 100-engineer polyrepo org: $120K-$600K per year in unplanned break-fix work. |
+| "We don't need shared CI templates — each team can maintain their own pipeline." | Splitting to polyrepo without shared CI governance produces N inconsistent pipelines with divergent quality gates. When a critical CVE hits, you update and test 50 repos individually instead of bumping one shared template. Cost: $75K-$250K in delayed CVE response — each day unpatched multiplies risk exposure. |
+| "Just copy the shared code into each repo — faster than setting up a package registry." | 5 repos × 2 changes per quarter × 50 lines per change = 500 lines of duplicated maintenance per quarter. One security fix missed in one repo = vulnerability in production. Cost of copy-paste without quantifying the maintenance tax: $30K-$100K/year in duplicated maintenance and missed security patches. |
+| "Inner source means anyone can contribute — no governance needed, just open the repo." | Without CODEOWNERS, review SLAs, and contribution guidelines, external PRs sit unreviewed for weeks. Contributors get frustrated, never contribute again, and inner source credibility is destroyed in one quarter. Cost of governance-free inner source: $100K-$300K in lost contribution value and damaged engineering culture that poisons the well for 2+ years. |
+
 Decision framework and operational patterns for managing multiple independent repositories — when polyrepo is the right answer, how to coordinate across repo boundaries, and how to migrate in either direction between monorepo and polyrepo architectures.
 
 ## Ground Rules — Read Before Anything Else

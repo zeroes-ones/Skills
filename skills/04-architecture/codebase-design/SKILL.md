@@ -34,6 +34,16 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 # Codebase Design
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "It works — the module has 12 public methods but they're all small, so it's fine." | A shallow module with 12 public methods and 15 lines of behavior forces 10 developers to read 12 method signatures every time they touch related code. Hundreds of wasted cognitive cycles. At $150/hour blended rate, a team of 10 loses $15K-$45K annually on a single shallow module. |
+| "I'll extract that pass-through module later — right now I need to ship." | A pass-through module that delegates every call without adding behavior still requires: dependency updates, security patches, documentation, tests, onboarding explanation, and code review attention. Over 2 years, maintenance cost exceeds deletion cost by 10-20x. Cost: $10K-$30K in maintenance drag per pass-through. |
+| "Adding one more public method won't hurt — someone might need it." | Without active minimization, modules gain 1-2 public methods per quarter. After 2 years, a module that started with 5 methods has 13-21. Each addition seemed harmless at the time. Cumulative depth erosion makes the module progressively harder to understand and change. Cost: $5K-$15K/year in interface creep per ungoverned module. |
+| "The seam placement doesn't need analysis — the module boundary feels natural here." | A seam at the wrong abstraction level will be moved within 6-18 months. Moving it requires updating every caller, rewriting tests, updating documentation, retraining the team. For 20+ callers across 5 services: 2-4 weeks of engineering at $12K-$20K per week. Cost: $25K-$75K in refactoring labor per wrong seam. |
+| "Keeping related code in separate directories is how it's always been — don't fix what isn't broken." | When related concepts are spread across 5+ directories, new developers spend 2-3 extra weeks building a mental map through painful debugging sessions. For 4 new hires per year at $120K salary: $20K-$50K annually in onboarding overhead from scattered code that should be co-located. |
+
 A vocabulary-driven approach to designing deep modules — units of code where a lot of behavior hides behind a small interface, placed at a clean seam, testable through that interface. Based on John Ousterhout's philosophy: complexity is the enemy, and the best way to fight it is through deep modules.
 
 ## Ground Rules — Read Before Anything Else

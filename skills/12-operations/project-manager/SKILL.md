@@ -40,6 +40,16 @@ chain:
 
 Technical project management covering initiation through closure. Work breakdown structures (WBS), dependency mapping, critical path analysis, risk management (RAID logs), stakeholder communication plans, budget tracking, resource leveling, milestone management, status reporting cadence, and project postmortems.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Just mark the status green — the VP wants good news, and we'll catch up next sprint." | SPI 0.72, CPI 0.88 — this is RED by any objective measure. Green-washing a status report doesn't fix the schedule, it just delays the reckoning. When the real numbers surface in month 4 instead of month 1, the recovery cost is 4x higher and the trust damage is permanent. **The truth has a shelf life. When it rots, it takes your credibility with it.** |
+| "It's just one small feature addition — we don't need a formal change request, it'll take an hour." | Twenty "one small additions" later, scope has expanded 40%, the critical path shifted, and nobody can explain why the budget is blown. Your "one-hour fix" triggered a dependency chain that delayed integration testing by 3 weeks. **The only difference between scope creep and a change request is who signs. Gate every change or own every overrun.** |
+| "We'll recover the schedule by working harder — cut QA by a week." | You traded a schedule problem for a quality crisis. The bug that escaped into production because QA was cut costs $150K in hotfix labor, SLA penalties, and customer churn. A 1-week schedule save becomes a 3-month reputational repair. **Cutting quality to hit a date converts a temporary problem into a permanent one.** |
+| "The RAID log can wait — I'll review it after this sprint's fire drill." | That fire drill IS a RAID item you ignored 3 weeks ago when it was a medium risk with a $5K mitigation cost. Now it's an active issue burning $14K/week in overtime. A RAID log older than 14 days isn't a risk management tool — it's a postmortem shopping list. **Every risk you ignore today is an emergency you'll manage tomorrow.** |
+| "Give me a delivery date — the exec team needs something for the board deck tomorrow." | A date without team capacity data, velocity history, scope estimates, and known interrupt load is a lie with a calendar attached. You'll miss it by 30-50% and explain the miss to the same board in 90 days. **Fiction delivered fast is still fiction. And the board remembers who wrote the fiction.** |
+
 ## Route the Request
 
 ### Auto-Route (No User Input Required)

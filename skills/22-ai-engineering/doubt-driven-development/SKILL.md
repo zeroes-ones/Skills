@@ -38,6 +38,16 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 # Doubt-Driven Development
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We already do code review — adversarial review is redundant." | Standard code review catches 35-45% of defects. Adversarial review catches 65-85%. The gap is where your $500K production incident is hiding right now, passing through your existing process untouched. |
+| "I trust this engineer — they've been here 3 years and know the codebase." | Senior engineers insert defects at the same rate as juniors on code they authored. Familiarity bias means they skip the exact edge cases that break. The author's own review misses 60-80% of defects that fresh eyes catch. |
+| "We don't have time for claim extraction and doubt cycles — we need to ship." | A 30-minute adversarial review prevents a 40-hour incident response. The math: 0.5 hours × 10 PRs = 5 hours invested vs. one incident at $200K in downtime + 40 engineering-hours. You're betting $200K against 5 hours of process. |
+| "Our test suite has 95% coverage — that's our safety net." | Coverage measures what code runs, not whether it runs correctly. A payment processor with 95% coverage shipped a negative-quantity bug because no test sent quantity=-1. The $200K chargeback took 3 days to unwind. |
+| "I'll do a quick review pass myself — cross-model escalation is a nice-to-have." | Single-model review has a 15-30% blind spot. A cross-model review costs $2-5 in API tokens. Skipping it on a CRITICAL claim is gambling $5 against a $50K-$500K production defect. The cheapest insurance policy in software. |
+
 Adversarial fresh-context review methodology. Every non-trivial decision is subjected to a structured doubt cycle: extract what was claimed, find what is WRONG, reconcile the gap, and stop after three cycles. The reviewer's job is not to approve — it is to find defects that escaped the author's assumptions.
 
 ## Ground Rules — Read Before Anything Else

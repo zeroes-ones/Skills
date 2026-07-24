@@ -58,6 +58,16 @@ chain:
 # Frontend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I'll add accessibility after we ship — it's just aria-labels, how hard can it be?" | Retrofitting WCAG 2.2 AA onto a finished UI costs 3-5× more than building accessibly from the start. Every `<div onClick>` you ship today is a lawsuit risk and a rebuild tomorrow. Accessibility is not a feature — it's the floor. |
+| "It works fine on my MacBook Pro — users have fast internet too." | Your median user is on a 3-year-old Android phone with 4GB RAM on spotty 4G. Desktop Chrome DevTools lie. Your 100 Lighthouse score on desktop means nothing when mobile users get 12-second loads and bounce. |
+| "useState + useEffect for data fetching is simpler — TanStack Query is overkill for this." | This pattern causes stale data, race conditions on rapid re-renders, and duplicate network requests. One `useEffect` fetching bug in production costs hours of debugging. Server state belongs in a dedicated cache — every time you skip it, you're writing bugs you'll fix later. |
+| "I'll optimize performance after we launch — premature optimization is the root of all evil." | Performance is architecture, not polish. A page with 3-second LCP loses 32% of users before it even renders. You can't bolt Core Web Vitals onto a finished app — you'll be rewriting components, not tweaking CSS. |
+| "Security checks on the client are fine — nobody's going to hack our little app." | The client is attacker-controlled territory. Every auth gate, role check, and input sanitizer you put in client-side JS can be deleted with devtools in 3 seconds. Client-side security is a UX convenience, never a boundary. Your "nobody would bother" threshold is wrong — bots scan indiscriminately. |
+
 Build performant, accessible, and maintainable web applications using React (Next.js App Router) and Vue (Nuxt). This skill covers the complete frontend engineering practice: framework selection with trade-off analysis, component architecture with Server Components and composition patterns, state management taxonomy (server vs client vs form vs URL), CSS architecture at scale, Core Web Vitals optimization to measurable targets, WCAG 2.2 AA accessibility compliance, bundle optimization with tree shaking and code splitting, and comprehensive testing from unit to E2E.
 
 ## Route the Request

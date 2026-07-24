@@ -48,6 +48,16 @@ and live market execution. Covers entry/exit/trim strategy design for unusual-op
 (UOA) signals, multi-engine backtesting, walk-forward optimization, position sizing across
 regimes, broker API integration, order execution algorithms, and portfolio-level risk monitoring.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "The backtest shows Sharpe 4.2 and 93% win rate — this strategy is bulletproof." | You tuned 18 parameters on the full dataset with zero out-of-sample validation. Every parameter was curve-fit to noise. In live trading, true Sharpe is 0.3 and you lose 12% in the first quarter. **Cost: $50K-$500K in live losses before you accept reality. Split your data or your account gets split instead.** |
+| "I'll add the stop-loss after this trade — the signal is too good to pass up." | The market doesn't care about your signal confidence. A single untrimmed loss on a momentum reversal can erase 40% of your account in hours. March 2020, August 2024 VIX spikes — positions without stops became account liquidations. **No stop = no strategy. You are gambling, and the casino is the market maker.** |
+| "The signal is getting stronger as price drops — I should add to the position." | UOA signals have a shelf life measured in hours, not days. Smart money exited at the first adverse move. You're now buying what institutions are selling. Averaging down on a losing position is how a $5K loss becomes a $50K account blowup. **The market does not owe you a recovery. Cut it.** |
+| "Mid-prices in backtesting are fine — the spread is only a few cents." | A 5-cent spread on a $50 stock is 0.1%. 500 trades/year compounds to a 40% drag on returns that your backtest never captured. Add slippage on market orders during volatility and you're leaking 3-5% annually into a hole your backtest doesn't even model. **You're not trading the mid-price. The market maker knows this. So should you.** |
+| "I'll deploy now and add idempotency keys, correlation checks, and circuit breakers next sprint." | Your broker API retries a submission during a network hiccup and fills the order twice. Your bracket order gets rejected silently — the entry fills but the stop-loss never activates. You now hold an unprotected position you didn't know about until the margin call. **Production without idempotency is a liquidation event with a countdown you can't see.** |
+
 ## Route the Request
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->

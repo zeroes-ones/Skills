@@ -47,6 +47,16 @@ chain:
 # System Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll figure out NFRs later — let's just pick the architecture first." | Architecture without load numbers is fashion, not engineering. You'll discover at 10K QPS that your event-driven CQRS system costs $50K/month in infra for a workload a $200/month monolith would handle. Cost of wrong guess: $200K-$2M in re-architecture. |
+| "Microservices are industry standard — we should start there." | A 5-person team running 12 microservices spends 60% of their time on deployment pipelines, monitoring dashboards, and inter-service debugging. You're building distributed systems expertise instead of product. One modular monolith, one deploy, zero network latency between modules. Cost of premature microservices: $300K-$1.5M in wasted engineering over 18 months. |
+| "We don't need a diagram — the architecture is simple enough to describe in prose." | Every reader of a prose-only architecture description pictures something different. That shared hallucination becomes real when 3 teams implement 3 conflicting interpretations. A C4 diagram takes 20 minutes and exposes missing connections, implicit dependencies, and gaps that prose hides — gaps that cost $50K-$200K to fix post-implementation. |
+| "We'll add resilience later — timeouts, circuit breakers, retries — right now we need to ship." | One slow downstream service saturates all request threads. Cascading failure across your entire system in < 90 seconds. Every synchronous call without a circuit breaker is a bet you cannot afford to lose. Cost of skipping resilience: $100K-$500K per major cascading outage. |
+| "Vendor lock-in is theoretical — we'll never leave AWS/Azure/GCP." | When your CFO demands multi-cloud leverage at renewal, or your provider deprecates a critical managed service, a 70%+ proprietary architecture has no migration path. Only a full rewrite. Cost of undocumented lock-in: $500K-$2M in emergency re-architecture, plus 30-60% inflated cloud costs from zero negotiation leverage. |
+
 Design and evaluate system architectures through structured modeling, trade-off analysis, and architectural decision records. This skill covers end-to-end architecture from requirements to deployment topology, including C4 modeling (Context, Container, Component, Code), Architecture Decision Records (ADRs), scalability patterns, and capacity planning.
 
 ## Route the Request
@@ -97,6 +107,52 @@ What are you trying to do?
 
 ```
 
+### Skill Boundary: When to Use System-Architect vs Adjacent Skills
+
+System-architect overlaps with several skills. Use this decision flow to route correctly:
+
+```
+What's the primary task?
+├── DESIGNING system topology, service boundaries, communication patterns, or making tradeoff decisions → **system-architect**
+│   ├── "Should these 3 services be 1 or 3?" → system-architect
+│   ├── "How do we split this monolith?" → system-architect
+│   ├── "What happens when this service fails?" → system-architect
+│   └── "Kafka vs RabbitMQ for our event backbone?" → system-architect
+│
+├── WRITING code, implementing APIs, or building service logic → **backend-developer**
+│   ├── "Implement the order service in Go" → backend-developer
+│   ├── "Write the REST endpoint for user registration" → backend-developer
+│   ├── "Add JWT authentication middleware" → backend-developer
+│   └── Decision rule: If the output is executable code → backend-developer, not system-architect
+│
+├── PROVISIONING infrastructure, writing Terraform, building CI/CD pipelines → **devops-engineer**
+│   ├── "Provision a Kubernetes cluster with Terraform" → devops-engineer
+│   ├── "Set up ArgoCD for GitOps deployments" → devops-engineer
+│   ├── "Configure Prometheus/Grafana dashboards" → devops-engineer (with input from system-architect on what to measure)
+│   └── Decision rule: If the output is IaC (Terraform, Pulumi, Ansible) or pipeline YAML → devops-engineer
+│       However: system-architect defines WHAT needs to be provisioned (service topology, scaling requirements);
+│       devops-engineer implements HOW it gets provisioned.
+│
+├── DESIGNING cloud provider architecture (VPCs, regions, IAM, landing zones) → **cloud-architect**
+│   ├── "Design a multi-region AWS landing zone with Control Tower" → cloud-architect
+│   ├── "Choose between EKS, ECS Fargate, or Lambda for this workload" → cloud-architect
+│   ├── "Design IAM roles and cross-account access patterns" → cloud-architect
+│   └── Decision rule: If the question is about cloud provider services, networking topology, or account
+│       architecture → cloud-architect. System-architect designs the logical system; cloud-architect maps
+│       it to cloud provider primitives. The two skills are complementary: system-architect produces
+│       C4 diagrams and ADRs; cloud-architect translates them to AWS Well-Architected / Azure WAF / GCP
+│       architecture framework designs.
+│
+├── Need product requirements before designing → **product-manager**
+├── Need build-vs-buy or technology strategy → **cto-advisor**
+├── Need deep security threat modeling → **security-engineer**
+├── Need API contract design (OpenAPI, GraphQL schema) → **api-designer**
+├── Need database schema design → **database-designer**
+└── Need networking topology (VPN, BGP, CDN) → **networking-engineer**
+```
+
+**Coordination pattern:** When multiple skills are needed, system-architect goes first — produce the architecture (C4 diagrams, ADRs, service topology). Then downstream skills implement: cloud-architect maps to cloud services, backend-developer implements services, devops-engineer provisions infrastructure, api-designer writes contracts. Never invoke downstream skills until the architecture is stable; rework cascades. 
+
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Ground Rules — Read Before Anything Else
@@ -113,6 +169,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R4** | **REFUSE to recommend microservices for a team of fewer than 20 engineers on a greenfield project.** Microservices trade development speed for organizational scaling. A 5-person team with 15 services spends more time on deployment pipelines, monitoring dashboards, and inter-service debugging than on features. Start with a modular monolith and extract services only when proven necessary. | Trigger: recommending microservices architecture for a greenfield project with < 20 engineers, or a team where engineer:service ratio is < 3:1 | STOP. Reframe: "A modular monolith is the correct default for teams under 20 engineers. Benefits: 1 deploy pipeline, 1 codebase, 0 network latency between modules, simple debugging, simple transactions. Extract a service when: (1) that module has proven independent scaling needs, (2) its bounded context is stable, (3) a dedicated team will own it. Microservices are organizational scaling — you pay the cost upfront for a benefit you may never need." |
 | **R5** | **DETECT and WARN about event-driven architecture without dead-letter queues.** Every event consumer without a DLQ is a silent data-loss incident waiting to happen. When the consumer is down, events are published into the void — unrecoverable, untraceable, invisible until a customer complains. | Trigger: proposing event-driven, pub/sub, or message-queue architecture without mentioning DLQ (dead-letter queue), message replay, or poison message handling for every consumer | WARN. Insert: "**DLQ Required:** Every event consumer must have: (1) Dead-Letter Queue with configurable `maxReceiveCount`, (2) alert on DLQ depth > 0, (3) message inspection UI, (4) replay mechanism, (5) retention policy (minimum 7 days). Without DLQ, a brief consumer outage = permanent data loss. Customers discover missing data before your monitoring does." |
 | **R6** | **STOP and WARN about synchronous inter-service calls without timeouts, circuit breakers, retries, and bulkheads.** One slow downstream service saturates all request threads → cascading failure across the entire system. Every synchronous dependency is a bet that the downstream will respond within your timeout — and that bet must have a circuit breaker. | Trigger: proposing inter-service HTTP/gRPC calls without configuring: `timeout` (p95×2, max 30s), `circuit_breaker` (open at 50% error rate), `retry` (max 3, exponential backoff + jitter), `bulkhead` (separate thread pool) | STOP. Insert: "**Resilience Required:** Every sync call must configure: `timeout = p95_latency × 2` (max 30s), circuit breaker open at 50% error rate with 30s half-open probe, retries: max 3 with exponential backoff (100ms, 200ms, 400ms) + jitter (±25%), bulkhead: dedicated thread pool per downstream. Without these: 1 slow dependency = all users affected. This is the #1 cause of cascading production failures." |
+| **R7** | **DETECT and WARN when the architecture depends on a single cloud provider's proprietary services without a documented lock-in cost.** DynamoDB Streams + Lambda + Step Functions + API Gateway + Cognito is a beautiful architecture — on AWS. It is zero percent portable. When the CFO demands multi-cloud leverage at renewal, or the provider deprecates a critical service, there is no migration path — only a full rewrite. | Trigger: proposing architecture where > 70% of components are cloud-proprietary managed services (DynamoDB, Lambda@Edge, Cloud Functions, BigQuery, Cosmos DB) without a quantified exit cost in the ADR | WARN. Insert: "**Cloud Exit Cost Required:** This architecture is [X]% dependent on [provider]-proprietary services. Quantify the cost to migrate to an alternative: (1) which components are portable vs locked-in? (2) estimated engineering-months to rewrite locked-in components, (3) annual cloud spend that could be negotiated with credible multi-cloud leverage. Accept that 100% portability is a myth — target 80% portability for 20% of the effort, and document deliberate lock-in points with business justification." |
+| **R8** | **DETECT and WARN about architecture proposals that conflate C4 Container level (runtime processes) with Docker containers (deployment units).** C4 Container diagrams show runtime processes — a web application, a database, a message broker. Docker containers are infrastructure detail that belongs at C4 Code level (level 4), not Container level (level 2). Conflating these produces diagrams where every microservice is a Docker container — obscuring the actual runtime architecture beneath deployment detail. | Trigger: C4 Container diagram contains "Docker container," "Kubernetes pod," "ECS task," or deployment-level constructs as primary nodes | WARN. Insert: "**Diagram Level Mismatch:** C4 Container diagrams model runtime processes — not deployment units. A 'Container' in C4 is a web app, a database instance, a message broker. Docker containers, Kubernetes pods, and ECS tasks are C4 Code level (level 4) or Deployment diagram concerns. Redraw showing runtime processes as primary nodes; show deployment topology separately." |
+| **R9** | **REFUSE to recommend database-per-service without measuring the join cost.** Microservice data ownership ("each service owns its own database") sounds clean until you need: a join between orders and users, a transaction spanning inventory and payment, or a report aggregating data from 12 services. What was a simple SQL query becomes a distributed transaction or a materialized view maintenance nightmare. | Trigger: recommending database-per-service pattern without quantifying cross-service query requirements, transaction boundaries, or reporting needs | STOP. Ask: "Before splitting databases: (1) List every query that currently spans multiple tables — how many of those tables will be in separate services? (2) For each cross-service query, what's the latency budget? (3) Which operations require transactional guarantees across services? Database-per-service optimizes for organizational scaling, not query simplicity — make sure you need organizational scaling before you pay the distributed query cost." |
+| **R10** | **DETECT and WARN when the architecture assumes all dependencies will be available and responsive.** "Service A calls Service B" — diagram shows a solid line. Production: Service B is slow (P99 latency spikes to 5s). Service A has no timeout configured. Default HTTP client timeout is 30s. Service A's thread pool exhausts in 90 seconds. Now Service A is also down. Then Service C, which calls A, cascades. One slow dependency takes down the system. | Trigger: architecture diagram where service dependencies show no timeout, retry, or circuit breaker annotations | WARN. Every cross-service dependency arrow must specify: timeout (p95 × 2), retry strategy (max 3 with exponential backoff + jitter), circuit breaker (open after 50% failure rate in 60s window), and graceful degradation behavior (what the service returns when the dependency is unavailable). |
+| **R11** | **REFUSE to approve an architecture where the observability story is "we'll add logging before launch."** An architecture without instrumentation is a black box in production. When the P1 incident hits at 3 AM, the on-call engineer has: no distributed traces to identify the bottleneck, no metrics to compare against baseline, no structured logs to query by correlation ID. Mean time to resolution: 4 hours of grep'ing through unstructured log files. | Trigger: architecture proposal without an observability section or with a placeholder "monitoring will be added later" | STOP. Every architecture must specify: (1) Distributed tracing (OpenTelemetry) on every service boundary, (2) RED metrics (Rate, Errors, Duration) per service + USE metrics (Utilization, Saturation, Errors) per resource, (3) Structured logging with correlation ID propagation, (4) Alert routing matrix (which alerts → which team → which response). These are architecture decisions, not DevOps implementation details. |
 
 ## The Expert's Mindset
 
@@ -171,7 +232,76 @@ Key decision paths (full trees in [references/decision-trees.md](references/deci
 ### Monolith vs Microservices
 
 ```
-                     ┌──────────────────────────┐... [See full decision trees →](references/decision-trees.md)
+Starting a new project or refactoring?
+├── Greenfield, team < 20 engineers → Modular Monolith
+│   ├── Enforce module boundaries via code structure (packages, namespaces, folder conventions)
+│   ├── Shared database, shared build pipeline, single deployable
+│   ├── Benefits: 1 deploy pipeline, 0 network latency between modules, simple transactions
+│   └── Extract a service when: (1) that module has proven independent scaling needs, (2) its bounded context is stable, (3) a dedicated team will own it
+├── Brownfield, team 20-50 engineers → Strangler Fig Migration
+│   ├── Identify bounded contexts with independent deploy cadence and scaling needs
+│   ├── Extract highest-value service first: the one causing the most friction in the monolith
+│   ├── Route new endpoints to the service, leave existing traffic on the monolith
+│   ├── Migrate incrementally over 3-6 months per service
+│   └── Anti-pattern: "big bang rewrite" — 12-24 months, high failure rate, no incremental value
+├── Enterprise, 50+ engineers, multiple teams → Microservices by bounded context
+│   ├── One service per bounded context. One team owns 1-3 services.
+│   ├── Each service: own database, own deploy pipeline, own SLO. Async communication preferred.
+│   ├── Invest in: service mesh, distributed tracing, schema registry, CI/CD per service
+│   └── Organizational scaling benefit: teams deploy independently, reducing coordination overhead
+└── When microservices are the WRONG choice:
+    ├── Pre-product-market-fit (optimize for speed of learning, not scalability)
+    ├── Team < 20 engineers (coordination overhead > benefit)
+    ├── No dedicated DevOps/SRE (N microservices = N deploy pipelines to maintain)
+    └── Simple domain with low change velocity (a well-structured monolith will serve for years)
+```
+
+### Database Architecture Decision
+
+```
+What persistence pattern fits your access patterns?
+├── Single database, shared schema → Monolith or modular monolith
+│   ├── Simplicity wins. Transactions, joins, constraints — all work natively.
+│   ├── Risk: one poorly-written query can impact all services. Mitigation: connection pooling + query timeouts.
+│   └── When to move on: DB CPU sustained > 70%, table-level contention under concurrent writes, or independent deploy needs.
+├── Database-per-service → Microservices with independent data ownership
+│   ├── Each service owns its schema. No direct DB access from other services — API only.
+│   ├── Cross-service queries: materialized views, event-carried state transfer, or API composition layer (GraphQL federation, BFF).
+│   ├── Distributed transactions: Saga pattern with compensating actions. Avoid 2PC — it couples services' availability.
+│   └── Cost: eventual consistency, operational complexity, N databases to backup/monitor/upgrade.
+├── CQRS (Command Query Responsibility Segregation) → Read/write asymmetry > 10:1
+│   ├── Writes: normalized relational store. Reads: denormalized document store or search index.
+│   ├── Sync via change-data-capture (CDC) from write store → read store. Eventual consistency.
+│   ├── When: complex read aggregations that kill write-DB performance, or read patterns so different from write patterns that one schema serves neither well.
+│   └── When NOT: reads < 10:1 vs writes (read replicas solve this), simple domain with basic queries.
+└── Multi-tenancy → Per-tenant data isolation
+    ├── Database-per-tenant (strongest isolation, highest cost) → for enterprise SaaS with compliance requirements (HIPAA, SOC 2 per-tenant).
+    ├── Schema-per-tenant (moderate isolation, moderate cost) → shared DB, separate schemas. Good balance for mid-market.
+    ├── Shared tables with tenant_id column (weakest isolation, lowest cost) → for SMB SaaS where tenant data volumes are small.
+    └── Decision driver: what's the largest tenant? If Tenant X has 50x the data of the median, they need their own database anyway.
+```
+
+### API & Communication Pattern Decision
+
+```
+Synchronous or asynchronous between services?
+├── Request-response (query/command, < 50ms latency budget) → gRPC (internal) or REST (external)
+│   ├── gRPC: protobuf schemas, strong typing, bidirectional streaming, HTTP/2 multiplexing
+│   ├── REST: human-readable, cacheable (CDN), universal tooling. OpenAPI 3.1 for contract.
+│   └── Every sync call MUST have: timeout (p95 × 2), circuit breaker (50% error → open), retry (max 3, jitter), bulkhead.
+├── Async events (notification, > 200ms latency tolerance) → Message broker (Kafka/NATS/SQS)
+│   ├── Event choreography: services react to events independently. Loose coupling, harder to trace.
+│   ├── Saga orchestration: orchestrator service coordinates the workflow. Easy to reason about, single point of failure.
+│   ├── Every consumer: DLQ, replay mechanism, idempotency (at-least-once delivery is the norm).
+│   └── Event schema: Avro/Protobuf with schema registry. Backward compatibility is non-negotiable.
+├── Data synchronization (cache invalidation, search index updates) → CDC + event stream
+│   ├── Change-data-capture from source database → event stream → consumers update materialized views.
+│   └── Avoid: services directly reading each other's databases. It couples deployment and creates hidden dependencies.
+└── API Gateway pattern for external clients → BFF (Backend for Frontend) or GraphQL federation
+    ├── BFF: one API layer per client type. Web BFF aggregates 10 endpoints; mobile BFF returns lean payloads.
+    ├── GraphQL federation: each service owns its subgraph. Gateway composes responses. Client gets exactly what it requests.
+    └── Never: expose internal service APIs directly to external clients. Gateway handles auth, rate limiting, and protocol translation.
+```
 
 ## Core Workflow
 
@@ -262,7 +392,21 @@ Architecture guidance, review, or approval for team-level design
 
 ## What Good Looks Like
 
-> Every stakeholder — from the junior developer to the CTO — can look at the C4 diagrams and understand how the system fits together without asking "what does this arrow mean?" Architecture Decision Rec
+### BEFORE (Novice) → AFTER (World-Class)
+
+**Architecture Communication:**
+- **BEFORE:** 40-page architecture document with prose descriptions of "scalable," "resilient," "cloud-native" system. No diagrams. No quantified requirements. Every reader pictures something different. During implementation: "Wait, I thought Service A called Service B synchronously?" "No, the doc says 'communicates via events' on page 23." Three weeks of rework.
+- **AFTER:** C4 diagrams (Context → Container → Component) as the primary communication artifact. A new team member traces data flow from ingress to persistence in under 10 minutes using the diagrams alone. ADRs for the last 5 major decisions are written, reviewed, merged, and linked from PR templates. Every diagram element is labeled. Every arrow has a protocol annotation (REST/gRPC/Kafka). The architecture sketch passes the "explain to a new hire in 5 minutes" test.
+
+**Decision Quality:**
+- **BEFORE:** "We'll use microservices because that's what Google does." 12 services for a 5-person team. Each service has its own database. A simple "get user orders" requires 4 API calls across 3 services. Debugging a latency spike requires grep'ing logs across 12 services at 3 AM. Infrastructure costs: $15K/month. The monolith they replaced ran on a $200/month VPS.
+- **AFTER:** Architecture decision backed by quantified NFRs: peak QPS, P95 latency budget, availability target, data volume, team size, and organizational structure. "We chose a modular monolith because: team of 8, peak 500 QPS, P95 latency target 200ms, no independent deploy needs across the 3 bounded contexts. We'll extract the Order service to its own deployable when: (1) it reaches 2000 QPS independently, (2) a dedicated team of 4 owns it, (3) its deploy cadence diverges from the monolith." ADR documents the decision, alternatives considered, and triggers for revisiting.
+
+**Failure Mode Design:**
+- **BEFORE:** Architecture designed for the happy path. "Service A calls B calls C." Document shows clean sequence diagram with all green arrows. Nobody asks: what happens when B is down? Production: B times out at 30s, A's thread pool saturates within 90 seconds, the entire system is down — not just B. Cascading failure from one missing circuit breaker.
+- **AFTER:** Every architecture review includes a "break it" walkthrough: "What happens when this component fails? This network partition occurs? This database is unreachable?" Circuit breakers on every sync call. Bulkheads isolating thread pools. Graceful degradation documented per component. Chaos engineering experiments run quarterly. The architecture is defined as much by its failure modes as its happy path.
+
+> Every stakeholder — from the junior developer to the CTO — can look at the C4 diagrams and understand how the system fits together without asking "what does this arrow mean?" Architecture Decision Records for the last 5 major decisions are written, reviewed, and merged. The architecture passes the "if a bus hits the architect" test — the system is understandable, documented, and resilient without its creator.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
@@ -296,6 +440,12 @@ Architecture guidance, review, or approval for team-level design
 
 - **Single-cloud architecture without a quantified exit strategy.** Teams build deeply into one provider's proprietary ecosystem (DynamoDB Streams + Lambda + Step Functions + API Gateway + Cognito) without ever calculating what it would cost to leave. When the CFO demands multi-cloud leverage during contract renewal, a region-wide outage exposes concentration risk, or the provider deprecates a critical managed service, there's no migration path — only a full rewrite. **Total cost: $500K-$2M in emergency re-architecture when lock-in becomes a board-level issue, plus 30-60% inflated cloud costs from lacking credible negotiation leverage at renewal.** Fix: quantify your cloud exit cost annually as an architecture fitness function. Use cloud-agnostic primitives for stateless compute (containers, not proprietary FaaS) and open-source data stores (PostgreSQL not DynamoDB, Kafka not Kinesis). Accept that 100% portability is a myth — target 80% portability for 20% of the effort cost, and document the deliberate lock-in points with business justification.
 
+- **Designing for "10x scale" before you have 1x users.** A team of 5 engineers spends 3 months building a microservices architecture with Kubernetes, service mesh, event sourcing, and CQRS — for an application with 200 daily active users. The architecture can theoretically handle 100K QPS. The product has no users because the team was building infrastructure instead of features. Meanwhile, a competitor launched a Rails monolith on a $40/month VPS, got to 50K users, and THEN hired architects. **Total cost: $150K-$300K in engineering time + 3-month time-to-market delay that yielded zero competitive advantage.** Fix: Design the architecture for 10x your CURRENT load, not 1000x. Build a modular monolith. Document the extraction triggers: "When X metric exceeds Y threshold for 2 consecutive weeks, we'll extract component Z." The architecture plan should be 80% "what we need now" and 20% "where we put the seams for future extraction."
+
+- **Adopting a technology because it's "what the big tech companies use" without understanding the operational burden.** "Google uses Kubernetes, so should we." Google also has thousands of SREs, custom kernel patches, and a fleet management system (Borg) that predates Kubernetes. Your team of 3 DevOps engineers will spend 40% of their time managing Kubernetes upgrades, node failures, CNI issues, and etcd backups — time that could be spent on application reliability. **Total cost: $100K-$250K/year in infrastructure + additional headcount needed to operate the platform + opportunity cost of features not built.** Fix: Technology adoption decision must include an operational cost model: what's the TCO including headcount to operate? What's the failure mode when the team is on vacation? If you can't operate it with your CURRENT team on their WORST day, you can't afford it.
+
+- **Documenting architecture decisions only in architecture diagrams without ADRs (Architecture Decision Records).** A C4 diagram shows WHAT the architecture is. ADRs explain WHY it is that way. Without ADRs, every new team member questions the same decisions: "Why are we using Postgres and not MongoDB?" "Why synchronous calls between these two services?" The original architects have left or forgotten the context. Decisions get re-litigated. Bad decisions get repeated. **Total cost: $30K-$80K per re-litigated decision in engineering time + risk of repeating a decision that already failed.** Fix: Every architecture decision that required > 1 hour of discussion gets a 1-page ADR: Title, Context, Decision, Alternatives Considered, Consequences. ADRs live in the repo (docs/arch/adr/). PR template links to relevant ADRs. New team members read ADRs as part of onboarding.
+
 - **C4 Container diagram vs. deployment diagram**: Containers in C4 are runtime processes (a web app, a database), NOT Docker containers. Showing Docker containers as C4 containers conflates the deployment view with the runtime view. Docker is infrastructure detail — it belongs in C4 level 4, not level 2.
 - **Event-driven architectures** make debugging order-dependent bugs nearly impossible without correlation IDs. If Service A emits event E1, B reacts with E2, C reacts with E3 — and C sees E3 before E1's side effect — the bug reproduces only under specific race conditions. Every event must carry a `correlationId` and `causationId`.
 - **Microservice data ownership**: If Service A owns `users` and Service B needs `user.email`, B should NOT query A's database directly. But if B calls A's API for every email, latency spikes. The real answer is a materialized view or event-carried state transfer — decisions that must be made at architecture time, not implementation time.
@@ -309,6 +459,11 @@ Architecture guidance, review, or approval for team-level design
 - [ ] Cross-reference ADRs: no two ADRs make contradictory recommendations
 - [ ] Capacity calculation: peak RPS × (1 + growth %) fits within provisioned capacity with 2x headroom
 - [ ] Failure mode walkthrough: for each component, document "what happens when this fails" — no single point of failure
+- [ ] Ground Rules check: every sync call in diagrams has timeout, retry, circuit breaker annotations (R6/R10)
+- [ ] Observability check: distributed tracing, RED+USE metrics, structured logging with correlation IDs specified (R11)
+- [ ] Microservices gate check: team size ≥ 20 OR proven scaling pain with documented extraction triggers (R4)
+- [ ] Dollar-cost impact assessment: each major architectural decision includes quantified cost of getting it wrong
+- [ ] Routing check: confirms system-architect is the right skill (not backend-developer, devops-engineer, or cloud-architect)
 
 ## References
 - **Architecture Fitness Functions**: See [architecture-fitness-functions.md](references/architecture-fitness-functions.md)

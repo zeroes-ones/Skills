@@ -230,6 +230,61 @@ Problem diagnosis?
     └── "If they only remember one number from this slide, what should it be?" Keep only that.
 ```
 
+### Visual Style Strategy
+
+```
+How should you approach visual design for this presentation?
+├── Internal team meeting (weekly, 5-20 people, known audience) → Minimalist + fast
+│   ├── Template: company-branded, 3 colors max. No custom graphics.
+│   ├── Content: data-heavy, bullet points acceptable, zero narrative polish
+│   ├── Time: 30-60 min prep. Focus on clarity, not beauty.
+│   └── Tool: Google Slides or Notion. Don't open Figma.
+├── Leadership/board presentation (quarterly, 5-15 people, high stakes) → Clean + data-driven
+│   ├── Template: custom-designed, strong hierarchy, 2 fonts max
+│   ├── Content: insights in headlines, data visualizations annotated, appendix with details
+│   ├── Time: 4-8 hours prep + 3 rehearsals. Every slide earns its place.
+│   └── Tool: PowerPoint or Keynote for polish. Pre-read sent 48h before.
+├── External conference/keynote (annual, 100-5000 people, thought leadership) → Cinematic + story-driven
+│   ├── Template: custom-designed, full-bleed images, minimal text on screen
+│   ├── Content: narrative arc (setup → tension → resolution), slides support the speaker, not vice versa
+│   ├── Time: 20-40 hours prep + 10+ rehearsals. Practice transitions, timing, demos.
+│   └── Tool: Keynote or custom deck. AV check with venue. Backup slides offline.
+├── Sales pitch / customer-facing (weekly, 1-20 people, must close) → Problem-agitation + social proof
+│   ├── Template: clean, professional, on-brand. Logo wall of current customers on slide ~4-6.
+│   ├── Content: problem → agitation → solution → proof → CTA. More slides, faster pace.
+│   ├── Time: 2-3 hours prep + rehearsal focusing on objections and Q&A
+│   └── Anti-pattern: leading with features. Lead with the problem you solve.
+└── Investor pitch deck (fundraising, 5-20 people, must persuade) → Dense + memorable
+    ├── Template: highly designed, distinctive, memorable. This deck represents your brand.
+    ├── Content: problem, market size, solution, traction, business model, team, ask
+    ├── Time: send as PDF (not live presentation). It must work as a standalone document.
+    └── Tool: Figma or designer-built deck. No templates. This is your company's most important document.
+```
+
+### Data Storytelling Decision
+
+```
+What type of data story are you telling?
+├── Trend over time (revenue growth, user acquisition, churn) → Line/area chart
+│   ├── Annotate: inflection points (what happened here?), projections (dotted line), targets (horizontal line)
+│   ├── Context: "This line represents X. The spike in March was caused by Y. If current trajectory holds, Z."
+│   └── Color: one data series = bold brand color. Multiple series = distinguishable palette, gray out comparison
+├── Comparison (A vs B, before vs after, us vs competitor) → Bar chart or grouped column
+│   ├── Sort: descending by value (largest to smallest), not alphabetically — exception: time can't be sorted
+│   ├── Highlight: the ONE comparison that matters. Gray out everything else.
+│   └── Annotation: delta callout ("+34%") directly on the bar, not in a footnote
+├── Part-to-whole (market share, budget allocation, user segments) → Stacked bar, treemap, or donut (≤ 5 segments only)
+│   ├── If > 5 segments: aggregate the smallest into "Other" or use a treemap
+│   ├── Donut charts: center the key number. "74%" in 48pt bold. Label outside for context.
+│   └── Never: pie charts with > 5 slices or 3D effects — they distort perception of proportion
+├── Correlation/relationship (price vs conversion, ad spend vs revenue) → Scatter plot with trend line
+│   ├── Axes: label clearly. Zero-baseline not always required for scatter plots.
+│   ├── Quadrants: draw lines at median values to create 4 quadrants. Label what each quadrant means.
+│   └── Annotate: outliers ("This dot is us — 2x efficiency of nearest competitor")
+└── The rule: one chart per slide, one insight per chart.
+    └── If a chart needs > 10 seconds to explain, split it into 2 charts or simplify the data.
+```
+
 ## Cross-Skill Coordination
 
 | Related Skill | Relationship | When to Route |
@@ -254,13 +309,29 @@ Problem diagnosis?
 
 ## What Good Looks Like
 
-*   **The audience can summarize the presentation in one sentence 24 hours later.** If they can't, the narrative wasn't clear enough.
-*   **Every slide passes the 3-second test.** A late arrival glancing at any slide for 3 seconds should understand the main point from the headline alone.
-*   **Data slides have headlines that state insights, not topics.** "Revenue grew 34%" not "Q3 Revenue." Every chart has a highlighted takeaway.
-*   **The presentation has an emotional arc.** Tension builds, gets resolved. Audiences feel curiosity, surprise, conviction — not just information transfer.
-*   **Speaker notes read like a natural conversation, not a script.** When read aloud, they sound like someone talking, not someone reading.
-*   **Zero stock photos.** Every image is either a product screenshot, custom diagram, data visualization, or customer-specific photo.
-*   **The call-to-action is crystal clear.** The audience knows exactly what to do next: schedule a meeting, sign up, invest, approve the budget.
+### BEFORE (Novice) → AFTER (World-Class)
+
+**Narrative Clarity:**
+- **BEFORE:** Presentation is a list of topics: "Agenda, About Us, Q3 Results, Product Update, Next Steps, Thank You." Audience retains nothing. Follow-up meeting scheduled because "we ran out of time for discussion." The presentation was an information dump, not an argument.
+- **AFTER:** Through-line: "We need to invest $2M in the API platform now — here's why waiting costs us $5M next year." Every slide advances this argument. Audience remembers the through-line 24 hours later. Decision made in the room. Follow-up: "When can you start?" — not "Can you send us the deck?"
+
+**Slide Quality:**
+- **BEFORE:** Slides have 80-150 words of body text. Presenter reads them word-for-word. Audience reads ahead, tunes out, checks email. "I'll just read the deck later" — they never do. Credibility: zero.
+- **AFTER:** Every slide passes the 3-second test: headline states the insight ("Revenue grew 34% — fastest quarter since Series A"), not the topic ("Q3 Revenue"). Body text under 30 words. Data slides have highlighted takeaways with annotations. Squint test: one visual element dominates. Audience listens to the presenter because the slides are visual aids, not teleprompters.
+
+**Audience-Centric Design:**
+- **BEFORE:** Same deck for the board, the engineering team, and the customer advisory council. Engineers are bored by oversimplified business metrics. Board members are confused by architecture diagrams. "One-size-fits-all" fits nobody.
+- **AFTER:** Three versions of the same core narrative, tailored per audience: Board version (decision-first, 10 slides, pre-read with data appendix, meeting = discussion). Engineering version (architecture depth, technical credibility, "how we'll build it"). Customer version (problem agitation, social proof, product demo, clear CTA). Same through-line, different evidence and depth.
+
+**Data Visualization:**
+- **BEFORE:** Slide titled "Revenue by Quarter." A 3D bar chart with 12 bars, gridlines, a legend in the corner, and axis labels in 10pt font. Presenter: "As you can see from this chart, revenue has been growing. The blue bars represent domestic, the orange bars represent international. Q3 was particularly strong." Audience squints, checks phones, waits for the presenter to tell them what they're supposed to see. The chart is decoration, not communication.
+- **AFTER:** Slide headline: "International revenue grew 89% in Q3 — now 42% of total revenue, up from 28%." One clean bar chart: domestic bars in light gray, international bars in bold brand color. Q3 bar annotated with a circled "+89% YoY" callout. Gridlines removed. Legend removed — bars labeled directly. Audience gets the insight in 3 seconds. The presenter uses the chart as evidence for the headline they just stated, then moves to implications: "This means we need to double our international support team by Q1."
+
+**Delivery Preparation:**
+- **BEFORE:** Slides finished at 2 AM the night before. Zero rehearsal. Presenter sees slide 7 for the first time while presenting it. "Oh, what's this chart showing?" Filler words: 15 "ums" per minute. Runs 8 minutes over. Q&A: "That's a great question — I'll have to get back to you on that."
+- **AFTER:** Three full rehearsals minimum: Run 1 (timing), Run 2 (flow and transitions), Run 3 (full dress with clicker, timer, and recording). Speaker notes are complete sentences with transition phrases between slides. Q&A prep: 5 likely tough questions with prepared answers. Presenter knows exactly where the 18-minute mark hits and has a plan to cut 3 minutes on the fly if needed.
+
+**What good looks like:** The audience can summarize the presentation in one sentence 24 hours later. Every slide passes the 3-second test. Data slides have headlines that state insights, not topics. The presentation has an emotional arc — tension builds, gets resolved. Speaker notes read like a natural conversation, not a script. Zero stock photos. The call-to-action is crystal clear. The deck could be presented by someone who's never seen it before, using only the speaker notes, and the audience would still get the message.
 
 ## Verification
 
@@ -292,16 +363,32 @@ Run these checks before considering any presentation complete:
 - **Using company template without modification.** Corporate templates are designed by committee — they cram logos, legal disclaimers, 7 shades of brand blue, and a footer that takes up 20% of the slide. **Total cost: 20-40% of every slide wasted on branding that nobody cares about.** Strip the template to bare essentials: one logo (small, in corner), one brand color (as accent), whitespace. Your content is the brand — not the footer.
 - **No dry run of tech setup.** "Can everyone see my screen?" is not how you want to open. Test: projector connection, clicker/remote, audio (if playing video), screen resolution, font rendering (especially custom fonts), and backup computer. **Total cost: $10K-$100K in lost opportunity when 5 minutes of a 20-minute slot is wasted on tech fumbling.** Arrive 30 minutes early. Test everything. Have a PDF backup on a USB drive and in email.
 - **Overdesigning to compensate for weak content.** Beautiful slides with weak arguments are still weak arguments. No amount of animation, gradient, or custom icon can save a presentation that doesn't have a clear point. **Total cost: spending $5K-$20K on a designer when the narrative needed a strategist, not a decorator.** Fix the story first. Design amplifies the message — it doesn't create it.
+- **Opening with "About Us" or "Agenda" slides.** The first 30 seconds of a presentation are the highest-attention window you'll ever have. Wasting them on a logo slide and agenda list ("I'll cover Q3 results, product updates, and hiring") tells the audience nothing they couldn't read in an email. They check their phones. You never recover their attention. **Total cost: $5K-$50K in lost opportunity — a board presentation that fails to persuade, a sales pitch that doesn't close, a conference talk nobody remembers.** Fix: Open with a provocative statement, surprising statistic, or compelling story that states the thesis. "Last quarter, we lost $2M to a problem nobody is tracking." Now they're listening. Slide 1 = your best argument, not your name.
+- **Using the same presentation deck as both a projected visual and a leave-behind document.** Slides designed for projection (minimal text, visual-heavy, presenter-dependent) fail as documents (no context, no explanation, no value without the speaker). Slides designed as documents (dense text, complete sentences, self-contained) fail as projected visuals (audience reads instead of listens). The compromise deck satisfies neither purpose. **Total cost: $5K-$25K per presentation — wasted preparation effort producing a deck that fails at both jobs, plus missed influence with decision-makers who review the "leave-behind."** Fix: Build two versions: (1) Presentation deck: one idea per slide, < 30 words, visual-dominant, 3-second test. (2) Leave-behind PDF: includes slide image + 2-3 paragraph narrative per slide, self-contained, readable without the presenter. This takes 20% more effort and 5x the impact.
 
 ## Deliberate Practice
 
 Build these skills through structured repetition:
 
-1. **Slide diagnosis challenge.** Take 5 real-world presentations (your company's, competitors', famous keynotes). For each slide, answer: (a) What's the ONE point? (b) Does the headline state the insight? (c) Passes the 3-second test? (d) What would you change? Do this for 50 slides before designing your own.
-2. **The 10 → 5 → 3 exercise.** Take a 30-slide deck. Cut it to 10 slides without losing the argument. Then cut those 10 to 5 slides. Then to 3 slides. This teaches you what's truly essential. The 3-slide version is your core narrative — everything else is support.
-3. **Speaker notes from scratch.** Take a famous speech (TED talk, commencement address, product launch) and reverse-engineer the speaker notes. Write what you think the speaker planned to say for each beat. Then watch the talk and compare. Where did they deviate? Where did they improvise?
-4. **Recorded rehearsal review.** Present a 5-minute segment to your webcam. Watch it back without sound (body language only). Then listen without video (voice only). Then watch normally. You'll catch three different sets of issues. Do this 5 times before any important presentation.
-5. **Audience persona deep-dive.** For one upcoming presentation, write a 1-page persona for each distinct audience segment: their goals, their fears, their pet peeves about presentations, what keeps them up at night. Design 3 slides specifically to address each persona's primary objection.
+| Level | Practice | Frequency |
+|-------|----------|-----------|
+| **Novice** | The 10→5→3 exercise: Take a 30-slide deck. Cut to 10 without losing the argument. Then to 5. Then to 3. The 3-slide version is your core narrative — everything else supports it. Do this with 5 different decks from your company. | Weekly |
+| **Competent** | Slide diagnosis challenge: Take 5 real-world presentations (your company's, competitors', famous keynotes). For each of 50 slides, answer: (a) What's the ONE point? (b) Does the headline state the insight? (c) Does it pass the 3-second test? (d) What would you change? | Monthly |
+| **Expert** | Speaker notes reverse-engineering: Take a famous speech (TED talk, product launch, commencement). Write the speaker notes you think they prepared. Then watch the talk and compare. Where did they deviate? Where did they improvise? What did they cut for time? Do this for 10 talks. | Quarterly |
+| **Master** | Recorded rehearsal analysis: Present a 5-minute segment to camera. Watch without sound (body language only). Listen without video (voice only — count filler words, check pacing). Watch normally. Fix the top 3 issues. Repeat 5 times. Track: filler word count per minute (target < 3), pace (target 120-150 wpm), and slide transition smoothness. | Monthly |
+
+**The One Highest-Leverage Activity:** Record yourself presenting for 5 minutes. Watch it. You will discover more about your presentation skills in those 5 minutes than from any book, course, or coach. Most people never do this — which is why most presentations are bad. Do it 10 times and you'll be in the top 5% of presenters.
+
+## Troubleshooting Common Failures
+
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| **Audience asks "can you go back to slide X?"** | Narrative jumps, no logical flow between slides | Add transition sentences between every slide. Each slide should answer the question the previous slide raised. |
+| **Decision-maker says "this is interesting but not a priority right now"** | Failed to connect the presentation to their top-of-mind concerns | In the first 3 slides, explicitly name the problem THEY care about, not the one YOU want to solve. |
+| **Q&A goes off-topic or becomes hostile** | Presentation didn't pre-emptively address objections | Add a "Common Concerns" slide that names and neutralizes the top 3 objections before Q&A begins. You control the frame. |
+| **Audience remembers nothing 24 hours later** | No repetition of the core message | Rule of three: state your through-line in the opening, reinforce it in the middle with evidence, restate it at the close. One message, three passes. |
+| **Presenter runs out of time before reaching the conclusion** | No time budget per section | Allocate minutes per section in speaker notes. Mark "must-cover" vs "nice-to-have" slides. Practice cutting 30% of content on the fly. |
+| **Slides look different on the projector than on your laptop** | Color profile mismatch, custom fonts missing, resolution difference | Always test on the actual projector. Embed fonts. Use sRGB color profile. Have a high-contrast PDF backup. |
 
 ## References
 

@@ -38,6 +38,16 @@ chain:
 # Networking Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I'll just open 0.0.0.0/0 temporarily for debugging — I'll close it in 5 minutes." | Port 22 open to the world attracts brute-force attacks within 90 seconds. That "temporary" rule is still there 6 months later when auditors find it. Console click-ops leave no audit trail and can't be reproduced via IaC. Cost of a single forgotten 0.0.0.0/0 rule: $50K-$500K in breach scope expansion from unrestricted lateral movement. |
+| "VPC Flow Logs are nice-to-have — we'll enable them when we have time." | When partners report connectivity issues, you have zero data to diagnose. You're guessing based on config, not evidence. Every minute of "figuring out how it's connected" during an outage is pure waste. Cost of no flow logs: $50K-$300K per extended outage from undiagnosable network issues. |
+| "CIDR-based security group rules are fine — our IPs never change." | Subnets get renumbered. Services migrate. Auto-scaling replaces instances. CIDR rules break silently — traffic drops, nobody knows why, hours of debugging ensue. Security group references survive every topology change. Cost of CIDR rules for inter-service traffic: $15K-$50K in silent breakage incidents per year. |
+| "We'll add multi-region failover next quarter — single region is fine for now." | A regional fiber cut or cloud control-plane outage takes down every customer globally for 4-8 hours with no fallback. Mid-market SaaS loses $100K-$500K/hour in revenue during a regional outage. Cost of single-region architecture: $100K-$500K/hour during the inevitable regional outage, plus SLA penalty payouts. |
+| "Cloud egress costs? Those line items are negligible." | A data-intensive pipeline moving 50TB/month cross-AZ generates $1,000-$2,000/month in cross-AZ data transfer that nobody budgeted for. Microservices making inter-AZ calls multiply this by service count. Cost of ignoring egress: $5K-$50K/month in unexpected cloud charges — the surprise that turns into a CFO conversation. |
+
 Design, deploy, and operate cloud-native and hybrid network architectures. This skill covers the full stack: from IP address planning and subnet design through DNS, load balancing, CDN, firewalls, VPNs, and service mesh. Every design considers cost, latency, security, and operational complexity. The goal is a network that developers never think about because it just works — secure by default, fast everywhere, and cheap at scale.
 
 ## Route the Request
