@@ -407,6 +407,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Clicks are cheap — volume wins" | $52,500 on "maximize clicks" bidding: 15,000 clicks from students and international traffic, 2 demo requests. Same budget on target CPA: 175-250 MQLs and 25-40 pipeline opportunities. Bid toward conversions, never clicks. |
+| "Nurture everyone — more is better" | A customer in renewal gets "Want to learn about our platform?" and forwards it to their AM. Every nurture email without suppression lists (current customers, open opportunities, topic-level unsubscribes) destroys trust with existing accounts. |
+| "Open rates look great — the audience is engaged" | Apple Mail Privacy Protection inflates open rates by 30-40% via proxy pre-fetching. A "highly engaged" lead who "opened every email" may have never seen your brand. Score on clicks, form fills, and site visits — not opens. |
+| "Broad webinars fill the funnel — cast a wide net" | 800 registrations for "Future of Supply Chain": 40% students, 30% junior practitioners, 20% vendors, 10% buyers. $15K + 40 team hours = $500+ per relevant attendee. ABM webinars for 50 named accounts at $8K produce 8-15 qualified opportunities. |
+| "UTM tracking is admin — we'll fix the taxonomy later" | Three teams produce `utm_source=linkedin`, `linkedin_paid`, and `li` — $105K in unaggregatable spend. VP presents channel ROI on incomplete data, CFO finds $30K discrepancy. Cost: $15K-$25K in analytics cleanup + $50K-$200K in misallocated budget. |
+
 ## Gotchas
 
 - **B2B LinkedIn ads targeting "CEO" title** at companies with 50-200 employees — half of those profiles list "CEO" but are actually solopreneur consultants, not your buyer. Combine title + company size + industry; title alone is a vanity metric.

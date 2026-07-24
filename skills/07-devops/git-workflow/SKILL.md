@@ -382,6 +382,16 @@ Bad alternative (anti-pattern):
 
 5. **Merge Conflict Gauntlet:** Have two branches make conflicting changes to the same 5 files (different refactors, renamed functions, moved files). Merge them without losing any work. Practice with `git mergetool` and understand when to accept theirs vs ours vs manually resolve.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Branch protection is for large teams — we're only 5 engineers." | One force-push to main overwrites teammates' merged PRs. Recovery takes 2 hours across 4 engineers = $1,500-$3,000 per incident. Branch protection takes 5 minutes to enable and prevents this forever. |
+| "We'll clean up the git history later — just ship the messy commits." | Dirty history accumulates exponentially. Future `git bisect` sessions take 4x longer navigating "wip" and "fix typo" commits. $10K-$30K/year in wasted debugging time across the team. Squash-merge is free. |
+| "Secrets in the repo? We'll rotate the keys next sprint." | Bots scan every public commit within 5 minutes. If the repo is public or becomes public later, that AWS key funds $50K in crypto mining before you notice. Rotate on detection — every minute matters. |
+| "Everyone knows not to commit node_modules or .env files." | One `git add .` without a proper .gitignore = 200MB of permanent repo bloat. Every clone from that point downloads those 200MB forever. For a team of 20 with CI runners, that's 4GB/day of wasted bandwidth. $2K-$5K/year. |
+| "We don't need a documented merge strategy — just merge when ready." | Undefined workflow = 2-3 hrs/week per engineer in merge confusion, rebase-vs-merge debates, and accidental overwrites. $15K-$30K/year in friction that a one-page merge strategy doc eliminates. |
+
 ## Gotchas
 
 - **Force-pushing to main destroys the team's afternoon.** An engineer force-pushes a rebased main, overwriting 3 teammates' merged PRs. The reflog saves the commits, but coordination to re-apply takes 2 hours across 4 engineers. **Total cost: $1,500-$3,000 in lost productivity per incident.** Fix: Enable branch protection with force-push disabled on shared branches.

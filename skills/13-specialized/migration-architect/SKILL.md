@@ -482,6 +482,16 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 - **Storage migration with `rsync`** on a live filesystem — files change during the sync. `rsync` copies file A, file A changes, then `rsync` is already past file A. The target has a version of file A that never existed on the source at any single point in time. Use filesystem snapshots or database-native replication.
 - **"Strangler Fig" migration** where the new system calls the old system via API — if the new system's availability depends on the old system, you've added a dependency without removing one. The combined system is LESS reliable than either alone. Cut the dependency before declaring migration complete.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll do a big-bang cutover on a weekend; it's simpler" | Big-bang migrations fail 60% of the time; the 4-hour cutover window becomes a 28-hour outage when the rollback plan doesn't work because nobody tested it against production-scale data |
+| "Data validation? We'll spot-check a few rows after migration" | Spot-checking 50 rows on a 500M-row migration misses the 0.1% corruption that affects 500,000 records; checksum-based validation is the only way to verify completeness at scale |
+| "Zero downtime is over-engineering for our scale" | Even 30 minutes of downtime for a payment system during business hours costs $50K-$250K in lost transactions; the migration tooling for zero-downtime costs $5K-$15K in engineering time |
+| "We can skip the dry run; our migration script is well-tested" | A migration script tested on a 1GB dev database behaves completely differently on 5TB of production data; dry runs catch timeout, OOM, and lock-contention issues before they become outages |
+| "The old system can stay running as a fallback indefinitely" | Running dual systems doubles infrastructure cost, splits operational knowledge, and accumulates divergence — within 6 months, the "fallback" is an untested liability that can't actually be used |
+
 ## Verification
 
 - [ ] Source/target parity: row counts match ± 0.01% for every migrated table

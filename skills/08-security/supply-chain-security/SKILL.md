@@ -49,7 +49,7 @@ tags:
   - artifact-signing
   - vendor-assessment
   - owasp-a03
-author: zeroes-ones
+author: Sandeep Kumar Penchala
 type: security
 status: stable
 version: 1.0.0
@@ -413,6 +413,16 @@ graph LR
 - **A dependency with a `CVE-2024-XXXX` that is marked "disputed" by the maintainer may actually be exploitable in your context.** Maintainers sometimes dispute CVEs because the vulnerability requires unusual configuration — but your configuration might be exactly the unusual one. 12% of disputed CVEs are later confirmed exploitable by independent researchers. **Total cost: $100K-$1M — you dismiss a disputed CVE in an auth library, but your OAuth flow uses the exact edge case the CVE describes; an attacker chains it with another low-severity bug to achieve account takeover.** **Fix:** evaluate disputed CVEs independently — don't trust the maintainer's dispute at face value. Read the CVE report, understand the vulnerable code path, and determine if your usage triggers it. Document your assessment.
 
 - **Dependabot/Renovate auto-merge configured with `auto-merge: true` for "patch" updates can ship compromised dependency updates.** An attacker who compromises an npm maintainer account publishes a new "patch" version (e.g., 1.2.3 → 1.2.4) containing a backdoor. Dependabot opens a PR, your CI passes (the backdoor is stealthy), and auto-merge ships it to production within minutes. **Total cost: $200K-$2M — a malicious patch update to a widely-used library reaches your production deployment via automated merging before any human reviews it; the attacker now has code execution in your production environment.** **Fix:** never auto-merge dependency updates that touch production. Require human review on all dependency PRs. Use Dependabot's `open-pull-requests-limit` to batch updates. Configure CI to run full integration tests — not just unit tests — against updated dependencies before merge.
+
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Our pipeline runs inside a private VPC — we don’t need SLSA provenance or signed attestations" | Private networks don’t stop a compromised dependency from exfiltrating secrets at build time; provenance is about artifact integrity, not network perimeter |
+| "We pin dependencies to specific commit SHAs — that’s as immutable as a content digest" | Commit SHAs can be garbage-collected; without a content-addressable store, a force-pushed tag produces a silently different artifact on the next rebuild |
+| "The vulnerability scanner passed with zero criticals — we’re clear to ship" | Scanners miss ~78% of malicious packages; they check known CVEs, not typosquatting, protestware, or dependency-confusion attacks |
+| "Our base image is :latest but we scan on every registry push — that catches drift" | Scanning at push time doesn’t prevent TOCTOU; the image pulled during deploy can differ from the one scanned minutes earlier |
+| "We trust the CI runner — it’s GitHub’s infrastructure, they handle security" | Shared runners execute untrusted third-party code; a compromised dependency’s postinstall script has access to your repo secrets and deployment credentials |
 
 ## Verification
 

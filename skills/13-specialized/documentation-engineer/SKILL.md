@@ -451,6 +451,16 @@ graph LR
 - **Search in static docs** (`algolia`, `lunr.js`) indexes rendered HTML, not source Markdown. Code blocks inside ` ``` ` fences are indexed as searchable text. Users searching for variable names get results from code samples, not documentation. Configure search to exclude `code` blocks unless explicitly annotated.
 
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "Good code is self-documenting" | Code shows what and how, never why; without docs, every architectural decision becomes tribal knowledge that walks out the door with the engineer who made it |
+| "We'll write docs after the release" | Docs written post-release are docs that never get written; the 48-hour window after implementation is when the mental model is fresh — after that, accuracy degrades 30% per week |
+| "API reference is enough, developers will figure out the rest" | API references without tutorials, guides, and conceptual overviews have 70% higher support ticket volume; developers abandon undocumented APIs within 15 minutes of frustration |
+| "Docs don't need maintenance, the product doesn't change that much" | Docs rot at ~5% per month; after 18 months of zero maintenance, half the documentation is misleading — and misleading docs are worse than no docs |
+| "We'll add examples when someone asks for them" | Reactive documentation means every missing example was already a frustrated user who didn't ask — they just left; for every support ticket filed, 10-100 users silently churned |
+
 ## Verification
 
 - [ ] Build docs: `npm run docs:build` or equivalent — zero warnings, zero broken links

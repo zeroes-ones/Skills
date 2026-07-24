@@ -513,6 +513,16 @@ Dev: Verification: record new Performance profile → 340ms total (8x improvemen
 4. **Accessibility Tree Audit:** For any web page, open the Accessibility panel. Inspect 10 interactive elements. Verify: name, role, focusable state, and ARIA attributes. Count how many elements have discrepancies between HTML source and accessibility tree. The ratio will surprise you.
 5. **Mobile Emulation Realism:** Load your application on a Slow 3G throttle and 4x CPU slowdown. Time the full page load. Can you complete the primary user flow in under 30 seconds? Most desktop-developed apps fail this test on first attempt. Fix the top 3 bottlenecks.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "It looks fine on my machine — tested on Chrome, good to go." | Your machine is a MacBook Pro on gigabit fiber. Your users are on a 4-year-old Android with 3G in a rural area. DevTools emulation doesn't replicate GPU rendering, real CPU/memory constraints, or Safari WebKit flexbox quirks. Cost: **$15K-$50K** in post-release hotfixes for device-specific bugs found by users. |
+| "Mobile emulation in DevTools is enough — I don't need a real device." | Chrome DevTools emulates viewport, touch events, and user agent — but NOT actual GPU rendering, browser engine quirks (Safari/iOS handles flexbox differently), real network variability, or device-specific bugs. Cost: **$15K-$50K** in device-specific regressions discovered post-launch. |
+| "I'll just leave the debugger statement — I'll remove it before the PR merges." | The `debugger;` statement ships to production. When a support agent opens DevTools to help a customer, the page freezes. Cost: **$1K-$5K** per incident + emergency hotfix deploy + support team blocked from assisting customers. |
+| "The Accessibility panel shows zero violations — we're accessible." | Automated tools catch ~30% of WCAG issues. They miss keyboard traps, focus order violations, meaningful alt text quality, and screen reader announcement errors. Cost: **$20K-$100K** in accessibility lawsuit risk from issues that only manifest on real assistive technology. |
+| "I disabled cache for debugging — the production build will be fine." | You spent the entire debugging session with `Disable cache` checked, so you added cache-busting query params everywhere. In production, users get zero cache benefit and LCP regresses. Cost: **$5K-$15K/month** in excess CDN bandwidth and slower user experience. |
+
 ## Gotchas
 
 - **Debugging with cache disabled by default, then shipping a build that assumes cache is disabled.** The `Disable cache` checkbox is on in your DevTools, so you add cache-busting query params to every request. In production, users would benefit from caching but your build prevents it. **Total cost: $5,000-$15,000/month in excess CDN bandwidth and slower user experience (LCP regressions).**

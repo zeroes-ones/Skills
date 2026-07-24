@@ -533,6 +533,16 @@ Scenario 2: Regional bank expanding to open banking under PSD2. Need dedicated i
 
 *   **Deploying transaction signing without clock synchronization.** Digital signatures include a timestamp to prevent replay. If the signing server's clock drifts by 5 minutes, all signatures appear expired or future-dated. Transaction signing infrastructure needs NTP with <1 second accuracy and monotonic clock for ordering. **Total cost: $1M-$5M in transaction processing outage per hour of downtime — payment systems cannot "degrade gracefully" when signing fails.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "PCI DSS only matters if we store card numbers" | PCI DSS applies to any entity that stores, processes, OR transmits cardholder data — even a payment gateway that holds PANs in memory for milliseconds is in scope. SAQ A-EP alone requires 191 controls for merchants who outsource everything. |
+| "We're too small to be a target for financial fraud" | 43% of cyberattacks target small businesses. Fraudsters run automated attacks against thousands of small merchants specifically because they have weaker controls than enterprises. $200K average cost of a payment data breach for SMBs. |
+| "Our payment processor handles security, so we're covered" | Shared responsibility means the processor secures the vault; you secure the integration. If your checkout page is compromised by a Magecart skimmer, the processor is not liable — $50K-$500K in chargeback liability and forensic audit costs land on you. |
+| "A quarterly vulnerability scan satisfies compliance" | PCI DSS 4.0 requires continuous monitoring via intrusion detection, file integrity monitoring, and real-time alerting. A point-in-time scan that's clean on March 1 says nothing about the critical CVE exploited on March 15. |
+| "We'll implement fraud detection after we launch the payment feature" | Fraudsters probe new payment endpoints within hours of deployment. Without real-time scoring at launch, average fraud loss runs 0.9% of transaction volume in month one — $90K on $10M in processed payments. |
+
 ## Verification
 
 After implementing financial security controls, run this sequence. Do not proceed past a failure.

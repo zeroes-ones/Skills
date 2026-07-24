@@ -342,6 +342,16 @@ How to measure event success and capture learnings:
 | Budget = "around $50K" → actual = $78K | Budget with 15% contingency, tracked weekly, actual $53K | Budget with 15% contingency + 5% reserve, tracked weekly, actual within 5% of plan, $/attendee benchmarked against industry |
 | Signed venue contract without reading attrition clause | Contract reviewed, attrition negotiated from 80% to 70% | Contract reviewed + attrition negotiated + force majeure updated + AV exclusivity waived + 1 comp per 40 room nights + cancellation terms softened |
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll deal with the contract details later — just sign it" | Unread attrition clauses cost $8K-$25K in penalties for rooms no one used — pure contractual waste with zero value delivered to attendees. |
+| "The venue says WiFi supports 500 devices — we're good" | '500 devices' means connected, not streaming — venue WiFi collapses under real load, registration goes offline, and 'great event, terrible WiFi' reviews depress future ticket sales 10-15%. |
+| "In-house AV is convenient — let's just use theirs" | In-house AV markup is 200-300% of external pricing — $20K-$40K in overpayment per 3-day conference, enough to fund a keynote speaker or 50 attendee tickets. |
+| "We'll book speaker travel closer to the date — plans change" | Flights booked inside 2 weeks cost 40-60% more — $15K-$25K in avoidable premiums for 30 speakers with zero improvement in attendee experience. |
+| "Slides can come the day before — speakers are busy" | Late slides cause cascading 5-min delays across 12 sessions — $5K-$10K in refund requests plus permanent 'great content, terrible organization' reviews that outlast the event by years. |
+
 ## Gotchas
 
 - **Attrition clauses are the #1 hidden cost in hotel venue contracts — they can cost more than the venue rental itself.** If you guarantee 200 room nights at $250/night ($50,000 commitment) with 80% attrition, and only 150 rooms book, you owe $10,000 for rooms no one used. **For a mid-size conference, attrition penalties average $8K-25K. This is pure waste — no value delivered, just contractual obligation.** Fix: negotiate attrition to 70% or lower. Track room bookings weekly in final 2 months. If undershooting, open room block to local attendees, offer upgraded rooms, or negotiate with venue to apply F&B spend against attrition shortfall.

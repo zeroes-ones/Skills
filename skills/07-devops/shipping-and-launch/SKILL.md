@@ -445,6 +445,16 @@ Bad alternative (anti-pattern):
 
 5. **Launch Communication Template:** Draft a launch communication for a fictional major outage during a launch. Include: what happened, user impact, current status, estimated resolution, workaround, next update time. Practice delivering it in under 3 minutes. Then draft the post-launch retro summary.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Friday 5pm deploy — what could go wrong? We'll check it Monday." | Saturday morning traffic patterns differ from weekday testing. A latent bug surfaces, nobody monitors, and the first alert is a customer tweet 8 hours later. $15K-$50K in weekend emergency response, trust damage, and SLA credits. |
+| "We'll add the runtime kill switch in the next iteration — the feature works." | Feature causes 5x latency spike. The flag is a build-time constant, not a runtime toggle. Fix requires: new build (25 min CI) + deploy = 30+ minutes of degraded experience. $3K-$8K per incident when a 60-second toggle would have sufficed. |
+| "Dark launching is overkill for a small data pipeline change." | New pipeline writes 2M malformed records to the production database before detection. Recovery = 8 hours of point-in-time restore and reconciliation. $20K-$100K in engineering time and potential data integrity issues. |
+| "Feature flags are temporary — no need for a removal process." | Flag at 100% for 6 months. 40 commits later, someone refactors the "off" code path. Database migration failure triggers emergency toggle back to 0% — all users hit broken code, 2-hour outage. $50K-$250K per stale-flag incident. |
+| "Manual go/no-go based on the team's gut feel is faster than formal process." | A green test suite means "nothing we predicted broke," not "nothing broke." Go/no-go without production canary data is gambling. $50K-$500K in incident response and lost revenue per judgment-error release. |
+
 ## Gotchas
 
 - **Launching on Friday at 5pm guarantees a weekend incident.** A team deploys a major feature Friday afternoon and leaves for the weekend. A latent bug surfaces Saturday morning when traffic patterns differ from weekday testing. No one is monitoring, and the first alert comes from a customer tweet 8 hours later. **Total cost: $15,000-$50,000 in weekend emergency response, customer trust damage, and potential SLA credits.** Fix: Launch Tuesday-Thursday before 2pm. Never launch on Friday without explicit executive approval and 24/7 on-call coverage.

@@ -440,6 +440,16 @@ Look at a prototype you built recently. Count how many design questions it attem
 ### Exercise 5: Evidence Quality Audit (15 min)
 Review your last 5 prototype-based decisions. Rate each as HIGH/MEDIUM/LOW evidence quality. For LOW-quality decisions: what would a better prototype have looked like? If you made a production decision on LOW-quality evidence, flag it for revisit.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll clean it up and ship it — the prototype is basically done." | Prototype code has no error handling, no tests, and hardcoded credentials. "Next sprint" becomes "next quarter" becomes a **$200K-$500K** production incident from duplicate charges, data corruption, or credential leaks. Prototype code is deleted before production code is written — never the other way around. |
+| "It's just a quick spike — I don't need to isolate it from the main repo." | The spike ends up in production, the engineer leaves, and six months later on-call has no idea the caching layer was a prototype. Cost: **$50K-$200K** in incident response and institutional knowledge loss. Ground Rule R6 is non-negotiable: never prototype in the main repo. |
+| "The docs say this API works for our use case — we can skip the prototype." | Docs describe what an API CAN do, not what it does FOR YOUR USE CASE. Two sprints in, you discover the payment provider requires US bank accounts but 40% of your vendors are international. Cost: **$40K-$150K** in wasted development and a 6-week vendor switch. |
+| "I'll extend the time box by an hour — I'm almost there." | The answer was clear at 18 minutes. The extra 3.5 hours polished throwaway code that produced zero new information. At $150/hr across a team, that's **$5K-$20K/year/engineer** in prototype creep. The time box is a HARD STOP — when the timer ends, you stop typing. |
+| "We can answer two questions with one prototype — it's more efficient." | Mixing use cases confounds results. Streaming success masks request-response failure. You ship both, and the broken pattern requires a $65K rewrite 8 weeks later. Cost: **$30K-$100K** per confounded prototype. One question per prototype. ALWAYS. |
+
 ## Gotchas
 
 - **"I'll just clean this up later" — the $500K lie.** The most expensive four words in prototyping. A fintech startup built a "prototype" payment integration to test an API. The prototype had no idempotency handling, no retry logic, and hardcoded test credentials. The PM said "ship it and we'll clean it up next sprint." Next sprint became next quarter. Six months later, a network blip caused duplicate charges. Refunds, compliance fines, and lost merchant trust: $340K. The cleanup would have taken 3 days. **Total cost: $200K-$500K per prototype-that-shipped in duplicate charges, data corruption, compliance fines, and customer trust erosion. Prevent: enforce disposal protocol. Prototype code is deleted before production code is written.**

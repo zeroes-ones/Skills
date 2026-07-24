@@ -318,6 +318,16 @@ Common chains:
 - **Microcopy that's too clever** — a 404 page that says "Oopsie! Our hamsters are on a coffee break 🐹☕" — it's delightful to the designer who wrote it, but a user who's trying to pay an invoice and hit a broken link is NOT in the mood for whimsy. Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information. **Total cost: $50K-$200K in support costs and brand perception damage when humor misfires during high-stakes user workflows.**
 - **Onboarding flow written by the product team, not a UX writer** — the signup flow says "Configure your instance parameters" when it should say "Choose how your team works together." Jargon in the first 30 seconds of the user experience causes 20-40% drop-off rates. Users who bounce during onboarding rarely return, and each lost signup costs $50-$300 in CAC for paid acquisition channels. **Total cost: $100K-$500K monthly in wasted customer acquisition spend from jargon-induced onboarding abandonment.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "We'll wordsmith the copy after the design is finalized" | Copy crammed into fixed layouts produces truncated buttons, orphaned labels, and CTAs that break at 13 languages; rewiring design for copy costs 3-5x more |
+| "One clear message works for everyone" | Without localization-aware writing, English strings that fit perfectly expand 30-300% in German, break layouts in Arabic RTL, and lose meaning in Japanese |
+| "Error messages just need to say what went wrong" | "Invalid input" generates support tickets; "Enter a date after today" prevents them — every ambiguous error message costs $5-$25 in support overhead |
+| "Consistency just means using the same words" | Consistent terminology without consistent tone fractures brand trust; a friendly onboarding CTA next to a cold, robotic error message erodes user confidence |
+| "We'll test copy with users after launch" | Copy tested post-launch means bad microcopy is already driving churn; A/B testing 5 button labels during design costs $0, fixing confusing flows post-launch costs $50K+ |
+
 ## Verification
 
 - [ ] Error messages: every error message has 3 parts — what happened, why, what to do next

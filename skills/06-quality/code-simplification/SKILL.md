@@ -473,6 +473,16 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 4. **Conditional Table Refactor:** Find a function with 5+ if-else branches on the same variable. Convert to a lookup table or object literal. Measure: does the refactored version have higher or lower cognitive complexity? (It should always be lower.)
 5. **Naming Audit:** Take a 200-line module. For every variable and function name, ask: "Would a new team member understand this without reading the implementation?" Rename anything that fails this test. Run tests. Observe: how many comments became redundant?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "That dead code might be needed someday — better to keep it." | Dead code still executes CPU cycles, consumes cache, and confuses every reader. Version control exists for resurrecting code. At scale across 50 services, 12% dead code wastes **$30K-$100K/year** in unnecessary cloud compute. Delete it — git remembers. |
+| "I'll simplify this later when I have more time." | "Later" never arrives. The 200-line method with 8 nesting levels compounds every sprint — fixing a bug takes 4 hours instead of 30 minutes, duplicated logic across 4 files gets inconsistent fixes. Cost: **$50K-$200K/year** in compounding technical debt from deferred simplification. |
+| "It's just a small refactor — no need to run the full test suite." | The "small" extraction changes closure scope, and a downstream consumer depended on the original variable binding. Production throws ReferenceError. Cost: **$10K-$30K** in debugging and hotfix for a refactor that "couldn't possibly break anything." |
+| "That comment explains why the code is complex — I'll leave the complexity in place." | Comments rot faster than code. Three refactors later, the comment describes behavior that no longer exists, and the reader is more confused than if there were no comment at all. Simplify the code until the comment is redundant, then delete both. Cost: **$2.5K-$10K/year** in engineer confusion from stale comments. |
+| "The team won't understand this functional refactor — better to keep the imperative style." | Converting a `for` loop to `reduce` without team buy-in guarantees a revert next sprint. Code simplification must be a team sport — unilaterally changing the paradigm wastes effort and creates friction. Cost: **$500-$2K** in wasted effort + team churn per rejected refactor. |
+
 ## Gotchas
 
 - **Deleting error-handling code because "it never happens."** Production logs show the "impossible" null pointer happens 10,000 times per day at scale. Every `catch` block, null guard, and defensive check exists because someone got paged at 3 AM. **Total cost: $15,000-$50,000 per incident in engineering hours + revenue loss.**

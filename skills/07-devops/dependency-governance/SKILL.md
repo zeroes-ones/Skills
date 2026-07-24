@@ -498,6 +498,16 @@ Exercise 4: LICENSE COMPLIANCE SCENARIO (30 min)
 ```
 
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll pin everything and update once a year — it's more stable." | When Log4Shell hits and you have 18 months of unpulled updates across 50 repos, you're doing 200+ emergency upgrades simultaneously. Every one is a potential breaking change under duress. $150K-$500K in emergency remediation. |
+| "Renovate/Dependabot handles it — just enable and forget." | Default Renovate creates one PR per dependency. A 500-dependency project = 20-50 PRs/week. Engineers develop notification fatigue and start blindly closing them. Within 3 months: 200+ open dependency PRs and a culture of ignoring updates. $80K-$200K/year. |
+| "It's a dev dependency — it doesn't affect production, so it doesn't matter." | Dev tools run in CI/CD pipelines with full repo access, secret access, and deployment credentials. Compromised dev dependency = full supply chain compromise. $30K-$100K per incident in credential rotation, incident response, and potential data exposure. |
+| "We'll review licenses during the legal review phase before launch." | Discovering a GPL transitive dependency after 3 months of integration means ripping it out and rewriting that functionality. $20K-$50K in rework. License scanning must be a CI gate, not a pre-launch checkbox. |
+| "Internal packages can't be compromised — they're behind our firewall." | Dependency confusion and typosquatting attacks target internal package names. If your CI resolves `company-utils` from a public registry before your private one, the attacker's package runs with full CI privileges. $15K-$40K per incident. |
+
 ## Gotchas
 
 ### Version Management Gotchas

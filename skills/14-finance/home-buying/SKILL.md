@@ -369,6 +369,16 @@ What costs do first-time buyers always miss?
 *   **Expert — Full Simulation:** Complete a mock home purchase from pre-approval to closing. Interview 3 agents, 3 lenders, 2 inspectors. Read a real purchase contract for your state. Calculate the total 10-year cost of ownership for a specific property. Model worst-case scenarios: job loss 6 months after closing, 20% home price decline, major system failure. If you can still make payments in all three scenarios, your purchase is truly affordable.
 *   **Expert — Market Timing Analysis:** Track a target neighborhood for 6 months. Record: new listings per month, median days on market, list-to-sale price ratio, months of inventory, price-per-square-foot trend. Identify: is the market accelerating, stable, or cooling? Build conviction about fair market value before you ever make an offer.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The bank's pre-approval letter means we can afford this" | Lenders approve up to 43% DTI based on gross income. After taxes, insurance, maintenance, and utilities, actual housing costs often exceed 50% of take-home pay — pre-approval is a maximum, not a budget. |
+| "We'll skip the inspection — the seller says everything's fine" | A $500 inspection routinely uncovers $15K in foundation issues, $8K in roof replacement, or $3K in undisclosed water damage. Waiving inspection saves $500 and risks $25K+ in immediate repairs. |
+| "The Zestimate says this house is worth what we're offering" | Zillow's own median error rate is 2.4% nationally, up to 7% in some markets. That $400K Zestimate could be off by $28K — algorithmic valuations don't see water damage, outdated electrical, or the highway noise. |
+| "We don't need to read all 40 pages of the mortgage documents" | A prepayment penalty buried on page 31 costs $8K-$15K if you refinance or sell within 3 years. An adjustable-rate rider on page 27 converts your "fixed" 3.5% rate to 7.5% after year 5. |
+| "The monthly payment is just principal + interest + taxes" | Homeowners spend 1-4% of home value annually on maintenance. On a $350K house, that's $3,500-$14,000/year not in your mortgage estimate. One HVAC failure costs $7K-$12K — the mortgage payment is the floor, not the ceiling. |
+
 ## Verification
 
 Run through this checklist before removing contingencies, before closing, and before considering the purchase complete.

@@ -309,6 +309,16 @@ Common chains:
 - **Case study that reads like a press release** — "Company X achieved 10x ROI with our platform" without naming the baseline, timeline, or methodology. Enterprise buyers see through this immediately and discount every other claim you make. Credibility-destroying fluff costs more than having no case study at all. Every claim needs a named customer (or permissioned blind), a quantified baseline, and a measured timeframe. **Total cost: $250K-$1M in lost enterprise pipeline when buyer trust is eroded by unsubstantiated claims in sales collateral.**
 - **Product launch with messaging frozen 6 months prior** — the launch deck was finalized in January for a July launch. In March, a competitor launched a similar feature. In May, the market narrative shifted. The July launch messaging ignores both changes and lands flat. Messaging must be revisited 2 weeks before launch with a fresh competitive and market scan. **Total cost: $1M-$5M in wasted launch spend and missed category-creation windows when stale messaging meets a moved market.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "We'll figure out positioning after we launch" | Without positioning, you compete on price alone in a race to zero; repositioning post-launch costs 3-5x more and confuses existing customers |
+| "Our product sells itself — the features speak for themselves" | Features don't sell; the story of the problem you solve sells — feature-dump landing pages convert at 1-2%, problem-story pages convert at 5-8% |
+| "We'll create messaging once we have customers" | Messaging created without customer interviews is internal fantasy; messaging created after launch is damage control |
+| "Competitive analysis is a one-time research project" | Competitors ship weekly; a battlecard from Q1 is dangerously wrong by Q3 — stale competitive intel loses deals sales didn't know they were losing |
+| "Product launch is a single event with a press release" | Launches are campaigns, not moments; one-and-done launches capture 15% of the attention a sustained 6-week rollout generates |
+
 ## Verification
 
 - [ ] Positioning: 1-sentence positioning statement — competitor can't truthfully say the same thing

@@ -364,6 +364,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll optimize cloud costs after the product launches — growth first." | 6 months of unoptimized spend at $50K/month leaves $80K-$200K on the table. Architectural decisions made without cost constraints (cross-AZ chatty microservices, oversized instances) are 10x harder to unwind later. |
+| "Finance tracks the AWS bill — we don't need dedicated FinOps." | Finance sees one monthly aggregate number. They can't see the $6K/mo unattached EBS volumes, the idle RDS instances, or the 100M-object S3 bucket paying Intelligent-Tiering monitoring on objects too small to benefit. $50K-$100K/year in invisible waste. |
+| "We're too small for FinOps — it's an enterprise problem." | A $10K/month bill without governance can 2-3x in one quarter from untracked dev sandboxes, overprovisioned PoCs, and orphaned resources from deleted stacks. $120K-$240K/year in avoidable spend even at startup scale. |
+| "We'll use On-Demand — Reserved Instances and Savings Plans are too complex." | On-Demand premium on steady-state workloads = 40-60% overpay. A $200K/year compute baseline costs $320K-$360K without commitments. $120K-$160K/year in pure waste for avoiding a one-time RI/SP analysis. |
+| "AWS Budget alerts will catch cost spikes — we're covered." | Budget alerts fire AFTER spend exceeds the threshold, not before. A cryptomining compromise can rack up $50K in 24 hours before the first email arrives. Anomaly detection and spend velocity alerts must complement budgets. |
+
 ## Gotchas
 
 - **AWS Savings Plans apply BEFORE reserved instances** in the discount calculation. If you buy a 1-year EC2 Savings Plan ($0.10/hr) AND a Reserved Instance for the same instance type, the Savings Plan discount is applied first and the RI sits unused. One or the other, not both.

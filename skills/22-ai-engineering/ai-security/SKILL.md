@@ -385,6 +385,17 @@ AI security mastery is built through adversarial thinking — learning to see sy
 - **Guardrails false-negative on adversarial encoding** — your output guardrail uses a toxicity classifier trained on standard English text. An attacker discovers that encoding toxic content in base64, then asking the model to "decode and explain" it, bypasses the classifier entirely. For 3 weeks, the model produces harmful content on demand to anyone who knows the encoding trick, until a user reports it. **Total cost: $50K-$250K in PR crisis management, potential platform delisting (App Store/Play Store), user trust erosion, and emergency guardrail retraining with adversarial examples.**
 - **NIST AI RMF non-compliance** discovered during a regulatory audit or due diligence for enterprise sales. The enterprise customer's security team asks for your AI RMF documentation. You have none. The $2M enterprise deal is paused for 6 months while you retroactively document GOVERN, MAP, MEASURE, MANAGE functions — and even then, the customer requires quarterly attestations. **Total cost: $100K-$500K in delayed/deferred revenue, cost of retroactive compliance documentation, and permanent reduction in enterprise sales velocity because every deal now requires 3-6 months of AI security review.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Adversarial robustness is for research papers, our threat model assumes trusted API users" | Real-world attackers don't respect threat model boundaries; prompt injection, jailbreaks, and data poisoning cross trust domains in production |
+| "We can't patch model weights, so red-teaming is just documentation" | Red-teaming drives input/output guardrails, monitoring rules, and deployment architecture — it's your runtime defense, not a PDF deliverable |
+| "Our model doesn't have access to sensitive systems, so extraction attacks are low-risk" | Model extraction enables downstream attack chains: adversary trains a local copy, white-box probes it, then transfers attacks back to your production endpoint |
+| "The security review passed — we check OWASP Top 10 and call it done" | OWASP Top 10 for LLM Apps is a starting floor, not a ceiling; indirect prompt injection, multi-turn manipulation, and agent tool misuse require continuous adversarial testing |
+| "Rate limiting and auth solve API abuse" | Auth gates legitimate users; rate limiting slows volume — neither stops adversarial prompts, context-window poisoning, or chain-of-thought extraction from authenticated sessions |
+
+
 ## Verification
 
 - [ ] OWASP LLM Top 10 assessment completed for all LLM applications in scope — each vulnerability scored by likelihood × impact with documented mitigation

@@ -385,6 +385,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Every quarter, run a Well-Architected Framework review on your most critical workload. The gap between what you designed and what actually exists is where the risk lives.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll follow AWS best practices later — shipping features comes first." | Misconfigured IAM policies, public S3 buckets, and orphaned resources from failed CloudFormation rollbacks accumulate silently. Each one is a security incident or cost leak waiting to surface. $50K-$200K in preventable incidents from deferred architecture hygiene. |
+| "Multi-AZ deployment doubles the cost — single AZ is fine for a non-critical service." | The AZ outage happens. Your "non-critical" service powers the internal admin panel, the CI pipeline, and the deployment system. Full engineering productivity halt until the AZ recovers. $100K-$500K per multi-hour AZ outage in lost productivity. |
+| "VPC peering is simpler than Transit Gateway — let's just peer as needed." | 15 VPCs with full-mesh peering = 105 peering connections, each with route table entries to manage. Exceeds soft limits, becomes un-debuggable at scale. $30K-$80K in re-architecture cost when the peering mesh becomes unmanageable. |
+| "Infrastructure as Code is overhead — console changes are faster for small fixes." | Every untracked console change makes the environment unreproducible. When disaster recovery is needed, the IaC template deploys a version that doesn't match reality. $50K-$150K per DR event where console drift causes recovery failure. |
+| "Lambda cold starts are an edge case — not worth the optimization effort." | Cold starts add 500ms-2s to P99 latency. At scale with spiky traffic, 30% of requests hit cold starts. Users experience 3x latency variance. $20K-$60K/year in poor UX, increased churn, and engineering time investigating "intermittent slowness." |
+
 ## Gotchas
 
 - **IAM policy evaluation logic**: an explicit `Deny` ALWAYS overrides any `Allow`, even an `Allow` in a different policy attached to the same principal. A single `Deny` statement anywhere across all attached policies blocks the action — no warning, no log, just "Access Denied."

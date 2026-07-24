@@ -454,6 +454,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "dbt will catch schema changes — that's what tests are for" | `source()` has no dependency tracking — upstream schema changes break silently and cascade through downstream models at $5K-$25K in data downtime and broken dashboards. |
+| "The incremental model will pick up the changes" | Without `merge_update_columns`, updates to existing rows are silently ignored — execs make pricing and hiring decisions from stale reports at $10K-$50K in bad business decisions. |
+| "We'll fix data quality issues later" | `dbt test` runs AFTER bad data is already in the warehouse — uniqueness failures mean you've already loaded corrupted tables requiring full rebuilds at $15K-$75K. |
+| "CTEs are free — the optimizer handles it" | 15+ CTE chains cause disk spillage by CTE #5 on large datasets — queries run 10-50x slower, blowing past warehouse credit budgets at $5K-$20K in compute overruns. |
+| "I'll just run the models I changed — downstream will be fine" | `dbt run --select` doesn't auto-select dependent models — stale downstream data produces incorrect executive reports discovered days later at $10K-$40K. |
+
 ## Gotchas
 
 - **dbt `ref()` vs `source()`**: `ref()` builds a DAG dependency — dbt knows model B depends on model A and runs them in order. `source()` references raw data with NO dependency tracking. If you `source('raw', 'events')` but someone upstream changes the schema, dbt can't warn you. **Total cost: $5,000-$25,000 in data downtime, broken dashboards, and engineering time debugging silent schema breakages that cascade through downstream models.**

@@ -323,6 +323,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We have plenty of cash — we'll deal with treasury later" | $10M on the balance sheet can include $8M locked in unbreakable CDs, $1.5M restricted as collateral, and $500K trapped in foreign subs. "Available" cash might be zero. The discovery happens during the liquidity crisis, not before it. |
+| "Interest rates won't move that much" | $50M floating-rate debt with a 300bp rate hike adds $1.5M/year in unplanned interest expense. Every 100bp move without a hedge is a self-inflicted EBITDA miss that the board will remember. |
+| "One bank relationship is simpler" | When your sole bank freezes your credit line during an industry-sector review, payroll is due in 10 days with no backup. Emergency bridge financing costs $50K-$200K — and employee trust damage is unquantifiable. |
+| "FX exposure is just translation — no cash impact" | A €2M contract at EUR/USD 1.10 dropping to 1.02 loses $160K in annual revenue with zero operational change. That's a 5-8% revenue guidance miss that triggers investor questions and a CFO credibility crisis. |
+| "Lock it up for maximum yield" | $8M invested in 12-month T-bills when burn rate is $1.5M/month means forced early liquidation at a 1.2% haircut ($96K) plus forfeited interest ($139K). Total loss: $235K — more than the incremental 60bp yield pickup justified. |
+
 ## Gotchas
 
 - **"We have $10M in the bank, we're fine"** — but $8M is in a 12-month CD that can't be broken without losing 6 months of interest, $1.5M is restricted cash (collateral for a letter of credit), and $500K is in a foreign subsidiary that can't be repatriated without tax consequences. Cash ≠ available cash.

@@ -346,6 +346,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The product sells itself — just get them using it" | Usage without demonstrable value is churn in slow motion. Customers who can't articulate ROI at renewal time leave, regardless of login frequency. Cost: $200K-$500K in lost ARR per unmanaged strategic account. |
+| "Relationship > process — I know this customer" | Your champion leaves the company. The replacement uses a competitor. Without multi-threaded relationships and documented success metrics, the $200K expansion plan evaporates overnight. Relationships are necessary but insufficient without process. |
+| "We'll hit quota next quarter" | A renewal starting 30 days before expiration lands as the customer signs with a competitor. Procurement cycles require 90+ days. A single slipped $150K deal misses forecast by 8-15% — and the board remembers the "surprise" miss. |
+| "A discount will save this account" | Unsolicited 10% goodwill discount becomes the customer's anchor — procurement demands 20%. Cascading precedent across 10-15 accounts via the procurement grapevine: $150K-$350K in margin erosion over 12 months. |
+| "NPS is 65 — retention is fine" | Surveying only renewing customers inflates NPS. A CEO-given 9 hides 12 end-users giving 4s. Revenue-weighted, role-stratified NPS reveals the real story — and the silent churn risk hiding in "satisfied" aggregate scores. |
+
 ## Gotchas
 
 - **QBR (Quarterly Business Review) as a product demo** — you spend 45 minutes showing features they already have, 10 minutes on new features, and 5 minutes on "any questions?" The customer learned nothing about the VALUE they got. QBR should be: "Here's what you achieved with our product this quarter (with data), here's what you could achieve next quarter, what's blocking you?"

@@ -377,6 +377,16 @@ Implement pre-commit and CI quality checks for translation files. Placeholder in
 - **Translating UI strings before the design is finalized.** Every design change after translation starts invalidates translations. A button label expands from "Save" to "Save Changes" — now 32 languages need retranslation. A new error state adds 3 strings. The backlog of "minor copy changes" accumulates across sprints until the translation debt is larger than the initial translation investment. **Total cost: $8K-$20K per release for re-translation of changed strings, plus $5K-$15K in delayed release costs.** Fix: Freeze UI copy 2 weeks before translation starts. Any changes post-freeze go into a "next release" translation batch. Use a string freeze checklist signed by PM, design, and content. Tag strings that can still change vs locked strings in your TMS.
 - **Assuming machine translation quality is consistent across language pairs.** MT quality varies dramatically by language pair. English→Spanish (DeepL): near-human quality. English→Korean (Google Translate): requires significant post-editing. English→Finnish (any MT): high error rate due to complex morphology. Using the same MT engine and post-editing budget for all languages wastes money on easy pairs and underfunds hard ones. **Total cost: $10K-$30K/year in either overpaying for unnecessary human review on easy pairs OR shipping poor quality in hard pairs (resulting in user churn in those markets).** Fix: Segment languages into MT quality tiers: Tier 1 (ES, FR, DE, PT — light post-editing), Tier 2 (JA, ZH, KO, RU — full human review required), Tier 3 (FI, HU, AR, VI — MT + mandatory native-speaking reviewer). Budget post-editing proportionally.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We can just throw everything at DeepL and ship it" | DeepL doesn't know your product terminology; "button" in a UI context ≠ "bouton" in French gaming slang — raw MT creates brand-damaging translation errors in 15-20% of UI strings |
+| "Translation memory is optional; we'll build it later" | Without TM, you pay full price to retranslate "Submit" 50 times across 50 screens; TM typically saves 40-60% of ongoing translation costs — lost savings compound with every release missed |
+| "Glossaries slow us down; translators know the terms" | Without a glossary, 3 translators produce 3 different translations for "dashboard" in German; inconsistency flags your product as untrustworthy across every localized surface |
+| "We'll review machine translations manually before each release" | Manual review of 5,000 strings takes 40-60 hours per language per release; at 10 languages, that's 500+ hours — QA automation catches 80% of errors in minutes |
+| "String freeze is a waterfall process; Agile teams don't need it" | Without string freeze, every sprint changes 5-10% of strings; translators redo work 3-4 times per release cycle, multiplying costs and delaying launch by 2-4 weeks |
+
 ## Verification
 
 - [ ] Run `i18next-parser` or equivalent to extract new strings — zero untranslated keys

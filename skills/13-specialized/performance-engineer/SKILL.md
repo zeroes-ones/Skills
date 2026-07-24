@@ -444,6 +444,16 @@ graph LR
 - **Caching that hurts** — caching a frequently-written value with a 60-second TTL. If the value changes 100x/second and you cache for 60s, you're serving stale data 99.999% of the time. Cache frequently-read, rarely-written data; don't cache fast-changing data without understanding staleness tolerance. **Total cost: $100,000-$400,000 per year** in data inconsistency incidents — stale cache causing wrong balances, incorrect inventory, or phantom stock each cost $5,000-$50,000 per incident in customer compensation and engineering time.
 - **`gc.pause()` in Go** at 50ms looks fine on a dashboard. But if your request timeout is 100ms and GC pause is 50ms, 50% of your request budget is GC. P99 request latency will show sawtooth patterns aligned with GC cycles. Use `GOMEMLIMIT` and `GOGC` tuning. **Total cost: $50,000-$200,000 per year** in timeout-related incidents and retry storms — every GC-induced timeout triggers client retries that double or triple load, creating a death spiral during peak traffic.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll profile in production if users complain" | By the time users notice latency, churn has already started. Synthetic monitoring catches regressions before users feel them — by then you've already lost revenue. |
+| "The CDN will fix our TTFB" | CDN helps with static assets. Slow origin response (database queries, SSR, API calls) passes through CDN untouched. A 2-second origin delay is still a 2-second delay after the CDN. |
+| "Lighthouse score 95 — we're done" | Lighthouse is lab data from a single device on a throttled connection, not field data. Real users on 3G in rural areas, older phones, or congested Wi-Fi experience 3x slower page loads than Lighthouse reports. |
+| "We'll add caching later" | Retrofitting caching after launch means invalidating production caches during peak traffic without a cache-warming strategy. Cache design is an architecture decision, not a post-launch optimization — wrong invalidation logic costs more than no cache at all. |
+| "The database is fast in dev" | Dev databases have 100 rows, zero concurrency, and run on localhost. Production has 100M rows, 50+ concurrent connections, connection pool exhaustion, and lock contention under write load. Query plans that take 2ms in dev take 12 seconds in production. |
+
 ## Verification
 
 - [ ] Profile before optimizing: `cProfile` / `py-spy` / `pprof` output confirms the bottleneck location

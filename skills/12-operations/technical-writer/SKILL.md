@@ -449,6 +449,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Documentation slows us down — we need to ship features" | Without docs, developer onboarding takes 2-3x longer and support tickets consume $50-$150 each — $200K-$600K/year in wasted engineering hours and preventable support costs. |
+| "This is straightforward — developers will figure it out" | Every 'simply,' 'just,' or 'obviously' hides 15 specific steps the reader doesn't know — $150K-$400K/year in abandoned integrations from developers who can't complete setup in under 30 minutes. |
+| "Placeholder values like YOUR_API_KEY_HERE are obvious" | Developers copy-paste placeholders and debug for 30 minutes — $80K-$250K/year in wasted developer hours across thousands of integration attempts. |
+| "Old docs are fine — Google will figure out which version is current" | Google indexes all versions equally — users follow v1.0 docs from 2021 and conclude your product is broken at $100K-$500K/year in lost conversions from stale documentation. |
+| "We'll update docs after the product redesign ships" | Docs that duplicate UI text need full rework every redesign — $50K-$150K per major release in documentation rewrites that could have been avoided by describing concepts, not buttons. |
+
 ## Gotchas
 
 - **Documentation that's API reference without narrative** — you document every endpoint, every parameter, every response code. A developer trying to BUILD something doesn't know which endpoints to call in what ORDER. Reference docs answer "what does this do?" Guides answer "how do I accomplish X?" You need both. Without guides, reference is a dictionary without sentences. **Total cost: $200,000-$600,000 per year** in developer onboarding and support — new hires take 2-3x longer to ship their first PR without guided documentation, and support tickets for "how do I..." consume $50-$150 per ticket.

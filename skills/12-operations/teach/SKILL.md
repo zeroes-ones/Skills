@@ -466,6 +466,16 @@ Teach a concept to a colleague. Record their teach-back. Rate it using the Teach
 ### Exercise 5: Curriculum Compression (15 min)
 Take a 10-session curriculum. For each session, ask: "Could the learner figure this out from the previous concept + documentation?" If yes, replace the session with a curated reference + check-in question. How many sessions remain?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We can cover 3 concepts in one session — it's more efficient" | Cramming 3 concepts in one session produces <15% retention after 24 hours — $5K-$15K per workshop with <20% ROI when developers can only demonstrate 2 of 12 concepts 2 weeks later. |
+| "They said they understand — self-assessment is reliable" | Learners systematically overestimate understanding by 30-50% — 'I understand' means 'I followed your explanation,' not 'I can apply this' at $2K-$20K per incident from overconfident shipping. |
+| "We don't need review sessions — we covered this already" | Skipping spaced repetition means 80% memory decay at 7 days — $10K-$50K per curriculum in wasted training when learners forget within a month and need reteaching. |
+| "Let me just show you how — it's faster" | Giving answers immediately reduces retention by 40% compared to 3-5 minutes of productive struggle — $500-$2K per shortcut in lost learning depth that requires reteaching later. |
+| "They'll pick up the jargon from context" | Three unfamiliar terms in one explanation creates cognitive overload — the learner stops listening and starts managing anxiety at $1K-$5K in learner drop-off from exclusionary language. |
+
 ## Gotchas
 
 - **The "cram session" illusion.** Covering 3 concepts in one session FEELS productive — the learner nods along, the explanations are clear, everyone feels good. But 24 hours later, retention is <15% across all 3 concepts. A team that crammed a 2-day React workshop with 12 concepts found that 2 weeks later, developers could only demonstrate competence in 2 of the 12. **Total cost: $5,000-$15,000 per workshop in training investment with <20% ROI. Fix: one concept per session, spaced over time. Twelve 45-minute sessions over 6 weeks > one 2-day workshop.**

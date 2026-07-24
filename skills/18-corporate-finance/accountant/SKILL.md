@@ -356,6 +356,16 @@ graph LR
 
 **DEEP: 10+min — War story:** A Series B startup got a $2.00/share 409A in January. By June, they had a term sheet at $15/share (Series C). They granted options at the $2.00 strike in July — but didn't get a new 409A. The IRS audited and determined the FMV at grant date was actually $8.00 based on the term sheet progression. Result: all July grants were discounted options with $6/share of compensation income to employees AND a $500K penalty for the company. Rule: new 409A before any option grant where > 6 months since last valuation OR any material event (fundraise term sheet, major customer win, revenue 2x).
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll reconcile later" | Unreconciled $42.17 today becomes $504/year in hidden bank fees — and the IRS treats unreconciled discrepancies as evidence of poor internal controls, triggering expanded audit scope costing $30K+ in auditor fees. |
+| "It's an estimate" | A $10K "estimate" on a $500K contract that's actually $25K off is a 5% material misstatement — auditors require restatement, and lenders may call loans on restated financials. Estimate only when the range is immaterial and documented. |
+| "The auditors won't notice" | Audit sampling catches 95% of classification errors above materiality threshold. One ASC 606 violation costs $20K-$50K in audit defense and restatement fees — and puts every subsequent audit under heightened scrutiny. |
+| "Cash flow fixes itself" | 82% of small business failures cite cash flow issues, not profitability. A $50K receivable aging past 90 days has a 70% probability of becoming uncollectible — that's $35K in direct write-offs per overdue invoice. |
+| "It's immaterial — just book it" | Immaterial ≠ zero. $500/month in unrecorded subscriptions is $6K/year in hidden liabilities. Materiality is cumulative: 12 individually "immaterial" items create one material misstatement that triggers restatement. |
+
 ## Gotchas
 
 - **Revenue recognition for SaaS** — a customer pays $120K upfront for a 12-month contract. You can't recognize $120K in month 1. ASC 606 requires ratable recognition: $10K/month over 12 months. The $110K you haven't recognized yet sits on the balance sheet as deferred revenue (a LIABILITY, not cash you've earned).

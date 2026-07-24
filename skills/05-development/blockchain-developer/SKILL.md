@@ -325,6 +325,16 @@ How to structure a full-stack dApp:
 *   **Advanced — Protocol Clone + Audit:** Clone a simple DeFi protocol (Uniswap V2, a basic lending market). Write it from scratch. Then audit your own code with Slither, Mythril, and manual review. Find and fix every issue.
 *   **Expert — Formal Verification:** Formally verify a critical invariant of a smart contract using Certora Prover or Foundry's formal verification. "This contract can never have more tokens withdrawn than deposited." Prove it mathematically.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We use OpenZeppelin’s audited contracts as base classes — our token inherits their security" | Composability bugs arise from how you wire audited primitives together, not from the primitives themselves; the `initialize` call chain is where most exploits land |
+| "The Solidity compiler didn’t warn about overflow — 0.8.x handles that with built-in checks" | Solidity 0.8+ reverts on overflow but silently truncates on downcasting; `uint128(x)` discards the upper 128 bits without a peep |
+| "We’ll upgrade the proxy contract if a bug surfaces — immutable contracts are a myth anyway" | Proxy admin keys are the #1 rug vector in DeFi; an upgradeable contract is only as secure as its admin multisig quorum and timelock delay |
+| "Nobody will front-run a governance vote on our small DAO — there’s no profit in it" | MEV bots scan every mempool transaction regardless of TVL; they’ll sandwich anything with a positive expected value, no matter how niche |
+| "Our price oracle posts on-chain every hour — that’s frequent enough for a lending protocol" | Stale oracle prices caused Venus Protocol’s $11M bad debt; TWAPs don’t protect against multi-block manipulation or flash-loan-driven price swings |
+
 ## Verification
 
 - [ ] CEI pattern: all external calls occur AFTER all state updates

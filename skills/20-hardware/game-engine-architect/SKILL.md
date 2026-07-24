@@ -51,6 +51,8 @@ chain:
     - performance-engineer
     - embedded-engineer
   feeds_into:
+    - game-developer
+    - gameplay-programmer
     - frontend-developer
     - mobile-developer
     - qa-engineer
@@ -625,6 +627,16 @@ void Client::OnServerState(const ServerState& state, int32_t tick) {
 ```
 
 - **Draw call count hides script overhead — 100 draw calls but 3000 Update() calls means 90% CPU in C# VM.** A Unity scene has 3000 GameObjects, each with a `MonoBehaviour` that runs empty `Update()` methods. The C# runtime invokes 3000 native-to-managed transitions per frame. Each transition is ~100ns, but the cumulative overhead + IL2CPP metadata lookups = 5ms per frame at 3000 objects. With only 100 draw calls, the GPU is idle. The developer sees "100 draw calls" and concludes rendering is optimized. **Fix:** Profile with Unity Profiler Deep Profile. Identify empty `Update()` methods. Disable GameObjects not on screen. Use `MonoBehaviour.enabled = false` instead of destroying. In DOTS, use `IAspect` and `ISystem` with `RequireForUpdate<T>()` — only updated components trigger system execution.
+
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll optimize the render pipeline after content is locked" | Content built on a slow pipeline forces artists to ship lower-quality assets to hit frame budget; retrofitting means re-exporting every asset in the game and retesting every level |
+| "Threading can wait; single-threaded is simpler for now" | A single-threaded engine on modern 8-core consoles leaves 87% of CPU budget unused; retrofitting threading into a synchronous codebase requires rewriting every subsystem's data ownership model |
+| "We'll just use engine defaults; they're good enough" | Default settings are optimized for editor demos, not shipped games — shipping with defaults means 30fps with 40% GPU headroom wasted on invisible draw calls and unused shader variants |
+| "Memory budgets are a console problem; we'll deal with it during porting" | A PC game that uses 12GB RAM won't fit in a console's unified 8-13GB without cutting texture resolution, audio quality, and level size — all changes visible to players as "downgrades" |
+| "We can add a deterministic game loop for replays later" | Determinism requires fixed-point math, fixed timestep, and zero floating-point in game logic — retrofitting means rewriting every gameplay system from movement to physics to AI |
 
 ## Verification
 

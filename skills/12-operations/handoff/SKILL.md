@@ -457,6 +457,16 @@ Run the Ledger Health Check decision tree on your current `.handoff/ledger.md`. 
 ### Exercise 5: Compaction Drill (15 min)
 Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a handoff summary, and produce a resume command. Then start a fresh session and try to resume. What was missing?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "I'll update the ledger after this next task" | After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version, why approach A over B, what test case was considered — $500-$2K in rework per session. |
+| "The ledger from last week is still current" | A git diff showing 200+ changed lines since the ledger's recorded commit means the ledger is archaeological, not operational — $300-$800 per stale handoff in wasted orientation. |
+| "More TODOs in the ledger means more progress tracked" | 40+ TODOs cause analysis paralysis — the receiving agent works on item #37 (low priority) while item #2 (launch blocker) sits untouched at $1K-$3K in misdirected effort. |
+| "'Blocked on design review' is sufficient — they know about it" | Blocker without date, contact, and escalation path has <20% probability of resolution after 5 days — $2K-$10K in delayed launches from blockers that silently expire. |
+| "'Continuing the auth refactor' is enough context for the next agent" | A fresh agent has zero context on why the refactor started, what pattern was chosen, or what was tried and rejected — $400-$1.5K per handoff in re-orientation from missing 3-sentence summary. |
+
 ## Gotchas
 
 - **The "I'll update the ledger later" trap.** Every turn you skip the ledger update is context that will evaporate on compaction. After 5 turns without a ledger update, 60% of micro-decisions are lost — which dependency version you chose, why you went with approach A over B, what test case you thought of but didn't write yet. **Total cost: $500-$2,000 in rework time per session when a fresh agent must re-discover 5+ lost decisions. Fix: update ledger after every decision, not at session end.**

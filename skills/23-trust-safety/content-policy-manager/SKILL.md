@@ -378,6 +378,16 @@ graph LR
 - **Policy enforcement that doesn't scale to new languages** — you launch in 5 languages with human moderation. When you expand to 50 languages, you discover that policy concepts like "harassment" and "hate speech" have no direct translation in some languages and entirely different cultural thresholds in others. Hiring native-speaking moderators for 50 languages at $40K-$80K per FTE creates an unsustainable cost curve. Invest in locale-specific policy research BEFORE market launch. **Total cost: $2M-$10M in localization rework, market exit costs, and moderator hiring for under-researched locales.**
 - **Automated enforcement without a human appeals pipeline** — a creator with 2M followers is auto-banned for a policy violation. They post on Twitter "Platform X banned me with no explanation," and 200K followers threaten to leave. Without a human-accessible appeal process that resolves within hours for high-reach accounts, you lose your most valuable creators. **Total cost: $500K-$3M per incident in creator churn, follower exodus, and negative press from high-profile enforcement errors.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "We'll review flagged content later, it's just one post" | A single unmoderated post with CSAM or violent extremism becomes evidence in a criminal investigation within hours |
+| "The policy is clear enough, moderators will interpret it consistently" | Without decision trees and edge-case examples, 5 moderators produce 5 different rulings on the same content, creating legal liability |
+| "We can write the policy after the platform launches" | Platforms without published content policies before UGC goes live get app store rejection within one review cycle |
+| "This edge case is too rare to document" | The edge case you skip is the one that goes viral; undocumented edge cases become precedent-setting disasters |
+| "Automated moderation catches 90%, that's good enough" | The 10% humans must review includes the highest-stakes content; without clear escalation paths, borderline cases sit in queue indefinitely |
+
 ## Verification
 
 - [ ] Policy clarity: moderator accuracy audit — ≥ 90% inter-rater agreement on policy application

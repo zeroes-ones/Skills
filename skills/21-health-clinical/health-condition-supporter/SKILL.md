@@ -319,6 +319,17 @@ How to manage care across multiple providers:
 *   **Advanced — Insurance Appeal:** Review a real (anonymized) insurance denial. Write the appeal letter: identify the denial reason, gather supporting documentation requirements, draft provider letter of medical necessity, calculate appeal deadline. Practice the full appeals workflow.
 *   **Expert — Care Coordination Design:** Design a complete care coordination system for a hypothetical patient with 3 chronic conditions, 5 specialists, 8 medications, and 2 upcoming procedures. Include: master health record template, appointment calendar, medication reconciliation process, test result tracking, and emergency protocol.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Generic educational content doesn't require disclaimers — we're not diagnosing anyone." | The FDA and FTC jointly regulate health claims. A statement like "many patients find relief with X" adjacent to supplement ads constitutes an implied health claim. FTC has levied $50M+ fines for unsubstantiated health benefit implications in educational content. |
+| "We link to authoritative sources, so our content is protected." | Linking to NIH/CDC does not indemnify content that selectively quotes or misrepresents those sources. 45% of health content sites that cite authoritative sources still contain clinically inaccurate statements when independently audited. Peer-reviewed citations required, not generic "learn more" links. |
+| "A disclaimer at the bottom of the page covers our legal exposure." | Footer disclaimers are the most-litigated and least-effective legal protection in health content. Courts apply the "reasonable consumer" standard — if the page design, layout, and text suggest authority, a footer disclaimer does not undo the impression. Prominent, contextual disclaimers required at the point of health claims. |
+| "We don't need to mention medication side effects — that's the prescriber's job." | Condition support platforms that discuss specific treatments without mentioning common or serious adverse effects have been found negligent when users experienced harms they weren't warned about. The "learned intermediary" doctrine protects manufacturers, not content platforms. $2M+ settlements in failure-to-warn cases. |
+| "Patient stories and testimonials don't need clinical vetting." | FTC requires testimonials to reflect "typical results" and disclose "generally expected performance." A single patient claiming "this diet cured my diabetes" without disclosing they also took metformin and exercised daily is a deceptive testimonial under FTC guidelines. $100K+ per-violation penalties for unsubstantiated health testimonials. |
+
+
 ## Verification
 
 - [ ] Symptom tracking captures: symptom type, severity (1-10 with anchors), duration, time, triggers, what helps

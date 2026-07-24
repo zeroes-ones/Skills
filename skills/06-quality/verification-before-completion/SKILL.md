@@ -409,6 +409,16 @@ Pick a shared utility in your codebase. Change one line. Run `grep -r "import.*f
 ### Exercise 5: The 24-Hour Verification Challenge
 For one week, require verification evidence (BEFORE + AFTER + TEST SUITE) on every closed issue. At week's end, count: how many issues were reopened because verification caught an incomplete fix? This number is your return on the verification investment.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "It's obviously correct — I can see the fix is right." | The "obvious" null-guard addition changes the return type from `User` to `User \| null`. Every caller that didn't handle null now has a latent bug. Cost: **$50K+** in cascading failures from an "obviously correct" change that shipped without verification. |
+| "I verified it manually — it works on my screen." | Manual verification cannot be reproduced. Three months later the same bug resurfaces, nobody remembers how to repro or what the fix was, and the team spends **$15K** in engineering time rediscovering and re-fixing it. Manual-only testing is not verification — it's hope. |
+| "I'll verify in production — that's the real test anyway." | Friday deploy, "check on Monday." Over the weekend the fix causes a regression affecting 5,000 users. Monday morning, the support queue is flooded. Cost: **$75K** in support hours, emergency engineering time, and reputational damage from a weekend outage. |
+| "The code review will catch any issues — that's what reviewers are for." | Reviewers catch ~60% of defects at best. They don't run the code, test edge cases, or verify against the original bug report. Code review augments verification — it does not replace it. Cost: **$25K-$50K** per incident that passed review but failed in production. |
+| "This sprint is ending — just move the tickets to Done, we'll verify next sprint." | 15 issues moved to "Done" because the sprint ended, not because verification happened. Two sprints later, 8 are reopened with "Actually, this still doesn't work." Cost: **$40K** in wasted sprint capacity and a team that learns "done" means nothing. |
+
 ## Gotchas
 
 - **The "obviously correct" change that introduces a regression**: A developer adds a null check to `getUser()`. The null check is correct, but it changes the return type from `User` to `User | null`. Every caller that didn't handle null now has a latent bug. Cost: **$50,000+** in debugging, hotfix, and customer compensation for a payment-processing outage caused by an unhandled null in the checkout flow.

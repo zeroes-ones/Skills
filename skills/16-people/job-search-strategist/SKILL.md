@@ -364,6 +364,16 @@ How to evaluate competing offers?
 *   **Elite — Reverse-Interview the Company:** In your next interview process, treat every conversation as a two-way evaluation. Before each interview, write down 3 things you need to learn about the company/team/role to make a decision. After the interview, rate each answer 1-5. After the full loop, tally the scores. If the company scores below your threshold (set it before you start), walk away — even if they make an offer. The discipline of rejecting offers that don't meet your standards is the difference between intentional career builders and reactive job takers.
 *   **World-Class — Build Your Personal Advisory Board:** Identify 5-7 trusted advisors across different dimensions: (1) someone who's 5-10 years ahead in your career path, (2) a peer at a similar stage for mutual accountability, (3) someone from a different industry for outside perspective, (4) a former manager who championed you, (5) a recruiter who understands your market. Meet with each quarterly. Share your career decisions before you make them. The collective wisdom of 5 people who know you and your industry outperforms any individual's judgment — including your own.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "Job search is just applying to more roles" | Spray-and-pray applications have 0.5% interview rate; targeted networking yields 10-20x higher conversion |
+| "I'll customize my resume after I get some responses" | Generic resumes get rejected by ATS in under 7 seconds; you never reach the stage where customization matters |
+| "The market is bad, there's nothing I can do" | Market conditions affect volume, not strategy; candidates with structured outreach pipelines land roles 3x faster in any market |
+| "I'll prep for interviews once I get one" | Interview prep takes 2-3 weeks to internalize; by the time you get the callback, you have 3-5 days |
+| "My experience speaks for itself" | Hiring managers spend 6 seconds on first-pass screening; if your value proposition isn't in the top third of the page, your experience is invisible |
+
 ## Verification
 
 - [ ] Target company list: 30-50 companies across A/B/C tiers with specific reasons for each

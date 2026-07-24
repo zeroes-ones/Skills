@@ -387,6 +387,16 @@ graph LR
 - **Data deletion request** executes `DELETE FROM users WHERE id = 123` — but the user's data also exists in: analytics events (Mixpanel), email logs (SendGrid), support tickets (Zendesk), database backups (28-day retention), and 6 other services. "Deleted from primary DB" ≠ deleted everywhere. **Total cost: $100K-$500K per incident in DSAR non-compliance fines, plus the cost of retroactive data scrubbing across all downstream systems.**
 - **Privacy policy that promises more than the engineering team delivers** — the policy says "we never share your data with third parties" but the analytics SDK embedded in the mobile app sends device IDs to a third-party attribution provider. The FTC treats privacy policy violations as deceptive trade practices under Section 5 of the FTC Act, separate from any GDPR/CCPA penalties. **Total cost: $500K-$5M in FTC fines, consent decree monitoring costs, and mandated third-party audits for privacy policy misrepresentation.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We hashed the emails, so the data is anonymized" | SHA-256 of an email address is trivially reversible via rainbow tables and brute force. Hashing without per-record salt is pseudonymization, not anonymization — hashed identifiers remain personal data under GDPR and CCPA. |
+| "k-anonymity with k=5 is sufficient for published datasets" | k-anonymity is broken by homogeneity attacks (all k records share the same sensitive value) and background knowledge attacks. The Netflix Prize dataset had k=5 and was still de-anonymized — you need l-diversity AND t-closeness. |
+| "Deleting the database row satisfies the deletion request" | Data exists in backups, replicas, logs, analytics exports, and third-party processors. GDPR Article 17 requires erasure from ALL systems. A DSAR audit finding residual data in an S3 analytics bucket invalidates the entire deletion. |
+| "Differential privacy is academic, not practical for production" | Apple, Google, and Microsoft deploy differential privacy in production across billions of devices. The US Census Bureau used it for the 2020 Census. Failing to ε-bound query responses on user telemetry exposes raw individual data in aggregate reports. |
+| "We'll add privacy review to the launch checklist" | Privacy-by-design under GDPR Article 25 requires Data Protection Impact Assessments BEFORE processing begins. Retrofitting privacy after the data model is designed costs 10x more and may require schema migrations that break production systems. |
+
 ## Verification
 
 - [ ] Privacy budget: ε tracked cumulatively per dataset per time window — total ε ≤ configured maximum

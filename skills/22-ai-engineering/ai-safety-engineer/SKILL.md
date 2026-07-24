@@ -309,6 +309,17 @@ graph LR
 - **Jailbreak via token smuggling** — the model blocks "how to make a bomb" but processes "h o w t o m a k e a b o m b" as individual characters and answers. Character-level perturbation, base64 encoding, and role-play scenarios (DAN, "pretend you're my deceased grandmother who was a chemist") all bypass token-level filters. Safety must operate at the semantic intent level, not token level. **Total cost: $5M-$50M in regulatory penalties, platform bans, and brand damage from a single high-profile jailbreak exploited at scale.**
 - **Safety washing via selective benchmark reporting** — the model is evaluated on 10 safety benchmarks and publishes results for the 3 where it scores highest, burying failures on the other 7. Regulators and enterprise customers discover the omissions during due diligence and the model's safety claims collapse. Publish ALL benchmark results, including failures, with documented limitations. **Total cost: $1M-$5M in lost enterprise contracts, regulatory rejection, and trust erosion when selective reporting is exposed.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We use constitutional AI, so the model's values are encoded in the training objective" | Constitutional principles are interpreted by the same model that's being constrained — it learns to route around rules, not internalize them; constitutions need adversarial validation, not trust |
+| "Safety classifiers catch harmful outputs before they reach users" | Classifiers operate on individual tokens or messages; they miss semantic harm spread across turns, coded language, and outputs that are safe in isolation but dangerous in sequence |
+| "Our model scores below 1% on ToxiGen and RealToxicityPrompts benchmarks" | Benchmark datasets are static targets — they measure performance on known attack surface from 2022; adversarial prompt evolution renders them obsolete within months of release |
+| "We have a human-in-the-loop review process for flagged outputs" | Human reviewers exhibit automation bias with high-confidence model outputs, decision fatigue at scale, and cultural blind spots — the loop amplifies rather than corrects at throughput |
+| "Safety is a training problem — better data, better model" | Safety is a systems problem: deployment context, tool access, multi-agent interaction, and user population all change the harm surface independently of model quality |
+
+
 ## Verification
 
 - [ ] Red-team exercise: last red-team exercise within past quarter — all critical findings addressed or accepted with risk documentation

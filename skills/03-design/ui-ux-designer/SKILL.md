@@ -284,6 +284,16 @@ The key: you are not your user. Every time you're surprised by what a user does,
 
 **Watch a user use your design in silence.** Don't explain. Don't justify. Don't help. Just watch where they hesitate, where they click wrong, where they say "huh." One session of silent observation is worth 10 design critiques.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Users will figure it out — the interface is intuitive." | What's intuitive to the designer who spent 40 hours building it is opaque to a first-time user with 3 seconds of attention. Navigation that "makes sense" to you generates support tickets at **$15-$50 per ticket**, and 40% of confused users simply leave and never return. Cost: **$50K-$300K** in churned revenue from abandoned flows. |
+| "Looks fine on my screen — 27" retina display, perfect." | 35% of users are on screens between your breakpoints. At 1100px, the layout snaps to 1024px (wasted space) or 1440px (overflow/hidden content). Design for the IN-BETWEEN states. Cost: **$15K-$50K** per project in responsive layout bugs found by users. |
+| "We'll do accessibility later — let's get the design shipped first." | The post-design accessibility pass reveals that the color palette fails contrast minimums, navigation doesn't work with keyboard, and error messages are invisible to screen readers. Every fix requires redesigning screens from scratch. Cost: **$30K-$150K** in emergency redesign cycles + missed release dates + ADA legal exposure. |
+| "The design system can wait — just ship this one screen custom." | "One screen" becomes 12 screens. Each with its own spacing, typography, and interaction patterns. Six months later, unifying them costs 3x what building the design system would have cost upfront. Cost: **$100K-$500K/year** in duplicated component work across teams. |
+| "No need for usability testing — we know our users." | You ship, and discover that CTAs are below the fold, forms ask for unnecessary info, and the primary flow takes 4 steps instead of 2. Fixing post-launch costs 10x more than fixing in design. Five users in a moderated test would have caught all of it. Cost: **$50K-$300K** in post-launch redesign and lost conversions. |
+
 ## Gotchas
 
 - **Design system without developer adoption.** A beautifully crafted Figma design system with 200+ components that developers ignore because tokens aren't in code, component APIs don't match code patterns, or documentation is design-only. Teams rebuild the same components independently, diverging in behavior and appearance. Every duplicate component is engineering time burned. **Total cost: $100,000-$500,000 per year in duplicated component work across teams.** Fix: Embed a frontend engineer in the design system team; ship design tokens as code packages (npm/SPM/CocoaPods); treat developer adoption as a product metric with onboarding and support.

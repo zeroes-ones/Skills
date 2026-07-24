@@ -608,6 +608,16 @@ Practice these scenarios against a test PKI and TLS stack. Use `openssl s_server
 
 *   **Generating AES-GCM nonce using `Math.random()` or a weak PRNG.** Even with the correct CSPRNG, generating a 96-bit nonce randomly has a collision probability of ~2^-32 after 2^32 encryptions (birthday bound). With a non-cryptographic PRNG, the collision probability is near-certain after far fewer operations. Use a deterministic 96-bit counter (stored atomically) for AES-GCM, or switch to XChaCha20-Poly1305 (192-bit random nonce, collision probability negligible until 2^96 encryptions). **Total cost: $100K-$5M — AES-GCM nonce collisions silently break confidentiality and authentication for all data encrypted under that key. You will not detect it; an attacker who suspects it will exploit it.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We don’t need a full HSM — our keystore file is encrypted at rest" | Software-only key storage is trivially extracted via memory dump or cold-boot attack; the file-system encryption boundary dissolves the moment the app boots |
+| "We’ll use AES-256-CBC with a static IV — the cipher has never been broken" | Static IVs enable known-plaintext attacks; identical plaintext blocks produce identical ciphertext, leaking structural patterns |
+| "This custom PRNG passed the NIST Statistical Test Suite — it’s fine for production key generation" | Passing statistical tests proves nothing about cryptographic security — Dual_EC_DRBG passed them too and was a backdoor |
+| "We can hardcode the key in the backend source — nobody outside the team sees the repo" | Secrets in source survive forever in git history, CI logs, developer laptops, and backup tapes; rotation is impossible without a redeploy |
+| "Constant-time comparison is overkill — timing attacks are a lab curiosity, not a real threat" | Timing side-channels are exploitable over LAN in under 100 requests; over WAN, statistical sampling reduces noise with a few thousand probes |
+
 ## Verification
 
 After any cryptographic design or audit, run this sequence. Do not proceed past a failure.

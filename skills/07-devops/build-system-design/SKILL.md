@@ -525,6 +525,16 @@ Phase 6: Full migration simulation
   Goal: End-to-end migration experience before doing it for real
 ```
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll migrate to Bazel next quarter — the Makefile still works." | Next quarter becomes next year. 45-minute build times × 20 engineers × $150/hr = $22,500/day in lost productivity. 6 months of delay = $150K+ in wasted engineering time with nothing to show for it. |
+| "Remote caching and execution are optimizations — we'll add them later." | Without remote caching, CI compute costs 3-5x what they should. A 50-engineer org burning $15K/month on CI runners can cut that to $4K/month. Delaying 6 months = $66K in unnecessary compute spend. |
+| "BUILD file maintenance is the build team's job." | Centralizing BUILD ownership creates a single bottleneck. Feature teams blocked 2-4 hrs/week waiting on build fixes = $50K-$120K/year in idle engineering capacity. Every team owns their own BUILD files. |
+| "We'll autogenerate BUILD files later — manual is fine for now." | Manual BUILD files at scale accumulate stale deps, missing visibility, and incorrect globs. Fixing 200+ stale BUILD files after a migration = $40K-$80K in one-time cleanup that could have been automated from day one. |
+| "Buildifier makes our BUILD files correct — the linter passes." | Buildifier only formats. It doesn't validate dep completeness, visibility correctness, or glob scope. Teams that trust buildifier alone ship broken builds that "look right" — $15K-$50K in debugging non-obvious failures over 6 months. |
+
 ## Gotchas
 
 * **Bazel's learning curve costs real money.** Engineers take 2-4 weeks to become productive with BUILD files and Starlark. At $150/hr, that is $12,000-$24,000 per engineer in ramp-up cost. Budget for training and expect a 20-30% productivity dip during the first month. **Total cost: $12K-$24K per engineer onboarding.**

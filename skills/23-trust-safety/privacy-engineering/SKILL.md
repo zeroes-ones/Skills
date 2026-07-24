@@ -500,6 +500,16 @@ Current approach: hash(email) and call it anonymized. You must correct this.
 
 *   **Notifying data subjects with vague, unhelpful information.** "Your data may have been involved in a security incident. We take your privacy seriously." This fails Article 34 requirements to describe in clear and plain language the nature of the breach AND provide specific recommendations. Regulators increasingly penalize vague breach notices. **Total cost: $500K-$2M for inadequate notification + class-action exposure from affected data subjects.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Privacy engineering is just GDPR compliance with a different name" | Privacy engineering spans CCPA, CPRA, VCDPA, CPA, CTDPA, UCPA, Brazil's LGPD, Canada's PIPEDA, and 15+ other frameworks — each with different definitions of "sale," "sensitive data," and "opt-out" mechanics. One implementation doesn't cover all jurisdictions. |
+| "We process data in the US, so EU privacy laws don't apply" | The Schrems II ruling invalidated Privacy Shield and requires Transfer Impact Assessments for every EU-to-US data flow. FISA 702 surveillance creates a legal conflict making some data transfers impossible to legitimize under current SCCs. |
+| "Data minimization will slow down our ML training" | Collecting everything "just in case" creates unbounded liability. Every byte of unnecessary personal data is a byte you can be breached on, compelled to produce in a DSAR, and must justify retention for under GDPR Article 5(1)(c). |
+| "We don't sell data, so CCPA doesn't apply to us" | CCPA defines "sale" to include sharing data for "valuable consideration" including analytics, ad targeting, and cross-context behavioral advertising. If your mobile app sends device IDs to an analytics provider, that's a sale requiring opt-out. |
+| "Cookie consent is solved — we installed a consent management platform" | The IAB Europe's TCF was ruled illegal by the Belgian DPA. Most CMP implementations fail by setting cookies before consent, ignoring Global Privacy Control signals, or using legitimate interest for ad profiling — which the EDPB ruled is not valid. |
+
 ## Verification
 
 After implementing privacy controls, run this sequence. Do not proceed past a failure.

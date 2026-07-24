@@ -614,6 +614,16 @@ Phase 6: Full comet migration (capstone)
 
 * **Codemods that modify import paths can break barrel exports and tree shaking.** If a codemod changes `import { foo } from './old-module'` to `import { foo } from './new-module'`, but `./new-module` has different barrel re-exports, downstream consumers of the consumer may also break. Codemods operate on single repos — they cannot see transitive effects. **Total cost: $12K-$35K in cascading breakages when a codemod in Repo A causes import errors in Repo B that depends on Repo A.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll just grep and manually update all call sites" | Manual grep misses 10-25% of call sites (aliases, dynamic imports, reflection); each missed site is a production outage discovered by a user, not a test — cost is multiplied across all consumers |
+| "We can deprecate the old API in one release cycle" | Consumer repos have deploy cycles from daily to quarterly; one cycle means the slowest consumer hasn't even seen the deprecation warning before you break them in production |
+| "Codemods are overkill for a small refactor" | A "small" refactor of 50 call sites across 8 repos still takes 40+ hours manually; a 2-hour codemod script handles it with zero human error and comprehensive test coverage |
+| "Breaking changes are fine if we communicate them clearly" | Communication doesn't prevent breakage; a breaking change taking down 3 consumer repos costs 15-30 engineering-hours in emergency response across teams that don't report to you |
+| "We don't need contract tests; we'll manually verify" | Without contract tests, every consumer API change is Russian roulette — you discover breakage when consumers deploy to production, not when you make the change |
+
 ## Verification
 
 After planning or executing a cross-repo refactoring, run this sequence. Do not proceed past a failure.

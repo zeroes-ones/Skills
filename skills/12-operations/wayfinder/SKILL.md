@@ -446,6 +446,16 @@ Pick a known unknown. Ask: "What would we need to know to answer this?" Write th
 ### Exercise 5: Scope-Down Practice (15 min)
 Take an unknown that feels overwhelming ("Which cloud provider should we use?"). Scope it down 3 times: what's the smallest knowable piece? What's the next smallest? What's the next? Write an investigation ticket for the smallest piece only.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll figure it out as we build — that's agile" | Coding against unresolved BLOCKING unknowns produces throwaway code — $30K-$100K in rework when a blocking unknown surfaces mid-implementation and invalidates weeks of work. |
+| "The 40-page research report is self-explanatory" | A research dump without explicit recommendation and confidence level equals zero knowledge transfer — $15K-$50K in duplicated investigation when the implementation team re-researches the same questions. |
+| "More dependencies between tickets means more thorough investigation" | Over-specified DAGs serialize all investigation into one frontier ticket — $20K-$80K in delayed time-to-decision when 3 parallel 2-week investigations become one 6-week serial chain. |
+| "We'll keep researching until we find the answer" | Spinning on UNKNOWABLE questions that cannot produce answers costs $5K-$30K per investigation — after 2 failed approaches, declare UNKNOWABLE and document constraints. |
+| "'Investigate database options' is a perfectly fine ticket" | Tickets without method, artifact specification, and completion criteria are just todos — $2K-$8K per shallow ticket that produces no actionable knowledge. |
+
 ## Gotchas
 
 - **The "we'll figure it out as we build" trap.** Starting implementation without resolving BLOCKING unknowns is exploration masquerading as progress. Every hour of coding against an unresolved architectural unknown produces code that may need to be rewritten. A team that spent 3 weeks building on PostgreSQL before discovering their workload needed DynamoDB lost $45,000 in engineering time on throwaway code. **Total cost: $30,000-$100,000 in rework when a blocking unknown is discovered mid-implementation. Fix: no implementation until all BLOCKING tickets are resolved.**

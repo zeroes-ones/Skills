@@ -352,6 +352,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "VACUUM will handle the bloat" | VACUUM marks dead tuples reusable but never returns disk space to the OS — a table doubled by bloat costs 2x in cloud storage indefinitely at $5K-$25K in wasted provisioned storage. |
+| "The replica shows zero bytes behind — we're caught up" | A single giant transaction replays for hours while bytes-behind stays zero — failover to this 'caught up' replica means losing hours of writes at $10K-$100K in data loss and manual reconciliation. |
+| "We have enough connections — the pool isn't full" | 15 connections in idle-in-transaction on a 20-connection pool means only 5 are available — a deadlock on those 5 is a full application outage at $20K-$200K in downtime costs. |
+| "Index everything — it can't hurt" | Low-cardinality indexes are ignored by the query planner — missing partial indexes on multi-TB tables cause full table scans 10-100x slower, burning $5K-$20K in compute waste. |
+| "autocommit is fine for this one UPDATE" | An UPDATE on 10M rows without explicit BEGIN...COMMIT runs as 10M individual transactions — 10-100x slower execution at $3K-$15K in cascading timeouts across dependent services. |
+
 ## Gotchas
 
 - **PostgreSQL `VACUUM` doesn't return disk space to the OS** — it marks dead tuples as reusable within the table file. The file stays the same size. Only `VACUUM FULL` (which locks the table exclusively) or `pg_repack` (online) shrinks the file on disk. **Total cost: $5,000-$25,000 in wasted provisioned storage — a table that doubles in size from bloat costs 2x in EBS/cloud storage fees indefinitely until someone runs `pg_repack` or provisions larger volumes.**

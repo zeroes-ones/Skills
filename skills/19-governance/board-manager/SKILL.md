@@ -343,6 +343,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The board just rubber stamps — governance is theater" | Directors have personal fiduciary liability. A shareholder derivative suit during a 72-hour D&O coverage lapse means defense costs are personal — $50K-$200K per director in 90 days. Directors have sold homes to cover uninsured legal fees. Governance is not theater; it's personal liability. |
+| "The deck is more important than the data — tell a compelling story" | Sending 80 slides 24 hours before the meeting guarantees board members skim and miss slide 47. Pre-reads 5-7 days out + 30 minutes presentation + 90 minutes discussion = decisions. A 2-hour CEO monologue wastes the board's only value: judgment applied to your hardest problems. |
+| "Investors want growth at all costs — governance can wait" | An undisclosed director conflict (competitor investment found in Series B due diligence) stalls the round for 6 weeks. Term sheet valuation drops 20%. Cost: $5M-$20M in lost valuation from governance red flags that should have been disclosed proactively. |
+| "Board consent via email is fine — everyone said yes" | "Looks good to me" from 4 of 5 directors in an email thread is NOT a formal unanimous written consent. Without executed documentation, an $2M acquisition is legally vulnerable to shareholder challenge. Cost: $50K-$200K in legal remediation + potential $500K-$2M in unwinding damages. |
+| "D&O insurance renewal — we'll handle it next week" | A 3-day lapse from one director's late questionnaire means ZERO coverage during an active shareholder suit. Defense costs: $500K-$5M across the board in personal liability. Renewal starts 90 days before expiration with a shared dashboard and 7-day escalation to the lead independent director. |
+
 ## Gotchas
 
 - **Board deck sent 24 hours before the meeting** — board members have 4 other board meetings this month, run their own companies, and can't digest 80 slides in 24 hours. The deck arrives, they skim the executive summary, and ask questions that were answered on slide 47. Send deck 5-7 business days before. Pre-reads = better discussions.

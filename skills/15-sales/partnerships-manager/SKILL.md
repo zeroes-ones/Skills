@@ -414,6 +414,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The deal is signed — partnerships is done" | The signed agreement is the starting line. No pipeline in 90 days = dead partnership. Both sides return to day jobs, the champagne goes flat, and 6 months later nobody remembers why they signed. Cost: the entire partnership investment with zero ROI. |
+| "Exclusive is better — lock them in" | Exclusivity without performance clauses means your ONLY channel into a market produces zero pipeline. The partner has no incentive to perform. Exclusivity must be earned quarterly with hard pipeline minimums — or it's a self-imposed market exit. |
+| "20% rev share is industry standard" | A $20K deal at 20% rev share pays the partner $4K — but your sales team spent 40 hours supporting their deal cycle ($6K in salary). Net take: $10K after COGS. Model total cost-to-serve per channel before signing, not after. |
+| "One champion at the partner is enough" | Your champion — the product manager who drove the integration — leaves. Their replacement has a different roadmap. Your integration goes from "strategic" to "legacy" overnight. Three contacts minimum at every partner, or you have no partnership. |
+| "Build the integration first, GTM later" | 3 engineers × 6 months = $270K-$360K invested. Result: a logo on an integrations page generating 12 leads in 6 months. No co-sell motion, no rev share, no GTM funding. Validate demand with a "fake door" test before committing engineering. |
+
 ## Gotchas
 
 - **Partnership agreement signed, champagne popped, nothing happens** — both sides return to their day jobs. The signed agreement is the STARTING line, not the finish. First 30 days: joint value proposition, joint sales deck, 3 named target accounts, and a bi-weekly pipeline review. No pipeline in 90 days = dead partnership.

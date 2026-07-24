@@ -383,6 +383,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We have 50K GitHub stars — developers love us" | Only 2% of stargazers install and 0.5% are active after 30 days — $100K-$250K/year chasing vanity metrics with zero attributable pipeline while the sales team has no qualified developer leads. |
+| "Our top community member would be a perfect hire for DevRel" | Hired community advocates lose 60-80% organic reach within 3 months as their content is flagged 'company content' — $150K-$250K in salary for someone whose primary asset evaporated. |
+| "Our Discord has 10K members — the community is thriving" | 1.5% activity rate means 9,850 ghosts and 10 actual contributors — community size without engagement metrics is theater, not DevRel. |
+| "The talk should showcase our product — that's the whole point" | Vendor pitches get rejected by conference committees — teach-first abstracts that solve real problems get accepted and generate authentic pipeline from the audience. |
+| "The tutorial worked when we wrote it 6 months ago" | Stale tutorials with deprecated APIs and vulnerable dependencies convince new developers your product is broken — tutorials without CI testing are liabilities, not assets. |
+
 ## Gotchas
 
 - **Conference talk abstract that pitches your product** — "How AcmeDB solves the top 5 database challenges" gets rejected because it's a vendor pitch. "5 Database Patterns That Fail at Scale (and How to Fix Them)" gets accepted because it teaches a skill. The audience learns, they associate the lesson with YOU, and they check out your product AFTER. Teach, don't pitch.
