@@ -491,12 +491,12 @@ graph LR
 
 ## Verification
 
-- [ ] Prompt evaluation: run prompt through eval harness (e.g., `promptfoo eval`) — all test cases pass
-- [ ] Token budget: `tiktoken` or equivalent confirms prompt + expected completion < model's context window
-- [ ] Output validation: structured output (JSON, XML) parses correctly — `json.loads()` succeeds for 100/100 test runs
+- [ ] Prompt evaluation: `python scripts/run_eval.py --test-cases evals.jsonl --endpoint $LLM_URL` — all test cases pass with p95 latency < SLA
+- [ ] Token budget: `python scripts/check_token_budget.py --prompt prompt.txt --model gpt-4o --max-output 4096` — prompt + completion fits within model context window
+- [ ] Output validation: `python scripts/validate_output.py --file output.json --schema response_schema.json` — structured output parses correctly for 100/100 test runs
+- [ ] Cost estimation: `python scripts/estimate_cost.py --model gpt-4o --input-tokens 5000 --output-tokens 2000 --requests 1000` — estimated cost within budget, cheaper alternatives shown
 - [ ] Hallucination check: for RAG use case, verify 10 responses cite source documents — all claims have source provenance
-- [ ] Latency: p99 response time < SLA (e.g., 2000ms for chat, 500ms for classification)
-- [ ] Cost: estimated cost per 1000 requests within budget — `(input_tokens × input_price + output_tokens × output_price)`
+- [ ] Latency: p99 response time < SLA (e.g., 2000ms for chat, 500ms for classification) — covered by `run_eval.py`
 
 ## References
 
