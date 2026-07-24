@@ -83,13 +83,17 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 ## Ground Rules — Read Before Anything Else
 
-These rules apply to *every* response this skill produces.
+These rules are non-negotiable constraints that detect localization mistakes before they are given. Violation means STOP and refuse to proceed.
 
-- **Never hardcode strings.** Every user-visible string goes into a translation file. Do not embed text in JSX/TSX/Swift/Kotlin — use translation keys with fallbacks.
-- **Always test with pseudolocalization before translations.** Run pseudo-localized builds to catch hardcoded strings, layout breakage, and truncation before translators invest time. Do not wait for real translations to find i18n bugs.
-- **Dates, numbers, and currencies are locale-specific.** Never use `new Date().toLocaleString()` without specifying the locale. Formats, first-day-of-week, digit grouping, and currency symbols all vary. Do not assume `en-US` formatting.
-- **Always design for text expansion.** English is compact — German and Arabic can be 30-50% longer. UI layouts must accommodate expansion without breaking.
-- **Admit what you don't know.** If you don't know the target locales, RTL requirements, or TMS integration details, say so and ask before designing the pipeline.
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|-------------------|-------------------|-------------------|
+| R1 | REFUSE hardcoded strings in UI code | Trigger: Code contains string literals directly in UI markup (JSX text content, SwiftUI `Text("...")`, Compose `Text("...")`) outside a translation key lookup — grep for `Text\(\"`, `>  </`, or `text:` with a bare string operand | STOP. Respond: "Hardcoded string at [file:line]. All user-visible strings must use translation keys (e.g., `t('welcome.message')`). Extract to resource file now — hardcoded strings shipped to production require a full release cycle to fix." |
+| R2 | REFUSE string concatenation for translatable sentences | Trigger: Code constructs user-visible sentences via `+` or string interpolation (`${noun}`) that embeds dynamic values into a sentence template — grep for `\+ \" \" \+` or template literal with both static text and variables inside a user-visible context | STOP. Respond: "String concatenation at [file:line] breaks i18n. Word order differs across languages — your concatenation order is English-only. Use ICU MessageFormat: `'You have {count, plural, =0 {no items} one {1 item} other {# items}}'` not `count + ' items'`." |
+| R3 | DETECT hardcoded directional properties (RTL incompatible) | Trigger: CSS/layout uses `left`, `right`, `padding-left`, `margin-right`, `text-align: left`, or `flex-start`/`flex-end` applied to text-bearing elements, without corresponding `[dir="rtl"]` override or logical property equivalent | STOP. Respond: "Hardcoded directional property at [file:line]: `[property]`. Use logical properties for RTL compatibility: `padding-inline-start` not `padding-left`, `margin-inline-end` not `margin-right`, `text-align: start` not `text-align: left`." |
+| R4 | REFUSE locale-less date, number, or currency formatting | Trigger: Code calls `Date.toLocaleString()`, `toLocaleDateString()`, `Intl.DateTimeFormat()`, `Number.toFixed()` for display, or `parseFloat` for user-entered numbers — without an explicit locale parameter passed through from the user's preference | STOP. Respond: "Locale-less formatting at [file:line]. Never assume `en-US` conventions for dates (MM/DD/YYYY), numbers (1,000.00), or currencies ($). Use `Intl.DateTimeFormat(userLocale, options)` with the locale from the user's preference or accept-language header." |
+| R5 | DETECT untranslated strings in locale resource files | Trigger: A translation key in `en.json` (or base locale) has no corresponding entry in any other locale file, OR a key appears in code that does not exist in the base locale file — verify with `diff <(grep -oP '\"\\w+\"' en.json | sort) <(grep -oP '\"\\w+\"' fr.json | sort)` | STOP. Respond: "Untranslated key `[key]` missing from `[locale]`. Missing translations render as raw keys in production. Run: `i18n-unused diff --base en.json --target [locale].json` to find all gaps. Do not ship until all target locales have 100% key coverage or explicit fallback handling." |
+| R6 | DETECT no text expansion budget in UI containers | Trigger: Fixed-width or fixed-height container (CSS `width: Npx`, SwiftUI `.frame(width:)`, Compose `.width(N.dp)`) wrapping translated text with no `min-width`, no `overflow` strategy, and no `flex-shrink` — container will clip or overflow with longer translations | STOP. Respond: "No expansion budget at [file:line]. German text is 30-35% longer than English; Arabic can be 50%+. Fixed dimensions on translatable text containers will clip content. Replace `width: Npx` with `min-width: Npx` + `width: auto`, or use flex layout. Verify with pseudo-localization (`en-XA` locale doubles string length)." |
+| R7 | REFUSE incomplete locale fallback chain | Trigger: Locale resolution config has fewer than 3 levels (e.g., only `['fr']` instead of `['fr-FR', 'fr', 'en']`), or fallback list omits the base/default locale as the final entry — check i18n config for `fallbackLng` being a single string rather than an array | STOP. Respond: "Incomplete locale fallback at [file:line]. Define at minimum: specific locale → language-only → default (e.g., `'fr-CA' → 'fr' → 'en'`). Without a 3-level fallback chain, any missing translation renders as the raw key in production. Configure: `fallbackLng: ['en']` and ensure every locale resolves through its language parent to the default."
 
 ## The Expert's Mindset
 
@@ -337,6 +341,54 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+### Decision Tree 5: Translation Management System (TMS) Build vs Buy Decision
+
+**Context:** You need a system to manage translations. Should you buy a commercial TMS (Lokalise, Phrase, Crowdin, POEditor, Transifex) or build an in-house solution (Git-based workflow + CLI tools + spreadsheet-based translation)?
+
+#### Phase 1: Scale & Complexity Assessment
+- How many target languages?
+  - 1-2 languages → In-house with JSON/PO files + GitHub PR workflow. Don't add TMS overhead for 2 languages. A spreadsheet-based workflow with `i18next-parser` extraction is sufficient.
+  - 3-10 languages → Evaluate. A TMS adds translation memory (TM) reuse, glossary enforcement, and visual context. If you use professional translators, a TMS is nearly always worth it.
+  - 10+ languages → Buy a TMS. Managing 10+ locale files, translation memory, and translator workflows manually will consume a full-time engineer.
+- What is the translation volume?
+  - <1,000 source strings → In-house is viable. Manual PR reviews per locale are manageable.
+  - 1,000-10,000 source strings → TMS is strongly recommended. Translation memory saves 30-50% on translation costs through fuzzy matching and reuse.
+  - 10,000+ source strings → TMS is mandatory. Automated workflows, TM leveraging, and MT integration are required to maintain velocity.
+- How frequently do strings change?
+  - Quarterly releases → In-house or TMS. Low churn means manual workflows don't bottleneck.
+  - Weekly or continuous deployment → TMS is mandatory. CI/CD integration (auto-push source strings, auto-pull translations as PR) prevents translation lag. Without this, you either ship untranslated strings or delay deploys.
+
+#### Phase 2: Translator & Team Assessment
+- Who are your translators?
+  - Professional translation agency → TMS. Agencies expect a TMS interface and won't work with raw Git repos. They bill by word and expect TM/glossary integration.
+  - In-house translators → TMS or in-house. In-house team can adapt to any workflow, but a TMS with screenshot context and visual editor dramatically improves their throughput.
+  - Volunteer/community translators (open source) → Crowdin (free for OSS) or Git-based PR workflow. Volunteers won't pay for TMS access. Crowdin's free OSS tier is the industry standard.
+  - Developers doing translation (startup without budget) → In-house Git-based workflow with `i18next-parser` and spreadsheets. Keep it simple until you can afford a TMS.
+- Do you need translation memory and glossary management?
+  - Yes → TMS. Building TM matching with fuzzy match scoring, placeholder validation, and glossary enforcement in-house is 3-6 months of engineering effort. Commercial TMS has this built in and battle-tested.
+  - No (one-time translations, no reuse) → In-house is feasible. But TM pays for itself within 2-3 release cycles through reuse savings.
+- What's your budget?
+  - $0-50/month → In-house. TMS pricing starts at ~$120/month for small teams. POEditor at $20/month is the cheapest viable commercial option.
+  - $120-500/month → Buy. Engineering time saved vs building/maintaining in-house exceeds the subscription cost within the first month.
+  - $500+/month → Buy. At this tier you get visual context editors, automated screenshot capture, MT integration (DeepL, Google, Azure), and CI/CD-grade API rate limits.
+
+#### Phase 3: Build vs Buy Decision Matrix
+
+| Factor | Build (In-House) | Buy (Commercial TMS) |
+|--------|------------------|---------------------|
+| Setup time | 2-4 weeks (scripts + CI) | 1-3 days (API integration) |
+| Maintenance cost | 0.5-1 FTE engineer | $120-$500+/month subscription |
+| Translation memory | Manual or none | Built-in with fuzzy matching |
+| Glossary/termbase | Spreadsheet-based | Built-in with enforcement |
+| Screenshot context | Manual (tools like Percy) | Automated capture |
+| Translator UX | Git/CLI — technical barrier | Web UI — translator-friendly |
+| CI/CD integration | Custom scripts | Native API + plugins |
+| MT integration | Manual (API keys + scripts) | Built-in (DeepL, Google, Azure) |
+| QA/validation | Custom lint rules | Built-in (placeholder, HTML, length) |
+| Scalability | Degrades at 5+ languages | Scales to 100+ languages |
+
+**Recommendation:** Buy a TMS if you have >2 target languages AND use professional translators. The break-even point is roughly 3 languages with 1,000+ source strings — at that scale, the engineering time saved in a single release cycle covers the annual subscription. If you're a solo developer with 1-2 languages, start in-house and migrate to a TMS when you hire your first translator or add your third language. Crowdin's free OSS tier is an excellent bridge — zero cost until you outgrow it.
+
 ## Gotchas
 
 - **RTL layout not tested before Arabic/Hebrew launch.** Launching into RTL markets (Arabic: 400M+ speakers, Hebrew: 9M+) without testing reveals that CSS `direction: rtl` doesn't mirror everything — icons, illustrations, SVGs, carousels, and custom-drawn components stay LTR. Every affected screen needs CSS overrides, component refactors, and QA cycles under launch pressure. **Total cost: $10K-$50K in emergency engineering and QA to fix RTL layout bugs post-launch, plus lost trust in markets where competitors already ship polished RTL.** Fix: build and test your app in `ar` locale from day one of localization work. Use `margin-inline-start`/`margin-inline-end` instead of `margin-left`/`margin-right`. Test every screen and every animation in RTL before declaring localization complete.
@@ -348,6 +400,9 @@ graph LR
 - **Locale fallback chains** don't follow the obvious pattern. `fr-CA` (French Canadian) does NOT fall back to `fr` on all platforms — Android and ICU use `fr-CA → fr → root`, but Unicode CLDR uses `fr-CA → fr → und`. Resource bundle lookup must test both paths.
 - **Translation keys with interpolation** `Hello {name}` — if the translator omits `{name}`, the app shows literal `{name}`. Validate that every translated string has exactly the same placeholders as the source.
 - **Pseudo-localization** doubles string length and adds diacritics. But it doesn't catch: missing plural forms, date formats, currency codes, or word-order issues. Pseudo-loc is necessary but not sufficient.
+- **Not accounting for text expansion in UI layout at design time.** English source text "Submit" (6 chars) becomes "Absenden" (8 chars, +33%) in German, "Enviar" (6 chars) in Spanish, but "Soumettre" (9 chars, +50%) in French. Buttons break across lines, labels overflow fixed-width containers, and table columns truncate critical action labels. The UI looks broken and untrustworthy in every non-English locale, directly reducing conversion in localized markets. **Total cost: $15,000-$50,000 in UI redesign and QA cycles per locale to fix overflow bugs, plus diminished conversion rates in international markets.** Fix: Design all UI components to accommodate 30-40% text expansion from English as the baseline minimum; use CSS `min-width`/`max-width` with `text-overflow: ellipsis` as a last resort; pseudo-localize with 30% length expansion and run visual regression tests in CI; avoid fixed-width containers for any text-bearing element.
+- **Resource file format fragmentation across platforms.** The web team stores translations as nested JSON (i18next `{"checkout": {"button": {"label": "Buy"}}}`), Android uses XML with `%1$s` positional placeholders, and iOS uses `.strings` files with `%@` format specifiers. Every new string must be manually reformatted per platform, translators re-validate context across three formats, and a single placeholder typo on one platform causes silent string corruption that QA discovers weeks later. **Total cost: $10,000-$40,000 per year in manual format conversion labor, placeholder-corruption bugs requiring emergency fixes, and per-platform QA overhead that multiplies with each additional locale.** Fix: Standardize on a single interchange format (XLIFF 2.0, ICU MessageFormat) and auto-generate all platform-specific formats from it; use a TMS (Lokalise, Phrase, Crowdin) that exports to all target formats from one source; validate placeholder integrity in every generated file with automated CI checks before merging.
+- **Ignoring locale-specific data formatting beyond dates and numbers.** Names, addresses, phone numbers, and postal codes are formatted differently worldwide. A form demanding "Last Name" blocks Icelandic users (who use patronymics, not family names), a "State" dropdown limited to US states blocks Canadian and Australian users, and phone validation hardcoded to `+1` blocks every international customer from signing up. **Total cost: $20,000-$80,000 in permanently lost international customer acquisition, abandoned signup and checkout flows, and a growing backlog of support tickets from blocked legitimate users in target markets.** Fix: Use locale-aware input masks and validators (libphonenumber-js, i18n-iso-countries); make culturally-specific fields like "State/Province," "Last Name," and "ZIP Code" locale-adaptive or optional based on the user's country; test signup and checkout flows with personae from at least 5 countries representing different name, address, and phone number patterns.
 
 ## Verification
 

@@ -276,6 +276,94 @@ graph LR
 
 **The One Highest-Leverage Activity**: Build a complete VPC from scratch every month. Every time, make it a little better — fewer public IPs, tighter security groups, simpler routing. The repetition builds instincts that documentation can't.
 
+### Decision Tree 4: Choosing Between Transit Gateway and VPC Peering
+
+**Context:** You need to connect multiple VPCs. Should you use VPC peering (point-to-point, free intra-AZ data transfer, simpler) or Transit Gateway (hub-and-spoke, centralized routing, scales better)?
+
+#### Phase 1: Scale & Topology Assessment
+- How many VPCs need interconnection?
+  - 2-3 VPCs → VPC peering is viable. Each pair needs its own peering connection (N(N-1)/2 connections: 1 for 2 VPCs, 3 for 3 VPCs).
+  - 4-10 VPCs → Transit Gateway begins to dominate. 4 VPCs = 6 peering connections to manage vs. 4 TGW attachments.
+  - 10+ VPCs → Transit Gateway is the clear choice. Mesh peering at this scale is unmanageable (45 connections for 10 VPCs).
+- Are VPCs in different regions?
+  - Same region → VPC peering works (no intra-region data transfer charge).
+  - Cross-region → Transit Gateway supports inter-region peering. VPC peering also works cross-region but charges inter-AZ data transfer.
+- Do you need transitive routing (VPC-A → VPC-B → VPC-C)?
+  - Yes → Transit Gateway ONLY. VPC peering is strictly non-transitive. If VPC-A peers with VPC-B and VPC-B peers with VPC-C, A cannot reach C through B.
+  - No → Either option works. Peering is simpler if transitivity isn't needed.
+  - Need centralized egress (NAT, firewall, inspection) → TGW with a shared services VPC. Route all spoke traffic through centralized inspection before egress.
+
+#### Phase 2: Cost & Operational Tradeoffs
+- **Data transfer volume**: Calculate monthly cross-VPC traffic.
+  - Intra-AZ: VPC peering is FREE. TGW charges $0.02/GB processed.
+  - Cross-AZ or cross-region: Both charge cross-AZ rates (~$0.01/GB), but TGW adds $0.02/GB processing on top.
+  - High intra-AZ traffic (>5 TB/month) → Peering saves significantly. At 10 TB, TGW adds ~$200/month in processing fees.
+- **Centralized control requirements**:
+  - Need centralized inspection, shared services (firewall/NAT), or network segmentation with separate route domains → TGW with route tables per spoke.
+  - Using AWS Network Firewall for east-west inspection → TGW required (firewall attaches to TGW, not peering).
+- **Operational complexity**:
+  - Small team (<5 engineers) → VPC peering is simpler to debug, fewer moving parts. Each connection is explicit and self-documenting.
+  - Larger team with IaC → TGW's centralized management through Terraform/CDK reduces per-VPC configuration overhead.
+- **Bandwidth**: VPC peering has no bandwidth limit (limited by instance bandwidth). TGW attachments support 50 Gbps burst each. For >50 Gbps per VPC, use multiple TGW attachments with ECMP.
+
+**Decision Matrix:**
+
+| Factor | VPC Peering | Transit Gateway |
+|--------|-------------|-----------------|
+| VPC count | 2-3 optimal | 4+ optimal |
+| Transitive routing | Not supported | Native |
+| Intra-AZ data cost | Free | $0.02/GB |
+| Centralized inspection | Manual (per VPC) | Native (route tables) |
+| Max per-flow bandwidth | Instance-limited | 50 Gbps/attachment |
+| Inter-region | Yes | Yes (inter-region peering) |
+| Route table management | Per-VPC | Centralized |
+
+**Recommendation:** Start with TGW if you expect to grow past 3 VPCs within 12 months. Migrating from a peering mesh to TGW requires re-architecting IP ranges and route tables — it's far cheaper to start with TGW than to migrate later. Use VPC peering only for point-to-point connections between exactly 2 VPCs that will never need transitive routing or centralized inspection.
+
+### Decision Tree 5: Public vs Private Load Balancer Exposure Decision
+
+**Context:** You're deploying a load balancer. Should it be internet-facing (resolves to public IPs) or internal (only reachable within the VPC/connected networks)?
+
+#### Phase 1: Consumer Identity & Reachability
+- Who consumes this service?
+  - End users on the public internet → Internet-facing ALB/NLB REQUIRED. No alternative.
+  - Partner/customer systems on their own external networks → Internet-facing with security controls (IP allowlisting, mTLS, WAF). Private connectivity (Direct Connect, VPN) is possible but operationally heavy for external partners.
+  - Internal microservices within your VPC/network → Internal ALB/NLB. No internet exposure needed.
+  - Internal but needs external health checks (e.g., CloudFront origin, global health monitor) → Internal LB + VPC endpoint, or separate health-check-only public endpoint on a dedicated port.
+- Is the service part of a customer-facing product?
+  - Customer-facing web app, API, or SaaS → Internet-facing behind CDN/WAF.
+  - Internal admin dashboard, CI/CD tools, monitoring → Internal LB with VPN/bastion access. NEVER expose admin tools directly to the internet.
+
+#### Phase 2: Security & Compliance Assessment
+- Does the service handle regulated data (PCI-DSS, HIPAA, SOC2)?
+  - Yes → Strongly prefer internal LB. If internet-facing is unavoidable: add WAF with managed rules, IP reputation filtering, geographic restrictions, bot control, and mandatory TLS 1.2+.
+  - No → Internet-facing is acceptable with standard security (security groups, TLS).
+- What's the blast radius if this service is compromised?
+  - Service has access to databases, secrets, internal APIs → Internal LB. A compromised internet-facing service becomes a pivot point into your VPC.
+  - Service is isolated, stateless, with no internal network access → Internet-facing is lower risk (but still apply security groups and WAF).
+- Are there compliance mandates for data residency or network segmentation?
+  - Yes (data must never traverse public internet) → Internal LB + PrivateLink/VPC endpoints for cross-account/VPC access.
+  - No → Internet-facing with TLS is acceptable.
+
+#### Phase 3: Architecture Patterns & Exceptions
+- **API Gateway pattern**: Use internet-facing API Gateway (AWS API Gateway, Kong, Envoy) as the single public entry point. All backend services use internal LBs behind the gateway. Limits your public surface area to one endpoint.
+- **CDN origin pattern**: Deploy internal ALB. Use CloudFront with VPC Origin (or equivalent CDN private origin feature) to keep the ALB private while serving public traffic through the CDN. Avoids exposing the origin to the internet entirely.
+- **PrivateLink pattern**: Expose a service to OTHER AWS accounts without internet. Deploy internal NLB + VPC Endpoint Service. Consumers in other accounts create VPC endpoints. Traffic never leaves the AWS backbone.
+- **Edge VPC pattern**: Centralize internet-facing LBs in a dedicated edge/ingress VPC. Route to internal LBs in workload VPCs via TGW or PrivateLink. Only the edge VPC has internet gateways — workload VPCs are fully private.
+
+**Decision Matrix:**
+
+| Consumer | Recommended Scheme | Fallback |
+|----------|-------------------|----------|
+| Public internet users | Internet-facing ALB + WAF + CDN | — |
+| External partner APIs | Internet-facing NLB + mTLS + IP allowlist | PrivateLink (if partner on AWS) |
+| Internal microservices | Internal ALB/NLB | — |
+| Cross-account AWS consumers | Internal NLB + PrivateLink | Internet-facing + mTLS |
+| Hybrid/on-prem consumers | Internal NLB + VPN/Direct Connect | Internet-facing + WAF + IP allowlist |
+| Admin/monitoring tools | Internal ALB + VPN/bastion | NEVER public |
+
+**Recommendation:** Default to internal unless the consumer is definitively on the public internet. Every internet-facing load balancer is a potential entry point. For public-facing services, always layer: WAF, CDN, TLS 1.2+ with strong ciphers, and security group rules scoped to CDN IP ranges or WAF-managed prefix lists — never `0.0.0.0/0` directly.
+
 ## Gotchas
 
 - **Security group rules are stateful** — if you allow outbound on port 443, return traffic is automatically allowed. But Network ACLs are stateless — you must explicitly allow both outbound (ephemeral ports 1024-65535) AND inbound responses.
@@ -288,6 +376,7 @@ graph LR
 - **Single region network design with no multi-region failover.** An entire SaaS product runs in `us-east-1` with a single Transit Gateway and one Direct Connect — a regional fiber cut or AWS control-plane outage takes down every customer globally for 4-8 hours with no fallback. **Total cost: $100K-$500K/hour in revenue loss during a regional outage for mid-market SaaS, plus SLA penalty payouts.** Design active-passive multi-region networking with DNS failover and cross-region VPC peering or Transit Gateway inter-region peering, targeting sub-15-minute regional failover.
 - **Flat network architecture without segmentation.** All production workloads share a single VPC with no micro-segmentation — when an attacker compromises a public-facing web server, they scan the entire `/16` and pivot to the database tier, the CI/CD runner, and the secrets management instance without any network controls slowing lateral movement. **Total cost: $500K-$2M in breach scope expansion from unrestricted lateral movement — a segmentation architecture typically limits blast radius to a single subnet.** Implement micro-segmentation with security groups per workload tier, Network Policy (Kubernetes) or AWS Firewall, and zero-trust network access between all non-adjacent tiers.
 - **Cloud egress cost surprise from cross-AZ or cross-region traffic.** A microservices architecture with NAT gateways in each AZ and inter-service calls across AZ boundaries generates $0.01-$0.02/GB in cross-AZ data transfer — a data-intensive pipeline moving 50TB/month cross-AZ accumulates $1,000-$2,000/month that nobody budgeted for. **Total cost: $5K-$50K/month in unexpected cloud egress charges for data-heavy workloads ($0.05-$0.12/GB internet egress, $0.01-$0.02/GB cross-AZ).** Deploy VPC endpoints (Gateway Endpoints for S3/DynamoDB, Interface Endpoints for other services), co-locate services that communicate heavily in the same AZ, and set billing alerts on data transfer line items before they become CFO conversations.
+- **Missing or stale network topology documentation after personnel changes.** The senior network engineer who architected the multi-cloud VPC peering, Transit Gateway, and Direct Connect topology leaves the company — the architecture existed only in their head. Six months later, a routine TLS certificate rotation on an internal-facing Application Load Balancer takes down production for 6 hours because nobody documented which certificates terminate where, which route tables reference which gateways, and which security groups allow health-check traffic between tiers. Network outages caused by missing documentation are the most common avoidable cause of extended MTTR — every minute of downtime from "figuring out how it's connected" is pure waste. **Total cost: $50K-$300K per extended outage from undocumented network topology, plus $10K-$25K in emergency consulting fees to reverse-engineer the architecture.** Maintain a living network diagram (Lucidchart, draw.io, or infrastructure-as-diagram tooling) updated with every infrastructure change, documenting every peering connection, route table entry, security group rule intent, and TLS termination point with expiration dates.
 
 ## Verification
 

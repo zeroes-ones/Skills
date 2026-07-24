@@ -361,6 +361,76 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 | Align engineering workforce strategy | `vp-engineering` | Multi-team workforce planning, engineering culture, technical hiring strategy, retention programs |
 | Model headcount costs and benefits spend | `fp-and-a-analyst` | Headcount forecasting, benefits cost projections, compensation scenario modeling, budget variance analysis. **Decision gate:** Is budget variance < 5% from plan? → on track. **Artifact:** headcount cost model + variance analysis. |
 
+### Performance Improvement Plan (PIP) vs Immediate Termination Decision
+
+**Context:** An employee's performance or conduct has reached a point where termination is being considered. The decision between a PIP and immediate termination has significant legal, financial, and cultural implications. A wrong call here is the #1 source of wrongful termination claims. The core question: is this a correctable performance gap or an irreparable breach of conduct?
+
+```
+                        ┌──────────────────────────┐
+                        │ START: Termination is      │
+                        │ being considered for an    │
+                        │ employee                   │
+                        └───────────┬──────────────┘
+                                    │
+                      ┌─────────────▼─────────────┐
+                      │ Does the behavior involve   │
+                      │ gross misconduct?           │
+                      │ (theft, violence, fraud,    │
+                      │  harassment, safety         │
+                      │  violation, serious         │
+                      │  insubordination)?          │
+                      └────┬─────────────────┬────┘
+                           │ YES             │ NO
+                           │                 │
+                      ┌────▼──────────┐ ┌────▼──────────────────┐
+                      │ IMMEDIATE      │ │ Is this a performance │
+                      │ TERMINATION:   │ │ issue or minor        │
+                      │ Investigate    │ │ conduct issue?        │
+                      │ fully, consult │ └────┬─────────────┬────┘
+                      │ legal, term    │      │ PERFORMANCE │ CONDUCT
+                      │ with cause.    │      │ (skill/     │ (policy
+                      │ No PIP needed. │      │  output)    │  violation)
+                      └────────────────┘      │             │
+                                              │             │
+                         ┌────────────────────▼──┐    ┌─────▼──────────────┐
+                         │ Has the manager        │    │ Is this a first    │
+                         │ documented prior       │    │ offense or a       │
+                         │ feedback AND given     │    │ pattern?           │
+                         │ the employee a chance  │    └──┬───────────┬─────┘
+                         │ to improve?            │  FIRST OFFENSE │ PATTERN
+                         └────┬──────────────┬────┘       │         │
+                              │ NO           │ YES   ┌────▼────┐ ┌──▼──────────┐
+                         ┌────▼──────┐ ┌─────▼──────┐│WRITTEN  │ │PIP FOR      │
+                         │ COACHING  │ │ FORMAL PIP: ││WARNING: │ │CONDUCT:     │
+                         │ FIRST:    │ │ 30-90 day   ││Document │ │Specific     │
+                         │ Manager   │ │ written plan││the      │ │behavioral   │
+                         │ must      │ │ with SMART  ││violation│ │goals with   │
+                         │ provide   │ │ goals,      ││with     │ │zero-        │
+                         │ clear     │ │ weekly      ││conse-   │ │tolerance    │
+                         │ written   │ │ check-ins,  ││quences  │ │clause. If   │
+                         │ feedback  │ │ clear       ││for      │ │unmet → term.│
+                         │ before    │ │ consequences││repeat.  │ └──────┬──────┘
+                         │ initiating│ │ if unmet.   │└────┬────┘        │
+                         │ a PIP.    │ └──────┬──────┘     │            │
+                         └───────────┘        │            │            │
+                                              │            │            │
+                                    ┌─────────▼────────────▼────────────▼──────────┐
+                                    │ OUTCOME GATE: After PIP/Warning period, did    │
+                                    │ the employee meet ALL documented expectations? │
+                                    └────┬──────────────────────────────┬───────────┘
+                                         │ YES                          │ NO
+                                    ┌────▼──────────┐          ┌────────▼──────────────┐
+                                    │ RETAIN: Close  │          │ TERMINATE: Document    │
+                                    │ PIP/warning,   │          │ PIP/warning outcome,   │
+                                    │ continue       │          │ consult legal, proceed │
+                                    │ monitoring     │          │ with termination.      │
+                                    │ with 90-day    │          │ Offer severance per    │
+                                    │ check-in.      │          │ policy + release.      │
+                                    └────────────────┘          └───────────────────────┘
+```
+
+**Critical:** A PIP must be specific, measurable, achievable, relevant, and time-bound (SMART). "Improve attitude" is not a PIP goal — "Respond to all internal emails within 4 business hours and maintain a professional tone as evaluated by manager in weekly 1:1s" is. Never begin a PIP if you have already decided to terminate — a sham PIP creates more legal exposure than no PIP at all. Before terminating any employee in a protected class or who has recently engaged in protected activity (FMLA leave, harassment complaint, accommodation request), consult employment counsel — the standard for proving retaliation is far lower than proving discrimination. A substantiated PIP that ends in termination should be defensible on paper: any reasonable third party reviewing the documentation should conclude the termination was fair.
+
 ## Gotchas
 
 - **Wrongful termination lawsuits average $50K-$200K in settlements — before legal fees.** Even when you win, defense costs run $75K-$150K. The #1 driver: terminating without documented performance issues. Terminating a $120K employee who "wasn't a fit" with zero PIP documentation transforms a $10K severance into a $200K settlement. **Total cost: $50K-$200K settlement + $75K-$150K legal fees.** Never term without a documented performance improvement plan trail and legal review.
@@ -371,6 +441,7 @@ When an employee leaves, they leave with dignity and a fair process. When a cand
 - **"Unlimited PTO" policy** that results in employees taking LESS vacation because there's no "use it or lose it" signal. Average PTO taken drops from 18 days (accrued) to 12 days (unlimited). Add a MINIMUM PTO requirement: "You must take at least 15 days off per year."
 - **Performance review calibration** without bias training — managers rate their direct reports higher than cross-team reviewers because "my team is exceptional." Calibration needs: written evidence for every rating level, not manager opinion. "Exceeds expectations" requires 3 specific examples of exceeding.
 - **"Culture is our #1 priority"** but you only measure it during exit interviews when it's too late. Quarterly pulse surveys with anonymous free-text: "What would make you leave?" and "What keeps you here?" Track the ratio of positive-to-negative themes over time.
+- **I-9 form errors or missing documentation discovered during an ICE audit.** A 150-person company has been filing I-9s with Section 2 completed on day 4 instead of day 3, missing employer signatures on 30 forms, and accepting expired List B documents for 12 employees over 3 years. An ICE Notice of Inspection arrives with a 3-day response window — the company scrambles to correct what they can, but the substantive paperwork violations (late verification, missing signatures) carry fines of $270-$2,700 per form under current penalty schedules. With 42 non-compliant forms, that's $11K-$113K in fines — plus legal fees of $30K-$75K negotiating with ICE counsel and the risk of criminal penalties if knowing-hire violations are found. **Total cost: $40K-$190K in fines, legal fees, and remediation labor per audit — and audit selection risk increases after the first violation.** Implement electronic I-9 software (Equifax, LawLogix, Tracker Corp) that enforces deadlines, validates documents at intake, flags expiring work authorizations, and prevents form submission with missing fields. Conduct quarterly internal I-9 self-audits with outside counsel privilege.
 
 ## Verification
 
