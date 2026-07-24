@@ -425,6 +425,85 @@ Should you implement consumer-driven contract tests across repos?
 |   |-- OpenAPI spec validation in CI: does the new spec break consumers?
 ```
 
+### Codemod Selection Guide
+
+```
+Which migration tool should you use for this cross-repo change?
+|-- jscodeshift: JavaScript/TypeScript AST-level transforms
+|   |-- Best when: complex transformations (reorder arguments, change call patterns, add/remove imports)
+|   |-- Requires: Node.js, JS/TS codebase, familiarity with AST concepts (AST Explorer helps)
+|   |-- Learning curve: medium (2-5 days to proficiency)
+|   |-- Examples: renaming functions with argument reordering, converting callbacks to promises, updating import paths
+|   |-- DO NOT use for: non-JS/TS codebases, simple find-replace, config file changes
+
+|-- comby: Structural search-and-replace (regex-like but bracket-aware)
+|   |-- Best when: patterns that are structural but don't need full AST awareness
+|   |-- Requires: binary install, works on any language
+|   |-- Learning curve: low (30 minutes to proficiency)
+|   |-- Examples: function renames (same args), type renames, simple API migrations
+|   |-- Limitations: cannot reorder arguments easily, limited type awareness
+|   |-- DO NOT use for: complex refactors requiring type information, multi-file dependency changes
+
+|-- ast-grep: AST-aware structural search (like comby + tree-sitter)
+|   |-- Best when: need AST awareness but want simpler syntax than jscodeshift
+|   |-- Requires: binary install, language-specific grammar (tree-sitter)
+|   |-- Learning curve: low-medium (1-2 days to proficiency)
+|   |-- Examples: cross-language migrations, config-as-code changes, YAML/JSON/TOML transformations
+|   |-- Supports: 20+ languages via tree-sitter grammars
+
+|-- semgrep: Pattern-based search with rule composition
+|   |-- Best when: finding patterns to migrate (discovery phase), security-focused changes
+|   |-- Requires: pip install semgrep, rule files in YAML
+|   |-- Learning curve: low (1 day to proficiency)
+|   |-- Examples: finding all uses of deprecated API across 50 repos, enforcing migration completion
+|   |-- DO NOT use for: the actual migration (find only, no automatic fix in many cases)
+
+|-- Custom Script (Python/Bash/sed): Regex-based
+|   |-- ONLY as last resort when no other tool works
+|   |-- Best when: config files, markdown, simple text patterns
+|   |-- DANGER: regex cannot understand code structure. False positives and false negatives are guaranteed.
+|   |-- ALWAYS: test fixtures + manual review of every change
+```
+
+### Escalation Patterns for Stuck Migrations
+
+```
+What to do when consumers are not migrating:
+|-- Diagnose WHY the consumer is stuck:
+|   |-- Technical blocker: dependency conflict, breaking test, incompatible version
+|   |   |-- Action: pair with consumer team to resolve the technical issue. Extend timeline if needed.
+|   |   |-- Signal: consumer tried to migrate, found a problem, stopped
+|   |-- Resource constraint: team has higher-priority work, migration is not prioritized
+|   |   |-- Action: escalate to engineering manager. Quantify the cost of NOT migrating (incident risk, maintenance burden).
+|   |   |-- Signal: consumer acknowledged the need but hasn't allocated time
+|   |-- Unmaintained repo: no active maintainer, repo is in "sustaining" mode
+|   |   |-- Action A: migrate it yourself (2-5 days to understand codebase + migration time)
+|   |   |-- Action B: accept breakage and prepare incident response plan
+|   |   |-- Action C: extend deprecation indefinitely (last resort — creates tech debt)
+|   |   |-- Signal: no commits in 6+ months, former maintainers have left the team
+|   |-- Organizational blocker: team was reorged, ownership unclear, migration fell through cracks
+|   |   |-- Action: escalate to director/VP level. Cross-team migrations need organizational support.
+|   |   |-- Signal: "we thought Team B owned that" / "that team was disbanded"
+
+|-- Escalation Ladder:
+|   |-- Week 1-2 after announcement: direct message to consumer maintainers (friendly reminder)
+|   |-- Week 3-4: second reminder, offer pair-programming session
+|   |-- Week 5-6: escalate to engineering manager (EM) with quantified impact
+|   |-- Week 7-8: EM escalates to director if still blocked
+|   |-- Week 9+: director decision: extend timeline, force migration, or accept breakage risk
+
+|-- When to ACCEPT that migration won't complete:
+|   |-- Criteria: less than 5% of total call sites remain AND all remaining are in unmaintained repos
+|   |-- Action: accept the risk. Remove old API. Monitor for 30 days post-removal.
+|   |-- Pre-agreement: get VP-level signoff that the risk of breakage is acceptable
+|   |-- DO NOT: silently accept that some consumers will break without organizational awareness
+
+|-- When to EXTEND the timeline:
+|   |-- Criteria: >10% of call sites remain after the original deadline
+|   |-- Criteria: a critical-path consumer (monolith, payment system) has not migrated
+|   |-- Action: communicate new timeline broadly. Explain WHY (not "we're slow" — specific blockers)
+|   |-- DO NOT: extend indefinitely. Set a hard, non-negotiable new deadline.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
