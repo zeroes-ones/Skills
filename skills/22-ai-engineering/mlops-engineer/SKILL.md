@@ -503,8 +503,10 @@ graph LR
 
 - [ ] Feature pipeline runs end-to-end: `python features.py --date=${TODAY}` — features written to online AND offline stores
 - [ ] Training pipeline: `python train.py` — model artifact produced, registered in model registry with version
-- [ ] Model serving: `curl -X POST ${ENDPOINT} -d '{"features": [...]}'` — response in < 200ms, prediction shape correct
-- [ ] Online/offline feature parity: sample 1000 requests, compare feature values — 100% match (no skew)
+- [ ] Model serving smoke test: `python scripts/test_serving.py --endpoint $SERVING_URL --samples 100 --max-latency-ms 200` — endpoint healthy, p95 within SLA, error rate < 1%
+- [ ] Online/offline feature parity: `python scripts/check_feature_parity.py --offline offline.csv --online online.csv --tolerance 1e-6` — 100% match (no training-serving skew)
+- [ ] GPU utilization profile: `python scripts/profile_gpu.py --gpu-id 0` — GPU utilization > 30%, memory within limits, temperature safe
+- [ ] Model registry integrity: `python scripts/verify_registry.py --registry-url $MLFLOW_URI --endpoint $SERVING_URL --model-name $MODEL` — registry production version matches serving version
 - [ ] Model stage promotion: promote model from Staging to Production via CI/CD — deployment triggered, health check passes
 - [ ] Rollback: deploy previous model version — serving switches to previous version within deployment window
 
