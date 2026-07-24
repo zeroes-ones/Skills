@@ -369,12 +369,235 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+### Content Safety Filter Threshold Calibration
+
+**Context:** Health AI systems use content safety filters to block or flag potentially harmful outputs. Setting thresholds too high lets dangerous content through; setting them too low creates excessive false positives that erode user trust and clinical utility. This decision tree calibrates filter sensitivity based on use case, audience, and regulatory context.
+
+```
+START: Calibrating content safety filter for health AI output
+  │
+  ├─ Is this system classified as a medical device (FDA Class II/III, EU MDR Class IIa+)?
+  │    ├─ YES → HIGH SENSITIVITY. False negatives are unacceptable. Err on the side of blocking.
+  │    │         Set threshold to capture 99.9%+ of harmful outputs. Accept 15-25% false positive rate.
+  │    │         Human-in-the-loop required for all blocked outputs. Document every override. → END
+  │    └─ NO → Continue
+  │
+  ├─ Is the primary user a patient/consumer (not a clinician)?
+  │    ├─ YES → MODERATE-HIGH SENSITIVITY. Patients lack clinical context to evaluate AI outputs.
+  │    │         Set threshold to capture 99%+ of harmful outputs. Accept 10-20% false positive rate.
+  │    │         Provide clear, plain-language explanations when content is blocked.
+  │    │         Never show "content blocked" without explaining why. → END
+  │    └─ NO → Continue
+  │
+  ├─ Is the output delivered in a clinical workflow where a clinician reviews before patient sees it?
+  │    ├─ YES → MODERATE SENSITIVITY. Clinician review acts as a safety net.
+  │    │         Set threshold to capture 98%+ of harmful outputs. Accept 8-12% false positive rate.
+  │    │         Flag (don't block) borderline content; let the clinician decide. → END
+  │    └─ NO → Continue
+  │
+  ├─ Does the system address high-risk domains (oncology, cardiology, mental health, pediatrics)?
+  │    ├─ YES → HIGH SENSITIVITY for domain-specific risks. Apply domain-specific classifiers
+  │    │         calibrated on representative data. If domain data is sparse → default to high sensitivity.
+  │    │         Pediatric content: always use the most conservative threshold regardless of other factors. → END
+  │    └─ NO → Continue
+  │
+  ├─ Is the deployment population diverse (multi-language, multi-demographic, multi-region)?
+  │    ├─ YES → STRATIFIED CALIBRATION. One threshold for all groups WILL fail — the group
+  │    │         with the worst false-negative rate defines your true safety performance.
+  │    │         Calibrate per language, per region, per demographic. Monitor false positive/negative
+  │    │         rates by subgroup. If any subgroup's false negative rate exceeds 2x the average,
+  │    │         that subgroup's threshold must be lowered independently. → END
+  │    └─ NO → Continue
+  │
+  ├─ Is this system operating in a jurisdiction with specific AI safety regulations
+  │    (EU AI Act, US state-level AI laws, UK MHRA guidance)?
+  │    ├─ YES → COMPLIANCE-CALIBRATED. Regulatory minimums are your floor, not your ceiling.
+  │    │         Map each regulatory requirement to a measurable filter metric. Document calibration
+  │    │         rationale and audit trail for every threshold decision. → END
+  │    └─ NO → Continue
+  │
+  └─ SYSTEM TYPE: Is this informational/educational content only?
+       ├─ YES → STANDARD SENSITIVITY. Capture 97%+ harmful outputs. Accept 5-10% false positive rate.
+       │         Focus filters on treatment claims, drug mentions, and diagnosis language.
+       │         Allow general health information through with auto-attached disclaimer. → END
+       └─ NO → Re-evaluate use case classification. Default to MODERATE sensitivity with
+                quarterly threshold review and adverse event monitoring.
+```
+
+**Threshold Monitoring Requirements:**
+
+| Metric | Target | Red Flag (Investigate Immediately) |
+|--------|--------|-------------------------------------|
+| False Negative Rate (missed harmful content) | < 1% for regulated devices, < 3% otherwise | Any single critical-harm false negative |
+| False Positive Rate (good content blocked) | < 15% overall, < 20% per subgroup | > 25% FPR sustained for 7+ days |
+| Filter Latency (P99) | < 200ms | > 500ms (degrades UX, users bypass filter) |
+| Subgroup Disparity Ratio | < 2x between best and worst subgroup | > 3x disparity on any safety metric |
+| Filter Override Rate (human overrides of automated decisions) | < 5% | > 10% (filter is mistuned or mistrusted) |
+
+### Model Hallucination in Clinical Context: Block vs Flag Decision
+
+**Context:** When a health AI model generates hallucinated content — fabricated studies, invented drug names, incorrect statistics, or misattributed sources — the response decision (block entirely vs. flag for review) depends on hallucination type, clinical risk, and downstream consequences. Not all hallucinations are equal; a fabricated citation is more dangerous than a minor date error.
+
+```
+START: Health AI output contains hallucinated content
+  │
+  ├─ HALLUCINATION TYPE CLASSIFICATION:
+  │    │
+  │    ├─ Type A: Fabricated Clinical Evidence (invented study, fake trial, made-up statistics)
+  │    │    → SEVERITY: CRITICAL. ALWAYS BLOCK. Do not surface to user under any circumstances.
+  │    │      Log as P0 safety incident. Users trust citations and statistics — a fabricated
+  │    │      JAMA study that supports a treatment decision can cause real patient harm.
+  │    │      Root cause analysis required within 24 hours. → END
+  │    │
+  │    ├─ Type B: Invented Drug/Treatment/Device Name (non-existent medication, fictional device)
+  │    │    → SEVERITY: CRITICAL. BLOCK. Patient may search for, attempt to procure, or request
+  │    │      non-existent treatment. Risk of delayed appropriate care or exposure to
+  │    │      unregulated substances via online markets. → END
+  │    │
+  │    ├─ Type C: Incorrect Drug Attribute (wrong dosage, wrong route, wrong interaction claim)
+  │    │    → SEVERITY: HIGH. BLOCK if dosage error > 2x standard range or if claimed interaction
+  │    │      is contraindicated in standard references. FLAG for pharmacist review if error is
+  │    │      minor (e.g., correct dose but wrong formulation note). Log every instance. → END
+  │    │
+  │    ├─ Type D: Misattributed Source (correct fact attributed to wrong institution/author/journal)
+  │    │    → SEVERITY: MEDIUM. FLAG for review. The factual content may be correct, but
+  │    │      misattribution erodes institutional trust and violates medical citation standards.
+  │    │      Correct attribution within 24 hours. Surface with correction notice. → END
+  │    │
+  │    ├─ Type E: Exaggerated Finding ("cures cancer" when study showed 5% relative risk reduction)
+  │    │    → SEVERITY: HIGH. BLOCK if exaggeration could change clinical decision-making
+  │    │      (e.g., patient declines standard therapy based on exaggerated alternative claim).
+  │    │      FLAG if exaggeration is in supplementary educational material with clear caveats.
+  │    │      Regenerate with calibrated, evidence-graded language. → END
+  │    │
+  │    └─ Type F: Temporal Hallucination (references a "2025 study" when latest is 2023)
+  │         → SEVERITY: LOW-MEDIUM. FLAG. The temporal error may mask outdated information.
+  │           If the underlying claim is verified correct and current, correct the date and surface.
+  │           If the cited study doesn't exist at all → reclassify as Type A. → END
+  │
+  ├─ CLINICAL CONTEXT GATE: What is the user's clinical context?
+  │    ├─ Active treatment decision in progress → BLOCK all hallucinations (even Types D, F).
+  │    │    Escalate to clinical advisor. No hallucinated content at the point of care. → END
+  │    ├─ Educational/research context → FLAG Types D, E, F with visible correction notice.
+  │    │    BLOCK Types A, B, C regardless of context. → END
+  │    └─ General health inquiry → Apply hallucination-type logic above.
+  │
+  └─ RECURRENCE CHECK: Has this hallucination type occurred 3+ times in 30 days
+       from this model version?
+       ├─ YES → ESCALATE. Model-level intervention required: fine-tuning, RAG retrieval
+       │    improvement, prompt engineering, or content filter update. Suppress model
+       │    responses in the affected clinical domain until fix is validated and
+       │    demonstrated to reduce hallucination rate below threshold. → END
+       └─ NO → Apply type-specific response above. Track in hallucination registry
+                for trend analysis and monthly pattern review.
+
+**Hallucination Registry Minimum Fields:** timestamp, model version, prompt (de-identified), full output, hallucination type (A-F), severity (P0-P4), disposition (block/flag/surface), reviewer, root cause category, remediation action, time-to-resolution.
+```
+
+**Cross-Reference:** All Type A and Type B hallucinations must be reported to the clinical safety officer within 1 hour. If the system is an FDA-cleared device, evaluate against the device's pre-specified performance criteria — a pattern of fabrications may constitute a reportable adverse event under 21 CFR Part 803.
+
+### Patient Data Exposure Risk vs Model Utility Tradeoff
+
+**Context:** Health AI models often perform better when trained or fine-tuned on real patient data, but every access point to PHI creates exposure risk. This decision tree evaluates when the utility gain justifies the data exposure risk and what mitigations are non-negotiable regardless of perceived benefit.
+
+```
+START: Considering using patient data to improve model performance
+  │
+  ├─ Is the patient data de-identified per HIPAA Safe Harbor (18 identifiers removed)
+  │    OR Expert Determination method with documented very-low re-identification risk?
+  │    ├─ NO → STOP. Do not use identifiable patient data for model training without
+  │    │        explicit patient authorization (HIPAA Authorization form) or IRB waiver
+  │    │        of consent. Re-identification risk is real: 99.98% of Americans can be
+  │    │        re-identified from 15 demographic attributes (Rocher et al., 2019). → END
+  │    └─ YES → Continue
+  │
+  ├─ Is this for model TRAINING (weights updated) or INFERENCE (RAG, few-shot prompting)?
+  │    ├─ TRAINING → HIGHER RISK. Training data can be partially extracted via
+  │    │    membership inference attacks, model inversion, or training data extraction.
+  │    │    → Continue to Training Risk Assessment below
+  │    └─ INFERENCE → LOWER RISK. Data is transient in context window.
+  │       → Jump to Inference Risk Assessment below
+  │
+  ├─ TRAINING RISK ASSESSMENT:
+  │    ├─ Does the model serve external users (not just internal clinicians)?
+  │    │    ├─ YES → HIGH EXPOSURE. Assume adversarial users will attempt extraction.
+  │    │    │         Differential privacy required (ε ≤ 8). If you cannot achieve
+  │    │    │         target utility with DP → do not use patient data for training.
+  │    │    │         Use synthetic data or public datasets instead. → END
+  │    │    └─ NO (internal-only model) → Proceed with mitigations:
+  │    │         • Access-controlled model endpoint (no public API, no external sharing)
+  │    │         • Membership inference attack testing before every deployment
+  │    │         • Full data audit trail: which patients' data in which training run
+  │    │         • Contractual prohibition on model sharing/redistribution
+  │    │
+  │    ├─ What is the expected utility gain from using this patient data?
+  │    │    ├─ Marginal (< 5% improvement on key metric) → NOT WORTH IT.
+  │    │    │    Use synthetic data or public datasets (MIMIC, PubMed, eICU). → END
+  │    │    ├─ Moderate (5-15% improvement) → Case-by-case evaluation with
+  │    │    │    privacy officer and clinical stakeholders. Document risk-benefit
+  │    │    │    analysis in a Data Use Impact Assessment (DUIA). → END
+  │    │    └─ Significant (> 15% improvement, e.g., rare disease diagnosis,
+  │    │         pediatric dosing where data is scarce) → MAY BE JUSTIFIED.
+  │    │         Requires: IRB approval, patient notification where feasible,
+  │    │         differential privacy, published privacy guarantee. → END
+  │    │
+  │    └─ DATA VOLUME: How many unique patients in the training set?
+  │         ├─ < 100 patients → HIGH RE-IDENTIFICATION RISK. Small cohorts are
+  │         │    inherently more identifiable regardless of de-identification.
+  │         │    Use federated learning (data never leaves source) or
+  │         │    differential privacy with very low ε. → END
+  │         └─ > 10,000 patients → Lower per-patient risk. Still requires
+  │              de-identification, access controls, and audit logging.
+  │              DP recommended but may be relaxed if internal-only model. → END
+  │
+  ├─ INFERENCE RISK ASSESSMENT:
+  │    ├─ Is patient data entering the model's context window?
+  │    │    ├─ YES → GOVERN. Data must not be logged, stored, or used for training.
+  │    │    │    Context-window purge policy: data cleared after each inference.
+  │    │    │    Audit logging of all PHI access. No cross-patient contamination
+  │    │    │    in shared sessions. Zero-retention agreement if using third-party API. → END
+  │    │    └─ NO (only aggregate/population statistics used) → LOW RISK.
+  │    │         Standard data governance applies. No individual patient exposure. → END
+  │    │
+  │    └─ Is this a third-party LLM API (OpenAI, Anthropic, Google, etc.)?
+  │         ├─ YES → CRITICAL CHECK. Does your BAA cover this specific use case?
+  │         │    ├─ NO BAA → STOP. Sending PHI to a third party without a BAA
+  │         │    │    is a HIPAA violation. Civil monetary penalties: $100-$50K+
+  │         │    │    per violation, up to $1.5M/year per violation category.
+  │         │    └─ BAA in place + zero-data-retention commitment → May proceed
+  │         │         with de-identified or limited dataset only. Log every API
+  │         │         call with prompt/response auditing. Enable provider-side
+  │         │         audit logging. Monitor provider's SOC 2 + HIPAA reports. → END
+  │         └─ NO (self-hosted open-source model) → Proceed with internal governance.
+  │              PHI-access audit logging. No data exfiltration to external provider.
+  │              Still requires all standard HIPAA administrative, physical, and
+  │              technical safeguards. → END
+  │
+  └─ FINAL GATE: Can you achieve acceptable model performance without patient data?
+       ├─ YES → USE ALTERNATIVES. Synthetic data generation, public datasets
+       │    (MIMIC-IV, PubMed Central, eICU-CRD, UK Biobank), few-shot learning
+       │    with non-PHI examples, or zero-shot approaches are always preferred
+       │    when they meet the clinical performance bar. → END
+       └─ NO → Proceed with ALL applicable mitigations above. Document the
+                risk-benefit analysis in a formal Data Use Impact Assessment.
+                Review quarterly. Sunset data access when model is retired
+                or when acceptable alternatives become available.
+
+**Non-Negotiable Mitigations for ANY Patient Data Use:**
+1. BAA with all vendors handling PHI (including cloud providers and LLM APIs)
+2. Data access audit logging with tamper-proof storage (minimum 6 years retention)
+3. Access limited to named individuals with documented business need and training
+4. Data minimization: use the smallest dataset necessary for the stated purpose
+5. Patient data inventory: know exactly which patients' data is in which model run
+6. Breach notification protocol: HIPAA 60-day clock starts at discovery, not confirmation
+```
+
 ## Gotchas
 
-- **AI health advice that's "generally correct" but dangerous for THIS patient** — "Light exercise helps manage hypertension" is generally correct but dangerous for a patient with unstable angina. The AI lacks the patient's full medical history. Every AI-generated health statement must be preceded by "Consult your doctor" AND must flag general vs personalized advice.
-- **Benchmark leakage** — your medical QA model scores 95% on MedQA because the training data contained MedQA questions (or near-duplicates scraped from forums discussing MedQA answers). The model hasn't learned medicine; it's memorized the test. Decontaminate training data against benchmark test sets AND their discussion forums.
-- **Equity in health AI** — a dermatology model trained on images of light-skinned patients has 95% accuracy for light skin and 70% for dark skin. The model is "92% accurate overall" but systematically misdiagnoses Black patients. Disaggregate performance metrics by demographic: accuracy, sensitivity, specificity for EACH group separately.
-- **"Symptom checker says I'm fine"** — the AI says "your symptoms are consistent with a common cold, monitor at home." The patient has meningitis (same early symptoms). They don't seek care until it's severe. The AI didn't include "go to the ER if X, Y, Z develop" because the safety net was in the fine print. Safety nets must be prominent, not footnotes.
+- **AI health advice that's "generally correct" but dangerous for THIS patient** — "Light exercise helps manage hypertension" is generally correct but dangerous for a patient with unstable angina. The AI lacks the patient's full medical history. Every AI-generated health statement must be preceded by "Consult your doctor" AND must flag general vs personalized advice. **Total cost: $1M-$10M in medical malpractice liability and FDA enforcement action per adverse patient outcome from AI-generated health advice.**
+- **Benchmark leakage** — your medical QA model scores 95% on MedQA because the training data contained MedQA questions (or near-duplicates scraped from forums discussing MedQA answers). The model hasn't learned medicine; it's memorized the test. Decontaminate training data against benchmark test sets AND their discussion forums. **Total cost: $500K-$5M in wasted training compute, regulatory rejection, and reputational damage when benchmark claims are invalidated by auditors.**
+- **Equity in health AI** — a dermatology model trained on images of light-skinned patients has 95% accuracy for light skin and 70% for dark skin. The model is "92% accurate overall" but systematically misdiagnoses Black patients. Disaggregate performance metrics by demographic: accuracy, sensitivity, specificity for EACH group separately. **Total cost: $5M-$50M in civil rights litigation, FDA consent decree costs, and market withdrawal for biased medical AI systems.**
+- **"Symptom checker says I'm fine"** — the AI says "your symptoms are consistent with a common cold, monitor at home." The patient has meningitis (same early symptoms). They don't seek care until it's severe. The AI didn't include "go to the ER if X, Y, Z develop" because the safety net was in the fine print. Safety nets must be prominent, not footnotes. **Total cost: $2M-$20M in wrongful death litigation and product liability claims when AI triage tools miss life-threatening conditions.**
 
 ## Verification
 

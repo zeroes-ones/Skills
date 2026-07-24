@@ -432,11 +432,310 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+### Real-Time vs Batch Data Pipeline Decision
+
+**Context:** Choosing between real-time streaming and batch processing is one of the most consequential architecture decisions in BI. The wrong choice leads to unnecessary infrastructure cost and complexity, or stale data that undermines trust. The default should always be batch — streaming is adopted only when a specific business decision requires sub-minute data.
+
+```
+START: New data pipeline needed for BI/reporting use case
+  │
+  ├─ What is the maximum acceptable data latency for the PRIMARY consumer?
+  │    ├─ < 1 minute (operational dashboards, fraud detection, patient monitoring, algorithmic trading)
+  │    │    → REAL-TIME STREAMING. Kafka/Kinesis + Flink/Spark Streaming. → END
+  │    ├─ 1-15 minutes (customer-facing analytics, supply chain alerts, near-real-time ops dashboards)
+  │    │    → Continue — evaluate micro-batch vs full streaming
+  │    └─ > 15 minutes (daily reports, weekly board decks, monthly close, historical analysis) → BATCH.
+  │         dbt + Airflow/Dagster/Prefect. → END (but verify downstream consumers don't have hidden
+  │         latency requirements nobody articulated)
+  │
+  ├─ SUB-MINUTE TO 15-MIN LATENCY: Deeper analysis required
+  │    │
+  │    ├─ What is the data volume per minute?
+  │    │    ├─ < 1,000 events/min → MICRO-BATCH (every 1-5 min) may suffice.
+  │    │    │    Simpler to build and maintain than full streaming. Use dbt + frequent
+  │    │    │    schedule or lightweight streaming framework. → END
+  │    │    └─ > 10,000 events/min → REAL-TIME STREAMING required.
+  │    │         Micro-batch overhead (restarting compute, re-reading state) becomes
+  │    │         prohibitive at this volume. → END
+  │    │
+  │    ├─ Does the use case require exactly-once semantics?
+  │    │    ├─ YES (financial reconciliation, inventory counts, patient metrics, billing)
+  │    │    │    → Streaming with exactly-once guarantees required (Kafka transactions,
+  │    │    │      Flink checkpoints). Test idempotency and deduplication thoroughly
+  │    │    │      under failure scenarios before production. → END
+  │    │    └─ NO (approximate trends, dashboard indicators) → At-least-once is
+  │    │         acceptable. Deduplicate downstream with idempotent writes. → END
+  │    │
+  │    └─ Is the source system capable of real-time CDC (change data capture)?
+  │         ├─ YES (Postgres WAL, MySQL binlog, MongoDB change streams) →
+  │         │    Use Debezium + Kafka for CDC pipeline. Lowest-impact on source.
+  │         │    → END
+  │         └─ NO (legacy system, REST API-only, flat file drops) →
+  │              POLLING-BASED MICRO-BATCH. Accept polling interval as minimum
+  │              latency floor. Document this constraint for all stakeholders. → END
+  │
+  ├─ SOURCE SYSTEM CAPACITY CHECK:
+  │    ├─ Can the source handle frequent queries without performance degradation?
+  │    │    ├─ NO (OLTP production database, fragile legacy system, resource-constrained API)
+  │    │    │    → Use read replica OR CDC-based approach. Never point real-time
+  │    │    │      dashboards at the production primary database. → END
+  │    │    └─ YES (data warehouse, event bus, dedicated analytics store) → Proceed
+  │    │
+  │    └─ Does the source have native streaming capability?
+  │         ├─ YES (Kafka topic, Kinesis stream, Google Pub/Sub) → REAL-TIME.
+  │         │    Lowest latency path. Native consumer libraries available. → END
+  │         └─ NO → Evaluate CDC or polling approach above.
+  │
+  └─ CONSUMER SOPHISTICATION CHECK:
+       ├─ Are consumers building real-time dashboards that auto-refresh AND they act
+       │    on data within minutes of it changing?
+       │    ├─ YES → Real-time pipeline value is realized. Proceed with streaming.
+       │    └─ NO (consumers run daily reports, check dashboards 2x/week) →
+       │         QUESTION THE REQUIREMENT. "Real-time" is the most over-requested
+       │         and under-used capability in BI. Build batch first with SLA labels
+       │         on freshness. Monitor actual query patterns for 30 days. Upgrade
+       │         to streaming only when usage data proves users act on sub-15-min data. → END
+       │
+       └─ What is the COST OF STALENESS for this data?
+            ├─ HIGH (wrong data → wrong clinical decision, lost revenue, regulatory penalty)
+            │    → Real-time with freshness monitoring and P1 alerting if pipeline falls
+            │      behind SLA. → END
+            ├─ MEDIUM (stale data → suboptimal but not dangerous decisions)
+            │    → Batch with freshness SLA. Alert if stale beyond 2x the SLA window. → END
+            └─ LOW (stale data → minor inconvenience, historical analysis) → BATCH.
+                 Daily or weekly refreshes. No freshness SLA needed. → END
+```
+
+**Cost Comparison (approximate, 2024 cloud pricing):**
+
+| Pattern | Monthly Infrastructure Cost | Engineering Complexity | Typical Latency | Failure Mode |
+|---------|---------------------------|------------------------|-----------------|--------------|
+| Batch (dbt + Airflow) | $500-$3K | Low-Medium | 1-24 hours | Rerunnable, low urgency |
+| Micro-Batch (every 5 min) | $1K-$5K | Medium | 5-15 minutes | Some data loss risk between intervals |
+| Streaming (Kafka + Flink) | $5K-$25K | High | < 1 second | State corruption, complex recovery |
+| CDC + Streaming | $8K-$35K | High-Very High | < 1 second | Source schema changes break pipeline |
+
+**Rule of thumb:** 80% of BI use cases are served perfectly by daily batch. Build streaming only when you can name the specific business or clinical decision that requires sub-minute data — and the stakeholder who will act on it. If nobody can name the decision, it's a batch pipeline.
+```
+
+### BI Tool Selection (Tableau vs Power BI vs Looker vs Metabase)
+
+**Context:** BI tool selection locks the organization into a visualization paradigm, semantic layer approach, licensing model, and user workflow for 3-5 years. Switching costs are high — retraining users, rebuilding dashboards, and migrating semantic layers costs $50K-$200K+. Choose based on organizational profile, not feature comparison matrices.
+
+```
+START: Selecting or re-evaluating a BI platform
+  │
+  ├─ ORGANIZATIONAL PROFILE — dominant stack and culture:
+  │    │
+  │    ├─ Microsoft-native shop (Azure, SQL Server, Office 365, Teams, Excel-heavy culture)?
+  │    │    ├─ YES → POWER BI. Native Azure integration, Excel/Power Query familiarity
+  │    │    │         transfers directly, included in E5 licenses, DAX skills build on
+  │    │    │         existing Excel proficiency. Best total cost of ownership for
+  │    │    │         Microsoft-centric organizations. → END
+  │    │    └─ NO → Continue
+  │    │
+  │    ├─ Google Cloud stack (BigQuery, GCS) OR engineering-driven culture where data
+  │    │    modeling is treated as software engineering (version-controlled, CI/CD, code review)?
+  │    │    ├─ YES → LOOKER (or Looker Studio for lighter needs). LookML is Git-integrated,
+  │    │    │         version-controlled, and developer-friendly. BigQuery-native with
+  │    │    │         symmetric aggregates. Strong semantic layer that enforces metric
+  │    │    │         governance before anyone builds a dashboard. Best for organizations
+  │    │    │         where data modeling is owned by engineers. → END
+  │    │    └─ NO → Continue
+  │    │
+  │    ├─ Analyst-driven culture where business analysts (not engineers) create most
+  │    │    content, visual polish matters, and exploration speed is the priority?
+  │    │    ├─ YES → TABLEAU. Unmatched visual grammar (VizQL), intuitive drag-and-drop
+  │    │    │         exploration, massive community (Tableau Public, 1M+ members),
+  │    │    │         and the strongest brand recognition for "analyst-driven" BI.
+  │    │    │         Best for decentralized teams where business analysts are the
+  │    │    │         primary content creators and visual impact matters for adoption. → END
+  │    │    └─ NO → Continue
+  │    │
+  │    └─ Budget-constrained, open-source preference, startup stage (< 50 data consumers),
+  │         or internal operational dashboards with low governance requirements?
+  │         ├─ YES → METABASE (or Lightdash for dbt-native shops). Free open-source tier,
+  │         │    simple SQL-based exploration, fast setup (minutes, not weeks). Best for
+  │         │    startups, internal tools, and teams graduating from spreadsheet analytics
+  │         │    that don't need enterprise governance yet. → END
+  │         └─ NO → Continue to multi-tool evaluation
+  │
+  ├─ SEMANTIC LAYER REQUIREMENT:
+  │    ├─ Do you need a centralized, version-controlled semantic layer where metric
+  │    │    definitions are enforced BEFORE anyone builds a dashboard?
+  │    │    ├─ YES → LOOKER (LookML) or dbt Semantic Layer + compatible BI frontend.
+  │    │    │    Tableau and Power BI semantic layers are tool-specific and near-impossible
+  │    │    │    to govern across multiple teams. If you choose Tableau or Power BI but
+  │    │    │    need governance, use dbt Semantic Layer as the single source of truth
+  │    │    │    and connect via JDBC/ODBC. → END
+  │    │    └─ NO (analysts define metrics independently in dashboards) → TABLEAU or
+  │    │         POWER BI. Simpler for decentralized teams but risks metric fragmentation
+  │    │         — "revenue" will have 5 definitions within 6 months. → END
+  │    │
+  │    └─ Is your semantic layer already built in dbt?
+  │         ├─ YES → Strong case for Lightdash (dbt-native, open-source) or Looker
+  │         │    with dbt integration. Or expose dbt Semantic Layer via JDBC to
+  │         │    Tableau/Power BI if you need those frontends. → END
+  │         └─ NO → Tool-native semantic layer acceptable for now. Plan migration
+  │              to dbt or LookML before you have > 3 teams building dashboards.
+  │
+  ├─ EMBEDDING & DISTRIBUTION:
+  │    ├─ Do you need to embed analytics in a customer-facing product?
+  │    │    ├─ YES → Evaluate embedding carefully:
+  │    │    │    • Looker: Strong embedded analytics, but requires Looker instance
+  │    │    │    • Tableau: Embedded pricing can be expensive ($50K+/yr at scale)
+  │    │    │    • Power BI: Embedded capacity (A SKUs) pricing competitive on Azure
+  │    │    │    • Metabase: Simple embedding, open-source option, limited customization
+  │    │    │    • Alternatives: Cube.js, Apache Superset, or custom D3/React viz
+  │    │    └─ NO (internal only) → Any tool works. Focus on governance and usability.
+  │    │
+  │    └─ Do stakeholders primarily consume via email/PDF/static snapshots (not interactive)?
+  │         ├─ YES → Power BI (paginated reports, robust subscriptions) or Tableau
+  │         │    (data-driven alerts, subscriptions). Looker is weaker on static delivery.
+  │         └─ NO → All tools strong on interactive web-based consumption.
+  │
+  ├─ USER PERSONA MATCH (primary audience):
+  │    ├─ EXECUTIVES (board decks, high-level KPIs, mobile-first) → Power BI (mobile app,
+  │    │    natural-language Q&A, Teams integration) or Tableau (best visual polish)
+  │    ├─ BUSINESS ANALYSTS (ad-hoc exploration, data blending, quick insights) → Tableau
+  │    │    (best exploration UX, drag-and-drop, Tableau Prep for self-serve data prep)
+  │    ├─ DATA/ANALYTICS ENGINEERS (modeling-first, code-driven, CI/CD) → Looker
+  │    │    (LookML as code, Git workflows, API-first design)
+  │    └─ OPERATIONS MANAGERS (simple dashboards, reliable refreshes, low training) →
+  │         Metabase (simplicity, SQL questions, fast setup) or Power BI (if Microsoft shop)
+  │
+  └─ TOTAL COST OF OWNERSHIP (3-year TCO, 100 users, approximate):
+       ├─ Power BI: $100K-$300K (Premium per capacity: $5K-$20K/month × 36)
+       ├─ Tableau: $200K-$600K (Creator $75/mo + Explorer $42/mo + Viewer $15/mo × 36)
+       ├─ Looker: $300K-$700K (platform pricing, $3K-$5K/month base + user tiers × 36)
+       └─ Metabase: $0-$50K (open-source free, Cloud $85/month starter, Enterprise custom)
+
+**Decision Principle:** Do not select based on feature matrices — every tool has 95% feature overlap. Select based on: (1) alignment with existing data stack and team skills, (2) primary user persona match, (3) semantic layer governance requirements, (4) embedding and distribution needs. The tool your team actually adopts and uses daily is better than the "objectively best" tool that collects dust.
+```
+
+### Data Warehouse vs Data Lake vs Lakehouse Architecture Decision
+
+**Context:** The choice between data warehouse, data lake, and lakehouse architectures determines BI platform scalability, cost structure, query performance, governance model, and team structure for years. Each pattern has distinct strengths — the right answer depends on data types, query patterns, team skills, and latency requirements, not on hype cycles.
+
+```
+START: Selecting analytics data store architecture
+  │
+  ├─ DATA TYPE PROFILE: What types of data will dominate your analytics workload?
+  │    │
+  │    ├─ 90%+ structured/tabular data from operational databases, SaaS tools, spreadsheets
+  │    │    └─ WAREHOUSE-leaning. Continue to Query Pattern Analysis below.
+  │    │
+  │    ├─ Significant semi-structured data (JSON, Avro, Protobuf) alongside structured
+  │    │    └─ LAKEHOUSE-leaning. Continue to Scale & Flexibility Analysis below.
+  │    │
+  │    └─ Significant unstructured data (logs, images, sensor data, text, genomics)
+  │         OR both BI dashboards + ML training workloads on the same data
+  │         └─ LAKEHOUSE is the default consideration. → Continue
+  │
+  ├─ QUERY PATTERN ANALYSIS (warehouse-leaning path):
+  │    │
+  │    ├─ Are queries primarily: known, repetitive, SQL-based aggregations for BI dashboards?
+  │    │    ├─ YES → DATA WAREHOUSE. Purpose-built for this workload. Predictable cost
+  │    │    │    and performance. Evaluate:
+  │    │    │    • Snowflake: Best separation of storage/compute, near-zero maintenance,
+  │    │    │      data sharing/marketplace, time travel. Best for multi-team orgs.
+  │    │    │    • BigQuery: Serverless, best with GCP, excellent for large full-table
+  │    │    │      scans, integrated ML (BigQuery ML). Best for GCP-native orgs.
+  │    │    │    • Redshift: Best with AWS ecosystem, RA3 nodes for storage/compute
+  │    │    │      separation, Spectrum for lake queries. Best for AWS-native orgs.
+  │    │    │    • Databricks SQL: Warehouse-grade performance on lakehouse, photon engine.
+  │    │    │      Best bridge if you anticipate future ML/unstructured workloads. → END
+  │    │    └─ NO → Continue
+  │    │
+  │    ├─ Are queries ad-hoc, exploratory, requiring full dataset scans, Python/Spark/ML?
+  │    │    ├─ YES → DATA LAKE or LAKEHOUSE. Warehouses charge a premium for unpredictable
+  │    │    │    compute workloads. Evaluate:
+  │    │    │    • Databricks: Unified lakehouse for analytics + ML + engineering
+  │    │    │    • Open-source lakehouse: Apache Iceberg/Delta Lake/Hudi + Trino + Spark
+  │    │    │    • Amazon Athena + S3: Serverless SQL on data lake, pay-per-query
+  │    │    │    • Snowflake with Snowpark: Warehouse with ML capabilities → END
+  │    │    └─ NO → Continue
+  │    │
+  │    └─ Do you need near-real-time querying on fresh data (< 5 minute ingest-to-query)?
+  │         ├─ YES → LAKEHOUSE with streaming ingest. Apache Hudi/Iceberg/Delta Lake
+  │         │    with merge-on-read for fast ingestion. Traditional warehouses (except
+  │         │    Snowpipe Streaming and BigQuery Storage Write API) lag on streaming.
+  │         │    → END
+  │         └─ NO → WAREHOUSE. Batch loading (hourly/daily) is well-supported, simpler,
+  │              and cheaper. → END
+  │
+  ├─ SCALE & FLEXIBILITY ANALYSIS (lake/lakehouse-leaning path):
+  │    │
+  │    ├─ What is your projected data volume in 2 years?
+  │    │    ├─ < 10 TB → Any architecture works. Choose based on team skills, not scale.
+  │    │    ├─ 10-100 TB → WAREHOUSE or LAKEHOUSE. Both handle this range well.
+  │    │    │    Cost difference emerges but isn't decisive at this scale.
+  │    │    └─ > 100 TB (or growing > 2x/year) → LAKEHOUSE. Warehouse storage costs
+  │    │         at petabyte scale are 3-10x higher ($23/TB/month Snowflake compressed
+  │    │         vs $2-5/TB/month S3 with open table formats). Separation of storage
+  │    │         and compute becomes a cost necessity, not a design preference. → END
+  │    │
+  │    ├─ Do you have diverse compute engines (Spark, Trino, Presto, Python, R, BI tools)
+  │    │    that need to operate on the same data simultaneously?
+  │    │    ├─ YES → LAKEHOUSE with open table format (Iceberg/Delta Lake). Each engine
+  │    │    │    reads the same tables with its own compute. Warehouses lock data into
+  │    │    │    proprietary storage formats — extracting data for Spark ML jobs is
+  │    │    │    expensive and slow. → END
+  │    │    └─ NO (single compute engine, SQL-only) → WAREHOUSE is simpler. No need
+  │    │         for the complexity of managing open table formats. → END
+  │    │
+  │    └─ Do you need fine-grained access control at the row/column level across
+  │         multiple compute engines?
+  │         ├─ YES → WAREHOUSE (mature, centralized RBAC) or Databricks Unity Catalog
+  │         │    (lakehouse-native governance). Open-source lakehouse governance
+  │         │    (Apache Ranger, Apache Atlas) is still maturing and requires
+  │         │    significant engineering investment. → END
+  │         └─ NO, coarse-grained access (schema/table level) is sufficient →
+  │              LAKEHOUSE with Iceberg + basic IAM policies can work. → END
+  │
+  ├─ TEAM SKILLS & OPERATIONAL CAPACITY:
+  │    │
+  │    ├─ Team profile: Analytics engineers with strong SQL, limited Spark/Java experience
+  │    │    └─ WAREHOUSE (Snowflake, BigQuery, Redshift). SQL-first, near-zero
+  │    │       maintenance. Your team will be productive in days, not months. → END
+  │    │
+  │    ├─ Team profile: Data engineers with Spark/Scala/Java, comfortable managing
+  │    │    infrastructure, strong DevOps practices
+  │    │    └─ LAKEHOUSE (Databricks or open-source). Full flexibility. Higher
+  │    │       operational burden but lower cost at scale. → END
+  │    │
+  │    └─ Team profile: Mix of both, growing from 3 to 15+ data practitioners
+  │         └─ HYBRID: Warehouse for BI workloads + Lakehouse for ML/engineering.
+  │           Connect them with federated queries (Trino, BigQuery Omni, Redshift
+  │           Spectrum). Accept some duplication for team autonomy. Re-evaluate
+  │           consolidation at 20+ practitioners. → END
+  │
+  └─ COST MODEL COMPARISON (100 TB, 50 concurrent users, moderate query complexity):
+
+| Architecture | Annual Cost (approximate) | Primary Cost Driver | Cost Predictability |
+|-------------|--------------------------|-------------------|-------------------|
+| Snowflake (warehouse) | $150K-$400K | Compute credits (virtual warehouses) | Moderate — auto-suspend helps but unpredictable queries spike costs |
+| BigQuery (warehouse) | $100K-$300K | Bytes scanned per query | Low — ad-hoc queries create unpredictable bills without slot reservations |
+| Redshift (warehouse) | $80K-$200K | Provisioned cluster size (RA3 nodes) | High — provisioned capacity, predictable |
+| Databricks (lakehouse) | $120K-$350K | DBUs (compute) + cloud infra | Moderate — job clusters auto-terminate, all-purpose clusters don't |
+| Open-source lakehouse (Iceberg + Trino + Spark on S3) | $60K-$200K | Cloud infra (S3 + EC2/EMR) + engineering time | High on infra, low predictability on engineering effort |
+
+**Decision Heuristic:**
+- Structured data + SQL-only + < 50 TB + small team → WAREHOUSE (Snowflake or BigQuery)
+- Structured + unstructured + ML workloads + > 100 TB → LAKEHOUSE (Databricks or open-source)
+- Multi-engine + cost-sensitive at petabyte scale → LAKEHOUSE with open table formats
+- Regulated industry + need mature governance now → WAREHOUSE or Databricks Unity Catalog
+```
+
 ## Gotchas
 
 - **Dashboard without actionability.** Dashboards that show "total revenue" or "daily active users" without segmentation, thresholds, or "what should I do about this?" context become wallpaper. Execs open them once, see a green number, and never return. **Total cost: $50K-$200K/year in BI team time, tooling costs, and data warehouse spend building dashboards with zero business impact. Industry surveys show 60-73% of enterprise dashboards go unused after the first month.** Fix: every dashboard tile must answer "who should take what action when this number changes?" Add thresholds (green/yellow/red), trend arrows, and links to the underlying data. Sunset dashboards with < 5 views/month.
 - **BI tool proliferation.** Marketing buys Tableau, Finance buys Power BI, Product buys Looker, and Engineering builds Metabase — each with separate licensing, separate data extracts, separate semantic layers, and separate definitions of "revenue." **Total cost: $100K-$500K/year in redundant BI licenses ($1K-$3K/seat × 4 tools × overlapping user bases) plus the cost of reconciling conflicting numbers in executive meetings.** Fix: standardize on one BI platform for the organization. If multiple tools are unavoidable, enforce a single semantic layer (dbt metrics, LookML, or a metrics store) as the source of truth that all tools query.
 - **Metrics without definitions.** When "revenue" means gross bookings to Sales, net recognized revenue to Finance, and MRR to Product, every cross-functional meeting starts with 15 minutes of "which revenue are we looking at?" Dashboards with undefined metrics fuel organizational disagreement instead of resolving it. **Total cost: $30K-$150K in meeting time debating metric definitions. A 50-person org with weekly cross-functional reviews spends 200-500 person-hours/year re-litigating what numbers mean.** Fix: create a metrics dictionary (data catalog or wiki) with SQL definitions, business owners, and update cadence for every metric appearing on a dashboard. The definition lives with the data team — not in individual BI tool semantic layers.
+
+- **ETL pipelines without automated data quality monitoring.** Teams build executive dashboards and operational reports on top of pipelines that have no freshness checks, no null-rate monitors, no row-count validation, and no schema-change alerts. A source system silently renames a column, changes a field from `NOT NULL` to nullable, or fails entirely — the pipeline keeps running with zero matching rows or garbage data, producing "everything looks green" dashboards built on empty or corrupted datasets. No one notices until a quarterly board deck contradicts the operational reports. **Total cost: $100K-$1M in bad decisions made from silently-wrong data. Revenue forecasts, hiring plans, inventory commitments, and pricing changes based on broken pipelines create downstream damage that compounds for weeks or months before detection. One retail company lost $3M in markdown costs from inventory over-ordering based on a broken sales pipeline that ran empty for 6 weeks.** Fix: add automated data quality checks at every pipeline stage: freshness (did data arrive on schedule?), volume (row count within expected range?), schema (columns unchanged?), and content (null rates, uniqueness, referential integrity). Use dbt tests, Great Expectations, Monte Carlo, Soda, or Elementary. Alert on data quality failures BEFORE dashboards update — never let bad data reach decision-makers.
+
+- **Connecting BI tools directly to production OLTP databases for "real-time" dashboards.** Teams point Tableau, Power BI, or Metabase at the primary production database so executives see "live" data. Every dashboard refresh fires analytical queries — `SELECT COUNT(DISTINCT user_id), SUM(amount) FROM transactions WHERE created_at > NOW() - INTERVAL '30 days'` — against the same database serving customer traffic. During business hours, dashboard users and paying customers compete for the same CPU, memory, and I/O, causing latency spikes in the user-facing application that are nearly impossible to diagnose because they correlate perfectly with "someone opened the revenue dashboard." **Total cost: $50K-$300K in degraded customer experience from production database saturation, emergency database instance upgrades (doubling costs overnight), and $20K-$100K in engineering time spent chasing "intermittent slowness" that was actually dashboard queries contending with application traffic.** Fix: replicate production data to a dedicated analytics store — a read replica, data warehouse (Snowflake, BigQuery, Redshift), or columnar engine. Never permit BI tools to connect to the OLTP primary. Enforce query timeouts (< 30 seconds) and concurrency limits on all BI-originated database connections. Schedule extract refreshes, never live-query production.
 
 - **BI tool "live connection" mode** runs queries against the production database with the end user's permissions. A dashboard with 12 charts, each with a `SELECT * FROM orders` live query, fires 12 simultaneous scans on the production OLTP database. Use extracts or a read replica.
 - **Looker PDTs (Persistent Derived Tables)** run on a schedule but don't auto-retry. If the 3 AM rebuild fails because the ETL ran 10 minutes late, the PDT is stale for the next 24 hours. Build a 15-minute buffer between ETL completion and PDT rebuild, or trigger-based rebuilds.
