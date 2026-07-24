@@ -379,6 +379,79 @@ Should you vendor this dependency?
 |   |-- Security vulnerability disclosed -> patch immediately or un-vendor and use upstream
 ```
 
+### Submodule Health Monitoring
+
+```
+How to prevent submodule problems before they cause outages:
+|-- Automated Health Checks (CI, runs on every PR):
+|   |-- git submodule status --recursive (are all submodules initialized?)
+|   |-- git submodule foreach 'git rev-parse HEAD' (is HEAD detached?)
+|   |-- git submodule foreach 'git fetch origin && git status -uno' (are we up to date?)
+|   |-- For tracking-branch submodules: git submodule foreach 'git rev-list --count HEAD..origin/main'
+|   |   |-- 0 commits behind: up to date
+|   |   |-- 1-10 commits behind: acceptable (within sprint)
+|   |   |-- 10-50 commits behind: warning (getting stale)
+|   |   |-- 50+ commits behind: alert (security risk for sensitive deps)
+
+|-- Monthly Audit (scheduled CI job):
+|   |-- Reachability: git submodule foreach 'git cat-file -t HEAD' (all SHAs exist?)
+|   |-- Orphan check: compare .gitmodules entries with actual directories
+|   |-- Auth check: verify CI tokens still have access to all submodule repos
+|   |-- Size check: git submodule foreach 'du -sh .git' (any submodule bloated?)
+|   |   |-- >500MB .git: consider shallow clone or partial clone for CI
+
+|-- Dashboard Metrics:
+|   |-- Submodule staleness by repo (commits behind tracking branch)
+|   |-- Submodule CI checkout time (trending slower = need cache tuning)
+|   |-- Submodule-related CI failure rate (target: <1%)
+|   |-- Submodule update PR merge time (target: <48 hours)
+
+|-- Proactive Update Cadence:
+|   |-- Security-critical deps (auth, crypto, network parsing): weekly automated update PR
+|   |-- Active deps (>1 release/month): bi-weekly automated update PR
+|   |-- Stable deps (<1 release/quarter): monthly automated update PR
+|   |-- Pinned-to-specific-version: quarterly review (is the pinned version still correct?)
+```
+
+### Submodule Migration Patterns
+
+```
+How to migrate BETWEEN submodule-based and other code-sharing strategies:
+|-- FROM Submodules TO Monorepo:
+|   |-- Step 1: Identify the submodule content to merge into monorepo
+|   |-- Step 2: Use git-filter-repo to extract submodule content with history
+|   |-- Step 3: Merge the extracted history into monorepo at target path
+|   |   |-- git remote add extracted ../extracted-repo
+|   |   |-- git fetch extracted
+|   |   |-- git merge --allow-unrelated-histories extracted/main
+|   |-- Step 4: Update monorepo code to use merged code (remove submodule references)
+|   |-- Step 5: Archive original submodule repo (read-only, with pointer to new location)
+
+|-- FROM Submodules TO Package Registry:
+|   |-- Step 1: Set up package registry (npm, Maven, PyPI, private registry)
+|   |-- Step 2: Add package.json/setup.py/pom.xml to submodule repo
+|   |-- Step 3: Publish initial version to registry
+|   |-- Step 4: Consumer-by-consumer: switch from submodule to package dependency
+|   |   |-- Remove submodule: git submodule deinit, rm -rf .git/modules, git rm
+|   |   |-- Add package: npm install @org/lib@1.0.0
+|   |-- Step 5: After all consumers migrated: archive submodule repo
+
+|-- FROM Vendoring TO Submodules:
+|   |-- Step 1: Create a new repo with the vendored code + its commit history
+|   |   |-- Use git-filter-repo on original monorepo if the code was extracted
+|   |-- Step 2: Push to a new shared repo
+|   |-- Step 3: Consumer-by-consumer: remove vendored code, add submodule
+|   |-- Step 4: Update CI to handle submodule checkout
+|   |-- Step 5: Set up update monitoring (Dependabot for submodules)
+
+|-- FROM Package Registry TO Submodules (RARE):
+|   |-- Only when: need local modifications, registry unavailable, strict version pinning
+|   |-- Step 1: git submodule add the package's source repo
+|   |-- Step 2: Remove package dependency from package manager config
+|   |-- Step 3: Update import paths (submodule path may differ from node_modules/)
+|   |-- Step 4: Major CI rework: submodule checkout + cache strategy
+|   |-- Caveat: this is almost always wrong. Package registries are the mature solution.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
