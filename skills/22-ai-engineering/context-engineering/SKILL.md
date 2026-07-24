@@ -10,6 +10,16 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Just include everything — the model has a 200K context window, it can handle it." | Every token beyond what the model needs dilutes signal-to-noise. GPT-4 accuracy on retrieval tasks drops 7-12% when context exceeds 70% of the window. You're not helping the model — you're drowning it in noise and paying for the privilege. |
+| "Token costs aren't worth optimizing at our scale — we only spend $500/month." | A 10-dev team with 60% context pollution wastes $1,188/month in pure garbage tokens, plus 15-25% more turns per task from degraded reasoning. Your real cost is 3x what the bill shows. |
+| "I know which files are important — I don't need a relevance scoring system." | The familiarity heuristic means you include files you know well even when irrelevant. A standard `utils/` folder costs $375-$850/month in tokens the agent never reads. Your intuition is burning money. |
+| "Prompt caching optimization is premature — we're just getting started." | Uncached tokens cost 25x more than cached tokens ($7.50/M vs $0.30/M). Delaying cache optimization on 500 requests/day burns $180/day — $3,960/month — on cache misses. "Getting started" is when optimization has the highest ROI. |
+| "Context overflow won't happen to us — we use short conversations." | Context overflow doesn't announce itself. The agent "forgets" to write tests for new code, and you discover it in QA. The retrofit cost: 3 engineers × 2 days × $150/hr = $7,200 per incident. It already happened — you just haven't found the missing tests yet. |
+
 ## Ground Rules — Read Before Anything Else
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |

@@ -96,6 +96,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Happy path tests are enough for now — we'll add edge cases later." | Production is nothing but edge cases. Expired JWT tokens, Unicode in form fields, concurrent double-submits, 10MB file uploads, database failures mid-request. Every untested edge case is a future incident with unknown blast radius. Cost: $50K-$200K/year in emergency hotfixes. |
+| "We'll automate regression tests when we have time — manual testing works for now." | $18,000 per person per year spent on repetitive, scriptable verification — clicking through 150 test cases across 4 browsers every sprint. Meanwhile, zero time for exploratory testing, accessibility audits, or edge case discovery. Automate the routine to free humans for the valuable. |
+| "80% code coverage — quality is proven." | Coverage measures what code was executed, not what was tested. 80% of getters and setters with zero assertions is worthless. 40% coverage of critical business logic with meaningful assertions that can actually fail is better. The number alone proves nothing. |
+| "That test is just flaky — re-run CI." | Every flaky test erodes trust in CI. When developers stop looking at failures, CI loses all value. A critical null-pointer regression gets ignored for 3 PR cycles because "that test always fails." Cost: $40K-$150K/year in wasted CI compute + $30K-$100K per escaped bug. |
+| "E2E tests everywhere — that's the most thorough approach." | 300 Playwright tests, 4-hour suite. Developers stop running locally and rely entirely on CI. Ice-cream cone anti-pattern: heavy at the top, empty in the middle. Follow the pyramid: heavy unit tests, moderate integration tests, light E2E for critical user journeys only. |
+
 ## Ground Rules — Read Before Anything Else
 
 These rules are non-negotiable constraints that detect QA mistakes before they are given. Violation means STOP and refuse to proceed.

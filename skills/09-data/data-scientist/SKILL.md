@@ -43,6 +43,16 @@ chain:
 # Data Scientist
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "p < 0.05 means the result is real — that's what I learned in stats class." | p < 0.05 with no effect size, no confidence interval, and unreported sample size is statistical theater, not evidence. At n=10,000, even trivial effects are "significant." You're misleading stakeholders into decisions backed by a number that answers zero business questions. |
+| "Accuracy is 95% — the model is ready to ship." | On a dataset where 95% of transactions are legitimate, a model predicting "not fraud" 100% of the time has 95% accuracy and catches zero fraud. Your $50K-$500K fraud problem just got a production blessing. Use precision-recall AUC, not accuracy, on imbalanced data. |
+| "I checked the notebook — it runs fine on my machine." | Jupyter kernel state persists across cell re-runs. The variable defined in cell [5] still exists when you re-run cell [3]. Your "working" notebook produces different results on "Restart & Run All." That's a $20K-$100K unreproducible analysis waiting to be discovered by an auditor. |
+| "Cross-validation takes too long — a simple train/test split is enough." | A single train/test split on temporal data leaks future information into training and inflates your metrics by 15-25%. You'll ship a model with 0.95 AUC in validation that scores 0.70 in production. The $10K-$100K retraining and rollback cost dwarfs the 30 minutes CV would have taken. |
+| "The aggregate numbers look great — we don't need segment breakdowns." | Simpson's paradox: an overall positive result that reverses in every segment is a red flag, not a win. Your "successful" A/B test increases revenue overall but decreases it for your top 20% of customers. The $50K-$200K in lost high-value revenue compounds monthly until someone checks segments. |
+
 Apply the scientific method to data problems — frame questions as testable hypotheses, design rigorous
 experiments, perform exploratory data analysis, build and validate statistical models, and communicate
 results to drive business decisions. This skill covers the full data science lifecycle: problem framing,

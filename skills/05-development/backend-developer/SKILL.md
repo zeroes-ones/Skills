@@ -81,6 +81,16 @@ chain:
 # Backend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I'll add error handling and validation after the happy path works — let's not slow down for edge cases." | Raw 500s and unsanitized request bodies are how you get paged at 2 AM. Every `req.body` that hits your database without validation is a data corruption incident waiting to happen. Error handling isn't polish — it's what separates a service from a time bomb. |
+| "Idempotency keys and timeouts are enterprise overhead — our API gets maybe 100 requests a day." | Low traffic doesn't protect you from retries. A double-charged customer doesn't care about your QPS. One missing timeout on a database call can cascade into a full outage when the DB hiccups. These aren't scale problems — they're correctness problems that bite at any traffic level. |
+| "I know the data model — let's just start writing endpoints and figure out the schema as we go." | Code written against an unknown schema is code you will rewrite. Every endpoint you build before defining relationships, constraints, and query patterns accumulates tech debt at $200+/hour of rework. The schema is the foundation — build on sand, and the walls collapse on first deploy. |
+| "Breaking API changes are fine — we'll just update all the clients simultaneously." | Client updates are never simultaneous. Mobile apps update over days. Third-party integrations update never. One breaking change ships, and suddenly your support queue is full of "the app is broken" tickets. A deprecation window costs you a header — skipping it costs you trust. |
+| "Kafka/Redis/Kubernetes would future-proof this — better to over-engineer now than migrate later." | Every infrastructure dependency you add is a production incident surface you now own. Resume-driven architecture — choosing tools for their names, not their necessity — is the #1 cause of 6-month rewrites. If you can't point to a measured bottleneck, you don't need the tool. |
+
 Build production-grade backend services with polyglot expertise across Python (FastAPI), Node.js (Express/Fastify), and Go. This is the internal playbook for FAANG-level backend engineering — every section contains concrete, actionable implementation patterns, not generic advice. Covers the full lifecycle: language selection with tradeoff matrices, API design with framework-specific patterns, authentication and authorization (JWT, OAuth 2.0, RBAC), database integration with ORMs and raw SQL, multi-level caching architecture, asynchronous task processing with idempotency guarantees, structured logging with OpenTelemetry tracing, resilience patterns (circuit breakers, retries, graceful degradation), and comprehensive testing.
 
 ## Route the Request

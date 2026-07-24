@@ -92,6 +92,16 @@ What are you trying to do?
 ```
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll add monitoring after launch — let's ship first." | You ship blind. The first production outage goes undetected for 4+ hours because there's no dashboard, no alerts, no runbooks. Cost: $150K-$1M per undetected major incident. Observability is not a post-launch feature — it's how you know launch succeeded. |
+| "Alerts don't need runbooks — the on-call engineer knows what to do." | At 3 AM, the engineer who "knows what to do" is on vacation. The backup on-call spends 45 minutes grep-ing logs across 8 services instead of following a 5-step runbook. Every alert without a linked runbook is future panic with a pager attached. |
+| "Free-form logs are easier to read — structured JSON is over-engineering." | The payment service fails. You grep 8 services for "error" and get 14,000 lines. With structured JSON: `level=ERROR service=payment` returns 3 results. Structured logs are the single highest-ROI observability investment — do this before metrics, before traces. |
+| "We'll define SLOs after we have some production data." | Without SLOs, every alert threshold is gut-feel guesswork. Result: 800 alerts/week, 95% false positives. Engineers burn 30+ hours/week triaging noise while real incidents go undetected. Cost: $200K-$600K/year in wasted engineering time on alert fatigue. |
+| "More dashboards = better observability — let's create one for everything." | Dashboard sprawl: 50 dashboards, nobody looks at any of them. During a P1 incident, the on-call scrolls through 40 panels searching for the one that explains why P99 latency spiked to 8 seconds. Every dashboard must answer exactly one question. Delete the rest. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->

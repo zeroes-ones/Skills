@@ -92,6 +92,8 @@ These rules are non-negotiable constraints that detect accessibility testing mis
 | R5 | REFUSE point-in-time audit as ongoing compliance proof | Trigger: Compliance claim references a date-stamped audit report older than the most recent production deployment | STOP. Respond: "Accessibility monitoring must be continuous, not point-in-time. Since the last audit, new components, dependency updates, and content changes may have introduced regressions. Configure CI/CD a11y gates that run on every PR before accepting a compliance claim." |
 | R6 | REFUSE a11y test strategy without explicit keyboard navigation pass | Trigger: Test plan/test strategy document lacks explicit step for keyboard-only navigation testing (Tab, Enter, Escape, arrow keys through all interactive elements) | STOP. Respond: "Keyboard navigation is the foundation of accessible interaction. Users with motor disabilities, screen reader users, and power users all rely on keyboard-only operation. Every a11y test strategy must include: (1) Tab order verification, (2) focus visibility check, (3) no keyboard traps, (4) all interactive elements reachable and operable without a mouse." |
 | R7 | REFUSE a11y test strategy without screen reader workflow pass | Trigger: Test plan/test strategy lacks explicit screen reader testing step with named assistive technology (NVDA, JAWS, VoiceOver, TalkBack) | STOP. Respond: "Screen reader testing is required for WCAG 2.2 AA compliance. Automated tools cannot verify that dynamic content is properly announced, that aria-live regions fire correctly, or that navigation landmarks are usable. Include at minimum one screen reader (VoiceOver on macOS, NVDA on Windows) workflow pass per critical user journey." |
+| R8 | DETECT and WARN when accessibility is treated as a QA-only activity that happens at the end of the development cycle | Trigger: accessibility testing mentioned only in QA phase or as a pre-release gate without evidence of design-time and development-time a11y activities | WARN. Shift left: (1) Design: annotate UI specs with heading levels, landmark regions, focus order, and accessible names. (2) Dev: eslint-plugin-jsx-a11y at IDE-time, jest-axe at unit test time. (3) CI: axe-core at PR time. (4) QA: manual keyboard + screen reader testing. Each layer finds issues before the next, more expensive, layer is reached. |
+| R9 | REFUSE to accept VPATs (Voluntary Product Accessibility Templates) from third-party vendors without independent verification | Trigger: relying on third-party VPAT as sole evidence of accessibility for an integrated component or service | STOP. Require: (1) Run axe-core against the vendor's product in your integration context, (2) Manual keyboard test of the vendor's UI within your product, (3) Screen reader test of one critical flow involving the vendor's component. Document findings. If the vendor's product creates accessibility barriers, your product is not accessible — regardless of what the VPAT says. |
 
 ## The Expert's Mindset
 
@@ -174,6 +176,58 @@ Platform?
 
 ```
 
+### CI/CD Gate Configuration
+
+```
+What a11y gate severity should you enforce?
+├── Startup / early product (< 10 engineers) → Lint-only gate (eslint-plugin-jsx-a11y)
+│   ├── Block: zero errors on pre-commit. Warn: violations in CI (non-blocking).
+│   ├── Start with recommended ruleset. Add rules incrementally — 2 per sprint.
+│   └── Goal: catch 60% of violations at lint time within 3 months.
+├── Growth-stage (10-50 engineers) → axe-core in CI + Lighthouse budget
+│   ├── Block PR on: zero NEW critical (A) or serious (AA) violations vs stored baseline.
+│   ├── Warn on: moderate violations. Create Jira ticket automatically.
+│   ├── Lighthouse CI: minimum accessibility score 95. Score drops > 5 points = block.
+│   └── Keyboard navigation check: automated tab-order verification via Playwright.
+├── Enterprise (50+ engineers, compliance requirements) → Full gates + manual review
+│   ├── All growth-stage gates + pa11y-ci on sitemap + screen reader workflow tests.
+│   ├── Block release on: any critical (A) violation on a key user flow.
+│   ├── Automated VPAT generation from CI audit trail.
+│   ├── Quarterly external accessibility audit results fed back into gate thresholds.
+│   └── Accessibility score dashboard with per-team accountability and trend lines.
+└── What to NEVER block on:
+    ├── Minor/needs-review violations — these generate noise, not safety.
+    ├── Third-party component violations you can't fix (document with VPAT exception).
+    └── Color contrast on disabled elements (WCAG exempts inactive UI components).
+```
+
+### Manual Testing Strategy
+
+```
+How should you prioritize manual accessibility testing effort?
+├── Top 5 user flows (checkout, signup, search, settings, help) → Screen reader end-to-end walkthrough
+│   ├── Test with: NVDA + Firefox (Windows), VoiceOver + Safari (macOS/iOS), TalkBack + Chrome (Android)
+│   ├── Before testing: clear cookies, log out, start fresh. Don't skip any step.
+│   ├── Document: "Can a screen reader user complete this flow independently in under 2x the time of a sighted user?"
+│   ├── Record: screen + audio. Review with developers. Nothing communicates a11y issues like experiencing them.
+│   └── Cadence: every release, rotate through 2 of the top 5 flows. Every flow tested at least quarterly.
+├── Component library (buttons, modals, forms, tables, dropdowns, tabs) → Keyboard + axe-core on isolated components
+│   ├── Every component: axe-core audit + keyboard interaction test (Tab, Enter, Escape, Arrow keys, Space)
+│   ├── Modals specifically: focus trapped inside modal, focus returns to trigger on close, Escape closes
+│   ├── Dynamic content: aria-live announcements tested with screen reader
+│   └── Cadence: every new component must pass before being added to the library. Existing components re-tested on breaking changes.
+├── Content & media (images, videos, documents, data visualizations) → Content audit
+│   ├── Images: alt text audit — is every informative image described? Are decorative images marked as such?
+│   ├── Videos: captions accuracy (not auto-generated), audio description track for key visual information
+│   ├── Data viz: can the insight be understood from alt text alone? Pattern/texture difference in addition to color.
+│   └── Cadence: quarterly content audit on top 20 most-visited pages
+└── Accessibility statement & feedback loop → User-reported issues
+    ├── Maintain a public accessibility statement with a feedback mechanism (email or form)
+    ├── Triage user-reported issues within 48 hours. P1 (blocked from using): 24-hour fix target.
+    ├── Track: issues reported per quarter (should decrease as automated testing improves)
+    └── Test: the accessibility contact method itself — can a screen reader user actually submit feedback?
+```
+
 <!-- DEEP: 10+min -->
 
 ## Core Workflow
@@ -250,26 +304,59 @@ Accessibility score < 70 on critical user flow? → Product Manager → CTO Advi
 
 ## What Good Looks Like
 
-<!-- STANDARD: 3min -->
+### BEFORE (Novice) → AFTER (World-Class)
+
+**Testing Coverage:**
+- **BEFORE:** Runs axe-core once before release. Score is 92. Declares product "accessible." Ships. ADA demand letter arrives 6 months later citing: focus order violations, missing aria-live announcements, keyboard traps in modals — none of which axe-core detects. Legal fees: $15K-$50K. Emergency remediation: $30K-$100K.
+- **AFTER:** Four-layer defense: (1) eslint-plugin-jsx-a11y at IDE + pre-commit (catches ~30%), (2) jest-axe on every component (catches ~30%), (3) axe-core in Playwright e2e on every page after every navigation (catches ~20%), (4) production monitoring with pa11y-ci daily scans and score trend alerts (catches regressions). Manual keyboard + screen reader walkthrough on top 5 flows per release. Automated gates block merging, not just warn. Zero new critical/serious violations policy. External accessibility audit annually.
+
+**Violation Response:**
+- **BEFORE:** Accessibility bug filed as P4 ("nice to have"). Sits in backlog for 18 months. Same functional impact in visual pathway would have been P2 and fixed within days. Legal exposure compounds.
+- **AFTER:** Accessibility severity matches functional severity. A checkout flow broken for screen reader users = P1 (revenue + legal risk). A heading hierarchy issue on a marketing page = P3. Severity classification enforced by CI: P1/P2 violations block release regardless of whether they're "accessibility" or "functional" — they're both.
+
+**Developer Experience:**
+- **BEFORE:** Developer discovers accessibility violation 3 days before release. Fix requires component redesign. Sprint derailed. "Accessibility always blocks our releases" becomes team sentiment. Accessibility becomes the villain.
+- **AFTER:** Developer sees a11y violation in their IDE as they type (eslint-plugin-jsx-a11y real-time feedback). Fix takes 2 minutes while the code is fresh. CI confirms fix. Developer never thinks about "accessibility" — the tooling catches everything. Accessibility becomes invisible infrastructure, not a bottleneck.
 
 **What good looks like:** A developer opens a PR that changes a button component from a `<div>` with an onClick handler to a native `<button>`. The CI pipeline runs. ESLint passes (the `<div>` would have been caught by `jsx-a11y/no-static-element-interactions`). Unit tests pass (jest-axe confirms the button has an accessible name). E2e tests pass (axe-core finds no new violations on any page containing the button). The accessibility dashboard in CI shows a green check and a baseline diff of "+0 new, -1 fixed" because the old `<div>` violation is now resolved. The developer didn't think about accessibility at all — the pipeline caught everything. That's what good looks like.
 
+**Accessibility Culture & Governance:**
+- **BEFORE:** Accessibility is "owned" by one champion engineer who reviews every PR for a11y issues. When they go on vacation, a11y regressions ship. When they leave the company, a11y knowledge walks out the door. Designers hand off specs without accessibility annotations. The VP of Engineering mentions accessibility in all-hands once per year after a lawsuit scare. No accessibility statement exists on the corporate website. When a user reports a barrier, the feedback goes to an unmonitored inbox. A11y is a person, not a process — and when that person isn't there, a11y doesn't happen. The board has never seen an accessibility metric. Procurement signs contracts with third-party vendors without requiring a VPAT or conducting an a11y review. The legal team finds out about accessibility only when a demand letter arrives.
+- **AFTER:** Accessibility is a shared responsibility enforced by infrastructure, not individuals. Design system components have built-in a11y — developers get accessible behavior by default without knowing ARIA. Design specs include heading levels, landmark regions, focus order, and accessible names as standard annotations (same as color hex codes or font sizes). ESLint + CI gates catch violations regardless of who reviews the PR. Accessibility score is a KPI on the engineering dashboard alongside uptime, latency, and error rate. Quarterly a11y training is part of onboarding and ongoing development — every engineer completes at least one keyboard-only and one screen reader task flow per quarter. The company publishes a public accessibility statement with a monitored feedback mechanism and triages user-reported issues within 48 hours (P1 blockers within 24 hours). The board reviews an accessibility scorecard quarterly: violation trends, user-reported issues, audit findings, and VPAT coverage for third-party integrations. Procurement requires a VPAT + independent verification before signing any vendor contract. Legal is proactively looped into accessibility governance — they review the accessibility statement, monitor regulatory changes (ADA Title II updates, European Accessibility Act), and receive CI audit trails as compliance evidence. When the original champion engineer leaves, nothing changes — the pipeline, the design system, the training program, the procurement process, and the board-level accountability ensure accessibility is continuous. The true test: a new hire can ship an accessible feature in their first week without ever talking to the a11y specialist, and a vendor can't get past procurement without proving their product is accessible.
+
+**Governance Metrics Dashboard:**
+- **Accessibility debt ratio:** (open a11y violations / total UI components) — tracked monthly, reviewed quarterly at the VP level. Target: < 5%. Above 10% triggers a remediation sprint.
+- **Mean time to resolve (MTTR) by severity:** P1 a11y issues (blocks assistive technology users from core flows) resolved within 24 hours. P2 within one sprint. P3 within two sprints. Dashboard shows MTTR trend — increasing MTTR signals a process breakdown.
+- **Automated coverage ratio:** percentage of WCAG 2.2 AA success criteria covered by automated checks in CI. Baseline: ~30% (axe-core's coverage). Target: 30% automated + 70% manual documented. A gap in either column is a gap in your defense.
+- **VPAT accuracy score:** for every third-party component with a vendor VPAT, the percentage of VPAT claims verified by independent testing. A vendor scoring below 80% accuracy is flagged for replacement or contractual remediation.
+- **User-reported issue trend:** accessibility issues reported by actual users per quarter. Should decrease as automated coverage increases and manual testing matures. An increase signals a regression blind spot — investigate immediately.
+- **Training participation rate:** percentage of engineers who completed quarterly a11y training (keyboard-only + screen reader task flow). Target: 100%. Below 90% triggers a manager escalation.
+
+**Testing Cadence by Layer:**
+
+| Layer | Frequency | Tool | Threshold | Owner |
+|-------|-----------|------|-----------|-------|
+| IDE (lint) | Real-time as-you-type | eslint-plugin-jsx-a11y, stylelint-a11y | Zero errors (configured rules) | Individual developer |
+| Pre-commit | Every commit | lint-staged + jsx-a11y | Block commit on new violations | Individual developer |
+| Unit/Component | Every test run | jest-axe, vitest-axe, jasmine-axe | Zero critical (A) violations | CI pipeline |
+| Integration/E2E | Every PR | @axe-core/playwright, cypress-axe | Zero new critical/serious vs baseline | CI pipeline |
+| Page-level audit | Every staging deploy | pa11y-ci, Lighthouse CI | Score ≥ 95, drops > 5 = block | CI pipeline |
+| Production scan | Daily | pa11y-ci scheduled job | Alert on new critical/serious | Monitoring system |
+| Manual keyboard | Every release | Structured test script | All interactive elements reachable | QA engineer |
+| Manual screen reader | Every release (rotate 2 of top 5 flows) | NVDA, VoiceOver, TalkBack | Flow completable independently | QA engineer |
+| External audit | Annually | Third-party accessibility auditor | Remediation plan for all findings | VP Engineering |
+| User testing with PwD | Quarterly | Fable, Access Works, or internal panel | Task completion rate ≥ sighted baseline | Product Manager |
+
 ## Deliberate Practice
-
-```mermaid
-graph LR
-    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
-
-```
 
 | Level | Practice | Frequency |
 |-------|----------|-----------|
-| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
-| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
-| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
-| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+| **Novice** | Install eslint-plugin-jsx-a11y on a real project with zero a11y tooling. Run it. Fix every violation. Time yourself. Repeat with a different project — can you fix them faster by recognizing patterns? | Monthly |
+| **Competent** | Take a production web app and run axe-core against all pages. Then run a manual keyboard-only navigation of the same pages. Compare findings: what did axe miss? Build a checklist of manual-only checks based on what you found. | Biweekly |
+| **Expert** | Design a CI/CD a11y pipeline for a 50-engineer org: lint rules, component test integration, e2e integration, Lighthouse CI budget, production monitoring, violation baseline management, and a per-team accessibility score dashboard. Implement it on a sample project and measure: false positive rate, time-to-detect, developer friction. | Quarterly |
+| **Master** | Teach a frontend team with zero a11y experience to self-sufficiently maintain accessibility in 3 months. Design the curriculum: Week 1-2 (automated tooling), Week 3-6 (manual testing skills), Week 7-10 (screen reader proficiency), Week 11-12 (independent audit capability). Measure: can they pass an external accessibility audit without your involvement? | Annually |
 
-**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
+**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time an accessibility issue reaches production, write down: what escaped detection, which layer should have caught it (lint/unit/e2e/monitoring), and what rule or check would prevent it next time. After 10 entries, you'll see patterns in your pipeline's blind spots.
 
 ## Gotchas
 
@@ -283,6 +370,9 @@ graph LR
 - **Never testing with actual assistive technology users.** Automated tests pass, manual keyboard checks by sighted developers pass, and screen reader testing by non-disabled QA engineers passes — but actual screen reader users encounter cascading usability failures. Navigation order is logical to someone who can see the layout but nonsensical when read linearly, live regions update too frequently and interrupt the user mid-task, and custom widgets implement WAI-ARIA patterns in ways that behave correctly in testing tools but confuse real AT users. **Total cost: $10,000-$40,000 in post-release remediation for issues only real AT users discover, plus legal exposure from technically-passing but practically-inaccessible UI that fails the "equivalent experience" standard in ADA litigation.** Fix: Include people with disabilities in usability testing at least once per major release cycle; contract with accessibility-focused testing services (Fable, Access Works) for structured AT-user feedback; maintain a standing panel of assistive technology users for quarterly feedback sessions; complement automated conformance testing with task-completion testing by real AT users.
 - **Dynamic content updates without ARIA live region announcements.** A React SPA updates search results as the user types, a chat message arrives in the background, or a form validation error appears below a field — all via DOM mutation with no `aria-live` region markup. Screen reader users have no idea the page content changed. They submit a form, perceive no response, resubmit, get rate-limited, and abandon the task entirely. **Total cost: $5,000-$25,000 in permanently lost conversions from inaccessible dynamic UIs, plus a growing volume of support tickets from frustrated assistive technology users who cannot complete core product flows.** Fix: Wrap every dynamically updating content region in an appropriate `aria-live` container (`aria-live="polite"` for non-urgent updates, `aria-live="assertive"` for critical errors and alerts); use `aria-atomic` to control whether the full region or only changed content is announced; test every dynamic interaction with a running screen reader; add an accessibility lint rule that flags DOM mutations without corresponding live region markup.
 - **Focus management abandoned after SPA route transitions.** In a traditional multi-page app, focus resets to the top of the document on navigation. In a SPA, when React Router or Next.js changes routes, the browser keeps focus on the link the user just clicked — now hidden behind the new page content. Screen reader users tab forward and land on a random element mid-page with zero context of where they are or what page loaded. They become disoriented and leave. **Total cost: $5,000-$20,000 in lost user engagement from screen reader users who find the SPA fundamentally disorienting, plus legal exposure from non-compliant client-side navigation that violates WCAG 2.4.3 Focus Order.** Fix: Move focus to a skip-link or the page `<h1>` on every route change; announce page transitions with a visually hidden live region (`<div aria-live="polite" className="sr-only">`); implement a focus management utility that runs after every navigation event; test every route transition with VoiceOver (macOS) or NVDA (Windows) to verify the experience.
+- **Testing only keyboard navigation (Tab key) and ignoring screen reader workflows.** 60% of web accessibility issues are screen-reader-specific: missing ARIA labels, incorrect heading hierarchy, dynamic content without aria-live announcements, unlabeled form controls, and custom widgets that are invisible to assistive technology. A site that passes keyboard-only testing can still be completely unusable with a screen reader. **Total cost: $15K-$50K in legal demand letter settlement plus $30K-$100K in emergency remediation when a screen reader user files a complaint.** Fix: Every release cycle, complete one end-to-end screen reader task flow (e.g., "complete purchase using NVDA+Firefox" or "create account using VoiceOver+Safari"). Rotate through AT/browser combinations. This catches the issues automated testing and keyboard-only testing miss.
+- **Buying an accessibility overlay solution (AccessiBe, AudioEye, etc.) and declaring the site "accessible."** Overlays inject JavaScript that attempts to fix accessibility issues at runtime. They cannot fix: semantic HTML structure, keyboard focus management, form labeling, or custom component accessibility — which together represent 70%+ of real accessibility barriers. They introduce performance overhead, conflict with actual assistive technology, and create a false sense of compliance. Over 500 accessibility professionals have signed the Overlay Fact Sheet stating these tools cannot make sites compliant. Yet companies continue buying them because the sales pitch ("one line of code," "$49/month") is compelling. **Total cost: $2K-$10K/year in overlay subscription + $15K-$50K+ in legal exposure because overlay-protected sites are still being sued (and losing).** Fix: Invest overlay budget into developer a11y training, automated testing infrastructure (axe-core, pa11y, Lighthouse CI), and manual testing. An overlay is a legal liability, not a solution.
+- **Relying on accessibility audits as a one-time activity rather than continuous monitoring.** An accessibility audit produces a clean report on Tuesday. On Wednesday, a developer ships a modal without focus trapping. Thursday, marketing adds a new landing page with contrast issues. By next week, 15% of the audit findings have regressed. By next quarter, the site is back to pre-audit accessibility levels — but the VP of Engineering reports "we passed an accessibility audit" to the board. **Total cost: $25K-$50K per audit that becomes obsolete within weeks + ongoing legal exposure as regressions accumulate.** Fix: Audit identifies baseline. CI/CD pipeline prevents regression. Automated scans run on every PR and every production deploy. Dashboard tracks accessibility score over time with alerts for drops. Re-audit manually annually, but the automated pipeline maintains quality between audits.
 
 ## Verification
 
@@ -292,6 +382,9 @@ graph LR
 - [ ] Screen reader audit: Navigate main flow with VoiceOver (macOS) or NVDA (Windows) — all content announced, all actions reachable
 - [ ] Color contrast: verify all text/UI components pass 4.5:1 (text) and 3:1 (large text/icons) using `axe` or `contrast-ratio` tool
 - [ ] Verify `eslint-plugin-jsx-a11y` passes with zero errors in CI
+- [ ] Third-party components: axe-core scan in integration context; keyboard and screen reader test of one flow involving each vendor component
+- [ ] Accessibility statement published and feedback mechanism tested with a screen reader
+- [ ] CI quality gates configured: zero new critical/serious violations vs baseline blocks PR merge
 
 ## References
 

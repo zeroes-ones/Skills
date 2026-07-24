@@ -59,6 +59,16 @@ chain:
 
 Comprehensive legal advisory framework for software and SaaS businesses. Covers document drafting, intellectual property strategy, open-source compliance, and risk assessment — designed to be used alongside qualified legal counsel, not as a replacement.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We're just friends — we don't need a written co-founder agreement." | 18 months later, one founder leaves and disputes equity, IP ownership, and responsibilities. With zero written documentation, you have he-said/she-said with no enforceable terms. Cost: $50K-$500K in legal fees litigating what was "agreed" over coffee versus what's provable in court. Every agreement must be in writing before money moves or code ships. |
+| "We'll copy Stripe's ToS — they're in our space, they know what they're doing." | Stripe's ToS includes PCI-DSS obligations, financial services disclaimers, and jurisdiction-specific clauses that don't apply to your SaaS analytics tool. When a dispute arises, half the clauses are unenforceable, and the ones you actually need are missing. Cost: $25K-$250K in legal remediation, plus exposure from invalid provisions during the gap. |
+| "The contractor built it, we paid them — we own the code." | Under US copyright law, the contractor owns the code they wrote until they explicitly assign it in writing. No IP assignment clause in the contract = the contractor can demand additional payment, block your Series A, or license the same code to your competitor. Cost: $100K-$1M to negotiate retroactive assignment or rewrite disputed modules from scratch. |
+| "We'll classify workers as 1099 contractors — it saves 30% on payroll taxes." | The IRS 20-factor test and state ABC tests don't care what the contract says. If you set hours, provide equipment, and the role is core to your business, they are employees. Penalties include back overtime, back payroll taxes, unpaid benefits, and civil penalties — per worker, going back 3 years. Cost: $100K-$1M+ in back taxes, penalties, and class-action exposure. |
+| "A verbal handshake is fine for now — we'll paper it later." | There is no such thing as a verbal contract that survives a dispute. 100% of "we had an understanding" cases devolve into contested recollections with zero documentary evidence. The party with the better lawyer wins, not the party who was right. Every deal, every partnership, every equity split — write it down, sign it, date it. Before the conflict, not after. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->

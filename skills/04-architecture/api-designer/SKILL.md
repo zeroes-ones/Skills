@@ -42,6 +42,16 @@ chain:
 # API Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll add error responses and pagination later — right now we just need the happy path." | The moment your first consumer integrates, undocumented errors become de facto behavior they depend on. Adding pagination after launch means every client breaks when a list grows past what fits in memory. Cost of deferred API completeness: $30K-$100K in client breakage and emergency rework per endpoint. |
+| "We don't need versioning yet — we'll never make breaking changes." | You will. Every API does. Without versioning infrastructure from day one, your first breaking change forces every client to update simultaneously. Mobile apps stuck in app review. Third-party integrations you forgot existed. Cost of deferred versioning: $50K-$200K in synchronized client breakage. |
+| "Rate limiting is premature — we're not at scale yet." | A single buggy client retrying in a loop, or a malicious actor with a 20-line script, saturates your API servers and database with trivial requests. Cloud auto-scaling amplifies the cost into thousands of dollars in compute before you notice. Cost of no rate limiting: $10K-$100K in DDoS vulnerability and auto-scaling cost explosion. |
+| "Sequential IDs in API responses are fine — nobody cares about revealing order counts." | Competitors scrape `/orders/4261` through `/orders/50000` and extract your entire customer count, growth rate, and order volume in 10 minutes. Every internal metric becomes public intelligence. Cost of exposing sequential IDs: $30K-$200K in competitive intelligence leakage and bulk data scraping incidents. |
+| "Auth tokens in query parameters are fine — it's temporary." | Every CDN log, proxy log, browser history entry, and referrer header copies that token. Five+ locations you cannot audit or revoke. One log file leak = every token ever passed that way is compromised. Cost of query-param tokens: $50K-$500K in credential leak incidents and mandatory key rotation across all integrators. |
+
 Design production-grade APIs across REST, GraphQL, and gRPC paradigms. This skill covers full API lifecycle design: specification-first development with OpenAPI 3.1, consistent error modeling, authentication and authorization patterns, rate limiting, pagination strategies, versioning approaches, and developer experience (DX) including SDK generation and documentation.
 
 ## Route the Request

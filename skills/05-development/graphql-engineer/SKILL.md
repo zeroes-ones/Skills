@@ -40,6 +40,16 @@ chain:
 # GraphQL Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We'll add depth limiting and complexity analysis before production — let's focus on building features first." | An unprotected GraphQL endpoint is a publicly accessible DDoS vector from the moment it deploys. A single recursive query `{ user { posts { comments { author { posts { ... }}}}}}` can bring down your database in seconds. Depth limiting isn't a production hardening task — it's a launch blocker. Deploy without it and your "features" go down with the server. |
+| "N+1 isn't a real problem with our dataset — we only have a few hundred records." | Your dev database has 200 records. Production has 200,000. Without DataLoader, a query for 100 items with a related field makes 101 database queries instead of 2. Your 50ms query becomes a 5-second query under real data volume. N+1 is invisible in dev and catastrophic in production — the worst kind of bug. |
+| "Nullable everywhere is safer — let's not overthink nullability semantics." | Wrong nullability destroys type safety. A non-null field that throws an error nullifies its entire parent — one failed resolver cascades into a completely empty response. Nullable fields degrade gracefully. Every field's nullability is a semantic contract with every client. "Safer" nullability is actually the most dangerous choice. |
+| "File uploads through GraphQL are simpler — one endpoint for everything." | Base64-encoding a 10MB file in JSON adds 33% overhead (13.3MB) and requires the entire file in server memory. A single large upload ties up a server thread that could serve 100 normal queries. GraphQL wasn't designed for binary data — use pre-signed S3 URLs and return the URL as a field. |
+| "We'll add monitoring after launch — GraphQL observability can't be that different from REST." | GraphQL breaks traditional HTTP monitoring: every request hits `/graphql` with a 200 status — even when every resolver failed. Without field-level tracing, you have no idea which operation is slow, which field is erroring, or who's sending expensive queries. You're flying blind in production while telling yourself the dashboard looks green. |
+
 GraphQL schema design, resolver architecture, federation, performance optimization, and security. Covers the full stack — from type definition through production operations. GraphQL's flexibility is its greatest strength and its greatest liability — without disciplined patterns, an unconstrained schema becomes a DDoS vector, an N+1 multiplier, and a breaking-change minefield. A GraphQL API that takes 5 seconds to resolve a query is worse than the REST API it replaced.
 
 ## Ground Rules — Read Before Anything Else

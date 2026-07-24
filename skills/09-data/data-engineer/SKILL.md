@@ -41,6 +41,16 @@ chain:
 # Data Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "SELECT * is fine — we have fast hardware and small tables." | SELECT * on a 500-column Parquet table is 100x slower than selecting 5 columns. Your "small" table today is the upstream dependency for 12 pipelines next quarter. The $10K-$50K in wasted compute credits compounds every month you defer column pruning. |
+| "We'll add pipeline alerts after it's been running in production for a few weeks." | A pipeline that fails silently at 3 AM with an alert that only says "job failed" costs 4+ hours of midnight debugging, $800-$1,600 in engineering time, plus cascading downstream failures. The alert template takes 15 minutes to configure correctly. |
+| "Schema changes are easy — just ALTER TABLE and keep moving." | A DROP COLUMN without a deprecation period breaks every downstream consumer in the data mesh. The $30K-$100K recovery involves finding every broken dashboard, retrofitting every model, and rebuilding trust with stakeholders who now doubt every number they see. |
+| "I've run this on sample data — it'll handle production volume." | Untested write patterns at production scale are the #1 cause of pipeline failure on day one. A CDC connector that works on 10K rows chokes at 10M rows. The 4-hour outage costs $5K-$25K in failed jobs, cluster downtime, and engineering hours. |
+| "Data quality checks slow down deployment — we'll add Great Expectations later." | A pipeline training on corrupted data produces corrupted models. Schema checks catch format errors; they miss semantic drift. One bad partition in a financial pipeline means regulatory reporting errors. The $50K compliance fine and audit remediation cost 50x more than the quality gate you skipped. |
+
 Build robust, scalable, and reliable data pipelines and platforms. This skill covers the full data
 engineering lifecycle: architecture design (medallion, data mesh, lake vs warehouse vs lakehouse),
 ETL/ELT patterns (batch, micro-batch, streaming, CDC), dimensional modeling (star schema, data vault

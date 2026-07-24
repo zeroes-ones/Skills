@@ -84,6 +84,16 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "We talk to users constantly — we know what to prioritize" | What users say they want and what they actually use diverge by 40%+. Your 5 anecdotal conversations are not a prioritization framework. Without systematic user data, you're prioritizing by recency bias — the last person who complained loudest wins. |
+| "Let's price at $X/month — it feels competitive" | Pricing-by-feel leaves 20-40% of revenue on the table. Your competitors spent months testing pricing with real customers. You're guessing in 30 seconds and calling it strategy. Willingness-to-pay data costs 2 weeks and pays back for years. |
+| "Competitors shipped this feature — we need it too" | Cargo-cult features are the #1 cause of product bloat. 64% of features are rarely or never used (Standish Group). Matching competitors feature-for-feature is not a winning strategy — it's a strategy for being second, with the same overhead and half the differentiation. |
+| ""Ship onboarding v2" is a perfectly fine Q3 objective" | That's a task, not an objective. Output-based OKRs measure activity, not impact. When the team ships onboarding v2 and retention doesn't move, you have a "successful" quarter with exactly zero business value. Measure the outcome, not the output. |
+| "We'll set the roadmap timeline — engineering will figure out the capacity" | Roadmap dates set without engineering input produce one of two outcomes: missed commitments (credibility damage) or cut corners (quality damage). "Figure it out" is not capacity planning — it's setting your team up for burnout. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->
@@ -334,6 +344,9 @@ Common chains:
 - **Build vs buy vs partner decisions** — "Buy" means "integrate and maintain forever." A $15K/year SaaS tool with 6-week integration and ongoing schema migrations may cost more over 3 years than a $120K internal build. Calculate TCO (total cost of ownership) over 36 months minimum.
 - **Competitive analysis** comparing your roadmap v1 against competitor v3 — the competitor will ship v4 by the time you ship v1. Compare against the competitor's likely trajectory, not their current state. Time-shifted comparisons systematically understate competitive risk.
 - **Platform vs point solution** decisions require a chicken-and-egg user base. A platform with no initial applications has no users; a point solution with no platform can't expand. The winning sequence is point-solution-first, then platform expansion — but only if you plan the expansion seams from day one.
+- **Feature prioritization by "highest-paid person's opinion" (HiPPO).** The CEO wants an AI chatbot because competitors have one. The engineering team drops everything for a 3-month build. Launch day: 2% of users try it, 0.3% use it regularly. Meanwhile, the "boring" CSV export fix that 40% of power users requested sits in the backlog, and churn ticks up among your highest-value cohort. **Total cost: $180K-$250K in engineering time (3 engineers × 3 months) plus $300K-$800K in avoidable churn from neglected power users over 12 months.** Fix: Use a weighted scoring framework (RICE: Reach × Impact × Confidence ÷ Effort) for ALL prioritization decisions; validate demand with a concierge test or fake-door experiment before committing engineering resources.
+- **Pricing page that hides all prices behind "Contact Sales."** Enterprise buyers who prefer self-service (now 60%+ of B2B buyers according to Gartner) bounce immediately. Your competitor publishes transparent pricing and captures the evaluation while you're still routing the "Request a Quote" form to the right SDR. **Total cost: $500K-$2M in lost inbound pipeline annually — 15-30% of your addressable self-serve segment never enters the funnel.** Fix: Publish at least a "Starting at" price with a self-service tier or transparent pricing calculator; gate only the enterprise custom pricing; A/B test contact-sales vs transparent pricing on your pricing page.
+- **Roadmap driven entirely by customer requests without strategic filtering.** You build every feature the top 5 customers ask for. Two years later, your product is a Frankenstein of custom integrations that only those 5 customers use. New prospects see a cluttered product built for someone else's problems and choose a focused competitor. **Total cost: $1M-$3M in engineering investment in features with zero new-customer acquisition value, plus slowing growth as your product loses competitive differentiation.** Fix: Maintain a "strategic filter" — every feature must map to a company-level strategic goal; track feature adoption by customer segment; sunset features used by < 5% of customers annually; say no with data: "We're prioritizing X because it serves 60% of our ICP."
 
 ## Verification
 

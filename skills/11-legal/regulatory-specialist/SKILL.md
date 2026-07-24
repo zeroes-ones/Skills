@@ -42,6 +42,16 @@ chain:
 
 Regulatory compliance framework for medical device software (SaMD), health tech, and life sciences. Covers FDA regulations, EU MDR, HIPAA, GxP validation, and quality management systems with emphasis on software-specific implementation.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "It's just a wellness app — it's not a medical device." | Software that analyzes or interprets medical data for diagnostic or treatment decisions is a medical device under FDA and EU MDR definitions. "It's just a tool" is not a defense — it's the statement that triggers a criminal investigation when you market an unregulated device. Classify before you build, not after you ship. |
+| "We'll get FDA clearance first — EU MDR can wait." | EU MDR requires clinical evaluation reports and post-market clinical follow-up plans that FDA never asks for. Treating CE marking as a translation exercise delays EU market entry 9-12 months and costs $50K-$500K in additional clinical data generation. Design your regulatory strategy for all target markets from day one. |
+| "We track CAPAs in Excel — we're too small for an eQMS." | A 200-person company spends $200K-$1M/year on manual compliance labor and 3-week all-hands audit fire drills. An eQMS (Veeva, Qualio, Greenlight Guru) costs ~$50K/year and automates document control, training tracking, CAPA workflows, and audit evidence. The math is not debatable — the Excel approach is the expensive one. |
+| "We'll file it tomorrow — one day late won't matter." | FDA and MHRA late filing penalties accrue daily. More importantly, late filings trigger heightened scrutiny on every future submission from that regulator — once you're flagged, everything gets a harder review. Maintain a regulatory calendar with 90/60/30-day pre-alerts and file 5 business days before every deadline. |
+| "That 72-hour GDPR notification window is flexible while we investigate." | GDPR requires notification within 72 hours of becoming aware — not 72 hours after leadership reaches consensus. A 19-hour delay triggers a separate violation with fines up to €10M or 2% of global annual turnover, independent of any penalty for the breach itself. Start the clock at detection, pre-draft notification templates, and maintain 24/7 escalation. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->

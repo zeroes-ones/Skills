@@ -103,6 +103,16 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "I've been doing this long enough to know what's high priority" | Institutional knowledge is uncalibrated opinion. Without RICE scores, you're prioritizing by recency bias and stakeholder volume. The loudest voice wins — not the highest value. RICE takes 15 minutes per feature and saves months of building the wrong thing. |
+| "The team knows the deadline — we'll figure out scope on the way" | Deadlines without engineering feasibility input produce missed dates or cut corners. Neither outcome is "making it work." Engineering owns the estimate; product owns the priority. Skip this separation once and you've trained the team that dates are arbitrary. |
+| "We'll define success metrics after we see how the feature performs" | Post-launch metrics are retroactive justification, not measurement. Features without pre-defined success criteria are bets without odds — you cannot learn from them because you never defined what winning looks like. Define the target before you pull the trigger. |
+| ""User can reset password" is clear enough — the team knows what 'works' means" | "Works" means 10 different things to 10 different engineers. Ambiguity in acceptance criteria costs $500-$2,000 per story in rework during QA. GIVEN/WHEN/THEN is not ceremony — it's the cheapest bug-prevention tool you have. |
+| "Out of scope is obvious — writing it down is bureaucracy" | Unwritten scope boundaries are invisible fences. When the stakeholder asks for "one small addition" during sprint 6, you have no agreed contract to point to. Out of Scope is not bureaucracy — it's the only thing standing between your roadmap and scope creep. |
+
 ## Ground Rules — Read Before Anything Else
 
 <!-- HARD GATE: These are non-negotiable. Violation → STOP and refuse to proceed. -->

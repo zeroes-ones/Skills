@@ -88,6 +88,8 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN about vendor risk assessments without sub-processor review.** Signing a vendor's DPA without reviewing sub-processor list and cross-border transfer mechanisms is a compliance gap. | Trigger: output mentions vendor/processor approval without `grep -rn "sub.processor\|subprocessor\|SCC\|BCR\|TIA" vendor/` confirmation | WARN: Add comment "⚠️ Verify: (1) Has the vendor's sub-processor list been reviewed? (2) Are SCCs/BCRs in place for non-adequate-jurisdiction sub-processors? (3) Has a Transfer Impact Assessment been completed? Vendor self-declaration of compliance is not a transfer mechanism." |
 | **R6** | **DETECT and WARN about policy language that is un-auditable.** Policies using "should" or "aspire to" cannot be tested during an audit. | Trigger: generated policy text contains "should" or "we aspire" or "we aim to" without corresponding "must" + measurement clause | WARN: Replace with auditable language. Every policy statement must be verifiable — "MFA enforced for all human users, verified quarterly via IAM access review." If you can't write the audit test for a policy statement, rewrite it. |
 | **R7** | **DETECT and WARN about over-scoping audits to include non-regulated systems.** Every system in scope adds 3-5 controls to test. Over-scoping multiplies time, cost, and complexity. | Trigger: user's scope list includes dev/staging environments, internal wikis, or HR tools not processing regulated data | WARN: Flag "The following systems may not need to be in scope: [list]. Only systems that process, store, or transmit regulated data belong in scope. Each system in scope adds 3-5 controls to test and hours of evidence collection. Confirm with your auditor before finalizing." |
+| **R8** | **DETECT and WARN when policies are written by the compliance team in isolation and published without operational review.** A policy that says "all access reviews will be completed within 5 business days" — written by compliance — gets published. Engineering manager responsible for 200 access reviews with a team of 3 discovers this policy during the audit, not during policy creation. The policy is operationally impossible. The finding: "control not operating as designed" — because it was designed without the operator in the room. | Trigger: policy document with no evidence of review/approval from the team who will execute it | WARN. Every policy requires sign-off from: (1) the person responsible for executing it, (2) that person's manager (resource commitment). If the executor says "we can't do this at this cadence," the policy cadence changes — not the other way around. |
+| **R9** | **REFUSE to accept a "clean" penetration test report as evidence of security without understanding scope.** "We passed our pen test!" — but the scope excluded the admin API, the CI/CD pipeline, and the third-party integrations that handle customer data. A clean report on 60% of your attack surface is a false sense of security. Auditors and customers read "clean pen test" as "you're secure" when the test was scoped to make you look good. | Trigger: pen test report presented as security evidence without a scope definition section | STOP. Require: pen test scope documented and compared to: (1) data flow diagram (what systems touch customer data?), (2) threat model (what are the highest-risk components?), (3) previous pen test scope (are we testing less this year?). Gaps between scope and risk surface must be documented and justified — or the report is incomplete. |
 
 ## The Expert's Mindset
 
@@ -170,6 +172,64 @@ Time to audit?
 
 ```
 
+### Evidence Collection Strategy
+
+```
+How should you collect and manage audit evidence?
+├── Startup / Pre-audit (0-5 employees, no dedicated compliance) → Manual + screenshots in shared drive
+│   ├── Organize by control ID: one folder per control, screenshots with visible timestamps.
+│   ├── Document the collection date, system name, and the person who collected.
+│   ├── Risk: forgotten screenshots. Mitigation: monthly calendar reminder for each control.
+│   └── Expect: auditor will sample-test and find gaps. Budget 2-3 rounds of evidence requests.
+├── Growth (5-50 employees, seeking first SOC 2) → GRC tool + automated collection
+│   ├── Tool: Vanta, Drata, Secureframe, or Tugboat Logic. Automates 60-80% of evidence.
+│   ├── Connect: AWS/GCP/Azure, GitHub, identity provider, MDM, HRIS. Evidence refreshes automatically.
+│   ├── Remaining 20-40%: manual uploads (policy acknowledgments, training completion, physical security).
+│   └── Cadence: evidence collection runs continuously. Dashboard shows control health in real time.
+├── Enterprise (50+ employees, multi-framework) → Evidence-as-code + continuous monitoring
+│   ├── Evidence collection scripted: Terraform/CloudFormation state → compliance evidence.
+│   ├── Continuous monitoring: drift detection alerts when a previously-compliant control changes.
+│   ├── Multi-framework mapping: one evidence item maps to SOC 2, ISO 27001, HIPAA simultaneously.
+│   └── Audit-ready at any moment: no pre-audit fire drill because evidence is always current.
+└── Pre-audit crunch (< 3 months to audit, no existing evidence program) → Triage sprint
+    ├── Week 1: Identify top 20 must-pass controls (auditors always test these deeply).
+    ├── Week 2-4: Collect evidence for those 20 controls first — they're 80% of audit pass/fail.
+    ├── Week 5-8: Collect evidence for remaining controls. Accept that some will have gaps.
+    └── Week 9-12: Pre-audit readiness assessment. Fix gaps. Practice auditor walkthroughs.
+```
+
+### Vendor Risk Assessment Strategy
+
+Vendor risk management is the most overlooked compliance surface area. Every vendor that processes, stores, or transmits your regulated data extends your compliance boundary — their control failures become your audit findings, their breaches become your regulatory notifications. The tiered approach below matches assessment depth to risk exposure, preventing the two most common failures: under-investigating high-risk vendors (regulatory exposure) and over-investigating low-risk vendors (compliance team burnout).
+
+```
+How should you assess third-party vendor risk?
+├── Low-risk vendor (no data access, e.g., conference registration tool) → Questionnaire only
+│   ├── Send: lightweight security questionnaire (10-15 questions, 15 min to complete)
+│   ├── Review: does the vendor have basic security practices? SOC 2 report if available.
+│   ├── Decision: approve if no red flags. Re-assess annually.
+│   └── Time: 30-60 min total review time. Don't over-invest in low-risk.
+├── Medium-risk vendor (processes but doesn't store sensitive data, e.g., analytics tool) → Questionnaire + SOC 2 review
+│   ├── Send: standard security questionnaire (25-40 questions) + request SOC 2 Type II report
+│   ├── Review: SOC 2 bridge letter (covers gap since last audit), review exceptions/testing results
+│   ├── Follow-up: any SOC 2 exceptions that relate to your use case (e.g., access control if vendor employees access your data)
+│   ├── Decision: approve if SOC 2 clean + acceptable exceptions. Re-assess: annually + on SOC 2 renewal.
+│   └── Time: 2-4 hours. The SOC 2 does 80% of the work — focus on exceptions and your specific use case.
+├── High-risk vendor (stores/processes customer PII, PHI, or financial data) → Full due diligence
+│   ├── Security questionnaire (comprehensive, 50+ questions), SOC 2 Type II, penetration test summary
+│   ├── Review: data flow — exactly what data leaves your environment? Where is it stored? Who has access?
+│   ├── Contractual: DPA required, data processing location specified, breach notification SLA (≤ 72 hours), right to audit
+│   ├── Decision: security review + legal review + business owner sign-off. Assessed: annually + on contract renewal + on breach.
+│   └── Time: 5-10 hours. This vendor breach = your regulatory notification obligation. Due diligence is proportional to liability.
+└── Critical vendor (core infrastructure, sub-processor of all customer data, e.g., cloud provider, payment processor) → Continuous monitoring
+    ├── Annual: full due diligence (same as high-risk), SOC 2 Type II, pen test, on-site audit if feasible
+    ├── Continuous: security monitoring feed, breach notification monitoring, SLA tracking
+    ├── Contingency: documented exit plan — can you migrate off this vendor within 30 days if they lose certification?
+    └── Governance: quarterly business review includes security posture. Vendor security incidents trigger immediate review.
+```
+
+> **Key principle:** Vendor risk tier is determined by data access, not contract value. A $50/month SaaS tool that processes customer PII is high-risk. A $500K/year office furniture supplier that touches no data is low-risk. Classification by spend produces dangerous blind spots.
+
 ## Core Workflow
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
@@ -231,7 +291,27 @@ Time to audit?
 
 ## What Good Looks Like
 
-> Compliance is a seamless operating rhythm, not a pre-audit fire drill. Every control has automated evidence collection running on a cadence, every policy is versioned and acknowledged, and the unified
+### BEFORE (Novice) → AFTER (World-Class)
+
+**Evidence Management:**
+- **BEFORE:** "We have SOC 2 evidence in a Google Drive folder somewhere." Two weeks before the audit, frantic screenshot collection from 14 different systems. Screenshots missing timestamps. Half the evidence is from 6 months ago (auditor tests the FULL period). 3 rounds of auditor evidence requests back and forth. Audit delayed by 6 weeks. Enterprise deal blocked.
+- **AFTER:** GRC tool (Vanta/Drata/Secureframe) connected to all infrastructure, identity, and HR systems. Evidence refreshes automatically on configured cadence. Dashboard shows real-time control health. Continuous monitoring alerts on drift: a security group opened for testing and forgotten → flagged within 24 hours. Auditor given read-only access to the GRC tool. Evidence requests: near zero. Audit is a review of 12 months of automated evidence, not a fire drill.
+
+**Control Quality:**
+- **BEFORE:** Access review policy says "quarterly." Reality: last review was 14 months ago, done in a spreadsheet, 3 terminated employees still had active accounts. Auditor finds it in 20 minutes. Finding: "Access control not operating as designed." This finding alone can block a SOC 2 report.
+- **AFTER:** Automated access review: identity provider exports current accounts → managers confirm in workflow tool → audit trail captures every approval with timestamp. Review runs quarterly on schedule. Any unreviewed account escalates: Day 1 (reminder), Day 7 (manager's manager), Day 14 (automatic suspension). Auditor tests: pulls Q2 review records, sees 100% completion within SLA, samples 5 accounts and traces approval chain. Finding: zero.
+
+**Policy Quality:**
+- **BEFORE:** "Employees should use strong passwords." Unenforceable. Unauditable. The word "should" in an audit context means "this control doesn't exist."
+- **AFTER:** "All human user accounts must authenticate with SSO + MFA (hardware key or TOTP). Service accounts must use certificate-based auth with 90-day rotation. Verified quarterly via IAM access review — any non-compliant account suspended within 24 hours of detection." Every statement testable. Every requirement measurable. Auditor: "Show me the last quarterly review. Show me the suspension logs for non-compliant accounts." Everything exists because the policy was written to be tested.
+
+The vendor risk dimension is where most compliance programs fail silently — a perfect SOC 2 report means nothing if your payment processor loses their certification and you find out 8 months later during your own audit.
+
+**Vendor Risk Management:**
+- **BEFORE:** Vendor risk assessment is "Did legal sign the contract?" Every vendor gets the same treatment — a 5-minute glance at their website and a checkmark in a spreadsheet. The payment processor that handles all customer transactions? Same review as the office snack delivery service. No DPA with the analytics vendor that receives every page view including PII in query parameters. Vendor breach happens — company discovers during the breach notification that the vendor had no SOC 2, no pen test, and sub-processors in 12 countries. Legal exposure: unquantifiable. Customer trust: destroyed.
+- **AFTER:** Tiered vendor risk program: low-risk (questionnaire, 30 min), medium-risk (questionnaire + SOC 2 review, 2-4 hrs), high-risk (full due diligence + DPA + legal review, 5-10 hrs), critical (continuous monitoring + exit plan). Every vendor classified by data access, not contract value. Vendor inventory refreshed quarterly. Automated alerts when vendor certifications expire. DPA repository with renewal tracking. When the critical vendor announces a breach: incident response plan activates, DPO notified within 24 hours, customer notification drafted before the vendor finishes their investigation. Regulator asks for vendor due diligence — company produces tiered assessments, SOC 2 bridge letters, and DPAs organized by risk tier. Finding: zero.
+
+> Compliance is a seamless operating rhythm, not a pre-audit fire drill. Every control has automated evidence collection running on a cadence, every policy is versioned and acknowledged, and the unified control framework maps one evidence item to multiple frameworks simultaneously.
 
 > See [references/what-good-looks-like.md](references/what-good-looks-like.md) for the full quality standard.
 
@@ -265,20 +345,14 @@ Time to audit?
 
 ## Deliberate Practice
 
-```mermaid
-graph LR
-    A[Test/Review] --> B[Find gap] --> C[Study<br/>root cause] --> D[Improve<br/>prevention] --> A
-
-```
-
 | Level | Practice | Frequency |
 |-------|----------|-----------|
-| **Novice** | Review your own work from 3 months ago; catalog everything you'd now flag | Monthly |
-| **Competent** | Shadow a more senior reviewer; compare their findings to yours; study the delta | Weekly |
-| **Expert** | Design a new quality gate; measure false positive/negative rates; tune for 6 months | Quarterly |
-| **Master** | Create a training module that teaches others your quality intuition; measure their improvement | Quarterly |
+| **Novice** | Read a SOC 2 Type II report from a company you use (many publish them publicly). For each Trust Services Criteria section, identify: what control is being tested, what evidence is cited, and what the auditor's opinion means. Then map 3 of your own company's controls to SOC 2 criteria. | Monthly |
+| **Competent** | Conduct a mock audit of one control area (e.g., access management) at your company. Collect evidence as if an auditor requested it. Identify gaps: missing evidence, stale evidence, controls that exist in policy but not in practice. Present findings to your manager with a remediation plan. | Quarterly |
+| **Expert** | Build a Unified Control Framework for your organization: map SOC 2, ISO 27001, GDPR, and any industry-specific frameworks (HIPAA, PCI-DSS, FedRAMP) to a single set of internal controls. Identify: which controls satisfy ALL frameworks (high ROI), which are framework-specific (low ROI, necessary evil), and which are redundant (eliminate). Present the ROI of your unified framework in auditor-hours saved. | Annually |
+| **Master** | Design a compliance automation architecture: evidence collection pipelines, continuous monitoring rules, drift detection, automated policy acknowledgment tracking, vendor risk assessment workflow, and audit report generation. Build a proof of concept for one control area. Calculate: evidence collection time before vs after automation, audit preparation time before vs after, and risk of control failure between audits. | Annually |
 
-**The One Highest-Leverage Activity:** Keep a "mistakes journal." Every time you miss something, write down: what you missed, why you missed it, and what rule would have caught it.
+**The One Highest-Leverage Activity:** Every quarter, pick 5 controls at random and trace their evidence end-to-end — from policy document → to implementation → to evidence collection → to the actual evidence file. If any link in the chain is broken (policy says quarterly, evidence is annual), the control is not operational. Sample-testing your own controls is what auditors do — do it before they do.
 
 ## Gotchas
 
@@ -288,6 +362,13 @@ graph LR
 - **Data retention policies** that say "delete after 7 years" — if you delete exactly at year 7, data from Jan-Dec is mixed. Records created Dec 31 need to live until Dec 31 + 7 years. Retention must be per-record, not per-calendar-year. **Total cost: $10,000-$100,000 per regulatory violation for premature deletion — multiply by thousands of records for systematic failures, plus legal exposure from spoliation claims.**
 - **"Encryption at rest" means different things** to different auditors. AWS RDS encryption (KMS-managed keys) counts. Application-level encryption (encrypt before writing) counts. But disk-level encryption (EBS volume encryption) doesn't count if the auditor requires separation of duties between data controller and infrastructure provider. **Total cost: $50,000-$200,000 in remediation re-architecture, plus $100,000-$500,000 in lost enterprise deals when audit findings block sales closures.**
 - **ISO 27001 certification scope creep** — certifying "the entire company" sounds thorough but means every laptop, every office network, and every shadow IT tool is in scope. A single unencrypted laptop triggers a major nonconformity. Scope narrowly to the service/product that customers actually audit, then expand incrementally. **Total cost: $30,000-$150,000 in audit preparation waste — over-scoping ISO 27001 adds 3-6 months to initial certification, burns $50,000+ in consultant fees on irrelevant controls, and delays enterprise sales that require the certificate.**
+- **Treating compliance as a project with an end date rather than an ongoing operational program.** "We got SOC 2 certified!" Six months later: half the controls aren't being executed. The evidence collection stopped. The continuous monitoring dashboards went dark. The auditor finds 12-month-old evidence for a quarterly control at the next audit. The certification is suspended. Enterprise customers receive notification. Deals stall. **Total cost: $50K-$150K in audit rework + $200K-$2M in lost enterprise pipeline from suspended/caveated certification.** Fix: Compliance program has a named owner with compliance operations as part of their job description (not a side project). Automated evidence collection runs on cron, not human memory. Monthly control health reviews. Quarterly internal audit of the top 10 controls. Compliance is a program, not a project — fund it accordingly. The annual cost of maintaining compliance is 30-50% of the initial certification cost.
+- **Copying a competitor's SOC 2 controls without understanding your own risk profile.** "Acme Corp published their SOC 2 controls — let's use those." But Acme hosts customer financial data in AWS us-east-1 with 200 employees. You're a 15-person startup hosting healthcare data in GCP with a fully-remote workforce. Their physical security controls (badge access, security cameras) are irrelevant to you. Their remote work controls (none) are critically missing for you. Blindly copying controls produces a compliance program that audits the wrong things. **Total cost: $30K-$80K in wasted audit preparation for irrelevant controls + $20K-$50K in findings from missing controls that should have been there.** Fix: Start with a risk assessment, not a control list. Identify: what data do you hold? What's the worst-case breach scenario? What are your actual operational risks? THEN map risks to controls. Your SOC 2 should reflect YOUR business, not Acme's.
+- **SOC 2 bridge letter gaps** — vendors provide a SOC 2 Type II report covering e.g., Jan-Dec 2025. In July 2026, that report is 7 months stale. The bridge letter covers the gap, but bridge letters are management assertions, not auditor-tested. If your vendor has a material change (new CISO, major architecture shift, breach) during the bridge period, the bridge letter is worthless. **Total cost: $50K-$200K in regulatory penalties if vendor controls degraded during bridge period and your customer data was exposed.** Fix: Require vendors to notify you of material changes during the bridge period. For critical vendors, request interim testing or a SOC 3 report. Don't treat a bridge letter as equivalent to a SOC 2 Type II report — it's a stopgap, not a substitute.
+- **Using compliance automation tools as a substitute for understanding your controls.** GRC tools (Vanta, Drata, Secureframe) show green checkmarks for connected systems. But a green checkmark means "the API returned expected data," not "the control is effectively mitigating risk." A security group that's too permissive but technically meets the automation tool's check criteria will show green for 12 months — until the auditor manually tests the control and finds it. **Total cost: $30K-$80K in audit findings for controls that looked compliant on the dashboard but failed human review.** Fix: Quarterly manual sampling of automated evidence. Pick 5 "green" controls at random and trace the evidence end-to-end yourself. If you find gaps the tool missed, tune the detection rules. Automation is force multiplication, not force replacement.
+- **Signing a Business Associate Agreement (BAA) without verifying the vendor's HIPAA compliance program.** The BAA creates mutual obligations — you're responsible for your vendor's HIPAA violations if you knew (or should have known) they weren't compliant. A vendor that signs a BAA but has no security risk assessment, no workforce training, and no breach notification process exposes you to OCR penalties for their failures. **Total cost: $50K-$1.5M per violation category from OCR + mandatory breach notification to all affected patients + reputational damage in healthcare market.** Fix: Before signing a BAA, require evidence: HIPAA security risk assessment (within last 12 months), workforce training completion records, incident response plan, and breach notification procedures. The BAA is a legal document — the vendor's actual compliance program is what protects your patients' data.
+- **PCI-DSS SAQ (Self-Assessment Questionnaire) scope misclassification.** Merchants often select SAQ A (e-commerce, fully-outsourced payment) when they should be SAQ A-EP (e-commerce, partially-outsourced) or SAQ D (all others). SAQ A has 22 requirements; SAQ D has 329. An acquiring bank that discovers misclassification during a breach investigation treats it as non-compliance with the full standard. **Total cost: $5K-$100K/month in non-compliance fines from acquiring bank + mandatory forensic investigation ($20K-$100K) + potential card brand penalties.** Fix: Before selecting an SAQ type, trace every piece of cardholder data through your environment. If even one JavaScript snippet on your checkout page touches card data before it reaches the processor iframe, you're not SAQ A. Get a QSA opinion on scope — it's cheaper than post-breach reclassification.
+- **Not testing your incident response plan against a compliance framework scenario.** Tabletop exercises that simulate "a server went down" are operational drills, not compliance tests. A compliance-relevant scenario: "Your S3 bucket containing 3 years of customer PII was publicly accessible for 72 hours. The GDPR 72-hour notification clock started when your engineer discovered it — not when leadership was informed 48 hours later." Your incident response plan's notification trigger says "upon confirmation of breach" — but the regulator's clock starts at "awareness," which is when the first employee knew. **Total cost: €10M-€20M or 2-4% of global revenue under GDPR for late notification + separate fines under state breach notification laws (e.g., CCPA $2,500 per unintentional violation).** Fix: Test incident response against regulatory scenarios, not just operational ones. Include: (1) when does the regulatory clock start in this scenario?, (2) who must be notified and in what order?, (3) what evidence must be preserved for the regulator? Run this test annually with legal counsel present.
 
 ## Verification
 
@@ -297,6 +378,12 @@ graph LR
 - [ ] Access review: quarterly access review completed — all accounts have documented business justification
 - [ ] Vendor risk assessment: all vendors handling sensitive data have current (≤ 12 months) risk assessment
 - [ ] Incident response test: tabletop exercise conducted within last 6 months, findings tracked to remediation
+- [ ] Audit readiness: mock audit of top 10 must-pass controls within last quarter, all evidence traceable end-to-end
+- [ ] Continuous monitoring: drift detection alerts configured and tested — a control that fails is detected within 24 hours, not discovered at the next audit
+- [ ] Policy acknowledgment: all employees have acknowledged current policy versions — acknowledgment gap > 90 days is an audit finding
+- [ ] Exception tracking: all policy exceptions documented with business justification, approval, and expiration date — no permanent exceptions
+- [ ] Training compliance: security awareness and role-based compliance training completed by all employees within the required period
+- [ ] Vendor inventory: complete vendor inventory refreshed within last quarter — no unvetted vendors processing regulated data
 
 ## References
 

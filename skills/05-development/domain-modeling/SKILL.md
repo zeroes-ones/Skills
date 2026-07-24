@@ -35,6 +35,16 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 # Domain Modeling
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---:|
+| "Everyone knows what 'Customer' means — we don't need a glossary for obvious terms." | Run a "define Customer in 30 seconds" exercise across your team. You'll get 5 different answers — and you've been building against 5 incompatible definitions for months. Vague terms are invisible bugs that manifest as wrong features, duplicate work, and integration failures. A precise definition costs 10 minutes. Ambiguity costs weeks. |
+| "CONTEXT.md is just another doc to maintain — the code is self-documenting." | Code documents how, not why. A domain rule enforced in code is invisible to product managers, QA, and new hires. When the rule changes, nobody knows which code to update. CONTEXT.md is the bridge between domain experts who can't read code and developers who can't read minds. Without it, domain knowledge walks out the door with every departing engineer. |
+| "We'll document the domain rules after this sprint — we need to ship first." | Every sprint you defer domain documentation, you're accruing knowledge debt at compound interest. The next hire spends 3 months learning what "should be obvious." The refactor hits rules nobody remembers exist. Domain documentation is not documentation — it's the executable specification your team already uses but can't name. |
+| "An ADR for every decision is overkill — we'll write them for the big ones." | The three-part trigger test is your filter: hard-to-reverse, surprising-without-context, AND result-of-a-real-tradeoff. If a decision fails any test, skip the ADR. But if someone asks "why did we choose X?" six months from now and nobody remembers, that silence costs you a week of re-litigating the same decision. An ADR is a decision you never have to make twice. |
+| "Bounded contexts are DDD academic jargon — our system isn't that complex." | If two teams call the same thing by different names, or different things by the same name, you have implicit bounded contexts whether you document them or not. Undocumented boundaries cause integration bugs that look like "miscommunication" but are actually conflicting domain models fighting in the same codebase. Name the boundaries or the boundaries will name themselves — usually in production incidents. |
+
 Active domain modeling discipline — not just a glossary but a living practice of challenging vague terms, stress-testing with edge-case scenarios, maintaining CONTEXT.md inline, and cross-referencing code against stated domain rules. ADRs are created only when a decision is hard-to-reverse, surprising-without-context, AND the result of a real tradeoff.
 
 ## Ground Rules — Read Before Anything Else
