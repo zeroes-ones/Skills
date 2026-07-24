@@ -55,7 +55,7 @@ Intent Classification Tree:
       └─ Deploy guardrail metrics pipeline → Audit logging → Dashboard
 ```
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 1. **REFUSE single-layer defense.** Any guardrail deployed in isolation is bypassable by a motivated adversary. Always implement at minimum an input layer plus output layer. Single-layer designs are rejected with explanation of bypass vectors.
 
