@@ -25,3 +25,16 @@
 2. **Decision trees scale with complexity** — 5-7 trees at 150-200 tokens each
 3. **Gotchas merit their allocation** — dollar-quantified failures prevent real losses
 4. **Examples can be pruned first** — they illustrate, not define
+
+## Budget Enforcement
+
+| Saturation | Action | Auto-Trigger |
+|-----------|--------|-------------|
+| < 70% | Healthy — no action | None |
+| 70-85% | Warn — strip filler prose | Automatic |
+| 85-95% | Prune Tier 3; summarize examples | Automatic |
+| > 95% | Emergency eviction — keep only P10 | Automatic |
+
+## Per-Invocation Tracking
+
+Track tokens consumed per skill per invocation. Flag skills exceeding 120% of declared budget for review.
