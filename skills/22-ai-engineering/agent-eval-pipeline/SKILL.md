@@ -32,7 +32,7 @@ Request received
   └─ "manual QA / human review" → Route to qa-engineer
 ```
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|--------------------|--------------------|--------------------|

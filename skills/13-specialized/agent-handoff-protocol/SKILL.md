@@ -60,7 +60,7 @@ Incoming request
 
 ---
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|--------------------|--------------------|--------------------|

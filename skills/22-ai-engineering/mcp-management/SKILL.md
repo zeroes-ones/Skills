@@ -58,7 +58,7 @@ MCP request
 
 ---
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 1. **Mechanical Trigger:** Any MCP configuration file (`mcp-config.json`, `.mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json`, `.gemini/config.json`) MUST be validated against the MCP spec JSON-RPC 2.0 requirements before being deployed.
    **Violation Response:** Reject the config. State the exact JSON-RPC violation with line reference. Require correction before proceeding.

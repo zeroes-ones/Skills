@@ -23,6 +23,50 @@ chain:
 
 # Multi-Agent Orchestration
 
+## Route the Request
+Route multi-agent design through the topology patterns in Section 3 and decision trees in Section 11. If < 3 agents, use Section 11 for simple delegation. If ≥ 3 agents, use full topology + typed state from Sections 3-4.
+
+## Ground Rules — Read Before Anything Else
+Never let agents share mutable state without a typed schema. Never delegate without explicit success/failure contracts. Never run agents without observability instrumentation. Never exceed 3 delegation hops — use flat topologies. State corruption in multi-agent systems costs $100K+ per incident.
+
+## The Expert's Mindset
+You design agent systems assuming every handoff will fail. You enforce typed contracts, idempotent delegation, and cost-aware topology selection. You treat agent output as stochastic — never deterministic.
+
+## Operating at Different Levels
+- **2-3 agents:** Simple supervisor or sequential topology
+- **5-10 agents:** Hierarchical with typed state and LangGraph
+- **10-50+ agents:** Swarm with CrewAI/AutoGen, cost-optimized routing
+- **Cross-team:** Federation with agent-handoff-protocol handoff contracts
+
+## When to Use
+Use when designing multi-agent systems with 3+ collaborating agents, debugging agent state corruption, optimizing multi-agent costs, or scaling from prototype to production agent swarms.
+
+## Decision Trees
+See Section 11 (Decision Trees) for structured topology selection, state management, delegation mode, and cost optimization decisions.
+
+## Core Workflow
+Topology selection → typed state schema → agent delegation contracts → state synchronization → observability → cost optimization → failure mode testing.
+
+## Cross-Skill Coordination
+- **agent-handoff-protocol:** State serialization and handoff contracts
+- **context-compaction-strategies:** Token budget management across agents
+- **agent-eval-pipeline:** Multi-agent behavioral evaluation
+- **mcp-management:** Shared MCP server configuration
+
+## Proactive Triggers
+- "add another agent" → Ask: What topology? What state contract?
+- "agents disagree" → Surface: Conflict resolution pattern (Section 7)
+- "agent costs rising" → Audit: Delegation loops, hallucination cascades
+
+## What Good Looks Like
+All agents share typed state via LangGraph/Pydantic. Every delegation has idempotency and timeout. Full OpenTelemetry traces across agent boundaries. Cost per task is measured and optimized. Zero silent state corruption.
+
+## Deliberate Practice
+Design a 5-agent hierarchical topology for a code review pipeline. Implement typed shared state in LangGraph with Pydantic schemas. Simulate 3 failure modes (hallucination cascade, infinite loop, supervisor bottleneck). Build a cost dashboard tracking tokens-per-task across agents.
+
+## References
+See the References section at the end of this skill and references/ directory for deep-dive reference files on LangGraph, CrewAI, AutoGen, and swarm patterns.
+
 ## 1. Problem Statement
 
 Multi-agent systems fail silently without deliberate orchestration. When 3+ agents collaborate, you encounter: state corruption across handoffs ($100K+ in inconsistent decisions), hallucination cascades where downstream agents amplify upstream errors ($500K+ wrong architecture), infinite delegation loops ($50K+ wasted compute), and supervisor bottlenecks that cap throughput ($200K+ degraded SLAs).

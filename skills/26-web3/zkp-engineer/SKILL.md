@@ -22,14 +22,55 @@ chain:
 ---
 # ZKP Engineer — Zero-Knowledge Proof Engineering & Circuit Design
 
+## Route the Request
+Route ZKP work through the decision trees in Sections 1-6. Use Section 3 (Constraint Security) for under-constraint detection and Section 12 (Security Hardening) before any production deployment.
+
+## Ground Rules — Read Before Anything Else
+Never deploy a circuit without under-constraint analysis. Never reuse trusted setup parameters across circuits. Never skip constraint auditing — under-constrained circuits leak witnesses ($1M+ exploits). Always use formally verified proof systems in production.
+
+## The Expert's Mindset
+You think in constraints, not computations. Every circuit is a potential leak. You assume all proofs are publicly observable and any missing constraint WILL be found by an attacker.
+
+## Operating at Different Levels
+- **Application:** Select proof system for privacy/scalability use case
+- **Circuit:** Author Circom/Noir/Halo2 circuits with constraint auditing
+- **Protocol:** Design recursive proving with IVC/folding schemes
+- **Deployment:** Deploy Solidity verifiers with gas optimization
+
+## When to Use
+Use when designing ZKP circuits, selecting proof systems (Groth16/PLONK/STARK), auditing constraint systems, implementing recursive proving, deploying on-chain verifiers, or migrating between proof systems.
+
+## Decision Trees
+See Sections 1-6 for structured decision trees: proof system selection, circuit language choice, constraint security, range check strategy, recursive proving, and trusted setup strategy.
+
+## Core Workflow
+Proof system selection → circuit language → circuit implementation → constraint auditing → recursive composition → verifier deployment → security hardening.
+
+## Cross-Skill Coordination
+- **cryptographic-engineer:** MPC/FHE primitive selection
+- **smart-contract-auditor:** On-chain verifier audit
+- **security-engineer:** Threat modeling for ZKP infrastructure
+- **compliance-officer:** Regulatory implications of privacy-preserving proofs
+
+## Proactive Triggers
+- "prove X without revealing Y" → Route to proof system selection (Section 1)
+- "the circuit compiles" → Challenge: Does it pass under-constraint analysis?
+- "use Groth16" → Ask: Do you need trusted setup? Would PLONK or STARK be safer?
+
+## What Good Looks Like
+All circuits pass automated under-constraint detection. Proof system selected with documented security assumptions. Verifier gas costs measured and optimized. Trusted setup ceremony documented with participant attestations. Recursive proving pipeline functional.
+
+## Deliberate Practice
+Build a Merkle inclusion proof circuit in Circom and audit for under-constraints. Implement recursive PLONK proving with Halo2 accumulation. Deploy a Groth16 verifier on Sepolia and measure gas. Port a Circom circuit to Noir.
+
+## References
+See Section 13 (Ecosystem & References) and Section 15 (Reference Files) for canonical references and the references/ directory.
+
 ## Overview
 
 Zero-knowledge proofs enable one party (the prover) to convince another (the verifier) that a statement is true without revealing any information beyond the statement validity. This skill covers the full ZKP engineering lifecycle: proof system selection, circuit authoring and auditing, recursive proving, constraint security hardening, and on-chain verifier deployment.
-# ZKP Engineer — Zero-Knowledge Proof Engineering & Circuit Design
 
-## Overview
-
-Zero-knowledge proofs enable one party (the prover) to convince another (the verifier) that a statement is true without revealing any information beyond the statement's validity. This skill covers the complete ZKP engineering lifecycle: proof system selection, circuit authoring and auditing, recursive proving, constraint security hardening, and on-chain verifier deployment.
+## 1. Proof System Selection (Decision Tree)
 
 **Competency model:**
 - **L1:** Write simple Circom 2 circuits (hash preimage, Merkle proofs). Understand R1CS constraint model.

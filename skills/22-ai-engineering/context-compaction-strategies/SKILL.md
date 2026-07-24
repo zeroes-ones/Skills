@@ -33,7 +33,7 @@ Request received
   └─ "compress general text" → Not this skill — use summarization tools
 ```
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|--------------------|--------------------|--------------------|
