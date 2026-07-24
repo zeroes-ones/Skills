@@ -544,6 +544,16 @@ How should CI/CD configurations be shared across repos?
 * Prototype: create the same template in your top 2 choices. Which was faster? Which produced better results?
 * Grade: Concrete recommendation with evidence = pass. "It depends" without evidence = redo.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll update the template when we have time — the existing repos are fine." | 6 months of template drift = 50 engineer-hours per quarter in manual reconciliation across 20 downstream repos. $15K-$25K/year in productivity loss from letting templates go stale. Automated sync PRs cost pennies by comparison. |
+| "More template prompts = more customization = better developer experience." | Template with 12 questions (project name, description, team, tech lead, Jira key, Slack channel, PagerDuty, etc.) sees 0% adoption. Engineers copy-paste from the last repo instead. $5K-$10K in wasted template development. Max 3-5 prompts. |
+| "Just copy-paste from the last repo — templates are over-engineering." | 20 diverging repo structures with no common conventions = 3x longer onboarding. New hires spend 2 days mapping each repo's idiosyncrasies. $25K-$50K/year in onboarding friction and cross-repo navigation cost. |
+| "Template testing is overkill — it generates code, if it compiles it works." | Broken template = every new service starts with a latent bug. 15 new services × 2 hours debugging template-generated issues = $4,500 per broken template. $10K-$25K/year if template validation isn't a CI gate. |
+| "The scaffolding tool is already picked — we don't need to compare alternatives." | Wrong template engine choice (cookiecutter vs copier vs custom CLI) locks in limitations for years. Migrating 30+ templates later costs $15K-$30K in one-time conversion. A 45-minute comparison session saves this. |
+
 ## Gotchas
 
 * **Template Drift as Technical Debt Accumulator:**

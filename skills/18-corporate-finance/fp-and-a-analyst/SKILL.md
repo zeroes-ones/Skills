@@ -372,6 +372,16 @@ Founder dilution path from seed → Series B: (1 - 0.20) × (1 - 0.24) × (1 - 0
 
 **DEEP: 10+min — War story:** A founder modeled their Series A at $40M pre-money with $10M raise. Their revenue was $2M ARR — 20x multiple. They didn't model the "comp" scenario: what comparable companies actually raised at. VCs offered $20M pre-money. The model had no downside case, so the founder couldn't negotiate from data. They took the term sheet from a position of weakness. Always model: "what multiple do I need to justify my valuation to an investor who's seen 500 deals this year?"
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "It's just a model — it'll never be exactly right" | A model with 47 hardcoded assumptions across 8 tabs produces decisions based on phantom numbers. One bad investment from wrong model outputs costs $500K-$5M+. "Directionally correct" doesn't excuse hidden inconsistency. |
+| "We'll true-up next quarter" | A $50K variance left uncorrected for 3 quarters becomes a $150K cumulative misstatement. The board loses confidence after the second "we'll fix it next time" — and the CFO is replaced within 18 months. |
+| "The trend will continue" | Revenue growing 15% YoY doesn't mean it grows 15% next year. Mean reversion, competitor launches, and macro shifts aren't in the trend line. Models that extrapolate without scenario analysis miss the 30% downside case. |
+| "The CEO just wants a number for the board" | Presenting a single-point forecast without ranges is professional negligence. When the actual lands 20% below, the question isn't "what happened?" — it's "why didn't FP&A see this coming?" Credibility loss: permanent. |
+| "Cash flow forecast? The P&L looks fine" | $500K net income with $2M in 90-day AR and $1.5M in 30-day AP = insolvency next month. P&L profitability without 13-week cash flow forecasting has killed more companies than unprofitability ever has. Cost: $50K-$200K in emergency financing. |
+
 ## Gotchas
 
 - **Annual budget built in September, approved in December, irrelevant by March** — the assumptions from Q3 are stale before Q1 starts. Rolling forecasts (updated quarterly) replace the annual budget as the primary planning tool. The annual budget sets the high-level target; rolling forecasts guide actual decisions.

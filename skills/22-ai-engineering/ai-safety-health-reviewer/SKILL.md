@@ -599,6 +599,17 @@ START: Considering using patient data to improve model performance
 - **Equity in health AI** — a dermatology model trained on images of light-skinned patients has 95% accuracy for light skin and 70% for dark skin. The model is "92% accurate overall" but systematically misdiagnoses Black patients. Disaggregate performance metrics by demographic: accuracy, sensitivity, specificity for EACH group separately. **Total cost: $5M-$50M in civil rights litigation, FDA consent decree costs, and market withdrawal for biased medical AI systems.**
 - **"Symptom checker says I'm fine"** — the AI says "your symptoms are consistent with a common cold, monitor at home." The patient has meningitis (same early symptoms). They don't seek care until it's severe. The AI didn't include "go to the ER if X, Y, Z develop" because the safety net was in the fine print. Safety nets must be prominent, not footnotes. **Total cost: $2M-$20M in wrongful death litigation and product liability claims when AI triage tools miss life-threatening conditions.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The model was fine-tuned on peer-reviewed medical literature, so clinical safety is baked in" | Fine-tuning on literature teaches domain vocabulary, not clinical judgment — models still hallucinate drug interactions, contraindications, and dosing with dangerous confidence |
+| "We added a disclaimer saying this isn't medical advice, liability is covered" | Users ignore disclaimers under cognitive load; a confident-sounding model output about symptoms or treatment creates de facto clinical reliance regardless of legal text |
+| "The model refused to answer a harmful query in testing, so the safety filter works" | Single-turn refusal tests miss multi-turn grooming attacks where harm is built incrementally across conversation context without any single toxic message |
+| "Our RLHF data includes safety examples, the model is aligned" | RLHF teaches politeness, not safety reasoning; the model learns to phrase dangerous advice courteously rather than recognizing and refusing it |
+| "We're generating educational content, not clinical decisions — safety review is overkill" | Educational content about health conditions is indistinguishable from medical guidance to patients; a wrong explanation of disease progression causes real-world harm |
+
+
 ## Verification
 
 - [ ] Performance: accuracy, sensitivity, and specificity disaggregated by age, gender, race/ethnicity, and language

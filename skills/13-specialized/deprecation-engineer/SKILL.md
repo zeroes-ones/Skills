@@ -403,6 +403,16 @@ Bad alternative (anti-pattern):
 
 5. **Expand-Contract Pattern Drill:** Take a database schema change that would normally be breaking (rename column, split table). Design an Expand-Contract migration: Phase 1 (Expand): add new column/table alongside old. Phase 2: write to both. Phase 3: read from new, fall back to old. Phase 4 (Contract): remove old column/table. Time each phase and identify the rollback point at each step.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Nobody uses that endpoint anymore — just delete it." | Intuition is not data. Three critical internal services still call it, and the deletion cascades through the payment pipeline. Cost: **$25K-$150K** in downtime, emergency fixes, and SLA credits. Never delete based on intuition — instrument, monitor for 30+ days, confirm zero invocations. |
+| "We can deprecate next quarter — it's not urgent." | Every quarter of delay adds 25% more consumers to the deprecated surface. What was 3 services becomes 8, and the migration grows from a sprint to a multi-quarter program. Cost: **$50K-$200K/year** in compounding deprecation debt that gets exponentially harder to unwind. |
+| "One more feature flag won't hurt — it's just a boolean." | The codebase accumulates 200+ flags, 80% ON at 100%. Every new feature must be tested against 2^200 theoretical combinations. QA spends 40% of time managing flag permutations. Cost: **$50K-$200K/year** in wasted QA time and slower release velocity. Every flag needs a sunset date. |
+| "Let's just ship the breaking change — consumers can adapt." | Engineering sets a 30-day window because "the migration is simple." Enterprise customers with change control boards need 90-120 days. They can't meet the deadline and escalate to their account executives. Cost: **$50K-$200K** in account management time and potential customer churn. |
+| "That dead code isn't costing us anything — it's just sitting there." | 12% dead code in a high-traffic microservice still executes CPU cycles on every request. At 10K req/s, that's 1.2 wasted servers continuously. Across 50 services over a year: **$30K-$100K/year** in unnecessary cloud compute. Dead code is a recurring infrastructure tax. |
+
 ## Gotchas
 
 - **Deleting code that is still called in production causes an immediate outage.** A developer deletes a deprecated endpoint that "nobody uses anymore" based on intuition, not data. Three critical internal services still call it, and the deletion causes a cascade of failures across the payment pipeline. **Total cost: $25,000-$150,000 in downtime, emergency fixes, and SLA credits.** Fix: Never delete based on intuition. Instrument with counters, monitor for at least 30 days across all environments. Only delete after confirming zero invocations.

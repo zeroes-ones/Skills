@@ -452,6 +452,16 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 
 - **The composition confusion problem.** A user-invoked skill listing 5 model-invoked skills without orchestration pattern causes the model to invoke all 5 simultaneously — 5x context budget and conflicting outputs. **Total cost: $2-$50 per invocation in excess API costs, plus $200-$2,000 in engineer time reconciling conflicts. Fix: specify orchestration pattern in chain section: sequential vs parallel vs conditional.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "The skill is clear to me, so the model will understand it" | Models don't share your context; instructions that feel obvious to you are ambiguous to an LLM with zero prior knowledge of your intent |
+| "I'll add examples later, the rules are enough" | Rules without examples are guidelines the model rationalizes away; one concrete counterexample prevents 10 misinterpretations |
+| "Longer skills are more thorough" | Skills over 500 lines suffer from context dilution; the model forgets early instructions by the time it reads later ones |
+| "If the model violates a rule, I'll add a stronger warning" | Stronger language doesn't work; only mechanical triggers (grep checks, filesystem verification) change model behavior |
+| "This edge case is so obvious I don't need to document it" | The undocumented edge case is the one the model hits at 3 AM in production; every observed failure pattern must be encoded |
+
 ## Verification
 
 - [ ] **Description audit:** "Use when / Handles / Do NOT use" format. No process language. Triggers are situations.

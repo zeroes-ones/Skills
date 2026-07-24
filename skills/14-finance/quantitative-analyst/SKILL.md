@@ -450,6 +450,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every quarter, take a system you built 6+ months ago and redesign it from scratch with what you know now. Write down what changed and why.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The backtest looks great — ship it" | A single-path backtest showing 15% max drawdown hides a Monte Carlo 95th-percentile drawdown of 35%. Look-ahead bias alone turns a Sharpe of 2.1 into 0.3 live. Cost of deploying an unvalidated strategy: $4M-$30M in losses and permanent reputation damage. |
+| "5bps slippage is conservative enough" | Transaction costs calibrated in calm markets become 85bps during a volatility spike. A market-neutral fund burning 200% monthly turnover loses 13% of AUM in one volatile quarter. Regime-aware cost models are not optional. |
+| "Correlation is 0.95 — these are highly correlated" | Two trending price series produce 0.95 correlation; their returns correlate at 0.2. Spurious correlation from non-stationary data drives portfolio construction — and the "diversified" portfolio concentrates risk in one factor. |
+| "Sharpe of 2.5 with 200 parameter combos — this is the one" | 4,000 total optimizations across walk-forward windows produce 200 expected false positives at p=0.05. The "best" is mostly noise. Out-of-sample Sharpe drops to 0.1, costing $1.5M-$5M in live trading losses over 12 months. |
+| "I only tested a few variations — no need for multiple-testing correction" | 100 untracked parameter tweaks still generate 5 false positives. Every hypothesis tested, formal or informal, inflates the false discovery rate. Bonferroni or Benjamini-Hochberg correction is non-negotiable above n=10 tests. |
+
 ## Gotchas
 
 - **Correlation matrix on non-stationary data** — you calculate the correlation between two stock prices (both trending up) and get 0.95. "They're highly correlated!" No — they're both trending. The correlation of their RETURNS is 0.2 (effectively unrelated). Always compute correlations on stationary transforms (returns, differences).

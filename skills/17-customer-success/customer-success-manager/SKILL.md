@@ -312,6 +312,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Every Friday, identify the one thing that created the most friction this week and eliminate it before Monday.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The customer is always right — give them what they ask for" | Building every custom feature request turns your product into a fragmented consulting engagement. 60% of requested features are used by one account. Say yes to outcomes, not feature requests. Custom work that doesn't scale costs you your product roadmap. |
+| "Churn is inevitable — focus on acquisition" | A 5% monthly churn rate compounds to 46% annual churn. Acquiring to replace churned logos costs 5-7x more than retaining existing ones. Net Revenue Retention below 100% means you're shrinking — and no amount of new logos fixes a leaky bucket at scale. |
+| "Support is a cost center — minimize spend" | CS teams measured on touchpoint counts deliver theater, not outcomes. 800 "touches"/month with zero NRR impact costs $300K-$600K in salaries + $1M-$3M in missed expansion. CS is a revenue function when measured on adoption and expansion — not activity. |
+| "NPS is our North Star — it covers everything" | A health score with 15 equally weighted signals flags a Fortune 500 account as "red" because one intern gave a low NPS. 4 hours of leadership time wasted on false positives while real churn signals go undetected. Cost: $200K-$800K in missed preventable churn. |
+| "More CSMs = better retention — hire to maintain ratio" | Scaling from 200 to 800 accounts by hiring 12 more CSMs costs $1.2M/year — but 60% of those accounts are $5K-$15K ARR. You're spending $6K/year per CSM to retain a $10K account. Digital-only CS for sub-$25K accounts, or the unit economics invert. |
+
 ## Gotchas
 
 - **Onboarding measured by "time to first login"** — the customer logged in once, poked around, and never came back. Time-to-first-VALUE is the metric: when did the customer achieve the outcome they bought your product for? For a CRM: first deal closed. For analytics: first dashboard built. Login ≠ activation.

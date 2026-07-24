@@ -676,6 +676,16 @@ Cloud Practitioner                     Cloud Security Architect
 +------------------+                    +-----------------------+
 ```
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We're not a target — we're a startup/SMB, attackers go after enterprises." | Automated scanners don't discriminate by company size. Every public IP, every S3 bucket, every exposed API is scanned continuously. $50K-$500K in crypto mining, ransomware, and data theft from opportunistic attacks that hit organizations of all sizes. |
+| "Security controls will slow down our engineering velocity — we'll add them later." | One breach costs 10-50x what a year of proactive security investment would have cost. GDPR fines alone reach 4% of annual revenue. $1M-$5M per breach vs. $100K-$200K/year in security engineering. The math is devastating. |
+| "This infrastructure is internal-only — no external exposure, so it's fine." | Lateral movement from a single compromised developer laptop reaches "internal" systems in minutes. VPN, bastion host, or compromised CI pipeline all provide the bridge. $100K-$500K in internal-system compromise that started with "it's internal, it's fine." |
+| "We'll enable CloudTrail, Security Hub, and GuardDuty next sprint — they're just logging tools." | 6 months without audit logging = zero forensic capability after a breach. Can't determine what was accessed, when, or by whom. Breach notification becomes a worst-case-scenario disclosure. $200K-$1M in regulatory fines and legal exposure from inability to scope the breach. |
+| "Default AWS settings are secure — AWS wouldn't ship insecure defaults." | Pre-2023 accounts had S3 Block Public Access disabled by default. Default security groups allow all outbound traffic. Default VPCs create public subnets with automatic public IP assignment. $1M-$5M from a single public S3 bucket exposure containing customer data — the most common and most devastating cloud misconfiguration. |
+
 ## Gotchas
 
 ### IAM Gotchas

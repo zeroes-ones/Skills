@@ -743,6 +743,16 @@ START: Selecting analytics data store architecture
 - **Row-level security (RLS)** in Looker via `access_filters` applies at QUERY time, not at explore time. A user who can't see `region: APAC` can still see COUNT(DISTINCT region) = 5 and deduce the existence of hidden regions. Aggregate metrics leak information through cardinality.
 - **Power BI `import mode`** loads the FULL dataset into memory. A 500MB dataset on a shared capacity node with 4GB RAM leaves 3.5GB for ALL other reports. One dataset can starve every other report on the node. Monitor dataset sizes and enforce refresh schedules to prevent overlap.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The dashboard shows green metrics so we're good" | Dashboards show what you measure. Unmeasured failures — silent data corruption, partial pipeline outages, duplicate ingestion — are invisible. Green widgets create complacency about the problems you aren't tracking. |
+| "The data warehouse has all the data, we can query later" | Unmodeled raw data takes 45+ minutes per ad-hoc query. Business users give up and make decisions on gut feeling. The data exists, but it's practically inaccessible without modeled tables, aggregates, and query optimization. |
+| "Self-service BI means anyone can build their own reports" | Self-service without governance produces 47 conflicting definitions of "revenue." The CEO asks Finance, Sales, and Product and gets three different numbers. Trust in data evaporates when every department has their own truth. |
+| "We refresh dashboards daily — that's real-time enough" | Daily refresh means Monday morning's dashboard shows Friday's data. A weekend pricing error, fraud spike, or inventory depletion goes undetected for 72 hours while the business operates on stale information. |
+| "The data pipeline succeeded — data must be correct" | A green pipeline means the job ran, not that the data is right. Silent schema drift, duplicate ingestion, NULL-creating JOINs, and timezone misalignment all produce "success" status with garbage output. Pipeline success ≠ data correctness. |
+
 ## Verification
 
 - [ ] Dashboard load test: open dashboard in production — all charts render within 5 seconds

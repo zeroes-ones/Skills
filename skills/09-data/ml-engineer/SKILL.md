@@ -368,6 +368,17 @@ What matters most for this problem?
 - **Cross-validation score ± std doesn't account for data overlap.** The CV standard deviation estimates variance across folds of the SAME dataset, not generalization to new data. It's almost always an underestimate of true variance.
 - **`sklearn.metrics.accuracy_score` for multiclass includes diagonal only.** For a 10-class problem, 85% accuracy sounds great — but if one class is 80% of data, the model could be 0% accurate on the other 9 classes. Always report per-class metrics.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The model has 99% accuracy on the test set, safety testing can wait" | Accuracy metrics don't measure harm; adversarial examples at 0.01% rate cause catastrophic failures at scale, and test-set leakage inflates reported numbers beyond production reality |
+| "We use human feedback, so the model is aligned" | RLHF aligns surface behavior, not deep representations; jailbreaks bypass polite-refusal training in minutes, and feedback raters share cultural biases the model amplifies |
+| "Feature engineering is obsolete — deep learning learns it all" | Automated feature learning works for raw perceptual data (images, audio, text); tabular, sensor, and industrial data still require domain-informed feature engineering that deep nets miss |
+| "We'll fix the data drift in the next retraining cycle" | Drift compounds silently between retraining cycles; by the time retraining catches up, the model has been serving degraded predictions for weeks — online monitoring with automatic rollback is mandatory |
+| "Reproducibility is a research problem, not an engineering one" | Non-deterministic training (GPU parallelism, random seeds, library versions) creates deployment drift where staging results don't match production — reproducibility is a production reliability requirement |
+
+
 ## Verification
 
 After training a model, run this sequence. Do not proceed past a failure.

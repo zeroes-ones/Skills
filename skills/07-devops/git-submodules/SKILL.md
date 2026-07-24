@@ -537,6 +537,16 @@ Phase 6: Subtree bidirectional
   Goal: Experience the pain firsthand — internalize when NOT to use subtree
 ```
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll just use submodules without formal training — how hard can it be?" | Detached HEAD confusion alone costs $10K-$30K/year in lost engineering time for a 20-person team. Submodules have a counterintuitive mental model that bites every newcomer. |
+| "Nobody force-pushes to our submodule repos — we have branch protection." | One missed protection, one force-push, and every consumer repo points to nonexistent commits. Manual recovery across 5+ consumer repos = $25K-$100K per incident in cross-team coordination. |
+| "We'll document the submodule workflow in the wiki — engineers will read it." | Nobody reads wiki docs before running `git submodule update`. Tribal knowledge drifts, and every new hire rediscovers the same footguns. $15K-$30K/year in repeated mistakes that documentation alone won't prevent. |
+| "Git subtree is too complex — we'll stick with submodules." | Submodules are the wrong tool for tightly coupled code. Merge pain, serial CI fetches, and detached HEAD support overhead cost $20K-$50K/year compared to subtree or monorepo tooling for the same use case. |
+| "We'll automate submodule updates in CI — manual coordination is just temporary." | Temporary becomes permanent. Without CI-enforced submodule sync, 20+ repos diverge within weeks. $15K-$40K/year in CI time from serial `--recursive` clones plus $10K-$30K in integration failures from stale submodule pins. |
+
 ## Gotchas
 
 * **Submodule detached HEAD is the default, not a bug.** Git submodules pin to a specific commit SHA by design. Without `branch = main` in `.gitmodules`, every `git submodule update` puts you back in detached HEAD. Teams waste hours on this because it looks like an error but is actually expected behavior. **Total cost: $10K-$30K in lost engineering time per year for a 20-person team debugging "mysterious" detached HEAD states.**

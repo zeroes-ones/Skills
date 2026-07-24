@@ -414,6 +414,16 @@ graph LR
 - **Pod deletion in Kubernetes** sends SIGTERM, waits `terminationGracePeriodSeconds` (default 30s), then SIGKILL. A chaos experiment that deletes a pod with default grace period may not trigger graceful shutdown bugs — apps with 60s cleanup may work fine in chaos but fail in real deployments. Test with `gracePeriodSeconds: 0` to find shutdown bugs.
 - **Chaos experiments that only target stateless services while ignoring databases, message queues, and caches.** A team runs pod-kill and network-latency experiments on their 12 microservices every sprint and achieves 99.9% resilience scores — but never touches the PostgreSQL primary, the Kafka cluster, or the Redis cache. When a real production incident causes a Kafka partition leader election storm during peak traffic, the event-driven architecture crumbles: message backlogs spike to 2M undelivered events, consumer lag exceeds 30 minutes, and order-processing pipelines grind to a halt. The chaos dashboard is green while the business is on fire. **Total cost: $75K-$500K in business-impacting data-plane failures that chaos experiments never anticipated.** Design chaos experiments explicitly for stateful infrastructure: database primary failover, Kafka partition rebalancing, Redis sentinel promotion, and queue-backpressure scenarios. Stateful chaos requires stateful readiness — test connection-pool draining, leader-election timeouts, and write-quorum degradation separately from stateless pod cycling.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Chaos engineering is for Netflix, not us — we have 200 users" | 90% of outages at small companies are caused by config changes, not scale. Chaos testing a config rollback would catch the exact failure mode that takes down small teams every week. |
+| "We test in staging, that's enough" | Staging doesn't replicate production DNS resolution, CDN edge behavior, load balancer health-check thresholds, DB read-replica lag, or third-party API rate limits. Staging tests your code; chaos tests your system. |
+| "Our uptime is 99.9%, we don't need chaos testing" | Uptime measures past performance. Chaos testing measures future resilience. The worst outage hasn't happened yet — and historical uptime says nothing about whether your team can recover from it. |
+| "We do load testing — same thing" | Load testing answers "can we handle traffic?". Chaos testing answers "what breaks and how do we recover?". They test orthogonal dimensions. A system that survives 10K RPS can still be taken down by a single DNS misconfiguration. |
+| "Chaos experiments are too dangerous for production" | Not running chaos experiments is more dangerous. You're practicing incident response for the first time during a real outage at 3 AM with no runbook, no muscle memory, and executive stakeholders on the bridge. |
+
 ## Verification
 
 - [ ] Chaos experiment manifest validates: `chaos-mesh validate experiment.yaml` or equivalent — no syntax errors

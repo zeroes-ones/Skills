@@ -364,6 +364,17 @@ EVERY AI FEATURE MUST PASS THESE BEFORE DEPLOYMENT:
 - **LangChain's `ConversationBufferMemory` grows unbounded.** Every message is appended, blowing up token usage. A 100-message conversation has ~20K tokens of just history. With GPT-4o at $2.50/1M input tokens: $0.05/request vs $0.005 with windowed memory (last 10 messages). At 100K requests/day, that's **$5,000/day vs $500/day → $1.64M/year difference**. Switch to `ConversationSummaryBufferMemory` or implement sliding window with `max_tokens=2000`.
 - **Anthropic's `max_tokens` is REQUIRED, not optional.** Forgetting it throws a 400 error: "`max_tokens` is required." OpenAI defaults to model max; Anthropic does not. Discovery in production = **3am pager, 1-2 hours to diagnose, $500-$2,000 in engineer time** + revenue lost during partial outage. Always set `max_tokens` explicitly for every LLM call — it's good practice across all providers. Add to your integration checklist: ☐ `max_tokens` set on every call.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll add evaluation after the MVP ships — evals slow down iteration" | Without evals, you don't know if iteration is forward or backward; every prompt change, model swap, or retrieval tweak is a blind bet on quality |
+| "The model handles that edge case fine in my manual testing" | Manual testing of 10-20 prompts cannot detect the long-tail failure modes that affect 0.5% of users but generate 80% of support tickets and safety incidents |
+| "We use the latest model, so we get the best behavior automatically" | Newer models shift failure modes, they don't eliminate them; a model upgrade changes what breaks, not whether things break — regression testing is non-negotiable |
+| "Prompt engineering is good enough — we don't need structured output or function calling" | Unstructured text parsing creates silent failures when models change output format; every regex on LLM output is a latent production incident waiting for the next model update |
+| "Latency and cost optimization can wait until we have traffic" | Architecture decisions made for speed (no streaming, oversized context windows, synchronous chains) become technical debt that requires full rewrites when traffic arrives |
+
+
 ## Verification
 
 After building an AI feature, run this sequence. Do not proceed past a failure.

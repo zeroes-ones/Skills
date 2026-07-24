@@ -350,6 +350,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: Once a month, onboard a new hire yourself using only your platform. Time every step. The friction you feel is what every developer feels every day.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Build the platform first, drive adoption later — engineers will see the value." | $1.2M and 18 months later, 2 of 12 teams adopt. The other 10 cite "our workflow works fine." Without treating the IDP as a product — user research, internal marketing, adoption metrics — the platform becomes $500K-$2M in shelfware. |
+| "Developers will use whatever we give them — they don't have a choice." | Mandated platforms without developer experience investment see 80%+ abandonment through workarounds. Engineers route around bad UX. $300K-$800K/year in duplicated infrastructure because the "mandatory" platform sits unused. |
+| "Golden path templates don't need versioning — we'll update them in place." | Unversioned template updates silently break 50+ previously-scaffolded services. Teams that scaffolded last month can't use this month's guide. $50K-$150K in drift reconciliation and confusion. Templates must be versioned like APIs. |
+| "Backstage is just a service catalog — we'll set it up in a sprint and iterate." | Uncurated auto-discovery discovers `catalog-info.yaml` in docs repos, test fixtures, and abandoned prototypes. Ghost entities flood the catalog. Engineers stop trusting it within a month. $40K-$100K in lost platform credibility. |
+| "Self-service infrastructure doesn't need quotas — engineers are cost-conscious." | One developer clicks "Create RDS" and gets a `db.r5.24xlarge` at $6,000/month because the Terraform module has no instance family constraints. $20K-$80K/year in surprise bills from unconstrained self-service. |
+
 ## Gotchas
 
 - **IDP without developer adoption — the platform tombstone** — you invest 18 months and $1.2M building an Internal Developer Platform with golden paths, self-service infrastructure, and automated CI/CD. At launch, only 2 of 12 engineering teams adopt it. The other 10 teams cite "our existing workflow works fine" and "the platform team doesn't understand our requirements." Without treating the IDP as a product with internal marketing, user research, and adoption metrics, the platform becomes shelfware — the $1.2M investment generates zero ROI, and engineers continue duplicating infrastructure setup across teams at 3x the cost of a shared platform. **Total cost: $500K-$2M in wasted platform investment plus ongoing fragmentation costs.** Treat the IDP as an internal product: interview developer users before building, measure NPS and monthly active teams, and staff a developer advocate to drive adoption with onboarding workshops and migration support.

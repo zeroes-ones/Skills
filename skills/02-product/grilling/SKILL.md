@@ -469,6 +469,16 @@ Next time your team is in a circular discussion, step in as the griller. Ask eac
 
 - **The "I'll know it when I see it" completion criterion.** Subjective completion ("feels done") guarantees unexplored branches. A startup declared their pricing model "grilled" after a 20-minute session. They had explored 6 of 14 branches. The unexplored branches included "what if a competitor drops prices by 50%?" — which happened 4 months later and cratered their conversion rate. The response cost $90K in emergency pricing changes and lost customer trust. **Total cost: $30K-$150K per subjectively-completed grilling session with unexplored branches. Prevent: the completion criterion is OBJECTIVE — every branch marked RESOLVED, DEFERRED, or ASSUMED. No exceptions.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "This idea is obviously great, we don't need to stress-test it" | Unquestioned ideas ship with fatal assumptions intact; post-launch pivots cost 10-50x more than pre-build validation |
+| "The team already thought through the risks" | Groupthink compounds blind spots; structured adversarial questioning surfaces assumptions the team didn't know they were making |
+| "We'll discover edge cases during beta testing" | Beta testers use the happy path; they won't stress-test your business model, revenue assumptions, or regulatory exposure |
+| "One round of grilling is enough" | First-round answers are rehearsed; second and third rounds expose the real gaps beneath the polished surface |
+| "Grilling is just being negative" | Structured adversarial questioning is not negativity — it's the difference between a $50K failed MVP and a $5M failed launch |
+
 ## Verification
 
 - [ ] **Ground Rules:** All 7 ground rules checked. No batched questions in transcript. No branch-skipping detected.

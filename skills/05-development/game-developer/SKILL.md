@@ -32,7 +32,11 @@ chain:
   consumes_from:
     - backend-developer
     - frontend-developer
-  feeds_into: []
+    - game-engine-architect
+    - gameplay-programmer
+  feeds_into:
+    - qa-engineer
+    - performance-engineer
   alternatives: []
 ---
 

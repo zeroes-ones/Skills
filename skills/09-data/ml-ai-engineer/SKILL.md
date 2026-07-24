@@ -417,6 +417,17 @@ graph LR
 - **Transformer attention masks** — a mask of `0` means "attend to this token" in Hugging Face, but `0` means "ignore this token" in most PyTorch implementations. Mixing libraries silently inverts the attention pattern, producing models that attend to padding tokens instead of real content. **Total cost: $5,000-$50,000 in wasted training runs — a model trained with inverted attention masks converges to garbage, wasting an entire training budget before anyone notices the validation metrics are nonsensical.**
 - **GPU memory fragmentation**: `empty_cache()` frees memory but doesn't defragment. After 100 cycles of allocating/deallocating different-sized tensors, you may have 4GB "free" but can't allocate a 2GB contiguous tensor. Restart the process or use `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. **Total cost: $20-$200 per restart cycle — each fragmentation-induced OOM requires a full process restart on multi-GPU nodes, costing 5-15 minutes of idle GPU time at $20-$200 per node-hour depending on GPU tier.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Prompt injection is the user's problem, not our infrastructure" | Prompt injection is the #1 OWASP for LLM apps; every input field — user text, uploaded files, webpage summaries, tool outputs — is an untrusted attack vector that crosses system boundaries |
+| "We'll fine-tune a smaller model to match GPT-4 quality and save costs" | Distillation and fine-tuning recover ~70-80% of teacher quality on benchmark tasks but lose emergent reasoning, instruction-following nuance, and safety alignment — the gap widens on out-of-distribution inputs |
+| "RAG solves hallucination, we don't need factuality guardrails beyond retrieval" | RAG reduces but doesn't eliminate hallucination; models override retrieved context with parametric knowledge, synthesize across documents incorrectly, and cite sources that contradict their own output |
+| "We evaluate on the same metrics the foundation model paper reports, so we're covered" | Foundation model benchmarks (MMLU, HumanEval, GSM8K) measure general capability, not task-specific reliability — your medical Q&A, code generation, or customer-facing app needs domain-grounded evals |
+| "Chain-of-thought improves accuracy, so we should always use it" | CoT increases latency 3-10x and cost proportionally; for classification, extraction, and routing tasks it adds no accuracy and wastes compute — reasoning is a tool, not a default |
+
+
 ## Verification
 
 - [ ] Training runs to completion without NaN loss or exploding gradients — monitor `grad_norm` throughout

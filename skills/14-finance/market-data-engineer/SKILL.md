@@ -500,6 +500,16 @@ graph LR
 - **Dividend adjustment sign errors in total return calculations** — your data pipeline subtracts dividends from prices instead of adding them back when computing total return. Over a 10-year backtest of a dividend-heavy strategy (REITs yielding 4%), this produces a 40% cumulative understatement of returns. A quantitative fund allocates $100M based on the flawed data, and the strategy underperforms its benchmark by 350bps annually. The error is discovered during an investor due diligence review, causing a $50M redemption. **Total cost: $5M-$50M in misallocated capital and reputational damage from dividend adjustment errors.** Fix: Implement automated reconciliation — compare your computed total return index against a trusted source (e.g., CRSP total return series) monthly; any divergence > 0.05% triggers an alert and pipeline halt.
 - **Corporate action data arriving days after the effective date** — a stock executes a 3:2 stock split on Monday. Your data vendor delivers the split factor on Thursday. For three days, your risk system computes position sizes, P&L, and margin requirements using pre-split prices against post-split positions — overstating exposure by 50% and triggering erroneous margin calls. On a $200M portfolio, a single erroneous margin call costs $15K in unnecessary liquidation and re-establishment. **Total cost: $20K-$150K per missed/delayed corporate action from erroneous margin calls, mispriced fills, and compliance reporting failures.** Fix: Subscribe to multiple corporate action feeds with different delivery schedules; implement a reconciliation process that flags any security where your position × price ≠ total value as expected; maintain a manual override for known corporate actions that haven't yet arrived via automated feeds.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Market data is public, we don't need to verify it" | A single bad tick causes cascading trading errors. $440M Knight Capital loss from untested deployment. Public does not mean clean — exchanges publish corrections, cancellations, and restatements daily. |
+| "Missing a few ticks won't matter in aggregate analysis" | Survivorship bias from missing delisted securities overstates backtest returns by 2-4% annually. Strategies that look profitable on bad data lose money in production — and you won't know until real capital is deployed. |
+| "We can backfill data gaps later, ship the pipeline now" | A trade executed on incomplete data creates permanent P&L impact. A missed corporate action on a $50M position during a stock split causes $100K+ in erroneous margin calls and mispriced fills — irreversible. |
+| "Timestamp precision to the second is fine for daily bars" | For any intraday strategy, microsecond timestamp errors create look-ahead bias in backtesting — fills appear to occur before the signal that triggered them, inflating Sharpe ratios by 30-50% and making losing strategies appear profitable. |
+| "The vendor's SLA covers data quality issues" | Market data vendor SLAs typically cap liability at 12 months of fees (~$50K). A vendor data error causing a $2M trading loss is not reimbursed — your P&L bears the full cost. |
+
 ## Verification
 
 - [ ] Timestamps: all timestamps stored in UTC with timezone offset column — no timezone-naive data

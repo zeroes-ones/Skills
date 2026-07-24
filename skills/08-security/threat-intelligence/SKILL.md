@@ -23,7 +23,7 @@ tags:
   - dark-web
   - threat-hunting
   - ransomware
-author: zeroes-ones
+author: Sandeep Kumar Penchala
 type: security
 status: stable
 version: 1.0.0

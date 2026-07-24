@@ -295,6 +295,16 @@ What interview format are you facing?
 *   **Advanced — The Follow-Up Gauntlet:** For your top 5 STAR stories, have someone ask 5 follow-up questions per story without repeating. If you repeat yourself or run out of detail, the story needs more depth.
 *   **Expert — Reverse Interview:** Conduct a mock interview where YOU are the interviewer for your target role. Design the rubric. What questions would you ask? What answers would impress you? This perspective shift reveals what interviewers actually value.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "I'll just be myself, that's what they want to see" | Authenticity without structure reads as unprepared; interviewers rate unstructured candidates 40% lower regardless of qualifications |
+| "I know my experience, I don't need to rehearse answers" | Unrehearsed answers ramble for 2-3 minutes; the interviewer's attention span for a single answer is 90 seconds max |
+| "STAR method is overrated, my stories are fine naturally" | Without STAR structure, answers lack measurable impact; interviewers remember stories with numbers, not narratives |
+| "I'll research the company the night before" | Surface-level research produces generic answers; candidates who reference specific quarterly goals and recent press get 3x callback rates |
+| "Salary negotiation is just asking for more money" | First offers leave 10-20% on the table; candidates who don't negotiate leave $500K-$1M in lifetime earnings uncompounded |
+
 ## Verification
 
 - [ ] 5-7 STAR stories prepared, each with measurable Result, each deliverable in 60-90 seconds without notes

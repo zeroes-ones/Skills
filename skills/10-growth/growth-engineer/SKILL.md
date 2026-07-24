@@ -321,6 +321,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll go viral — this campaign will take off" | Viral loops without retention are leaky buckets — 50K signups at $0.80 CAC with 4% 90-day retention means you spent $40K acquiring users generating $8K LTV at $100K-$500K in wasted acquisition. |
+| "CTR is up 35% — ship it now" | Optimizing proxy metrics without measuring revenue means you shipped a change that improved clicks but dropped net revenue per visitor 18% — $50K-$200K in lost revenue from vanity metric optimization. |
+| "It's directionally positive — p=0.12 is close enough" | A 12% chance the lift is pure noise is not close — $50K-$200K in bad product decisions from features that regress to zero impact once fully rolled out with adequate sample size. |
+| "We can run all 7 experiments at once — more learning" | Concurrent experiments with unmeasured interactions mean 3 'winners' at +5% each combine to -2% net — $60K-$250K in negative interaction effects from features that don't work together. |
+| "Analytics tracking is set up — the events are firing" | Silent event failures from a single misnamed property mean you optimize with incomplete data for weeks — $40K-$150K in misdirected effort on broken growth loops you can't see. |
+
 ## Gotchas
 
 - **A/B test without statistical significance — shipping on noise.** You run a checkout flow experiment for 3 days, variant B shows +8% conversion with p=0.12, and you declare it "directionally positive" and ship it. The p=0.12 means there's a 12% chance the observed lift is pure random noise — far above the standard α=0.05 threshold. Six weeks later, when the feature is fully rolled out with 50,000 users, the "8% lift" has regressed to a statistically insignificant 1.2%, but you've already committed engineering resources, written documentation, and trained the support team on the new flow. A single bad decision based on an underpowered test costs $50K in wasted engineering time and lost opportunity, and a growth team making 10 such decisions per year ships 3-4 features that have zero or negative impact. **Total cost: $50K-$200K in bad product decisions from false positives in underpowered or prematurely stopped A/B tests.** Pre-register every test with a required sample size (power=0.80, MDE defined), use sequential testing with adjusted stopping boundaries if peeking is necessary, and never ship a result where p > 0.05 or the confidence interval includes zero.

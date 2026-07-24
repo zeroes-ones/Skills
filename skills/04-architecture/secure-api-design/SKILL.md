@@ -651,6 +651,16 @@ API Security Learning Progression:
 
 *   **Credential stuffing undetected for weeks — the slow bleed.** Without per-account failure rate monitoring, an attacker runs a distributed credential stuffing attack from 1,000 residential proxies, attempting 1 login per account per hour across 10,000 accounts. No single account triggers rate limiting. Over 2 weeks, 800 accounts are compromised (8% credential reuse rate). The attack looks like normal login failures. **Total cost: $200K-$1.5M — 800 account takeovers, fraudulent transactions, customer support burden, regulatory reporting for mass account compromise within 2 weeks.** Fix: Monitor global auth failure rate AND per-account failure rate. Alert when: (>50 failed logins/sec globally) OR (>3 failed logins per account per hour) OR (login attempts from >5 countries for the same account within 1 hour). Implement progressive delays, not just hard rate limits.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We pass API keys in a custom header — it’s the same as OAuth2 for server-to-server traffic" | API keys lack built-in expiration, audience restriction, and revocation; a leaked key is permanent until someone manually rotates it in every consuming service |
+| "Rate limiting is handled at the cloud load balancer — we don’t need per-endpoint throttles" | LB rate limits are blind to endpoint cost; under a single shared bucket, one cheap /health call can starve an expensive /report endpoint for all tenants |
+| "Our GraphQL query depth limit is set to 10 — that prevents all known DoS vectors" | Breadth-based attacks — 1,000 aliased fields at depth 1, or a single mutation triggering cascading resolvers — bypass depth limits entirely |
+| "We return generic HTTP 500 with no body — giving error details helps attackers fingerprint the stack" | Generic errors blind your own on-call engineers during incidents; structured error codes with opaque correlation IDs aid debugging without leaking internals |
+| "We validate the JWT signature on every request — that’s all the spec requires" | Signature validation alone accepts tokens minted for other audiences or already expired; skipping iss, aud, and exp checks means the token could be stolen from another service |
+
 ## Verification
 
 After designing or reviewing API security, run this sequence. Do not proceed past a failure.

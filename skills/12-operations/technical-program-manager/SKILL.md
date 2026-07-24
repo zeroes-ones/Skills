@@ -363,6 +363,16 @@ graph LR
 - **OKRs set at the program level** that cascade to teams — a program OKR of "99.9% availability" splits across 5 teams. All 5 teams hit 99.9%, but the COMBINED system has 99.5% because you multiplied availabilities (99.9%^5 = 99.5%). System-level OKRs can't be decomposed by simple division. **Total cost: $400,000-$2,000,000 per year** in unplanned downtime — 99.5% availability means 44 hours of outage/year vs the 8.8 hours leadership expected, costing $45,000+/hour in revenue for mid-market SaaS.
 - **Program without a single source of truth** — schedule in Jira, risks in a spreadsheet, decisions in Slack threads, and action items in meeting notes. Status syncs consume 40% of the TPM's week just reconciling data. **Total cost: $100,000-$250,000 per year** in TPM overhead and delayed decisions from fragmented program data.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "The timeline is aggressive but we'll figure it out" | Aggressive timelines without risk buffers and dependency slack have 80%+ failure rates; the TPM's core job is to surface the gap between ambition and capacity, not to cheerlead the optimistic plan. |
+| "I don't need to attend that meeting — I'll catch up from notes" | TPMs who skip key stakeholder meetings lose the informal influence that makes cross-team programs succeed; alignment decisions happen in the room through real-time negotiation, not in the minutes distributed afterward. |
+| "We'll handle cross-team dependencies when we get there" | Unresolved dependencies discovered mid-execution add 4-8 weeks of delay per dependency; dependency mapping and interface contracts defined during planning prevent 80% of mid-program integration crises. |
+| "The status report can wait until next week" | A missed status cycle means stakeholders fill the information vacuum with worst-case assumptions; program confidence erodes within 48 hours of silence and takes 4x longer to rebuild than to maintain. |
+| "We don't need a formal risk register — everyone knows the risks" | Unrecorded risks are unmanaged risks; risks that aren't written down, assigned owners with mitigation plans, and reviewed bi-weekly become fires at the worst possible moment — 90% of program crises were identified as risks 6 weeks earlier but never tracked. |
+
 ## Verification
 
 - [ ] Program schedule: critical path identified — any delay to critical path tasks escalates within 24 hours

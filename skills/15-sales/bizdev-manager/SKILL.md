@@ -406,6 +406,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Write a pre-mortem for your current strategy: It is 2 years from now. Our strategy failed. Why?
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "A strategic partnership will unlock growth" | A company that rejected your product as a customer won't become a great partner. Partnerships amplify existing traction — they don't create it. If they didn't see value as a buyer, their customers won't either. |
+| "Channel partners will figure out our product" | Partners make money selling, not learning. A 6-month onboarding requiring product mastery, sales methodology, and support escalation paths = zero pipeline for 2 quarters. Onboarding must be under 2 weeks with pre-built playbooks. |
+| "MDF spend is relationship building — ROI comes later" | $50K in MDF for a webinar series producing 2 leads. Same $50K buys 2 trade show booths with 500 leads. Every MDF dollar without pre-agreed success metrics and clawback provisions is a gift, not an investment. |
+| "Partner-sourced leads are free — pure margin upside" | A $120K deal at 20% rev share pays $24K to the partner — but SE, AE, and legal labor adds $18K in hidden costs. Net margin: 35% vs 50% direct. Track fully-loaded cost per channel or your "free" leads are your least profitable. |
+| "More resellers = more revenue — sign them up" | A reseller already selling a competing product to 60% of their base pitches yours as option #2. $80K in enablement investment yields $500K-$1.5M in opportunity cost from pipeline that never materializes. Audit competitive overlap before signing. |
+
 ## Gotchas
 
 - **"Strategic partnership" as a euphemism for "we couldn't sell to them"** — a company that rejected your product as a customer won't become a great partner. If they didn't see value as a buyer, their customers won't see value either. Partnerships amplify existing traction, they don't create traction from nothing.

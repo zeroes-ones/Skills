@@ -507,6 +507,16 @@ Total time: 25 minutes. Regression protection: permanent.
 4. **Rubber Duck Recording:** Next time you are stuck on a bug, record yourself (audio only) explaining the bug to an imaginary colleague. Listen to the recording. Identify the moment where you said "should" or "I assume" — that is your unverified assumption. Test it.
 5. **Crash Dump Analysis:** Download a core dump or heap dump from a production crash. Use the appropriate tool (lldb, gdb, Chrome DevTools Memory, Eclipse MAT) to identify: (1) the crashing thread, (2) the exact line, (3) the state of relevant variables. Production debugging without a debugger is an essential skill.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "It works on my machine — the fix is correct." | Your machine lacks production data, traffic patterns, config, network latency, and scale. Race conditions, connection pool exhaustion, and OOM bugs pass locally every time. Cost: **$20K-$100K** in rollback + incident response for a fix that passes local but fails in prod. |
+| "QA will catch it — that's what the QA phase is for." | QA finds ~30% of bugs. The other 70% ship to production and are discovered by users at 10x the fix cost. Offloading quality downstream is the most expensive testing strategy. Cost: **$50K-$200K/year** in production incidents that should have been caught earlier. |
+| "I'll just add a try-catch and move on — the error is handled." | A try-catch that swallows the exception converts a visible error into silent data corruption. The error still occurs, but now nobody knows. Cost: **$15K-$75K** in silent data corruption discovered weeks later when reconciliation fails. |
+| "It's a one-line fix — no need for a regression test." | The one-liner changes return type semantics, and every caller that didn't handle the new null/unexpected value now has a latent bug. Cost: **$50K+** in cascading failures from a "safe" fix that had no test coverage. |
+| "I can't reproduce it — closing the bug as 'cannot reproduce.'" | A non-reproducible bug is not fixed — it is waiting. Without instrumentation at the suspect site, it will recur with zero additional data. Cost: **$5K-$25K** for each recurrence that could have been caught with structured logging or a Sentry alert. |
+
 ## Gotchas
 
 - **Adding try/catch without understanding the error.** A try/catch that swallows the exception (empty catch block) converts a visible error into silent data corruption. The error still occurs, but now nobody knows. **Total cost: $15,000-$75,000 in silent data corruption discovered weeks later.**

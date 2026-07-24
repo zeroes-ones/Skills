@@ -492,6 +492,16 @@ Set up a scenario with 5+ interrelated conflict hunks across 3 files. Resolve th
 ### Exercise 5: The No-Abort Challenge (45 min)
 A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic traps). Resolve it from inventory to completion without using `--abort`. Time yourself. Review each resolution decision afterward.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "`git merge --abort` and restart — it's cleaner than working through the mess." | Every resolved hunk is lost. 2 hours of careful conflict resolution = $300 in direct time wasted, plus $14,700+ in delayed feature delivery if the merge was on a release critical path. Abort should be the last resort, not the first reflex. |
+| "Just `git checkout --ours` on everything — we'll review the other side's changes later." | Blindly accepting "ours" discards the other branch's intent entirely. If their side fixed a critical bug or implemented a dependency your team needs, you've reintroduced the bug or lost the feature. $5K-$50,000 per incident. |
+| "The merge looks clean — no conflicts reported, so nothing to worry about." | Git only detects textual conflicts, not semantic ones. Two branches that rename the same function to different names, or add incompatible assumptions about a data structure, merge cleanly and fail at runtime. $10K-$30K in post-merge debugging. |
+| "I don't need to understand what the other branch was trying to do — just resolve the markers." | Mechanical conflict resolution without understanding intent produces syntactically valid, semantically broken code. $5K-$25K in production bugs traced back to merge-resolution decisions made without context. |
+| "We'll handle the merge conflicts during the release window — there's not that many." | Late-stage merge under time pressure forces rushed decisions. Quality of resolution drops, testing gets skipped, and regressions slip through. $15K-$40K in post-release hotfixes and rollbacks that a calm, pre-window merge would have avoided. |
+
 ## Gotchas
 
 ### Gotcha 1: The --abort reflex ($15,000+)

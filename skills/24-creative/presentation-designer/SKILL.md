@@ -333,6 +333,16 @@ What type of data story are you telling?
 
 **What good looks like:** The audience can summarize the presentation in one sentence 24 hours later. Every slide passes the 3-second test. Data slides have headlines that state insights, not topics. The presentation has an emotional arc — tension builds, gets resolved. Speaker notes read like a natural conversation, not a script. Zero stock photos. The call-to-action is crystal clear. The deck could be presented by someone who's never seen it before, using only the speaker notes, and the audience would still get the message.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "More slides = more thorough" | Audience attention collapses after slide 20; a 60-slide deck guarantees the last 40 slides are never remembered — 10 great slides beat 60 mediocre ones |
+| "Dense slides show we did the work" | Walls of text signal you couldn't prioritize; audiences read slides instead of listening to you — every bullet point beyond 3 per slide costs 10% of speaker attention |
+| "The deck will speak for itself if shared afterward" | Slide decks are props for live presenters, not documents; a deck designed for projection fails as a standalone read — 90% of forwarded decks are incomprehensible without the speaker |
+| "Fancy animations and transitions make it professional" | Motion for motion's sake adds cognitive load, not polish; every transition without narrative purpose costs audience focus |
+| "I'll design as I build the content" | Simultaneous content creation and design produces inconsistent visuals; separating content outline from visual design halves production time and doubles quality |
+
 ## Verification
 
 Run these checks before considering any presentation complete:

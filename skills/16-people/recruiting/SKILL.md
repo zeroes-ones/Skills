@@ -371,6 +371,16 @@ graph LR
 
 **The One Highest-Leverage Activity:** Maintain a decision journal. For every significant decision: what you decided, why, what you expect to happen, and what actually happened.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We hire for culture fit — it's about values alignment" | Without structured criteria, "culture fit" becomes "people like us." You screen out the startup engineer who scaled from 10 to 10M users with 3 people and no budget. Culture ADD, not culture fit — what's missing from the team, not who mirrors it. |
+| "We only hire from top-tier companies — it's a quality filter" | FAANG pedigree ≠ individual capability. You're paying a 20-30% brand premium for candidates whose impact was diluted across 50-person teams, while missing the solo builder who shipped more with less. Screen for impact in context, not logo recognition. |
+| "The job description is aspirational — we'll take 7/10" | "10+ years Kubernetes, 5+ Rust, 3+ WebAssembly" filters OUT the 99% of qualified candidates who check 7/10 boxes — because they self-reject before applying. List ≤5 must-haves. If a skill can be learned in 3 months, it's a nice-to-have. |
+| "They'll understand — we're swamped with interviews" | Ghosting a final-round candidate for 18 days produces a Glassdoor review, a LinkedIn post to 800+ connections, and 3 pipeline withdrawals. One bad review reduces qualified applicants by 10-20% for 6-12 months. Cost: $50K-$200K/year in degraded pipeline. |
+| "Internal recruiting is expensive — agencies are faster" | 10 agency placements at $150K salary = $300K-$450K in fees vs. ~$180K for an in-house senior recruiter + sourcer. Referral hires cost $3K-$5K and ramp 25% faster with 45% lower first-year attrition. Agencies are 5-10x more expensive per hire. |
+
 ## Gotchas
 
 - **The true cost of a bad hire isn't just severance.** A bad hire at a $150K salary costs 30-50% of first-year compensation in recruiting fees, onboarding, lost team productivity, manager time, and rehiring. For a $150K role, that's $45K-$75K in direct costs — and 2-3x that when factoring in team morale and missed deliverables. **Total cost: $45K-$150K per bad hire.** Use structured interviews with scorecards and reference checks; gut-feel hiring amplifies this risk.

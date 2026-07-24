@@ -298,6 +298,16 @@ graph LR
 
 **The One Highest-Leverage Activity**: After every retro, track whether the team's #1 action item was actually completed before the next retro. Completion rate is your effectiveness metric. If it's below 80%, you're facilitating discussions, not facilitating change.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Agile means no planning — we adapt as we go" | Zero planning produces features that solve the wrong problem — $250K-$1M per release in scrapped features and re-implementation that early stakeholder feedback would have prevented. |
+| "Velocity going up means the team is more productive" | Velocity measures estimation consistency, not output — teams inflate estimates by 33% to look good at $150K-$500K/year in wasted engineering from gaming the metric. |
+| "We'll discuss the improvement in the next retro" | Recurring retro topics without owners repeat across 6+ sprints — $100K-$300K/year in inefficiencies that compound because nobody is accountable for fixing them. |
+| "Standup is for status updates to the Scrum Master" | Status-report standups waste 15 min/day per person with zero team coordination — $80K-$200K/year in meeting overhead for a 9-person team when the SM becomes a bottleneck. |
+| "We committed to 8 stories — we must deliver all 8" | Treating sprint forecast as a contract incentivizes cutting quality and skipping testing — $200K-$750K/year in technical debt remediation and production incidents from artificial deadlines. |
+
 ## Gotchas
 
 - **Velocity as a productivity metric** — if velocity goes from 30 to 40 points/sprint, management celebrates. But the team just inflated estimates by 33%. Velocity measures estimation consistency, not output. Comparing velocity across teams is comparing apples to fictional oranges. **Total cost: $150,000-$500,000 per year** in wasted engineering time from inflated estimates and misdirected optimization efforts.

@@ -430,6 +430,16 @@ graph LR
 - **Sponsorship vs mentorship** — mentoring (giving advice) helps individuals grow. Sponsoring (using your capital to get someone a high-visibility project, promotion support, or conference talk slot) changes careers. Senior→Staff transition requires sponsorship, not just mentorship. **Total cost: $1M-$5M in lost talent from high-performing engineers who leave due to lack of career acceleration and visible sponsorship.**
 - **Staff engineer as organizational free electron with no accountability** — the Staff engineer identifies a problem, starts working on it, but never defines success criteria or a timeline. Six months later, 3 teams have been waiting on the output, and the Staff engineer has moved on to the next interesting problem. Without explicit deliverables and stakeholder check-ins, Staff-level autonomy becomes organizational drift. **Total cost: $300K-$1M in blocked team productivity and abandoned cross-team initiatives when Staff work lacks defined completion criteria.**
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "I'll review the architecture after the prototype ships" | Prototype architecture calcifies into production within 3-6 weeks — the database schema, API contracts, and data model decisions made during prototyping become permanent; refactoring after the fact costs 10x what upfront review costs. |
+| "The team is senior — they don't need code review" | Senior engineers benefit most from review because their mistakes are subtler and more expensive: a subtly wrong architectural assumption in a senior-authored design cascades across 3+ teams before detection. |
+| "I'll document the design decisions later" | Undocumented architecture decisions require reverse-engineering 6 months later when the original author is on a different project; every hour spent documenting rationale saves 10+ hours of future debugging and re-litigation. |
+| "My influence comes from technical expertise, not relationships" | Without stakeholder relationships, even the best technical proposals die in review — nobody champions them. Staff+ influence is 50% technical depth and 50% organizational trust built through deliberate relationship investment. |
+| "I can fix this cross-team issue myself faster than coordinating" | Solo cross-team fixes create single points of failure and rob other teams of ownership; the 3 teams that should own the solution never learn it, and the problem recurs the moment you step away. |
+
 ## Verification
 
 - [ ] Cross-team impact: at least 50% of work is outside your immediate team (verified by project tracking)

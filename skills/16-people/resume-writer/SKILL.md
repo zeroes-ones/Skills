@@ -313,6 +313,16 @@ Master resume writing through progressive difficulty:
 *   **Advanced — Career Transition Narrative:** Write 3 complete applications (resume + cover letter) for roles in different industries from your own. Research the target industry's language, metrics, and priorities. Have someone in that industry review and score for authenticity.
 *   **Expert — Recruiter Simulation:** Review 50 anonymous resumes in 1 hour (simulating real recruiter workload). Score each: yes/maybe/no after 6 seconds. Then deep-read your top 10. Calibrate: what caught your eye in 6 seconds? Apply those patterns to your own resume.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|----------------|---------|
+| "More content is better — I'll list everything I've done" | Resumes over 2 pages get rejection rates 3x higher; recruiters scan, they don't read — density kills clarity |
+| "I'll use a creative template to stand out" | ATS parsers fail on multi-column layouts, images, and custom fonts; a beautiful resume that can't be parsed never reaches human eyes |
+| "Responsibilities are enough, results are implied" | "Managed a team of 5" tells nothing; "Led 5 engineers to ship 3 features that increased retention 12%" tells everything |
+| "I'll tailor my resume for each application" | Manual tailoring for 50+ applications is unsustainable; without a tiered resume strategy (master + 2-3 variants), consistency collapses by week 2 |
+| "Gaps in employment need creative explanations" | Fabricated gap explanations surface in background checks; honest framing ("sabbatical: completed AWS certification, consulted for 2 startups") converts liability to asset |
+
 ## Verification
 
 - [ ] ATS format check: single column, standard headings (Experience, Education, Skills), no images/icons/text boxes — save as .txt verifies content order

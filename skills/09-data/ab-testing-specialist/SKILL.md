@@ -340,6 +340,16 @@ What happens after you ship the winning variant?
 | 20 concurrent tests, 80% win rate | 3-4 concurrent tests, 15-20% win rate, mutual exclusion groups | 3-4 concurrent tests, win rate matches industry baseline, every flat result documented as learning, quarterly experiment program retrospective |
 | Report point estimate only to execs | Report point estimate + p-value | Report point estimate + 95% CI + practical significance assessment + revenue impact range — executive summary in 3 sentences with uncertainty quantified |
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "We'll stop the test when it looks significant" | Peeking inflates false positives from 5% to 30%+ — a single wrong ship decision costs $50K-$200K in wasted engineering effort and lost revenue from features that don't deliver standalone value. |
+| "The data is clean enough — we don't need SRM checks" | Sample Ratio Mismatch means your randomization is broken — every result from dirty data is fiction costing $10K-$100K in bad product decisions from invalid experiments. |
+| "We don't need a control group for this small change" | Without control, you can't separate your change from seasonality or external shocks — a 'positive' result during a competitor's outage costs $20K-$80K when it reverses post-launch. |
+| "The dashboard shows it's significant — just ship it" | Novelty effects make losing variants look like winners for 3-7 days — shipping on Day 3 'significance' that's flat by Day 14 costs $50K-$150K in features that revert to baseline. |
+| "We'll analyze segments later if needed" | A 'winning' experiment that loses for your best customers destroys $50K-$200K in LTV from churning power users — segment checks are not optional, they are the experiment. |
+
 ## Gotchas
 
 - **Running too many simultaneous A/B tests — interaction effects that invalidate everything.** Your experimentation platform has 12 concurrent tests running on the same user population: checkout flow test, pricing page test, onboarding test, recommendation algorithm test, email subject line test, and 7 more. When a user in variant A of the checkout test is also in variant B of the pricing test and variant A of the onboarding test, their behavior is influenced by three different experimental conditions simultaneously — and the interaction effects between tests are unmeasurable. You declare the checkout test a "significant winner" at +5%, but 3% of that lift was actually caused by the pricing variant those users were also exposed to. When you roll out the checkout change alone post-experiment, the true lift is 1.8% (not significant at your sample size). A team making 3-4 product decisions per quarter based on confounded experiments ships changes that underperform expectations by 50-80%, wasting $30K-$150K in engineering effort per quarter on features that don't deliver standalone value. **Total cost: $30K-$150K in interaction effects invalidating experiment results and leading to bad ship decisions.** Enforce a maximum of 3-4 concurrent experiments in overlapping user populations, use mutual exclusion groups to isolate high-stakes tests, and always validate a "winner" in a clean follow-up experiment before full rollout.

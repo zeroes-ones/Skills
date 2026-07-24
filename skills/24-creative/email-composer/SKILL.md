@@ -367,6 +367,16 @@ Master email composition through progressive difficulty — from single emails t
 *   **Advanced — Sequence Design:** Design a 4-email sales sequence for a real product/service. Write all 4 emails. Test with 3 colleagues: "Would you respond to email 2? If not, why?" Iterate based on feedback. Track: open rate, response rate, meeting bookings.
 *   **Expert — Crisis Simulation:** Draft an apology email for a realistic business crisis (data breach notification, missed critical deadline, product recall). Submit to 3 reviewers. Incorporate feedback. Then draft the internal version (to your team), the customer version, and the board version — same facts, different audiences, consistent accountability.
 
+## Anti-Rationalization — No Excuses
+
+| Rationalization | Reality |
+|---|---|
+| "Email accessibility is just alt text on images" | 70% of marketing emails open on mobile with zoom, dark mode, or screen readers. Missing semantic HTML (`<h1>` hierarchy, `role="presentation"` on tables, color contrast ≥4.5:1) renders emails unreadable for 15% of users and triggers ADA Title III lawsuits. |
+| "Subject line testing is optional — content speaks for itself" | 47% of recipients open based on subject line alone. A $100K campaign with a weak subject line gets 8% open vs 22% for an optimized one — $60K in wasted send budget from 15 characters of text. |
+| "Dark mode is cosmetic, not a priority" | 81.9% of iPhone users and 70%+ of Android users use dark mode. Without `@media (prefers-color-scheme: dark)`, white-on-transparent logos become invisible, text renders illegible, and brand presentation breaks — this is a deliverability and brand perception issue. |
+| "We'll use one big image as the email body — looks great in design" | Enterprise email clients (Outlook 2016/2019) block images by default. Recipients see a blank white rectangle. The 3-second preview window in Apple Mail and Gmail shows nothing. Image-only emails have 40% lower click-through rates than HTML-text hybrids. |
+| "GDPR consent is legal's problem — I just write the emails" | GDPR Article 7 requires documented proof of consent: timestamp, source, and scope. Marketing emails sent without documented consent history expose you to €20M/4% global revenue fines AND kill sender reputation so even compliant sends never reach inboxes. |
+
 ## Verification
 
 - [ ] Subject line: under 50 characters, specific, no deception, no all-caps, mobile-safe (first 35 chars carry the message)
