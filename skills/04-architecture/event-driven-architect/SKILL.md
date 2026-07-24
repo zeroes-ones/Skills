@@ -70,7 +70,7 @@ What are you trying to do?
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
-## Anti-Rationalization
+## Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
 |---|---:|
@@ -201,6 +201,115 @@ Default: **L2**.
 ```
 
 **Choreography:** <5 services, simple linear flows, independent teams, no compensation needed. **Orchestration:** >5 steps, complex branching/compensation (Saga), explicit workflow visibility needed.
+
+### Delivery Guarantees
+
+```
+                      +--------------------------+
+                      | START: Delivery semantic   |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Is data loss acceptable?    |
+                     | (metrics, logs, analytics)  |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | At-most-once |   | Duplicates MUST   |
+                     | (fire/forget,|   | NEVER cause harm? |
+                     |  no retry)   |   +--+---------------+
+                     +-------------+      | YES        NO
+                                     +----+----+ +----+-------+
+                                     | At-least-| | Exactly-once|
+                                     | once +   | | (idempotent |
+                                     | idempot- | | producer +  |
+                                     | ency key | | transactional|
+                                     | on every | | consumer,    |
+                                     | event    | | Kafka trans- |
+                                     +----------+ | actions or   |
+                                                  | Outbox)      |
+                                                  +-------------+
+```
+
+### Schema Compatibility Strategy
+
+```
+                      +--------------------------+
+                      | START: Schema change type  |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Adding optional field or    |
+                     | new event type?             |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | BACKWARD      |   | Removing required |
+                     | compatible:   |   | field or changing |
+                     | deploy         |   | type?            |
+                     | consumers      |   +--+---------------+
+                     | first, then    |      | YES
+                     | producers      | +----+---------+
+                     +-------------+   | FULL compat:   |
+                                       | NEW event type |
+                                       | + coexistence  |
+                                       | migration      |
+                                       | period (N      |
+                                       | releases)      |
+                                       +---------------+
+```
+
+### Partition Key Selection
+
+```
+                      +--------------------------+
+                      | START: Choose partition    |
+                      | key for topic              |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Need strict ordering per    |
+                     | entity (order, account)?    |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | Key = entity  |   | Need even load    |
+                     | ID (order_id, |   | distribution?     |
+                     | account_id)   |   +--+---------------+
+                     | Risk: hot     |      | YES
+                     | partition if  | +----+---------+
+                     | single entity | | Key = user_id  |
+                     | dominates     | | or round-robin |
+                     +-------------+ | if ordering     |
+                                     | not required    |
+                                     +----------------+
+```
+
+### Idempotency Strategy
+
+```
+                      +--------------------------+
+                      | START: Idempotency needed  |
+                      +------------+-------------+
+                                   |
+                     +-------------+-------------+
+                     | Consumer performs DB write  |
+                     | as part of processing?      |
+                     +----+------------------+----+
+                          | YES              | NO
+                     +----+--------+   +-----+----------+
+                     | Use DB unique  |   | Purely side-    |
+                     | constraint on  |   | effect (email,  |
+                     | idempotency    |   | push, webhook)? |
+                     | key + INSERT   |   +--+---------------+
+                     | ON CONFLICT    |      | YES
+                     | DO NOTHING     | +----+---------+
+                     +-------------+   | Redis SETNX +  |
+                                       | TTL (24h) to   |
+                                       | deduplicate    |
+                                       | before acting  |
+                                       +---------------+
+```
 
 ## Core Workflow
 
@@ -361,3 +470,28 @@ Every event has a registered schema with version. Consumers are idempotent and D
 - `system-architect` — System context and service boundaries for event ownership
 - `api-designer` — Which endpoints become event-driven vs remain synchronous
 - `domain-modeling` — Bounded context map determining event ownership boundaries
+
+## Gotchas
+
+| # | Gotcha | Why It Bites | $ Impact | Prevention |
+|---|--------|-------------|----------|------------|
+| **G1** | Ghost events from missing transactional outbox | Service writes to DB, publishes event, DB transaction rolls back — but the event already fired. Downstream systems act on data that never committed. Reconciliation takes weeks. | **$200K–$500K** in data inconsistency remediation + customer-facing errors | Always use the transactional outbox pattern: write event to outbox table in same DB transaction, separate process publishes from outbox. Never publish directly from business logic. |
+| **G2** | Unbounded DLQ growth consuming storage | DLQ accumulates 50K poisoned messages over 3 months. Storage cost climbs, replay becomes impossible, eventual disk-full outage takes down the broker | **$30K–$80K/month** in storage + $150K outage cost | Set DLQ retention policy (7 days max), alert at depth > 100, auto-archive to cold storage. DLQ is a triage queue, not a graveyard. |
+| **G3** | Hot partition from wrong key choice | All events for `enterprise-acme-corp` route to one partition. That partition hits throughput limit, consumer lags by 45 minutes, Acme's entire integration stalls | **$100K–$300K** in throughput loss + rearchitecture + customer churn | Profile key distribution BEFORE going live. If one key dominates >20% of traffic, salt the key or use a composite key. Monitor per-partition throughput. |
+| **G4** | Schema compatibility break in production | Producer adds required field `tax_id`, deploys. Old consumers cannot deserialize — 3 services go down. Rollback takes 2 hours, 50K events are lost or stuck | **$300K–$750K** in incident cost + consumer outages + data recovery | CI must validate schema compatibility (BACKWARD by default). Breaking changes require: new event type + coexistence migration period. Never add required fields to existing event types. |
+| **G5** | Missing idempotency on financial events | Payment processor retries `PaymentCaptured` due to network timeout. Without idempotency key, customer is charged twice. Refund process takes 5 business days, trust is broken | **$500K–$2M+** in duplicate charges + refund processing + regulatory fines + reputational damage | Every financial event MUST have an idempotency key. Consumer MUST deduplicate using DB unique constraint or Redis SETNX. Test by replaying the same event 3 times — result must be identical. |
+| **G6** | Infinite retry loop blocking consumer | Poisoned message fails on every retry (malformed JSON, missing required field). Consumer retries in tight loop, never reaches DLQ, blocks entire partition for 45 minutes. Lag builds to 500K messages. | **$150K–$400K** in backlog recovery + SLA breach penalties + overnight engineering page | Configure: max 3 retries with exponential backoff (1s, 5s, 25s) → DLQ. Never infinite retry. Consumer heartbeat must not depend on message processing success. |
+| **G7** | Event sourcing without snapshots in production | Event store has 1.2M events for a single aggregate after 3 years. Read-model rebuild takes 47 minutes. Deploy happens, read-model needs rebuild, system is effectively down for the duration | **$80K–$200K** in downtime + incident response + customer impact | Snapshot aggregates every N events (N=100-1000 depending on event size). Rebuild from latest snapshot + replay events since snapshot. Target rebuild time < 30 seconds. |
+
+## Verification
+
+| # | Check | Pass Condition | Fix If Failing |
+|---|-------|---------------|----------------|
+| **V1** | Every event has a registered schema with version | Schema registry returns all event types. Every event envelope includes `event_version`. | Register missing schemas. Add `event_version` to envelope. CI gate: block deploy if producer references unregistered schema. |
+| **V2** | Schema compatibility validated in CI | CI pipeline runs compatibility check (Avro: `maven schema-registry:test-compatibility`, Protobuf: `buf breaking`). Breaking changes blocked at PR. | Add schema compatibility check to CI. Configure default compatibility as BACKWARD. Document compatibility mode per topic. |
+| **V3** | DLQ configured with max retries and alerting | Send poison message → lands in DLQ after N retries → alert fires within 60s → healthy consumers continue processing | Configure max retries + exponential backoff + DLQ routing. Add DLQ depth alert in observability. Test quarterly with poison message injection. |
+| **V4** | Idempotency verified under concurrent load | Replay same event 3× concurrently — consumer produces exactly 1 side effect. Dedup store handles race conditions. | Implement idempotency: DB `INSERT ON CONFLICT DO NOTHING` or Redis `SETNX`. Test with concurrent replays. Verify duplicate events produce identical outputs. |
+| **V5** | Consumer lag below SLA threshold | p95 consumer lag < 200ms (or defined SLA). Alert fires at >1000 messages or >30s staleness. | Profile consumer throughput. If lag grows: increase partitions (Kafka), add consumer instances (competing consumers), or optimize processing (batch, async I/O). |
+| **V6** | Correlation ID propagates end-to-end | Trace a user request across all services: every log line, every event, every API call carries the same `correlation_id`. | Add middleware/interceptor that extracts or generates correlation ID. Pass through event envelope. Validate with distributed trace tool (Jaeger, Tempo). |
+| **V7** | Transactional outbox prevents ghost events | Kill the service mid-transaction 100 times in chaos test. Zero ghost events (fired but not committed) and zero lost events (committed but not fired). | Implement outbox: event written to outbox table in same DB transaction. Separate publisher process polls outbox and publishes, marks as sent. At-least-once outbox publisher + idempotent consumers. |
+| **V8** | Event replay reconstructs read models within SLA | Replay 6 months of events → any read model rebuilt in < 15 minutes. Cold start from snapshot works within 30 seconds. | Implement snapshots (every N events). Replay process reads snapshot → replays events since snapshot. Measure and optimize replay throughput. Alert if replay time exceeds SLA. |

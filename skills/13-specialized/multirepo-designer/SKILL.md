@@ -23,7 +23,7 @@ tags:
   - shared-libraries
   - breaking-changes
   - ci-cd-orchestration
-author: zeroes-ones
+author: Sandeep Kumar Penchala
 type: specialized
 status: stable
 version: 1.0.0

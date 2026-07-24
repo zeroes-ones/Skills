@@ -16,7 +16,7 @@ description: >
   security hardening unrelated to healthcare, GDPR-only compliance, or non-PHI
   data protection.
 license: MIT
-author: zeroes-ones
+author: Sandeep Kumar Penchala
 type: health-clinical
 status: stable
 version: 1.0.0
@@ -483,8 +483,7 @@ Clinical network segmentation design:
 | "Our EHR vendor handles security — that's why we pay them" | Shared responsibility model applies to EHR just like cloud. The vendor secures the application; YOU secure access controls, user provisioning, multi-factor authentication, audit log review, and PHI disclosure accounting. Epic and Cerner provide security features — they don't configure, monitor, or enforce them for you. A misconfigured EHR user permission is your violation, not the vendor's. |
 | "We have a BAA so we're covered — the vendor is responsible now" | A BAA is a contract assigning liability, not a security assessment. The vendor can be breached, go out of business, or violate the BAA terms. Due diligence (SOC 2 review, pentest results, sub-processor audit, incident response capability) is still your responsibility. A BAA without verification is compliance theater. OCR fines the covered entity, not just the Business Associate. |
 | "The data is de-identified — it's safe to publish/share/sell" | Sweeney's study: 87% of Americans uniquely identifiable by ZIP+DOB+gender. De-identified datasets are routinely re-identified via linkage attacks with commercial data brokers, voter records, and social media. Once published, re-identification by a third party still triggers YOUR breach notification obligation if you're the source. De-identification is a risk mitigation, not a risk elimination. |
-| "We'll encrypt later — let's get the product shipped first" | The 2024 HIPAA Security Rule proposed update makes encryption required, not addressable. You cannot "encrypt later" — PHI stored unencrypted from day one is a per se violation. Retrofitting encryption onto production databases is a 3-6 month project with downtime risk. Building with encryption from the start takes 1-2 extra days. "Later" means "never" — and "never" means a breach report with "unencrypted PHI" as the finding. |
-| "We use HTTPS, so our telemedicine is HIPAA-compliant" | HTTPS encrypts the transport, not the platform. The telemedicine vendor still processes, may record, may store chat logs, and may collect metadata — all of which are PHI and require a BAA. HTTPS without a BAA is encrypted non-compliance. The encryption safe harbor for breach notification applies only when BOTH the data AND the encryption key are secured. |
+| "We'll encrypt later — let's get the product shipped first" | The 2024 HIPAA Security Rule proposed update makes encryption required, not addressable. You cannot "encrypt later" — PHI stored unencrypted from day one is a per se violation. Retrofitting encryption onto production databases is a 3-6 month project with downtime risk. Building with encryption from the start takes 1-2 extra days. "Later" means "never" — and "never" means a breach report with "unencrypted PHI" as the finding, and HHS OCR has explicitly confirmed that "we planned to encrypt" is not a defense under the 2024 proposed rule. |
 
 ## Cross-Skill Coordination
 
