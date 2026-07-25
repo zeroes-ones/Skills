@@ -71,7 +71,6 @@ chain:
     - legal-advisor
   alternatives: []
 ---
-
 # Privacy Engineering
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -90,7 +89,6 @@ These rules are non-negotiable constraints that detect privacy violations before
 | R5 | REFUSE to transfer personal data across borders without a valid transfer mechanism post-Schrems II. Adequacy decisions, SCCs, or BCRs are required. | Trigger: data flow diagram crosses jurisdiction boundaries AND response does not mention SCCs, BCRs, adequacy decision, DPF, or transfer impact assessment | STOP. Respond: "Cross-border personal data transfer detected without documented transfer mechanism. Post-Schrems II, every transfer requires: (1) transfer impact assessment (TIA) evaluating recipient country laws, (2) valid transfer tool (SCCs 2021 modules 1-4, BCRs, adequacy decision, or DPF certification), (3) supplementary measures if TIA identifies gaps. Specify the transfer mechanism before proceeding." |
 | R6 | DETECT when differential privacy epsilon is selected without justification. Epsilon directly controls the privacy-utility tradeoff — arbitrary values are dangerous. | Trigger: response specifies epsilon value (e.g., epsilon=1.0) AND no mention of sensitivity, query count, or composition | STOP. Respond: "Epsilon selection requires justification: (1) what is the sensitivity of your query function? (2) How many queries will run against this dataset? (total privacy budget decomposition), (3) What is the acceptable privacy loss per individual? An epsilon of 0.1 provides strong privacy; epsilon of 10 provides weak privacy. Justify your epsilon choice with these three parameters." |
 | R7 | REFUSE to treat consent as a one-time event. Consent requires ongoing proof and withdrawal capability — it is a continuous state, not a checkbox. | Trigger: consent architecture described as single boolean flag (consented=true/false) AND no withdrawal mechanism AND no consent proof chain | STOP. Respond: "Consent is a continuous state requiring: (1) consent proof chain (who, what, when, how — with cryptographic integrity), (2) granular per-purpose consent records (not a single flag), (3) withdrawal mechanism that is as easy as giving consent, (4) propagation of withdrawal to all downstream processors, (5) re-consent triggers (purpose change, new processing activity). Redesign consent as an event-sourced state machine, not a boolean." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -131,7 +129,9 @@ Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-priv
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -143,7 +143,9 @@ Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-priv
 | A6 | `file_contains("*.md\|*.txt", "breach\|72.hour\|Article.33\|Article.34\|notification")` | Breach response → Jump to **Decision Trees: Breach Response** |
 | A7 | No privacy files found | New privacy engineering → Go to **Core Workflow: Phase 1** |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What privacy engineering task are you working on?
@@ -159,123 +161,22 @@ What privacy engineering task are you working on?
 ```
 
 ## Core Workflow
+<!-- Full 115 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Data Protection Impact Assessment (DPIA)
+#
 
+## Phase 1: Data Protection Impact Assessment (DPIA)
 Execute in order. Do not skip steps.
-
-```
 1. DETERMINE IF DPIA IS REQUIRED (Article 35 Trigger Assessment)
-   |-- DPIA is legally required when processing is likely to result in HIGH RISK to individuals:
-   |   |-- Systematic and extensive profiling with legal/significant effects
-   |   |-- Large-scale processing of special category data (health, biometric, political, religious)
-   |   |-- Systematic monitoring of publicly accessible areas (CCTV at scale)
-   |   |-- Processing of data relating to criminal convictions and offenses
-   |   |-- Use of new technologies (AI/ML, IoT, facial recognition) at scale
-   |   |-- Combining datasets from multiple sources beyond reasonable expectations
-   |   |-- Processing vulnerable person data (children, employees, patients)
-   |-- If none of these triggers apply → document why DPIA is not required, proceed without DPIA
-   |-- If any trigger applies → DPIA is mandatory, proceed to step 2
-
 2. DESCRIBE THE PROCESSING (Systematic Description)
-   |-- Nature: what data, how collected, how stored, how processed, who accesses
-   |-- Scope: volume of data subjects, duration, frequency, geographical extent
-   |-- Context: relationship between controller and data subjects, control level, prior expectations
-   |-- Purposes: specific, explicit, legitimate purposes for each processing operation
-   |-- Technical overview: architecture diagram, data flow, integrations, third parties
-   |-- Data lifecycle: collection → processing → storage → sharing → archiving → deletion
-
-3. ASSESS NECESSITY AND PROPORTIONALITY
-   |-- Necessity: Is this processing the least intrusive way to achieve the purpose?
-   |   |-- Can the purpose be achieved without personal data? (aggregated data, synthetic data)
-   |   |-- Can the purpose be achieved with less data? (data minimization review)
-   |   |-- Can the purpose be achieved with pseudonymized data instead of identified data?
-   |-- Proportionality: Do the benefits justify the privacy intrusion?
-   |   |-- List benefits to data subject, controller, and society
-   |   |-- Compare intrusion level to benefit magnitude
-   |   |-- Document why less intrusive alternatives were rejected
-   |-- Lawful basis: Identify specific GDPR Article 6(1) basis for each purpose
-   |   |-- Consent, contract, legal obligation, vital interests, public task, legitimate interest
-   |   |-- For special category data: Article 9(2) exemption must apply
-
-4. IDENTIFY RISKS TO RIGHTS AND FREEDOMS
-   |-- Risk sources: internal threats (employees, contractors), external threats (hackers, third parties)
-   |-- Risk categories per data subject:
-   |   |-- Physical harm (stalking, doxxing, violence)
-   |   |-- Financial harm (identity theft, fraud, discrimination in lending)
-   |   |-- Reputational harm (social scoring, public exposure of private facts)
-   |   |-- Psychological harm (distress from surveillance, loss of autonomy)
-   |   |-- Discrimination (employment, housing, insurance decisions)
-   |-- Rate each risk: Likelihood (1-5) × Impact (1-5) = Risk Score (1-25)
-   |-- Residual risk = inherent risk - control effectiveness
-
-5. DESIGN MITIGATION MEASURES
-   |-- For each risk with residual score > 6, design specific mitigation:
-   |   |-- Organizational: policies, training, access controls, NDAs, audits
-   |   |-- Technical: encryption, pseudonymization, access logging, data masking, DP
-   |   |-- Contractual: data processing agreements (DPAs), SCCs, processor obligations
-   |-- Recalculate residual risk after mitigation
-   |-- If residual risk remains HIGH after mitigation → MANDATORY prior consultation with DPA (Article 36)
-   |-- Document each mitigation: what, who implements, by when, how verified
-
-6. CONSULT AND SIGN OFF
-   |-- DPO review: Data Protection Officer must be consulted (Article 35(2))
-   |-- Stakeholder input: seek views of data subjects or their representatives where appropriate
-   |-- Controller sign-off: senior management approval with accountability
-   |-- Publish summary: (optional but recommended) transparency builds trust
-   |-- Review trigger: DPIA is a living document — review when processing changes significantly or every 3 years
-```
-
-### Phase 2: Data Inventory & Retention Automation
-
-```
-1. BUILD DATA INVENTORY (GDPR Article 30 — Records of Processing)
-   |-- For each data category, document:
-   |   |-- Category name (e.g., "customer email", "health metrics", "location history")
-   |   |-- Data subjects: customers, employees, visitors, patients, children
-   |   |-- Personal data fields: exact schema, not "contact info" but "name, email, phone, address"
-   |   |-- Source: collected directly, third-party, inferred/derived, public records
-   |   |-- Lawful basis: consent/contract/legal obligation/legitimate interest — per category
-   |   |-- Purpose: specific purpose linked to each category (not "business operations")
-   |   |-- Retention period: X days/months/years with justification
-   |   |-- Storage locations: database tables, S3 buckets, logs, backups, analytics warehouse
-   |   |-- Recipients: internal teams, third-party processors, sub-processors, affiliates
-   |   |-- Cross-border: countries where data is stored/processed, transfer mechanism
-   |-- Output: data inventory as a graph (nodes = data stores, edges = data flows)
-
-2. DEFINE RETENTION SCHEDULES
-   |-- Per data category, determine retention period:
-   |   |-- Legal requirement: tax records (7 years), employment records (varying by jurisdiction)
-   |   |-- Contractual: active account + X years after closure
-   |   |-- Business need: analytics data (aggregate after X days, delete raw after Y days)
-   |   |-- Consent duration: delete when consent expires or is withdrawn
-   |-- Document retention justification for each category
-   |-- Flag categories with conflicting retention requirements for legal review
-
-3. IMPLEMENT AUTOMATED DELETION
-   |-- TTL-based deletion:
-   |   |-- Add `retention_until` or `expires_at` column to every table with personal data
-   |   |-- Cron job: DELETE/UPDATE WHERE expires_at < NOW() — runs daily
-   |   |-- Partition by retention date for efficient bulk deletion
-   |-- Event-based deletion:
-   |   |-- Account deletion triggers cascade: user → orders → analytics events → logs
-   |   |-- Consent withdrawal triggers deletion of data held under that consent
-   |-- Soft-delete pattern:
-   |   |-- Stage 1: soft-delete (is_deleted=true, deleted_at=NOW()) — recoverable for 30 days
-   |   |-- Stage 2: hard-delete after recovery window — irreversible
-   |   |-- Stage 3: backup deletion — documented exception: backups retain up to 90 days
-   |-- Audit trail: log every deletion with timestamp, data category, deletion reason, operator/automated
-
-4. HANDLE DELETION EXCEPTIONS
-   |-- Backups: document maximum backup retention (e.g., 90 days rolling)
-   |-- Logs: justify log retention beyond data retention (security, debugging — must be documented)
-   |-- Legal holds: implement litigation hold override preventing deletion
-   |-- Archival: if archiving for research/statistics, ensure anonymization or pseudonymization with separated keys
-```
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 115 lines of detailed guidance
 
 ## Decision Trees
 
-### Consent Architecture
+#
+
+## Consent Architecture
 
 ```
 What type of consent are you implementing?
@@ -305,7 +206,9 @@ What type of consent are you implementing?
 |   |-- Design: highest privacy settings by default, no nudge toward lowering privacy, no profiling
 ```
 
-### Right to Access & Deletion (RTBF)
+#
+
+## Right to Access & Deletion (RTBF)
 
 ```
 Subject Access Request (SAR) — GDPR Article 15 / CCPA Right to Know:
@@ -329,7 +232,9 @@ Right to Erasure (RTBF) — GDPR Article 17 / CCPA Right to Delete:
 |-- SLA tracking: 30-day timer starts at request receipt, auto-escalate at day 25 if not completed
 ```
 
-### Cross-Border Transfer
+#
+
+## Cross-Border Transfer
 
 ```
 Transfer type determination:
@@ -352,7 +257,9 @@ Transfer Impact Assessment (TIA) — Post-Schrems II:
 |   |-- If gaps cannot be closed -> transfer cannot proceed
 ```
 
-### Differential Privacy
+#
+
+## Differential Privacy
 
 ```
 Epsilon Selection Framework:
@@ -365,7 +272,9 @@ Epsilon Selection Framework:
 |-- Local vs Global DP: Global = trusted curator, more utility | Local = per-user noise, stronger privacy
 ```
 
-### Breach Response
+#
+
+## Breach Response
 
 ```
 Personal Data Breach — 72-Hour Clock Running:
@@ -379,7 +288,9 @@ Personal Data Breach — 72-Hour Clock Running:
 |-- Post-72h: Document in breach register (Art 33(5)), root cause analysis, remediation plan
 ```
 
-### Privacy-Preserving Technology Evaluation
+#
+
+## Privacy-Preserving Technology Evaluation
 
 ```
 Use case -> Technology mapping:
@@ -395,6 +306,20 @@ Use case -> Technology mapping:
 |-- FHE readiness: compute on data you cannot see? Small computation -> PHE/SHE. Complex -> FHE too slow for prod.
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -409,6 +334,11 @@ Use case -> Technology mapping:
 | Incident response coordination — security breach may also be privacy breach | incident-responder | Joint incident response, forensic investigation coordination, parallel notification streams |
 | AI/ML models trained on personal data — fairness, bias, privacy | ml-ai-engineer | Federated learning architecture, DP-SGD for training, model inversion attack mitigation |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `security-engineer` | Threat model, attack surface, security boundaries | Before implementing safety controls |
+| `compliance-officer` | Regulatory requirements, audit expectations, data handling rules | Before designing trust systems |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
@@ -420,12 +350,13 @@ Use case -> Technology mapping:
 | P5 | Production access logs show PII in plaintext (emails, names, SSNs in log messages) | [ALERT] PII in logs violates data minimization and creates unnecessary breach exposure. Implement log scrubbing: hash/mask PII before logging. |
 | P6 | Third-party data sharing AND no Data Processing Agreement (DPA) on file | [ALERT] GDPR Article 28 requires a DPA with every processor. Without a DPA, the data sharing is unlawful. Request DPA or suspend sharing. |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -445,7 +376,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -458,7 +391,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -520,7 +455,9 @@ Current approach: hash(email) and call it anonymized. You must correct this.
 
 ## Gotchas -- Highest-Value Content
 
-### DPIA Gotchas
+#
+
+## DPIA Gotchas
 
 *   **Treating the DPIA as a one-time document.** A DPIA written for system v1.0 is useless for v3.0 after architecture changes, new third parties, and expanded data collection. Every DPIA must have a review trigger: significant processing change OR 3 years, whichever comes first. An outdated DPIA provides zero legal protection and is itself a compliance violation. **Total cost: $5M-$20M in GDPR fines (up to 2% of global turnover) for processing without a valid DPIA when one was legally required.**
 
@@ -528,25 +465,33 @@ Current approach: hash(email) and call it anonymized. You must correct this.
 
 *   **Not consulting the DPO.** GDPR Article 35(2) mandates DPO consultation during the DPIA process. A DPIA signed off without DPO input is procedurally invalid. DPA investigators check DPIA process, not just content — procedural failures are easier to prove than substantive failures. **Total cost: $500K-$2M for procedural violation, even if the processing itself was low-risk.**
 
-### Consent Gotchas
+#
+
+## Consent Gotchas
 
 *   **Bundling consent so service is conditional on accepting unrelated purposes.** "Accept all or you cannot use the app" is illegal under GDPR. Consent must be granular per purpose. A ride-sharing app cannot require consent to share location data with advertisers as a condition of using the ride service — these are separate purposes with different necessity. **Total cost: $10M-$50M in fines (recent cases: Meta 390M EUR for forced consent, TikTok 345M EUR for child data).**
 
 *   **Storing consent as a boolean with no proof of what was consented to.** A DB column `consented=true` is unprovable to a regulator. When the data subject says "I never consented to sharing with third parties," you cannot prove otherwise without a consent proof chain showing the specific notice version, timestamp, and affirmative action. **Total cost: $2M-$8M in fines + inability to defend against data subject complaints, each complaint potentially triggering a DPA investigation.**
 
-### Deletion Gotchas
+#
+
+## Deletion Gotchas
 
 *   **Forgetting that backups are personal data too.** You delete the production row on day 30. The backup from day 29 still contains the data and will be restored if needed. GDPR right to erasure extends to backups. You must have a documented backup deletion procedure: (1) flag record for deletion in production, (2) hard-delete in production after soft-delete window, (3) document that backups retain data for up to X days (rolling backup window), (4) ensure restored backups honor deletion flags. **Total cost: $1M-$5M in fines for incomplete erasure + reputational damage if a restored backup re-exposes "deleted" data.**
 
 *   **Cascade failures in microservice deletions.** User deletion triggers 15 downstream services. Service #7 times out. Now user record partially deleted across services — some have the data, some do not. GDPR erasure requires complete deletion. Implement: (1) deletion with retry and dead-letter queue, (2) saga pattern with compensating transactions, (3) reconciliation job to detect partial deletions and retry, (4) admin dashboard showing deletion status per service. **Total cost: $500K-$2M to retroactively fix partial deletions + $1M-$10M in fines for incomplete compliance.**
 
-### Cross-Border Transfer Gotchas
+#
+
+## Cross-Border Transfer Gotchas
 
 *   **Assuming SCCs are sufficient without a TIA.** Post-Schrems II, SCCs alone are not sufficient. The CJEU ruled you must verify — on a case-by-case basis — that the SCCs provide effective protection given the recipient country's laws. If US surveillance laws (FISA 702, EO 12333) could compel the data importer to disclose data, SCCs do not protect against this and supplementary measures are required. **Total cost: $2M-$10M in fines + suspension of data transfers costing $100K-$1M/month.**
 
 *   **Forgetting that EU representatives need a transfer mechanism too.** A US company with no EU establishment but offering services to EU data subjects must appoint an EU Representative (Article 27). The representative relationship itself involves transferring personal data (at minimum, the representative's contact details) — this transfer needs a mechanism. **Total cost: $200K-$1M for missing Article 27 representative + transfer violation.**
 
-### Breach Response Gotchas
+#
+
+## Breach Response Gotchas
 
 *   **Waiting for "confirmed" root cause before starting the 72-hour clock.** GDPR Article 33 clock starts at "awareness," meaning reasonable suspicion of a personal data breach. A security engineer notices anomalous database queries at 10 PM Friday — that is awareness. Waiting until Monday for the forensics team to confirm breaches constitutes a late notification, which is itself a violation (up to 2% of global turnover). **Total cost: $2M-$10M for late notification + separate fines for the breach itself.**
 

@@ -21,7 +21,6 @@ chain:
     - performance-engineer
     - devops-engineer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 # Desktop App Developer — Cross-Platform Desktop Application Engineering
@@ -77,7 +76,6 @@ These rules are non-negotiable constraints that detect desktop development mista
 | R3 | DETECT synchronous IPC calls on the main thread for I/O operations | Trigger: `ipcMain.on()` handler performs `fs.readFileSync()`, synchronous database queries, or network requests without delegating; or `ipcRenderer.sendSync()` used for data retrieval | STOP. Respond: "Synchronous I/O on the main process blocks ALL renderer windows and the event loop. A 200ms operation means your entire app is unresponsive for 200ms. Use `ipcMain.handle()` with async operations. `ipcRenderer.sendSync()` is only for trivial synchronous property access (<1ms)." |
 | R4 | REFUSE bundling credentials, API keys, or signing secrets in the application package | Trigger: `.env` files with production secrets in build artifacts, API keys in source that ship in `.asar`/binary, OAuth client secrets embedded in the app instead of PKCE flow | STOP. Respond: "Desktop apps are distributed binaries — everything in the package is extractable within seconds. Use OAuth 2.0 PKCE (Proof Key for Code Exchange) — no client secret required. API keys must come from a per-user authenticated backend. Environment variables in `.env` are build-time only, never shipped." |
 | R5 | DETECT untested auto-update path with no rollback strategy | Trigger: Auto-update configured but no tests for: download failure mid-stream, signature verification failure, disk-full during extraction, app launch after partial update, or rollback mechanism | STOP. Respond: "Auto-update without failure testing and rollback is a bricking mechanism. If the new version crashes on launch, users are locked out with no recovery path except manual reinstall. Implement: atomic swap with backup, signature verification before swap, health-check on launch with auto-rollback if the new version crashes within 30s, and CI tests for every failure mode." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -141,192 +139,15 @@ Desktop spans web technologies (Electron), system languages (Tauri/Rust, Qt/C++)
 - Implementing accessibility (screen readers, keyboard navigation) in desktop webviews
 
 ## Core Workflow
+<!-- COMPRESSED: Full 188 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
 
 ### Phase 1 (~20 min): Framework Selection & Architecture
 1. **Run the framework decision tree** (see Decision Trees). Document: target platforms, performance budget (RAM, CPU, disk), team skills (JS/Rust/C#/C++), and app type (document editor, chat, system utility, game launcher).
 2. **Project scaffold**: Framework CLI — `npm init electron-app@latest`, `npm create tauri-app@latest`, `dotnet new maui`, or CMake-based Qt project.
-3. **IPC architecture**: Define IPC channels and message schemas BEFORE writing handlers. Each channel: name, direction (main↔renderer), payload schema, error responses. Document in `ipc-contract.md`.
-4. **Security baseline**: Electron: `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, structured `contextBridge` API. Tauri: command allowlist, capability-based permissions. WPF: ClickOnce security. MAUI: entitlement restrictions.
-5. **Build pipeline skeleton**: GitHub Actions with matrix (macos-13, macos-14, windows-2022, ubuntu-22.04). Code signing configured (certificates as secrets, never committed).
-
-### Phase 2 (~30 min): Window & Process Architecture
-1. **Main process design**: Lifespan — `app.whenReady()`, `app.on('window-all-closed')`, `app.on('before-quit')`. Platform-specific quit: macOS keeps app alive after last window closes; Windows/Linux quit.
-2. **Window creation**: `BrowserWindow` with size, position, min/max constraints. Persist window state via `electron-window-state`. Restore on next launch.
-3. **Renderer bootstrap**: SPA (React/Vue/Svelte) loaded from local file (`loadFile`) or dev server (`loadURL`). CSP via `session.defaultSession.webRequest.onHeadersReceived`.
-4. **Preload script**: Structured `contextBridge.exposeInMainWorld('electronAPI', { ... })` with typed methods. Validate inputs before IPC. No `require('electron')` in renderer.
-5. **Tray/menu bar**: Platform-specific — macOS menu bar app (no dock icon), Windows system tray with context menu, Linux `libappindicator`. Handle click, right-click, notification badges.
-
-### Phase 3 (~35 min): Core Feature Implementation
-<!-- DEEP: 10+min -->
-1. **IPC handlers**: `ipcMain.handle('channel', async (event, ...args) => { ... })` for request-response. `ipcMain.on` for events. Validate all arguments with Zod/schema. Return structured errors: `{ error?: { code, message }, data }`.
-2. **File system**: Use `dialog.showOpenDialog()` / `showSaveDialog()` — never construct paths from renderer input. Use `app.getPath('userData')` for app storage. Respect sandbox restrictions.
-3. **Native dialogs**: `dialog.showMessageBox()`, `dialog.showErrorBox()`. Platform-native. Avoid custom HTML dialogs that break keyboard nav and screen readers.
-4. **OS integration**: Notifications (`Notification` API or Tauri plugin), file associations (register in builder config), custom protocols (`app.setAsDefaultProtocolClient('myapp')`), global shortcuts (`globalShortcut.register`).
-5. **Offline/PWA patterns**: Cache static assets. Queue operations when offline, replay on reconnect. `navigator.onLine` is unreliable — ping backend or check DNS.
-6. **Crash reporting**: `crashReporter.start()` with submitURL to Sentry. Include: app version, OS version, Electron/Tauri version, GPU info, last 50 log lines. Minidumps for native crashes.
-
-### Phase 4 (~25 min): Auto-Update Pipeline
-1. **Provider selection**: `electron-updater` with S3, GitHub Releases, or generic HTTP. Tauri updater with custom endpoint. Sparkle (macOS native) for non-Electron apps.
-2. **Update server**: Static JSON manifest: `latest.yml` (Windows), `latest-mac.yml` (macOS), `latest-linux.yml` (Linux). Contains: version, files (with SHA512), path, release date, release notes URL.
-3. **Client integration**: Check on app start (debounce 15s after launch). Download in background with progress. Notify user when ready. Support "Install on quit" and "Install now and restart."
-4. **Failure handling**: Signature verification fails → delete download, retry later. Disk full → notify user, don't retry silently. Download interrupted → resume from byte offset. New version crashes on launch → auto-rollback.
-5. **Differential updates**: Ship only changed files. `electron-updater` supports blockmap-based diffs. Reduces update from 180MB to 5-30MB.
-
-### Phase 5 (~30 min): Installer & Distribution
-1. **electron-builder config**: Targets: `nsis` (Windows), `dmg` + `zip` (macOS), `AppImage` + `deb` (Linux). Per-platform: install directory, shortcuts, file associations, uninstaller.
-2. **Code signing**: macOS: `CSC_LINK` (base64 p12), `CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`. Notarize with `notarytool`. Windows: `CSC_LINK`, `CSC_KEY_PASSWORD`. EV certificate for instant SmartScreen trust.
-3. **Notarization**: Staple ticket (`xcrun stapler staple`). Verify with `spctl -a -v`. Gatekeeper requires notarization outside Mac App Store.
-4. **CI/CD**: GitHub Actions matrix: `macos-13` (x64), `macos-14` (arm64), `windows-2022`, `ubuntu-22.04`. Signing secrets in GitHub Secrets. Upload artifacts to release.
-5. **Distribution channels**: Direct download (GitHub Releases), Mac App Store (sandboxed), Microsoft Store (MSIX), Snap/Flatpak (Linux), enterprise MDM (Intune/Jamf).
-
-### Phase 6 (~20 min): Testing
-1. **Unit tests**: Vitest/Jest for main process logic. Spectron/Playwright for renderer. Tauri: Rust `#[cfg(test)]` for backend.
-2. **Integration tests**: IPC handler tests — mock `ipcMain`, send messages, assert responses. File system tests with temp dirs. Auto-update tests with local HTTP server.
-3. **E2E tests**: Playwright with `electron.launch()`. Test: launch, window creation, menu interactions, file dialogs, tray, quit/reopen, update flow. Run against built artifacts.
-4. **Cross-platform matrix**: Run E2E on macOS, Windows, Linux in CI. GPU differences cause platform-specific rendering bugs. Test with `--disable-gpu` on all platforms.
-5. **Performance**: Measure cold start, warm start, memory after idle (5 min), memory under load, CPU idle, disk I/O. Set budgets and alert on regression.
-
-### Framework-Specific Code Patterns
-
-**Electron Preload Security Pattern (TypeScript)**:
-
-```typescript
-// preload.ts — The ONLY file importing from 'electron'
-// NEVER expose ipcRenderer directly. Expose typed, validated functions.
-import { contextBridge, ipcRenderer } from 'electron';
-
-contextBridge.exposeInMainWorld('electronAPI', {
-  getAppVersion: (): Promise<string> =>
-    ipcRenderer.invoke('app:get-version'),
-
-  openFile: async (): Promise<{ filePath: string; content: string } | null> => {
-    const result = await ipcRenderer.invoke('dialog:open-file');
-    if (result?.canceled || !result?.filePaths?.[0]) return null;
-    const content = await ipcRenderer.invoke('fs:read-file', result.filePaths[0]);
-    return { filePath: result.filePaths[0], content };
-  },
-
-  // NEVER expose generic IPC: ipcRenderer, ipcRenderer.on, ipcRenderer.send
-  // Each function is a specific, validated IPC channel
-});
-```
-
-**Tauri Command with Validation (Rust)**:
-
-```rust
-// src-tauri/src/commands.rs
-use tauri::State;
-use std::sync::Mutex;
-
-#[tauri::command]
-fn read_config(key: String, config: State<'_, Mutex<AppConfig>>) -> Result<String, String> {
-    // Validate input — never trust frontend-provided strings blindly
-    if key.len() > 128 || !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
-        return Err(format!("Invalid config key: {key}"));
-    }
-    let cfg = config.lock().map_err(|e| e.to_string())?;
-    cfg.get(&key).cloned().ok_or_else(|| format!("Key not found: {key}"))
-}
-```
-
-**WPF MVVM ViewModel (C#)**:
-
-```csharp
-// MainViewModel.cs — INotifyPropertyChanged for data binding
-public class MainViewModel : INotifyPropertyChanged
-{
-    private string _status = "Ready";
-    public string Status
-    {
-        get => _status;
-        set { _status = value; OnPropertyChanged(); }
-    }
-
-    public ICommand LoadDataCommand { get; }
-
-    public MainViewModel()
-    {
-        LoadDataCommand = new RelayCommand(async () =>
-        {
-            Status = "Loading...";
-            await Task.Run(() => LoadData()); // Off UI thread
-            Status = "Ready";
-        });
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string? name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-}
-```
-
-**electron-builder Configuration (JSON)**:
-
-```json
-{
-  "appId": "com.company.myapp",
-  "productName": "MyApp",
-  "directories": { "output": "dist" },
-  "mac": {
-    "category": "public.app-category.productivity",
-    "hardenedRuntime": true,
-    "entitlements": "build/entitlements.mac.plist",
-    "notarize": { "teamId": "YOUR_TEAM_ID" }
-  },
-  "win": {
-    "target": [{ "target": "nsis", "arch": ["x64", "arm64"] }],
-    "sign": "./scripts/sign-windows.cmd"
-  },
-  "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
-}
-```
-
-**WPF XAML Window with Data Binding (XML)**:
-
-```xml
-<!-- MainWindow.xaml -->
-<Window x:Class="MyApp.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MyApp" Height="450" Width="800"
-        DataContext="{Binding MainViewModel, Source={StaticResource Locator}}">
-    <Grid>
-        <TextBlock Text="{Binding Status}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button Content="Load Data" Command="{Binding LoadDataCommand}" VerticalAlignment="Bottom"/>
-    </Grid>
-</Window>
-```
-
-**CI Sign & Notarize (Bash)**:
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-# macOS code sign + notarize
-if [[ "$(uname)" == "Darwin" ]]; then
-  # Sign all native binaries
-  find dist/mac-arm64/MyApp.app -type f -name '*.dylib' -o -name '*.node' | while read -r file; do
-    codesign --force --options runtime --sign "$APPLE_DEVELOPER_ID" "$file"
-  done
-  codesign --force --options runtime --sign "$APPLE_DEVELOPER_ID" dist/mac-arm64/MyApp.app
-
-  # Notarize and staple
-  ditto -c -k --keepParent dist/mac-arm64/MyApp.app dist/MyApp.zip
-  xcrun notarytool submit dist/MyApp.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
-    --password "$APPLE_APP_PASSWORD" --wait
-  xcrun stapler staple dist/mac-arm64/MyApp.app
-  spctl -a -v dist/mac-arm64/MyApp.app
-fi
-
-# Windows Authenticode signing
-if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$RUNNER_OS" == "Windows" ]]; then
-  signtool sign /fd SHA256 /a /f certificate.pfx /p "$CSC_KEY_PASSWORD" dist/MyApp.exe
-  signtool verify /pa dist/MyApp.exe
-fi
-```
+...
+> 📎 **Full content (188 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -500,6 +321,20 @@ fi
 **When AppImage:** Linux portable. Single file, no install needed. Works on any distro.  
 **When MSIX:** Windows Store. Sandboxed, clean install/uninstall. Automatic Store updates. Limited filesystem access.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |
@@ -648,7 +483,6 @@ Detailed reference material loaded on demand:
 | 1K-10K | CDN costs for updates, delta size matters | Differential updates, CDN with cache-control, staged rollouts (5%→25%→100%) |
 | 10K-100K | Crash reports flood in, need telemetry | Sentry/Bugsnag native + JS, crash rate target <0.1%, automated crash triage |
 | 100K+ | Store compliance, legal review, localization | Microsoft Store ingestion, Mac App Store sandbox, GDPR consent, 12-language installer |
-
 
 ## State Log
 

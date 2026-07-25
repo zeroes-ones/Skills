@@ -27,7 +27,6 @@ chain:
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
-
 # Merge Conflict Resolver
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -46,7 +45,6 @@ These rules are non-negotiable. A violation of any rule means the resolution is 
 | **R5: REFUSE to batch-resolve conflicts (must be hunk-by-hunk)** | User says "just accept theirs for everything" or similar blanket resolution | Reject: "Batch resolution loses intent. Each hunk represents an independent decision. I'll walk through them one at a time." |
 | **R6: VERIFY build and tests after each resolution before proceeding** | A hunk is marked resolved but build/test hasn't run | Pause: "I need to verify this resolution compiles and passes tests before moving to the next hunk." |
 | **R7: DOCUMENT every resolution decision with rationale** | A hunk is resolved without recording strategy and source | Append to resolution log: strategy used, source traced, rationale, and verification result. |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -102,7 +100,9 @@ Dozens of conflicts from parallel development streams. Build a conflict dependen
 
 ## Route the Request
 
-### Auto-Route by Artifacts
+#
+
+## Auto-Route by Artifacts
 
 Check these signals in order. The first match determines routing:
 
@@ -127,7 +127,9 @@ test -f .git/MERGE_HEAD && echo "MERGE_IN_PROGRESS" || \
   echo "NO_CONFLICT"
 ```
 
-### Intent Route
+#
+
+## Intent Route
 
 ```
 User says: "resolve conflicts" or
@@ -144,129 +146,22 @@ User says: "merge this branch"
 ```
 
 ## Core Workflow
+<!-- Full 121 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Conflict Inventory
+#
 
+## Phase 1: Conflict Inventory
 List all conflicted files and their hunk count. Build the resolution queue.
-
-```bash
 # List conflicted files
 git diff --name-only --diff-filter=U
-
-# Count hunks per file
-for f in $(git diff --name-only --diff-filter=U); do
-  echo "$f: $(grep -c '^<<<<<<<' "$f") hunks"
-done
-```
-
-Output a **Conflict Inventory Table**:
-
-| File | Hunks | OURS Branch | THEIRS Branch | Risk |
-|------|-------|-------------|---------------|------|
-| src/auth/login.ts | 3 | feature/2fa | main | HIGH |
-| src/auth/session.ts | 1 | feature/2fa | main | LOW |
-| src/api/middleware.ts | 2 | feature/2fa | main | MEDIUM |
-
-Risk assessment: HIGH = >3 hunks, or changes to critical paths, or semantic overlap with other files. MEDIUM = 2-3 hunks, moderate complexity. LOW = 1 hunk, simple textual conflict.
-
-### Phase 2: Intent Tracing per Hunk
-
-For each hunk, trace OURS and THEIRS to their primary source. This is the heart of the skill.
-
-**Step 2a: Identify the commits that touched the conflicting lines**
-
-```bash
-# For each conflicted file, find the commits on each side
-git log --oneline --no-merges MERGE_HEAD..MERGE_HEAD^1 -- <file>   # OURS commits
-git log --oneline --no-merges MERGE_HEAD^2..MERGE_HEAD -- <file>   # THEIRS commits (for merge)
-# For rebase:
-git log --oneline --no-merges HEAD..REBASE_HEAD -- <file>           # being applied
-```
-
-**Step 2b: Extract commit messages and trace to PR/issue**
-
-```bash
-# Get full commit message for the relevant commit
-git log -1 --format="%B" <commit-hash>
-
-# Find PR number if present (GitHub merge commits)
-git log -1 --format="%B" <commit-hash> | grep -oP 'Merge pull request #\K\d+'
-
-# Find issue references
-git log -1 --format="%B" <commit-hash> | grep -oP '#\d+'
-```
-
-**Step 2c: Build intent summary for each side**
-
-```
-Hunk: src/auth/login.ts, lines 45-72
-OURS (feature/2fa):   Adds TOTP-based 2FA challenge after password auth.
-                      Commit: a1b2c3d "Implement TOTP 2FA flow"
-                      PR: #1842 "Add two-factor authentication"
-                      Issue: #1838 "MFA requirement for SOC2 compliance"
-
-THEIRS (main):        Refactored auth pipeline to support pluggable auth providers.
-                      Commit: e5f6g7h "Extract auth to provider pattern"
-                      PR: #1901 "Pluggable authentication providers"
-                      Issue: #1895 "Auth extensibility for SSO integration"
-```
-
-### Phase 3: Resolution Strategy Selection
-
-For each hunk, select exactly one strategy:
-
-| Strategy | When to Use | Risk |
-|----------|------------|------|
-| **accept-ours** | THEIRS is a refactor that our feature already accounts for; or THEIRS changes were superseded by OURS | MEDIUM — verify no lost functionality |
-| **accept-theirs** | OURS is now redundant (merged into THEIRS refactor); or THEIRS fixes a bug our feature depends on | MEDIUM — verify our feature intent is preserved |
-| **manual-merge** | Both sides add independent, non-overlapping value; or intent of both sides must be preserved | HIGH — requires understanding both intents deeply |
-| **extract-to-shared** | Both sides introduce the same concept with different implementations; both need to coexist | HIGHEST — structural change, creates new abstraction |
-
-If no strategy clearly fits, **default to manual-merge**. Never default to accept-ours or accept-theirs.
-
-### Phase 4: Hunk-by-Hunk Resolution
-
-Process hunks in dependency order. For each hunk:
-
-1. **Read the conflict markers** — understand exactly what differs
-2. **Review the intent summary** from Phase 2
-3. **Select resolution strategy** using the decision tree (see Decision Trees section)
-4. **Apply the resolution** — edit the file to remove conflict markers
-5. **Stage the resolved file**: `git add <file>`
-6. **Verify**: build and run relevant tests
-7. **Document**: record strategy, source, rationale in resolution log
-8. **Proceed** to next hunk only after verification passes
-
-```bash
-# After resolving a hunk and staging:
-git add <resolved-file>
-# Build verification
-npm run build -- --scope=<affected-package>   # or equivalent
-# Test verification
-npm test -- --testPathPattern=<affected-module>
-```
-
-If verification fails, re-examine the hunk. A failure means the resolution broke something — do not proceed.
-
-### Phase 5: Merge Completion
-
-After all hunks are resolved and verified:
-
-1. **Final full build**: `npm run build` (or equivalent)
-2. **Full test suite**: `npm test` (or equivalent)
-3. **Conflict resolution log review**: confirm every hunk has a documented resolution
-4. **Complete the operation**:
-   ```bash
-   # For merge:
-   git commit --no-edit   # uses the auto-generated merge message
-   # For rebase:
-   git rebase --continue
-   ```
-5. **Post-resolution validation**: run the full CI pipeline locally if available
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 121 lines of detailed guidance
 
 ## Decision Trees
 
-### Resolution Strategy Selection
+#
+
+## Resolution Strategy Selection
 
 ```
 For each conflicted hunk:
@@ -290,7 +185,9 @@ For each conflicted hunk:
       └─ NO  → manual-merge (escalate to human if unresolvable)
 ```
 
-### Intent Source Prioritization
+#
+
+## Intent Source Prioritization
 
 When tracing intent, prefer sources in this order:
 
@@ -316,7 +213,9 @@ Intent Source Hierarchy:
       └─ Contains: changed lines, but not why they changed
 ```
 
-### Semantic Conflict Detection
+#
+
+## Semantic Conflict Detection
 
 A semantic conflict exists when the merge succeeds textually but the resulting code has logical errors. Detection patterns:
 
@@ -344,7 +243,9 @@ Check after every manual-merge and accept-* resolution:
       → Check all call sites of modified functions
 ```
 
-### Conflict Pattern Classification
+#
+
+## Conflict Pattern Classification
 
 Classify each conflict hunk into one of these patterns:
 
@@ -369,7 +270,9 @@ Conflict Markers Detected:
       └─ Data-flow: one side changes data shape the other side consumes
 ```
 
-### When to Extract to Shared Module
+#
+
+## When to Extract to Shared Module
 
 The extract-to-shared strategy is the most invasive and should be used deliberately:
 
@@ -396,6 +299,20 @@ Both sides introduce similar but incompatible implementations:
       5. Document the abstraction in the resolution log
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Skill | Relationship | Handoff Trigger |
@@ -411,6 +328,11 @@ Both sides introduce similar but incompatible implementations:
 2. The intent trace (commit/PR/issue for each side of each conflict)
 3. Verification results (build and test pass status for each resolution)
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
+| `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
+
 ## Proactive Triggers
 
 | Trigger | Detection | Action |
@@ -423,12 +345,13 @@ Both sides introduce similar but incompatible implementations:
 | **User enters a merge/rebase that fails** | `git merge` or `git rebase` exits non-zero with conflict message | Intercept: "The operation paused with conflicts. I'll take over resolution." |
 | **Semantic conflict detected post-merge** | Tests fail after clean merge; or logic inspection finds contradictions | "The merge succeeded textually but produced a semantic conflict. I'll re-examine the merged code." |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -448,7 +371,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -461,7 +386,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -529,19 +456,29 @@ Each hunk gets its own resolution pathway. No shortcuts. No batch acceptance. Th
 
 ## Deliberate Practice
 
-### Exercise 1: Intent Tracing Drill (15 min)
+#
+
+## Exercise 1: Intent Tracing Drill (15 min)
 Take a merged PR with known conflicts. For each conflicting hunk, trace the intent of both sides back to their commits and issues. Time yourself: you should be able to identify the primary source (commit, PR, issue) for each hunk within 2 minutes.
 
-### Exercise 2: Strategy Selection Speedrun (10 min)
+#
+
+## Exercise 2: Strategy Selection Speedrun (10 min)
 Given 10 conflict scenarios (description of OURS vs THEIRS changes), select the correct resolution strategy (accept-ours, accept-theirs, manual-merge, extract-to-shared) within 30 seconds each. Check against expert answers.
 
-### Exercise 3: Semantic Conflict Detection (20 min)
+#
+
+## Exercise 3: Semantic Conflict Detection (20 min)
 Review 5 merge commits that introduced bugs despite clean textual merges. For each, identify the semantic conflict that testing caught. Practice writing the pattern that would have caught it during resolution.
 
-### Exercise 4: Multi-Hunk Dependency Resolution (30 min)
+#
+
+## Exercise 4: Multi-Hunk Dependency Resolution (30 min)
 Set up a scenario with 5+ interrelated conflict hunks across 3 files. Resolve them in dependency order, verifying after each. Compare your resolution order to the optimal dependency graph.
 
-### Exercise 5: The No-Abort Challenge (45 min)
+#
+
+## Exercise 5: The No-Abort Challenge (45 min)
 A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic traps). Resolve it from inventory to completion without using `--abort`. Time yourself. Review each resolution decision afterward.
 
 ## Anti-Rationalization — No Excuses
@@ -556,63 +493,63 @@ A colleague creates a deliberately difficult merge conflict (10+ hunks, semantic
 
 ## Gotchas
 
-### Gotcha 1: The --abort reflex ($15,000+)
+#
+
+## Gotcha 1: The --abort reflex ($15,000+)
 The cost of `git merge --abort` or `git rebase --abort` as a reflex when conflicts get messy. Every hunk you've already resolved is lost. On a complex merge with 2 hours of work in, aborting means restarting from zero — that's $150/hr × 2 hours = $300 of direct time, plus $14,700+ in delayed feature delivery if the merge was on the critical path for a release.
 
-### Gotcha 2: Accepting "mine" without reading "theirs" ($5,000-$50,000)
+#
+
+## Gotcha 2: Accepting "mine" without reading "theirs" ($5,000-$50,000)
 Blindly `git checkout --ours` on every conflicted file discards the other side's intent entirely. If the other side fixed a critical bug or implemented a feature your team depends on, you've just re-introduced the bug or lost the feature. The cost ranges from a $5,000 bug-fix redo to a $50,000 production incident.
 
-### Gotcha 3: Semantic conflicts that merge cleanly ($20,000-$100,000)
+#
+
+## Gotcha 3: Semantic conflicts that merge cleanly ($20,000-$100,000)
 The most expensive gotcha. Git merges the text perfectly — no conflict markers, no warnings. But the merged code has contradictory logic: one side assumes a value is always defined, the other added a null path. The bug reaches production. Detection cost: $5,000 in debugging. Fix cost: $3,000. Reputation cost: $12,000+. If it causes a data loss incident: $80,000+.
 
-### Gotcha 4: Batching conflict resolution ($3,000-$10,000)
+#
+
+## Gotcha 4: Batching conflict resolution ($3,000-$10,000)
 Resolving all conflicts at once without verifying between hunks. A resolution in file A breaks file B's assumption. You discover this only after resolving everything. Now you have to unwind: which of the 15 resolutions caused the failure? Each wrong guess costs time. With hunk-by-hunk verification, you'd catch the issue after the first bad resolution — 2 minutes of rework instead of 2 hours.
 
-### Gotcha 5: No verification between resolutions ($8,000-$25,000)
+#
+
+## Gotcha 5: No verification between resolutions ($8,000-$25,000)
 Skipping the build-and-test step between hunk resolutions because "it's just a small change." Three hunks later, the build fails. Was it hunk 1, 2, or 3? Without per-hunk verification, you're binary-searching through your resolutions. Cost: $8,000 in wasted debugging time. If the unverified merge reaches CI and breaks the pipeline for the team: $25,000 in blocked productivity.
 
-### Gotcha 6: Lost intent context ($10,000-$30,000)
+#
+
+## Gotcha 6: Lost intent context ($10,000-$30,000)
 Resolving conflicts without tracing intent. Two months later, someone asks: "Why did we resolve the auth conflict this way?" Nobody knows. The decision dies with the resolver. Cost: $10,000 to re-investigate. If the wrong resolution causes a security vulnerability: $30,000 in audit, remediation, and compliance fallout.
 
-### Gotcha 7: Extract-to-shared without consensus ($15,000-$40,000)
+#
+
+## Gotcha 7: Extract-to-shared without consensus ($15,000-$40,000)
 Extracting a shared abstraction during conflict resolution without consulting the original authors. The new abstraction doesn't fit both use cases cleanly. One team works around it, introducing technical debt. The abstraction must be refactored or reverted. Cost: $15,000-$40,000 in rework across both teams.
 
-### Gotcha 8: Binary file merge conflicts without a resolution protocol ($10,000-$60,000)
+#
+
+## Gotcha 8: Binary file merge conflicts without a resolution protocol ($10,000-$60,000)
 Two designers commit different versions of `hero-banner.psd` or two data engineers update `seed-data.sqlite` on parallel branches. Git marks the binary file as conflicted but offers no meaningful diff — you see "Binary files differ." Without a protocol (e.g., "designer B's version wins on even dates"), both contributors guess. One picks "theirs," the other rolls back and redoes their work. The wrong binary ships to production — in one case, a corrupted SQLite database with stale pricing data causes an e-commerce site to display 2022 prices for 4 hours, processing 1,200 orders at incorrect amounts. **Total cost: $10K-$60K per binary conflict from incorrect resolution, revenue loss from wrong data, and rework.** Fix: Store binary assets in a content-addressable system (S3 with versioning, DVC for ML artifacts); commit only content hashes in Git; establish a deterministic merge protocol for binaries (newest timestamp wins for design files, manual reconciliation required for databases); add a pre-commit hook that warns when binary files > 1MB are staged without a corresponding hash file.
-### Gotcha 9: Conflict resolution that compiles but violates architectural boundaries ($20,000-$80,000)
+#
+
+## Gotcha 9: Conflict resolution that compiles but violates architectural boundaries ($20,000-$80,000)
 You resolve a conflict in `packages/auth` where one branch added a database import and the other added a Redis dependency. Both changes merge cleanly and the code compiles. But now `packages/auth` has two infrastructure dependencies, violating the layered architecture where auth was supposed to be a pure-logic package. Three months later, a `packages/ui` test fails because it transitively pulls in `pg` (PostgreSQL driver) through auth — a dependency that doesn't even compile on the CI macOS runner. Developers spend 2 weeks untangling the dependency graph, and the original merge decision was made in 30 seconds during conflict resolution without architectural review. **Total cost: $20K-$80K in architectural debt remediation from merges that pass tests but violate design constraints.** Fix: Add architecture-boundary checks to CI (e.g., `dependency-cruiser`, `eslint-plugin-boundaries`); during conflict resolution, if a merge introduces a new cross-package dependency, flag it for architectural review before accepting the resolution; maintain a dependency graph as a build artifact so merges that violate it fail CI even if they compile.
-### Gotcha 10: Submodule conflicts from divergent `.gitmodules` updates ($8,000-$25,000)
+#
+
+## Gotcha 10: Submodule conflicts from divergent `.gitmodules` updates ($8,000-$25,000)
 Two branches update the same Git submodule to different SHAs — one for a security patch (v2.1.1), the other for a feature release (v2.2.0). The conflict resolver picks the feature branch SHA without noticing the security patch is being reverted. The vulnerability — an authentication bypass in the submodule — goes live for 11 days before a security scanner catches it. The security team must now determine if any systems were compromised during the exposure window, triggering an incident response process that consumes 80 engineering-hours at $200/hr. **Total cost: $8K-$25K in security incident response and exposure period investigation from submodule conflicts that silently revert patches.** Fix: Configure `.gitmodules` with `fetchRecurseSubmodules = true` and enable Dependabot/Renovate on submodule references; during conflict resolution on `.gitmodules` or submodule pointers, always diff the CHANGELOG between the two SHAs and prioritize the one containing security patches; add a CI check that fails if the resolved submodule SHA is older than the current `main` branch SHA minus any security-related commits.
 
 ## Verification
+<!-- Full 30 lines extracted to references/verification.md -->
 
 Run these checks before declaring the conflict resolution complete:
-
-```bash
 # 1. Verify no conflict markers remain in any tracked file
 grep -r '<<<<<<<' $(git ls-files) && echo "FAIL: Conflict markers still present" || echo "PASS"
-
 # 2. Verify all files are staged
-git diff --name-only --diff-filter=U | grep -q . && echo "FAIL: Unstaged conflicted files" || echo "PASS"
-
-# 3. Verify build succeeds
-npm run build  # or: make build, cargo build, etc.
-# Check exit code: must be 0
-
-# 4. Verify tests pass
-npm test  # or: make test, cargo test, etc.
-# Check exit code: must be 0
-
-# 5. Verify resolution log exists and covers all hunks
-test -f .merge-conflict-resolution-log.md || echo "FAIL: Resolution log missing"
-
-# 6. Semantic conflict check: grep for duplicated function definitions
-grep -n 'function\|const.*=.*(' <resolved-file> | sort -t: -k2 | uniq -d -f1 && \
-  echo "WARN: Possible duplicate definitions" || echo "PASS"
-
-# 7. Verify no unstaged changes (clean working tree aside from merge state)
-git diff --name-only | grep -q . && echo "WARN: Unstaged changes detected" || echo "PASS"
-```
+...
+> 📎 **[references/verification.md](references/verification.md)** — 30 lines of detailed guidance
 
 ## References
 

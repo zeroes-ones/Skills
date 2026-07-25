@@ -18,7 +18,6 @@ chain:
     - macos-developer
     - frontend-developer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 # Desktop Architecture Patterns — Scalable Desktop Application Design
@@ -27,7 +26,9 @@ chain:
 
 ## Route the Request
 
-### Auto-Route (No User Input Required)
+#
+
+## Auto-Route (No User Input Required)
 | # | Condition | Action |
 |---|-----------|--------|
 | A1 | User mentions MVVM, MVP, MVC, Redux-style, or event-driven | This is your skill. Jump to that pattern's dedicated section. |
@@ -64,17 +65,54 @@ You are a desktop architect who has shipped productivity applications, creative 
 
 Desktop architecture follows a 4-phase decision process:
 
-### Phase 1 (~10 min): Platform & Technology Selection
+#
+
+## Phase 1 (~10 min): Platform & Technology Selection
 Evaluate: target OS(es), OS integration depth required, team skills (web vs native), performance requirements, bundle size constraints, distribution complexity. Use the technology selection matrix in Section 16.
 
-### Phase 2 (~15 min): Process Architecture Design
+#
+
+## Phase 2 (~15 min): Process Architecture Design
 Decide: single-process vs multi-process. Define main process responsibilities (window management, native APIs, auto-update). Define renderer responsibilities (UI, business logic). Design IPC protocol: channel-based (Electron), command-based (Tauri), or native message passing.
 
-### Phase 3 (~20 min): Window & State Management
+#
+
+## Phase 3 (~20 min): Window & State Management
 Design: primary window lifecycle, secondary windows (settings, about, modal dialogs), cross-window state synchronization. Decide on state management pattern: Redux/Zustand for Electron, provider/notifier for native, or custom event bus.
 
-### Phase 4 (~15 min): Distribution & Update Architecture
+#
+
+## Phase 4 (~15 min): Distribution & Update Architecture
 Design installer strategy per platform. Implement auto-update: check on launch + periodic check (every 4 hours). Handle update rollback on launch failure. Sign binaries: code signing cert for Windows, notarization for macOS.
+
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Verification Guardrails
+
+Run these checks before declaring work complete. ALL must pass.
+
+| # | Guardrail | Check |
+|---|-----------|-------|
+| V1 | Output matches specification | Compare generated output against the requirements stated at the start. Every explicit requirement must have a corresponding deliverable. |
+| V2 | No broken references or links | All file references must resolve. Run `grep -oP '\]\([^)]+\)' [output] | while read link; do [ -f "$link" ] || echo "BROKEN: $link"; done`. |
+| V3 | All validations pass where applicable | Run any existing test suite or verification script. `bash scripts/validate-skills.sh` if in this repository. |
+| V4 | No placeholder or TODO content remains | `grep -ri 'TODO\|FIXME\|PLACEHOLDER' [output]` must return empty. |
+| V5 | Error states handled | Verify error paths produce clear messages, not silent failures or stack traces. |
+| V6 | Edge cases considered | Empty input, max/min values, concurrent access, boundary conditions handled or documented as out-of-scope. |
+| V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
+| V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
 ## Cross-Skill Coordination
 
@@ -90,12 +128,13 @@ Design installer strategy per platform. Implement auto-update: check on launch +
 | `macos-developer` | macOS-specific patterns: sandboxing, XPC, notarization, MenuBar apps | When targeting macOS |
 | `devops-engineer` | CI/CD for multi-platform builds, code signing pipeline, auto-update CDN | Before distribution pipeline setup |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -115,7 +154,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -128,7 +169,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -166,11 +209,11 @@ Detailed reference material loaded on demand:
 - **Technology Comparison Matrix**: See [technology-comparison.md](references/technology-comparison.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
 
-
-
 ## Ground Rules — Read Before Anything Else
 
-### 1.1 Non-Negotiables
+#
+
+## 1.1 Non-Negotiables
 
 1. **NEVER run heavy computation on the main/render thread.** A single 200ms synchronous operation freezes the entire UI, costing $50K+ in user churn per release for mid-market SaaS products. Offload to worker threads, background services, or child processes — no exceptions.
 
@@ -184,7 +227,9 @@ Detailed reference material loaded on demand:
 
 6. **NEVER hardcode platform paths.** `%APPDATA%` on Windows, `~/Library/Application Support` on macOS, `$XDG_DATA_HOME` on Linux. Use `env-paths` or equivalent. Platform path bugs create irrecoverable data-states — average remediation cost: $45K per incident.
 
-### 1.2 Architecture First Principles
+#
+
+## 1.2 Architecture First Principles
 
 - **Process isolation beats shared memory.** Every desktop app operates in a hostile OS environment. Antivirus hooks, accessibility tools, other apps — all can inject into your process space. Isolate critical logic.
 - **The installer is part of your architecture.** Code signing, elevation requirements, file associations, protocol handlers — these are architectural decisions, not packaging afterthoughts.
@@ -200,7 +245,9 @@ Detailed reference material loaded on demand:
 
 ## Decision Trees
 
-### 2.1 Electron vs Tauri vs Native
+#
+
+## 2.1 Electron vs Tauri vs Native
 
 ```
 Is your team primarily web/frontend developers?
@@ -220,7 +267,9 @@ Is your team primarily web/frontend developers?
 
 **Cost of wrong choice:** Electron when Tauri would suffice → $120K/yr in excess memory/CPU on user machines (support load). Tauri when Electron is needed → $200K+ rewriting rendering pipeline for complex browser features.
 
-### 2.2 MVVM vs MVP vs Redux-Style for Desktop
+#
+
+## 2.2 MVVM vs MVP vs Redux-Style for Desktop
 
 ```
 Does your app have complex, interactive forms with bidirectional data binding?
@@ -234,7 +283,9 @@ Does your app have complex, interactive forms with bidirectional data binding?
         └── 4+ → **Redux-style** — centralized store prevents sync chaos
 ```
 
-### 2.3 Multi-Window vs Single-Window with Tabs/Views
+#
+
+## 2.3 Multi-Window vs Single-Window with Tabs/Views
 
 ```
 Does the user need to compare content side-by-side?
@@ -246,7 +297,9 @@ Does the user need to compare content side-by-side?
     └── NO → **Single-window with navigation** — simpler lifecycle
 ```
 
-### 2.4 SQLite vs File-Based Storage
+#
+
+## 2.4 SQLite vs File-Based Storage
 
 ```
 Is your data structured with > 1000 records or relational queries?
@@ -258,7 +311,9 @@ Is your data structured with > 1000 records or relational queries?
     └── NO → **SQLite** — future-proofs against schema evolution
 ```
 
-### 2.5 Auto-Update Strategy
+#
+
+## 2.5 Auto-Update Strategy
 
 ```
 Is your app on an app store (Mac App Store, Microsoft Store)?
@@ -270,7 +325,9 @@ Is your app on an app store (Mac App Store, Microsoft Store)?
         └── Standard → **electron-updater / Tauri updater** — simple, well-tested
 ```
 
-### 2.6 IPC Mechanism
+#
+
+## 2.6 IPC Mechanism
 
 ```
 Are you using Electron/Tauri?
@@ -318,99 +375,23 @@ This table lists the excuses teams give for skipping architectural rigor — and
 ---
 
 ## 5. Core Desktop Architecture Patterns
+<!-- COMPRESSED: Full 91 lines extracted to references/5-core-desktop-architecture-patterns.md -->
 
-### 5.1 MVVM (Model-View-ViewModel)
+#
+
+## 5.1 MVVM (Model-View-ViewModel)
 
 The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, Avalonia).
 
 ```
-┌──────────────┐     Data Binding      ┌─────────────────┐
-│    VIEW      │◄──────────────────────►│   VIEWMODEL     │
-│  (XAML,      │   Commands/Events      │  (Observable     │
-│   SwiftUI,   │                        │   Objects,       │
-│   HTML/CSS)  │                        │   @Published)    │
-└──────────────┘                        └────────┬────────┘
-                                                  │
-                                         ┌────────▼────────┐
-                                         │     MODEL        │
-                                         │  (Domain Logic,  │
-                                         │   Data Access,   │
-                                         │   Validation)    │
-                                         └─────────────────┘
-```
-
-**Key rules:**
-- ViewModel never holds a reference to View — only exposes observables
-- Model never imports View/ViewModel namespaces
-- Commands encapsulate actions with `canExecute` guards
-- Use `INotifyPropertyChanged` (WPF), `@Published` (SwiftUI), or `Observable` (MobX for Electron)
-
-**Anti-patterns:**
-- ViewModels that import UI frameworks (`System.Windows`, `SwiftUI`) — testability destroyed
-- Models that know about data binding — tight coupling to presentation
-- Views with logic beyond simple property/event wiring
-
-See: [reference/desktop-mvvm-patterns.md](reference/desktop-mvvm-patterns.md)
-
-### 5.2 Redux-Style / Unidirectional Data Flow
-
-Best for complex state with undo/redo, time-travel debugging, or multi-window sync.
-
-```
-┌──────────┐   dispatch(action)   ┌──────────┐   new state   ┌──────────┐
-│  VIEW    │─────────────────────►│ REDUCER  │──────────────►│  STORE   │
-│          │                      │(pure fn) │               │(single   │
-│          │                      └──────────┘               │ source   │
-│          │                                                 │ of truth)│
-│          │◄────────────────────────────────────────────────┤          │
-└──────────┘              subscribe(state)                   └──────────┘
-```
-
-**Desktop-specific concerns:**
-- Multiple windows = multiple stores or a single store with scoped selectors
-- Main process store + renderer process stores with IPC sync
-- Middleware for persistence (redux-persist with SQLite adapter)
-- Action serialization for undo stack (keep actions, not snapshots)
-
-See: [reference/desktop-state-management.md](reference/desktop-state-management.md)
-
-### 5.3 MVP (Model-View-Presenter)
-
-Best for frameworks without native data binding, or when you need maximum testability.
-
-```
-┌──────────┐   interface   ┌─────────────┐              ┌──────────┐
-│  VIEW    │◄──────────────┤  PRESENTER   │─────────────►│  MODEL   │
-│ (passive,│               │ (mediator,   │              │          │
-│  no logic│               │  testable)   │              │          │
-│  at all) │──────────────►│              │              │          │
-└──────────┘  user events   └─────────────┘              └──────────┘
-```
-
-**Rule:** Presenter has zero knowledge of UI framework. It receives plain data from View interface and returns plain data. Test presenters with mock Views — 100% coverage achievable.
-
-### 5.4 Event-Driven Architecture
-
-For apps with loosely coupled subsystems (notifications, plugins, system tray, menu bar).
-
-```
-┌──────────┐  event   ┌──────────────┐  event   ┌──────────┐
-│ Producer │─────────►│  Event Bus    │─────────►│ Consumer │
-│  (Window │          │  (typed,      │          │  (Tray,  │
-│   A)     │          │   centralized)│          │   Menu)  │
-└──────────┘          └──────────────┘          └──────────┘
-```
-
-**Desktop event bus patterns:**
-- Electron: `ipcMain`/`ipcRenderer` for cross-process, `EventEmitter` for intra-process
-- Tauri: event system (`listen`/`emit`) with JSON payloads
-- Native: OS event loops (NSNotificationCenter on macOS, Windows message pump)
-
----
+...
+> 📎 **Full content (91 lines):** [references/5-core-desktop-architecture-patterns.md](references/5-core-desktop-architecture-patterns.md)
 
 ## 6. Multi-Window Architecture
 
-### 6.1 Window Ownership Model
+#
+
+## 6.1 Window Ownership Model
 
 ```
 ┌──────────────────────────────────────────┐
@@ -463,35 +444,14 @@ See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.
 ---
 
 ## 8. System Tray & Background Services
+<!-- Full 31 lines extracted to references/8-system-tray-background-services.md -->
 
-```
 ┌─────────────────────────────────────────┐
 │          SYSTEM TRAY ICON               │
 │  ┌───────────────────────────────────┐ │
 │  │  Show/Hide Windows                │ │
-│  │  Quick Actions (context menu)     │ │
-│  │  Status Indicators                │ │
-│  └───────────┬───────────────────────┘ │
-│              │                          │
-│  ┌───────────▼───────────────────────┐ │
-│  │    BACKGROUND SERVICE PROCESS     │ │
-│  │  ┌─────────┐  ┌────────────────┐  │ │
-│  │  │ Watcher │  │ Sync Scheduler │  │ │
-│  │  │ (fs,    │  │ (periodic      │  │ │
-│  │  │  network│  │  operations)   │  │ │
-│  │  └─────────┘  └────────────────┘  │ │
-│  └───────────────────────────────────┘ │
-└─────────────────────────────────────────┘
-```
-
-**Platform differences:**
-- Windows: System tray + Notification Area (always visible by default)
-- macOS: Menu bar app (`NSStatusBar`) + `LSUIElement` for background-only
-- Linux: `StatusNotifier` (KDE) / `AppIndicator` (Ubuntu) — fragmented ecosystem
-
-See: [reference/system-tray-background-services.md](reference/system-tray-background-services.md)
-
----
+...
+> 📎 **[references/8-system-tray-background-services.md](references/8-system-tray-background-services.md)** — 31 lines of detailed guidance
 
 ## 9. Auto-Update Architecture
 
@@ -523,7 +483,9 @@ See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-p
 
 ## 10. Desktop Security Architecture
 
-### 10.1 Threat Model
+#
+
+## 10.1 Threat Model
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -543,7 +505,9 @@ See: [reference/desktop-security-architecture.md](reference/desktop-security-arc
 
 ## 11. Cross-Platform Desktop Strategies
 
-### 11.1 Platform Abstraction Layer
+#
+
+## 11.1 Platform Abstraction Layer
 
 ```
 ┌──────────────────────────────────────┐
@@ -566,7 +530,9 @@ See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-d
 
 ## 12. Desktop State Management
 
-### 12.1 State Categories
+#
+
+## 12.1 State Categories
 
 | Category | Location | Persistence | Sync Strategy |
 |----------|----------|-------------|---------------|
@@ -581,42 +547,22 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 ---
 
 ## 13. Performance Architecture
+<!-- Full 34 lines extracted to references/13-performance-architecture.md -->
 
-### 13.1 Thread/Process Model
+#
 
-```
+## 13.1 Thread/Process Model
 ┌────────────────────────────────────────────────┐
 │                  MAIN PROCESS                   │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
-│  │ IPC Hub  │  │ Menu/    │  │ Native       │ │
-│  │          │  │ Tray     │  │ Addons (NAPI)│ │
-│  └──────────┘  └──────────┘  └──────────────┘ │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
-│  │ Worker 1 │  │ Worker 2 │  │ Worker N     │ │
-│  │ (CPU)    │  │ (I/O)    │  │ (Specialized)│ │
-│  └──────────┘  └──────────┘  └──────────────┘ │
-└────────────────────────────────────────────────┘
-```
-
-- **CPU-bound work** → Worker threads (Node.js `worker_threads`) or Web Workers
-- **I/O-bound work** → Async I/O in main process (libuv handles it natively)
-- **GPU-bound work** → Renderer process (WebGL, Canvas, CSS animations)
-
-### 13.2 Memory Budget
-
-| App Type | Idle Memory | Active Memory | Bundle Size |
-|----------|-------------|---------------|-------------|
-| Tauri | 30-50 MB | 80-150 MB | 5-15 MB |
-| Electron (optimized) | 80-120 MB | 200-400 MB | 50-120 MB |
-| Electron (unoptimized) | 200-400 MB | 800+ MB | 150-300 MB |
-| SwiftUI | 40-80 MB | 120-200 MB | 10-30 MB |
-| WinUI 3 | 50-100 MB | 150-300 MB | 20-50 MB |
-
----
+...
+> 📎 **[references/13-performance-architecture.md](references/13-performance-architecture.md)** — 34 lines of detailed guidance
 
 ## 14. Installer & Distribution Architecture
 
-### 14.1 Platform Matrix
+#
+
+## 14.1 Platform Matrix
 
 | Platform | Format | Code Signing | Store Option |
 |----------|--------|--------------|--------------|
@@ -624,7 +570,9 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 | macOS | DMG / PKG | Apple Developer ID + Notarization | Mac App Store |
 | Linux | AppImage / deb / rpm / Flatpak | GPG (optional) | Flathub / Snap Store |
 
-### 14.2 Installation Concerns
+#
+
+## 14.2 Installation Concerns
 - Per-user vs per-machine installation
 - File associations and protocol handlers (registry on Windows, plist on macOS, `.desktop` on Linux)
 - Auto-start registration (respect user choice, easy to disable)
@@ -634,7 +582,9 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 
 ## 15. Testing Architecture
 
-### 15.1 Testing Pyramid for Desktop Apps
+#
+
+## 15.1 Testing Pyramid for Desktop Apps
 
 ```
          ┌──────┐
@@ -646,7 +596,9 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
        └──────────┘
 ```
 
-### 15.2 Desktop-Specific Test Concerns
+#
+
+## 15.2 Desktop-Specific Test Concerns
 - Multi-window interaction tests
 - System tray click → window show/hide
 - Auto-update download → apply → restart cycle

@@ -19,7 +19,6 @@ chain:
     - security-reviewer
     - performance-engineer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 # Android Developer — Native Android Application Development
@@ -30,7 +29,9 @@ Build production-grade native Android applications with Kotlin and Jetpack Compo
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-### Auto-Route (No User Input Required)
+#
+
+## Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -44,7 +45,9 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A7 | `file_contains("*.xml", "strings.xml\|contentDescription\|accessibility")` OR `file_contains("*.kt", "contentDescription\|semantics\|TalkBack")` | Jump to references/android-accessibility.md. |
 | A8 | `file_contains("*.kt", "Glide\|Coil\|BitmapFactory")` AND `file_contains("*.kt", "override(\|resize\|inSampleSize")` | Jump to references/android-performance-optimization.md. |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -81,7 +84,6 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | **R6** | **DETECT missing contentDescription on interactive Composables.** Every Image, IconButton, and unlabeled interactive element needs contentDescription for TalkBack. | Trigger: `Image(` or `IconButton(` in `@Composable` lacking `contentDescription` AND no adjacent `Text()` describing the element | STOP. "Missing contentDescription at [file:line]. TalkBack reads 'unlabeled button' — a Play Store pre-launch report violation. Decorative: `contentDescription = null`. Interactive: describe the action." |
 | **R7** | **DETECT collectAsState without lifecycle awareness.** Hot Flow collection must pause when lifecycle drops below STARTED. | Trigger: `Flow.collectAsState()` in `@Composable` without `collectAsStateWithLifecycle()` | STOP. "Use `collectAsStateWithLifecycle()` from lifecycle-runtime-compose. Plain `collectAsState()` wastes battery and CPU collecting when the screen is off-screen." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -90,10 +92,14 @@ Do not read the entire skill. Follow the route above and read only the sections 
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
 
-### The Mental Model Shift
+#
+
+## The Mental Model Shift
 Competent Android developers build apps that work on their Pixel 9 Pro. Masters build experiences that **work on a $150 Samsung Galaxy A14 with 4GB RAM, on 3G connectivity, at 10% battery.** Your flagship device on office WiFi represents 5% of global Android users. Design for constraints first — enhance for abundance.
 
-### Cognitive Biases That Kill Android Experiences
+#
+
+## Cognitive Biases That Kill Android Experiences
 | Bias | How It Manifests | Antidote |
 |-------|------------------|----------|
 | **Flagship device blindness** | Testing exclusively on latest Pixel — missing the 4GB RAM device where your app is killed every 30 seconds | Maintain a device lab: latest flagship + 3-year-old budget device. Budget is primary test target. |
@@ -101,14 +107,18 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 | **Coroutine over-engineering** | Building Channel/actor pipelines for simple data loading | A `StateFlow` with `map`/`combine` handles 95% of cases. Channels are for one-shot events only. |
 | **Premature DI abstraction** | Adding Koin or manual factories "to keep it simple" — then fighting lifecycle bugs | Hilt costs 3 annotation lines per class. Compile-time verification prevents runtime DI crashes. |
 
-### What Android Masters Know
+#
+
+## What Android Masters Know
 - **The Activity lifecycle is a contract, not a suggestion.** Test every screen with "Don't keep activities" enabled in Developer Options. If your app crashes or loses form input after process death and recreation, it's not production-ready. `SavedStateHandle` in ViewModel and `rememberSaveable` in Compose are mandatory, not optional.
 - **`LazyColumn` performance is 90% about `onBindViewHolder` cost.** The difference between buttery 60fps and janky 30fps is the cost of each item binding. Avoid object allocation, complex layout inflation, and bitmap decoding in item composables. Always provide stable `key = { it.id }` for correct recomposition on list mutations. Use `DiffUtil`-equivalent `key` tracking to prevent item identity confusion.
 - **R8/ProGuard rules are a liability, not a safety net.** Every `-keep` rule you write increases APK size and reduces optimization potential. The goal is zero custom keep rules in `proguard-rules.pro`. AndroidX, Retrofit, Gson/Moshi, Room, Glide/Coil all ship their own consumer ProGuard rules — R8 picks them up automatically from AAR manifests. If you need a custom `-keep`, you've found a reflection pattern that should be made explicit with `@Keep` annotations.
 - **Every refactor must remove dead code — not just reorganize it.** When you refactor a screen or module, actively hunt for unused resources, dead navigation routes, stale feature flags, and abandoned Gradle dependencies. Each unused drawable bloats the APK. Each unused string clutters translation files. Each unused dependency increases build time and ProGuard complexity. A refactor's diff should be net-negative in lines.
 - **Baseline profiles are not optional for release.** A generated baseline profile pre-compiles critical code paths during install (AOT compilation), reducing JIT warmup by 30-40%. Without one, your app interprets bytecode on first launch after install — producing jank and slow startup for every new user. Generate via Macrobenchmark's `BaselineProfileRule.collect()` and include in your AAB. Every release should audit the baseline profile delta for regressions.
 
-### When to Break Your Own Rules
+#
+
+## When to Break Your Own Rules
 - **Skip Compose for GPU-intensive custom views.** Real-time audio visualizers, OpenGL maps, per-frame camera processing: use `AndroidView` wrapping a custom `GLSurfaceView`.
 - **Use ContentProvider for cross-app data sharing.** Room is for in-app persistence. Inter-app data goes through ContentProvider with a contract URI.
 
@@ -143,7 +153,9 @@ Competent Android developers build apps that work on their Pixel 9 Pro. Masters 
 
 <!-- QUICK: 30s -- follow the ASCII tree to your scenario -->
 
-### Compose vs XML Layout
+#
+
+## Compose vs XML Layout
 
 ```
 New project, minSdk ≥ 21, team comfortable with declarative UI?
@@ -153,7 +165,9 @@ New project, minSdk ≥ 21, team comfortable with declarative UI?
           └── NO  → XML + Data Binding + Fragments (migration path)
 ```
 
-### MVVM vs MVI
+#
+
+## MVVM vs MVI
 
 ```
 Complex user-driven state machines (wizard, checkout, multi-step forms)?
@@ -163,7 +177,9 @@ Complex user-driven state machines (wizard, checkout, multi-step forms)?
           └── NO  → Start with MVVM. Graduate to MVI only when state complexity demands it.
 ```
 
-### Room vs SQLDelight
+#
+
+## Room vs SQLDelight
 
 ```
 KMP (Kotlin Multiplatform) planned or in use?
@@ -173,7 +189,9 @@ KMP (Kotlin Multiplatform) planned or in use?
           └── NO  → Room. It's the default. Google's recommended persistence library.
 ```
 
-### Hilt vs Koin vs Manual DI
+#
+
+## Hilt vs Koin vs Manual DI
 
 ```
 Build speed the overwhelming concern AND < 10 ViewModels?
@@ -184,7 +202,9 @@ Build speed the overwhelming concern AND < 10 ViewModels?
 ```
 **Koin**: Prefer if team needs runtime DI with DSL definitions. Risk: runtime crash for missing deps vs Hilt's compile-time error.
 
-### Navigation Compose vs Fragments
+#
+
+## Navigation Compose vs Fragments
 
 ```
 UI built entirely with Compose (no XML screens)?
@@ -194,7 +214,9 @@ UI built entirely with Compose (no XML screens)?
           └── NO  → Migrate new screens to Nav Compose. Interop existing Fragments.
 ```
 
-### ProGuard/R8 Configuration
+#
+
+## ProGuard/R8 Configuration
 
 ```
 Using reflection, serialization, or annotation processors requiring class names?
@@ -203,206 +225,30 @@ Using reflection, serialization, or annotation processors requiring class names?
 ```
 
 ## Core Workflow
+<!-- Full 203 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s -- scan phase titles -->
+#
 
-### Phase 1 (~15 min): Project Setup & Architecture
+## Phase 1 (~15 min): Project Setup & Architecture
 1. **Gradle convention plugins** via `buildSrc` — shared `android { }` blocks, no copy-paste
 2. **Feature-based modules**: `:feature:auth`, `:feature:feed`, not layer-based `:data`, `:domain`, `:ui`
-3. **Hilt**: `@HiltAndroidApp` on Application, `@AndroidEntryPoint` on Activity, `@HiltViewModel` on ViewModels
-4. **Theme**: `MaterialTheme` with `dynamicColor` on Android 12+, fallback `lightColorScheme()`/`darkColorScheme()`
-5. **Navigation**: Single `NavHost` per Activity. Each feature contributes `NavGraphBuilder` extensions.
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 203 lines of detailed guidance
 
-### Phase 2 (~30 min): Compose UI Implementation
-1. **Screen = one @Composable**. Extract sub-composables for reuse. Screen receives NavController + ViewModel.
-2. **State**: `val uiState by viewModel.uiState.collectAsStateWithLifecycle()`. Sealed `UiState`: Loading, Success, Error, Empty.
-3. **LazyColumn**: `key = { it.id }` for stable recomposition. `remember` for expensive calcs inside items.
-4. **Scaffold pattern**: `Scaffold` with `topBar`, `bottomBar`, `floatingActionButton`, `snackbarHostState`.
-5. **Side effects**: `LaunchedEffect(key)` for one-shot, `DisposableEffect` for cleanup, `rememberCoroutineScope()` for user-triggered suspend calls.
-> See [references/jetpack-compose-patterns.md](references/jetpack-compose-patterns.md) for the full catalog.
+## Error Recovery
 
-### Phase 3 (~20 min): ViewModel & State
-1. **ViewModel lifecycle**: `@HiltViewModel class VM @Inject constructor(repo: Repo) : ViewModel()`. Survives config changes.
-2. **StateFlow exposure**: `private val _uiState = MutableStateFlow(UiState.Loading)` → `val uiState: StateFlow<UiState> = _uiState.asStateFlow()`. Never `LiveData` for new code.
-3. **One-shot events**: `Channel<UiEvent>(Channel.BUFFERED)` → `receiveAsFlow()`. For navigation, snackbar, dialog.
-4. **Error handling**: `viewModelScope.launch { try { ... } catch (e: Exception) { _uiState.value = UiState.Error(e.message) } }`.
-5. **Testing**: `runTest { vm.uiState.test { assertEquals(Loading, awaitItem()); vm.load(); assertEquals(Success(data), awaitItem()) } }`.
+If a command or approach fails, follow this escalation path before giving up:
 
-### Phase 4 (~20 min): Background Processing
-1. **Deferrable work**: `WorkManager` — must complete even if app exits. `CoroutineWorker.doWork()` is suspend.
-2. **Constraints**: `NetworkType.UNMETERED`, `BatteryNotLow`. Respect user resources.
-3. **Foreground Services**: User-visible tasks (media, navigation, download). Non-dismissible notification within 5s. Android 14+ requires type-specific permission.
-4. **Exact alarms**: `AlarmManager.setExactAndAllowWhileIdle()`. Requires `SCHEDULE_EXACT_ALARM`. Fallback to WorkManager.
-5. Return `Result.success()`, `Result.failure()`, or `Result.retry()` from `doWork()`.
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
-### Phase 5 (~15 min): Resources & Localization
-1. **String resources**: `strings.xml` for all user-facing text. `stringResource()` in Compose. Zero hardcoded strings in Kotlin files.
-2. **Dark theme**: `darkColorScheme()` in theme. 4.5:1 contrast minimum. Test with forced night mode.
-3. **Image assets**: Vector drawables (icons < 200dp), WebP (photos), adaptive icons (foreground + background layers).
-4. **Dynamic color**: `dynamicLightColorScheme(context)` / `dynamicDarkColorScheme(context)` on Android 12+.
-
-### Phase 6 (~30 min): Testing Strategy
-
-**Unit tests with JUnit5 + MockK + Turbine:**
-
-```kotlin
-@OptIn(ExperimentalCoroutinesApi::class)
-class FeedViewModelTest {
-    @get:Rule val mainDispatcherRule = MainDispatcherRule()
-    private val repository: FeedRepository = mockk(relaxed = true)
-    private lateinit var viewModel: FeedViewModel
-
-    @Before fun setup() { viewModel = FeedViewModel(repository) }
-
-    @Test fun `emits Loading then Success`() = runTest {
-        val posts = listOf(Post("1", "Title", "Body"))
-        coEvery { repository.getFeed(any()) } returns flowOf(Resource.Success(posts))
-        viewModel.uiState.test {
-            assertThat(awaitItem()).isInstanceOf(FeedUiState.Loading::class.java)
-            assertThat((awaitItem() as FeedUiState.Success).posts).hasSize(1)
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-}
-// testImplementation("io.mockk:mockk:1.13.13")
-// testImplementation("app.cash.turbine:turbine:1.2.0")
-// testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-```
-
-**Compose UI tests with test tags:**
-
-```kotlin
-@RunWith(AndroidJUnit4::class)
-class FeedScreenTest {
-    @get:Rule val composeTestRule = createComposeRule()
-
-    @Test fun `shows error and retry on failure`() {
-        composeTestRule.setContent {
-            FeedScreen(uiState = FeedUiState.Error("No internet", retryAction = {}), ...)
-        }
-        composeTestRule.onNodeWithTag("error_retry_button").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("error_message").assertTextEquals("No internet")
-    }
-}
-// androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-// debugImplementation("androidx.compose.ui:ui-test-manifest")
-```
-
-**Room DAO tests with in-memory database:**
-
-```kotlin
-@RunWith(AndroidJUnit4::class)
-class ProductDaoTest {
-    private lateinit var db: AppDatabase
-    private lateinit var dao: ProductDao
-
-    @Before fun setup() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-        dao = db.productDao()
-    }
-    @After fun teardown() { db.close() }
-
-    @Test fun `upsert inserts or replaces products`() = runTest {
-        dao.upsertProducts(listOf(ProductEntity("1", "Test", 999, "", "cat1")))
-        assertThat(dao.getProductById("1")).isNotNull()
-    }
-}
-```
-
-### Phase 7 (~30 min): Background Work — WorkManager & Foreground Services
-
-```kotlin
-// Period sync with constraints — Android enforces 15 min minimum interval
-@HiltWorker
-class DataSyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
-    private val syncRepo: SyncRepository,
-) : CoroutineWorker(context, params) {
-    override suspend fun doWork(): Result {
-        setForeground(ForegroundInfo(1001, createSyncNotification()))
-        return try {
-            syncRepo.syncPendingChanges()
-            Result.success()
-        } catch (e: IOException) {
-            if (runAttemptCount < 3) Result.retry() else Result.failure()
-        }
-    }
-    companion object {
-        fun enqueue(ctx: Context) {
-            WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
-                "periodic_sync", ExistingPeriodicWorkPolicy.KEEP,
-                PeriodicWorkRequestBuilder<DataSyncWorker>(15, TimeUnit.MINUTES)
-                    .setConstraints(Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true).build())
-                    .build()
-            )
-        }
-    }
-}
-```
-
-```xml
-<!-- AndroidManifest.xml foreground service declarations -->
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<service android:name=".service.UploadService"
-    android:foregroundServiceType="dataSync" android:exported="false" />
-```
-
-### Phase 8 (~20 min): Play Store Deployment
-
-```kotlin
-// app/build.gradle.kts — signing from CI env, NEVER commit keystore
-android {
-    signingConfigs {
-        create("release") {
-            storeFile = rootProject.file("upload-keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true; isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
-    }
-}
-```
-
-**Play Console pre-submission checklist:**
-1. `targetSdkVersion 35` — required within 1 year of Android 15 release
-2. Privacy policy URL in Play Console AND in-app (mandatory for personal data collection)
-3. Data safety form: declare ALL data types collected/shared
-4. IARC content rating questionnaire completed
-5. `android:debuggable="false"` in release manifest (Play rejects debuggable APKs)
-6. `ndk { abiFilters += listOf("arm64-v8a", "x86_64") }` if any native code
-7. Screenshots: 2 phone (6.5"), 7" tablet, 10" tablet for tablet-supported apps
-8. Permissions Declaration Form for background location, `QUERY_ALL_PACKAGES`, `MANAGE_EXTERNAL_STORAGE`
-9. Enroll in Play App Signing — verify upload key SHA-1 matches Console
-10. Managed publishing enabled for controlled staged rollout (10% → 50% → 100%)
-
-```kotlin
-// In-app review API — max once/30 days, Google-enforced, never show custom prompt
-// implementation("com.google.android.play:review-ktx:2.0.1")
-fun requestInAppReview(activity: Activity) {
-    val manager = ReviewManagerFactory.create(activity)
-    manager.requestReviewFlow().addOnCompleteListener { request ->
-        if (request.isSuccessful) manager.launchReviewFlow(activity, request.result)
-    }
-}
-
-// Billing 7.x — subscriptions and one-time purchases
-// implementation("com.android.billingclient:billing-ktx:7.1.1")
-// Must acknowledge purchases within 3 days or Google auto-refunds
-// Must handle pending purchases (slow payment methods in India, Brazil)
-```
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
 
@@ -421,7 +267,9 @@ fun requestInAppReview(activity: Activity) {
 | `security-reviewer` | R8 mapping, Keystore implementation, cert pinning, root detection | Security review can't assess Android attack surface |
 | `performance-engineer` | Profile data, baseline profiles, macrobenchmark results, APK size breakdown | Performance optimization needs instrumented measurement |
 
-### Communication Triggers
+#
+
+## Communication Triggers
 
 | Trigger | Notify | Why |
 |---|---|---|
@@ -431,7 +279,9 @@ fun requestInAppReview(activity: Activity) {
 | Play Store pre-launch report violation | QA, Accessibility Auditor | Fix before production |
 | ProGuard/R8 rule added | Performance, Release Manager | APK size regression, obfuscation verification |
 
-### Escalation Path
+#
+
+## Escalation Path
 
 ```
 Play Store rejection? → Release Manager → Legal Advisor
@@ -456,12 +306,13 @@ These are signals that should trigger the Android developer to investigate — n
 | "Release APK 3× debug size — R8 not running" | APK size >150MB loses 20% install conversion on cellular. Check `isMinifyEnabled = true` AND `isShrinkResources = true` in release. Run APK Analyzer → sort by raw size. `resConfigs("en")` removes all non-English resources from libraries. Enable `android.enableR8.fullMode=true` in `gradle.properties`. **Impact: $5K-$10K in lost installs + CDN costs for oversized downloads.** |
 | "TalkBack reads 'unlabeled button' on half the UI" | ADA Title III lawsuits settle for $10K-$50K. Play Store pre-launch report flags a11y. Every `IconButton`, `FloatingActionButton`, `Image` without adjacent text needs `contentDescription`. Run Accessibility Scanner from Play Store. Group elements with `semantics(mergeDescendants = true)`. **Impact: $10K-$50K in accessibility lawsuit risk + Play Store pre-launch warnings.** |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -481,7 +332,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -494,7 +347,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -509,7 +364,9 @@ Before beginning a new phase, verify:
 
 > `AndroidManifest.xml` has `android:supportsRtl="true"`, layout mirrors correctly in Arabic/Hebrew. Pseudo-localized strings (`en-XA`) pass without truncation. R8 enabled in release with `isMinifyEnabled = true` AND `isShrinkResources = true`. `proguard-rules.pro` contains zero custom `-keep` rules — all libraries ship consumer rules. `app/build.gradle.kts` uses `composeBom` for version management, KSP instead of kapt. Baseline profiles generated via Macrobenchmark and included in every AAB. Room schema exported with `exportSchema = true`, migration tests validate every version path against production database snapshots.
 
-### Cross-skills Integration
+#
+
+## Cross-skills Integration
 
 | Step | Skill | What it produces |
 |------|-------|------------------|
@@ -524,20 +381,26 @@ Common chains:
 
 ## Deliberate Practice
 
-### The Android Improvement Loop
+#
+
+## The Android Improvement Loop
 1. **Install on a $150 Galaxy A14** — 4GB RAM, eMMC storage. Use as daily driver for one day.
 2. **Find every friction point** — Slow startup? Jank? OOM? ANR? Permission denied?
 3. **Profile and fix** — CPU Profiler, Memory Profiler, Battery Historian. Fix the worst offender.
 4. **Repeat monthly** with a different budget device. Your app behaves differently on all of them.
 
-### Practice Routines
+#
+
+## Practice Routines
 | Skill Level | Practice | Frequency | Expected Result |
 |-------------|----------|-----------|-----------------|
 | Novice → Competent | Build same screen in XML + Compose + Compose MVI. Compare line count, testability, recomposition. | Monthly | Understands when Compose improves vs adds complexity |
 | Competent → Expert | Enable StrictMode with penaltyDeath(). Fix every violation: disk reads, network, leaked closeables. | Quarterly | App verified clean by platform tooling |
 | Expert → Master | Build feature with only Android framework (no Jetpack, no Retrofit). Then rebuild with Jetpack. | Annually | Understands what Jetpack abstracts and where the real cost is |
 
-### The One Thing
+#
+
+## The One Thing
 **Preload your app on Android Go edition (1-2GB RAM).** If it launches under 3s and doesn't crash scrolling 100 items, your architecture is solid.
 
 ## Gotchas

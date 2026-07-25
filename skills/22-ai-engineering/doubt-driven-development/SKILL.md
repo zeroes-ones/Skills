@@ -34,7 +34,6 @@ chain:
     - compliance-officer
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
-
 # Doubt-Driven Development
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -65,7 +64,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN when the same reviewer performs both author and reviewer roles.** Adversarial review requires fresh context. The author reviewing their own code is not adversarial — it is proofreading. | Trigger: `git log --format='%an' -1` author matches current reviewer OR `file_author == reviewer` in review metadata | WARN: "Same person authored and reviewed this code. Fresh-context adversarial review is compromised. Escalate to cross-model review or request a second reviewer." |
 | **R6** | **DETECT and WARN about claims not traceable to code or specification.** A claim that cannot be verified against source material is unfalsifiable and must be rejected. | Trigger: claim references no file path, line number, spec section, or test case (`grep -c "file:\|line:\|spec:\|test:" claim_list.md` for each claim returns 0) | WARN: "Claim [ID] has no traceability anchor. Add at minimum: file path + line range, spec section reference, or test case ID. Unanchored claims cannot be doubted." |
 | **R7** | **REFUSE to reconcile without a decision record.** Reconciliation that produces no artifact is lost knowledge. Every reconciliation MUST produce a RECONCILE.md entry with: claim, doubt, resolution, residual risk, and date. | Trigger: doubt cycle completes AND `grep -c "RESOLVED:\|ACCEPTED_RISK:\|DEFERRED:" reconcile_log.md` shows no new entries since cycle start | STOP. "Reconciliation must produce a decision record. Create RECONCILE.md entry before closing this cycle." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -164,171 +162,15 @@ What are you trying to do?
 Do not read the entire skill. Follow the route above and read only the sections it points to.
 
 ## Core Workflow
+<!-- COMPRESSED: Full 167 lines extracted to references/core-workflow.md -->
 
 The five-phase adversarial review cycle. Each phase produces an artifact that feeds the next. No phase may be skipped.
 
 ```
                             ┌──────────┐
                             │  CLAIM   │ ← Extract every non-trivial assumption
-                            └────┬─────┘
-                                 │ claims.md
-                                 ▼
-                            ┌──────────┐
-                            │ EXTRACT  │ ← Anchor each claim to code/evidence
-                            └────┬─────┘
-                                 │ anchored_claims.md
-                                 ▼
-                   ┌────────────────────────┐
-                   │        DOUBT           │ ← For each claim: "This is wrong if..."
-                   │  ┌──────┐  ┌─────────┐ │
-                   │  │Cycle 1│→│Cycle 2  │→│→ Max 3 cycles
-                   │  └──────┘  └─────────┘ │
-                   └───────────┬────────────┘
-                               │ doubt_log.md
-                               ▼
-                   ┌────────────────────────┐
-                   │      RECONCILE         │ ← Resolve, accept, or escalate
-                   │  ┌────────┐ ┌────────┐ │
-                   │  │Resolved│ │Residual│ │
-                   │  └────────┘ └────────┘ │
-                   └───────────┬────────────┘
-                               │ RECONCILE.md
-                               ▼
-                            ┌──────────┐
-                            │   STOP   │ ← Hard stop. Residual doubt is documented.
-                            └──────────┘
-```
-
-### Phase 1: CLAIM — Extract Every Non-Trivial Assumption
-
-Read the code as if the author is trying to deceive you. Every line that makes an assertion about behavior, data, timing, or correctness IS a claim.
-
-**What qualifies as a claim:**
-- Behavior assertions: "This function returns sorted results" (Is it? Under all inputs?)
-- Invariant assertions: "This value is never null here" (Prove it.)
-- Security assertions: "Only authenticated users reach this handler" (Where's the middleware?)
-- Performance assertions: "This query runs in O(n)" (What's n at scale?)
-- Correctness assertions: "This matches the spec" (Which spec? Which version?)
-
-```
-Example: Extracting claims from an auth middleware
-
-function requireAuth(req, res, next) {          // CLAIM-001: Every route after this
-  const token = req.headers.authorization;      // middleware has a valid token.
-  if (!token) return res.status(401);           // CLAIM-002: Absence of token → 401.
-  const decoded = jwt.verify(token, SECRET);    // CLAIM-003: jwt.verify rejects
-  req.user = decoded;                           // expired/invalid tokens.
-  next();                                       // CLAIM-004: decoded payload is
-}                                               // safe to attach as req.user.
-                                                // CLAIM-005: next() is always
-                                                // called after successful auth.
-```
-
-**Output artifact:** `claims.md` with each claim labeled `CLAIM-NNN`, the code location (file:line), and the extracted assertion in one sentence.
-
-### Phase 2: EXTRACT — Anchor Every Claim
-
-For each claim, find the evidence that would PROVE or DISPROVE it. A claim without a test is a confession, not a claim.
-
-```
-Example: Anchoring CLAIM-002
-
-CLAIM-002: Absence of token → 401.
-  Evidence FOR:
-    - auth.test.ts:45 — sends request without Authorization header, expects 401 ✓
-    - auth.test.ts:52 — sends request with empty Authorization header, expects 401 ✓
-  Evidence AGAINST:
-    - No test for Authorization header with value "null" (string) ❌
-    - No test for Authorization header with value "undefined" (string) ❌
-    - No test for malformed Bearer prefix ("Bearer" vs "bearer" vs empty scheme) ❌
-```
-
-**Output artifact:** `anchored_claims.md` — same claims, now with evidence columns (FOR/AGAINST) and at least one testable condition per claim.
-
-### Phase 3: DOUBT — Adversarial Challenge (Max 3 Cycles)
-
-For each anchored claim, adopt the mindset: **"This claim is false. Find the proof."**
-
-Each doubt cycle MUST follow this structure:
-```
-DOUBT-[claim_id]-[cycle]: "Claim X would be WRONG if [condition]."
-  TEST: [concrete check that verifies condition]
-  EVIDENCE: [grep/run/test result]
-  SEVERITY: [CRITICAL|HIGH|MEDIUM|LOW] — if condition is met, what's the blast radius?
-```
-
-```
-Example: Doubt cycle on CLAIM-002
-
-CYCLE 1:
-  DOUBT-C002-1: "CLAIM-002 would be WRONG if the Authorization header
-                 can contain the literal string 'null' when JS null
-                 is coerced to a string."
-  TEST: curl -H "Authorization: null" https://api/secure-endpoint
-  EVIDENCE: Returns 401 ✓ (express does not coerce null to "null" header)
-  SEVERITY: HIGH (would allow unauthenticated access)
-  DISPOSITION: CLAIM HOLDS for this condition.
-
-CYCLE 2:
-  DOUBT-C002-2: "CLAIM-002 would be WRONG if jwt.verify throws
-                 instead of returning null on invalid token."
-  TEST: grep -n "try.*catch\|\.catch" auth.js
-  EVIDENCE: No try/catch around jwt.verify — unhandled rejection! ❌
-  SEVERITY: CRITICAL (crash loop on any invalid token)
-  DISPOSITION: CLAIM FAILS. jwt.verify throws JsonWebTokenError.
-                → RECONCILE required.
-```
-
-**Cycle limit:** Maximum 3 cycles per claim. After cycle 3, residual doubt is documented and accepted.
-
-### Phase 4: RECONCILE — Resolve, Accept, or Escalate
-
-Every doubt that does not resolve to "CLAIM HOLDS" must be reconciled. Three outcomes:
-
-```
-RECONCILE-[claim_id]:
-  RESOLVED:   [Code fix applied, test added → claim now holds]
-  ACCEPTED:   [Risk accepted with documented rationale and monitoring plan]
-  ESCALATED:  [Cross-model review requested — see cross-model-escalation.md]
-```
-
-```
-Example: Reconciling DOUBT-C002-2
-
-RECONCILE-C002:
-  STATUS: RESOLVED
-  DOUBT: jwt.verify throws instead of returning null
-  FIX: Wrapped jwt.verify in try/catch with explicit JsonWebTokenError handling
-  TEST_ADDED: auth.test.ts:78 — sends token with invalid signature, expects 401 not 500
-  VERIFIED_BY: CI run #2847 — auth test suite passes with new test
-  DATE: 2026-07-23
-  REVIEWER: cross-model (GPT-4o verified fix completeness)
-```
-
-### Phase 5: STOP — Hard Stop and Residual Doubt Acceptance
-
-After reconciliation, the cycle STOPS. No further doubt on reconciled claims.
-
-**Stop criteria checklist:**
-- [ ] All claims have completed at least 1 doubt cycle
-- [ ] All CRITICAL/HIGH severity doubts are RESOLVED (not ACCEPTED)
-- [ ] No claim has exceeded 3 doubt cycles
-- [ ] RECONCILE.md contains entries for every non-HOLDS doubt
-- [ ] Residual risk inventory is complete with monitoring plan
-- [ ] Cross-model escalation considered for any CRITICAL doubt that required cycle 3
-
-```
-Example: STOP artifact
-
-STOP REPORT — 2026-07-23 — PR #847 (Auth Middleware Refactor)
-  CLAIMS EXTRACTED:  12
-  DOUBT CYCLES RUN:  28 (across 12 claims)
-  CLAIMS HOLDING:    8
-  RECONCILED:        4 (3 RESOLVED, 1 ACCEPTED, 0 ESCALATED)
-  RESIDUAL RISK:     1 — CLAIM-009 (rate limiting assumes single-instance;
-                      accepted with monitoring alert on >1000 req/s per IP)
-  STOP DECISION:     CLEAR TO MERGE with residual risk monitoring active.
-```
+...
+> 📎 **Full content (167 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -635,6 +477,20 @@ Reformulate as: "Claim [X] would be wrong if [concrete condition].
                  Example: [specific scenario]. Test: [grep/run/check]."
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->
@@ -676,7 +532,6 @@ Reformulate as: "Claim [X] would be wrong if [concrete condition].
 | `git log --oneline -10` shows > 5 commits by same author on same file without review | Auto-invoke adversarial review on entire file | Solo-authored code with no review history has the highest density of unchallenged assumptions |
 | Database migration file contains `DROP COLUMN`, `DROP TABLE`, or `TRUNCATE` | Auto-invoke full doubt cycle with `database-designer` coordination | Irreversible data operations need adversarial verification of rollback plan and data integrity |
 | New file added to `middleware/`, `guard/`, `filter/`, or `interceptor/` directory | Auto-invoke Phase 1 on trust boundary claims | New middleware sits on the request path; every request passes through its assumptions |
-
 
 ## State Log
 

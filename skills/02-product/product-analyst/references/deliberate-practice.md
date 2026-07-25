@@ -1,0 +1,10 @@
+## Deliberate Practice
+
+### Beginner: Metric Traceability Audit
+Take one product metric from your analytics dashboard (e.g., "7-day retention rate"). Trace it all the way back to the raw tracking event — find the exact event name, the property used for the calculation, and the precise SQL or tool configuration that computes it. Then trace it forward again: how does that raw event become the number on the dashboard? Now find **3 ways the metric could be misleading**: (a) Does the event fire reliably on all platforms? (b) Are there sampling or identity-resolution gaps? (c) Does the definition match what stakeholders think it means? Document each gap with a concrete example.
+
+### Intermediate: A/B Test Design from Scratch
+Pick a real feature change in your product (e.g., redesigning the signup flow). Design the full experiment: (1) Define the primary metric and the exact tracking event. (2) Calculate required sample size per variant given baseline conversion rate, minimum detectable effect (MDE), α=0.05, and power=0.80. (3) Compute the minimum experiment duration based on your daily traffic. (4) Identify the **counter-metric** — what could break if this feature succeeds? (5) Define the stopping rule: fixed-horizon or sequential testing with adjusted α. (6) Write the launch checklist: A/A validation, ramp plan, guardrail alert thresholds.
+
+### Advanced: Reverse-Engineer a Public Company's Metric Tree
+Take a public company's quarterly metrics (e.g., Spotify's MAU, Premium subscribers, ad-supported users, ARPU). Reverse-engineer their North Star metric decomposition. Build the full metric tree: (1) Identify the likely North Star from their public reporting. (2) Decompose it into input metrics at every level — acquisition, activation, engagement, monetization, retention. (3) For each input metric, hypothesize the counter-metric they would monitor internally. (4) Map their reported quarterly changes to specific branches of the tree — which input moved the North Star? (5) Identify the weakest link: which metric, if it broke, would cascade through the entire tree? Present this as an executive-ready one-page metric framework.

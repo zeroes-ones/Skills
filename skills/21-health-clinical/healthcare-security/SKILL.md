@@ -77,7 +77,6 @@ changelog:
       - Initial release covering HIPAA Security Rule, HITECH, HITRUST CSF v11, FDA device guidance, IoMT segmentation, BAA architecture, breach notification, PHI de-identification, EHR/FHIR/DICOM security.
 token_budget: 4200
 ---
-
 # Healthcare Security Architect
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -115,7 +114,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **🛑 STOP and WARN about unpatched medical devices on clinical networks.** Medical devices running unsupported operating systems (Windows XP, Windows 7, legacy Linux) are the #1 entry point for healthcare ransomware. FDA postmarket guidance requires manufacturers to provide security patches; healthcare delivery organizations must apply them. | Trigger: architecture references `medical.device\|MRI\|CT\|infusion.pump\|ventilator\|patient.monitor` AND mentions `Windows XP\|Windows 7\|Windows Server 2008\|unsupported\|EOL\|end.of.life\|cannot.patch\|legacy.OS` | STOP. Respond: "Unpatched medical devices on clinical networks are the primary ransomware entry vector in healthcare. The FDA's postmarket cybersecurity guidance (2023) requires manufacturers to provide a Cybersecurity Bill of Materials (CBOM) and timely security patches. If the manufacturer cannot provide patches for unsupported operating systems: (1) isolate the device on a dedicated VLAN with no internet access, (2) deploy a compensating network-based IPS inline, (3) develop a replacement procurement plan with a timeline. Unpatched devices connected to clinical networks with internet access are a breach waiting to happen — Change Healthcare (2024), Universal Health Services (2020, $67M downtime cost), and CommonSpirit Health (2022, $150M impact) all started with unpatched devices." |
 | **R7** | **⚠️ DETECT telemedicine platforms used without BAA verification.** Consumer-grade video conferencing tools without a BAA expose PHI in transit and at rest (recordings). Even enterprise plans require explicit BAA execution — it is not automatic. | Trigger: architecture mentions `Zoom\|Teams\|Google Meet\|Webex\|Skype\|FaceTime\|WhatsApp` AND `telemedicine\|telehealth\|virtual.visit\|remote.consult` AND no BAA confirmation | WARN: "Telemedicine platform [name] must have a signed BAA before use with patients. Consumer versions of these tools do NOT have BAAs and their use for patient encounters constitutes a HIPAA violation. Verify: (1) Is the healthcare-specific tier active (Zoom for Healthcare, Teams EHR connector)? (2) Is the BAA signed and current? (3) Are recordings stored in a HIPAA-compliant manner? (4) Is the waiting room/authentication configured to prevent unauthorized access? OCR has issued guidance that telehealth flexibilities during the PHE ended May 11, 2023 — HIPAA enforcement is now in full effect." |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -132,14 +130,18 @@ Master healthcare security architects carry a triple responsibility: patient saf
 | **Perimeter-only thinking** — focusing security investment on the network edge while neglecting clinical endpoints | 60%+ of healthcare breaches originate from compromised clinical endpoints, not perimeter bypass. Segment clinical workstations, enforce application whitelisting, and deploy EDR on every device touching PHI. |
 | **Compliance-as-ceiling** — treating HIPAA compliance as the security program rather than the floor | HIPAA is a minimum baseline. A HIPAA-compliant organization can still be breached. HITRUST CSF and NIST CSF provide progressive maturity models above HIPAA's floor. |
 
-### What Masters Know That Others Don't
+#
+
+## What Masters Know That Others Don't
 
 - **That clinical network segmentation is the single highest-leverage control in healthcare security.** A properly segmented clinical network limits ransomware blast radius to a single VLAN — the difference between a contained incident and a hospital-wide downtime event.
 - **The exact 18 Safe Harbor identifiers and where they hide.** MRNs in DICOM headers, dates in FHIR resources, ZIP codes in billing addresses, email in patient portal accounts — PHI leaks through metadata, not just column data.
 - **That FDA cybersecurity guidance is becoming mandatory.** The 2023 Omnibus Appropriations Act amended the FD&C Act to require medical device cybersecurity as a condition of premarket clearance. Postmarket patching obligations are enforceable.
 - **Where the 60-day breach notification clock actually starts.** It starts at discovery, not confirmation. If you discover an incident on day 1 and spend 30 days investigating, you have 30 days remaining — not a fresh 60.
 
-### When to Break Your Own Rules
+#
+
+## When to Break Your Own Rules
 
 - **Escalate for clinical safety, not for process.** If a security control is causing patient harm (delayed access to records, blocked clinical communication), bypass the control and document the compensating measure. Patient safety trumps policy compliance.
 - **Accept a known risk with a documented, time-bound exception.** A legacy medical device that cannot be patched for 12 months until replacement — isolate it, monitor it, and document the risk acceptance with an expiration date. Transparency with regulators is better than hiding the gap.
@@ -176,7 +178,9 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 <!-- STANDARD: 3min -->
 
-### PHI Data Classification
+#
+
+## PHI Data Classification
 
 ```
 Is the data element related to past, present, or future physical/mental health,
@@ -203,7 +207,9 @@ healthcare provision, or healthcare payment?
             └── NO → PHI 🔴
 ```
 
-### Breach Notification Decision
+#
+
+## Breach Notification Decision
 
 ```
 Was there an impermissible acquisition, access, use, or disclosure of PHI?
@@ -230,7 +236,9 @@ Was there an impermissible acquisition, access, use, or disclosure of PHI?
                     → Prominent media outlet in affected area
 ```
 
-### Medical Device Security Risk Assessment
+#
+
+## Medical Device Security Risk Assessment
 
 ```
 Medical device risk assessment scope:
@@ -267,7 +275,9 @@ Medical device risk assessment scope:
     └── End-of-life tracking: device OS EOL date → replacement procurement timeline
 ```
 
-### Cloud Vendor BAA Decision
+#
+
+## Cloud Vendor BAA Decision
 
 ```
 Does the vendor create, receive, maintain, or transmit PHI on your behalf?
@@ -293,7 +303,9 @@ Does the vendor create, receive, maintain, or transmit PHI on your behalf?
         └── BAA expiring? → Renew or migrate off
 ```
 
-### IoMT Network Segmentation
+#
+
+## IoMT Network Segmentation
 
 ```
 Clinical network segmentation design:
@@ -330,139 +342,16 @@ Clinical network segmentation design:
 ```
 
 ## Core Workflow
+<!-- Full 135 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 <!-- DEEP: 10+min -->
+#
 
-### Phase 1 (~20 min): HITRUST CSF Scoping and Control Mapping
-
+## Phase 1 (~20 min): HITRUST CSF Scoping and Control Mapping
 1. Determine HITRUST assessment type: e1 (essentials, 44 controls), i1 (implemented, 182 controls), or r2 (risk-based, validated assessment with ~300-500 controls depending on scoping factors).
-2. Define organizational, system, and regulatory scoping factors: HIPAA, HITECH, state breach notification laws, FDA cybersecurity requirements.
-3. Map HIPAA Security Rule controls (45 CFR § 164.308-312) to HITRUST CSF control categories: Administrative Safeguards → 0x policies/procedures, Physical Safeguards → 0x facility controls, Technical Safeguards → 0x technical controls.
-4. Identify gaps: controls not implemented, partially implemented, or implemented but not documented. HITRUST requires documented evidence, not just operational controls.
-5. Create remediation roadmap: prioritize by HITRUST maturity scoring (Policy → Procedure → Implemented → Measured → Managed) and regulatory risk.
-
-### Phase 2 (~15 min): PHI Data Flow Mapping
-
-1. Inventory every data store containing PHI: databases (patient records, billing, scheduling), file storage (medical images, scanned documents, reports), caches (Redis session data, CDN edge caches), logs (application logs, access logs, audit logs), backups (database dumps, snapshot copies, offsite archives), third-party services (error trackers, analytics, AI APIs, email delivery).
-2. For each data store, document: PHI fields present, encryption status (at rest, in transit, application-level), access controls, retention period, BAA coverage, de-identification status.
-3. Classify each PHI data flow: direct identifiers (name, MRN, SSN, email + health context), indirect identifiers (ZIP+DOB+gender combinations, rare diagnoses), de-identified (documented Safe Harbor or Expert Determination method).
-4. Output: PHI data flow diagram (DFD) with trust boundaries, external entities, data stores, and processing nodes labeled with encryption and BAA status.
-
-### Phase 3 (~25 min): Encryption Architecture for PHI
-
-```yaml
-# Encryption architecture — implement each layer:
-
-# ── AT REST ─────────────────────────────────────
-# Database:
-#   AWS RDS: encryption enabled at creation (cannot retrofit)
-#   PostgreSQL: pgcrypto for column-level encryption of high-sensitivity fields (SSN, MRN)
-#   Key management: AWS KMS CMK with automatic annual rotation
-#   GCP: Cloud SQL with CMEK; Azure: SQL DB with TDE + BYOK
-
-# Object storage (S3, Blob Storage, GCS):
-#   Default encryption: SSE-KMS with CMK (not SSE-S3 default key)
-#   Bucket policy: DENY if s3:x-amz-server-side-encryption != aws:kms
-#   S3 Object Lock: Governance mode for audit log buckets (immutability)
-
-# Backups:
-#   RDS automated backups inherit source encryption
-#   Manual snapshots: encrypted with same KMS key
-#   Cross-account/cross-region: KMS key sharing with grant constraints
-
-# ── IN TRANSPORT ────────────────────────────────────
-# TLS 1.2 minimum; TLS 1.3 preferred
-# HSTS: max-age=31536000; includeSubDomains; preload
-# Database: sslmode=verify-full (NOT require — verify-full validates certificate chain)
-# mTLS: For service-to-service PHI transfer between microservices
-# DICOM TLS: For medical imaging transport (DICOM C-STORE/C-FIND over TLS)
-
-# ── APPLICATION-LEVEL ─────────────────────────────
-# Field-level encryption for high-risk PHI:
-#   AWS KMS envelope encryption pattern
-#   Data key generated per record (not per field)
-#   Encrypted data key stored alongside ciphertext
-#   Key rotation: Decrypt data key with old CMK, re-encrypt with new CMK
-
-# ── KEY MANAGEMENT ─────────────────────────────
-# Separation of duties: Key admins ≠ data admins
-# HSM for root of trust (AWS CloudHSM, Azure Dedicated HSM)
-# Automatic key rotation: 365-day rotation periods
-# Key deletion: 7-day minimum waiting period with recovery window
-# Audit: All key usage logged to CloudTrail/audit logs
-```
-
-### Phase 4 (~20 min): BAA Architecture and Vendor Governance
-
-1. Build and maintain a BAA registry: every vendor processing PHI, BAA execution date, renewal date, sub-processor list reviewed date, security assessment date, PHI scope.
-2. For each cloud service in the architecture, verify: does the service touch PHI data? Is there a signed BAA covering that specific service? Do sub-processors of that service also have flow-down BAAs?
-3. High-risk vendor categories requiring enhanced due diligence: AI/LLM APIs (data retention risk), error/performance monitoring (PHI in crash reports), CDN/edge (request logging containing PHI), email delivery (PHI in subject lines and bodies), analytics (user behavior = PHI in health context).
-4. BAA non-renewal workflow: 30-day notice → data export from vendor → verification of complete deletion → certificate of destruction → removal from BAA registry.
-
-### Phase 5 (~30 min): EHR, FHIR, and DICOM Security Hardening
-
-1. **EHR Integration (Epic, Cerner):**
-   - OAuth 2.0 with SMART on FHIR app launch framework
-   - Patient-scoped access tokens (patient/ user/ system scopes)
-   - PKCE for public clients; client secret + JWT assertion for confidential clients
-   - EHR audit log integration: all API access logged with user, patient, resource, timestamp, purpose of use
-   - Break-glass access with mandatory justification and post-hoc review
-
-2. **FHIR API Security:**
-   - SMART on FHIR authorization: standalone launch (patient app) and EHR launch (provider app)
-   - FHIR resource-level access control: Condition, Observation, MedicationRequest = clinical; Coverage, ExplanationOfBenefit = payment — different access scopes
-   - FHIR Bundle security: SearchSet Bundles must filter to authorized resources only. Never return resources from other patients via `_include` or `_revinclude`.
-   - Cures Act information blocking: Cannot restrict patient access to their own EHI (electronic health information). API must be open to patient-facing apps or face penalties up to $1M per violation.
-
-3. **DICOM Medical Imaging Security:**
-   - DICOM TLS: Encrypt C-STORE, C-FIND, C-MOVE operations between modalities and PACS
-   - DICOMweb: STOW-RS, QIDO-RS, WADO-RS over HTTPS with OAuth 2.0
-   - DICOM header PHI: Patient Name (0010,0010), Patient ID (0010,0020), Patient Birth Date (0010,0030), Accession Number (0008,0050) — strip for research datasets per Safe Harbor
-   - PACS access control: Radiologist vs. referring physician vs. researcher — different image access scopes
-   - DICOM de-identification: DICOM PS 3.15 Annex E defines a profile for de-identification of DICOM objects
-
-4. **Telemedicine Platform Security:**
-   - Platform BAA required. Patient-facing app with waiting room authentication.
-   - End-to-end encryption for video sessions. No server-side recording without patient consent + BAA.
-   - Session authentication: unique meeting ID per encounter, not reusable. Waiting room enabled.
-   - PHI in chat: If platform allows text chat during session, that chat is a medical record — must be stored in EHR.
-   - Device security: Patient device not managed. Assume untrusted client.
-
-5. **Patient Portal Security:**
-   - MFA mandatory for patient portal access
-   - Rate limiting on login: 5 attempts per 15 minutes → lockout
-   - Session timeout: 15 minutes idle, 2 hours absolute max
-   - Patient identity verification: Knowledge-based verification (KBA) at enrollment
-   - Proxy access controls: Parent/guardian access to minor, caregiver access to adult — age-based rules, expiration dates
-   - Cures Act compliance: All EHI available via patient portal API. No withholding test results, clinical notes, or imaging reports.
-
-### Phase 6 (~30 min): Medical Ransomware Response and Breach Notification
-
-1. **Immediate Containment (0-4 hours):**
-   - Isolate affected clinical VLANs. Do NOT shut down medical devices without clinical engineering assessment — shutting down a ventilator has life-safety consequences.
-   - Activate clinical downtime procedures: paper charting, phone-based order entry, manual medication administration records.
-   - Preserve forensic evidence: memory dumps from affected systems, network flow logs, firewall logs, endpoint telemetry. Time sync all evidence sources.
-   - Engage incident response retainer if available. Notify cyber insurance carrier.
-
-2. **Breach Determination (4-48 hours):**
-   - Was PHI accessed or acquired? Perform 4-factor risk assessment (see Breach Notification Decision Tree).
-   - If encrypted + key NOT compromised → no notification (safe harbor).
-   - If PHI accessed/acquired AND > low probability of compromise → start 60-day clock.
-   - Document the specific date and time of "discovery" — this is when the clock starts, not when investigation completes.
-
-3. **Notification Pipeline (within 60 days):**
-   - Affected individuals: First-class mail (or email if patient has consented to electronic notice). Content: brief description of breach, types of PHI involved, steps to protect themselves, what the organization is doing, contact information.
-   - HHS Secretary: Via OCR breach portal. < 500 individuals: annual log. ≥ 500: simultaneous with individual notice.
-   - Media: If > 500 residents of any state/jurisdiction are affected, prominent media outlet in that area.
-   - State Attorneys General: Varies by state — some require immediate notification regardless of federal timeline.
-
-4. **Recovery and Post-Incident:**
-   - Restore from known-clean backups. Verify backup integrity before restoration.
-   - Re-image clinical endpoints. Do NOT restore compromised systems.
-   - Conduct root cause analysis: How did the attacker get in? Which vulnerability? Which device?
-   - Update security architecture to prevent recurrence: Network segmentation review, unpatched device remediation, MFA expansion.
-   - Tabletop exercise within 90 days: Rehearse the updated incident response plan with clinical and IT stakeholders.
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 135 lines of detailed guidance
 
 ## Gotchas
 
@@ -489,6 +378,20 @@ Clinical network segmentation design:
 | "We have a BAA so we're covered — the vendor is responsible now" | A BAA is a contract assigning liability, not a security assessment. The vendor can be breached, go out of business, or violate the BAA terms. Due diligence (SOC 2 review, pentest results, sub-processor audit, incident response capability) is still your responsibility. A BAA without verification is compliance theater. OCR fines the covered entity, not just the Business Associate. |
 | "The data is de-identified — it's safe to publish/share/sell" | Sweeney's study: 87% of Americans uniquely identifiable by ZIP+DOB+gender. De-identified datasets are routinely re-identified via linkage attacks with commercial data brokers, voter records, and social media. Once published, re-identification by a third party still triggers YOUR breach notification obligation if you're the source. De-identification is a risk mitigation, not a risk elimination. |
 | "We'll encrypt later — let's get the product shipped first" | The 2024 HIPAA Security Rule proposed update makes encryption required, not addressable. You cannot "encrypt later" — PHI stored unencrypted from day one is a per se violation. Retrofitting encryption onto production databases is a 3-6 month project with downtime risk. Building with encryption from the start takes 1-2 extra days. "Later" means "never" — and "never" means a breach report with "unencrypted PHI" as the finding, and HHS OCR has explicitly confirmed that "we planned to encrypt" is not a defense under the 2024 proposed rule. |
+
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
 
@@ -533,12 +436,13 @@ Clinical network segmentation design:
 | A BAA with a critical vendor is expiring within 30 days without a renewal in progress | Escalate to vendor management and legal. If the vendor is changing BAA terms, assess whether the new terms are acceptable. If the vendor is discontinuing BAA support, begin immediate migration off the vendor. PHI cannot flow to a vendor without a current BAA — even during a migration. | An expired BAA means every PHI transaction with that vendor after the expiration date is an impermissible disclosure. OCR does not accept "we were in the process of renewing" as a defense. |
 | Clinical network segmentation review finds unpatched devices on the clinical VLAN with internet access | This is the #1 healthcare ransomware entry vector. Immediately: (1) Remove internet access from the device (firewall rule), (2) Assess whether the device can be patched, (3) If unpatched indefinitely, develop replacement procurement plan with a timeline, (4) Deploy network IPS inline for the device VLAN as compensating control. | Unpatched medical devices with internet access are responsible for the majority of healthcare ransomware incidents with clinical impact. Change Healthcare, Universal Health Services, and CommonSpirit Health all started this way. |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -558,7 +462,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -571,7 +477,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:

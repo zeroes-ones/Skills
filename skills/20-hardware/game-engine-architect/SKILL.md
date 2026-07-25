@@ -57,7 +57,6 @@ chain:
     - mobile-developer
     - qa-engineer
 ---
-
 # Game Engine Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -67,7 +66,9 @@ Architect, profile, and ship real-time game engines — from ECS memory layouts 
 
 <!-- QUICK: 30s -- auto-route first, then intent-route -->
 
-### Auto-Route (No User Input Required)
+#
+
+## Auto-Route (No User Input Required)
 Evaluate these file-system conditions in order. First match wins — jump immediately.
 
 | # | Condition | Action |
@@ -81,7 +82,9 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A7 | `file_exists("*.uproject|*.uplugin")` AND `file_contains("*.cpp", "(Nanite|Lumen|GAS|GameplayAbility|MassEntity)")` | Jump to **Core Workflow** — Phase 3: Unreal Engine 5 Architecture. |
 | A8 | `file_contains("*.cs|*.cpp", "(PhysicsWorld|PhysX|ChaosPhysics|UnityPhysics)")` | Jump to **Core Workflow** — Phase 4: Physics Integration. |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
 
 ```
@@ -107,7 +110,6 @@ User says "frame drops on low-end" → "/game-engine-architect: game loop + rend
 | G6 | **DETECT unmanaged memory leak in Burst-compiled or native job code.** | `file_contains("*.cs", "[BurstCompile]")` AND `file_contains("*.cs", "(NativeArray|UnsafeList|UnsafeHashMap)")` AND NOT `file_contains("*.cs", "(Dispose|DisposeAll|using)")` | WARN. Burst jobs with unmanaged allocations MUST dispose NativeContainers. Memory leak = 2+ GB RSS crash after 3-6 hours. Add `[BurstDiscard]` at job Dispose with leak detection assertion. |
 | G7 | **STOP if draw call count is the singular performance metric without script overhead profiling.** | `file_contains("*", "(draw.call|SetPass.call|batches)")` AND NOT `file_contains("*", "(Update\\(\\)|LateUpdate\\(\\)|script.overhead|MonoBehaviour.profile)")` | HALT. 100 draw calls with 3000 Update() calls per frame = 90% of budget in C# VM, not GPU. Profile with Unity Profiler Deep Profile or Unreal Insights. Draw call count alone is a vanity metric. |
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -123,12 +125,16 @@ Masters of game engine architecture don't just build — they build **engines th
 | **Single-platform thinking** — designing for Xbox Series X then discovering PS5's split memory architecture breaks everything | Maintain a per-platform memory budget spreadsheet from day one. Test on all target platforms weekly. |
 | **Over-abstraction** — building a generic "rendering backend" before shipping the first game | Ship one game with one concrete pipeline. Abstract on the second game when you have data on what actually varies. |
 
-### What Masters Know That Others Don't
+#
+
+## What Masters Know That Others Don't
 - The **failure modes** of every rendering pipeline — not just the best-case FPS, but what happens at 1000 dynamic lights, or with 50 transparent layers, or when the GPU driver decides to stall.
 - When **not** to use ECS — not every object benefits. ECS for 10,000 bullets: yes. ECS for 5 UI buttons: catastrophic over-engineering.
 - That **frame time variance matters more than average FPS** — 60 FPS average with 30ms spikes = unshippable. Target P99 frame time < budget.
 
-### When to Break Your Own Rules
+#
+
+## When to Break Your Own Rules
 - **Ship now, optimize later.** A working game at 30 FPS with a gameplay problem is better than a perfectly optimized engine with no game.
 - **Skip ECS for a single-platform title** with <5000 dynamic objects. GameObject.Update() with object pooling is sufficient and 10x faster to iterate.
 
@@ -162,319 +168,45 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Designing memory management: object pools with pre-allocated arrays, arena/linear allocators for per-frame scratch, console memory budgets with subsystem caps
 
 ## Decision Trees
+<!-- 245 lines extracted to references/decision-trees.md -->
 
-<!-- QUICK: 30s — follow the ASCII tree to your scenario -->
-<!-- STANDARD: 3min — each tree has concrete API names, budget numbers, and decision rationale -->
+  <!-- QUICK: 30s — follow the ASCII tree to your scenario -->
 
-### Rendering Pipeline Selection — Forward vs Deferred vs Clustered Forward
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Target hardware & scene │
-                          │ GPU tier: ___                  │
-                          │ Dynamic lights: ___ expected   │
-                          │ Transparency layers: ___       │
-                          │ Resolution: ___ x ___          │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ Mobile / integrated GPU OR     │
-                         │ <10 dynamic lights OR          │
-                         │ extensive transparency?        │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ Forward render   │    │ >100 dynamic lights  │
-                    │ (mobile, Switch, │    │ OR deferred-capable  │
-                    │  Quest, low-end  │    │ GPU (discrete)?      │
-                    │  PC)             │    └────┬──────────┬──────┘
-                    │ • Single-pass    │         │ YES      │ NO
-                    │ • MSAA cheap     │  ┌──────▼──────┐ ┌─▼────────────┐
-                    │ • Transparent    │  │ Deferred     │ │ Clustered     │
-                    │   sorting free   │  │ (PC/Console) │ │ Forward       │
-                    │ • Bandwidth: low │  │ • G-Buffer   │ │ (mid-range    │
-                    └──────────────────┘  │   MRT        │ │  GPU, 50-100  │
-                                          │ • Lighting   │ │  lights)      │
-                                          │   compute    │ │ • Light grid  │
-                                          │ • No MSAA    │ │   in compute  │
-                                          │   (use TAA)  │ │ • MSAA + many │
-                                          │ • Bandwidth: │ │   lights      │
-                                          │   HIGH       │ │ • Forward+    │
-                                          └──────────────┘ └───────────────┘
-```
-<!-- DEEP: 10+min — war story -->
-*Studio shipped a deferred renderer for a game with heavy transparency (glass buildings, particle effects). Deferred can't blend transparent objects from the G-Buffer — they needed a separate forward pass for all transparent geometry. Result: two full scene traversals, 2x draw calls, 33ms frame time on target hardware. Fix: switched to clustered forward (Unity URP Forward+), single pass handles opaque + transparent + up to 256 lights via tile-based light culling. 16ms frame time restored. Cost: 6-week renderer rewrite, $180K engineering + delayed certification.*
-
-### ECS Architecture Decision — Archetype-based vs Sparse-set vs Table-based
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Entity count & access   │
-                          │ Total entities: ___            │
-                          │ Unique archetypes: ___         │
-                          │ Queries/sec: ___               │
-                          │ Add/remove components: ___/s   │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ >10K entities of same type     │
-                         │ (bullets, particles, AI units) │
-                         │ AND structural changes rare?   │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ Archetype ECS   │    │ Frequent add/remove  │
-                    │ (Unity DOTS)    │    │ of components AND    │
-                    │ • Chunk-based   │    │ <50K entities?       │
-                    │   memory, SoA   │    └────┬──────────┬──────┘
-                    │ • Ideal cache   │         │ YES      │ NO
-                    │   locality      │  ┌──────▼──────┐ ┌─▼────────────┐
-                    │ • Structural    │  │ Sparse-set   │ │ Table-based   │
-                    │   changes slow  │  │ (EnTT)       │ │ (Flecs)       │
-                    │   (move chunks) │  │ • O(1) add/  │ │ • Archetype   │
-                    │ • Unity: DOTS   │  │   remove     │ │   graph       │
-                    │   1.2+          │  │ • Stable ptrs │ │ • Add/remove  │
-                    └─────────────────┘  │ • Good for   │ │   fast via    │
-                                         │   UI/editor  │ │   table edges │
-                                         │ • EnTT 3.12+ │ │ • Flecs 4.0+  │
-                                         └──────────────┘ └───────────────┘
-```
-**Archetype (Unity DOTS):** Homogeneous entities, bulk processing, SoA layout, 16KB chunks. Best for: 10K+ identical entities, Burst-compiled jobs.
-**Sparse-set (EnTT):** Heterogeneous entities, frequent add/remove, stable pointers. Best for: editor tools, UI, dynamic composition.
-**Table-based (Flecs):** Middle ground, fast add/remove via table edges, good for mixed workloads, C99 compatible.
-
-### Game Loop Type Selection — Fixed Timestep + Variable Rendering + Interpolation
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Game type & requirements│
-                          │ Deterministic replay? ___      │
-                          │ Multiplayer? ___               │
-                          │ Display: ___ Hz target         │
-                          │ Physics: ___ Hz target         │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ Deterministic replay OR        │
-                         │ multiplayer OR physics-driven? │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ Fixed timestep  │    │ Variable timestep    │
-                    │ (Robert Nystrom │    │ (simple, non-physics)│
-                    │  GameLoop pat.) │    │ • dt = frame time    │
-                    │ • Physics:      │    │ • OK for: UI, menu,  │
-                    │   dt = 1/60     │    │   turn-based, puzzle │
-                    │ • Render:       │    │ • NOT for: physics,  │
-                    │   interpolated  │    │   multiplayer,       │
-                    │   state         │    │   deterministic      │
-                    │ • Accumulator:  │    │   replay             │
-                    │   Σ frame time  │    └──────────────────────┘
-                    │ • α = accum/dt  │
-                    │ • "Catch-up"    │
-                    │   if accum>dt   │
-                    │   run N physics │
-                    │   steps with    │
-                    │   spiral-of-    │
-                    │   death guard   │
-                    └─────────────────┘
-```
-<!-- DEEP: 10+min — war story -->
-*Fighting game shipped with variable timestep. Frame rate: 58-62 FPS on PC. At 62 FPS, a forward dash traveled 6.2m in 10 frames. At 58 FPS, same dash traveled 5.8m. Competitive players discovered that capping at 58 FPS let them micro-step into throw range without triggering the opponent's throw-tech window. Tournament organizers banned the game. Fix: fixed timestep at 60Hz with interpolation. Cost: $100K+ in tournament credibility damage and 4-month engine refactor.*
-
-### GPU API Selection — wgpu vs Vulkan vs DirectX 12 vs Metal
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Platform targets        │
-                          │ Windows: ___ %                 │
-                          │ macOS/iOS: ___ %               │
-                          │ Linux/SteamDeck: ___ %         │
-                          │ Xbox: ___ %                    │
-                          │ PlayStation: ___ %             │
-                          │ Web (WebGPU): ___ %            │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ Need browser/WebGPU OR        │
-                         │ small team (<5 engine devs)    │
-                         │ OR Rust codebase?             │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ wgpu (WebGPU    │    │ Console target?      │
-                    │ native)         │    └────┬──────────┬──────┘
-                    │ • Cross-platform│         │ YES      │ NO
-                    │   (D3D12, Vk,   │  ┌──────▼──────┐ ┌─▼────────────┐
-                    │   Metal, GL)    │  │ Per-platform │ │ Vulkan        │
-                    │ • Safe by       │  │ native:      │ │ (Steam Deck,  │
-                    │   default       │  │ • D3D12 for  │ │  Linux, Win)  │
-                    │ • SPIR-V input  │  │   Xbox/Win   │ │ OR D3D12      │
-                    │ • wgpu 0.19+    │  │ • Metal 3    │ │ (Windows-only)│
-                    │ • Not for: AAA  │  │   for Apple  │ │ • Explicit    │
-                    │   console perf  │  │ • GNM/GNMX   │ │   control     │
-                    └─────────────────┘  │   for PS5    │ │ • Ray tracing │
-                                         │ • Max perf   │ │ • Mesh shaders│
-                                         │ • Max effort │ │ • D3D12:      │
-                                         │ • 4x impl    │ │   Agility SDK │
-                                         └──────────────┘ └───────────────┘
-```
-**wgpu:** Best for indie/small-team, Rust, browser deployment, 1 codebase → 4 platforms. Not for AAA perf requirements.
-**Vulkan:** Best for Steam Deck + Linux + Windows, explicit control, ray tracing via VK_KHR_ray_tracing_pipeline.
-**D3D12:** Best for Xbox + Windows exclusive, Agility SDK for latest features, PIX for profiling.
-**Metal 3:** Apple platforms only. Mesh shaders, ray tracing (M3+), MetalFX upscaling.
-
-### Netcode Architecture — Client-Server Authoritative vs P2P Lockstep vs Rollback
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Game genre & scale      │
-                          │ Players per match: ___         │
-                          │ Tickrate target: ___ Hz        │
-                          │ Input latency tolerance: ___ms │
-                          │ Spectator mode needed? ___     │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ Fighting game OR <4 players    │
-                         │ OR sub-30ms latency tolerance? │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ Rollback netcode│    │ >32 players (MMO,    │
-                    │ (GGPO-style)    │    │ FPS, BR) OR          │
-                    │ • Input delay + │    │ spectator mode?      │
-                    │   prediction    │    └────┬──────────┬──────┘
-                    │ • Rollback on   │         │ YES      │ NO
-                    │   mismatch      │  ┌──────▼──────┐ ┌─▼────────────┐
-                    │ • Save states   │  │ Client-      │ │ P2P lockstep  │
-                    │   every frame   │  │ Server       │ │ (RTS, 4X)     │
-                    │ • For: fighting │  │ Authoritative│ │ • All clients │
-                    │   games,        │  │ • Server     │ │   wait for    │
-                    │   brawlers      │  │   simulates  │ │   all inputs  │
-                    │ • Adds 1-3      │  │ • Client     │ │ • Deterministic│
-                    │   frames delay  │  │   predicts   │ │   simulation  │
-                    └─────────────────┘  │ • Reconcil.  │ │ • No server   │
-                                         │   on mismatch│ │   needed      │
-                                         │ • Snapshot   │ │ • Slowest     │
-                                         │   interp.    │ │   player      │
-                                         │ • For: FPS,  │ │   dictates    │
-                                         │   BR, MMO    │ │   pace        │
-                                         └──────────────┘ └───────────────┘
-```
-<!-- DEEP: 10+min — war story -->
-*Battle royale shipped with client-authoritative movement. Within 72 hours of launch, cheat developers reverse-engineered the client and released a teleport hack — instant 500m movement, no server validation. 30% of the player base reported encountering cheaters in their first week. Player count dropped 60% month-over-month. The studio spent $500K+ on Easy Anti-Cheat integration + 6-month server-authoritative refactor. Lesson: never trust the client. Ever. Server-authoritative from day one, even for prototypes.*
-
-### Memory Strategy — Object Pool → Arena Allocator → Subsystem Budget
-
-```
-                          ┌──────────────────────────────┐
-                          │ START: Platform memory budget  │
-                          │ Total RAM: ___ MB              │
-                          │ Engine overhead: ___ MB        │
-                          │ Game data: ___ MB target       │
-                          │ Object count: ___ peak         │
-                          └────────────┬─────────────────┘
-                                       │
-                         ┌─────────────▼─────────────────┐
-                         │ Frequent alloc/free of same-   │
-                         │ sized objects per frame?       │
-                         │ (particles, bullets, sounds)   │
-                         └────┬────────────────────┬─────┘
-                              │ YES                │ NO
-                    ┌─────────▼──────┐    ┌────────▼────────────┐
-                    │ Object pool     │    │ >100MB total, many   │
-                    │ • Pre-alloc N   │    │ subsystems competing?│
-                    │ • Acquire/      │    └────┬──────────┬──────┘
-                    │   Release API   │         │ YES      │ NO
-                    │ • Pool size:    │  ┌──────▼──────┐ ┌─▼────────────┐
-                    │   peak * 1.5   │  │ Subsystem    │ │ Simple malloc │
-                    │   headroom      │  │ memory       │ │ (small <100MB│
-                    │ • Template:     │  │ budgets      │ │  prototype)  │
-                    │   T* Pool::     │  │ • Audio:     │ │ • Use        │
-                    │   Acquire()     │  │   32MB cap   │ │   tcmalloc/  │
-                    │ • Per-type pool │  │ • Render:    │ │   jemalloc   │
-                    │   not generic   │  │   128MB cap  │ │ • STL with   │
-                    └─────────────────┘  │ • Physics:   │ │   custom     │
-                                         │   64MB cap   │ │   allocator  │
-                                         │ • Each uses  │ │ • Not for    │
-                                         │   arena      │ │   consoles   │
-                                         │   allocator  │ └──────────────┘
-                                         │ • Console:   │
-                                         │   PS5/XSX    │
-                                         │   hard caps  │
-                                         └──────────────┘
-```
-
+> 📎 **Full content (245 lines):** [references/decision-trees.md](references/decision-trees.md)
 ## Core Workflow
+<!-- COMPRESSED: Full 65 lines extracted to references/core-workflow.md -->
 
 <!-- QUICK: 30s — scan phase titles to understand the process -->
 <!-- STANDARD: 3min — each phase has explicit Do/Verify/Recover steps -->
 <!-- DEEP: 10+min -->
 
-### Phase 1 (~8 hours): Rendering Pipeline Architecture & PBR Setup
-1. **Do:** Select pipeline per the Rendering Pipeline decision tree. Configure G-Buffer layout for deferred (Albedo RGB + Normal RG + Roughness/Metalness B + Depth 24) or forward pass with depth prepass for clustered.
-2. **Do:** Implement PBR shading with Cook-Torrance BRDF: `F = F0 + (1-F0) * pow(1-NdotH, 5)`, `D = α² / (π * (NdotH² * (α²-1) + 1)²)`, `G = G_SchlickGGX(NdotV) * G_SchlickGGX(NdotL)`. Use roughness-metalness workflow with IBL from pre-filtered environment map.
-3. **Do:** Set up shader compilation pipeline: Vulkan pipeline cache serialized to disk, Unity ShaderVariantCollection with warm-up scene, Unreal PSO cache with `r.ShaderPipelineCache.Enabled=1`.
-4. **Verify:** Profile with RenderDoc: G-Buffer bandwidth < 64 bytes/pixel for deferred. Shader compile hitches < 1ms after warm-up. PBR validation: compare against Disney BRDF Explorer reference images.
-5. **Recover:** G-Buffer too wide → drop specular color, reconstruct from roughness/metallic. Shader compile hitches persist → ship pre-compiled pipeline cache file with game build.
+#
 
-### Phase 2 (~6 hours): C++ Game Loop Implementation with Fixed Timestep
-1. **Do:** Implement the canonical fixed timestep loop (Robert Nystrom pattern):
-```cpp
-double previous = getCurrentTime();
-double lag = 0.0;
-const double MS_PER_UPDATE = 16.6667; // 60Hz physics
+## Phase 1 (~8 hours): Rendering Pipeline Architecture & PBR Setup
+...
+> 📎 **Full content (65 lines):** [references/core-workflow.md](references/core-workflow.md)
 
-while (running) {
-    double current = getCurrentTime();
-    double elapsed = current - previous;
-    previous = current;
-    lag += elapsed;
+## Error Recovery
 
-    // Fixed timestep physics: catch up if lagged
-    while (lag >= MS_PER_UPDATE) {
-        processInput();        // Sample inputs at step start
-        fixedUpdate(MS_PER_UPDATE / 1000.0);
-        lag -= MS_PER_UPDATE;
-    }
+If a command or approach fails, follow this escalation path before giving up:
 
-    // Render with interpolation: α = lag / MS_PER_UPDATE
-    double alpha = lag / MS_PER_UPDATE;
-    render(alpha);
-}
-```
-2. **Do:** Implement spiral-of-death guard: `const int MAX_FRAMES_TO_CATCHUP = 5;` in the while loop. On Xbox Series X at 120Hz, you have 8.33ms per frame — if physics takes >8.33ms, clamp catch-up to prevent snowball.
-3. **Do:** Input sampling: snapshot at beginning of each fixed update step, not per-render frame. Use double-buffered input state read atomically.
-4. **Verify:** Render at 30Hz, physics at 60Hz → visual smoothness via interpolation. Render at 144Hz, physics at 60Hz → no duplicated physics frames visible.
-5. **Recover:** Spiral of death → increase physics tick rate (120Hz) or decrease physics cost. Drop physics fidelity before dropping frames.
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
-### Phase 3 (~10 hours): Unreal Engine 5 Architecture Configuration
-1. **Do:** Nanite configuration: set `r.Nanite 1`, `r.Nanite.MaxPixelsPerEdge 1` (quality), `r.Nanite.ViewMeshLODBias.Enable 0`. Fallback mesh target: <1% of triangles for masked/translucent materials. Virtual shadow maps: `r.Shadow.Virtual.Enable 1`.
-2. **Do:** Lumen global illumination: `r.Lumen.DiffuseIndirect.Allow 1`, `r.Lumen.Reflections.Allow 1`. Surface cache: `r.Lumen.ScreenProbeGather.SpatialFilter 1`. For 60 FPS console: `r.Lumen.ScreenProbeGather.TracingOctahedronResolution 8` (half-res).
-3. **Do:** Gameplay Ability System: `UGameplayAbility` subclass per ability, `FGameplayAttribute` for stats (Health, Mana, Stamina), `FGameplayTag` for state (Stunned, Invulnerable, Rooted). Use `UGameplayEffect` with `FGameplayModifierInfo` for buffs/debuffs. Attribute replication via `FGameplayAttributeData` with `OnRep`.
-4. **Verify:** Nanite: `r.Nanite.Visualize.Overdraw 1` — overdraw < 8x on target GPU. Lumen: `r.Lumen.Visualize.Traces 1`. GAS: ability tag blocking verified (stun prevents cast).
-5. **Recover:** Nanite overdraw > 8x → enable fallback mesh for high-density foliage. Lumen ghosting → enable `r.Lumen.Reflections.HistoryWeight 0.9`. GAS attribute desync → check `AActor::GetReplicatedServerLastTransformUpdateTimeStamp`.
-
-### Phase 4 (~5 hours): Unity DOTS/ECS Optimization
-1. **Do:** Entity archetype design: group by shared write access pattern — entities that all need `Translation` + `Rotation` updated together belong in same archetype. Use `IJobEntity` for simple iteration, `IJobChunk` for manual chunk iteration with `ArchetypeChunkComponentType`.
-2. **Do:** Burst compilation: `[BurstCompile(FloatPrecision.Low, FloatMode.Fast)]` for physics, `OptimizeFor = OptimizeFor.Performance`. Avoid managed objects in Burst — use `FixedString64Bytes`, `BlobAssetReference<T>`, `NativeHashMap`.
-3. **Do:** Memory layout: `ComponentType.ChunkComponent` for shared read-only data. `EntityCommandBuffer` for structural changes (create/destroy entities, add/remove components) — never inside `IJobEntity`/`IJobChunk`.
-4. **Verify:** Unity Profiler: Burst jobs show as "Burst" in timeline. `SystemAPI.Query<T>()` zero managed allocations. Job `Schedule()` latency < 0.1ms. Chunk utilization > 80% (no sparse chunks).
-5. **Recover:** Structural change in job → `EntityCommandBuffer` pattern. Managed leak → `NativeArray.Dispose()` audit with `LeakDetectionMode = NativeLeakDetectionMode.Enabled`.
-
-### Phase 5 (~4 hours): Multiplayer Netcode Implementation
-1. **Do:** Client-side prediction: client runs same simulation code as server, predicts local player `+N` ticks ahead. Input buffer: `InputCommand inputs[MAX_INPUT_HISTORY]` indexed by tick number. Send input with tick number, not frame number.
-2. **Do:** Server reconciliation: server processes input for tick T, broadcasts authoritative state for tick T. Client receives state for tick T, compares with predicted state at same tick. If `|predicted_position - server_position| > threshold`, rewind state to tick T, replay all inputs from T to current, re-predict.
-3. **Do:** Snapshot interpolation: server sends state snapshots at tickrate (e.g., 64Hz). Client buffers 2-3 snapshots, renders interpolated state between tick `N` and `N+1` at `N + interp_delay` ticks. Jitter buffer: adaptive size based on network jitter measurement.
-4. **Verify:** Client prediction: 0ms input latency visually, no "swimming" feel. Reconciliation: teleport correction < 1cm for <100ms ping. Interpolation: no stutter with ±30ms jitter.
-5. **Recover:** Prediction overshoot (>10cm at 50ms ping) → reduce prediction time window or add velocity damping. Interpolation starvation → increase `interp_delay` by one tick.
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->
 
-### Coordinate With
+#
+
+## Coordinate With
 
 | Coordinate With | When | What to Share/Ask |
 |-----------------|------|-------------------|
@@ -485,7 +217,9 @@ while (running) {
 | **Mobile Developer** | Mobile GPU profiling, texture compression formats, power/thermal budgets | ASTC/ETC2 texture format selection, mobile render pass merging, thermal throttling thresholds |
 | **Embedded Engineer** | Console memory budgets, low-level GPU driver behavior, shader compiler toolchains | Per-platform memory map, DMA transfer patterns, GPU command buffer submission strategies |
 
-### Communication Triggers
+#
+
+## Communication Triggers
 
 | Trigger | Notify | Why |
 |---------|--------|-----|
@@ -495,7 +229,9 @@ while (running) {
 | Memory usage exceeds 85% of console budget | Embedded Engineer, Performance Engineer | Content trim or memory optimization; prevent OOM crash |
 | Deterministic replay diverges after N frames | QA Engineer | Non-deterministic system (unordered iteration, uninitialized memory, float non-determinism) |
 
-### Escalation Path
+#
+
+## Escalation Path
 
 ```
 Frame time > budget on min-spec hardware? → Performance Engineer → Content cut or pipeline change
@@ -504,7 +240,9 @@ Multiplayer desync >5% reproducible? → System Architect → Netcode re-archite
 Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks cert cycle
 ```
 
-### Cross-Skill Chain
+#
+
+## Cross-Skill Chain
 
 ```bash
 # Architecture → Rendering → Performance → QA certification
@@ -521,6 +259,11 @@ Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks
 - **Handoff to `qa-engineer`:** Deterministic replay test harness, netcode reconciliation test cases, platform cert compliance checklist. Artifact: Test plan with pass/fail thresholds per test case.
 - **Handoff to `frontend-developer`:** UI rendering budget (separate canvas layer, world-space vs screen-space), font atlas configuration, UI-specific shader variants. Artifact: UI integration guide with rendering constraints.
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | Hardware-software boundaries, communication protocols, constraints | Before designing embedded or firmware systems |
+| `embedded-engineer` | Microcontroller selection, RTOS, peripheral interfaces | Before writing firmware or hardware-specific code |
+
 ## Proactive Triggers
 
 | Trigger | Action | Why |
@@ -533,12 +276,13 @@ Console certification failure (TRC/TCR)? → Embedded Engineer + QA → +4 weeks
 | RenderDoc capture shows >1000 draw calls per frame on min-spec GPU | Implement GPU-driven rendering (indirect draw, meshlet culling in compute); enable SRP Batcher (Unity) or automatic instancing (Unreal); merge static geometry | 1000 draw calls at 60 FPS = 60K draw calls/sec = CPU driver overhead dominant; GPU idle waiting |
 | PSO creation hitches >1ms after warm-up | Serialize pipeline cache to disk pre-shipped with build; pre-create all known PSO combinations at loading screen; verify no runtime PSO creation in hot path | PSO creation on D3D12/Vulkan is 10-100ms — even a single hitch per level = certification failure (Sony TRC R5054) |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -558,7 +302,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -571,7 +317,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -730,7 +478,9 @@ Most engine failures aren't technical — they're process failures disguised as 
 | **Render feature creep** — adding ray tracing, DLSS, FSR, HDR, ultrawide all for launch | Integration bugs multiply combinatorially. Each feature breaks on one GPU vendor | 3-month delay, $300K overtime, certified on only 2 of 5 planned platforms |
 | **Profile only on dev kit (RTX 4090)** — "it runs fine on our machines" | Launch: GTX 1060 (most popular GPU per Steam Survey) runs at 12 FPS on minimum settings | 40% refund rate, "unoptimized" tag on Steam, $200K+ in refund processing fees |
 
-### The Anti-Rationalization Protocol
+#
+
+## The Anti-Rationalization Protocol
 
 When you hear yourself thinking any of these, STOP and apply the protocol:
 
@@ -745,24 +495,32 @@ These are not opinions. These are production data from shipped titles that faile
 
 ## Platform-Specific Architecture Notes
 
-### PlayStation 5 (PS5)
+#
+
+## PlayStation 5 (PS5)
 - **Memory:** 16GB GDDR6 unified. Split: CPU-accessible (~8GB game) vs GPU-optimal. Avoid CPU reading GPU-written buffers
 - **SSD:** 5.5 GB/s raw, 8-9 GB/s compressed (Kraken). Oodle Texture + Kraken for BC7 textures. DirectStorage API via `fi_read()`
 - **Geometry Engine:** Primitive shaders (mesh shader equivalent). Use `libSceGeometry` for amplification + mesh shader path
 - **Tempest Engine:** Dedicated audio DSP. Offload spatial audio to avoid CPU cost
 
-### Xbox Series X|S
+#
+
+## Xbox Series X|S
 - **X|S split:** Series S has 10GB RAM (8GB at 224 GB/s, 2GB at 56 GB/s). Target Series S first — if it fits, Series X is trivial
 - **DirectX 12 Ultimate:** Sampler Feedback, VRS Tier 2, Mesh Shaders, DXR 1.1. Xbox Game Development Kit (GDK) same API as Windows
 - **Velocity Architecture:** DirectStorage + Sampler Feedback Streaming (SFS). 2.4 GB/s compressed. BCPack texture compression
 
-### Nintendo Switch
+#
+
+## Nintendo Switch
 - **Tegra X1:** 4 ARM Cortex-A57 @ 1.02 GHz. Maxwell GPU (256 CUDA cores). 4GB LPDDR4 (3.25GB available)
 - **Forward rendering only.** Deferred G-Buffer bandwidth exceeds memory budget. Use single-pass forward with baked lighting
 - **Dynamic resolution:** Target 720p handheld / 1080p docked. Drop to 540p/720p dynamically. Temporal upscaling (FSR 1.0 lite)
 - **Shader:** GLSL 4.50 or SPIR-V via NVN. Separate shader compilation for handheld vs docked (different clock profiles)
 
-### Steam Deck (Linux/Proton)
+#
+
+## Steam Deck (Linux/Proton)
 - **APU:** Zen 2 (4C/8T @ 2.4-3.5 GHz) + RDNA 2 (8 CU @ 1.0-1.6 GHz). 16GB LPDDR5 unified. Target: 800p @ 30-60 FPS
 - **Vulkan via DXVK/VKD3D:** Windows D3D11/D3D12 titles run through translation layers. Native Vulkan build preferred (lower CPU overhead)
 - **Memory:** ~13.5GB available for games. Proton overhead: ~500MB. Keep total <13GB. Use `VK_EXT_memory_budget` for heap monitoring

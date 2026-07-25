@@ -362,6 +362,98 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
+# --- 10. ERROR RECOVERY ---
+check "All skills have Error Recovery section" python3 -c "
+import os, re, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            if '## Error Recovery' not in body:
+                print(f'  MISSING Error Recovery: {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
+# --- 11. VERIFICATION GUARDRAILS ---
+check "All skills have Verification Guardrails section" python3 -c "
+import os, re, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            # Accept any Verification section: ## Verification, ## Verification Guardrails, ## Verification Checklist
+            if not re.search(r'^## Verification', body, re.MULTILINE):
+                print(f'  MISSING Verification section: {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
+# --- 12. UPSTREAM TABLE QUALITY ---
+check "All skills have meaningful upstream table in Cross-Skill Coordination" python3 -c "
+import os, re, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            # Check for upstream table with at least 1 entry
+            if '| Upstream Skill' not in body:
+                print(f'  MISSING upstream table (Cross-Skill Coordination): {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
+# --- 13. LINE BUDGET ENFORCEMENT (ADVISORY — non-blocking) ---
+echo -n "[13] Line budget check (advisory)... "
+python3 -c "
+import os, sys
+over = []
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            lines = sum(1 for _ in open(path))
+            if lines > 500:
+                over.append((path, lines))
+over.sort(key=lambda x: -x[1])
+if over:
+    print(f'{len(over)} skills exceed 500-line advisory budget (top 5):')
+    for path, lines in over[:5]:
+        name = os.path.basename(os.path.dirname(path))
+        print(f'  {name}: {lines} lines')
+else:
+    print('All skills within 500-line budget')
+" || true
+
 # --- SUMMARY ---
 echo ""
 echo "========================================"

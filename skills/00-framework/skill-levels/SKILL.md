@@ -55,6 +55,7 @@ chain:
     - scrum-master
 
 license: MIT
+output: "reference"
 ---
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
@@ -66,7 +67,7 @@ A 5-level mastery taxonomy defining what separates practitioners at every stage,
 
 ---
 
-## Route the Request
+## <!-- QUICK: 30s --> Route the Request
 
 ```
 What are you trying to do?
@@ -110,7 +111,7 @@ Levels are a map, not the territory. The best practitioners don't think about th
 
 ---
 
-## Ground Rules
+## <!-- STANDARD: 3min --> Ground Rules
 
 - **Levels describe capability, not title.** Titles vary across companies. L3 at Google ≠ L3 at a startup. Use the behavioral anchors, not the number.
 - **Level is a range, not a point.** A person can operate at L3 in architecture but L2 in communication. Level is the intersection of multiple dimensions.
@@ -120,7 +121,7 @@ Levels are a map, not the territory. The best practitioners don't think about th
 
 ---
 
-## The Five Levels
+## <!-- STANDARD: 3min --> The Five Levels
 
 ### Overview
 
@@ -240,7 +241,7 @@ An L5 practitioner doesn't just operate within the current understanding of the 
 
 ---
 
-## Role Family Calibration
+## <!-- STANDARD: 3min --> Role Family Calibration
 
 Each role family maps the universal levels to domain-specific behavioral anchors.
 
@@ -338,7 +339,7 @@ Each role family maps the universal levels to domain-specific behavioral anchors
 
 ---
 
-## Level Transitions
+## <!-- STANDARD: 3min --> Level Transitions
 
 The hardest transitions in most careers:
 
@@ -382,19 +383,19 @@ If no level is specified:
 - **Architecture skills** default to **L3** (senior) — system-level design with trade-offs
 - **Strategy skills** default to **L4** (staff/lead) — org-level thinking
 
-## Gotchas
+## <!-- DEEP: 10+min --> Gotchas
 
-| # | Issue | Cost if Ignored | Fix |
-|---|-------|-----------------|-----|
-| 1 | Using years-of-experience as the primary leveling criterion instead of scope and impact | **$150K-$300K/yr** — Over-leveled engineers stall team velocity 30-40%; under-leveled top performers leave within 6 months, each departure costing **$75K-$200K** in recruiting + onboarding | Level by scope of influence (team → multi-team → org → company → industry), not by tenure. A 5-year engineer leading a 20-person migration is L4; a 15-year engineer maintaining a single service is L2 |
-| 2 | Creating a leveling ladder without behavioral anchors — just listing technical skills per level | **$500K-$2M/yr** — Inconsistent leveling across 50+ engineers creates systemic comp inequity, leading to attrition clusters and potential pay discrimination claims | Every level must define: (a) scope of ownership, (b) ambiguity handled, (c) influence radius, (d) craft excellence required. Include 3+ concrete behavioral examples per level from your actual codebase |
-| 3 | Skipping calibration sessions between managers during promotion cycles | **$100K-$400K/yr** — Without cross-manager calibration, promotion rates vary 3-5x between managers. High-performing engineers under a strict manager get stuck; mediocre engineers under a lenient manager get promoted — both outcomes damage culture | Run 2-hour calibration sessions every promotion cycle. Each manager presents evidence against level criteria. Use a calibration matrix: every engineer rated by 2+ managers independently before discussion |
-| 4 | Copying another company's leveling ladder without adapting to your context | **$1M-$5M/yr** — FAANG L6 expects leading 30+ person projects with dedicated PM/EM support. At a 50-person startup, that scope doesn't exist. You either never promote anyone (stagnation) or inflate titles (credibility loss with investors and future hires) | Design levels around the *actual scope available in your organization*. If your biggest projects involve 5 engineers, your terminal level should reflect leading 5-person projects, not 30-person FAANG equivalents |
-| 5 | Not updating leveling criteria as the company scales (seed → Series A → Series C → public) | **$2M-$10M/yr** — Seed-stage "wears all hats" criteria becomes anti-pattern at 200 people where specialization is required. Engineers hired at Series A get trapped at L3 because the L4 bar shifted to "cross-org influence" that didn't exist at hiring time | Review and recalibrate leveling ladder every 18-24 months or at each major scale milestone (50 → 150 → 500 → 2000 people). Grandfather existing employees with a 12-month transition window |
-| 6 | Using level as a proxy for respect, decision authority, or idea quality | **Immeasurable** — Junior engineers stop proposing ideas; senior engineers stop questioning bad decisions by staff+ engineers; psychological safety erodes; innovation collapses | Explicitly separate "decision rights" from "level." A L2 engineer with data should be able to challenge an L5 architect's design. Formalize this in your RFC/design review process: all levels participate, decisions are made on evidence not authority |
-| 7 | No terminal (career) level — requiring continuous promotion to remain in good standing | **$500K-$1.5M/yr** — Forces excellent practitioners into management roles they don't want and aren't good at. Loses deep technical expertise. Creates managers who resent managing | Define a terminal level (typically L4 or L5) where an engineer can stay indefinitely with cost-of-living adjustments. Career growth at terminal level means *deepening* craft, not climbing ladder. ~40% of engineers should be at or near terminal level in a healthy org |
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Using years-of-experience as the primary leveling criterion instead of scope and impact | Tenure is a poor proxy for capability; scope of influence determines actual level, not years served | Level by scope of influence (team → multi-team → org → company → industry), not by tenure. A 5-year engineer leading a 20-person migration is L4; a 15-year engineer maintaining a single service is L2 | **$150K-$300K/yr** — Over-leveled engineers stall team velocity 30-40%; under-leveled top performers leave within 6 months, each departure costing **$75K-$200K** in recruiting + onboarding. Level by scope, not tenure. |
+| Creating a leveling ladder without behavioral anchors — just listing technical skills per level | Behavioral anchors make levels measurable and consistent; without them, two managers interpret the same rubric differently | Every level must define: (a) scope of ownership, (b) ambiguity handled, (c) influence radius, (d) craft excellence required. Include 3+ concrete behavioral examples per level from your actual codebase | **$500K-$2M/yr** — Inconsistent leveling across 50+ engineers creates systemic comp inequity, attrition clusters, and potential pay discrimination claims. Behavioral anchors prevent calibration drift. |
+| Skipping calibration sessions between managers during promotion cycles | Without calibration, each manager applies the rubric differently, introducing systemic bias into promotion decisions | Run 2-hour calibration sessions every promotion cycle. Each manager presents evidence against level criteria. Use a calibration matrix: every engineer rated by 2+ managers independently before discussion | **$100K-$400K/yr** — Promotion rates vary 3-5x between managers; high performers under strict managers get stuck while mediocre engineers under lenient managers get promoted. Calibration sessions enforce consistency. |
+| Copying another company's leveling ladder without adapting to your context | Leveling reflects organizational scale; a ladder for 10,000-person companies creates impossible bars at 50-person startups | Design levels around the *actual scope available in your organization*. If your biggest projects involve 5 engineers, your terminal level should reflect leading 5-person projects, not 30-person FAANG equivalents | **$1M-$5M/yr** — FAANG L6 scope doesn't exist at startups, causing stagnation or title inflation. Adapt leveling to your org's actual scale. |
+| Not updating leveling criteria as the company scales (seed → Series A → Series C → public) | Leveling criteria designed for a 20-person company break at 200 people; what was "wears all hats" becomes "lacks specialization" | Review and recalibrate leveling ladder every 18-24 months or at each major scale milestone (50 → 150 → 500 → 2000 people). Grandfather existing employees with a 12-month transition window | **$2M-$10M/yr** — Engineers hired at Series A get trapped at L3 because the L4 bar shifted to "cross-org influence" that didn't exist at hiring time. Recalibrate at every scale milestone. |
+| Using level as a proxy for respect, decision authority, or idea quality | When level determines who gets heard, organizations lose the best ideas from junior contributors and silence healthy challenge | Explicitly separate "decision rights" from "level." A L2 engineer with data should be able to challenge an L5 architect's design. Formalize this in your RFC/design review process: all levels participate, decisions are made on evidence not authority | **Immeasurable** — Junior engineers stop proposing ideas; senior engineers stop questioning bad decisions; psychological safety erodes; innovation collapses. Decouple decision rights from level. |
+| No terminal (career) level — requiring continuous promotion to remain in good standing | Without a terminal level, the only growth path is management, forcing deep practitioners into roles they don't want | Define a terminal level (typically L4 or L5) where an engineer can stay indefinitely with cost-of-living adjustments. Career growth at terminal level means *deepening* craft, not climbing ladder. ~40% of engineers should be at or near terminal level in a healthy org | **$500K-$1.5M/yr** — Loses deep technical expertise; creates managers who resent managing. Terminal levels retain craft excellence and prevent forced management conversions. |
 
-## Anti-Rationalization — No Excuses
+## <!-- DEEP: 10+min --> Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
 |---|---|

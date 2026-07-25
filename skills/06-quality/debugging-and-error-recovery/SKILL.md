@@ -47,7 +47,6 @@ chain:
     - incident-responder
     - site-reliability-engineer
 ---
-
 # Debugging and Error Recovery
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -69,7 +68,6 @@ These rules are non-negotiable constraints that detect debugging mistakes before
 | R6 | DETECT correlation assumed as causation in debugging | Trigger: developer says \"the bug started when we deployed [unrelated change]\" without verifying the timeline, or proposes reverting a change because it \"coincided\" with the bug | STOP. Respond: \"CORRELATION ≠ CAUSATION: Temporal coincidence does not prove causality. Before reverting: (1) confirm the exact deployment timestamp vs first error timestamp, (2) check if any other changes deployed in the same window, (3) check external dependencies (API version changes, infra changes, traffic pattern shifts). Example: a bug appearing after a React upgrade could actually be caused by a CDN cache change deployed simultaneously. Verify, don't assume.\" |
 | R7 | REFUSE to ship a fix without verifying in a production-like environment | Trigger: fix is merged without testing against: production data shapes, production traffic volume (even at 10%), or production config values | STOP. Respond: \"VERIFICATION GATE: Staging passed ≠ production will pass. Differences that have caused verified fixes to fail in production: (1) production data has NULLs where staging doesn't, (2) production traffic is 100x staging volume exposing race conditions, (3) production config has different timeouts/limits, (4) production runs on different hardware/regions. Before deploying: canary deploy to 1% of traffic, monitor error rates for 15 minutes, then roll out.\"
 
-
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -78,7 +76,9 @@ These rules are non-negotiable constraints that detect debugging mistakes before
 
 Debugging is not a talent -- it is a discipline. The best debuggers are not the smartest engineers; they are the most systematic. They treat every bug as a scientific investigation: form a hypothesis, design an experiment to test it, analyze the results, and iterate.
 
-### Mental Models
+#
+
+## Mental Models
 
 | Model | Description |
 |---|---|
@@ -87,7 +87,9 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 | **Occam's Razor** | The simplest explanation is usually correct. If you find yourself constructing an elaborate theory involving cosmic rays or compiler bugs, stop. Check the basics first: typos, off-by-one errors, null values, incorrect config. |
 | **5 Whys** | Keep asking \"why?\" until you reach the root cause. Symptom: \"The API returns 500.\" Why? \"Null pointer.\" Why null? \"Database returned no rows.\" Why no rows? \"The record was soft-deleted.\" Why soft-deleted? \"The cleanup job ran with wrong date filter.\" Root cause: cleanup job date filter. Fix: fix the filter. Symptom fix (null guard at API) would have masked the data loss. |
 
-### Cognitive Biases That Sabotage Debugging
+#
+
+## Cognitive Biases That Sabotage Debugging
 
 | Bias | How It Shows Up | Defense |
 |---|---|---|
@@ -97,7 +99,9 @@ Debugging is not a talent -- it is a discipline. The best debuggers are not the 
 | **Fundamental attribution error** | Blaming external libraries, frameworks, or \"someone else's code\" before checking your own | Rule: assume the bug is in YOUR code first. Framework bugs exist but are 100x less common than application bugs. |
 | **Premature optimization** | Fixing the bug AND refactoring the module AND improving performance all at once | One PR = one bug fix. Do not refactor while debugging. You cannot distinguish which change actually fixed the bug. |
 
-### What Masters Know That Others Don't
+#
+
+## What Masters Know That Others Don't
 
 - **The first question is always: 'When did this start working correctly?'** Find the last known-good state. A bug that started today vs a bug that has existed for 6 months requires completely different investigation strategies.
 - **Reproduction is 80% of the fix.** Once you can reliably reproduce a bug on demand, the fix is usually obvious. Invest aggressively in reproduction. Time spent reproducing is never wasted.
@@ -130,7 +134,9 @@ Do NOT use debugging-and-error-recovery for writing new features (route to backe
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -142,7 +148,9 @@ Do NOT use debugging-and-error-recovery for writing new features (route to backe
 | A6 | File has `console.log\|print(\|logger.` debugging statements scattered | **AD-HOC DEBUGGING** -- Developer was debugging manually. Jump to **Decision Trees: Structured Debugging Replacement**. |
 | A7 | No artifacts -- verbal bug description only | **VERBAL REPORT** -- Start at **Core Workflow: Phase 0 (Clarify)**. Must extract reproduction steps before proceeding. |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What kind of bug are you dealing with?
@@ -161,175 +169,21 @@ What kind of bug are you dealing with?
 ```
 
 ## Core Workflow
+<!-- Full 168 lines extracted to references/core-workflow-1.md -->
 
-### Phase 0: Clarify the Bug
+#
 
+## Phase 0: Clarify the Bug
 Before touching any code, complete this template:
-
-```
 BUG TRIAGE TEMPLATE
 ===================
-What is the exact error? [copy-paste error message + stack trace]
-What was expected to happen? [specific expected behavior]
-What actually happened? [specific observed behavior]
-When did it start? [timestamp, deployment, commit]
-What is the impact? [users affected, revenue impact, data loss]
-Can you reproduce it? [YES / NO / SOMETIMES]
-What are the reproduction steps? [1. 2. 3.]
-What is the environment? [OS, browser, server version, database version]
-```
-
-If any field is blank, STOP. Ask the reporter to fill it in before proceeding. Debugging without this information is guessing.
-
-### Phase 1: Reproduce
-
-Reproduction is the foundation. Without it, you are navigating without a map.
-
-```
-Step 1: Reproduce manually
-  Follow the reproduction steps exactly. If you cannot reproduce, the bug report is incomplete.
-
-Step 2: Write a failing test
-  describe('bug #1234: login fails with special characters', () => {
-    it('should accept email with plus sign', () => {
-      expect(() => login('user+tag@example.com', 'password'))
-        .not.toThrow();
-    });
-  });
-
-Step 3: Confirm the test fails for the reported reason
-  npm test -- -t 'bug #1234'
-  # Expected: test FAILS (red) -- proving the bug exists
-  # If test PASSES (green) -- your reproduction is wrong
-```
-
-### Phase 2: Localize
-
-Narrow the problem space. Binary search is the most efficient method.
-
-```
-Method A: git bisect (find the breaking commit)
-  git bisect start
-  git bisect bad HEAD          # current broken state
-  git bisect good <last_known_good_commit>
-  # Git checks out midpoint. Test. Mark good/bad. Repeat.
-  # In log2(N) steps, you find the exact commit.
-  git bisect log > bisect_log.txt
-
-Method B: Binary search on code (comment-out method)
-  # For a 200-line function that throws an error:
-  # Comment out lines 100-200. Does error still occur?
-  # YES → bug is in lines 1-100.  NO → bug is in lines 100-200.
-  # Repeat, halving each time. Find exact line in log2(200) ≈ 8 iterations.
-
-Method C: Log injection
-  # When you cannot modify code (production), add targeted structured logs:
-  logger.info('checkpoint-A', { userId, cartTotal, timestamp });
-  # Query logs: which checkpoint was the last one reached before the error?
-  # Bug is between the last successful checkpoint and the error.
-```
-
-ASCII diagram:
-```
-┌─────────────────────────────────────────────────┐
-│              DEBUGGING WORKFLOW                  │
-├─────────────────────────────────────────────────┤
-│  Phase 0: Clarify (fill triage template)        │
-│     │                                           │
-│     ▼                                           │
-│  Phase 1: Reproduce (write failing test)        │
-│     │                                           │
-│     ▼                                           │
-│  Phase 2: Localize (bisect / binary search)     │
-│     │                                           │
-│     ▼                                           │
-│  Phase 3: Reduce (minimal reproduction)         │
-│     │                                           │
-│     ▼                                           │
-│  Phase 4: Fix Root Cause (5 Whys)               │
-│     │                                           │
-│     ▼                                           │
-│  Phase 5: Guard (regression test)               │
-│     │                                           │
-│     ▼                                           │
-│  Phase 6: Verify (production-like environment)   │
-└─────────────────────────────────────────────────┘
-```
-
-### Phase 3: Reduce to Minimal Reproduction
-
-Strip away everything unnecessary. The smaller the repro, the faster the fix.
-
-```
-Before reduction:
-  - 500-line component
-  - 3 API calls
-  - 2 database queries
-  - User must be logged in with specific permissions
-  - Input: 50-field form submission
-
-After reduction:
-  - 15-line function: the single transform that fails
-  - 0 API calls (mocked)
-  - 0 database queries (hardcoded data)
-  - No auth required
-  - Input: the single field value that triggers the bug
-```
-
-The delta debugging algorithm: systematically remove elements from the input/state until you find the minimal set that still triggers the bug.
-
-### Phase 4: Fix Root Cause
-
-Apply the 5 Whys. Never fix at the symptom layer.
-
-```
-Symptom: TypeError: Cannot read property 'name' of undefined
-│
-├── Why? user parameter is undefined
-│   └── Why? getUser() returned null
-│       └── Why? Database query returned no rows
-│           └── Why? User record was deleted by cleanup job
-│               └── Why? Cleanup job had wrong date filter
-│                   └── ROOT CAUSE: Date filter off-by-one error
-│
-├── SYMPTOM FIX (WRONG): Add `if (user) return;` at the top
-└── ROOT CAUSE FIX (CORRECT): Fix date filter in cleanup job + add guard in getUser()
-```
-
-### Phase 5: Guard with Regression Test
-
-The bug-fix test must be specific enough to catch the exact failure mode.
-
-```
-// GOOD regression test: specific to the bug
-it('handles user record deleted between auth and profile fetch', async () => {
-  await db.insertUser({ id: 1, name: 'Alice' });
-  const token = await auth.login('alice', 'password');
-  await db.deleteUser(1); // simulate race condition
-  await expect(profile.getProfile(token))
-    .rejects.toThrow('UserNotFoundError'); // expect graceful error, not crash
-});
-
-// BAD regression test: too generic
-it('profile fetch works', async () => {
-  const profile = await profile.getProfile(validToken);
-  expect(profile).toBeDefined();
-});
-```
-
-### Phase 6: Verify
-
-Before closing the bug, verify in conditions as close to production as possible.
-
-- [ ] Fix passes the regression test
-- [ ] Fix passes ALL existing tests (no regressions introduced)
-- [ ] Fix tested with production-like data (same nulls, edge cases, data volumes)
-- [ ] Fix tested under load (if the bug was load-related)
-- [ ] Fix deployed to canary/staging and monitored for 15+ minutes
-- [ ] Rollback plan documented (can the fix be safely reverted?)
+...
+> 📎 **[references/core-workflow-1.md](references/core-workflow-1.md)** — 168 lines of detailed guidance
 
 ## Decision Trees
-### Decision Tree 1: Non-Reproducible Bug Strategy
+#
+
+## Decision Tree 1: Non-Reproducible Bug Strategy
 
 ```
 Phase 1: Increase Observability
@@ -347,7 +201,9 @@ Phase 2: Hypothesis Testing
 └── Hypothesis: state-dependent → Capture and replay the exact state (state snapshot + replay)
 ```
 
-### Decision Tree 2: Critical Incident Triage (Stop-the-Line)
+#
+
+## Decision Tree 2: Critical Incident Triage (Stop-the-Line)
 
 ```
 Phase 1: MITIGATE (first 5 minutes — restore service)
@@ -364,7 +220,9 @@ Phase 2: INVESTIGATE (after service is restored)
 └── Postmortem: blameless analysis, timeline, 5 Whys, action items with owners and dates.
 ```
 
-### Decision Tree 3: Safe Fallback Patterns
+#
+
+## Decision Tree 3: Safe Fallback Patterns
 
 ```
 Phase 1: Choose Fallback Strategy
@@ -381,7 +239,9 @@ Phase 2: Implement Safely
 └── Fallback must be tested → Chaos test: kill the primary and verify fallback activates
 ```
 
-### Decision Tree 4: Binary Search Debugging (Delta Debugging)
+#
+
+## Decision Tree 4: Binary Search Debugging (Delta Debugging)
 
 ```
 Phase 1: Define the Search Space
@@ -399,7 +259,9 @@ Phase 2: Execute Binary Search
 └── Stop when you have isolated the bug to a single function, input, commit, or state change
 ```
 
-### Decision Tree 5: Distributed System Debugging
+#
+
+## Decision Tree 5: Distributed System Debugging
 
 ```
 Phase 1: Trace the Request
@@ -419,7 +281,9 @@ Phase 2: Isolate the Failing Service
 └── Bug is in downstream → Repeat isolation for that service.
 ```
 
-### Decision Tree 6: Memory Leak and Resource Exhaustion
+#
+
+## Decision Tree 6: Memory Leak and Resource Exhaustion
 
 ```
 Phase 1: Identify the Leak
@@ -436,7 +300,9 @@ Phase 2: Fix the Leak
 └── Streaming response not consumed → Always consume or cancel response bodies
 ```
 
-### Decision Tree 7: Rubber Duck Debugging Protocol
+#
+
+## Decision Tree 7: Rubber Duck Debugging Protocol
 
 ```
 Phase 1: Prepare the Explanation
@@ -454,6 +320,20 @@ Phase 2: Explain to the Duck (or colleague)
 └── If not, your colleague/duck now has enough context to help effectively.
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Skill to Invoke |
@@ -467,6 +347,10 @@ Phase 2: Explain to the Duck (or colleague)
 | Bug is in infrastructure or deployment | `devops-engineer` or `site-reliability-engineer` — infra debugging |
 | Need code review on the bug fix | `code-reviewer` — 6-dimension review before merge |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `code-reviewer` | Code quality assessment, security patterns, testing gaps | Before finalizing implementation or shipping to production |
+
 ## Proactive Triggers
 
 These conditions automatically activate debugging scrutiny:
@@ -477,12 +361,13 @@ These conditions automatically activate debugging scrutiny:
 - **Trigger: the same error signature appears in Sentry/Datadog >10 times in 5 minutes.** Auto-escalate to stop-the-line protocol if error rate is accelerating.
 - **Trigger: a developer says "that's weird" or "I don't understand why this is happening."** Auto-trigger rubber duck protocol — the confusion itself is diagnostic data.
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -502,7 +387,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -515,7 +402,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:

@@ -20,7 +20,6 @@ chain:
     - backend-developer
     - platform-engineer
 ---
-
 # Multi-Agent Orchestration
 
 ## Route the Request
@@ -54,17 +53,49 @@ See Section 11 (Decision Trees) for structured topology selection, state managem
 ## Core Workflow
 Topology selection → typed state schema → agent delegation contracts → state synchronization → observability → cost optimization → failure mode testing.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Verification Guardrails
+
+Run these checks before declaring work complete. ALL must pass.
+
+| # | Guardrail | Check |
+|---|-----------|-------|
+| V1 | Output matches specification | Compare generated output against the requirements stated at the start. Every explicit requirement must have a corresponding deliverable. |
+| V2 | No broken references or links | All file references must resolve. Run `grep -oP '\]\([^)]+\)' [output] | while read link; do [ -f "$link" ] || echo "BROKEN: $link"; done`. |
+| V3 | All validations pass where applicable | Run any existing test suite or verification script. `bash scripts/validate-skills.sh` if in this repository. |
+| V4 | No placeholder or TODO content remains | `grep -ri 'TODO\|FIXME\|PLACEHOLDER' [output]` must return empty. |
+| V5 | Error states handled | Verify error paths produce clear messages, not silent failures or stack traces. |
+| V6 | Edge cases considered | Empty input, max/min values, concurrent access, boundary conditions handled or documented as out-of-scope. |
+| V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
+| V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
+
 ## Cross-Skill Coordination
 - **agent-handoff-protocol:** State serialization and handoff contracts
 - **context-compaction-strategies:** Token budget management across agents
 - **agent-eval-pipeline:** Multi-agent behavioral evaluation
 - **mcp-management:** Shared MCP server configuration
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
+
 ## Proactive Triggers
 - "add another agent" → Ask: What topology? What state contract?
 - "agents disagree" → Surface: Conflict resolution pattern (Section 7)
 - "agent costs rising" → Audit: Delegation loops, hallucination cascades
-
 
 ## State Log
 
@@ -141,308 +172,37 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 | Trace/audit | LangSmith/LangFuse | CrewAI telemetry | AutoGen runtime log |
 
 ## 3. Five Agent Topology Patterns
+<!-- COMPRESSED: Full 166 lines extracted to references/3-five-agent-topology-patterns.md -->
 
 ### 3.1 Supervisor (Central Controller)
 
 ```
                   ┌──────────────┐
                   │  SUPERVISOR  │
-                  │  (Router +   │
-                  │   Arbiter)   │
-                  └──┬──┬──┬──┬──┘
-                     │  │  │  │
-              ┌──────┘  │  │  └──────┐
-              ▼         ▼  ▼         ▼
-         ┌────────┐ ┌────────┐ ┌────────┐
-         │ Agent A│ │ Agent B│ │ Agent C│
-         │(Code)  │ │(Review)│ │(Test)  │
-         └────────┘ └────────┘ └────────┘
-```
-
-**Use when:** Task routing needs clear ownership; latency < 200ms per delegation; 3-12 agents.
-
-**Anti-pattern:** Supervisor becomes bottleneck — delegate only routing, never computation.
-
-**LangGraph implementation:**
-
-```python
-from typing import TypedDict, Literal
-from langgraph.graph import StateGraph, END
-
-class SupervisorState(TypedDict):
-    messages: list
-    next_agent: str
-    task_result: dict
-
-def supervisor_router(state: SupervisorState) -> Literal["coder", "reviewer", "tester", "END"]:
-    if state["task_result"].get("done"):
-        return "END"
-    return state["next_agent"]
-
-graph = StateGraph(SupervisorState)
-graph.add_node("supervisor", supervisor_node)
-graph.add_node("coder", coder_node)
-graph.add_node("reviewer", reviewer_node)
-graph.add_node("tester", tester_node)
-graph.add_conditional_edges("supervisor", supervisor_router, {
-    "coder": "coder", "reviewer": "reviewer",
-    "tester": "tester", "END": END
-})
-```
-
-### 3.2 Hierarchical (Tree Delegation)
-
-```
-                   ┌──────────────┐
-                   │    ORCH      │
-                   │  (Planner)   │
-                   └──┬────────┬──┘
-                      │        │
-              ┌───────┘        └───────┐
-              ▼                        ▼
-        ┌──────────┐            ┌──────────┐
-        │Sub-Orch 1│            │Sub-Orch 2│
-        │(Frontend)│            │(Backend) │
-        └──┬───┬───┘            └──┬───┬───┘
-           │   │                   │   │
-      ┌────┘   └────┐         ┌────┘   └────┐
-      ▼             ▼         ▼             ▼
-   ┌──────┐    ┌──────┐   ┌──────┐    ┌──────┐
-   │React │    │CSS   │   │API   │    │DB    │
-   │Agent │    │Agent │   │Agent │    │Agent │
-   └──────┘    └──────┘   └──────┘    └──────┘
-```
-
-**Use when:** Complex decomposition across domains; sub-orchestrators own context boundaries; 5-30 agents.
-
-**Key rule:** Each sub-orchestrator serializes state before passing up — never pass mutable references across tree levels.
-
-### 3.3 Peer-to-Peer (Message Passing)
-
-```
-    ┌────────┐    message     ┌────────┐
-    │ Agent A│───────────────▶│ Agent B│
-    │(Design)│◀───────────────│(Build) │
-    └────────┘    response    └────────┘
-         │                          │
-         │    ┌────────┐           │
-         └───▶│ Agent C│◀──────────┘
-              │(Verify)│
-              └────────┘
-```
-
-**Use when:** Independent verification; horizontal scaling; no single point of coordination.
-
-**AutoGen implementation:**
-
-```python
-from autogen import ConversableAgent, GroupChat, GroupChatManager
-
-designer = ConversableAgent("designer", system_message="Design architecture")
-builder = ConversableAgent("builder", system_message="Build implementation")
-verifier = ConversableAgent("verifier", system_message="Verify correctness")
-
-groupchat = GroupChat(
-    agents=[designer, builder, verifier],
-    messages=[],
-    speaker_selection_method="round_robin",
-    max_round=12
-)
-manager = GroupChatManager(groupchat)
-```
-
-### 3.4 Debate (Adversarial Refinement)
-
-```
-    ┌──────────┐    critique    ┌──────────┐
-    │Proposer  │───────────────▶│ Critic   │
-    │Agent     │◀───────────────│ Agent    │
-    └──────────┘    revision    └──────────┘
-         │                           │
-         └─────────┬─────────────────┘
-                   ▼
-            ┌──────────────┐
-            │  ARBITER     │
-            │ (Convergence │
-            │   Check)     │
-            └──────────────┘
-```
-
-**Use when:** High-stakes architectural decisions; adversarial validation; diminishing-returns detection required.
-
-**Key rule:** Always configure `max_debate_rounds` (default 5) and `improvement_threshold` (0.05 delta). Without these, two agents will iteratively "improve" past optimal ($30K+ token waste).
-
-### 3.5 Swarm (Emergent Specialization)
-
-```
-    ┌───┐  ┌───┐  ┌───┐  ┌───┐  ┌───┐
-    │ A │  │ B │  │ C │  │ D │  │ E │   <- identical agents
-    └─┬─┘  └─┬─┘  └─┬─┘  └─┬─┘  └─┬─┘
-      │       │       │       │       │
-      └───────┴───┬───┴───────┴───────┘
-                  ▼
-          ┌──────────────┐
-          │ SHARED TASK  │
-          │    QUEUE     │
-          └──────────────┘
-```
-
-**Use when:** Parallel exploration; identical agents self-assign subtasks; 10-100+ agents.
-
-**OpenAI Swarm implementation:**
-
-```python
-from swarm import Swarm, Agent
-
-def transfer_to_database(): return database_agent
-def transfer_to_frontend(): return frontend_agent
-
-orchestrator = Agent(
-    name="Orchestrator",
-    instructions="Route based on task domain",
-    functions=[transfer_to_database, transfer_to_frontend]
-)
-client = Swarm()
-response = client.run(agent=orchestrator, messages=[{"role": "user", "content": task}])
-```
+...
+> 📎 **Full content (166 lines):** [references/3-five-agent-topology-patterns.md](references/3-five-agent-topology-patterns.md)
 
 ## 4. Typed Shared State Architecture
+<!-- COMPRESSED: Full 57 lines extracted to references/4-typed-shared-state-architecture.md -->
 
 ### 4.1 LangGraph TypedDict (Checkpoint-Based)
 
 ```python
 from typing import TypedDict, Annotated, Sequence
 from langgraph.checkpoint.memory import MemorySaver
-import operator
-
-class AgentState(TypedDict):
-    messages: Annotated[Sequence[str], operator.add]  # Append-only
-    current_task: str
-    agent_outputs: dict[str, str]  # Agent -> output mapping
-    decision_log: list[dict]       # Audit trail
-    delegation_depth: int          # Max-depth counter
-    handoff_hash: str              # Cryptographic hash of last handoff
-
-checkpointer = MemorySaver()
-graph.compile(checkpointer=checkpointer)
-```
-
-**Checkpoint rule:** Checkpoint after every agent handoff — never let 3+ sequential mutations accumulate without persistent snapshot.
-
-### 4.2 CrewAI Pydantic (Task Output Schema)
-
-```python
-from pydantic import BaseModel, Field
-from crewai import Task
-
-class ArchitectureDecision(BaseModel):
-    component: str = Field(description="System component name")
-    decision: str = Field(description="Chosen approach")
-    rationale: str = Field(description="Why this approach")
-    alternatives_considered: list[str] = Field(default_factory=list)
-    risks: list[str] = Field(default_factory=list)
-
-task = Task(
-    description="Design database schema",
-    expected_output="ArchitectureDecision Pydantic model",
-    output_pydantic=ArchitectureDecision
-)
-```
-
-### 4.3 AutoGen Message Bus (Event-Driven)
-
-```python
-from autogen import ConversableAgent
-
-agent_a = ConversableAgent("agent_a", llm_config={"config_list": [...]})
-
-agent_a.send(
-    message={"type": "handoff", "task": {...}, "state_hash": "sha256:abc123"},
-    recipient=agent_b,
-    request_reply=True
-)
-```
+...
+> 📎 **Full content (57 lines):** [references/4-typed-shared-state-architecture.md](references/4-typed-shared-state-architecture.md)
 
 ## 5. Agent Delegation Protocol
+<!-- COMPRESSED: Full 81 lines extracted to references/5-agent-delegation-protocol.md -->
 
 ### 5.1 Task Decomposition
 
 ```
 Input Task
     │
-    ├── Complexity < threshold? ──yes──▶ Single agent
-    │
-    └── Complexity >= threshold?
-            │
-            ├── Domain = frontend? ──▶ Frontend specialist
-            ├── Domain = backend?  ──▶ Backend specialist
-            ├── Domain = data?     ──▶ Data specialist
-            └── Cross-cutting?     ──▶ Orchestrator decomposes
-```
-
-### 5.2 Capability Manifest
-
-```yaml
-agents:
-  - id: frontend-specialist
-    capabilities: [react, next.js, tailwind, accessibility]
-    context_window: 128k
-    avg_latency_ms: 1200
-    cost_per_1k_tokens: 0.003
-  - id: backend-specialist
-    capabilities: [fastapi, postgres, redis, auth]
-    context_window: 200k
-    avg_latency_ms: 900
-    cost_per_1k_tokens: 0.005
-```
-
-### 5.3 Handoff Protocol
-
-```python
-from dataclasses import dataclass
-from hashlib import sha256
-import json
-
-@dataclass
-class AgentHandoff:
-    source_agent: str
-    target_agent: str
-    task: dict
-    state_snapshot: dict
-    delegation_depth: int
-    max_depth: int = 5
-    handoff_id: str = ""
-
-    def __post_init__(self):
-        payload = json.dumps(self.state_snapshot, sort_keys=True)
-        self.handoff_id = sha256(payload.encode()).hexdigest()[:16]
-
-    def is_valid(self) -> bool:
-        return self.delegation_depth < self.max_depth
-```
-
-### 5.4 Fallback Chain
-
-```
-Primary agent (capability match)
-    │
-    ├── Success (latency < 2s)? ──▶ Return result
-    │
-    └── Timeout/Failure?
-            │
-            ├── Retry 1 (same agent, warm context)
-            ├── Retry 2 (same agent, clean context)
-            │
-            └── Retries exhausted?
-                    │
-                    ├── Fallback agent (wider capability)
-                    │       │
-                    │       └── Success? ──▶ Return with "degraded" flag
-                    │
-                    └── Fallback fails?
-                            │
-                            └──▶ Escalate to Human-in-the-Loop
-```
+...
+> 📎 **Full content (81 lines):** [references/5-agent-delegation-protocol.md](references/5-agent-delegation-protocol.md)
 
 ## 6. State Synchronization Strategies
 
@@ -540,73 +300,15 @@ for handoff in handoff_chain:
 ```
 
 ## 9. Failure Modes & Prevention
+<!-- COMPRESSED: Full 69 lines extracted to references/9-failure-modes-prevention.md -->
 
 ### 9.1 Hallucination Cascade
 
 **Pattern:** Agent A hallucinates → Agent B uses hallucinated output → Agent C amplifies → cascading wrong decisions.
 
 **Detection:**
-
-```python
-def detect_cascade(outputs: list[dict], threshold: float = 0.3) -> bool:
-    for i in range(1, len(outputs)):
-        consistency = cosine_similarity(
-            embed(outputs[i-1]["claim"]),
-            embed(outputs[i]["claim"])
-        )
-        if consistency < threshold:
-            return True  # Cascade detected — halt and verify
-    return False
-```
-
-**Prevention:** Inter-agent consistency check after every handoff. If consistency < 0.7, inject verification step before continuing.
-
-### 9.2 State Corruption Across Handoffs
-
-**Pattern:** Agent A mutates shared state → Agent B reads stale value → decision based on wrong state.
-
-**Prevention:**
-
-```python
-def verify_state_integrity(handoff: AgentHandoff) -> bool:
-    expected_hash = handoff.handoff_id
-    actual_hash = sha256(
-        json.dumps(handoff.state_snapshot, sort_keys=True).encode()
-    ).hexdigest()[:16]
-    return expected_hash == actual_hash
-```
-
-### 9.3 Infinite Delegation Loop
-
-**Pattern:** Agent A → B → C → A (cycle) or unbounded depth recursion.
-
-**Detection:**
-
-```python
-visited = set()
-def delegate(current: str, target: str, state: dict):
-    edge = (current, target)
-    if edge in visited:
-        raise InfiniteLoopError(f"Cycle detected: {edge}")
-    if state["delegation_depth"] >= MAX_DEPTH:
-        raise DelegationDepthExceeded(state["delegation_depth"])
-    visited.add(edge)
-    state["delegation_depth"] += 1
-```
-
-### 9.4 Debate Topology Indefinite Refinement
-
-**Pattern:** Proposer and Critic iteratively "improving" past optimal without convergence check.
-
-**Prevention:** Configure convergence guards:
-
-```python
-DEBATE_CONFIG = {
-    "max_rounds": 5,
-    "improvement_threshold": 0.05,  # 5% delta minimum
-    "stagnation_rounds": 2,         # Halt after 2 rounds with no improvement
-}
-```
+...
+> 📎 **Full content (69 lines):** [references/9-failure-modes-prevention.md](references/9-failure-modes-prevention.md)
 
 ## 10. Cost Optimization
 

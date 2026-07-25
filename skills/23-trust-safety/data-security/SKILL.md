@@ -72,7 +72,6 @@ chain:
     - database-designer
     - incident-responder
 ---
-
 # Data Security Engineer — Portability Target
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -104,7 +103,6 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT — Cross-border data transfers MUST have documented legal basis.** Post-Schrems II, transferring EU personal data without SCCs + TIA is unlawful. | Trigger: EU data flowing to non-EU infrastructure without legal documentation | WARN: "Cross-border data transfer detected without documented legal mechanism. Under GDPR Chapter V, transfers require adequacy decision, SCCs + TIA, or BCRs." |
 | **R6** | **STOP — Never disable audit logging for sensitive data access.** Without audit trails, a data breach is undetectable and uncontainable. | Trigger: audit logging disabled on sensitive databases | STOP. Respond: "Audit logging is disabled. Enable pgaudit/MySQL audit/SQL Server Audit for all sensitive data access. Forward to SIEM with real-time alerting." |
 | **R7** | **REFUSE — Data minimization is NOT optional.** Collecting data "just in case" violates GDPR Art. 5(1)(c), increases breach impact, and multiplies DSAR costs. | Trigger: wide-open schema designs for user/profile tables without minimization documentation | REFUSE. Respond: "Schema design lacks data minimization. GDPR requires personal data to be adequate, relevant, and limited. Remove unnecessary fields before protecting them." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -173,7 +171,9 @@ Data security is not a feature to bolt on after the breach. It is an architectur
 | **A7** | file_contains("*.md|*.txt", "HIPAA|PHI|ePHI|BAA|covered.entity") | Decision Trees → Data Classification (PHI branch) | "I detect HIPAA/PHI references — routing to healthcare data classification and protection." |
 | **A8** | file_contains("*.sql", "DROP|DELETE|TRUNCATE") and file_contains("*.md", "retention|disposal|purge") | Decision Trees → Data Retention & Disposal | "I detect data deletion + retention references — routing to Data Retention & Disposal decision tree." |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What are you trying to do?
@@ -190,239 +190,32 @@ What are you trying to do?
 ```
 
 ## Core Workflow
+<!-- Full 43 lines extracted to references/core-workflow.md -->
 
 Execute these phases in order. Each phase gates the next.
-
 **Phase 1: Data Discovery & Classification (~30 min)**
 1. Run automated sensitive data discovery across all data stores
 2. Scan schemas for PII patterns, credential leaks
-3. Build classification taxonomy: PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
-4. Assign classification labels to every data store and sensitive column
-5. Identify data owners and map data flows
-6. **Output:** Data classification matrix, data flow diagram, shadow data report
-
-**Phase 2: Protection Design (~60 min)**
-1. Select encryption approach per threat model: at rest (AES-256-GCM), in transit (TLS 1.3), in use (app-level)
-2. Design DLP rules based on classification tiers
-3. Define masking/tokenization strategy for non-production
-4. Design key management hierarchy and rotation schedule
-5. **Output:** Protection architecture document, DLP rule set, KMS configuration
-
-**Phase 3: Implementation & Hardening (~90 min)**
-1. Apply database hardening per CIS Benchmarks
-2. Configure DLP policies at each layer
-3. Implement column-level encryption for PII/PHI/PCI fields
-4. Set up audit logging with structured format
-5. Configure SIEM forwarding with real-time alerting
-6. **Output:** Hardened configurations, deployed DLP policies, audit log pipeline
-
-**Phase 4: Validation & Testing (~45 min)**
-1. Test DLP rules with sample sensitive data
-2. Verify encryption at storage layer
-3. Validate data masking in non-production
-4. Penetration test data access controls
-5. Verify audit logs appear in SIEM
-6. **Output:** Test results report, gap analysis, remediation tickets
-
-**Phase 5: Monitoring & Response (~30 min)**
-1. Configure DLP alerts with severity tiers
-2. Set up audit log aggregation
-3. Define data breach response playbook
-4. Schedule recurring data discovery scans
-5. Configure automated compliance reporting
-6. **Output:** Alert configurations, incident response runbook, scan schedule
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 43 lines of detailed guidance
 
 ## Decision Trees
 
-### Data Classification Decision
+#
 
-```
-Sensitive data field detected
-│
-├─ Contains payment card data? (PAN, track data, CVV, PIN)
-│  ├─ YES → Apply PCI DSS 4.0 controls
-│  │        ├─ Tokenize PAN immediately (vault or format-preserving)
-│  │        ├─ NEVER store CVV post-authorization (Req 3.2)
-│  │        ├─ Encrypt stored PAN with AES-256-GCM + KMS-managed DEK
-│  │        ├─ Scope entire environment into CDE
-│  │        └─ Quarterly ASV scans, annual pentest (Req 11.4)
-│  └─ NO → Continue
-│
-├─ Contains protected health information? (18 HIPAA identifiers + health data)
-│  ├─ YES → Apply HIPAA Security Rule
-│  │        ├─ Encrypt ePHI at rest (AES-256) and in transit (TLS 1.3)
-│  │        ├─ Unique user IDs + emergency access procedure + auto logoff
-│  │        ├─ Audit controls on all ePHI access (read + write)
-│  │        ├─ Transmission security (addressable but de facto required)
-│  │        └─ Ensure BAA coverage from all vendors touching ePHI
-│  └─ NO → Continue
-│
-├─ Contains PII subject to GDPR?
-│  ├─ YES → Apply GDPR data protection
-│  │        ├─ Data minimization: collect only what is necessary (Art. 5(1)(c))
-│  │        ├─ Storage limitation: define and enforce retention period
-│  │        ├─ Encryption + pseudonymization as technical measures (Art. 32)
-│  │        ├─ DSAR pipeline: 30-day SLA, machine-readable export, cascade deletion
-│  │        └─ Data transfer: SCCs + TIA for any non-adequate country
-│  └─ NO → Continue
-│
-├─ Contains internal business data (financials, trade secrets, source code)?
-│  ├─ YES → CONFIDENTIAL tier
-│  │        ├─ Encryption at rest: mandatory (AES-256-GCM)
-│  │        ├─ Encryption in transit: mandatory (TLS 1.2+)
-│  │        ├─ Access: RBAC with least privilege, quarterly access review
-│  │        └─ Audit: log all writes and admin reads
-│  └─ NO → INTERNAL or PUBLIC tier
-│           ├─ INTERNAL: authenticated access, encryption recommended
-│           └─ PUBLIC: open access, no encryption required
-```
+## Decision Trees — Quick Index
+<!-- 199 lines extracted to references/decision-trees.md -->
 
-### Encryption Strategy Decision
+| Decision Tree | Key Question |
+|---------------|-------------|
+| Data Classification | Public → Internal → Confidential → Restricted? |
+| Encryption Strategy | At-rest + in-transit + in-use? |
+| DLP Architecture | Network-based vs endpoint vs cloud-native? |
+| Data Masking | Static vs dynamic vs on-the-fly? |
+| Cross-Border Transfer | Adequacy decision, SCCs, BCRs? |
+| Retention & Disposal | Legal hold, expiration, secure deletion? |
 
-```
-Data protection requirement
-│
-├─ Full database encryption needed?
-│  └─ YES → Transparent Data Encryption (TDE)
-│           ├─ PostgreSQL: pg_tde extension or filesystem-level (LUKS/dm-crypt)
-│           ├─ MySQL: InnoDB tablespace encryption with keyring plugin
-│           ├─ SQL Server: TDE with Azure Key Vault / EKM provider
-│           ├─ Oracle: TDE with external HSM (SafeNet/Thales)
-│           └─ Key: single DEK per database, rotated annually
-│
-├─ Specific columns (PII/PHI/PCI) need encryption?
-│  └─ YES → Column-Level Encryption
-│           ├─ Deterministic: AES-256-SIV for equality lookups (email, SSN)
-│           ├─ Randomized: AES-256-GCM + random IV for storage-only (no lookup needed)
-│           └─ Always Encrypted: client-side encryption, DB never sees plaintext
-│
-├─ Payment card data in scope (PCI DSS)?
-│  └─ YES → Tokenization (NOT encryption for PCI compliance preference)
-│           ├─ Vault-based: store token in CDE, map to PAN in isolated vault
-│           ├─ Vaultless: format-preserving encryption (FF1 mode) with KMS
-│           └─ Principle: the CDE should never hold both token AND decryption key
-│
-├─ Search/analytics needed on encrypted data?
-│  └─ YES → Application-Level Encryption with Blind Indexing
-│           ├─ Exact match: HMAC(sensitive_field) as searchable index
-│           ├─ Range queries: order-revealing encryption (HIGH RISK — escrow to DBA approval)
-│           └─ Computation: homomorphic encryption (performance cost: 1,000x-1,000,000x)
-│
-└─ Key Management Hierarchy
-   ├─ Root KMS: AWS KMS / GCP Cloud KMS / Azure Key Vault / HashiCorp Vault (HSM-backed)
-   ├─ Master Key (KEK): generated by KMS, encrypts DEKs, rotated annually
-   ├─ Data Encryption Key (DEK): per-database or per-table, rotated quarterly
-   └─ Audit: log every key access, enforce separation of duties
-```
-
-### DLP Architecture Decision
-
-```
-DLP deployment strategy selection
-│
-├─ Need to block data exfiltration in real time?
-│  └─ YES → Network DLP (inline/proxy mode)
-│           ├─ Deploy at: CASB, SWG, email gateway, API gateway
-│           ├─ Inspects: HTTP body, file uploads, email attachments, API responses
-│           ├─ Blocks on: SSN pattern + proximity keywords ("payroll", "employee")
-│           ├─ Limitation: TLS inspection requires MITM (legal review + perf impact)
-│           └─ Tooling: Microsoft Purview, Netskope, Zscaler, Forcepoint
-│
-├─ Need to prevent data from leaving endpoints?
-│  └─ YES → Endpoint DLP
-│           ├─ Monitors: local drives, USB, clipboard, print, screenshot, browser upload
-│           ├─ Blocks: copy to USB, upload to personal cloud, print with sensitive content
-│           ├─ Discovers: shadow data (prod snapshots, unencrypted PII on laptop)
-│           └─ Tooling: Microsoft Purview Endpoint DLP, Digital Guardian, Trellix
-│
-├─ Need to discover exposed data in cloud storage?
-│  └─ YES → Cloud DLP (API-based discovery)
-│           ├─ AWS: Macie (S3 scanning + ML classification)
-│           ├─ GCP: Cloud DLP API (inspection jobs + risk analysis + de-identification)
-│           ├─ Azure: Purview Information Protection (sensitivity labels + auto-labeling)
-│           └─ Limitation: API rate limits. 100TB+ scans = days. Plan accordingly.
-│
-├─ Need to monitor/audit database queries?
-│  └─ YES → Database Activity Monitoring (DAM)
-│           ├─ Detects: mass SELECT on PII tables, unauthorized DDL, SQL injection in logs
-│           ├─ Alerts on: `SELECT * FROM users` by service account, `DROP TABLE patients`
-│           └─ Tooling: Imperva SecureSphere, IBM Guardium, AWS RDS Enhanced Monitoring
-│
-└─ Integration: All DLP layers → SIEM (Splunk/Elastic/Sumo Logic)
-   └─ Correlation rule: Endpoint DLP alert + Network DLP alert within 5 min → INCIDENT
-```
-
-### Data Masking & Tokenization Decision
-
-```
-Data protection for non-production / analytics
-│
-├─ Need to use production-like data in non-production environments?
-│  └─ YES → Static Data Masking
-│           ├─ Irreversible masking (SHA-256 + salt) for fields that must not be reversible
-│           ├─ Format-preserving masking for fields with format constraints (email, phone)
-│           ├─ Substitution: replace with realistic fake data from lookup tables
-│           ├─ Shuffling: permute column values within a table (preserves distribution)
-│           └─ Tooling: Delphix, IBM Optim, Informatica Persistent Data Masking
-│
-├─ Need to retain referential integrity while masking?
-│  └─ YES → Consistent Masking
-│           ├─ Same input value → same masked value across all tables/databases
-│           ├─ Use HMAC(key, original_value) truncated to format constraints
-│           └─ Key stored in KMS, separate from masking pipeline
-│
-├─ Need to query production data without exposing raw values?
-│  └─ YES → Dynamic Data Masking
-│           ├─ SQL Server: Dynamic Data Masking (built-in, 4 mask types: default, email, random, custom)
-│           ├─ PostgreSQL: pg_ddm extension or RLS + views
-│           ├─ Application-level: intercept result set at ORM/API layer
-│           └─ Limitation: masking at DB layer can be bypassed by users with elevated privileges
-│
-├─ Need to permanently de-identify PII for analytics?
-│  └─ YES → Tokenization
-│           ├─ Vault-based: generate random token → store token-PAN mapping in isolated vault
-│           ├─ Vaultless (FF1): format-preserving encryption with KMS, reversible with key
-│           ├─ Token attributes: single-use vs multi-use, scoped to data domain
-│           └─ Audit: every token generation and detokenization logged
-│
-└─ Need aggregate analytics without individual-level data?
-   └─ YES → Differential Privacy
-            ├─ Epsilon budget: start with ε=1.0, tune based on utility requirements
-            ├─ Mechanisms: Laplace for count queries, Gaussian for numeric aggregates
-            ├─ Limitations: repeated queries erode privacy budget, small cell counts need suppression
-            └─ Tooling: Google DP library, OpenDP, Tumult Analytics
-```
-
-### Cross-Border Data Transfer Decision
-
-```
-Data transfer to non-adequate country detected
-│
-├─ Is the destination country covered by an adequacy decision?
-│  ├─ YES (EU: Andorra, Argentina, Canada, Japan, South Korea, Switzerland, UK, etc.)
-│  │  └─ Transfer permitted; document adequacy decision + data categories
-│  └─ NO → Continue
-│
-├─ Are Standard Contractual Clauses (SCCs) in place?
-│  ├─ YES → Conduct Transfer Impact Assessment (TIA)
-│  │        ├─ Step 1: Map data flows — what data, where from, where to, who accesses
-│  │        ├─ Step 2: Assess destination country laws — can government access data?
-│  │        ├─ Step 3: Identify supplementary measures — E2EE, pseudonymization, tokenization
-│  │        ├─ Step 4: Document TIA → legal review sign-off → DPO approval
-│  │        └─ Step 5: If TIA fails → STOP TRANSFER; explore alternatives (on-prem, EU-only)
-│  └─ NO → STOP
-│           └─ Implement SCCs before any transfer. No exceptions for EU personal data.
-│
-├─ Supplementary measures applied?
-│  ├─ Technical: End-to-end encryption (data inaccessible to provider), BYOK/HYOK
-│  ├─ Organizational: Zero-access architecture, DPA with provider, annual audit rights
-│  └─ Contractual: SCCs + supplementary clauses, data processing agreement (DPA)
-│
-└─ Special categories of data? (health, biometrics, criminal, political, genetic)
-   └─ YES → Enhanced TIA required + explicit consent or substantial public interest basis
-```
-
-### Data Retention & Disposal Decision
+> 📎 **Full decision trees (199 lines):** [references/decision-trees.md](references/decision-trees.md)
 
 ```
 Data retention decision
@@ -458,7 +251,9 @@ Data retention decision
    └─ Physical media: NIST 800-88 Clear (logical overwrite), Purge (degauss/block erase), Destroy (shred)
 ```
 
-### Database Hardening Checklist
+#
+
+## Database Hardening Checklist
 
 ```
 Database hardening per CIS Benchmarks
@@ -499,6 +294,20 @@ Database hardening per CIS Benchmarks
    └─ Offsite backup with geo-redundancy: minimum 2 regions
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Partner Skill | When to Invoke | Handoff Artifact |
@@ -513,6 +322,11 @@ Database hardening per CIS Benchmarks
 | **incident-responder** | Data breach containment, forensic analysis, breach notification | Exposed data inventory, access audit logs |
 | **qa-engineer** | Data masking verification, DLP rule testing, DSAR pipeline testing | Test data masking config, DLP test cases |
 | **data-engineer** | Data pipeline security, analytics data masking | Classification tags, masking rules |
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `security-engineer` | Threat model, attack surface, security boundaries | Before implementing safety controls |
+| `compliance-officer` | Regulatory requirements, audit expectations, data handling rules | Before designing trust systems |
 
 ## Proactive Triggers
 
@@ -529,12 +343,13 @@ Database hardening per CIS Benchmarks
 | **P9** | Third-party vendor gains data access without DPA/BAA | Flag in procurement workflow; block data access until DPA/BAA is signed and archived | GDPR Art. 28 requires DPA for every processor. HIPAA requires BAA for every business associate | Regulatory fine (GDPR: 4% revenue; HIPAA: $50K-$1.5M per violation); unauthorized data processing |
 | **P10** | Audit log gap detected (no logging on sensitive table for > 24h) | Auto-enable audit logging; alert security team; flag as compliance incident | Audit gap means any data exfiltration during the gap is undetectable and uncontainable | Undetected data breach during gap; cannot determine scope of exposure; regulatory finding of inadequate monitoring |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -554,7 +369,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -567,7 +384,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -600,7 +419,9 @@ Before beginning a new phase, verify:
 
 ## Gotchas
 
-### Data Classification Gotchas
+#
+
+## Data Classification Gotchas
 
 **Classifying data after the breach costs 10x more than classifying before.** Without pre-breach classification labels, you cannot determine what was exposed — forcing the worst-case assumption that all data is sensitive. Notification costs balloon because you must notify for all possible data types, forensic investigation takes weeks instead of hours, and regulators penalize the uncertainty as negligence. **Total cost: $500K–$4M in notification, forensics, and regulatory penalties.** Fix: Classify data at creation time with automated tagging (Macie, Purview, Cloud DLP). Implement CI gates: schema changes without classification labels fail the build.
 
@@ -608,25 +429,33 @@ Before beginning a new phase, verify:
 
 **Encrypting everything without classification wastes resources and creates operational friction.** Encrypting PUBLIC data (marketing assets, public docs) consumes KMS API calls at scale, adds latency to every read, and complicates backup/restore. Meanwhile, RESTRICTED data might be under-protected because everything is treated equally. Classification tells you where to spend your encryption budget. **Total cost: $50K–$500K in unnecessary KMS costs, query latency impact, and operational complexity over 3 years.** Fix: Classify first, then encrypt based on tier: PUBLIC (no encryption), INTERNAL (TLS + provider-managed keys), CONFIDENTIAL (AES-256-GCM + CMK), RESTRICTED (AES-256-GCM + CMK + application-level encryption + audit).
 
-### Encryption Gotchas
+#
+
+## Encryption Gotchas
 
 **Hardcoded encryption keys invalidate all compliance certifications retroactively.** If encryption keys are found in source code, config files, or environment variables during an audit, auditors will deem all data "encrypted" with those keys as unprotected. This triggers mandatory customer notification, re-encryption of all historical data, and potential fines for each compliance framework claimed (PCI DSS, HIPAA, GDPR, SOC 2). The re-encryption alone on a 50TB production database can take weeks of downtime. **Total cost: $250K–$2M in audit penalties, re-encryption costs, and customer notification.** Fix: Use KMS with automatic rotation (90-day maximum). Store keys only in HSM-backed KMS. Scan CI/CD pipelines for hardcoded key patterns.
 
 **Unrotated encryption keys turn a 30-day exposure into a permanent, catastrophic breach.** If encryption keys are not rotated and an attacker gains access to a historical backup containing old keys, all data ever encrypted with those keys is compromised — potentially years of historical data. Key rotation limits the blast radius: if keys rotate every 90 days, a key compromise only exposes data encrypted in that 90-day window. **Total cost: $1M–$10M+ for mass data exposure spanning years of records, multi-jurisdiction notification, and class-action litigation.** Fix: Implement automatic key rotation every 90 days in KMS. Use key versioning to track which data was encrypted with which key version. Destroy old key versions when all associated data exceeds retention period.
 
-### DLP Gotchas
+#
+
+## DLP Gotchas
 
 **DLP deployed in eternal monitor-only mode is security theater.** Organizations deploy DLP, get flooded with alerts, and switch to monitor-only mode "temporarily" to tune rules. Months later, DLP records every exfiltration without stopping any. The annual DLP license cost ($100K–$500K for enterprise) is wasted while data exfiltration continues. **Total cost: $300K–$2M in wasted DLP licensing, undetected exfiltration, and eventual breach notification.** Fix: Deploy DLP in phased approach: 14 days monitor-only to baseline, enable blocking for external when FPR under 10%, enable internal blocking for RESTRICTED data, tune to under 5% FPR. Never exceed 30 days in monitor-only without executive sign-off.
 
 **Cross-border data transfer without adequate safeguards triggers GDPR fines up to 4% of global annual turnover.** Under Schrems II (CJEU C-311/18), transferring EU personal data to the US without SCCs + Transfer Impact Assessment + supplementary technical measures can result in orders to suspend transfers plus fines. The Irish DPC fined Meta €1.2 billion in 2023 for unlawful EU-US data transfers. Even at smaller scale, a transfer suspension order halts operations. **Total cost: €20M–€1.2B+ in GDPR fines plus business disruption.** Fix: Implement SCCs (2021 version) for all EU data transfers. Conduct and document Transfer Impact Assessment. Apply supplementary technical measures: CMK encryption, pseudonymization, split processing. Review annually.
 
-### Database Hardening Gotchas
+#
+
+## Database Hardening Gotchas
 
 **Production data in non-production environments triggers mandatory breach notification.** Under GDPR Art. 33-34, HIPAA Breach Notification Rule, and PCI DSS Requirement 3, using real PII/PHI/PCI in dev/test/staging/sandbox environments constitutes an unauthorized disclosure. This is not a best practice violation — it is a regulatory breach requiring notification to regulators (within 72 hours for GDPR) and affected individuals. **Total cost: $100K–$1.5M in notification costs, regulatory fines, and remediation.** Fix: Implement static data masking as a prerequisite for non-production data refreshes. Use synthetic data generation for scale testing.
 
 **Database public endpoints are the #1 cloud data breach vector.** A database exposed to the internet with default credentials is discoverable within hours by automated scanners. Once discovered, the time to full compromise averages 72 hours. 58% of cloud data breaches originate from misconfigured storage. **Total cost: $1M–$10M+ for a database breach involving PII or PHI, including notification, forensic investigation, regulatory fines, and class-action litigation.** Fix: Bind databases to private subnets only. Use VPC/service endpoints for cloud database services. Never assign public IP addresses to database instances.
 
-### Data Masking Gotchas
+#
+
+## Data Masking Gotchas
 
 **Format-preserving masking that preserves uniqueness can be reverse-engineered.** If masking uses a deterministic algorithm (e.g., HMAC truncated to format), an attacker with access to both masked and unmasked datasets can build a mapping table to reverse the mask. This is particularly dangerous when masked data is shared with third-party analytics providers. **Total cost: $100K–$1M in unauthorized PII exposure via masked data re-identification.** Fix: For high-sensitivity fields, use randomized masking or tokenization with a central vault. For deterministic masking, use a per-field HMAC key stored in KMS with strict access controls.
 
@@ -651,7 +480,9 @@ Before beginning a new phase, verify:
 
 ## References
 
-### Industry Standards & Frameworks
+#
+
+## Industry Standards & Frameworks
 - [PCI DSS v4.0.1](references/pci-dss-v4.md) — Payment Card Industry Data Security Standard, Requirements 3, 4, 7, 10
 - [NIST SP 800-88](references/nist-sp-800-88.md) — Guidelines for Media Sanitization
 - [NIST SP 800-57](references/nist-sp-800-57.md) — Recommendation for Key Management
@@ -659,7 +490,9 @@ Before beginning a new phase, verify:
 - [CIS Benchmarks](references/cis-benchmarks.md) — Database hardening benchmarks (PostgreSQL, MySQL, SQL Server, Oracle)
 - [ISO 27001/27002](references/iso-27001-27002.md) — Information Security Management Controls (A.10 Cryptography, A.12 Operations Security)
 
-### Regulations
+#
+
+## Regulations
 - [GDPR Articles 5, 25, 32, 44-49](references/gdpr-data-protection.md) — Data protection by design, security of processing, cross-border transfers
 - [HIPAA Security Rule](references/hipaa-security-rule.md) — 45 CFR 164.312 Technical Safeguards for PHI
 - [CCPA/CPRA](references/ccpa-cpra.md) — California data minimization and security requirements
@@ -667,7 +500,9 @@ Before beginning a new phase, verify:
 - [EU-US Data Privacy Framework](references/eu-us-dpf.md) — Adequacy decision for certified US organizations
 - [PCI DSS 4.0 Requirements](references/pci-dss-requirements.md) — Requirements 3 (stored data), 4 (transit encryption), 7 (access control), 10 (logging)
 
-### Technical References
+#
+
+## Technical References
 - [OWASP Top 10 A02:2021](references/owasp-crypto-failures.md) — Cryptographic Failures
 - [OWASP Top 10 A04:2021](references/owasp-insecure-design.md) — Insecure Design
 - [AWS KMS Cryptographic Details](references/aws-kms-crypto.md) — Envelope encryption, key hierarchy, automatic rotation
@@ -675,7 +510,9 @@ Before beginning a new phase, verify:
 - [GCP Cloud KMS](references/gcp-cloud-kms.md) — Symmetric and asymmetric encryption at scale
 - [HashiCorp Vault](references/hashicorp-vault.md) — Multi-cloud secrets management and encryption as a service
 
-### Data Security Tools
+#
+
+## Data Security Tools
 - [AWS Macie](references/aws-macie.md) — Managed sensitive data discovery and classification
 - [Google Cloud DLP](references/gcp-dlp.md) — Sensitive data inspection, classification, de-identification
 - [Azure Purview](references/azure-purview.md) — Unified data governance and classification

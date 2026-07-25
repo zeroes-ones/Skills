@@ -19,7 +19,6 @@ chain:
     - mobile-developer
     - frontend-developer
 ---
-
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
 # Mobile Architecture Patterns — Scalable Mobile Application Design
@@ -47,7 +46,9 @@ chain:
 
 ## Route the Request
 
-### Auto-Route (No User Input Required)
+#
+
+## Auto-Route (No User Input Required)
 | # | Condition | Action |
 |---|-----------|--------|
 | A1 | User mentions MVVM, Clean Architecture, VIPER, MVI, or TCA | This is your skill. Jump to that pattern's dedicated section below. |
@@ -85,17 +86,54 @@ You are a mobile architect who has designed production applications serving 10M+
 
 Mobile architecture follows a 4-phase decision process:
 
-### Phase 1 (~10 min): Requirements Triage
+#
+
+## Phase 1 (~10 min): Requirements Triage
 List: number of screens, navigation complexity (flat/hierarchical/multi-module), team size, offline requirements, platform-specific API depth, test coverage targets. These constraints determine viable architectures.
 
-### Phase 2 (~15 min): Architecture Selection
+#
+
+## Phase 2 (~15 min): Architecture Selection
 Map requirements to architecture patterns using the comparison matrix in Section 5. Rule of thumb: MVVM for standard apps (70% of cases), Clean Architecture for complex domain logic, VIPER for deep iOS integration, MVI for Android with complex state, TCA for Swift-centric teams.
 
-### Phase 3 (~20 min): Module & Layer Design
+#
+
+## Phase 3 (~20 min): Module & Layer Design
 Define module boundaries, dependency direction (domain ← data, presentation ← domain), DI graph, and navigation routes. Document decisions in an architecture decision record (ADR).
 
-### Phase 4 (~15 min): Validation & Prototyping
+#
+
+## Phase 4 (~15 min): Validation & Prototyping
 Build a 2-screen prototype with the chosen architecture. Verify: testability (can you write unit tests without mocking 10 dependencies?), build times (does adding a new screen require recompiling 50 modules?), team comprehension (can a new team member add a screen in < 2 hours?).
+
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Verification Guardrails
+
+Run these checks before declaring work complete. ALL must pass.
+
+| # | Guardrail | Check |
+|---|-----------|-------|
+| V1 | Output matches specification | Compare generated output against the requirements stated at the start. Every explicit requirement must have a corresponding deliverable. |
+| V2 | No broken references or links | All file references must resolve. Run `grep -oP '\]\([^)]+\)' [output] | while read link; do [ -f "$link" ] || echo "BROKEN: $link"; done`. |
+| V3 | All validations pass where applicable | Run any existing test suite or verification script. `bash scripts/validate-skills.sh` if in this repository. |
+| V4 | No placeholder or TODO content remains | `grep -ri 'TODO\|FIXME\|PLACEHOLDER' [output]` must return empty. |
+| V5 | Error states handled | Verify error paths produce clear messages, not silent failures or stack traces. |
+| V6 | Edge cases considered | Empty input, max/min values, concurrent access, boundary conditions handled or documented as out-of-scope. |
+| V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
+| V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
 ## Cross-Skill Coordination
 
@@ -111,12 +149,13 @@ Build a 2-screen prototype with the chosen architecture. Verify: testability (ca
 | `android-developer` | Android-specific architecture: MVVM or MVI modules, Hilt/Koin DI setup, navigation graph | After architecture selection for Android targets |
 | `qa-engineer` | Testability assessment per architecture, module dependency graph for test scoping | Before test strategy definition |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -136,7 +175,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -149,7 +190,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:
@@ -188,44 +231,53 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
 
-
-
 ## Ground Rules — Read Before Anything Else
 
 These are non-negotiable. Violating any of them sets the project up for a rewrite within 12 months. Every "we'll fix it later" decision here has been measured in real dollars across dozens of mobile teams.
 
-### 1.1 NEVER put business logic in ViewControllers/Activities
+#
+
+## 1.1 NEVER put business logic in ViewControllers/Activities
 
 This is the #1 cause of untestable mobile apps costing $200K+ in rewrite. A 50-line `viewDidLoad()` with API calls, Core Data fetches, UI styling, and navigation logic is not "moving fast" — it is accumulating technical debt at 22% compound interest. Every line of business logic in a ViewController/Activity costs ~$85 in eventual remediation (measured across 14 projects, 2020-2025).
 
 **What to do instead:** Business logic lives in ViewModels, UseCases, Interactors, or Reducers. The View layer is a dumb renderer. It receives pre-formatted display data and forwards user actions. No `if` statements about business state. No direct database queries. No URLSession/Alamofire/OkHttp/Retrofit calls. Period.
 
-### 1.2 Data flows unidirectionally — always
+#
+
+## 1.2 Data flows unidirectionally — always
 
 Bidirectional data binding without a single source of truth is the second-most-expensive architectural sin ($150K+ average remediation). When a `@Published` property, a `LiveData`, and a delegate callback all claim to own the same piece of state, you have built a distributed race condition.
 
 **Rule:** State is owned in exactly one place. Views observe it. User actions produce events that flow through a single pipeline: `User Action → Intent/Event → Reducer/ViewModel → New State → UI Update`. If you find yourself writing `viewModel.data = response; tableView.reloadData()`, you have bidirectional flow.
 
-### 1.3 Dependency injection is mandatory from Day 1
+#
+
+## 1.3 Dependency injection is mandatory from Day 1
 
 Service locators and singletons accessed via `shared` are not dependency injection — they are global mutable state dressed in a pattern name. A `NetworkManager.shared` called from 47 files cannot be mocked, cannot be tested in isolation, and cannot be replaced for a different backend without touching all 47 call sites.
 
 **Rule:** Every dependency is injected through initializers. On iOS: use constructor injection with protocols. On Android: use Hilt/Dagger constructor injection with `@Inject` annotation. No `shared`, no `default`, no `object` singletons for anything that touches I/O.
 
-### 1.4 The UI layer must survive process death (Android) and background termination (iOS)
+#
+
+## 1.4 The UI layer must survive process death (Android) and background termination (iOS)
 
 The average mobile user switches apps 10+ times per session. If your app cannot restore its exact UI state after process death, users lose context and abandon tasks. On Android, `onSaveInstanceState()` must persist enough data to reconstruct the full screen. On iOS, `NSUserActivity` + `Codable` state restoration. Test this by enabling "Don't Keep Activities" on Android and force-quitting the app mid-flow on iOS.
 
-### 1.5 Offline is not a feature — it is the default state
+#
+
+## 1.5 Offline is not a feature — it is the default state
 
 Treat network connectivity as a transient enhancement, not the baseline. Every screen must render meaningfully with stale cached data. Network errors must never produce blank screens. A "No Internet Connection" full-screen blocker is a user-hostile pattern that costs 7-12% of active users permanently (measured across 8 consumer apps, 2023-2025). Always render cached data first, then update.
 
-### 1.6 Navigation state is separate from UI state
+#
+
+## 1.6 Navigation state is separate from UI state
 
 Deep links, push notifications, and Siri Shortcuts/App Shortcuts all bypass your normal navigation flow. If your navigation logic is scattered across ViewControllers/Activities, you cannot handle external entry points reliably. A dedicated Router/Coordinator owns the navigation graph. Every screen is reachable via a URL-like identifier.
 
 ---
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -233,7 +285,9 @@ Deep links, push notifications, and Siri Shortcuts/App Shortcuts all bypass your
 - **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## Decision Trees
 
-### 2.1 MVVM vs Clean Architecture vs VIPER vs TCA vs MVI
+#
+
+## 2.1 MVVM vs Clean Architecture vs VIPER vs TCA vs MVI
 
 ```
 START: What is your team size and app complexity?
@@ -268,7 +322,9 @@ START: What is your team size and app complexity?
       Platforms supply UI layer (SwiftUI/Jetpack Compose)
 ```
 
-### 2.2 Reactive vs Imperative State Management
+#
+
+## 2.2 Reactive vs Imperative State Management
 
 ```
 START: How complex is your UI state?
@@ -290,7 +346,9 @@ START: How complex is your UI state?
       Ref file: references/tca-composable-architecture.md
 ```
 
-### 2.3 Coordinator vs Router vs View-Based Navigation
+#
+
+## 2.3 Coordinator vs Router vs View-Based Navigation
 
 ```
 START: How complex is your navigation graph?
@@ -313,7 +371,9 @@ START: How complex is your navigation graph?
       Requires runtime safety checks. Higher testing burden.
 ```
 
-### 2.4 Single-Module vs Multi-Module
+#
+
+## 2.4 Single-Module vs Multi-Module
 
 ```
 START: How many developers touch the codebase simultaneously?
@@ -337,7 +397,9 @@ START: How many developers touch the codebase simultaneously?
       Product flavors (Android) / build configurations (iOS) per brand.
 ```
 
-### 2.5 Offline-First vs Online-First
+#
+
+## 2.5 Offline-First vs Online-First
 
 ```
 START: What is the user's typical connectivity?
@@ -362,7 +424,9 @@ START: What is the user's typical connectivity?
       Background URLSession / WorkManager for large transfers.
 ```
 
-### 2.6 Core Data vs Realm vs Room vs SQLite as Source of Truth
+#
+
+## 2.6 Core Data vs Realm vs Room vs SQLite as Source of Truth
 
 ```
 START: Platform and data model complexity?
@@ -395,31 +459,45 @@ START: Platform and data model complexity?
 
 These are the patterns that have burned teams for $50K-$500K. Every one is avoidable if you know what to look for.
 
-### 3.1 "Massive ViewModel" (MVVM) — $180K average remediation
+#
+
+## 3.1 "Massive ViewModel" (MVVM) — $180K average remediation
 
 When you move business logic from ViewController to ViewModel but keep the ViewModel monolithic, you haven't fixed the problem — you've renamed it. A 400-line ViewModel with 20 `@Published` properties and direct API calls is just a Massive ViewController in disguise. **Fix:** UseCases/Interactors extract business logic. ViewModel transforms domain models to view state. Max ViewModel size: 150 lines.
 
-### 3.2 "Retained Fragment/ViewController references in long-lived coroutines" — $75K per memory leak incident
+#
+
+## 3.2 "Retained Fragment/ViewController references in long-lived coroutines" — $75K per memory leak incident
 
 Launching a `viewModelScope` coroutine that captures `this` and runs a 30-second network call? If the user navigates away, the coroutine holds the entire ViewModel (and its View reference) in memory. On low-end Android devices, 3-4 leaked ViewModels cause OOM. **Fix:** Use `repeatOnLifecycle` for UI-scoped coroutines. Cancel on `onStop`/`viewDidDisappear`. Never capture `this` in `GlobalScope`.
 
-### 3.3 "Core Data threading violations" — $120K in crash-related app store rejections
+#
+
+## 3.3 "Core Data threading violations" — $120K in crash-related app store rejections
 
 Accessing an `NSManagedObject` on the wrong queue causes nondeterministic crashes. Apple's review team catches these. One rejected update during holiday season cost a retail app $120K in lost revenue (5-day delay × $24K/day). **Fix:** `viewContext` for main thread reads. `performBackgroundTask` for writes. Never pass `NSManagedObject` between threads — pass `NSManagedObjectID` or a separate DTO.
 
-### 3.4 "Skipping database migrations" — $50-90K per botched release
+#
+
+## 3.4 "Skipping database migrations" — $50-90K per botched release
 
 Adding a column without a migration on Room or Core Data corrupts the database. Users must delete and reinstall — losing offline data. For a banking app with 2M users, a migration failure affecting 15% of users costs ~$50K in support tickets and ~$90K in churn. **Fix:** Every schema change gets a migration. Test migrations on the previous 3 production schema versions. Room: `@Database(version = N, autoMigrations = [...])`. Core Data: lightweight migration or `NSPersistentStoreDescription.shouldMigrateStoreAutomatically`.
 
-### 3.5 "Main thread I/O" — $200K+ in poor reviews and uninstalls
+#
+
+## 3.5 "Main thread I/O" — $200K+ in poor reviews and uninstalls
 
 A single synchronous SQLite query on the main thread adds 50-300ms of jank. Users perceive anything >100ms as lag. 16ms is your budget per frame (60fps). Apps with ANR rates >0.47% get ranked lower in Google Play. **Fix:** All I/O on background queues. `viewContext` only for reads displayed on screen. Prefetch data before navigation.
 
-### 3.6 "Tight coupling to a specific navigation framework" — $130K migration cost
+#
+
+## 3.6 "Tight coupling to a specific navigation framework" — $130K migration cost
 
 Building every screen with NavigationStack APIs or Jetpack Navigation inline means switching navigation approaches requires touching every screen. A team migrating from UINavigationController to SwiftUI NavigationStack spent 11 weeks rewriting 42 screens ($130K at $300K/developer-year for 3 developers). **Fix:** Router/Coordinator abstraction. Screens don't know how they were presented. Only the Router knows.
 
-### 3.7 "Missing state restoration on both platforms" — $60K in user churn
+#
+
+## 3.7 "Missing state restoration on both platforms" — $60K in user churn
 
 Users expect to return exactly where they left off. Without state restoration, a user filling a multi-page form who gets a phone call loses all progress. Support tickets for "the app lost my data" average $12 per incident. For an insurance claim app with 5,000 form-fills/month, that's $60K/year. **Fix:** Test with process death. Restore from saved state handle in ViewModel init.
 
@@ -437,308 +515,24 @@ Users expect to return exactly where they left off. Without state restoration, a
 
 ---
 
-## 5. Architecture Overview & Comparison Matrix
-
-Mobile architecture solves three problems simultaneously: managing state across a disconnected, resource-constrained device; structuring code so 5+ developers can work without conflicts; and surviving the OS killing your process at any moment. No server-side pattern addresses all three.
-
-### Comparison Matrix
-
-| Pattern | State Management | Testability | Boilerplate | Learning Curve | Best For |
-|---|---|---|---|---|---|
-| **MVVM** | ViewModel + bindings | High (VM unit tests) | Low-Medium | Low | Single-platform, <8 devs |
-| **Clean Architecture** | UseCases → Repositories → DataSources | Maximum | High | High | Multi-platform, 8+ devs |
-| **VIPER** | Interactor → Presenter → View | Maximum (every component) | Very High | High | iOS-only, max testability |
-| **MVI** | Unidirectional: Intent → Model → View | High (reducer tests) | Medium | Medium | Android/Compose, predictable state |
-| **TCA** | Store + Reducer + Environment | High (test store) | Medium | High | SwiftUI, state-driven apps |
-
-### Platform Mapping
-
-| Scenario | iOS Recommendation | Android Recommendation |
-|---|---|---|
-| Greenfield, small team | MVVM + SwiftUI + Combine | MVVM + Jetpack Compose + StateFlow |
-| Greenfield, large team | Clean Architecture + SwiftUI | Clean Architecture + Compose |
-| Maximum test coverage | VIPER or TCA | Clean Architecture + MVI |
-| Kotlin Multiplatform | Clean Arch shared domain | Clean Arch shared domain |
-| Legacy UIKit/XML migration | MVVM + Coordinators | MVVM + LiveData → StateFlow |
-
----
-
-## 6. MVVM Pattern
-
-**Model-View-ViewModel** is the entry-level architecture for structured mobile apps. Its core insight: the View should never contain an `if` statement about business logic.
-
-### Structure
-
-```
-┌──────────────────────────────────────────────┐
-│                    VIEW                      │
-│  (SwiftUI View / UIViewController / Activity) │
-│                                              │
-│  - Observes ViewModel state                  │
-│  - Forwards user actions                     │
-│  - NO business logic. NO if-statements.      │
-└─────────────┬────────────────────────────────┘
-              │ observes (Combine / StateFlow / LiveData)
-              ▼
-┌──────────────────────────────────────────────┐
-│                 VIEWMODEL                    │
-│                                              │
-│  - Transforms domain → UI state              │
-│  - Handles user actions → call UseCases      │
-│  - Exposes @Published / StateFlow            │
-│  - Platform-agnostic where possible          │
-└─────────────┬────────────────────────────────┘
-              │ calls
-              ▼
-┌──────────────────────────────────────────────┐
-│                  MODEL                       │
-│  (Domain Models + UseCases + Repository)     │
-│                                              │
-│  - Business logic                            │
-│  - Data transformation                       │
-│  - No platform imports                       │
-└──────────────────────────────────────────────┘
-```
-
-### iOS (SwiftUI + Combine)
-
-```swift
-// View — dumb renderer
-struct ProfileView: View {
-    @StateObject private var viewModel: ProfileViewModel
-    
-    var body: some View {
-        Group {
-            switch viewModel.state {
-            case .loading:
-                ProgressView()
-            case .loaded(let profile):
-                ProfileContent(profile: profile)
-            case .error(let message):
-                ErrorView(message: message, onRetry: { viewModel.send(.retry) })
-            }
-        }
-        .task { viewModel.send(.load) }
-    }
-}
-
-// ViewModel — state machine
-@MainActor
-final class ProfileViewModel: ObservableObject {
-    @Published private(set) var state: ViewState<ProfileDisplayModel> = .loading
-    private let getProfileUseCase: GetProfileUseCase
-    
-    func send(_ action: ProfileAction) {
-        switch action {
-        case .load:
-            Task { await loadProfile() }
-        case .retry:
-            Task { await loadProfile() }
-        }
-    }
-    
-    private func loadProfile() async {
-        state = .loading
-        do {
-            let profile = try await getProfileUseCase.execute()
-            state = .loaded(ProfileDisplayModel(from: profile))
-        } catch {
-            state = .error(error.localizedDescription)
-        }
-    }
-}
-```
-
-### Android (Jetpack Compose + StateFlow)
-
-For full implementation details with Kotlin code, see `references/mvvm-mobile-patterns.md`.
-
----
-
-## 7. Clean Architecture on Mobile
-
-Clean Architecture on mobile adds domain and data layers around the presentation layer. The key constraint: **dependencies point inward.** Domain knows nothing about data sources. Presentation knows nothing about APIs.
-
-### Layer Diagram
-
-```
-┌─────────────────────────────────────────────────────┐
-│  PRESENTATION (iOS: SwiftUI/UIKit, Android: Compose) │
-│  ViewModels, Views, Coordinators                    │
-├─────────────────────────────────────────────────────┤
-│  DOMAIN (Pure Kotlin/Swift, no platform imports)     │
-│  Entities, UseCases, Repository Interfaces          │
-├─────────────────────────────────────────────────────┤
-│  DATA (Platform-specific implementations)            │
-│  Repository Impl, API (Retrofit/URLSession),         │
-│  Database (Room/Core Data), DataSources             │
-└─────────────────────────────────────────────────────┘
-```
-
-### Dependency Rule
-
-- Domain has zero dependencies on platform frameworks
-- Data depends on Domain (implements repository interfaces)
-- Presentation depends on Domain (calls use cases)
-
-Full implementation in `references/clean-architecture-mobile.md`.
-
----
-
-## 8. VIPER Architecture (iOS)
-
-VIPER splits ViewController responsibilities into five distinct roles. It is the most testable iOS architecture at the cost of the most boilerplate.
-
-### Components
-
-| Component | Responsibility | Test With |
-|---|---|---|
-| **View** | Display data, forward user events to Presenter | View tests (snapshot) |
-| **Interactor** | Business logic, data operations | Unit tests (mock presenter) |
-| **Presenter** | Format data for display, handle navigation requests | Unit tests (mock view, router) |
-| **Entity** | Data models (same as domain models) | Unit tests |
-| **Router** | Navigation, module assembly | Integration tests |
-
-Full implementation in `references/viper-architecture-ios.md`.
-
----
-
-## 9. MVI Pattern (Android)
-
-Model-View-Intent enforces unidirectional data flow through a state reducer. It is the natural pattern for Jetpack Compose and eliminates state inconsistency bugs.
-
-### Core Loop
-
-```
-User Action → Intent → ViewModel → Reducer → New State → View renders
-```
-
-**Immutable state** is the foundation. State is a single data class. Every user action produces a new state instance. Enables time-travel debugging and deterministic testing.
-
-Full implementation in `references/mvi-android-patterns.md`.
-
----
-
-## 10. TCA — The Composable Architecture
-
-TCA (pointfree.co) brings Redux-like architecture to SwiftUI with first-class support for composition, side effects, and testing. It is ideal for SwiftUI apps with complex, interconnected state.
-
-### Core Types
-
-- **State:** A struct describing all data the feature needs
-- **Action:** An enum of everything that can happen (user actions, side effect results)
-- **Reducer:** A pure function `(inout State, Action) -> Effect<Action>`
-- **Store:** Runtime that holds state and runs reducers
-- **Effect:** Describes side effects (network, DB) that produce actions
-
-Full implementation in `references/tca-composable-architecture.md`.
-
----
-
-## 11. Navigation Patterns
-
-Mobile navigation is architecture, not UI. Poor navigation design makes deep linking, state restoration, and multi-module apps impossible.
-
-### Coordinator Pattern (iOS + Android)
-
-```swift
-protocol Coordinator: AnyObject {
-    var childCoordinators: [Coordinator] { get set }
-    var navigationController: UINavigationController { get }
-    func start()
-}
-
-final class AppCoordinator: Coordinator {
-    func showProfile(userId: String) {
-        let coordinator = ProfileCoordinator(
-            navigationController: navigationController,
-            userId: userId
-        )
-        childCoordinators.append(coordinator)
-        coordinator.start()
-    }
-}
-```
-
-Full implementation in `references/mobile-navigation-patterns.md`.
-
----
-
-## 12. Offline-First Architecture
-
-### Three-Tier Data Strategy
-
-```
-┌─────────────────────────────────────────────┐
-│  TIER 1: UI reads from local DB only       │
-│  (Room / Core Data / GRDB)                  │
-│  Never reads from network directly          │
-├─────────────────────────────────────────────┤
-│  TIER 2: Sync Engine                        │
-│  Fetches from API → writes to local DB      │
-│  Queues local writes → pushes to API        │
-├─────────────────────────────────────────────┤
-│  TIER 3: Conflict Resolution                │
-│  Last-write-wins (LWW) or CRDT for          │
-│  collaborative data                         │
-└─────────────────────────────────────────────┘
-```
-
-Full implementation in `references/offline-first-mobile.md`.
-
----
-
-## 13. State Management at Scale
-
-As apps grow, state management becomes the primary architectural concern. The patterns here scale from 1 to 200+ screens.
-
-| Scale | Pattern | State Location | Sync Mechanism |
-|---|---|---|---|
-| 1-5 screens | @Published / StateFlow per VM | Per-ViewModel | Manual parent-child |
-| 5-20 screens | Shared state via injected Store/Repository | Singleton Store | Combine/Flow |
-| 20-100 screens | Feature-scoped state with DI scopes | DI-scoped containers | Event bus or shared Store |
-| 100+ screens | Multi-module state with TCA/Rx Store | Per-module Store + shared core | Actions cross module boundaries |
-
-Full implementation in `references/mobile-state-management.md`.
-
----
-
-## 14. Dependency Injection & Modularization
-
-### DI Framework Selection
-
-| Platform | Framework | Notes |
-|---|---|---|
-| iOS | Swinject, Factory, Needle, or manual constructor injection | For <10 deps, manual is cleaner |
-| Android | Hilt (preferred), Koin, Dagger | Hilt is Google-recommended |
-| KMP | Koin (multiplatform), manual injection | Koin works on both platforms |
-
-### Modularization Principles
-
-- **Interface modules:** Feature modules expose only public API interfaces
-- **No transitive dependencies from features:** `:feature-checkout` cannot depend on `:feature-profile`
-- **Shared nothing by default:** Only `:core:models`, `:core:di`, `:core:navigation` are shared
-- **Build graph is a DAG:** Cyclic dependencies between modules are banned via lint rule
-
----
-
-## 15. Testing Strategy Per Architecture
-
-| Architecture | Unit Tests | Integration Tests | UI Tests | Test Pyramid |
-|---|---|---|---|---|
-| **MVVM** | ViewModel (70%) | Repository + API (20%) | Critical flows (10%) | Standard pyramid |
-| **Clean Architecture** | UseCases (60%) | Repository impls (25%) | Screen flows (15%) | Broad base, narrow top |
-| **VIPER** | Interactor + Presenter (80%) | Router + assembly (15%) | Smoke tests (5%) | Very broad base |
-| **MVI** | Reducer (75%) | Side effects (15%) | Compose UI (10%) | Broad base |
-| **TCA** | Reducer + effects (85%) | Integration store (10%) | Snapshot (5%) | Broadest base |
-
-**Testing non-negotiables:**
-- Every ViewModel/Reducer has >80% unit test coverage
-- Every UseCase is tested with mock repositories
-- Every API error path is tested (network timeout, 4xx, 5xx, malformed JSON)
-- State restoration is tested via process death simulation
-
----
+## Architecture Patterns Reference
+<!-- 224 lines extracted to references/architecture-patterns-reference.md -->
+
+| # | Pattern | Platform | Key Concept |
+|---|---------|----------|-------------|
+| 5 | Architecture Overview | Both | Comparison matrix across MVVM, VIPER, MVI, TCA |
+| 6 | MVVM | Both | ViewModel + unidirectional data flow |
+| 7 | Clean Architecture | Both | Domain/data/presentation layers |
+| 8 | VIPER | iOS | View-Interactor-Presenter-Entity-Router |
+| 9 | MVI | Android | Model-View-Intent + state reducers |
+| 10 | TCA | iOS | Composable Architecture with reducers |
+| 11 | Navigation | Both | Coordinator, Router, View-based |
+| 12 | Offline-First | Both | Three-tier data: memory → local DB → remote |
+| 13 | State Management | Both | Unidirectional flow, event sourcing |
+| 14 | Dependency Injection | Both | DI frameworks, modularization principles |
+| 15 | Testing Per Architecture | Both | Unit, integration, snapshot strategies |
+
+> 📎 **Full reference (224 lines):** [references/architecture-patterns-reference.md](references/architecture-patterns-reference.md)
 
 ## Anti-Rationalization — No Excuses
 
