@@ -279,6 +279,89 @@ for root, dirs, files in os.walk('$SKILLS_DIR'):
 sys.exit(errors)
 "
 
+# --- 9. ANTI-HALLUCINATION GROUND RULES ---
+echo "[9] Anti-hallucination ground rules..."
+
+check "All skills have anti-hallucination guardrails" python3 -c "
+import os, re, sys
+errors = 0
+required_phrases = ['Admit uncertainty', 'Flag your knowledge cutoff', 'Never guess security', 'VERIFIED']
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            missing = [p for p in required_phrases if p not in content]
+            if missing:
+                print(f'  MISSING anti-hallucination phrases {missing}: {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
+# --- 10. STATE LOG SECTION ---
+echo "[10] State Log section..."
+
+check "All skills have State Log decision ledger" python3 -c "
+import os, re, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            body = parts[2]
+            found = {m.group(1).strip() for m in re.finditer(r'^## (.+)$', body, re.MULTILINE)}
+            if 'State Log' not in found:
+                print(f'  MISSING State Log section: {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
+# --- 11. CHAIN CONNECTIVITY ---
+echo "[11] Chain connectivity (consumes_from + feeds_into)..."
+
+check "All skills have at least one upstream and downstream connection" python3 -c "
+import os, re, yaml, sys
+errors = 0
+for root, dirs, files in os.walk('$SKILLS_DIR'):
+    for f in files:
+        if f == 'SKILL.md':
+            if '00-framework' in root:
+                continue
+            path = os.path.join(root, f)
+            with open(path) as fh:
+                content = fh.read()
+            parts = re.split(r'^---\s*$', content, maxsplit=2, flags=re.MULTILINE)
+            if len(parts) < 3:
+                continue
+            try:
+                fm = yaml.safe_load(parts[1])
+            except:
+                continue
+            if not isinstance(fm, dict):
+                continue
+            chain = fm.get('chain', {})
+            consumes = chain.get('consumes_from', [])
+            feeds = chain.get('feeds_into', [])
+            name = fm.get('name', os.path.basename(os.path.dirname(path)))
+            if not consumes:
+                print(f'  MISSING consumes_from (no upstream): {path}', file=sys.stderr)
+                errors += 1
+            if not feeds:
+                print(f'  MISSING feeds_into (no downstream): {path}', file=sys.stderr)
+                errors += 1
+sys.exit(errors)
+"
+
 # --- SUMMARY ---
 echo ""
 echo "========================================"

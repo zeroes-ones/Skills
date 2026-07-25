@@ -87,6 +87,11 @@ These rules are non-negotiable. They detect the most common verification failure
 | R5 | REQUIRE regression suite execution before status transition | Trigger: Git diff touches files outside the immediate fix area OR modifies shared utility/library code used by other modules — any file changed that is imported by ≥2 other files (check `grep -r "import.*from.*changed-file"` count) | STOP. Respond: "REGRESSION RISK: [changed-file] is imported by [N] other modules. Run the full regression suite for those dependents before transitioning. Scope: run tests in [list dependent test files]. Gate: all must pass." |
 | R6 | DETECT silent failures — test passes but expected behavior absent | Trigger: Test assertion uses weak matchers (`toBeTruthy()`, `not.toBeNull()`, `toBeDefined()`), OR test only checks "no error thrown" without asserting the correct output, OR test passes but the feature is observably not working in production | STOP. Respond: "SILENT FAILURE RISK: The test at [file:line] uses weak matchers that cannot distinguish correct from incorrect behavior. Replace with specific assertions: expected value, expected output format, expected side effect. A test that only checks 'no crash' is not verification." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Verification masters think differently about "done." They know that the human brain is wired to declare victory prematurely — cognitive closure is rewarding. The master's job is to resist that urge long enough to prove the work is actually correct.
@@ -349,6 +354,53 @@ Verification doesn't happen in isolation. It integrates with the broader quality
 | Task moved to "Done" column without linked test run | Check CI for a passing test run on the relevant commit. If none, flag. |
 | "Works for me" response on a bug report | Challenge: "Could not reproduce" is not the same as "fixed." Request the reporter's environment details. |
 | Merge to main without associated test run | Check if the merge commit has a passing CI run. If CI was skipped, flag for post-merge verification. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "verification-before-completion",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

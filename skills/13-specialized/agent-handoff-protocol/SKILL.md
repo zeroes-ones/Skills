@@ -1,18 +1,34 @@
 ---
 name: agent-handoff-protocol
-description: "Use when building multi-agent pipelines, passing state between specialized agents, or designing cross-agent orchestration. Handles state serialization, context pruning, decision gate ledgers, handoff contracts, multi-agent topology selection, and context rot defense. Do NOT use for single-agent workflows, simple sequential scripts without state passing, or non-AI pipeline orchestration (use ci-cd-builder for CI/CD)."
+description: Use when building multi-agent pipelines, passing state between specialized
+  agents, or designing cross-agent orchestration. Handles state serialization, context
+  pruning, decision gate ledgers, handoff contracts, multi-agent topology selection,
+  and context rot defense. Do NOT use for single-agent workflows, simple sequential
+  scripts without state passing, or non-AI pipeline orchestration (use ci-cd-builder
+  for CI/CD).
 author: Sandeep Kumar Penchala
 license: MIT
-portability: "works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI"
+portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 type: framework
 status: stable
 version: 1.0.0
 updated: 2026-07-24
-tags: [agent, handoff, state, orchestration, multi-agent]
+tags:
+- agent
+- handoff
+- state
+- orchestration
+- multi-agent
 token_budget: 4000
 chain:
-  consumes_from: []
-  feeds_into: [backend-developer, system-architect, devops-engineer, security-engineer]
+  consumes_from:
+  - agent-eval-pipeline
+  - multi-agent-orchestration
+  feeds_into:
+  - backend-developer
+  - system-architect
+  - devops-engineer
+  - security-engineer
 ---
 
 # Agent Handoff Protocol
@@ -75,6 +91,11 @@ Incoming request
 
 ---
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 | Bias | Trap | Why It Hurts Handoffs | Correction |
@@ -504,3 +525,16 @@ This skill is supported by detailed reference specifications. Load these when de
 - **CrewAI Multi-Agent Patterns:** [docs.crewai.com](https://docs.crewai.com) — Peer-to-peer and sequential agent orchestration
 - **AutoGen Handoff Patterns:** [microsoft.github.io/autogen](https://microsoft.github.io/autogen) — Debate topology and swarm coordination patterns
 - **OpenAI Swarm:** [github.com/openai/swarm](https://github.com/openai/swarm) — Lightweight multi-agent orchestration with handoff primitives
+
+## State Log
+
+This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
+
+| # | Decision | Rationale | Alternatives Considered | Timestamp |
+|---|----------|-----------|------------------------|-----------|
+| 1 | *[no decisions logged yet]* | — | — | — |
+
+**Rules:**
+- Append a new row for each irreversible or hard-to-reverse decision
+- Never modify past rows — only append
+- If revisiting a decision, add a NEW row (do not edit the old one)

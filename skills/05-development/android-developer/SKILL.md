@@ -81,6 +81,11 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | **R6** | **DETECT missing contentDescription on interactive Composables.** Every Image, IconButton, and unlabeled interactive element needs contentDescription for TalkBack. | Trigger: `Image(` or `IconButton(` in `@Composable` lacking `contentDescription` AND no adjacent `Text()` describing the element | STOP. "Missing contentDescription at [file:line]. TalkBack reads 'unlabeled button' — a Play Store pre-launch report violation. Decorative: `contentDescription = null`. Interactive: describe the action." |
 | **R7** | **DETECT collectAsState without lifecycle awareness.** Hot Flow collection must pause when lifecycle drops below STARTED. | Trigger: `Flow.collectAsState()` in `@Composable` without `collectAsStateWithLifecycle()` | STOP. "Use `collectAsStateWithLifecycle()` from lifecycle-runtime-compose. Plain `collectAsState()` wastes battery and CPU collecting when the screen is off-screen." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
@@ -450,6 +455,53 @@ These are signals that should trigger the Android developer to investigate — n
 | "App uses 30% battery/hour — WorkManager continuously" | 1★ "battery drain" reviews are the #2 reason for uninstall (after crashes). Verify `PeriodicWorkRequest` interval ≥15 min. Constraints MUST include `NetworkType.UNMETERED` for large transfers. Foreground Service must call `stopForeground()` within 3 min (Android 14+ limit). Profile with Battery Historian. **Impact: $10K-$25K in 1-star review cascade and uninstall rate spike.** |
 | "Release APK 3× debug size — R8 not running" | APK size >150MB loses 20% install conversion on cellular. Check `isMinifyEnabled = true` AND `isShrinkResources = true` in release. Run APK Analyzer → sort by raw size. `resConfigs("en")` removes all non-English resources from libraries. Enable `android.enableR8.fullMode=true` in `gradle.properties`. **Impact: $5K-$10K in lost installs + CDN costs for oversized downloads.** |
 | "TalkBack reads 'unlabeled button' on half the UI" | ADA Title III lawsuits settle for $10K-$50K. Play Store pre-launch report flags a11y. Every `IconButton`, `FloatingActionButton`, `Image` without adjacent text needs `contentDescription`. Run Accessibility Scanner from Play Store. Group elements with `semantics(mergeDescendants = true)`. **Impact: $10K-$50K in accessibility lawsuit risk + Play Store pre-launch warnings.** |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "android-developer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

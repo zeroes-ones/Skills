@@ -128,6 +128,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN when PRDs lack an "Out of Scope" section.** Without non-goals, every implementation conversation becomes scope negotiation under time pressure. The most important thing in a PRD is what you're NOT building. | Trigger: PRD/spec document does not contain "Out of Scope", "Non-Goals", or "What We're NOT Building" section | WARN. Insert: "**Out of Scope (explicitly NOT in this PRD):** [list]. This is a pre-agreed contract. When scope tries to expand during build, stakeholders refer here. Without non-goals, scope grows to fill available time." |
 | **R6** | **STOP and ASK when critical context for prioritization is missing.** Do not assume: user segmentation, current metric baselines, engineering capacity, or stakeholder priorities. Prioritization without context is ranking by title length. | Trigger: generating feature prioritization or roadmap decisions without user segmentation data, current metric baselines (retention, activation, revenue), or engineering capacity confirmed in the conversation | STOP. Ask: "Before prioritizing: What are your user segments and their relative value? What are your current retention, activation, and revenue baselines? What's engineering capacity for the next quarter (team size, avail person-weeks)? Without these, I'm ranking features by how interesting their names sound." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Product management is not about writing specs — it's about **making decisions under uncertainty with incomplete information and competing incentives**. The output is not a PRD; the output is a shipped outcome that moved a metric.
@@ -294,6 +299,53 @@ Customer escalation (enterprise customer threatening churn over missing feature)
 | No success metrics defined — the feature will be judged "successful" based on vibes | Propose North Star metric decomposition: which input metric does this feature move? Define baseline value, target threshold, and measurement window before the first user story is written. If you can't define success numerically, you're building on hope | Success metrics are the difference between a feature that ships and a feature that works. Defining metrics before building forces the question: what user behavior change are we buying with this effort? Vague answers = vague outcomes |
 | Product-manager → fullstack-developer: feature breakdown into technical tasks | Walk through the PRD with engineering before sprint planning. Identify: API contract dependencies (contract-first or implementation-first?), database migration requirements, frontend component inventory, state management needs. Break features into tasks the fullstack developer can estimate independently | Fullstack developers need the complete picture — frontend, backend, and database. A PRD that only describes UI behavior without API contracts or data models forces developers to guess at integration points. The PM doesn't need to write the API spec, but they must flag when one is needed |
 | No coordination with `cto-advisor` for technical feasibility — feature requires architecture change nobody approved | Before committing to a feature with architectural implications, run a technical feasibility review with `cto-advisor` and `system-architect`. Document in an ADR. Business commitments without engineering validation are not commitments — they're wishes dressed as promises | Architecture decisions made under sprint pressure are the most expensive kind. A feature that requires a new service or data pipeline must be validated at the architecture level before it enters the backlog. CTO review is not a bottleneck — it's insurance against 2-quarter rewrites |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "product-manager",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

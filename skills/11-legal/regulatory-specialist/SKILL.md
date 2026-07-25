@@ -68,6 +68,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about SaMD classification gaps.** Marketing software that analyzes/interprets medical data without determining if it's a medical device is shipping an unregulated medical device — a criminal offense | Trigger: `grep -rn "diagnos\|detect\|analy[sz].*medical\|clinical.decision\|image.*analyz" app-code/ product-specs/` returns matches but no `SaMD-classification*.md` file exists | WARN: "Software that analyzes or interprets medical data for diagnostic or treatment decisions may be classified as a medical device (SaMD). 'It's just a tool' is not a defense against FDA enforcement. Classify per FDA guidance and EU MDR Annex VIII. Document the determination with regulatory rationale before marketing." |
 | **R7** | **DETECT and WARN about CAPA as checkbox exercise.** CAPAs closed without root cause or effectiveness verification demonstrate systemic failure — FDA views CAPA as the heart of the QMS | Trigger: `grep -rn "CAPA\|corrective.action\|preventive.action" qms/` → check close timestamps. Flag CAPAs where `(closed_date - opened_date) < 7 days` with root cause "retrained operator" or "human error" | WARN: "CAPAs closed within days with superficial root cause analysis ('retrained operator', 'human error') will be flagged by FDA inspectors as inadequate. Every CAPA requires: (1) structured root cause analysis (5 Whys + Ishikawa), (2) corrective action with objective effectiveness evidence, (3) verification before closure. Separate CAPA metrics from individual performance reviews." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master regulatory specialists understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
@@ -461,6 +466,53 @@ graph LR
 - **"FDA refuses to accept 510(k) — not substantially equivalent"** → Your predicate device is either: (1) not legally marketed (was recalled/withdrawn), (2) has a different intended use, or (3) has different technological characteristics that raise new safety questions. The FDA's SE (Substantial Equivalence) decision isn't a "rejection" — it's a finding that you chose the wrong predicate or didn't demonstrate equivalence.
 - **"Notified Body suspends CE certificate"** → This is a MAJOR nonconformity, not a routine audit finding. Check: (1) Did you fail to address a previous minor nonconformity? (2) Did post-market surveillance reveal safety issues? (3) Did unannounced audit find serious QMS failures? CE suspension means you can't sell in the EU. Remediation timeline is measured in weeks, not months.
 - **"Warning Letter posted on FDA website"** → The FDA publishes Warning Letters publicly. Your investors, customers, and competitors all see it simultaneously. The clock to respond is 15 business days, but the reputational damage is immediate. Pre-drafted crisis communication for regulatory actions is as important as the regulatory response itself.
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "regulatory-specialist",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## Production Checklist
 

@@ -68,6 +68,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about moderation tools that optimize for data completeness rather than decision speed.** A moderation tool that loads 8 seconds of context per post creates a workflow where moderators decide based on post titles in the queue view. First render must show reported content + decision buttons in < 1 second. Context (user history, ML score) enriches the decision — it doesn't gate it. | Trigger: generated output describes `moderation.tool\|review.queue\|moderator.UI` AND references `user.history\|full.thread\|ML.score\|risk.assessment` pre-loading before decision buttons render | WARN: "This moderation tool loads context before showing decision buttons — this creates >1 second load times. Moderators will bypass the tool and decide from queue titles. Redesign: (1) first render = reported content + decision buttons in <1 second, (2) lazy-load context in parallel, (3) measure 'time to decision,' not 'tool load time.' A moderation tool that's too slow to use is not a tool — it's a work-avoidance system." |
 | **R7** | **STOP and ASK before deploying cross-platform threat intelligence sharing that includes raw user data.** Sharing raw PII across platforms creates privacy liability and erodes user trust. Share only: hashed identifiers (SHA-256 of email, device fingerprint hash, content perceptual hash) via automated APIs. Never share raw PII in ad-hoc emails or spreadsheets. Participate in industry groups (Tech Coalition, GIFCT, IWF) but verify data-sharing agreements cover hashed-only sharing. | Trigger: generated output proposes `threat.intelligence.sharing\|cross.platform\|intel.sharing` AND references `email\|phone\|IP.address\|user.data\|PII` without `hashed\|SHA.256\|perceptual.hash\|automated.API\|data.sharing.agreement` within 30 lines | STOP. Ask: "What data will be shared in this threat intelligence exchange? Raw PII (emails, phone numbers, IP addresses) must never be shared. Share only: (1) SHA-256 hashed identifiers, (2) perceptual hashes of violative content, (3) device fingerprint hashes, (4) via automated APIs with access logging. Verify the data-sharing agreement permits only hashed sharing. Raw PII shared across platforms is a privacy breach waiting to happen." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master trust safety engineers operate at the intersection of trust, safety, and human experience. They protect users not just from bad actors, but from unintended consequences of well-intentioned design.
@@ -444,3 +449,15 @@ Detailed reference material loaded on demand:
 - **Scale Depth**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
+## State Log
+
+This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
+
+| # | Decision | Rationale | Alternatives Considered | Timestamp |
+|---|----------|-----------|------------------------|-----------|
+| 1 | *[no decisions logged yet]* | — | — | — |
+
+**Rules:**
+- Append a new row for each irreversible or hard-to-reverse decision
+- Never modify past rows — only append
+- If revisiting a decision, add a NEW row (do not edit the old one)

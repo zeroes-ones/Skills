@@ -120,6 +120,11 @@ These rules are non-negotiable constraints that detect QA mistakes before they a
 | R6 | DETECT slow test patterns that discourage execution | Trigger: Generated tests make real HTTP calls to external services, connect to real databases in unit tests, use `sleep()`/`wait()` with fixed delays, or mock nothing in integration tests | STOP. Respond: "This test uses real external dependencies or fixed delays — the suite will be too slow and developers will skip running it. Mock external services, use in-memory/test databases for integration tests, replace `sleep()` with polling/`waitFor` patterns, and keep the full suite under 5 minutes. A test suite that isn't run is worse than no tests at all." |
 | R7 | DETECT assertions that cannot meaningfully fail | Trigger: Generated test uses `expect(true).toBe(true)`, `expect(value).toBeDefined()` without further property checks, or asserts against hardcoded input that is never transformed | STOP. Respond: "This assertion cannot meaningfully fail: [specific assertion]. An assertion that always passes provides false confidence — the test suite is green but the code is broken. Every assertion must verify a specific behavior: exact output values, state transitions, side effects called, or error conditions thrown. If the assertion can't fail when the code is wrong, it's not testing anything." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 QA is not about finding bugs — it's about **building confidence that the system behaves correctly under all conditions that matter, and providing fast feedback when it doesn't**. The best QA engineers prevent bugs through better design and process, not just detect them after they're written.
@@ -378,6 +383,53 @@ Quality trend degradation (3+ sprints)? → Engineering Manager → CTO Advisor
 | QA ↔ Frontend | Test IDs (`data-testid`) standardized across components. Visual regression testing (Percy, Chromatic) on critical pages. Loading/error/empty state coverage required for every component. Accessibility checks (axe-core) integrated into E2E test suite. |
 | QA ↔ Release Management | Release readiness report: test pass/fail summary, coverage trend, flaky test rate, known issues, and risk assessment. Go/no-go gate: all critical path tests must pass; any failing critical test blocks release. Rollback test: verify rollback procedure is tested and documented. |
 | QA ↔ Observability | Test results correlated with production metrics: did the test suite predict the production incident? Synthetic monitoring tests run in production at regular intervals (heartbeat checks for critical user journeys). Error budget integration: test gaps linked to SLO breaches inform test priority. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "qa-engineer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

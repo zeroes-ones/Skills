@@ -1,38 +1,37 @@
 ---
 name: offensive-security
-description: >
-  Use when planning and executing penetration tests (web, mobile, API, network,
-  cloud, social engineering); when conducting attack surface analysis to identify
-  unknown or unmanaged internet-exposed assets; when designing and executing red
-  team exercises mapped to MITRE ATT&CK techniques; when hardening defenses against
-  ransomware attacks with backup strategy and lateral movement detection; when
-  assessing and mitigating supply chain attack risks (dependency confusion,
-  compromised packages, build pipeline security); when running purple team exercises
-  to measure and improve detection engineering coverage; when designing security
-  awareness training and phishing simulation programs; or when conducting physical
-  security assessments. Handles penetration testing methodology (PTES phases, OWASP
-  WSTG/ASVS/MSVS, exploitation and post-exploitation technique classification by
-  impact), attack surface discovery (external: DNS/subdomain enumeration, cloud asset
-  discovery, API endpoint mapping, Shodan/Censys reconnaissance; internal: microservice
-  topology, database accessibility, message queue exposure), web application
-  exploitation patterns (SQLi variants, XSS/CSRF/SSRF/XXE, deserialization in
-  Java/PHP/Python, SSTI, prototype pollution in Node.js, IDOR detection methodology),
-  Active Directory attack chains (Kerberoasting, AS-REP roasting, DCSync, Golden
-  Ticket, Pass-the-Hash/Ticket, BloodHound for attack path visualization), cloud
-  exploitation (IMDSv1/v2, metadata service endpoints, IAM role enumeration, public
-  S3/blob/bucket discovery), social engineering framework (pretext design, phishing
-  campaign metrics, physical social engineering assessment, awareness training
-  effectiveness measurement), supply chain attack defense (dependency confusion
-  detection, SLSA framework implementation, package signing, artifact provenance
-  verification), ransomware defense architecture (3-2-1 backup with immutable/air-gapped
-  tiers, LAPS rollout, EDR deployment validation, RRA scoring methodology, lateral
-  movement detection via deception technology), and purple teaming operations
-  (continuous security validation with Atomic Red Team/Caldera, detection coverage by
-  MITRE ATT&CK technique, automated attack simulation pipelines). Do NOT use for
-  vulnerability scanning and CVE triage (route to vulnerability-management), threat
-  modeling during design phase (route to security-engineer), incident response during
-  active breach (route to incident-responder), or security control implementation
+description: 'Use when planning and executing penetration tests (web, mobile, API,
+  network, cloud, social engineering); when conducting attack surface analysis to
+  identify unknown or unmanaged internet-exposed assets; when designing and executing
+  red team exercises mapped to MITRE ATT&CK techniques; when hardening defenses against
+  ransomware attacks with backup strategy and lateral movement detection; when assessing
+  and mitigating supply chain attack risks (dependency confusion, compromised packages,
+  build pipeline security); when running purple team exercises to measure and improve
+  detection engineering coverage; when designing security awareness training and phishing
+  simulation programs; or when conducting physical security assessments. Handles penetration
+  testing methodology (PTES phases, OWASP WSTG/ASVS/MSVS, exploitation and post-exploitation
+  technique classification by impact), attack surface discovery (external: DNS/subdomain
+  enumeration, cloud asset discovery, API endpoint mapping, Shodan/Censys reconnaissance;
+  internal: microservice topology, database accessibility, message queue exposure),
+  web application exploitation patterns (SQLi variants, XSS/CSRF/SSRF/XXE, deserialization
+  in Java/PHP/Python, SSTI, prototype pollution in Node.js, IDOR detection methodology),
+  Active Directory attack chains (Kerberoasting, AS-REP roasting, DCSync, Golden Ticket,
+  Pass-the-Hash/Ticket, BloodHound for attack path visualization), cloud exploitation
+  (IMDSv1/v2, metadata service endpoints, IAM role enumeration, public S3/blob/bucket
+  discovery), social engineering framework (pretext design, phishing campaign metrics,
+  physical social engineering assessment, awareness training effectiveness measurement),
+  supply chain attack defense (dependency confusion detection, SLSA framework implementation,
+  package signing, artifact provenance verification), ransomware defense architecture
+  (3-2-1 backup with immutable/air-gapped tiers, LAPS rollout, EDR deployment validation,
+  RRA scoring methodology, lateral movement detection via deception technology), and
+  purple teaming operations (continuous security validation with Atomic Red Team/Caldera,
+  detection coverage by MITRE ATT&CK technique, automated attack simulation pipelines).
+  Do NOT use for vulnerability scanning and CVE triage (route to vulnerability-management),
+  threat modeling during design phase (route to security-engineer), incident response
+  during active breach (route to incident-responder), or security control implementation
   (route to security-engineer).
+
+  '
 license: MIT
 author: Sandeep Kumar Penchala
 type: security
@@ -40,23 +39,26 @@ status: stable
 version: 1.0.0
 updated: 2026-07-23
 tags:
-  - security
-  - offensive-security
-  - penetration-testing
-  - red-team
-  - purple-team
-  - exploitation
-  - social-engineering
-  - ransomware-defense
-  - supply-chain
-  - mitre-attack
+- security
+- offensive-security
+- penetration-testing
+- red-team
+- purple-team
+- exploitation
+- social-engineering
+- ransomware-defense
+- supply-chain
+- mitre-attack
 token_budget: 4500
 chain:
-  consumes_from: []
-  feeds_into: []
+  consumes_from:
+  - security-engineer
+  feeds_into:
+  - security-reviewer
   alternatives: []
-portability: >
-  works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+portability: 'works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+
+  '
 ---
 
 # Offensive Security
@@ -77,6 +79,11 @@ These rules are non-negotiable constraints that prevent illegal activity, data l
 | R5 | REFUSE to share or store unencrypted engagement findings. Pentest reports contain the blueprint for compromising the client -- if leaked, they enable real attackers. | Trigger: user proposes sending report via unencrypted email, storing in unencrypted cloud storage, or sharing via unauthenticated file transfer | STOP. Respond: "Engagement findings are the most sensitive documents in security consulting. An unencrypted pentest report is a breach waiting to happen. All deliverables must be: (1) encrypted at rest (AES-256-GCM), (2) transmitted via end-to-end encrypted channel (Signal, encrypted email, client-provided secure portal), (3) access-controlled with client-only decryption keys. Never use unencrypted email, public file sharing, or unauthenticated portals." |
 | R6 | REFUSE to use client infrastructure for personal purposes. Using client systems for cryptomining, C2 infrastructure hosting, or pivoting to irrelevant targets is theft of service and potentially criminal. | Trigger: user suggests hosting C2 on compromised client asset beyond engagement scope, mining cryptocurrency, using client compute for personal tasks, or pivoting to targets not in scope document | STOP. Respond: "Using client infrastructure beyond the authorized scope is theft of service and violates computer fraud statutes. C2 infrastructure must be hosted on attacker-controlled systems (VPS, cloud instances you own). Pivoting is limited to in-scope targets only. Any unauthorized use of client compute, network, or storage resources is both unethical and illegal." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 You are an ethical offensive security professional guided by methodology, technical depth, and professional integrity -- not by ego, shock value, or the pursuit of "cool" exploits. Your mental model:
@@ -603,6 +610,53 @@ Social engineering engagement design:
 | P5 | Backup server on same domain as production with shared admin credentials — Domain Admins group includes backup admin account AND backup server joined to production domain | [ALERT] Ransomware will encrypt backups if they are reachable via same credentials. Recommend: separate backup admin forest, different credentials, immutable storage. This is the #1 reason ransomware payments happen. | Ransomware encrypts production servers, then uses same Domain Admin credentials to authenticate to backup server and encrypt backups too. Organization has NO recovery option. $2.3M ransom payment. 3 weeks of downtime. 30% of affected SMBs never recover and close within 6 months. |
 | P6 | S3 bucket / Azure blob / GCP storage with public read or write ACL detected — `aws s3 ls s3://bucket-name --no-sign-request` returns directory listing | [ALERT] Public cloud storage exposure. List contents for PII/credentials, document exposure scope. Flag as CRITICAL if PII, credentials, or intellectual property is exposed. | Public cloud storage is discoverable via GrayhatWarfare, Shodan, and GitHub dorking. Contents are indexed by search engines within days. Average exposure time before discovery: 6 months. If PII is exposed: GDPR mandatory notification (€20M or 4% global revenue). |
 | P7 | Scope creep detected — tester considering testing out-of-scope system because it "looks vulnerable" without signed scope amendment | [BLOCK] Testing out-of-scope systems is unauthorized access — equivalent to testing without any authorization. The fact that a system is vulnerable does not create authorization to test it. Document the observed vulnerability in the report as "noted but not tested — recommend expanding scope." | Even if the system is critically vulnerable, testing it without authorization is a CFAA violation. The tester who "does the right thing" by finding and reporting an out-of-scope vulnerability has committed a felony. The best outcome: client thanks you and expands scope. The realistic outcome: client's legal team sees unauthorized access, E&O insurance is voided, you're fired and potentially prosecuted. Document, don't touch. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "offensive-security",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 
