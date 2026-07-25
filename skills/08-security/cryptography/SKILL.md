@@ -620,6 +620,19 @@ After any cryptographic design or audit, run this sequence. Do not proceed past 
 
 If any check fails: diagnose from checklist, provide specific actionable fix with rationale, restart verification from failed item.
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 *   [NIST SP 800-52 Rev. 2: Guidelines for TLS Implementations](https://csrc.nist.gov/publications/detail/sp/800-52/rev-2/final) — Authoritative TLS configuration guidance

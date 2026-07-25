@@ -480,6 +480,19 @@ Before beginning a new phase, verify:
 - [ ] Experiment registry updated: hypothesis, design, results, and decision archived for future reference
 - [ ] Peer review completed: at least one other data scientist or experienced experimenter has reviewed the analysis
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - **Sample Size Calculator**: See [references/sample-size.md](references/sample-size.md)

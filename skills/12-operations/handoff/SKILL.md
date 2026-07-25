@@ -517,6 +517,19 @@ Simulate context compaction: set a 3-minute timer. Freeze the ledger, generate a
 - [ ] **Fresh agent test:** A colleague can read the handoff and identify the next action in <60 seconds. If not, add missing context.
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 * [progress-ledger.md](references/progress-ledger.md) — The progress ledger pattern: structure, conventions, and the "trust the ledger over memory" principle

@@ -472,6 +472,19 @@ Build these skills through structured repetition:
 | **Presenter runs out of time before reaching the conclusion** | No time budget per section | Allocate minutes per section in speaker notes. Mark "must-cover" vs "nice-to-have" slides. Practice cutting 30% of content on the fly. |
 | **Slides look different on the projector than on your laptop** | Color profile mismatch, custom fonts missing, resolution difference | Always test on the actual projector. Embed fonts. Use sRGB color profile. Have a high-contrast PDF backup. |
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 * [Narrative Structure Guide](../references/narrative-structures.md) — Minto Pyramid, SCQA, Hero's Journey, Monroe's Motivated Sequence with examples

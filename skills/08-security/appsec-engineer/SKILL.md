@@ -533,6 +533,19 @@ After designing or modifying an application security program, run this sequence.
 
 If any check fails: diagnose from checklist, provide specific fix, restart verification from the failed item.
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 *   [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain, A10:2025 Exceptional Conditions; these replace A06:2021 Vulnerable Components and A10:2021 SSRF(https://owasp.org/www-project-top-ten/) — The canonical web application security risk taxonomy

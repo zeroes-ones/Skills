@@ -382,6 +382,19 @@ The key: you are not your user. Every time you're surprised by what a user does,
 - [ ] Accessibility: color contrast ≥ 4.5:1 for text, ≥ 3:1 for large text/icons — verified with contrast checker
 - [ ] Handoff: Figma/Zepkin link reviewed by developer — all spacing, colors, and typography match design tokens
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 Detailed reference material loaded on demand:

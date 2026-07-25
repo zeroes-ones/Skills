@@ -573,6 +573,19 @@ Take a 10-session curriculum. For each session, ask: "Could the learner figure t
 - [ ] **Spaced repetition scheduled:** Every completed concept has review dates at +1, +3, +7, +30 days in `.teach/progress.md`.
 - [ ] **Verification script passes:** Run `scripts/verify-skill.sh`. All checks must pass.
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 * [pre-assessment.md](references/pre-assessment.md) — Pre-assessment question design, knowledge elicitation techniques, and gap analysis framework

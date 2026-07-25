@@ -352,13 +352,44 @@ Target: 10+ for "great", 8+ for "good", <8 needs work.
 
 ## Cross-Skill Coordination
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `technical-writer` | Documentation standards, clarity principles, audience analysis | Before writing skill documentation for end users |
+| `documentation-engineer` | Doc infrastructure, automation pipelines, format standards | When building automated skill validation or generation pipelines |
+| `teach` | Learning principles, scaffolding patterns, assessment design | When designing a skill that teaches other skills |
+
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
 | Writing a skill about a technical domain | That domain's skill | Domain expert defines what; writing-great-skills defines how to encode it |
-| Writing a skill that teaches | teach | Teach provides learning principles; writing-great-skills applies them to skill structure |
 | Auditing a skill collection | All skills in the collection | Quality audit against the 12 dimensions |
 | Designing skill composition | The skills being composed | Defines orchestration pattern, handoff artifacts, invocation conditions |
-| Skill documentation for authors | technical-writer, documentation-engineer | Skill authoring guides for the wider community |
+
+## Error Recovery
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Skill fires on wrong triggers or doesn't fire when it should | Description field contains process language ("first", "then", "step") instead of trigger-only language | Rewrite description using ONLY trigger conditions. Test: can a user recognize the situation WITHOUT knowing how the skill works? | **Process in description = misfire.** Descriptions are grep-matched by agents. Process words match random conversations. Trigger words match specific situations. |
+| Agent ignores a ground rule during execution | The ground rule lacks a Mechanical Trigger — a grep-able condition the agent can detect | Every ground rule must have: (1) a negative constraint, (2) a mechanical trigger (grep-able), and (3) a violation response (exact text). Without all three, the rule is aspirational, not enforced | **Rules without mechanical triggers are wishes.** Agents cannot enforce "be careful." They CAN enforce "if grep finds X, respond with Y." |
+| Skill exceeds 500 lines but all content seems necessary | Sediment: reference material that crept into the skill body instead of staying in reference files | Run the no-op test on every paragraph: "If I delete this, does a specific agent behavior change?" If no, move to references or delete. Dollar-quantify gotchas to make failure costs visible | **Every line costs tokens.** A 600-line skill costs 20% more per invocation. Prune sediment first, then push detail to reference files. |
+| Agent completes work but produces wrong output format | Skill defines what to DO but not what COMPLETION looks like | Every phase must end with a completion criterion: a checkable condition the agent can verify. | **Without completion criteria, agents don't know when they're done.** Every step needs a verifiable exit condition. |
+
+## State Log
+
+This skill maintains a **decision ledger** for skill authoring sessions.
+
+### How the State Log Works
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior authoring decisions.
+2. **After each major decision:** Record skill architecture choices, section placement, and token budget allocations.
+3. **Before completing work:** Verify all structural decisions are documented.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
+
+### Anti-Drift Check
+
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior section-placement or budget decisions constrain what I'm about to do?
+- [ ] Is my approach consistent with the 12-section template?
+- [ ] If I'm contradicting a prior decision, have I documented WHY?
 
 ## Proactive Triggers
 
@@ -417,6 +448,19 @@ description: >
 
 ## Gotchas
 - **[Gotcha].** **Total cost: $X-$Y.** Fix: [action].
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 * ref-example.md

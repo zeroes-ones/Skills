@@ -417,6 +417,19 @@ graph LR
 - [ ] Payment controls: all payment detail changes verified via secondary channel (phone/video, not email)
 - [ ] FX exposure: net exposure by currency quantified — hedged positions matched to forecasted cash flows
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 - **Cap Table Operations**: See [cap-table-operations.md](references/cap-table-operations.md)
 - **Foreign Exchange Operations**: See [foreign-exchange-operations.md](references/foreign-exchange-operations.md)

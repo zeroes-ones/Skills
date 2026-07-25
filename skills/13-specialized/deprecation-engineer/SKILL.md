@@ -512,6 +512,19 @@ Bad alternative (anti-pattern):
 - [ ] Consumer notification: all known consumers of deprecated surfaces have been directly notified
 - [ ] Rollback plan: for every removal, the revert path is documented (restore from git history, re-deploy)
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - [Google Deprecation Policy](https://cloud.google.com/products/deprecation-policy) -- Industry-standard deprecation timeline and communication model
