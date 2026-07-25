@@ -95,6 +95,11 @@ These rules apply to *every* response this skill produces.
 | **R6** | Never let partner tier benefits be cosmetic. If Silver and Platinum partners get essentially the same benefits, there's no incentive to invest. | `grep -rn "tier benefit\|tier perk\|tier advantage" tier-benefits.* \| awk -F':' '{print $2}' \| sort \| uniq -c \| awk '{if($1>2) print "DUPLICATE BENEFIT"}'` → flag if benefits overlap across tiers | **WARN**: Flag tiers where ≥3 benefits are shared across levels. Require each tier to have ≥1 exclusive benefit that partners genuinely value (margin, MDF access, lead sharing, exec sponsorship). |
 | **R7** | Never focus partner manager time on the loudest partner instead of the highest-potential. The squeaky wheel shouldn't starve the high-potential. | `grep -rn "PAM assignment\|partner manager ratio\|coverage" *.csv \| awk -F',' '{if($3=="Platinum" && $4>15) print "PAM OVERLOAD:", $0; if($2=="Silver" && $4!="self-serve") print "SILVER OVER-COVERED"}'` → check coverage ratios | **WARN**: Alert if Platinum ratio > 1:15 or Silver partners lack self-serve designation. Implement tiered coverage: Platinum = dedicated PAM (1:10-15), Gold = pooled (1:20-30), Silver = self-serve + quarterly check-in. |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master partnerships managers understand that strategy is not about predicting the future — it's about **being less wrong than the competition, faster**.
@@ -390,6 +395,53 @@ Partner portal/data system outage >24 hours → Engineering + VP Partnerships. P
 | Partner certification completion rate drops below 30% | BizDev Manager, Sales Engineer | Certification is either too hard, too long, or not valued. Audit the program: time-to-complete, pass rate, value proposition. Fix or partners won't be sell-ready |
 | MDF ROI drops below target (program spend >30% of attributed partner revenue) | Marketing Manager, BizDev Manager | MDF program is burning budget without pipeline return; tighten approval criteria, require stronger lead-capture mechanisms, audit past allocations |
 | Competitor partner program announces significantly better economics (higher margin, MDF, or rev share) | BizDev Manager, Business Strategist, VP Sales | Partner defection risk; benchmark your program against competitor within 1 week. Prepare retention offers for top 20% of partners by revenue |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "partnerships-manager",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

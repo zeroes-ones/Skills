@@ -86,6 +86,11 @@ If no auto-route matched, use this intent tree:
 | G6 | **DETECT generated code committed without review.** | `file_contains("*", "(generated.by\|auto.generated\|CubeMX\|STM32CubeIDE)")` AND NOT `file_contains("*", "reviewed:")`  | WARN. Generated code must pass same PR review. Wrong clock divisor in generated code = bricked devices. |
 | G7 | **STOP if printf pulls 20KB into flash on 64KB device.** | `arm-none-eabi-nm --size-sort build/firmware.elf | grep printf` AND `arm-none-eabi-size build/firmware.elf | awk '$1>45000'` | ALERT. Replace `printf` with `mpaland/printf` (1.4KB) or `iprintf`. Audit linker map for `_sbrk`, `malloc`, `__aeabi_`. |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Masters of firmware developer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -325,6 +330,53 @@ Factory firmware blocking production? → QA Engineer → Production Manager →
 | Stack overflow pattern detected in field crash dumps (0xA5 paint corrupted) | Increase affected task stack by 50% immediately; run 24-hour stress test with stack monitoring; audit all task stacks quarterly | Stack overflow in the field is nearly impossible to debug post-hoc — proactive monitoring is the only defense |
 | Security researcher reports bootloader vulnerability with proof of concept | Acknowledge within 4 hours; assess severity and exploitability; if remotely exploitable, prepare emergency OTA within 48 hours; publish advisory | Delayed response to security reports erodes trust and may trigger regulatory obligations |
 | Fleet boot success rate drops below 99.9% for any firmware version | Auto-halt OTA rollout for affected version; investigate within 2 hours; compare boot failure patterns across hardware revisions and geographies | Boot success rate is the single best fleet health metric — degradation precedes major incidents |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "firmware-developer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

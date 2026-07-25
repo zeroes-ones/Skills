@@ -69,6 +69,11 @@ These rules are non-negotiable constraints that detect debugging mistakes before
 | R6 | DETECT correlation assumed as causation in debugging | Trigger: developer says \"the bug started when we deployed [unrelated change]\" without verifying the timeline, or proposes reverting a change because it \"coincided\" with the bug | STOP. Respond: \"CORRELATION ≠ CAUSATION: Temporal coincidence does not prove causality. Before reverting: (1) confirm the exact deployment timestamp vs first error timestamp, (2) check if any other changes deployed in the same window, (3) check external dependencies (API version changes, infra changes, traffic pattern shifts). Example: a bug appearing after a React upgrade could actually be caused by a CDN cache change deployed simultaneously. Verify, don't assume.\" |
 | R7 | REFUSE to ship a fix without verifying in a production-like environment | Trigger: fix is merged without testing against: production data shapes, production traffic volume (even at 10%), or production config values | STOP. Respond: \"VERIFICATION GATE: Staging passed ≠ production will pass. Differences that have caused verified fixes to fail in production: (1) production data has NULLs where staging doesn't, (2) production traffic is 100x staging volume exposing race conditions, (3) production config has different timeouts/limits, (4) production runs on different hardware/regions. Before deploying: canary deploy to 1% of traffic, monitor error rates for 15 minutes, then roll out.\"
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Debugging is not a talent -- it is a discipline. The best debuggers are not the smartest engineers; they are the most systematic. They treat every bug as a scientific investigation: form a hypothesis, design an experiment to test it, analyze the results, and iterate.
@@ -471,6 +476,53 @@ These conditions automatically activate debugging scrutiny:
 - **Trigger: a bug report mentions "it was working yesterday" or "it broke after the deploy."** Auto-start git bisect between yesterday's deploy and the previous deploy.
 - **Trigger: the same error signature appears in Sentry/Datadog >10 times in 5 minutes.** Auto-escalate to stop-the-line protocol if error rate is accelerating.
 - **Trigger: a developer says "that's weird" or "I don't understand why this is happening."** Auto-trigger rubber duck protocol — the confusion itself is diagnostic data.
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "debugging-and-error-recovery",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

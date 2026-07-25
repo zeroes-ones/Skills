@@ -46,6 +46,11 @@ chain:
 | 7 | NEVER allow unproductive loop beyond 3 identical-attempt cycles | `grep -c "ATTEMPT_IDENTICAL" agent_loop_audit.log \| awk '{if($1>=3) exit 1}'` | HALT agent; inject escalation context; require human triage |
 | 8 | NEVER place critical guardrails in mid-context (positions 25%-75% of window) | `python attention_zone_check.py --input context_plan.json \| awk '/MID_CONTEXT_GUARDRAIL/{exit 1}'` | RELOCATE guardrails to first 200 tokens (primacy zone) |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Context compaction is the art of maximizing decision quality per token. You are not compressing text — you are curating attention. Three principles govern everything:
@@ -701,3 +706,16 @@ Agent appears stuck in loop
 - [information-density-scoring.md](references/information-density-scoring.md) — Token importance classification: decisions > constraints > code > examples > prose
 - [compaction-validation.md](references/compaction-validation.md) — Behavioral equivalence testing, semantic drift detection
 - [loop-detection-patterns.md](references/loop-detection-patterns.md) — Action/outcome hashing, escalation context injection, prevention strategies
+
+## State Log
+
+This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
+
+| # | Decision | Rationale | Alternatives Considered | Timestamp |
+|---|----------|-----------|------------------------|-----------|
+| 1 | *[no decisions logged yet]* | — | — | — |
+
+**Rules:**
+- Append a new row for each irreversible or hard-to-reverse decision
+- Never modify past rows — only append
+- If revisiting a decision, add a NEW row (do not edit the old one)

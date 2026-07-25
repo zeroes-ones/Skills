@@ -73,6 +73,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R4** | **REFUSE to store raw credentials in pipeline configs.** Every database password, API key, and connection string must come from a secrets manager. Config files reference secret paths, never contain secrets. | Trigger: Before writing any pipeline config — grep for `password\|api_key\|secret\|token\|connection_string` followed by a literal value (not a `{{ vault(...) }}` or `$SECRET_PATH` reference). If found, trigger fires. | STOP. Respond: "This config contains a raw credential at line {N}. Use a secrets manager instead: replace with `{{ vault('path/to/secret') }}` (Vault), `{{ aws_secret('name') }}` (AWS), or `$SECRET_PATH` environment reference. I will not proceed with raw credentials." |
 | **R5** | **STOP and admit when you haven't benchmarked at target data volume.** If you haven't tested the write pattern at the target scale, or the CDC connector version has known issues with this source, say so — don't guess. | Trigger: Before recommending a pipeline design — check if benchmarks or volume data exist. If `file_contains("**/*.{md,json,csv}", "benchmark\|throughput\|rows.per.second\|volume.test\|load.test")` returns no matches, trigger fires. | STOP. Respond: "I haven't benchmarked this design at your target data volume. My recommendation assumes {assumptions}. Before deploying: (1) run a volume test at 10% scale, (2) profile write throughput, (3) verify CDC connector compatibility. I'll flag all untested assumptions." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Masters of data engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -385,6 +390,53 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | Team is building data pipelines but no data quality checks exist — "we'll add tests later" | Propose data quality framework (Great Expectations/dbt tests) as a pipeline stage: schema validation → null checks → uniqueness checks → freshness checks → distribution checks; block downstream consumption on quality failure; sync with `analytics-engineer` on quality thresholds | "Later" never arrives; data quality checks added after pipelines are built catch errors that have already propagated to dashboards; quality-as-gate prevents bad data from reaching consumers |
 | Multiple teams ask for access to the same production database tables with different latency requirements | Propose medallion architecture: Bronze (raw CDC, <5min) → Silver (cleaned, deduplicated, <1hr) → Gold (business aggregates, <4hr); sync with `backend-developer` on CDC configuration and `analytics-engineer` on transformation layer | Direct production DB access creates competing SLAs — analytics queries slow down operational DB; medallion architecture provides tiered freshness: operational consumers get Bronze, analytics get Silver/Gold; isolation protects production |
 | Data warehouse costs are 3× the infrastructure budget and growing linearly with data volume | Propose query optimization: partition pruning, clustering on high-cardinality columns, materialized views for common aggregations; implement data retention policies (Bronze: 90 days, Silver: 1 year, Gold: 7 years); sync with `analytics-engineer` on query patterns | Unoptimized queries scan full tables on every run; partition pruning eliminates 99% of data before query execution; retention policies prevent unbounded storage growth — not all data needs 7-year retention |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "data-engineer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

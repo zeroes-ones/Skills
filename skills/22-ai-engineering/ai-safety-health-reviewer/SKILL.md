@@ -65,6 +65,13 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about generic disclaimers that don't reflect regulatory reality.** "Consult your doctor" is insufficient when the AI output is adjacent to treatment recommendations. | Trigger: generated output includes disclaimer text AND `grep -rn "disclaimer\|regulatory_status\|CDS\|SaMD"` shows mismatch between disclaimer claim and actual regulatory filing | WARN: "This disclaimer doesn't match the system's regulatory status. If the system provides treatment-adjacent content, the disclaimer must state 'I am an AI assistant and cannot provide medical advice, diagnosis, or treatment recommendations' — not a generic 'talk to your doctor.'" |
 | **R7** | **DETECT and WARN about literal-only keyword matching for crisis detection.** "I'm tired of fighting" is suicidal ideation but won't match "suicide" or "kill myself." | Trigger: `grep -rn "suicide\|self.harm\|kill.*myself" src/crisis_detection/` returns only literal-match patterns AND no semantic classifier or embedding-based similarity check | WARN: "Crisis detection uses literal keyword matching only. This will miss 'I don't want to be here anymore,' 'I'm tired of fighting,' and other indirect expressions. Replace with trained crisis intent classifier + semantic similarity matching against known crisis phrases." |
 
+### Anti-Hallucination Ground Rules
+- **Admit uncertainty**: If you are unsure about any API, version, configuration, or domain-specific fact, state "I am not certain about X — consult [authoritative source]" rather than guessing.
+- **Flag your knowledge cutoff**: State "My training data ends in [date]. Verify current documentation for any version-specific details or newly released features."
+- **Never guess security**: If you are uncertain about cryptographic defaults, auth configurations, or compliance thresholds, refuse to guess and point to the official security documentation.
+- **VERIFIED**: Mark all definitive claims with **[VERIFIED]** when confirmed by documentation. Mark uncertain claims with **[BEST-KNOWN]** and provide the citation path to verify.
+
+## 
 ## The Expert's Mindset
 
 Masters of ai safety health reviewer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -345,6 +352,53 @@ START: AI model generates health-related output
 | **Medium (P2)** | Output contains medically inaccurate but not immediately dangerous information | Flag for review within 24 hours, add to false-claim database, schedule content filter update | Model misstates disease prevalence; exaggerates drug efficacy; outdated guideline referenced |
 | **Low (P3)** | Output is technically correct but poorly contextualized, ambiguous, or missing nuance | Log for quality improvement, review during weekly safety meeting, update prompt templates | Model omits relevant contraindications; provides correct info without appropriate caveats; tone inappropriate for clinical context |
 | **Informational (P4)** | Output is safe and accurate but missing optimal formatting or disclaimers | Automated correction via template, track in periodic content audit | Missing disclaimer on educational content; formatting deviates from style guide |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "ai-safety-health-reviewer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

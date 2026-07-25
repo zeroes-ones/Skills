@@ -1,6 +1,34 @@
 ---
 name: secure-api-design
-description: Use when designing or reviewing the security of a REST, GraphQL, or gRPC API; when implementing OAuth2 token validation, API key management, or mTLS for service-to-service authentication; when hardening API endpoints against OWASP API Security Top 10 vulnerabilities (broken auth, excessive data exposure, mass assignment, injection); when implementing rate limiting, throttling, and DoS protection at the API gateway layer; when securing API clients (SPAs, mobile apps, native clients) with proper token storage, BFF patterns, and CSP headers; when designing multi-tenant API authorization (RBAC/ABAC/ReBAC at the resource level); or when responding to an API security incident (credential stuffing, token leakage, API abuse). Handles REST/GraphQL/gRPC authentication patterns (JWT validation, JWKS rotation, opaque token introspection, API key hashing and scanning, mTLS, HMAC request signing), authorization enforcement at the API layer (OPA/Rego policy-as-code, resource-level permissions with OpenFGA/Cedar, middleware-based RBAC/ABAC for multi-tenant APIs), input validation hardening (JSON Schema allowlist validation, GraphQL query cost/depth limiting, protobuf validator chains, mass assignment protection with explicit field allowlists), injection defense (parameterized queries with ORM escape hatch auditing, NoSQL injection detection, SSTI prevention in Go/Node/Python template engines), rate limiting architecture (distributed token bucket with Redis, endpoint-tier throttling, GraphQL cost analysis, gRPC flow control), CSRF/CORS hardening (SameSite=Strict/Lax, double-submit cookie, Origin header validation, preflight configuration), client-side token security (httpOnly cookies over localStorage, BFF pattern implementation, token refresh in secure contexts, CSP+SRI for API-driven apps), API error handling security (standardized error format, no stack traces/DB errors/internal IPs, secure defaults for unhandled exceptions), and API security observability (structured audit logging with who/what/when/from/result, credential stuffing detection via rate anomaly, API honeytokens for intrusion detection). Do NOT use for IAM architecture design (route to iam-architect), cloud API gateway configuration (route to cloud-security), general API design without security focus (route to api-designer), or OAuth2 provider implementation (route to backend-developer with security-reviewer).
+description: Use when designing or reviewing the security of a REST, GraphQL, or gRPC
+  API; when implementing OAuth2 token validation, API key management, or mTLS for
+  service-to-service authentication; when hardening API endpoints against OWASP API
+  Security Top 10 vulnerabilities (broken auth, excessive data exposure, mass assignment,
+  injection); when implementing rate limiting, throttling, and DoS protection at the
+  API gateway layer; when securing API clients (SPAs, mobile apps, native clients)
+  with proper token storage, BFF patterns, and CSP headers; when designing multi-tenant
+  API authorization (RBAC/ABAC/ReBAC at the resource level); or when responding to
+  an API security incident (credential stuffing, token leakage, API abuse). Handles
+  REST/GraphQL/gRPC authentication patterns (JWT validation, JWKS rotation, opaque
+  token introspection, API key hashing and scanning, mTLS, HMAC request signing),
+  authorization enforcement at the API layer (OPA/Rego policy-as-code, resource-level
+  permissions with OpenFGA/Cedar, middleware-based RBAC/ABAC for multi-tenant APIs),
+  input validation hardening (JSON Schema allowlist validation, GraphQL query cost/depth
+  limiting, protobuf validator chains, mass assignment protection with explicit field
+  allowlists), injection defense (parameterized queries with ORM escape hatch auditing,
+  NoSQL injection detection, SSTI prevention in Go/Node/Python template engines),
+  rate limiting architecture (distributed token bucket with Redis, endpoint-tier throttling,
+  GraphQL cost analysis, gRPC flow control), CSRF/CORS hardening (SameSite=Strict/Lax,
+  double-submit cookie, Origin header validation, preflight configuration), client-side
+  token security (httpOnly cookies over localStorage, BFF pattern implementation,
+  token refresh in secure contexts, CSP+SRI for API-driven apps), API error handling
+  security (standardized error format, no stack traces/DB errors/internal IPs, secure
+  defaults for unhandled exceptions), and API security observability (structured audit
+  logging with who/what/when/from/result, credential stuffing detection via rate anomaly,
+  API honeytokens for intrusion detection). Do NOT use for IAM architecture design
+  (route to iam-architect), cloud API gateway configuration (route to cloud-security),
+  general API design without security focus (route to api-designer), or OAuth2 provider
+  implementation (route to backend-developer with security-reviewer).
 author: Sandeep Kumar Penchala
 license: MIT
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
@@ -8,11 +36,24 @@ type: security
 status: stable
 version: 1.0.0
 updated: 2026-07-23
-tags: [security, api-security, oauth2, jwt, rate-limiting, cors, csrf, injection-prevention, input-validation, authorization]
+tags:
+- security
+- api-security
+- oauth2
+- jwt
+- rate-limiting
+- cors
+- csrf
+- injection-prevention
+- input-validation
+- authorization
 token_budget: 4500
 chain:
-  consumes_from: []
-  feeds_into: []
+  consumes_from:
+  - api-designer
+  feeds_into:
+  - backend-developer
+  - security-reviewer
   alternatives: []
 ---
 
@@ -35,6 +76,11 @@ These rules are non-negotiable constraints that detect dangerous API security pa
 | R6 | DETECT when authentication endpoints lack aggressive rate limiting. Auth endpoints are the highest-value target for credential stuffing, brute force, and enumeration attacks — they need the strictest limits. | Trigger: rate limiting configuration shows auth endpoints (`/login`, `/auth/token`, `/oauth/authorize`, `/api/v1/auth`) have the SAME or looser rate limits than general API endpoints | STOP. Respond: "Authentication endpoints are the most targeted API surface. Apply strict per-IP AND per-account rate limiting: 5 failed attempts per account per 15 minutes, 20 attempts per IP per minute. Use exponential backoff on repeated failures (1s → 2s → 4s → 8s → 16s), then lock the account for 15 minutes. Return identical error messages for 'invalid username' and 'invalid password' to prevent user enumeration. Monitor for credential stuffing patterns (high failure rate across many accounts from single IP)." |
 | R7 | DETECT when API endpoints lack per-resource authorization — ANY authenticated user can access ANY resource of that type by changing an ID parameter. This is BOLA (Broken Object Level Authorization, OWASP API1:2023) — the #1 API vulnerability by both frequency and impact. | Trigger: `grep -r "\.get\(\|\.find\(\|\.findOne\(\|\.query\(" --include="*.ts" --include="*.js" --include="*.py" --include="*.go" -A2 | grep -v "user_id\|owner_id\|tenant_id\|userId\|ownerId\|tenantId\|WHERE.*user_id\|WHERE.*owner_id"` — resource access without ownership verification AND endpoint path contains a resource ID parameter (`/users/:id`, `/orders/:uuid`, `/api/v1/documents/{docId}`) | STOP. Respond: "Broken Object Level Authorization (BOLA/IDOR) is OWASP API Top 10 #1 — the most common and impactful API vulnerability. Every endpoint that accesses a resource by ID MUST verify that the authenticated user owns that resource OR has explicit permission to access it. Pattern: `const resource = await db.resources.findById(req.params.id); if (resource.owner_id !== req.user.id) return 403;`. For multi-tenant: `if (resource.tenant_id !== req.user.tenant_id) return 403;`. BOLA is silent — HTTP 200, no error, no alert. It is detectable only through systematic authorization testing, not through logs." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 You are an API security architect who thinks like an attacker and designs like a defender. Your mental model:
@@ -698,3 +744,16 @@ If any check fails: diagnose from checklist, provide specific actionable fix, re
 *   [references/csrf-cors-hardening.md](references/csrf-cors-hardening.md) — SameSite cookies, double-submit cookie, Origin header validation, preflight configuration
 *   [references/client-side-token-security.md](references/client-side-token-security.md) — BFF pattern, httpOnly cookies, CSP, SRI, mobile Keychain/Keystore, token refresh
 *   [references/api-security-observability.md](references/api-security-observability.md) — Audit logging schema, credential stuffing detection, honeytokens, monitoring dashboards
+
+## State Log
+
+This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
+
+| # | Decision | Rationale | Alternatives Considered | Timestamp |
+|---|----------|-----------|------------------------|-----------|
+| 1 | *[no decisions logged yet]* | — | — | — |
+
+**Rules:**
+- Append a new row for each irreversible or hard-to-reverse decision
+- Never modify past rows — only append
+- If revisiting a decision, add a NEW row (do not edit the old one)

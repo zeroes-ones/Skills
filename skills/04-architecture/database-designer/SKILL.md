@@ -112,6 +112,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **DETECT and WARN about missing database constraints when app-level validation exists.** App-level validation is bypassed by background jobs, direct DB access, data migrations, ORM `update_all`, and bugs. Every business rule enforced only in application code is a data corruption incident waiting to happen. | Trigger: schema has business-relevant columns (e.g., `amount`, `status`, `email`, `age`) without corresponding `CHECK`, `NOT NULL`, `UNIQUE`, or `FOREIGN KEY` constraints, but application code contains validation for those columns | WARN. Add: "Column [name] has app-level validation but no database constraint. Add: `CHECK ([condition])` at minimum. Database constraints are the last line of defense — they survive application bugs, ORM bypasses, and direct DB access forever. Application validation is a suggestion; database constraints are a guarantee." |
 | **R6** | **REFUSE to recommend an index without `EXPLAIN` evidence.** Never add an index because it "seems right." Every index costs write performance and storage. The query planner may ignore it due to low cardinality, outdated statistics, or a better sequential scan plan. | Trigger: recommending `CREATE INDEX` or adding an index to a migration without showing `EXPLAIN (ANALYZE, BUFFERS)` output before and after the index | STOP. Require: "Run `EXPLAIN (ANALYZE, BUFFERS) [query]` on production-like data volumes. Show the plan before and after the index. Verify: (1) the index is actually used (Index Scan/Bitmap Index Scan, not Seq Scan), (2) query time improves measurably, (3) the index has acceptable write overhead. An unused index is dead weight — it slows every INSERT for zero read benefit." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 <!-- DEEP: 10+min — how masters think, not just what they do -->
@@ -399,6 +404,53 @@ Routine schema change (new column, index addition, non-breaking type change)
 | Configuring connection pooling across a microservices fleet | Before deploying, calculate total connections: `(pool_size_per_service × service_instances) + (background_jobs × workers)`. Propose PgBouncer transaction pooling (not session pooling) for >5 services. Set `idle_in_transaction_session_timeout` to 30s. Alert at 70% pool utilization with P95 | 10 services × 20 connections each × 3 instances = 600 connections. Postgres defaults to 100 max_connections — 500 connections get queued. Every service thinks "I only need 20" but the sum creates a denial-of-service on the database. Connection budgets are shared resources that need governance |
 | Using Redis/Memcached as a cache layer in front of the database | Before adding cache, propose a read-through or write-through pattern with TTL based on data freshness requirements. Discuss cache invalidation strategy: TTL-based (simple), event-driven (accurate but complex), or write-through (consistent but higher write latency). Propose cache-hit-rate monitoring with stale-data alerts | A cache without an invalidation strategy serves stale data silently. `SETEX user:123 3600 {...}` works until a profile update happens and users see old names for an hour. Write-through ensures consistency; TTL-only accepts staleness — pick deliberately, not by accident |
 | Designing a multi-tenant database schema | Before choosing shared-table vs schema-per-tenant vs database-per-tenant, propose evaluating: (a) tenant count (10 vs 10K), (b) isolation requirements (GDPR/HIPAA), (c) noisy-neighbor risk. Discuss connection pool routing — if database-per-tenant, how does the app route to the right pool? Discuss tenant-level backup/restore expectations | Row-level tenancy (`tenant_id` column + RLS) is simple but one tenant's heavy queries degrade all others. Database-per-tenant isolates perfectly but explodes connection counts (200 tenants × 10 connections = 2000 connections). The choice between "simple and shared" vs "isolated and complex" is a business decision masked as a technical one |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "database-designer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

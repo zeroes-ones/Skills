@@ -98,6 +98,11 @@ These rules apply to *every* response this skill produces.
 | **R5** | **DETECT and flag real-world data pipelines that conflate correlation with causation.** RWE pipelines that skip confounder adjustment, lack negative controls, or omit sensitivity analyses produce conclusions that mislead clinical decisions and regulatory submissions. | Trigger: `file_contains("*", "RWE")` OR `file_contains("*", "real.world")` AND NOT `file_contains("*", "confounder")` AND NOT `file_contains("*", "negative.control")`. | FLAG. Respond: "This RWE pipeline design is incomplete. Real-world evidence requires: (1) confounder identification and adjustment strategy, (2) negative control outcomes to calibrate bias, and (3) sensitivity analyses (E-value, tipping-point). I'll proceed with the pipeline but annotate all outputs with a warning: 'Unadjusted RWE — do not use for regulatory or clinical decision-making.'" |
 | **R6** | **REFUSE to generate a CCDA document from raw XML concatenation.** CCDA must be produced from a validated FHIR Composition via a canonical mapping table. String-concatenated CCDA fails ONC schematron validation and breaks interoperability. | Trigger: `file_contains("*", "CCDA")` OR `file_contains("*", "C-CDA")` AND NOT `file_contains("*", "Composition.section")` AND NOT `file_contains("*", "FHIR.Composition")`. | STOP. Respond: "CCDA generation requires a FHIR Composition as the source of truth. I need: (1) the FHIR Composition resource or its structure, (2) the CCDA document type (e.g., Continuity of Care Document, Referral Note), and (3) the ONC certification edition. I'll transform Composition.section entries via the canonical mapping table." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master clinical informatics specialists carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
@@ -298,6 +303,53 @@ These triggers activate when a specific symptom or scenario emerges during clini
 | "EHR API suddenly returns 403 for previously working calls" | Check app registration status: verify the SMART app hasn't been disabled or rotated by the EHR vendor, confirm the OAuth2 scopes haven't been narrowed, check for IP allowlist changes or rate-limit throttling, and review the EHR vendor's API changelog for breaking endpoint deprecations. |
 | "Terminology service returns 'code not found' for known valid codes" | Audit terminology edition alignment: compare the code system version in the ValueSet expansion against the source data's code system version, check for code deprecation or replacement events in the terminology release notes, and verify the terminology server's loaded edition matches the expected version date. |
 | "Bulk FHIR export job completes but NDJSON files are empty or truncated" | Diagnose the export pipeline: verify `_type` parameter includes the intended resource types, check `_since` filter isn't excluding all records, validate that NDJSON output files match the manifest's `output` array, and confirm the export client has read access (`patient/*.rs` or `system/*.rs` scopes) for the requested resources. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "clinical-informatics-specialist",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

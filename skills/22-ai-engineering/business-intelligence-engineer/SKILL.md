@@ -63,6 +63,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about dashboards querying raw fact tables with no aggregation layer.** A dashboard that runs `SELECT * FROM transactions WHERE ...` on every load will time out at scale. | Trigger: BI model or SQL contains `FROM transactions` or `FROM fact_*` without pre-aggregation (no `materialized\|incremental\|summary\|aggregate` reference nearby) | WARN: "This dashboard queries raw transaction-level fact tables. At scale (1M+ rows), load time will exceed 30 seconds. Add daily-aggregated summary tables with incremental materialization. Pre-compute KPIs as materialized views." |
 | **R7** | **DETECT and WARN about non-idempotent incremental dbt models.** An incremental model without a unique key produces duplicate rows on re-run. | Trigger: `grep -rn "incremental" --include="*.sql" -A 10 \| grep -v "unique_key"` finds incremental configs with no deduplication key | WARN: "Incremental models without `unique_key` produce duplicate rows on re-run. Add: `{{ config(materialized='incremental', unique_key='id') }}`. Test idempotency: run `dbt run --full-refresh` and `dbt run` twice — row counts must match." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Masters of business intelligence engineer don't just build — they build **the right thing, at the right time, with the right trade-offs**. They think in systems, not tasks.
@@ -776,3 +781,15 @@ Detailed reference material loaded on demand:
 - **Scale Depth: Solo → Small → Medium → Enterprise**: See [scale-depth.md](references/scale-depth.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
+## State Log
+
+This section documents every irreversible decision made during the session. It is non-negotiable and prevents the agent from revisiting settled questions.
+
+| # | Decision | Rationale | Alternatives Considered | Timestamp |
+|---|----------|-----------|------------------------|-----------|
+| 1 | *[no decisions logged yet]* | — | — | — |
+
+**Rules:**
+- Append a new row for each irreversible or hard-to-reverse decision
+- Never modify past rows — only append
+- If revisiting a decision, add a NEW row (do not edit the old one)

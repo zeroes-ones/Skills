@@ -123,6 +123,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN when 1:1s are all venting with no action items.** Listening without action is performative empathy. If the same complaints persist across two 1:1s, they become escalation triggers. | Trigger: review of 1:1 notes shows >3 consecutive sessions with complaints but 0 action items or follow-ups | WARN: "Your 1:1s are venting sessions without closure. Restructure: first 10 minutes for venting, then pivot to 'What do we do about it?' Maintain a shared action-item doc. Blockers persisting across two 1:1s become escalation triggers. Your job is to remove obstacles, not just absorb complaints." |
 | **R7** | **STOP and DETECT when you're shielding the team from ALL organizational context.** Protection isn't isolation. Teams without business context become mercenaries, not owners. | Trigger: user describes "protecting the team" as a primary activity AND `grep -rn "business context\|strategy\|company update\|why this matters" --include="*standup*\|*team-meeting*"` returns 0 in recent meeting notes | STOP. Add a weekly 5-minute context update: business priorities, leadership discussions, how the work connects. Share challenges without creating panic. Teams need enough context to feel ownership. Without it, when a re-org happens, they'll be blindsided and feel betrayed. |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Engineering management is not "senior engineer plus meetings." It's a fundamentally different job: **your output is the output of your team, and your primary tools are questions, not answers**. The transition from IC to EM is the hardest career shift in tech because the skills that got you promoted (technical excellence) are not the skills that make you successful (people development, organizational navigation, communication).
@@ -272,6 +277,53 @@ Your team ships. You're accountable for what ships, when, and at what quality. Y
 ## Proactive Triggers
 
 [Full trigger details →](references/proactive-triggers.md)
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "engineering-manager",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

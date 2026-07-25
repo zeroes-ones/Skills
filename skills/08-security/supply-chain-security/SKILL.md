@@ -134,6 +134,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **DETECT and WARN about unsigned commits in repositories that publish artifacts.** An unsigned commit can be impersonated — anyone can `git config user.email` to spoof an identity. Artifacts built from unsigned commits have no author authenticity. | Trigger: `git log --format="%G?" $(git rev-list --max-count=20 HEAD) | grep -v "G"` returns matches (commits without valid GPG signature), AND the repo publishes packages, containers, or releases | WARN: "Unsigned commits detected in a repository that publishes artifacts. Without commit signing, the provenance chain breaks at the first link — anyone can forge commit authorship. Enable: (1) GPG/SSH commit signing, (2) vigilant-mode on GitHub to mark unsigned commits, (3) branch protection requiring signed commits." |
 | **R7** | **DETECT and WARN about hardcoded registry URLs or unpinned package registries.** Hardcoded public registry URLs (`registry.npmjs.org`, `pypi.org`) in config files are dependency confusion attack vectors — a malicious package with the same name in an upstream registry gets pulled instead of your private package. | Trigger: `grep -rn "registry.npmjs.org\|pypi.org\|rubygems.org\|proxy.golang.org" .npmrc .yarnrc.yml pip.conf setup.cfg Gemfile go.mod 2>/dev/null` returns matches in a repo with private/internal packages | WARN: "Public registry fallback detected. This is a dependency confusion vector — an attacker can publish a package with your internal name to the public registry and your build will pull the malicious version. Mitigate: (1) scope internal packages to a private registry, (2) configure registry-scoping rules (npm: @scope:registry, pip: --index-url), (3) use package-lock verification with integrity hashes." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master supply chain security engineers think like attackers, not auditors. They don't ask "does this pass compliance?" — they ask **"how would I compromise this supply chain if I were a nation-state adversary?"** Supply chain attacks are the highest-leverage vector in cybersecurity: one compromised upstream dependency can reach thousands of downstream organizations.
@@ -358,6 +363,53 @@ What are you signing?
 | `devops-engineer` | Signing key configuration, verification policies, admission control rules | Unsigned containers reach production — supply chain compromise has full blast radius |
 | `incident-responder` | Dependency compromise indicators, artifact integrity verification procedures, registry audit logs | Incident response lacks supply chain context — compromise scope is unknown |
 | `backend-developer` | Dependency security policies, allowed package registries, upgrade SLAs | Developers pull from unvetted registries — dependency confusion attacks succeed |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "supply-chain-security",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

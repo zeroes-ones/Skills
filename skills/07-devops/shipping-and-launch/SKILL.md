@@ -63,6 +63,11 @@ End-to-end shipping and launch discipline: pre-launch readiness verification, st
 | R6 | DETECT when feature flag has no kill switch. Feature flags without a kill switch turn emergencies into outages. | Trigger: feature flag configuration lacks an emergency off-switch (environment variable, config toggle, or admin API) | STOP. "Feature flag [name] has no kill switch. Add an emergency disable mechanism that works WITHOUT a deployment -- environment variable, remote config toggle, or admin API that takes effect within 60 seconds." |
 | R7 | REFUSE to launch when dependent services are unhealthy. A healthy service depending on an unhealthy downstream will fail. | Trigger: launch request AND any critical downstream dependency has degraded status on the health dashboard | STOP. "Dependent service [name] is currently degraded ([status]). Launching now couples your launch risk to their ongoing incident. Wait for dependency to recover or implement a circuit breaker that gracefully degrades when downstream fails." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 - **Ships are processes, not events.** A launch is not the moment you click deploy. It is the weeks of preparation, the staged rollout, the monitoring vigil, the go/no-go decision, and the post-launch retro. Treat the deploy button as step 7 of 20, not the finish line.
@@ -399,6 +404,53 @@ Launch War Room Setup (for high/critical risk launches):
 | P3 | Feature flag older than 60 days found in codebase | [ALERT] Flag [name] has exceeded its sunset date. Schedule removal within 2 weeks or extend with justification. |
 | P4 | No staging deploy in last 48 hours before production launch | [ALERT] Staging has not been validated recently. Deploy and run smoke tests before production launch. |
 | P5 | Go/no-go criteria document references metrics without dashboards | [WARN] No dashboard found for metric [name]. Create dashboard before relying on it for go/no-go decisions. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "shipping-and-launch",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

@@ -115,6 +115,11 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R6** | **🛑 STOP and WARN about unpatched medical devices on clinical networks.** Medical devices running unsupported operating systems (Windows XP, Windows 7, legacy Linux) are the #1 entry point for healthcare ransomware. FDA postmarket guidance requires manufacturers to provide security patches; healthcare delivery organizations must apply them. | Trigger: architecture references `medical.device\|MRI\|CT\|infusion.pump\|ventilator\|patient.monitor` AND mentions `Windows XP\|Windows 7\|Windows Server 2008\|unsupported\|EOL\|end.of.life\|cannot.patch\|legacy.OS` | STOP. Respond: "Unpatched medical devices on clinical networks are the primary ransomware entry vector in healthcare. The FDA's postmarket cybersecurity guidance (2023) requires manufacturers to provide a Cybersecurity Bill of Materials (CBOM) and timely security patches. If the manufacturer cannot provide patches for unsupported operating systems: (1) isolate the device on a dedicated VLAN with no internet access, (2) deploy a compensating network-based IPS inline, (3) develop a replacement procurement plan with a timeline. Unpatched devices connected to clinical networks with internet access are a breach waiting to happen — Change Healthcare (2024), Universal Health Services (2020, $67M downtime cost), and CommonSpirit Health (2022, $150M impact) all started with unpatched devices." |
 | **R7** | **⚠️ DETECT telemedicine platforms used without BAA verification.** Consumer-grade video conferencing tools without a BAA expose PHI in transit and at rest (recordings). Even enterprise plans require explicit BAA execution — it is not automatic. | Trigger: architecture mentions `Zoom\|Teams\|Google Meet\|Webex\|Skype\|FaceTime\|WhatsApp` AND `telemedicine\|telehealth\|virtual.visit\|remote.consult` AND no BAA confirmation | WARN: "Telemedicine platform [name] must have a signed BAA before use with patients. Consumer versions of these tools do NOT have BAAs and their use for patient encounters constitutes a HIPAA violation. Verify: (1) Is the healthcare-specific tier active (Zoom for Healthcare, Teams EHR connector)? (2) Is the BAA signed and current? (3) Are recordings stored in a HIPAA-compliant manner? (4) Is the waiting room/authentication configured to prevent unauthorized access? OCR has issued guidance that telehealth flexibilities during the PHE ended May 11, 2023 — HIPAA enforcement is now in full effect." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master healthcare security architects carry a triple responsibility: patient safety, regulatory compliance, and information security. A network segmentation error doesn't just leak data — it can delay surgeries, disable ventilators, and force ambulance diversions. Every architectural decision traces to a clinical outcome.
@@ -527,6 +532,53 @@ Clinical network segmentation design:
 | EHR/FHIR API access logs show a single user token accessing multiple patients' records in rapid succession (potential patient data scraping) | This is a potential security incident. Immediately: (1) Revoke the token, (2) Audit which patient records were accessed and what data was returned, (3) Determine if this was a legitimate clinical workflow (e.g., population health query) or unauthorized access, (4) If unauthorized, start the breach assessment and notification clock. | Patient data scraping via legitimate API tokens is a growing attack vector. The Cures Act requires open APIs; security must be at the authorization layer. A compromised patient app token with broad scopes can exfiltrate thousands of records. |
 | A BAA with a critical vendor is expiring within 30 days without a renewal in progress | Escalate to vendor management and legal. If the vendor is changing BAA terms, assess whether the new terms are acceptable. If the vendor is discontinuing BAA support, begin immediate migration off the vendor. PHI cannot flow to a vendor without a current BAA — even during a migration. | An expired BAA means every PHI transaction with that vendor after the expiration date is an impermissible disclosure. OCR does not accept "we were in the process of renewing" as a defense. |
 | Clinical network segmentation review finds unpatched devices on the clinical VLAN with internet access | This is the #1 healthcare ransomware entry vector. Immediately: (1) Remove internet access from the device (firewall rule), (2) Assess whether the device can be patched, (3) If unpatched indefinitely, develop replacement procurement plan with a timeline, (4) Deploy network IPS inline for the device VLAN as compensating control. | Unpatched medical devices with internet access are responsible for the majority of healthcare ransomware incidents with clinical impact. Change Healthcare, Universal Health Services, and CommonSpirit Health all started this way. |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "healthcare-security",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 

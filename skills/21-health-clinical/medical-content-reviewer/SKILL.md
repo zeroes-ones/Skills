@@ -95,6 +95,11 @@ These rules apply to *every* response this skill produces. Medical content revie
 | **R5** | **DETECT and gate all AI-generated health content behind mandatory clinical review.** AI may hallucinate DOIs, quote superseded guidelines, or make errors a non-clinician would miss. AI content published without clinical review is a patient safety incident. | Trigger: `file_contains("*", "AI-generated")` OR `file_contains("*", "GPT")` OR `file_contains("*", "LLM")` AND `file_contains("*", "health")` AND NOT `file_contains("*", "clinically.reviewed")` AND NOT `file_contains("*", "reviewed.by")`. | FLAG. Respond: "AI-generated health content detected without clinical review gate. I will NOT publish this. Required before publication: (1) human clinician review, (2) verification of every citation (check DOIs resolve), (3) validation of all claims against current guidelines, (4) AI-content disclaimer added. Gate enforced." |
 | **R6** | **REFUSE to delete an adverse event report — AE deletion does not delete the reporting obligation.** If a patient reports a serious side effect or device malfunction, that may be a reportable AE to the FDA. Deleting the post doesn't delete the legal duty to report. | Trigger: `file_contains("*", "side.effect")` OR `file_contains("*", "reaction")` OR `file_contains("*", "malfunction")` AND `file_contains("*", "delete")` OR `file_contains("*", "remove.post")`. | STOP. Respond: "This content describes a potential adverse event. DO NOT DELETE IT. Instead: (1) log the AE in the AE tracking system, (2) determine FDA reportability (serious + unexpected = 15-day report), (3) follow the AE reporting workflow, (4) only after reporting obligations are met: redact PII and gate content behind a clinical context notice. Deleting the post does not delete the reporting obligation." |
 
+
+- **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
+- **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
+- **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Explicitly mark statements as: [VERIFIED] — from official docs, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure. This helps the user calibrate trust in your output.
 ## The Expert's Mindset
 
 Master medical content reviewers carry a dual responsibility: technical excellence AND human impact. Every decision ripples through to patient outcomes, regulatory standing, and clinical trust.
@@ -294,6 +299,53 @@ Systematic misinformation campaign detected? → content-policy-manager + crisis
 | **After** | `compliance-officer` | Reviewed content, AE report log, disclaimer documentation → feeds compliance audit |
 | **After** | `legal-advisor` | Disclaimer language, AE reporting obligations, liability review → legal sign-off |
 | **After** | `product-manager` | Clinical accuracy findings → informs feature decisions (e.g., community Q&A redesign) |
+
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
+
+### How the State Log Works
+<!-- AGENT: Read this before starting work, update after each phase -->
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "medical-content-reviewer",
+     "phase": "Phase 3: Implementation",
+     "decision": "What was decided",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["constraint-1", "constraint-2"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
+4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
+
+### State Log Schema
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `timestamp` | When the decision was made | `"2026-07-24T21:30:00Z"` |
+| `skill` | Which skill made it | `"backend-developer"` |
+| `phase` | Which workflow phase | `"Phase 3: API Design"` |
+| `decision` | What was chosen | `"PostgreSQL 16 with JSONB for flexible schema"` |
+| `rationale` | Why this over alternatives | `"Team expertise + JSONB avoids ORM complexity for semi-structured data"` |
+| `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
+| `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
+| `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
+
+### Anti-Drift Check
+<!-- AGENT: Run this check at the start of each new phase -->
+
+Before beginning a new phase, verify:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with the `constraints` in prior log entries?
+- [ ] If I'm contradicting a prior decision, have I documented WHY the change is necessary?
 
 ## What Good Looks Like
 
