@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "api-designer",
+  "description": "Per-skill evaluation for api-designer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-api-designer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate api-designer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "api-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs",
+            "GraphQL",
+            "OpenAPI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-api-designer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex api-designer scenario",
+      "input": "I'm working on designing a new rest, graphql, or grpc api from scratch \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "api-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs",
+            "GraphQL"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-api-designer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate api-designer for ambiguous domain-adjacent request",
+      "input": "How should I approach api designer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "api-designer"
+        }
+      ]
+    },
+    {
+      "id": "negative-api-designer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate api-designer for off-domain request: implementing APIs",
+      "input": "Can you help me with implementing apis? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "api-designer"
+        }
+      ]
+    },
+    {
+      "id": "negative-api-designer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate api-designer for off-domain request: database schema design",
+      "input": "I need to database schema design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "api-designer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-api-designer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common api-designer anti-patterns",
+      "input": "Build a production-ready api designer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "apis",
+            "graphql"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-api-designer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for api-designer",
+      "input": "I'm shipping a api designer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run openapi validator",
+            "redocly lint openapi",
+            "spectral lint openapi",
+            "zero errors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-api-designer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for api-designer",
+      "input": "What's the most important thing to know about api designer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

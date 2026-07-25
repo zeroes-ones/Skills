@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "debugging-and-error-recovery",
+  "description": "Per-skill evaluation for debugging-and-error-recovery \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-debugging-and-error-recovery-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate debugging-and-error-recovery for primary domain request",
+      "input": "I need help with systematically, not through trial and error \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "debugging-and-error-recovery"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Reproduce",
+            "root cause analysis",
+            "Localize"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-debugging-and-error-recovery-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex debugging-and-error-recovery scenario",
+      "input": "I'm working on reproducing a reported bug: capturing exact inputs, state, and environment that  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "debugging-and-error-recovery"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Reproduce",
+            "root cause analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-debugging-and-error-recovery-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate debugging-and-error-recovery for ambiguous domain-adjacent request",
+      "input": "How should I approach debugging and error recovery for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "debugging-and-error-recovery"
+        }
+      ]
+    },
+    {
+      "id": "negative-debugging-and-error-recovery-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate debugging-and-error-recovery for off-domain request: performance profiling",
+      "input": "I need to performance profiling",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "debugging-and-error-recovery"
+        }
+      ]
+    },
+    {
+      "id": "negative-debugging-and-error-recovery-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate debugging-and-error-recovery for off-domain request: security vulnerability analysis",
+      "input": "I need to security vulnerability analysis",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "debugging-and-error-recovery"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-debugging-and-error-recovery",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common debugging-and-error-recovery anti-patterns",
+      "input": "Build a production-ready debugging and error recovery implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "reproduce",
+            "root-cause-analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-debugging-and-error-recovery",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for debugging-and-error-recovery",
+      "input": "I'm shipping a debugging and error recovery project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "bug reproduction test written",
+            "and fails before the",
+            "root cause identified using",
+            "not a symptom fix"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-debugging-and-error-recovery",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete debugging and error recovery workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

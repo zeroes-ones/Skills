@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "event-planner",
+  "description": "Per-skill evaluation for event-planner \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-event-planner-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate event-planner for primary domain request",
+      "input": "I need help with planning a new event from concept to execution \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-planner"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budgeting",
+            "event planning",
+            "corporate events"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-event-planner-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex event-planner scenario",
+      "input": "I'm working on building and tracking an event budget \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-planner"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budgeting",
+            "event planning"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-event-planner-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate event-planner for ambiguous domain-adjacent request",
+      "input": "How should I approach event planner for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-planner"
+        }
+      ]
+    },
+    {
+      "id": "negative-event-planner-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate event-planner for off-domain request: meeting scheduling (use calendar tools)",
+      "input": "I need to meeting scheduling (use calendar tools)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "event-planner"
+        }
+      ]
+    },
+    {
+      "id": "negative-event-planner-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate event-planner for off-domain request: project management",
+      "input": "Can you help me with project management? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "event-planner"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-event-planner",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common event-planner anti-patterns",
+      "input": "Build a production-ready event planner implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budgeting",
+            "nps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-event-planner",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for event-planner",
+      "input": "I'm shipping a event planner project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget established with",
+            "contingency and per-category",
+            "venue contract reviewed",
+            "b minimums"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-event-planner",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete event planner workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "repo-scaffolding",
+  "description": "Per-skill evaluation for repo-scaffolding \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-repo-scaffolding-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate repo-scaffolding for primary domain request",
+      "input": "I need help with new repos take >30 minutes to configure (ci, linters, readme, security configs) \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "repo-scaffolding"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cookiecutter",
+            "GitLab CI",
+            "README"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-repo-scaffolding-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex repo-scaffolding scenario",
+      "input": "I'm working on repos have inconsistent ci/cd, linting, or security configurations \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "repo-scaffolding"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cookiecutter",
+            "GitLab CI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-repo-scaffolding-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate repo-scaffolding for ambiguous domain-adjacent request",
+      "input": "How should I approach repo scaffolding for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "repo-scaffolding"
+        }
+      ]
+    },
+    {
+      "id": "negative-repo-scaffolding-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate repo-scaffolding for off-domain request: monorepo tooling configuration",
+      "input": "I need to monorepo tooling configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "repo-scaffolding"
+        }
+      ]
+    },
+    {
+      "id": "negative-repo-scaffolding-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate repo-scaffolding for off-domain request: CI/CD pipeline design",
+      "input": "I need to ci/cd pipeline design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "repo-scaffolding"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-repo-scaffolding",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common repo-scaffolding anti-patterns",
+      "input": "Build a production-ready repo scaffolding implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cookiecutter",
+            "gitlab-ci"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-repo-scaffolding",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for repo-scaffolding",
+      "input": "I'm shipping a repo scaffolding project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lines extracted to references"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-repo-scaffolding",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete repo scaffolding workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

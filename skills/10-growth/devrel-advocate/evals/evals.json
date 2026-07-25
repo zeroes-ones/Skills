@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "devrel-advocate",
+  "description": "Per-skill evaluation for devrel-advocate \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-devrel-advocate-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate devrel-advocate for primary domain request",
+      "input": "I need help with your company is launching a developer-facing api or sdk and you need to build an \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "devrel-advocate"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devrel",
+            "APIs",
+            "advocacy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-devrel-advocate-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex devrel-advocate scenario",
+      "input": "I'm working on you need to decide whether (and when) to hire a devrel team based on your develo \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "devrel-advocate"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devrel",
+            "APIs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-devrel-advocate-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate devrel-advocate for ambiguous domain-adjacent request",
+      "input": "How should I approach devrel advocate for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "devrel-advocate"
+        }
+      ]
+    },
+    {
+      "id": "negative-devrel-advocate-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate devrel-advocate for off-domain request: technical documentation authoring",
+      "input": "I need to technical documentation authoring",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "devrel-advocate"
+        }
+      ]
+    },
+    {
+      "id": "negative-devrel-advocate-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate devrel-advocate for off-domain request: product management",
+      "input": "Can you help me with product management? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "devrel-advocate"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-devrel-advocate",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common devrel-advocate anti-patterns",
+      "input": "Build a production-ready devrel advocate implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devrel",
+            "apis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-devrel-advocate",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for devrel-advocate",
+      "input": "I'm shipping a devrel advocate project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pieces of content",
+            "all teach a skill",
+            "none pitch the product",
+            "active-member"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-devrel-advocate",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for devrel-advocate",
+      "input": "What's the most important thing to know about devrel advocate?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

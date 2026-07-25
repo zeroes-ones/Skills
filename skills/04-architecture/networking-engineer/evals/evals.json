@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "networking-engineer",
+  "description": "Per-skill evaluation for networking-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-networking-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate networking-engineer for primary domain request",
+      "input": "I need help with you are designing a new vpc/vnet with subnets, cidr ranges, and routing tables f \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "networking-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "load balancing",
+            "networking",
+            "zero trust"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-networking-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex networking-engineer scenario",
+      "input": "I'm working on you need to connect multiple vpcs across accounts or regions via peering or tran \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "networking-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "load balancing",
+            "networking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-networking-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate networking-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach networking engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "networking-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-networking-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate networking-engineer for off-domain request: on-premises-only networking",
+      "input": "I need to on-premises-only networking",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "networking-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-networking-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate networking-engineer for off-domain request: physical cabling",
+      "input": "Can you help me with physical cabling? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "networking-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-networking-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common networking-engineer anti-patterns",
+      "input": "Build a production-ready networking engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "load-balancing",
+            "dns"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-networking-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for networking-engineer",
+      "input": "I'm shipping a networking engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "terraform plan",
+            "no unexpected resource changes",
+            "cidr ranges don",
+            "t overlap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-networking-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for networking-engineer",
+      "input": "What's the most important thing to know about networking engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

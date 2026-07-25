@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "chaos-engineer",
+  "description": "Per-skill evaluation for chaos-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-chaos-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate chaos-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "chaos-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gameday",
+            "chaos",
+            "reliability"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-chaos-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex chaos-engineer scenario",
+      "input": "I'm working on establishing a chaos engineering practice from scratch \u2014 tooling, methodology, c \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "chaos-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gameday",
+            "chaos"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-chaos-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate chaos-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach chaos engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "chaos-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-chaos-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate chaos-engineer for off-domain request: general monitoring setup",
+      "input": "I need to general monitoring setup",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "chaos-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-chaos-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate chaos-engineer for off-domain request: standard incident response",
+      "input": "I need to standard incident response",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "chaos-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-chaos-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common chaos-engineer anti-patterns",
+      "input": "Build a production-ready chaos engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gameday",
+            "chaos"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-chaos-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for chaos-engineer",
+      "input": "I'm shipping a chaos engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "chaos experiment manifest validates",
+            "chaos-mesh validate experiment",
+            "or equivalent",
+            "no syntax errors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-chaos-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for chaos-engineer",
+      "input": "What's the most important thing to know about chaos engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

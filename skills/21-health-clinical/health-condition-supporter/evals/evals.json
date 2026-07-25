@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "health-condition-supporter",
+  "description": "Per-skill evaluation for health-condition-supporter \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-health-condition-supporter-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate health-condition-supporter for primary domain request",
+      "input": "I need help with tracking chronic condition symptoms to identify patterns and triggers \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-condition-supporter"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health",
+            "No Surprises Act",
+            "symptom tracking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-health-condition-supporter-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex health-condition-supporter scenario",
+      "input": "I'm working on preparing for medical appointments with structured questions and data \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-condition-supporter"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health",
+            "No Surprises Act"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-health-condition-supporter-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate health-condition-supporter for ambiguous domain-adjacent request",
+      "input": "How should I approach health condition supporter for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-condition-supporter"
+        }
+      ]
+    },
+    {
+      "id": "negative-health-condition-supporter-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate health-condition-supporter for off-domain request: medical diagnosis",
+      "input": "Can you help me with medical diagnosis? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "health-condition-supporter"
+        }
+      ]
+    },
+    {
+      "id": "negative-health-condition-supporter-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate health-condition-supporter for off-domain request: treatment recommendations",
+      "input": "I need to treatment recommendations",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "health-condition-supporter"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-health-condition-supporter",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common health-condition-supporter anti-patterns",
+      "input": "Build a production-ready health condition supporter implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health",
+            "no-surprises-act"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-health-condition-supporter",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for health-condition-supporter",
+      "input": "I'm shipping a health condition supporter project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "symptom tracking captures",
+            "symptom type",
+            "with anchors",
+            "what helps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-health-condition-supporter",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete health condition supporter workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

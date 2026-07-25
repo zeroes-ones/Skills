@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "quantitative-analyst",
+  "description": "Per-skill evaluation for quantitative-analyst \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-quantitative-analyst-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate quantitative-analyst for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "quantitative-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Binomial",
+            "Monte Carlo",
+            "Delta"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-quantitative-analyst-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex quantitative-analyst scenario",
+      "input": "I'm working on you are screening for unusual options activity on mid-cap companies with $1m+ pr \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "quantitative-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Binomial",
+            "Monte Carlo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-quantitative-analyst-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate quantitative-analyst for ambiguous domain-adjacent request",
+      "input": "How should I approach quantitative analyst for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "quantitative-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-quantitative-analyst-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate quantitative-analyst for off-domain request: trade execution",
+      "input": "Can you help me with trade execution? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "quantitative-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-quantitative-analyst-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate quantitative-analyst for off-domain request: market data pipeline engineering",
+      "input": "I need to market data pipeline engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "quantitative-analyst"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-quantitative-analyst",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common quantitative-analyst anti-patterns",
+      "input": "Build a production-ready quantitative analyst implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "binomial",
+            "monte-carlo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-quantitative-analyst",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for quantitative-analyst",
+      "input": "I'm shipping a quantitative analyst project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "all time series tested",
+            "for stationarity",
+            "adf test",
+            "non-stationary series differenced"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-quantitative-analyst",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for quantitative-analyst",
+      "input": "What's the most important thing to know about quantitative analyst?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

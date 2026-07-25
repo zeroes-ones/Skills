@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ai-engineer",
+  "description": "Per-skill evaluation for ai-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ai-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-engineer for primary domain request",
+      "input": "I need help with building a rag system for document q&a, knowledge base, or internal search \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai product",
+            "Augmented Generation",
+            "LLMs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ai-engineer scenario",
+      "input": "I'm working on designing ai agents that use tools, reason multi-step, or orchestrate workflows \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai product",
+            "Augmented Generation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach ai engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-engineer for off-domain request: model training",
+      "input": "Can you help me with model training? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-engineer for off-domain request: fine-tuning",
+      "input": "Can you help me with fine-tuning? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ai-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ai-engineer anti-patterns",
+      "input": "Build a production-ready ai engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai",
+            "rag"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ai-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ai-engineer",
+      "input": "I'm shipping a ai engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after building an ai",
+            "run this sequence",
+            "do not proceed past",
+            "a failure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ai-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ai-engineer",
+      "input": "What's the most important thing to know about ai engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

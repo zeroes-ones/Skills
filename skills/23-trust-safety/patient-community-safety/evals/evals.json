@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "patient-community-safety",
+  "description": "Per-skill evaluation for patient-community-safety \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-patient-community-safety-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate patient-community-safety for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "patient-community-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health community",
+            "CSAM",
+            "content moderation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-patient-community-safety-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex patient-community-safety scenario",
+      "input": "I'm working on launching a patient community or health forum \u2014 safety infrastructure before fir \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "patient-community-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health community",
+            "CSAM"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-patient-community-safety-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate patient-community-safety for ambiguous domain-adjacent request",
+      "input": "How should I approach patient community safety for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "patient-community-safety"
+        }
+      ]
+    },
+    {
+      "id": "negative-patient-community-safety-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate patient-community-safety for off-domain request: general social app trust and safety detection infrastructure",
+      "input": "I need to general social app trust and safety detection infrastructure",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "patient-community-safety"
+        }
+      ]
+    },
+    {
+      "id": "negative-patient-community-safety-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate patient-community-safety for off-domain request: content policy taxonomy design",
+      "input": "I need to content policy taxonomy design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "patient-community-safety"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-patient-community-safety",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common patient-community-safety anti-patterns",
+      "input": "Build a production-ready patient community safety implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health-community",
+            "csam"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-patient-community-safety",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for patient-community-safety",
+      "input": "I'm shipping a patient community safety project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "community rules include public",
+            "and-permanent warning",
+            "anonymous posting option available",
+            "crisis content"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-patient-community-safety",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for patient-community-safety",
+      "input": "What's the most important thing to know about patient community safety?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

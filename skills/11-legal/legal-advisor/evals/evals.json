@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "legal-advisor",
+  "description": "Per-skill evaluation for legal-advisor \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-legal-advisor-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate legal-advisor for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "legal-advisor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Series Seed",
+            "contracts",
+            "privacy policy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-legal-advisor-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex legal-advisor scenario",
+      "input": "I'm working on drafting or updating terms of service (tos), privacy policy, or end user license \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "legal-advisor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Series Seed",
+            "contracts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-legal-advisor-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate legal-advisor for ambiguous domain-adjacent request",
+      "input": "How should I approach legal advisor for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "legal-advisor"
+        }
+      ]
+    },
+    {
+      "id": "negative-legal-advisor-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate legal-advisor for off-domain request: regulatory compliance (FDA",
+      "input": "I need to regulatory compliance (fda",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "legal-advisor"
+        }
+      ]
+    },
+    {
+      "id": "negative-legal-advisor-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate legal-advisor for off-domain request: privacy law implementation",
+      "input": "I need to privacy law implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "legal-advisor"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-legal-advisor",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common legal-advisor anti-patterns",
+      "input": "Build a production-ready legal advisor implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "series-seed",
+            "contracts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-legal-advisor",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for legal-advisor",
+      "input": "I'm shipping a legal advisor project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "license audit",
+            "license-checker",
+            "all dependencies have licenses",
+            "in non-gpl projects"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-legal-advisor",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for legal-advisor",
+      "input": "What's the most important thing to know about legal advisor?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

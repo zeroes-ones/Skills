@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "email-composer",
+  "description": "Per-skill evaluation for email-composer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-email-composer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate email-composer for primary domain request",
+      "input": "I need help with cold outreach: reaching someone you have never contacted \u2014 aida framework, perso \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "email-composer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "AIDA",
+            "Agitation",
+            "Desire"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-email-composer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex email-composer scenario",
+      "input": "I'm working on follow-up sequences: second and third touches after no response \u2014 value-add patt \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "email-composer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "AIDA",
+            "Agitation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-email-composer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate email-composer for ambiguous domain-adjacent request",
+      "input": "How should I approach email composer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "email-composer"
+        }
+      ]
+    },
+    {
+      "id": "negative-email-composer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate email-composer for off-domain request: marketing automation platform setup",
+      "input": "I need to marketing automation platform setup",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "email-composer"
+        }
+      ]
+    },
+    {
+      "id": "negative-email-composer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate email-composer for off-domain request: email deliverability infrastructure",
+      "input": "I need to email deliverability infrastructure",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "email-composer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-email-composer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common email-composer anti-patterns",
+      "input": "Build a production-ready email composer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "aida",
+            "agitation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-email-composer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for email-composer",
+      "input": "I'm shipping a email composer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "subject line",
+            "no deception",
+            "no all-caps",
+            "mobile-safe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-email-composer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete email composer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

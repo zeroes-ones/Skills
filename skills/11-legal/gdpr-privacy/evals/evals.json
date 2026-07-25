@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "gdpr-privacy",
+  "description": "Per-skill evaluation for gdpr-privacy \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-gdpr-privacy-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate gdpr-privacy for primary domain request",
+      "input": "I need help with the full gdpr skill covers 10+ areas (data inventory, consent, dpa, sar, breach  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gdpr-privacy"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "LGPD",
+            "compliance",
+            "DSARs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-gdpr-privacy-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex gdpr-privacy scenario",
+      "input": "I'm working on quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gdpr-privacy"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "LGPD",
+            "compliance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-gdpr-privacy-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate gdpr-privacy for ambiguous domain-adjacent request",
+      "input": "How should I approach gdpr privacy for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gdpr-privacy"
+        }
+      ]
+    },
+    {
+      "id": "negative-gdpr-privacy-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate gdpr-privacy for off-domain request: security engineering",
+      "input": "I need to security engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "gdpr-privacy"
+        }
+      ]
+    },
+    {
+      "id": "negative-gdpr-privacy-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate gdpr-privacy for off-domain request: compliance auditing for non-privacy frameworks (SOC 2",
+      "input": "I need to compliance auditing for non-privacy frameworks (soc 2",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "gdpr-privacy"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-gdpr-privacy",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common gdpr-privacy anti-patterns",
+      "input": "Build a production-ready gdpr privacy implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lgpd",
+            "compliance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-gdpr-privacy",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for gdpr-privacy",
+      "input": "I'm shipping a gdpr privacy project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "data inventory",
+            "all data stores catalogued",
+            "with data categories",
+            "retention periods"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-gdpr-privacy",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for gdpr-privacy",
+      "input": "What's the most important thing to know about gdpr privacy?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

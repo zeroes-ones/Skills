@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "event-driven-architect",
+  "description": "Per-skill evaluation for event-driven-architect \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-event-driven-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate event-driven-architect for primary domain request",
+      "input": "I need help with choosing between kafka, rabbitmq, sqs/sns, eventbridge, nats, or pulsar \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-driven-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Kafka",
+            "EventBridge",
+            "Protobuf"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-event-driven-architect-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex event-driven-architect scenario",
+      "input": "I'm working on designing event schemas with avro, protobuf, or json schema + schema registry \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-driven-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Kafka",
+            "EventBridge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-event-driven-architect-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate event-driven-architect for ambiguous domain-adjacent request",
+      "input": "How should I approach event driven architect for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "event-driven-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-event-driven-architect-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate event-driven-architect for off-domain request: REST API design",
+      "input": "Can you help me with rest api design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "event-driven-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-event-driven-architect-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate event-driven-architect for off-domain request: database schema design",
+      "input": "I need to database schema design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "event-driven-architect"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-event-driven-architect",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common event-driven-architect anti-patterns",
+      "input": "Build a production-ready event driven architect implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "kafka",
+            "eventbridge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-event-driven-architect",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for event-driven-architect",
+      "input": "I'm shipping a event driven architect project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-event-driven-architect",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete event driven architect workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

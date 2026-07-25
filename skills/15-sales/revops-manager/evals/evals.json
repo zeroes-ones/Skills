@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "revops-manager",
+  "description": "Per-skill evaluation for revops-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-revops-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate revops-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "revops-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "forecasting",
+            "revenue operations",
+            "pipeline analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-revops-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex revops-manager scenario",
+      "input": "I'm working on the cfo asks for a bottoms-up revenue forecast by segment, by quarter, with comm \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "revops-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "forecasting",
+            "revenue operations"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-revops-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate revops-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach revops manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "revops-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-revops-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate revops-manager for off-domain request: financial accounting",
+      "input": "I need to financial accounting",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "revops-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-revops-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate revops-manager for off-domain request: FP&A budget planning",
+      "input": "I need to fp&a budget planning",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "revops-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-revops-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common revops-manager anti-patterns",
+      "input": "Build a production-ready revops manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "crm",
+            "forecasting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-revops-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for revops-manager",
+      "input": "I'm shipping a revops manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "data quality",
+            "crm fields with",
+            "identified and validation rules",
+            "pipeline hygiene"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-revops-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete revops manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "business-strategist",
+  "description": "Per-skill evaluation for business-strategist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-business-strategist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate business-strategist for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "competitive analysis",
+            "business model",
+            "growth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-business-strategist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex business-strategist scenario",
+      "input": "I'm working on business model canvas design and validation \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "competitive analysis",
+            "business model"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-business-strategist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate business-strategist for ambiguous domain-adjacent request",
+      "input": "How should I approach business strategist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-business-strategist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate business-strategist for off-domain request: financial accounting",
+      "input": "I need to financial accounting",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "business-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-business-strategist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate business-strategist for off-domain request: payroll setup",
+      "input": "Can you help me with payroll setup? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "business-strategist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-business-strategist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common business-strategist anti-patterns",
+      "input": "Build a production-ready business strategist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "competitive-analysis",
+            "business-model"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-business-strategist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for business-strategist",
+      "input": "I'm shipping a business strategist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "market analysis",
+            "s five forces reviewed",
+            "within last quarter",
+            "changes documented"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-business-strategist",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete business strategist workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

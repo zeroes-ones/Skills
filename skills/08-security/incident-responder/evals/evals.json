@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "incident-responder",
+  "description": "Per-skill evaluation for incident-responder \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-incident-responder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate incident-responder for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "incident-responder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "escalation",
+            "incident",
+            "on call"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-incident-responder-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex incident-responder scenario",
+      "input": "I'm working on designing an incident response program from scratch or maturing an existing one \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "incident-responder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "escalation",
+            "incident"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-incident-responder-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate incident-responder for ambiguous domain-adjacent request",
+      "input": "How should I approach incident responder for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "incident-responder"
+        }
+      ]
+    },
+    {
+      "id": "negative-incident-responder-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate incident-responder for off-domain request: observability stack setup",
+      "input": "I need to observability stack setup",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "incident-responder"
+        }
+      ]
+    },
+    {
+      "id": "negative-incident-responder-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate incident-responder for off-domain request: CI/CD pipeline design",
+      "input": "I need to ci/cd pipeline design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "incident-responder"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-incident-responder",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common incident-responder anti-patterns",
+      "input": "Build a production-ready incident responder implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "escalation",
+            "incident"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-incident-responder",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for incident-responder",
+      "input": "I'm shipping a incident responder project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run incident response drill",
+            "inject a known failure",
+            "incident declared within",
+            "imoc assigned"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-incident-responder",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete incident responder workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

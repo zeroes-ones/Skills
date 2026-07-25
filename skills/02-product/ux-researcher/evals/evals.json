@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ux-researcher",
+  "description": "Per-skill evaluation for ux-researcher \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ux-researcher-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ux-researcher for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-researcher"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "journey mapping",
+            "usability testing",
+            "research"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ux-researcher-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ux-researcher scenario",
+      "input": "I'm working on a product lacks validated personas and the team builds for themselves \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-researcher"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "journey mapping",
+            "usability testing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ux-researcher-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ux-researcher for ambiguous domain-adjacent request",
+      "input": "How should I approach ux researcher for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-researcher"
+        }
+      ]
+    },
+    {
+      "id": "negative-ux-researcher-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ux-researcher for off-domain request: UI design execution",
+      "input": "Can you help me with ui design execution? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ux-researcher"
+        }
+      ]
+    },
+    {
+      "id": "negative-ux-researcher-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ux-researcher for off-domain request: visual design",
+      "input": "Can you help me with visual design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ux-researcher"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ux-researcher",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ux-researcher anti-patterns",
+      "input": "Build a production-ready ux researcher implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "journey-mapping",
+            "ux"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ux-researcher",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ux-researcher",
+      "input": "I'm shipping a ux researcher project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "research plan",
+            "participant criteria",
+            "and sample size documented",
+            "before data collection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ux-researcher",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ux-researcher",
+      "input": "What's the most important thing to know about ux researcher?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

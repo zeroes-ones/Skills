@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "smart-contract-auditor",
+  "description": "Per-skill evaluation for smart-contract-auditor \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-smart-contract-auditor-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate smart-contract-auditor for primary domain request",
+      "input": "I need help with pre-deployment security audit of a new defi protocol or smart contract system \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "smart-contract-auditor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Trail",
+            "formal verification",
+            "smart contract"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-smart-contract-auditor-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex smart-contract-auditor scenario",
+      "input": "I'm working on post-incident root cause analysis and fix verification after an exploit or close \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "smart-contract-auditor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Trail",
+            "formal verification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-smart-contract-auditor-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate smart-contract-auditor for ambiguous domain-adjacent request",
+      "input": "How should I approach smart contract auditor for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "smart-contract-auditor"
+        }
+      ]
+    },
+    {
+      "id": "negative-smart-contract-auditor-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate smart-contract-auditor for off-domain request: general smart contract development (use solidity-developer)",
+      "input": "I need to general smart contract development (use solidity-developer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "smart-contract-auditor"
+        }
+      ]
+    },
+    {
+      "id": "negative-smart-contract-auditor-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate smart-contract-auditor for off-domain request: protocol design (use system-architect)",
+      "input": "I need to protocol design (use system-architect)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "smart-contract-auditor"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-smart-contract-auditor",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common smart-contract-auditor anti-patterns",
+      "input": "Build a production-ready smart contract auditor implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "for authentication"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "dos",
+            "trail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-smart-contract-auditor",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for smart-contract-auditor",
+      "input": "I'm shipping a smart contract auditor project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "automated analysis complete",
+            "and at least one",
+            "run without errors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-smart-contract-auditor",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete smart contract auditor workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

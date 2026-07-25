@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "project-manager",
+  "description": "Per-skill evaluation for project-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-project-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate project-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "project-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gantt",
+            "Gantt",
+            "stakeholder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-project-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex project-manager scenario",
+      "input": "I'm working on starting a new project that needs structured planning (initiation phase) \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "project-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gantt",
+            "Gantt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-project-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate project-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach project manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "project-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-project-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate project-manager for off-domain request: team-level sprint facilitation",
+      "input": "I need to team-level sprint facilitation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "project-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-project-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate project-manager for off-domain request: cross-team program coordination",
+      "input": "I need to cross-team program coordination",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "project-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-project-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common project-manager anti-patterns",
+      "input": "Build a production-ready project manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "evm",
+            "gantt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-project-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for project-manager",
+      "input": "I'm shipping a project manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "critical path identified",
+            "every task on the",
+            "critical path has a",
+            "single owner and a"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-project-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete project manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

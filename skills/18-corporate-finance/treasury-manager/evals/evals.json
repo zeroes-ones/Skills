@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "treasury-manager",
+  "description": "Per-skill evaluation for treasury-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-treasury-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate treasury-manager for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "treasury-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "banking",
+            "corporate finance",
+            "cash management"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-treasury-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex treasury-manager scenario",
+      "input": "I'm working on setting up daily cash management: cash position tracking, payment batching, bank \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "treasury-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "banking",
+            "corporate finance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-treasury-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate treasury-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach treasury manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "treasury-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-treasury-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate treasury-manager for off-domain request: financial modeling and FP&A",
+      "input": "I need to financial modeling and fp&a",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "treasury-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-treasury-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate treasury-manager for off-domain request: accounting close and reconciliation",
+      "input": "I need to accounting close and reconciliation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "treasury-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-treasury-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common treasury-manager anti-patterns",
+      "input": "Build a production-ready treasury manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "banking",
+            "corporate-finance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-treasury-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for treasury-manager",
+      "input": "I'm shipping a treasury manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cash position",
+            "daily cash report",
+            "actual vs target operating",
+            "excess deployed within sla"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-treasury-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete treasury manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

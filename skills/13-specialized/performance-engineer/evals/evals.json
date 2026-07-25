@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "performance-engineer",
+  "description": "Per-skill evaluation for performance-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-performance-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate performance-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "profiling",
+            "core web vitals",
+            "SLOs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-performance-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex performance-engineer scenario",
+      "input": "I'm working on diagnosing high p95/p99 latency in a production service with unclear root cause \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "profiling",
+            "core web vitals"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-performance-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate performance-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach performance engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "performance-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-performance-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate performance-engineer for off-domain request: infrastructure provisioning",
+      "input": "I need to infrastructure provisioning",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "performance-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-performance-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate performance-engineer for off-domain request: CI/CD optimization",
+      "input": "Can you help me with ci/cd optimization? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "performance-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-performance-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common performance-engineer anti-patterns",
+      "input": "Build a production-ready performance engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cpu",
+            "profiling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-performance-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for performance-engineer",
+      "input": "I'm shipping a performance engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "profile before optimizing",
+            "py-spy",
+            "output confirms the bottleneck",
+            "baseline measurement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-performance-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for performance-engineer",
+      "input": "What's the most important thing to know about performance engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

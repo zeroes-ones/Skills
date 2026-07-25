@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ux-writer",
+  "description": "Per-skill evaluation for ux-writer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ux-writer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ux-writer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health literacy",
+            "ux writing",
+            "microcopy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ux-writer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ux-writer scenario",
+      "input": "I'm working on writing onboarding flows, empty states, tooltips, or confirmation messages for a \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health literacy",
+            "ux writing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ux-writer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ux-writer for ambiguous domain-adjacent request",
+      "input": "How should I approach ux writer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ux-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ux-writer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ux-writer for off-domain request: marketing copy",
+      "input": "Can you help me with marketing copy? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ux-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ux-writer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ux-writer for off-domain request: technical documentation",
+      "input": "I need to technical documentation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ux-writer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ux-writer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ux-writer anti-patterns",
+      "input": "Build a production-ready ux writer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health-literacy",
+            "ux-writing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ux-writer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ux-writer",
+      "input": "I'm shipping a ux writer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "error messages",
+            "every error message has",
+            "what happened",
+            "what to do next"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-ux-writer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete ux writer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

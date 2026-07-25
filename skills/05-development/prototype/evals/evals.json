@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "prototype",
+  "description": "Per-skill evaluation for prototype \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-prototype-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate prototype for primary domain request",
+      "input": "I need help with two approaches seem equally valid and static analysis cannot decide between them \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "prototype"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolation",
+            "throwaway",
+            "time boxed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-prototype-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex prototype scenario",
+      "input": "I'm working on exploring an unfamiliar api, library, or framework before committing to it in th \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "prototype"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolation",
+            "throwaway"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-prototype-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate prototype for ambiguous domain-adjacent request",
+      "input": "How should I approach prototype for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "prototype"
+        }
+      ]
+    },
+    {
+      "id": "negative-prototype-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate prototype for off-domain request: production feature implementation",
+      "input": "I need to production feature implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "prototype"
+        }
+      ]
+    },
+    {
+      "id": "negative-prototype-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate prototype for off-domain request: writing tests",
+      "input": "Can you help me with writing tests? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "prototype"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-prototype",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common prototype anti-patterns",
+      "input": "Build a production-ready prototype implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api",
+            "isolation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-prototype",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for prototype",
+      "input": "I'm shipping a prototype project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ground rules",
+            "ground rules checked",
+            "no prototype code in",
+            "main repo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-prototype",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for prototype",
+      "input": "What's the most important thing to know about prototype?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

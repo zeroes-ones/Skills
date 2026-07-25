@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "data-engineer",
+  "description": "Per-skill evaluation for data-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-data-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Kafka",
+            "kafka",
+            "airflow"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex data-engineer scenario",
+      "input": "I'm working on designing end-to-end data pipelines: ingestion \u2192 transformation \u2192 storage \u2192 serv \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Kafka",
+            "kafka"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach data engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-engineer for off-domain request: analytics dashboard creation",
+      "input": "I need to analytics dashboard creation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-engineer for off-domain request: statistical modeling",
+      "input": "I need to statistical modeling",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-data-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common data-engineer anti-patterns",
+      "input": "Build a production-ready data engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "kafka",
+            "elt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-data-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for data-engineer",
+      "input": "I'm shipping a data engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run pipeline locally on",
+            "sample data",
+            "dbt run",
+            "python pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-data-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for data-engineer",
+      "input": "What's the most important thing to know about data engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

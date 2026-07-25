@@ -1,0 +1,155 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "source-driven-development",
+  "description": "Per-skill evaluation for source-driven-development \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-source-driven-development-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate source-driven-development for primary domain request",
+      "input": "I need help with - integrating a new library, framework, or api into production code \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "source-driven-development"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-source-driven-development-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex source-driven-development scenario",
+      "input": "I'm working on upgrading a dependency across major version boundaries \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "source-driven-development"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-source-driven-development-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate source-driven-development for ambiguous domain-adjacent request",
+      "input": "How should I approach source driven development for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "source-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "negative-source-driven-development-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate source-driven-development for off-domain request: greenfield prototyping where speed matters more than correct",
+      "input": "I need to greenfield prototyping where speed matters more than correctness",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "source-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "negative-source-driven-development-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate source-driven-development for off-domain request: for well-known standard library usage",
+      "input": "I need to for well-known standard library usage",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "source-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-source-driven-development",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common source-driven-development anti-patterns",
+      "input": "Build a production-ready source driven development implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "apis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-source-driven-development",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for source-driven-development",
+      "input": "I'm shipping a source driven development project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification checklist",
+            "before merging any code",
+            "that touches a framework",
+            "or library"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-source-driven-development",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for source-driven-development",
+      "input": "What's the most important thing to know about source driven development?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

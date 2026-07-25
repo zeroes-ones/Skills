@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "hardware-architect",
+  "description": "Per-skill evaluation for hardware-architect \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-hardware-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate hardware-architect for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hardware-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "DRAM",
+            "AMBA",
+            "Flash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-hardware-architect-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex hardware-architect scenario",
+      "input": "I'm working on selecting a processor/soc for your next embedded product \u2014 arm cortex-m vs -r vs \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hardware-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "DRAM",
+            "AMBA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-hardware-architect-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate hardware-architect for ambiguous domain-adjacent request",
+      "input": "How should I approach hardware architect for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hardware-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-hardware-architect-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate hardware-architect for off-domain request: firmware development",
+      "input": "I need to firmware development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "hardware-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-hardware-architect-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate hardware-architect for off-domain request: RTOS configuration",
+      "input": "Can you help me with rtos configuration? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "hardware-architect"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-hardware-architect",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common hardware-architect anti-patterns",
+      "input": "Build a production-ready hardware architect implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "dram",
+            "amba"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-hardware-architect",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for hardware-architect",
+      "input": "I'm shipping a hardware architect project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "schematic review",
+            "design rule check",
+            "zero violations",
+            "power budget"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-hardware-architect",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for hardware-architect",
+      "input": "What's the most important thing to know about hardware architect?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

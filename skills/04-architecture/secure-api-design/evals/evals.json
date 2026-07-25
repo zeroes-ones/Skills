@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "secure-api-design",
+  "description": "Per-skill evaluation for secure-api-design \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-secure-api-design-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate secure-api-design for primary domain request",
+      "input": "I need help with designing authentication for a new api: jwt vs opaque tokens, oauth2 grant selec \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "secure-api-design"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GraphQL",
+            "csrf",
+            "SSTI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-secure-api-design-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex secure-api-design scenario",
+      "input": "I'm working on implementing authorization: rbac vs abac vs rebac, policy-as-code with opa/rego, \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "secure-api-design"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GraphQL",
+            "csrf"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-secure-api-design-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate secure-api-design for ambiguous domain-adjacent request",
+      "input": "How should I approach secure api design for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "secure-api-design"
+        }
+      ]
+    },
+    {
+      "id": "negative-secure-api-design-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate secure-api-design for off-domain request: IAM architecture design",
+      "input": "I need to iam architecture design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "secure-api-design"
+        }
+      ]
+    },
+    {
+      "id": "negative-secure-api-design-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate secure-api-design for off-domain request: cloud API gateway configuration",
+      "input": "I need to cloud api gateway configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "secure-api-design"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-secure-api-design",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common secure-api-design anti-patterns",
+      "input": "Build a production-ready secure api design implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "graphql",
+            "dos"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-secure-api-design",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for secure-api-design",
+      "input": "I'm shipping a secure api design project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after designing or reviewing",
+            "api security",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-secure-api-design",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete secure api design workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

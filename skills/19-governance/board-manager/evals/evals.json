@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "board-manager",
+  "description": "Per-skill evaluation for board-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-board-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate board-manager for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "board-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "committee structure",
+            "fiduciary duties",
+            "board governance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-board-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex board-manager scenario",
+      "input": "I'm working on preparing for quarterly board meetings: deck structure, pre-reads, consent agend \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "board-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "committee structure",
+            "fiduciary duties"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-board-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate board-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach board manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "board-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-board-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate board-manager for off-domain request: investor relations and fundraising communications",
+      "input": "I need to investor relations and fundraising communications",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "board-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-board-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate board-manager for off-domain request: general legal advice",
+      "input": "I need to general legal advice",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "board-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-board-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common board-manager anti-patterns",
+      "input": "Build a production-ready board manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "committee-structure",
+            "fiduciary-duties"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-board-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for board-manager",
+      "input": "I'm shipping a board manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "board deck",
+            "business days before meeting",
+            "executive summary",
+            "of meeting time allocated"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-board-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for board-manager",
+      "input": "What's the most important thing to know about board manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

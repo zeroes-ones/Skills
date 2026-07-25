@@ -1,0 +1,147 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "data-security-engineer",
+  "description": "Per-skill evaluation for data-security-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-data-security-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-security-engineer for primary domain request",
+      "input": "I need to engineer for a new project \u2014 where do I start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-security-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GDPR",
+            "masking",
+            "security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-security-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex data-security-engineer scenario",
+      "input": "What are the best practices for data security engineer in production environments?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-security-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GDPR",
+            "masking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-security-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-security-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach data security engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-security-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-security-engineer for off-domain request: network security (use security-engineer)",
+      "input": "I need to network security (use security-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-security-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-security-engineer for off-domain request: application security (use security-reviewer)",
+      "input": "I need to application security (use security-reviewer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-data-security-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common data-security-engineer anti-patterns",
+      "input": "Build a production-ready data security engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t",
+            "be used in non-production envi"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "baa",
+            "rls"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-data-security-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for data-security-engineer",
+      "input": "I'm shipping a data security engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification step",
+            "expected result",
+            "run data discovery scan",
+            "across all data stores"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-data-security-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete data security engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

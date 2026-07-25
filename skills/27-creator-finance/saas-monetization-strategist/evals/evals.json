@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "saas-monetization-strategist",
+  "description": "Per-skill evaluation for saas-monetization-strategist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-saas-monetization-strategist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate saas-monetization-strategist for primary domain request",
+      "input": "I need help with designing subscription pricing: tier architecture, feature gating, price points, \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "saas-monetization-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "in app purchase",
+            "creator economy",
+            "churn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-saas-monetization-strategist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex saas-monetization-strategist scenario",
+      "input": "I'm working on implementing in-app purchases: consumable vs non-consumable vs subscription item \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "saas-monetization-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "in app purchase",
+            "creator economy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-saas-monetization-strategist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate saas-monetization-strategist for ambiguous domain-adjacent request",
+      "input": "How should I approach saas monetization strategist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "saas-monetization-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-saas-monetization-strategist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate saas-monetization-strategist for off-domain request: general business strategy",
+      "input": "I need to general business strategy",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "saas-monetization-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-saas-monetization-strategist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate saas-monetization-strategist for off-domain request: financial accounting",
+      "input": "I need to financial accounting",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "saas-monetization-strategist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-saas-monetization-strategist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common saas-monetization-strategist anti-patterns",
+      "input": "Build a production-ready saas monetization strategist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cac",
+            "in-app-purchase"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-saas-monetization-strategist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for saas-monetization-strategist",
+      "input": "I'm shipping a saas monetization strategist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-saas-monetization-strategist",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete saas monetization strategist workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

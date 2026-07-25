@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "trust-safety-engineer",
+  "description": "Per-skill evaluation for trust-safety-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-trust-safety-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate trust-safety-engineer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "trust-safety-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Thorn",
+            "abuse detection",
+            "PhotoDNA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-trust-safety-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex trust-safety-engineer scenario",
+      "input": "I'm working on designing signup abuse prevention systems (captcha, phone verification, device f \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "trust-safety-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Thorn",
+            "abuse detection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-trust-safety-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate trust-safety-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach trust safety engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "trust-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-trust-safety-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate trust-safety-engineer for off-domain request: content policy design",
+      "input": "I need to content policy design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "trust-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-trust-safety-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate trust-safety-engineer for off-domain request: patient community safety protocols",
+      "input": "I need to patient community safety protocols",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "trust-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-trust-safety-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common trust-safety-engineer anti-patterns",
+      "input": "Build a production-ready trust safety engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ml",
+            "thorn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-trust-safety-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for trust-safety-engineer",
+      "input": "I'm shipping a trust safety engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "false positive rate",
+            "tracked per locale per",
+            "content type",
+            "any locale with"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-trust-safety-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete trust safety engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

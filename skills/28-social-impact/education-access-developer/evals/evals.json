@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "education-access-developer",
+  "description": "Per-skill evaluation for education-access-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-education-access-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate education-access-developer for primary domain request",
+      "input": "I need help with activate this skill when: \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "education-access-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "adult literacy",
+            "nonprofit",
+            "Common Cartridge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-education-access-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex education-access-developer scenario",
+      "input": "I'm working on **building educational technology for underserved populations** \u2014 learners with  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "education-access-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "adult literacy",
+            "nonprofit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-education-access-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate education-access-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach education access developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "education-access-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-education-access-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate education-access-developer for off-domain request: commercial LMS/LXP platforms",
+      "input": "I need to commercial lms/lxp platforms",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "education-access-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-education-access-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate education-access-developer for off-domain request: educational games with game mechanics",
+      "input": "I need to educational games with game mechanics",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "education-access-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-education-access-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common education-access-developer anti-patterns",
+      "input": "Build a production-ready education access developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "adult-literacy",
+            "nonprofit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-education-access-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for education-access-developer",
+      "input": "I'm shipping a education access developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before calling any education",
+            "access work complete",
+            "offline smoke test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-education-access-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for education-access-developer",
+      "input": "What's the most important thing to know about education access developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

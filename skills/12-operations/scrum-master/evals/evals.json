@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "scrum-master",
+  "description": "Per-skill evaluation for scrum-master \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-scrum-master-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate scrum-master for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "scrum-master"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Definition",
+            "sprint",
+            "agile"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-scrum-master-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex scrum-master scenario",
+      "input": "I'm working on establishing or resetting scrum practices for a new or underperforming team \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "scrum-master"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Definition",
+            "sprint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-scrum-master-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate scrum-master for ambiguous domain-adjacent request",
+      "input": "How should I approach scrum master for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "scrum-master"
+        }
+      ]
+    },
+    {
+      "id": "negative-scrum-master-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate scrum-master for off-domain request: project planning (WBS/Gantt)",
+      "input": "I need to project planning (wbs/gantt)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "scrum-master"
+        }
+      ]
+    },
+    {
+      "id": "negative-scrum-master-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate scrum-master for off-domain request: cross-team program management",
+      "input": "I need to cross-team program management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "scrum-master"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-scrum-master",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common scrum-master anti-patterns",
+      "input": "Build a production-ready scrum master implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "definition",
+            "sprint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-scrum-master",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for scrum-master",
+      "input": "I'm shipping a scrum master project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "sprint goal",
+            "team can articulate the",
+            "sprint goal and why",
+            "it matters"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-scrum-master",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete scrum master workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "algorithmic-trader",
+  "description": "Per-skill evaluation for algorithmic-trader \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-algorithmic-trader-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate algorithmic-trader for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "algorithmic-trader"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs",
+            "Interactive Brokers",
+            "VWAP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-algorithmic-trader-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex algorithmic-trader scenario",
+      "input": "I'm working on designing entry, exit, and trim strategies for unusual options activity (uoa) si \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "algorithmic-trader"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "APIs",
+            "Interactive Brokers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-algorithmic-trader-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate algorithmic-trader for ambiguous domain-adjacent request",
+      "input": "How should I approach algorithmic trader for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "algorithmic-trader"
+        }
+      ]
+    },
+    {
+      "id": "negative-algorithmic-trader-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate algorithmic-trader for off-domain request: quantitative research",
+      "input": "I need to quantitative research",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "algorithmic-trader"
+        }
+      ]
+    },
+    {
+      "id": "negative-algorithmic-trader-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate algorithmic-trader for off-domain request: market data pipeline engineering",
+      "input": "I need to market data pipeline engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "algorithmic-trader"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-algorithmic-trader",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common algorithmic-trader anti-patterns",
+      "input": "Build a production-ready algorithmic trader implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "apis",
+            "api"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-algorithmic-trader",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for algorithmic-trader",
+      "input": "I'm shipping a algorithmic trader project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "no look-ahead bias",
+            "all signals use data",
+            "that was available at",
+            "the time of the"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-algorithmic-trader",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for algorithmic-trader",
+      "input": "What's the most important thing to know about algorithmic trader?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "resume-writer",
+  "description": "Per-skill evaluation for resume-writer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-resume-writer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate resume-writer for primary domain request",
+      "input": "I need help with building a resume from scratch: extract experience through guided interview, str \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resume-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Applicant Tracking System",
+            "job search",
+            "interviewing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-resume-writer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex resume-writer scenario",
+      "input": "I'm working on optimizing for a specific job: ats keyword matching, tailored professional summa \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resume-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Applicant Tracking System",
+            "job search"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-resume-writer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate resume-writer for ambiguous domain-adjacent request",
+      "input": "How should I approach resume writer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resume-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-resume-writer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate resume-writer for off-domain request: interview preparation",
+      "input": "I need to interview preparation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resume-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-resume-writer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate resume-writer for off-domain request: job search strategy",
+      "input": "Can you help me with job search strategy? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resume-writer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-resume-writer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common resume-writer anti-patterns",
+      "input": "Build a production-ready resume writer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "applicant-tracking-system",
+            "ats"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-resume-writer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for resume-writer",
+      "input": "I'm shipping a resume writer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ats format check",
+            "single column",
+            "standard headings",
+            "no images"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-resume-writer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete resume writer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

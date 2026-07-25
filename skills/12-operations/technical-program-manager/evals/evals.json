@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "technical-program-manager",
+  "description": "Per-skill evaluation for technical-program-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-technical-program-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate technical-program-manager for primary domain request",
+      "input": "I need help with you are launching a cross-team initiative that spans 3+ engineering teams with i \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-program-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "PERT",
+            "roadmap",
+            "stakeholder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-technical-program-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex technical-program-manager scenario",
+      "input": "I'm working on you need to map dependencies across teams, identify blockers, and build a progra \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-program-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "PERT",
+            "roadmap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-technical-program-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate technical-program-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach technical program manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-program-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-technical-program-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate technical-program-manager for off-domain request: single-team project management",
+      "input": "I need to single-team project management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "technical-program-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-technical-program-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate technical-program-manager for off-domain request: sprint facilitation",
+      "input": "Can you help me with sprint facilitation? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "technical-program-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-technical-program-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common technical-program-manager anti-patterns",
+      "input": "Build a production-ready technical program manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api",
+            "pert"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-technical-program-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for technical-program-manager",
+      "input": "I'm shipping a technical program manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "program schedule",
+            "critical path identified",
+            "any delay to critical",
+            "path tasks escalates within"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-technical-program-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for technical-program-manager",
+      "input": "What's the most important thing to know about technical program manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

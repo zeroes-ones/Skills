@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "offensive-security",
+  "description": "Per-skill evaluation for offensive-security \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-offensive-security-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate offensive-security for primary domain request",
+      "input": "I need help with the focus is on finding and demonstrating exploitable weaknesses, not on buildin \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "offensive-security"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Java",
+            "mitre attack",
+            "SSTI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-offensive-security-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex offensive-security scenario",
+      "input": "I'm working on planning and executing penetration tests: web applications, mobile apps, apis, n \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "offensive-security"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Java",
+            "mitre attack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-offensive-security-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate offensive-security for ambiguous domain-adjacent request",
+      "input": "How should I approach offensive security for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "offensive-security"
+        }
+      ]
+    },
+    {
+      "id": "negative-offensive-security-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate offensive-security for off-domain request: vulnerability scanning and CVE triage",
+      "input": "I need to vulnerability scanning and cve triage",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "offensive-security"
+        }
+      ]
+    },
+    {
+      "id": "negative-offensive-security-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate offensive-security for off-domain request: threat modeling during design phase",
+      "input": "I need to threat modeling during design phase",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "offensive-security"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-offensive-security",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common offensive-security anti-patterns",
+      "input": "Build a production-ready offensive security implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "java",
+            "php"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-offensive-security",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for offensive-security",
+      "input": "I'm shipping a offensive security project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after completing an offensive",
+            "security engagement or delivering",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-offensive-security",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for offensive-security",
+      "input": "What's the most important thing to know about offensive security?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "sales-engineer",
+  "description": "Per-skill evaluation for sales-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-sales-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate sales-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "sales-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technical selling",
+            "solutions engineer",
+            "presales"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-sales-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex sales-engineer scenario",
+      "input": "I'm working on an ae has a qualified opportunity and needs a technical demo to advance to the n \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "sales-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technical selling",
+            "solutions engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-sales-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate sales-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach sales engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "sales-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-sales-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate sales-engineer for off-domain request: post-sale implementation",
+      "input": "I need to post-sale implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "sales-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-sales-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate sales-engineer for off-domain request: customer support",
+      "input": "Can you help me with customer support? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "sales-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-sales-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common sales-engineer anti-patterns",
+      "input": "Build a production-ready sales engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technical-selling",
+            "solutions-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-sales-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for sales-engineer",
+      "input": "I'm shipping a sales engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "demo environment",
+            "refreshed within last",
+            "all integrations working",
+            "no broken features"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-sales-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for sales-engineer",
+      "input": "What's the most important thing to know about sales engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

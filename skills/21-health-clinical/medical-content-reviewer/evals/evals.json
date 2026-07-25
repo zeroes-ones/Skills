@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "medical-content-reviewer",
+  "description": "Per-skill evaluation for medical-content-reviewer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-medical-content-reviewer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate medical-content-reviewer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-content-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "medical content review",
+            "health content",
+            "GRADE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-medical-content-reviewer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex medical-content-reviewer scenario",
+      "input": "I'm working on before publishing any new patient-facing health education content (article, vide \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-content-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "medical content review",
+            "health content"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-medical-content-reviewer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate medical-content-reviewer for ambiguous domain-adjacent request",
+      "input": "How should I approach medical content reviewer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-content-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-medical-content-reviewer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate medical-content-reviewer for off-domain request: regulatory submission writing",
+      "input": "I need to regulatory submission writing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "medical-content-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-medical-content-reviewer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate medical-content-reviewer for off-domain request: clinical trial protocol authoring",
+      "input": "I need to clinical trial protocol authoring",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "medical-content-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-medical-content-reviewer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common medical-content-reviewer anti-patterns",
+      "input": "Build a production-ready medical content reviewer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "DELETE IT"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "medical-content-review",
+            "health-content"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-medical-content-reviewer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for medical-content-reviewer",
+      "input": "I'm shipping a medical content reviewer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "source audit",
+            "every claim linked to",
+            "a specific published",
+            "peer-reviewed source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-medical-content-reviewer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete medical content reviewer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

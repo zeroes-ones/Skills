@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "home-buying",
+  "description": "Per-skill evaluation for home-buying \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-home-buying-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate home-buying for primary domain request",
+      "input": "I need help with rent vs buy decision: 5+ year breakeven analysis with market-specific assumption \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "home-buying"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "home buying",
+            "mortgage",
+            "property"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-home-buying-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex home-buying scenario",
+      "input": "I'm working on mortgage shopping: rate comparison, points analysis, arm risk modeling \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "home-buying"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "home buying",
+            "mortgage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-home-buying-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate home-buying for ambiguous domain-adjacent request",
+      "input": "How should I approach home buying for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "home-buying"
+        }
+      ]
+    },
+    {
+      "id": "negative-home-buying-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate home-buying for off-domain request: investment property analysis",
+      "input": "I need to investment property analysis",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "home-buying"
+        }
+      ]
+    },
+    {
+      "id": "negative-home-buying-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate home-buying for off-domain request: home renovation cost estimation",
+      "input": "I need to home renovation cost estimation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "home-buying"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-home-buying",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common home-buying anti-patterns",
+      "input": "Build a production-ready home buying implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "home-buying",
+            "mortgage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-home-buying",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for home-buying",
+      "input": "I'm shipping a home buying project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run through this checklist",
+            "before removing contingencies",
+            "before closing",
+            "and before considering the"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-home-buying",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for home-buying",
+      "input": "What's the most important thing to know about home buying?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

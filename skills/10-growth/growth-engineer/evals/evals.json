@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "growth-engineer",
+  "description": "Per-skill evaluation for growth-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-growth-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate growth-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "growth-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "activation",
+            "ab testing",
+            "feature flags"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-growth-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex growth-engineer scenario",
+      "input": "I'm working on designing or rebuilding an a/b testing infrastructure from scratch (server-side, \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "growth-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "activation",
+            "ab testing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-growth-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate growth-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach growth engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "growth-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-growth-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate growth-engineer for off-domain request: statistical experiment design",
+      "input": "I need to statistical experiment design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "growth-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-growth-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate growth-engineer for off-domain request: product roadmap planning",
+      "input": "I need to product roadmap planning",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "growth-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-growth-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common growth-engineer anti-patterns",
+      "input": "Build a production-ready growth engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cro",
+            "activation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-growth-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for growth-engineer",
+      "input": "I'm shipping a growth engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "b test duration pre",
+            "start date",
+            "end date",
+            "sample size"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-growth-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete growth engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

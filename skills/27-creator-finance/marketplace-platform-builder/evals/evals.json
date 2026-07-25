@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "marketplace-platform-builder",
+  "description": "Per-skill evaluation for marketplace-platform-builder \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-marketplace-platform-builder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate marketplace-platform-builder for primary domain request",
+      "input": "I need help with building a two-sided marketplace from scratch - product marketplace, service mar \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "marketplace-platform-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Uber",
+            "trust safety",
+            "supply demand"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-marketplace-platform-builder-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex marketplace-platform-builder scenario",
+      "input": "I'm working on designing marketplace payment architecture - payment splitting (stripe connect), \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "marketplace-platform-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Uber",
+            "trust safety"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-marketplace-platform-builder-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate marketplace-platform-builder for ambiguous domain-adjacent request",
+      "input": "How should I approach marketplace platform builder for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "marketplace-platform-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-marketplace-platform-builder-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate marketplace-platform-builder for off-domain request: single-vendor e-commerce stores",
+      "input": "I need to single-vendor e-commerce stores",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "marketplace-platform-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-marketplace-platform-builder-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate marketplace-platform-builder for off-domain request: content creator platforms",
+      "input": "I need to content creator platforms",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "marketplace-platform-builder"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-marketplace-platform-builder",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common marketplace-platform-builder anti-patterns",
+      "input": "Build a production-ready marketplace platform builder implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "uber",
+            "trust-safety"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-marketplace-platform-builder",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for marketplace-platform-builder",
+      "input": "I'm shipping a marketplace platform builder project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "binary deployment checklist",
+            "before deploying or shipping",
+            "any marketplace feature"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-marketplace-platform-builder",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete marketplace platform builder workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

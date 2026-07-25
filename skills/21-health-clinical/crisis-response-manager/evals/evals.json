@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "crisis-response-manager",
+  "description": "Per-skill evaluation for crisis-response-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-crisis-response-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate crisis-response-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "crisis-response-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "suicide prevention",
+            "EudraVigilance",
+            "patient safety"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-crisis-response-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex crisis-response-manager scenario",
+      "input": "I'm working on detecting, triaging, and reporting adverse events (aes) from patient community p \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "crisis-response-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "suicide prevention",
+            "EudraVigilance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-crisis-response-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate crisis-response-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach crisis response manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "crisis-response-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-crisis-response-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate crisis-response-manager for off-domain request: routine community moderation",
+      "input": "I need to routine community moderation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "crisis-response-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-crisis-response-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate crisis-response-manager for off-domain request: non-health crisis management",
+      "input": "I need to non-health crisis management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "crisis-response-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-crisis-response-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common crisis-response-manager anti-patterns",
+      "input": "Build a production-ready crisis response manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "suicide-prevention",
+            "eudravigilance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-crisis-response-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for crisis-response-manager",
+      "input": "I'm shipping a crisis response manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "crisis templates",
+            "crisis scenarios have pre",
+            "drafted templates",
+            "reviewed and updated quarterly"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-crisis-response-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete crisis response manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

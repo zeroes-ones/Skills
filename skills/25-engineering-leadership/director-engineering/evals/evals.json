@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "director-engineering",
+  "description": "Per-skill evaluation for director-engineering \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-director-engineering-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate director-engineering for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "director-engineering"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "director engineering",
+            "managing managers",
+            "budget planning"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-director-engineering-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex director-engineering scenario",
+      "input": "I'm working on **org design and restructuring** \u2014 teams are growing beyond healthy span of cont \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "director-engineering"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "director engineering",
+            "managing managers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-director-engineering-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate director-engineering for ambiguous domain-adjacent request",
+      "input": "How should I approach director engineering for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "director-engineering"
+        }
+      ]
+    },
+    {
+      "id": "negative-director-engineering-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate director-engineering for off-domain request: first-line people management",
+      "input": "I need to first-line people management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "director-engineering"
+        }
+      ]
+    },
+    {
+      "id": "negative-director-engineering-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate director-engineering for off-domain request: individual contributor technical strategy",
+      "input": "I need to individual contributor technical strategy",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "director-engineering"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-director-engineering",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common director-engineering anti-patterns",
+      "input": "Build a production-ready director engineering implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "em",
+            "director-engineering"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-director-engineering",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for director-engineering",
+      "input": "I'm shipping a director engineering project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "team health",
+            "every team has updated",
+            "skills matrix",
+            "succession plan for critical"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-director-engineering",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for director-engineering",
+      "input": "What's the most important thing to know about director engineering?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

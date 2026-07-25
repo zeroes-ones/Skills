@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "customer-support-engineer",
+  "description": "Per-skill evaluation for customer-support-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-customer-support-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate customer-support-engineer for primary domain request",
+      "input": "I need help with a customer reports a production issue and you need to triage it \u2014 determine seve \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-support-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "debugging",
+            "escalation",
+            "csat"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-customer-support-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex customer-support-engineer scenario",
+      "input": "I'm working on you are designing a multi-tier support structure (l1/l2/l3) with clear escalatio \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-support-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "debugging",
+            "escalation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-customer-support-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate customer-support-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach customer support engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-support-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-customer-support-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate customer-support-engineer for off-domain request: incident response",
+      "input": "Can you help me with incident response? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "customer-support-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-customer-support-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate customer-support-engineer for off-domain request: security vulnerability handling",
+      "input": "I need to security vulnerability handling",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "customer-support-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-customer-support-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common customer-support-engineer anti-patterns",
+      "input": "Build a production-ready customer support engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "debugging",
+            "escalation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-customer-support-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for customer-support-engineer",
+      "input": "I'm shipping a customer support engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "response time sla",
+            "tickets acknowledged within sla",
+            "hour for critical",
+            "hours for normal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-customer-support-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for customer-support-engineer",
+      "input": "What's the most important thing to know about customer support engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

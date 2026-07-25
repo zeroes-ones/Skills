@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "product-analyst",
+  "description": "Per-skill evaluation for product-analyst \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-product-analyst-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-analyst for primary domain request",
+      "input": "I need help with defining a north star metric and input metrics for a product or feature \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cohort",
+            "product analytics",
+            "Mixpanel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-analyst-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex product-analyst scenario",
+      "input": "I'm working on designing an a/b test: sample size, mde, duration, success metrics, guardrail me \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cohort",
+            "product analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-analyst-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-analyst for ambiguous domain-adjacent request",
+      "input": "How should I approach product analyst for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-analyst-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-analyst for off-domain request: business financial modeling",
+      "input": "I need to business financial modeling",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-analyst-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-analyst for off-domain request: marketing attribution",
+      "input": "I need to marketing attribution",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-analyst"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-product-analyst",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common product-analyst anti-patterns",
+      "input": "Build a production-ready product analyst implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cohort",
+            "product-analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-product-analyst",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for product-analyst",
+      "input": "I'm shipping a product analyst project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-product-analyst",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for product-analyst",
+      "input": "What's the most important thing to know about product analyst?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

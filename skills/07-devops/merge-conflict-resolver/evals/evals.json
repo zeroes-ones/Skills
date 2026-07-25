@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "merge-conflict-resolver",
+  "description": "Per-skill evaluation for merge-conflict-resolver \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-merge-conflict-resolver-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate merge-conflict-resolver for primary domain request",
+      "input": "I need help with - a `git merge` or `git rebase` is in-progress with unresolved conflicts \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "merge-conflict-resolver"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devops",
+            "rebase",
+            "version control"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-merge-conflict-resolver-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex merge-conflict-resolver scenario",
+      "input": "I'm working on conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) exist in working tree files \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "merge-conflict-resolver"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devops",
+            "rebase"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-merge-conflict-resolver-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate merge-conflict-resolver for ambiguous domain-adjacent request",
+      "input": "How should I approach merge conflict resolver for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "merge-conflict-resolver"
+        }
+      ]
+    },
+    {
+      "id": "negative-merge-conflict-resolver-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate merge-conflict-resolver for off-domain request: choosing merge vs rebase strategy",
+      "input": "I need to choosing merge vs rebase strategy",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "merge-conflict-resolver"
+        }
+      ]
+    },
+    {
+      "id": "negative-merge-conflict-resolver-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate merge-conflict-resolver for off-domain request: preventing conflicts proactively",
+      "input": "I need to preventing conflicts proactively",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "merge-conflict-resolver"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-merge-conflict-resolver",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common merge-conflict-resolver anti-patterns",
+      "input": "Build a production-ready merge conflict resolver implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "\u2014abort without explicit user d"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "devops",
+            "rebase"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-merge-conflict-resolver",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for merge-conflict-resolver",
+      "input": "I'm shipping a merge conflict resolver project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lines extracted to references",
+            "run these checks before",
+            "declaring the conflict resolution",
+            "verify no conflict markers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-merge-conflict-resolver",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for merge-conflict-resolver",
+      "input": "What's the most important thing to know about merge conflict resolver?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

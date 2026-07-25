@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "medical-illustrator",
+  "description": "Per-skill evaluation for medical-illustrator \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-medical-illustrator-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate medical-illustrator for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-illustrator"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "clinical diagrams",
+            "medical illustration",
+            "health visualization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-medical-illustrator-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex medical-illustrator scenario",
+      "input": "I'm working on creating anatomical illustrations with verified accuracy and citations \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-illustrator"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "clinical diagrams",
+            "medical illustration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-medical-illustrator-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate medical-illustrator for ambiguous domain-adjacent request",
+      "input": "How should I approach medical illustrator for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "medical-illustrator"
+        }
+      ]
+    },
+    {
+      "id": "negative-medical-illustrator-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate medical-illustrator for off-domain request: general graphic design",
+      "input": "I need to general graphic design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "medical-illustrator"
+        }
+      ]
+    },
+    {
+      "id": "negative-medical-illustrator-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate medical-illustrator for off-domain request: brand identity creation",
+      "input": "I need to brand identity creation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "medical-illustrator"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-medical-illustrator",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common medical-illustrator anti-patterns",
+      "input": "Build a production-ready medical illustrator implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "clinical-diagrams",
+            "medical-illustration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-medical-illustrator",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for medical-illustrator",
+      "input": "I'm shipping a medical illustrator project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "audience check",
+            "illustration reviewed by target",
+            "or clinician",
+            "for comprehension"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-medical-illustrator",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete medical illustrator workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

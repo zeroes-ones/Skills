@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "data-scientist",
+  "description": "Per-skill evaluation for data-scientist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-data-scientist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-scientist for primary domain request",
+      "input": "I need help with you need to choose the right statistical test (t-test, chi-square, anova, non-pa \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-scientist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis testing",
+            "data science",
+            "predictive modeling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-scientist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex data-scientist scenario",
+      "input": "I'm working on you are designing an a/b test \u2014 sample size calculation, minimum detectable effe \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-scientist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis testing",
+            "data science"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-scientist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-scientist for ambiguous domain-adjacent request",
+      "input": "How should I approach data scientist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-scientist"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-scientist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-scientist for off-domain request: data pipeline construction",
+      "input": "I need to data pipeline construction",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-scientist"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-scientist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-scientist for off-domain request: ML model productionization",
+      "input": "I need to ml model productionization",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-scientist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-data-scientist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common data-scientist anti-patterns",
+      "input": "Build a production-ready data scientist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "did",
+            "iv"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-data-scientist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for data-scientist",
+      "input": "I'm shipping a data scientist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "test split before any",
+            "feature scaling",
+            "scaler never sees test",
+            "cross-validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-data-scientist",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete data scientist workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

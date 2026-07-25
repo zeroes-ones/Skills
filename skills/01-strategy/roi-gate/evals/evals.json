@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "roi-gate",
+  "description": "Per-skill evaluation for roi-gate \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-roi-gate-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate roi-gate for primary domain request",
+      "input": "I need help with before refactoring a module that \"feels messy\" \u2014 quantify the actual cost of the \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "roi-gate"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Refactoring Risks",
+            "business value",
+            "Annual Business Value"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-roi-gate-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex roi-gate scenario",
+      "input": "I'm working on before optimizing a code path \u2014 confirm it handles significant traffic \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "roi-gate"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Refactoring Risks",
+            "business value"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-roi-gate-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate roi-gate for ambiguous domain-adjacent request",
+      "input": "How should I approach roi gate for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "roi-gate"
+        }
+      ]
+    },
+    {
+      "id": "negative-roi-gate-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate roi-gate for off-domain request: emergency hotfixes",
+      "input": "Can you help me with emergency hotfixes? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "roi-gate"
+        }
+      ]
+    },
+    {
+      "id": "negative-roi-gate-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate roi-gate for off-domain request: security vulnerabilities",
+      "input": "I need to security vulnerabilities",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "roi-gate"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-roi-gate",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common roi-gate anti-patterns",
+      "input": "Build a production-ready roi gate implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "refactoring-risks",
+            "roi"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-roi-gate",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for roi-gate",
+      "input": "I'm shipping a roi gate project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before completing any roi",
+            "gate analysis",
+            "every dollar figure is"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-roi-gate",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for roi-gate",
+      "input": "What's the most important thing to know about roi gate?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

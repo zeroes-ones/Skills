@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "access-tech-developer",
+  "description": "Per-skill evaluation for access-tech-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-access-tech-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate access-tech-developer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-tech-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "wcag",
+            "VoiceOver",
+            "universal design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-tech-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex access-tech-developer scenario",
+      "input": "I'm working on building an aac (augmentative and alternative communication) application \u2014 symbo \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-tech-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "wcag",
+            "VoiceOver"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-tech-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate access-tech-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach access tech developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-tech-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-access-tech-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate access-tech-developer for off-domain request: basic WCAG AA auditing",
+      "input": "I need to basic wcag aa auditing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "access-tech-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-access-tech-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate access-tech-developer for off-domain request: standard UI design without disability focus",
+      "input": "I need to standard ui design without disability focus",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "access-tech-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-access-tech-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common access-tech-developer anti-patterns",
+      "input": "Build a production-ready access tech developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "wcag",
+            "voiceover"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-access-tech-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for access-tech-developer",
+      "input": "I'm shipping a access tech developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-access-tech-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for access-tech-developer",
+      "input": "What's the most important thing to know about access tech developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}
