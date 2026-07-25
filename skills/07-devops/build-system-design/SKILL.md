@@ -178,6 +178,20 @@ Execute in order. Do not skip steps.
 
 #
 
+## Error Decoder — War Stories from the Trenches
+
+**(STANDARD)**
+
+When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| `bazel build //...` takes 12 minutes locally but 90 minutes in CI — every target rebuilds from scratch on every CI run | The CI runner doesn't persist the Bazel disk cache between runs. Each CI job starts with a clean workspace, so Bazel has no cached action results and rebuilds everything. | Configure `--disk_cache=/mnt/bazel-cache` pointing to a persistent volume. Or use `--remote_cache=grpc://buildcache:9092` with a remote cache service (bazel-remote, Buildbarn). Verify with `bazel clean && bazel build //...` — second build should be instant. | Build system caching is CI infrastructure, not a build config file. If your CI runner doesn't survive between jobs, your build cache doesn't either. |
+| Full `pnpm install` adds 30 seconds to every PR — 400 developers × 15 PRs/week × 30s = 50 hours/week of CI time wasted on dependency installs | The CI pipeline runs `pnpm install` unconditionally before every job, even when `pnpm-lock.yaml` hasn't changed since the last run. | Use Nx/Turborepo affected detection: `nx affected:test --base=main` with compute hashing. Cache `node_modules` keyed on lockfile hash. When the lockfile hasn't changed, the install step completes in 1 second from cache. | Every second of CI time multiplied by team size × PR frequency is real money. The build system's job is to skip work that's already been done. |
+| Bazel remote execution shows `DEADLINE_EXCEEDED` for all actions — 0 build progress after 10 minutes | The remote execution cluster was scaled to 0 by an autoscaler that didn't understand build traffic patterns. No RE workers available, so every action queues indefinitely. | Configure minimum instance count on the RE worker pool to 1 during business hours. Add a health check endpoint that the build system probes before starting: `bazel build --remote_executor=grpc://re-cluster:8980 --remote_timeout=30`. A 30-second timeout with a clear error beats infinite hang. | Autoscalers are designed for web traffic — request-response patterns with 100ms latencies. Build remote execution has 10-60 second action runtimes. Autoscalers will always get this wrong unless you add minimums. |
+| Migrating from Make to Bazel — 6 weeks in, half the team writes `genrule` wrappers around the old Makefile instead of writing BUILD files | The migration plan didn't include a "stop the clock" rule: new targets must be Bazel-native, no genrule escapes. Engineers defaulted to what they knew under deadline pressure. | Enforce a Bazel lint rule: `bazel_skylib` `genrule` check that blocks PRs with `genrule` that wraps `make`. Provide a one-pager per language: "How to Bazel-build a Go binary" / "How to Bazel-build a Python wheel." A template beats a blank page every time. | Migration strategy is more important than build system selection. The best build system in the world won't help if engineers route around it with escape hatches. |
+| Nx affected graph shows every project as affected — `nx affected:lint` lints all 200 projects even when only 3 files changed | The `nx.json` implicit dependencies list is empty. Nx can't know that `package.json` changes in the root affect all projects, so it defaults to "everything is affected" as a safe fallback. | Define `targetDefaults` in `nx.json` with `dependsOn` chains. Run `nx graph` to visualize the dependency graph — verify that changing one file only highlights the projects that actually depend on it. | An overly safe affected graph is indistinguishable from no affected graph at all. The system that runs everything "just in case" is the system that gets ignored. |
+
 ## Build System Selection
 
 ```
