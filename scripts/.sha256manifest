@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T14:31:42Z
+# Generated: 2026-07-25T14:49:40Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    12ae4fda6b43b010d15f96db0140b09954018641
+# Commit:    3aa388a1a19623f577feda20ad70630dd94f43e3
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -9,6 +9,7 @@
 475ff5696f0c94dddc301799ed0ff09c171ad313c42aeed05da21b14fe460db0  .githooks/pre-commit
 f129889d26a132fab17ce6b3546fd65bec3a6baf5238afdc77d0fead8bc0f9eb  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
+954097fbd465742a555b49b70b418ebbbc4dd743e6adb4e9cd14ce1f14318500  scripts/agent-handshake.sh
 5e967a4ccc318b31d0af47e02174382a23afa24dd767f44e70174cff25be087a  scripts/behavioral-evals.py
 25f57124412ffda20b40354e4bbdbd15ef9a6cb33534feb4b935b4cde2162828  scripts/calculate-roi.sh
 b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compile-skills.sh
@@ -19,8 +20,10 @@ a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject
 b01d25a503a10ac42dbed69c9d99aa735db7b5f1e50779d1cf7bdec78d7cfb68  scripts/install.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
 43e2dd04db8e3efd598ac7ae8a891e1915bad4e33bea753fc50c3d5aa5e89702  scripts/run-evals.sh
-d7af6811375867da5d4861bea3fe1873f5283d38793eafc25d2eb4d27926bf5c  scripts/runtime-version-detect.sh
+fd1b88f2e6e0491d653c161745eef606b6b047196c524d7aefe4ae021ed8feea  scripts/runtime-version-detect.sh
+b3cb0a8c778b89fe4412e4ac9c2bd3c45d87e2417d4a0fc0fab161c64911e313  scripts/sandbox-exec.sh
 e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-router.py
+87923f3a5df9c1acd6d0a08979c7b8ac2b2868eb0e315d2dd47bcbfb63188fd4  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py
 d9660749dbd645cc482144d566d0ea18187943cde00f81a2cedb7379db2f42c1  scripts/validate-skills.sh
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
