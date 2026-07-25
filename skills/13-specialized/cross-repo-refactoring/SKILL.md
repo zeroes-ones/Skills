@@ -73,6 +73,7 @@ These rules are non-negotiable constraints that prevent catastrophic cross-repo 
 | R5 | REFUSE to estimate migration effort without quantifying the number of call sites. "Just change the function signature" could mean 5 changes or 5,000. | Trigger: response estimates migration effort/time AND call site count is not quantified | STOP. Respond: "Quantify the blast radius before estimating: (1) how many repos depend on this API? (2) how many call sites per repo? (3) are call sites in tests or production code? (4) how many different patterns need transformation? A 5-line function signature change with 3,000 call sites across 15 repos is a multi-month project, not a quick fix." |
 | R6 | DETECT when deprecation warnings are compile-time only without runtime warnings. Compile-time warnings miss already-deployed services. | Trigger: response describes deprecation strategy with only compile-time mechanisms (@deprecated annotation, deprecation comment) AND services consume the API at runtime | STOP. Respond: "Compile-time deprecation only reaches consumers when they rebuild. Deployed services may not rebuild for months. Add runtime deprecation warnings: (1) log a WARN on first use per process lifetime, (2) emit a metric/counter for deprecated API usage, (3) return a Deprecation header in HTTP responses, (4) increment a deprecation counter in your observability dashboard. Without runtime signals, you are flying blind." |
 | R7 | REFUSE to execute automated migration PRs without human review gates. Automated PRs at scale can cause widespread breakage. | Trigger: response proposes automated PR creation across 10+ repos AND no review/merge gate is described | STOP. Respond: "Automated migration PRs at scale need safety gates: (1) CI must pass on every PR, (2) batch size limit (max 5 simultaneous PRs until pattern validated), (3) human approval required on first 3 PRs, (4) rollback plan if a merged PR causes issues, (5) monitoring on production after each merge. Without these gates, a bug in the codemod propagates to every repo simultaneously." |
+| R8 | 🛑 **REFUSE to proceed with a breaking change when business telemetry pipelines, analytics dashboards, or data warehouse models depend on the affected schema — without scanning for these dependencies first.** Breaking a dbt model or Mixpanel event schema breaks business decisions, not just code. | Trigger: `file_exists("**/dbt_project.yml")` OR `file_exists("**/models/**/*.sql")` OR `file_contains("*", "mixpanel\|amplitude\|posthog\|segment\|rudderstack")` OR `file_contains("*", "materialized\|incremental\|ephemeral")` in the repo OR referenced consumer repos | STOP. Respond: "Business telemetry dependencies detected. Before proceeding: (1) scan all dbt models referencing the affected table/column, (2) scan analytics event schemas (Mixpanel/Amplitude/PostHog) for affected property names, (3) scan customer support troubleshooting docs for references to the changed behavior, (4) scan marketing automation triggers dependent on affected events. See Phase 1B: Business Telemetry Impact Scan. Breaking a dbt model breaks the CFO's dashboard — this is a business outage, not just a code change." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -123,6 +124,7 @@ Do NOT use cross-repo-refactoring for single-repo refactoring (route to backend-
 | A5 | User mentions "5+ repos" or "10+ consumers" or "multi-repo migration" | Cross-repo migration planning -> Go to **Core Workflow: Phase 1** |
 | A6 | User mentions "jscodeshift" or "comby" or "ast-grep" or "codemod" | Codemod authoring -> Go to **Core Workflow: Phase 3** |
 | A7 | No specific artifact, general "how do I..." question | New migration planning -> Go to **Core Workflow: Phase 1** |
+| A8 | `file_exists("**/dbt_project.yml")` OR `file_exists("**/models/**/*.sql")` OR `file_contains("*", "mixpanel\|amplitude\|posthog\|segment\|rudderstack\|analytics\|telemetry")` | Business telemetry dependency detected -> Go to **Core Workflow: Phase 1B — Business Telemetry Impact Scan** |
 
 ### Intent Route (Ask the User)
 
@@ -134,6 +136,7 @@ What cross-repo refactoring task are you working on?
 |-- Setting up contract tests across repos -> Jump to "Decision Trees: Contract Testing"
 |-- Communicating deprecation to consumer teams -> Go to "Core Workflow: Phase 4 — Communication"
 |-- Deciding whether this breaking change is worth it -> Jump to "Decision Trees: When NOT to Break"
+|-- Scanning business telemetry impact (dbt, analytics, dashboards) -> Go to "Core Workflow: Phase 1B"
 |-- Recovering from a migration that broke production -> Go to "Core Workflow: Crisis Mode"
 ```
 
@@ -147,6 +150,15 @@ Execute in order. Do not skip steps.
 ```
 ...
 > 📎 **Full content (174 lines):** [references/core-workflow.md](references/core-workflow.md)
+
+### Phase 1B: Business Telemetry Impact Scan
+
+Execute after Phase 1 when business analytics dependencies are detected. A breaking change that
+corrupts data pipelines or dashboards can cause more damage than a code outage — the CFO's board
+deck, the marketing team's campaign attribution, and the support team's troubleshooting docs all
+depend on stable data schemas.
+
+> 📎 **Full content (127 lines):** [references/business-telemetry-scan.md](references/business-telemetry-scan.md)
 
 ## Decision Trees
 
@@ -370,6 +382,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Full repo migration (not just API change) | migration-architect | Framework migration, language version upgrades, architecture changes |
 | Observability for deprecation tracking | observability-engineer | Deprecated API usage dashboards, runtime counter metrics, alerting |
 | Security implications of deprecation | security-reviewer | Old API may have vulnerabilities — removal is also a security improvement |
+| Breaking changes affecting downstream analytics | data-engineer, analytics-engineer | dbt models, data warehouse schemas, telemetry event definitions |
+| Customer-facing API changes referenced in support docs | customer-support-engineer | Troubleshooting guides, runbooks, auto-remediation scripts referencing old behavior |
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
@@ -385,6 +399,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | P4 | Codemod deployed to 5+ repos simultaneously without validation on first 2-3 | [WARN] Batch size too large. Validate on 2-3 repos first, then scale up. A codemod bug at scale is painful to undo. |
 | P5 | Deprecated API removal date has passed but TAIL code still exists | [ALERT] Removal date was missed. Reassess: is there still usage? Extend or enforce removal. Indefinite deprecation creates confusion. |
 | P6 | Breaking change in library/service that has public/external consumers | [ALERT] External consumers cannot be forced to migrate. API versioning (v1/v2) is the only safe path for public APIs. |
+| P7 | Breaking change affects a database column or event property referenced in dbt models, analytics pipelines, or dashboards | [ALERT] 🔴 Breaking a column that feeds a dbt model = breaking the CFO's quarterly report. Scan: (1) `rg -r "column_name\|event_property" dbt_models/ analytics/ telemetry/` across ALL repos, (2) check Mixpanel/Amplitude/PostHog schema registry for the property, (3) check customer support docs for troubleshooting steps referencing this field. Cost of data corruption: $15K-$50K in remediation (per deprecation-engineer analysis). |
 
 ## State Log
 
