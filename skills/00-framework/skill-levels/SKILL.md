@@ -111,7 +111,7 @@ Levels are a map, not the territory. The best practitioners don't think about th
 
 ---
 
-## <!-- STANDARD: 3min --> Ground Rules
+## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
 - **Levels describe capability, not title.** Titles vary across companies. L3 at Google ≠ L3 at a startup. Use the behavioral anchors, not the number.
 - **Level is a range, not a point.** A person can operate at L3 in architecture but L2 in communication. Level is the intersection of multiple dimensions.
@@ -121,7 +121,7 @@ Levels are a map, not the territory. The best practitioners don't think about th
 
 ---
 
-## <!-- STANDARD: 3min --> The Five Levels
+## <!-- STANDARD: 3min --> Operating at Different Levels — The Five Levels
 
 ### Overview
 
@@ -395,6 +395,80 @@ If no level is specified:
 | Using level as a proxy for respect, decision authority, or idea quality | When level determines who gets heard, organizations lose the best ideas from junior contributors and silence healthy challenge | Explicitly separate "decision rights" from "level." A L2 engineer with data should be able to challenge an L5 architect's design. Formalize this in your RFC/design review process: all levels participate, decisions are made on evidence not authority | **Immeasurable** — Junior engineers stop proposing ideas; senior engineers stop questioning bad decisions; psychological safety erodes; innovation collapses. Decouple decision rights from level. |
 | No terminal (career) level — requiring continuous promotion to remain in good standing | Without a terminal level, the only growth path is management, forcing deep practitioners into roles they don't want | Define a terminal level (typically L4 or L5) where an engineer can stay indefinitely with cost-of-living adjustments. Career growth at terminal level means *deepening* craft, not climbing ladder. ~40% of engineers should be at or near terminal level in a healthy org | **$500K-$1.5M/yr** — Loses deep technical expertise; creates managers who resent managing. Terminal levels retain craft excellence and prevent forced management conversions. |
 
+
+## Error Recovery
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Two managers assign different levels to the same engineer using the same rubric | Leveling rubric lacks behavioral anchors — managers fill gaps with personal interpretation | Add 3+ concrete behavioral examples per level from actual work. Run calibration sessions where managers independently rate the same 5 cases, then discuss divergence | **$500K-$2M/yr in attrition** — Inconsistent leveling across managers causes pay inequity and retention crises. Behavioral anchors + calibration sessions are the only defense |
+| Skill output is consistently at wrong depth (too shallow for senior work, too complex for junior) | The skill was invoked without a level parameter, defaulting to L2/L3 regardless of actual need | Always pass a level parameter when invoking skills. Every SKILL.md should accept `--level L1-L5` as a top-level parameter | **Skills produce wrong-level output silently** — an L4 design review with L2 depth misses architectural risks; an L2 onboarding with L5 depth overwhelms |
+| Engineer got promoted but can't perform at the new level | The Peter Principle: L(N) skills don't prepare for L(N+1). The promotion was based on L(N) excellence | Every level transition requires deliberate skill-building in new dimensions. Create a 90-day transition plan for each promotion with explicit new-scope milestones | **$75K-$200K per failed promotion** — Promoting people to their level of incompetence loses both the excellent contributor they were AND the leader they can't become |
+
+## Deliberate Practice
+
+To build leveling calibration instinct:
+
+1. **Reverse-calibrate 5 people you've worked with.** Take 5 colleagues and independently rate them on all 4 dimensions (scope, autonomy, impact, craft). Write down your rationale. Then compare with the leveling rubric. Where did you diverge? Why?
+2. **Write a promotion packet for a hypothetical candidate.** Pick a level transition (L2→L3, L3→L4, L4→L5). Write a complete promotion justification using the behavioral anchors. Have someone who's been through that transition review it.
+3. **Calibrate 3 public figures.** Pick 3 well-known engineers/designers/PMs whose work you can observe publicly (conference talks, open-source, blog posts). Map them to levels based on observable scope and impact. This builds calibration independent of title.
+4. **Run a mock calibration session.** Gather 3+ peers, present 3 anonymized cases, and have everyone independently rate. Discuss divergence. This builds the muscle for real calibration panels.
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| Company passes a scale milestone (50→150, 150→500, 500→2000 people) | Recalibrate leveling ladder within 90 days. Scope expectations at each level shift with org size | Leveling designed for 50 people breaks at 200. What was "org-wide impact" at 50 is "team impact" at 500 |
+| Promotion rate varies >2x between managers or departments | Run emergency calibration session. Audit last 2 promotion cycles for systemic bias | Promotion rate disparity indicates inconsistent application of the rubric — fix the process, not the people |
+| >20% of engineering is at the same level for >3 years | Investigate: is this a healthy terminal level or a bottleneck? If bottlenecked, identify the barrier (scope unavailable, rubric too hard, manager gatekeeping) | Mass stagnation at one level means either the leveling ladder is wrong or career paths are blocked |
+| New role family introduced without level mapping | Within 30 days: map the new role to all 5 levels using the 4-dimension framework. Run calibration with adjacent role families | Ungraded roles create comp anomalies and career dead-ends |
+
+## State Log
+
+This skill maintains a **decision ledger** for level calibration sessions.
+
+### How the State Log Works
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior calibration decisions.
+2. **After each major decision:** Record level assignments, calibration rationales, and scope judgments.
+3. **Before completing work:** Verify all leveling decisions are documented with behavioral evidence.
+4. **On context recovery:** Read the last 5 entries before proposing level changes.
+
+### Anti-Drift Check
+
+- [ ] Have I read the state log from the previous calibration session?
+- [ ] Do any prior level assignments constrain what I'm about to recommend?
+- [ ] Is my calibration consistent with the 4-dimension framework?
+- [ ] If I'm contradicting a prior level assignment, have I documented WHY with behavioral evidence?
+
+## Cross-Skill Coordination
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `people-ops` | Compensation bands, promotion budgets, headcount planning aligned to levels | Before finalizing level assignments that have compensation implications |
+| `hr-manager` | Performance review frameworks, PIP templates, career development plans | When leveling decisions intersect with performance management |
+
+| Downstream Skill | What You Provide | Impact of Delay |
+|---|---|---|
+| `backend-developer` | Level calibration for backend output depth | Skill produces wrong-depth output without level parameter |
+| `frontend-developer` | Level calibration for frontend output depth | Same as above |
+| `system-architect` | Level calibration for architecture design depth | Architecture at wrong level misses risks or over-engineers |
+| `engineering-manager` | Career ladder framework for team development | Managers can't set growth expectations without leveling |
+| `staff-engineer` | L4→L5 transition criteria, scope definitions | Staff+ engineers need clear scope expectations |
+
+## What Good Looks Like
+
+A world-class leveling system produces:
+
+- **Consistent evaluations:** Two managers independently rate the same engineer within 0.5 levels 90%+ of the time
+- **Clear behavioral anchors:** Every level has 3+ concrete examples of what L(N) behavior looks like in practice, drawn from actual work
+- **Terminal level exists:** Engineers can stay at L4/L5 indefinitely with COLA — ~40% of the org should be at terminal level
+- **Calibration sessions run:** Every promotion cycle includes cross-manager calibration with independent ratings before discussion
+- **Scale-adapted:** Leveling criteria reviewed every 18-24 months and recalibrated at each major scale milestone
+- **Decoupled from authority:** Decision rights are based on expertise and evidence, not level. L2s can challenge L5s in design reviews
+- **Transparent:** Every engineer knows what L(N+1) requires, has a growth plan, and understands the evidence standard for promotion
+
+The leveling system doesn't rank people — it creates clarity. Everyone knows where they are, what's next, and how to get there.
+
 ## <!-- DEEP: 10+min --> Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
@@ -406,6 +480,19 @@ If no level is specified:
 | "Promotions will happen when people are ready" | Without explicit leveling criteria, documented evidence standards, and cross-manager calibration sessions, promotion decisions become manager-dependent and favor the loudest advocates, not the most impactful contributors. |
 
 ---
+
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
 
 ## References
 

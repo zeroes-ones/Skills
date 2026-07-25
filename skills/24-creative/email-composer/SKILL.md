@@ -460,6 +460,19 @@ Master email composition through progressive difficulty — from single emails t
 - [ ] Framework compliance: email structure matches selected framework (AIDA, PAS, BLUF, EAR) — not a generic wall of text
 - [ ] Cross-cultural check: time zone appropriate, formality level matches cultural norms, no idioms that do not translate
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 Detailed reference material loaded on demand:

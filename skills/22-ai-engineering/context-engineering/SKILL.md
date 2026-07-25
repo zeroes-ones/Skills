@@ -577,6 +577,19 @@ Run this checklist before any context-related change goes to production:
 - [ ] Ground Rules 1-8 all passing (`python context_audit.py --check-ground-rules`)
 - [ ] Dollar-cost projection updated for current assembly strategy
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - [Context Hierarchy Design](../references/context-hierarchy-design.md) — Detailed 5-level specification with per-level examples

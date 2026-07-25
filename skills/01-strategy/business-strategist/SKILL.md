@@ -462,6 +462,19 @@ graph LR
 - [ ] Strategic bets: each bet has hypothesis, investment, success criteria, and kill date (when to stop if not working)
 - [ ] Pricing: pricing strategy reviewed within last 6 months — value-based, not competitor-minus
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 - **Financial Modeling Best Practices**: See [financial-modeling-best-practices.md](references/financial-modeling-best-practices.md)
 - **GTM Cost by Channel (B2B SaaS)**: See [gtm-cost-by-channel-b2b-saas.md](references/gtm-cost-by-channel-b2b-saas.md)

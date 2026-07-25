@@ -433,6 +433,19 @@ graph LR
 - [ ] Runway: cash runway > 12 months (18+ if fundraising), updated monthly with burn rate and revenue projections
 - [ ] Strategy: strategy memo reviewed quarterly — what changed in the market, what we're doing about it
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)
 - **Fundraising Cost by Round**: See [fundraising-cost-by-round.md](references/fundraising-cost-by-round.md)

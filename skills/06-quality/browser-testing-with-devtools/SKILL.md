@@ -550,6 +550,19 @@ Dev: Verification: record new Performance profile → 340ms total (8x improvemen
 - [ ] Mobile: tested on at least one real mobile device, not just emulation
 - [ ] Evidence exported and attached to bug report/ticket (HAR, screenshot, console log)
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - [Core Workflow](../references/core-workflow.md) — Panel-by-panel deep dive with advanced techniques

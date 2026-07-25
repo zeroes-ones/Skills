@@ -534,6 +534,19 @@ Before beginning a new phase, verify:
 
 Every event has a registered schema with version. Consumers are idempotent and DLQ-backed. Consumer lag <200ms p95. Correlation IDs trace a user action across 10+ services. Replay 6 months of events -> reconstruct any read model in <15 min. Poisoned message lands in DLQ within 3 retries, alert fires, healthy consumers never stop.
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 Detailed reference material loaded on demand:

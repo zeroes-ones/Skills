@@ -63,6 +63,10 @@ Cryptographic requirement identified
 <!-- STANDARD: 3min -->
 ## Ground Rules — Read Before Anything Else
 
+- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
+
 1. **Never roll your own crypto.** Always use formally verified implementations from established libraries (libsodium, OpenSSL, Bouncy Castle). Custom cryptographic code is the #1 source of critical vulnerabilities.
 
 2. **Never hard-code keys, nonces, or entropy seeds.** Keys must come from HSM/KMS with audit trail. Nonces must be cryptographically random per invocation. Entropy must be validated against NIST SP 800-90B.
@@ -80,6 +84,26 @@ Cryptographic requirement identified
 8. **Distinguish what you know from what you infer.** Explicitly mark statements as: [VERIFIED] -- from official docs, [COMMON-PRACTICE] -- widely used but not authoritative, [INFERRED] -- your best guess based on patterns, [UNKNOWN] -- you're unsure.
 
 <!-- QUICK: 30s -->
+## The Expert's Mindset
+
+The cryptographic engineer's job is not to implement algorithms from scratch — it's to **compose verified primitives into secure protocols, anticipate adversarial models, and build systems that remain secure even when assumptions evolve**. The output is not a library; it's a cryptographic architecture with provable security properties.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **The adversary controls everything except the key** | Assume the attacker knows your algorithm, your ciphertext, your timing, and your power consumption. Security comes from key entropy and protocol design, not obscurity. |
+| **Every abstraction leaks** | TEEs leak via side channels. MPC leaks via metadata. FHE leaks via computation depth. The question is not "does it leak?" but "is the leakage acceptable given the threat model?" |
+| **Crypto agility is insurance, not overhead** | Algorithm migration that takes 3 years to deploy is a liability. Every system should switch primitives in weeks, not years. |
+| **Proofs are necessary but insufficient** | A protocol proven secure in the UC model can still be broken by a padding oracle in its implementation. Formal verification complements, but does not replace, implementation review. |
+
+### What Masters Know
+
+- **The best cryptographic engineer says "use libsodium" 90% of the time.** Custom cryptography is the last resort, not the first tool. Mastery is knowing which battle-tested library to reach for.
+- **Side channels are the real attack surface.** Academic breaks are rare. Timing attacks, cache attacks, and power analysis are practical and under-exploited. Constant-time code is a discipline, not a feature flag.
+- **Key ceremonies fail on the human factor, not the math.** The most secure threshold scheme means nothing if participants store shares in email drafts. Ceremony design is UX design for trust.
+
+
 ## When to Use
 
 - When implementing threshold cryptography: FROST Schnorr (RFC 9591), BLS aggregation, t-of-n signing with identifiable aborts
@@ -229,7 +253,19 @@ PQC migration triggered: assess current crypto inventory
 **Completion criteria:** Monitoring runbook, upgrade schedule, incident response plan for cryptanalytic breakthroughs.
 
 <!-- STANDARD: 3min -->
-## Best Practices
+## Error Recovery
+
+If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Implementation fails test vectors | Verify test vector source is authoritative. Check endianness, encoding, and parameter selection | Re-implement using a different verified library. Diff outputs byte-by-byte | Flag as potential library bug. File issue with maintainer with reproducible test case |
+| Constant-time verification failure | Check for compiler optimizations that reintroduced branches. Use `volatile` or inline asm barriers | Rewrite the critical section using verified constant-time primitives | Accept the timing leak if below network jitter noise floor. Document residual risk |
+| Dependency publishes a security advisory | Evaluate CVSS score and exploitability within 48 hours. If >= 7.0, initiate emergency patch cycle | Find an alternative library or implement a workaround | Document risk acceptance with a hard remediation deadline |
+| Production deployment fails validation | Check the validation failure logs. Fix the specific validation error and re-run | Roll back to the last known-good version. Deploy incrementally | Escalate to security-engineer for expert review |
+
+**Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
+
 
 | # | Domain | Best Practice |
 |---|--------|---------------|
@@ -288,46 +324,19 @@ PQC migration triggered: assess current crypto inventory
 | Timing analysis of an MPC node reveals secret-dependent execution time. Statistical analysis over 10K queries reconstructs secret shares from timing variation of 0.5 microseconds. | The MPC implementation uses an if-statement on a secret-shared value to select between computation paths. While the if-condition is computed on secret data, the branch selection leaks one bit of information per conditional through timing. | Use oblivious selection (cmov, conditional swap) for all secret-dependent branching. Verify constant-time at the assembly/LLVM IR level using ctgrind or dataflow analysis. Add fuzz testing that measures execution time variance across all input combinations. | Constant-time is not optional in MPC. Every conditional branch on secret data creates a timing side channel that accumulates across protocol rounds. A single if-statement leaking 1 bit per round, over 10K rounds, reconstructs a 256-bit secret. Memory-safe languages help but do not guarantee constant-time execution -- verification must be at the instruction level. |
 
 <!-- STANDARD: 3min -->
-## Scale Depth: Solo => Small => Medium => Enterprise
+## Operating at Different Levels
 
-### Solo (0-10 users, personal research or small team)
-- **Scope:** Single protocol implementation, one FHE scheme, basic threshold signatures
-- **Tools:** MP-SPDZ basic protocols, SEAL or Concrete, frost-secp256k1 library
-- **Key management:** Local HSM or software key store with encrypted backup
-- **Attestation:** Basic SGX DCAP or Nitro Enclaves for single enclave
-- **PQC:** Algorithm inventory for personal projects, experimental migration
-- **Constraints:** Manual key rotation, no formal verification, limited side-channel analysis
+Cryptographic engineering scales from library integration to novel protocol design based on organizational maturity and threat requirements.
 
-### Small Team (10-100 users, single product or startup)
-- **Scope:** 2-3 protocol implementations, multi-scheme FHE pipeline, threshold signing for custody
-- **Tools:** OpenFHE for multi-scheme support, MP-SPDZ curated protocols, formal verification for critical paths
-- **Key management:** Cloud KMS (AWS KSM, GCP Cloud KMS) with HSM backing
-- **Attestation:** Automated DCAP/SEV-SNP verification pipeline
-- **PQC:** Hybrid migration for production TLS and certificate chains
-- **Constraints:** Scheduled key rotation, formal verification for high-value circuits, basic side-channel review
+| Level | Crypto Engineer Output Characteristics |
+|---|---|
+| **L1 — Library integrator** | Uses libsodium, OpenSSL, or Web Crypto API for standard operations (encrypt, sign, hash). Knows which algorithms to use for which scenarios. |
+| **L2 — Protocol implementer** | Implements standard protocols from RFCs/NIST specs: TLS configuration, Noise framework handshakes, ECDH key exchange, JWT/JWE token crypto. |
+| **L3 — Cryptographic architect** | Designs custom protocols with formal security models. Selects curves, proof systems, and parameters. Writes security proofs or delegates to specialists. |
+| **L4 — Advanced cryptographer** | Deploys MPC, FHE, or ZKP in production. Designs threshold schemes (FROST, GG20). Manages PQC migration and crypto agility layers. |
+| **L5 — Novel cryptographer** | Publishes new constructions, breaks existing ones, contributes to NIST/IRTF standards. Designs next-generation primitives and protocols. |
 
-### Medium Team (100-10K users, growth-stage product)
-- **Scope:** Full protocol suite, production MPC/FHE infrastructure, threshold signing at scale
-- **Tools:** HEIR compiler for FHE optimization, custom MPC protocol extensions, Certora/EasyCrypt formal verification
-- **Key management:** Dedicated HSM cluster with PKCS#11, Shamir backup with Feldman VSS
-- **Attestation:** Multi-platform attestation (SGX + SEV-SNP + Nitro), attestation service with CRL management
-- **PQC:** Organization-wide crypto inventory, migration plan with timeline, hybrid production deployment
-- **Constraints:** Automated key rotation with proactive security, continuous side-channel monitoring, incident response for cryptanalytic events
-
-### Enterprise (10K+ users, financial infrastructure or regulated)
-- **Scope:** Organization-wide cryptographic agility layer, multi-scheme FHE at scale, global threshold signing infrastructure
-- **Tools:** Custom HEIR passes for domain-specific FHE, EasyCrypt formal proofs for all critical protocols, automated crypto inventory and migration orchestration
-- **Key management:** Geo-distributed HSM clusters, split-knowledge ceremonies with independent witnesses, NIST SP 800-57 compliant lifecycle
-- **Attestation:** Federated attestation across cloud providers, automated TCB monitoring with revocation alerting
-- **PQC:** Complete hybrid migration with quantum-safe fallback, harvest-now-decrypt-later protection for all data with 10+ year confidentiality requirements
-- **Constraints:** FIPS 140-3 Level 3+ compliance, Common Criteria certification, continuous audit, dedicated crypto team
-
-### Transition Triggers
-- **Solo => Small:** Second protocol implementation required; first key rotation scenario without downtime
-- **Small => Medium:** Formal verification needed after incident; PQC migration becomes business-critical
-- **Medium => Enterprise:** Regulatory mandate (FIPS, CC); TVL or assets under management exceed $100M; customer contracts require certified cryptography
-
-<!-- STANDARD: 3min -->
+**Usage**: Say "at L2, implement TLS 1.3 with these parameters..." or calibrate by security requirements. Default: **L2** (protocol implementation).
 ## Production Readiness Checklist
 
 | # | Item | Ref |
@@ -351,16 +360,68 @@ PQC migration triggered: assess current crypto inventory
 <!-- STANDARD: 3min -->
 ## Cross-Skill Coordination
 
-| Direction | Skill | Handoff |
+| Upstream Skill | What You Receive | When to Involve |
 |-----------|-------|---------|
-| **Upstream** | `security-engineer` | Threat model, asset inventory, trust boundaries, security parameter requirements |
-| **Upstream** | `system-architect` | System boundaries, integration patterns, deployment topology, trust model |
-| **Upstream** | `backend-developer` | API contracts, data flow, key storage integration, application-level crypto integration |
+| **Upstream:** | `security-engineer` | Threat model, asset inventory, trust boundaries, security parameter requirements |
+| **Upstream:** | `system-architect` | System boundaries, integration patterns, deployment topology, trust model |
+| **Upstream:** | `backend-developer` | API contracts, data flow, key storage integration, application-level crypto integration |
 | **Downstream** | `zkp-engineer` | Cryptographic primitives, proof system security, trusted setup parameters, circuit constraints |
 | **Downstream** | `smart-contract-auditor` | On-chain crypto verification, signature scheme audit, verifier contract security |
 | **Downstream** | `compliance-officer` | FIPS 140-3/Common Criteria certification requirements, audit evidence collection |
 
 <!-- QUICK: 30s -->
+## Deliberate Practice
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Implement standard crypto operations from RFCs against test vectors. Compare your output to libsodium | Weekly |
+| **Competent** | Break (intentionally) weakened crypto: reduced-round AES, small-prime RSA, short-nonce GCM. Use Cryptopals challenges | Monthly |
+| **Expert** | Implement a novel protocol from a recent paper (e.g., a new MPC construction from CRYPTO 2024). Identify where the proof assumptions break in practice | Quarterly |
+| **Master** | Find and responsibly disclose a vulnerability in a production cryptographic library or protocol. Contribute a fix upstream | Annually |
+
+**The One Highest-Leverage Activity:** Run the Wycheproof test suite against every crypto library you use. Document which tests pass and which fail. The gap between what the library claims and what it actually handles is where production bugs live.
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift across sessions. Every major architectural choice, parameter decision, and trade-off must be recorded.
+
+### How the State Log Works
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior decisions. Summarize the 3 most recent in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "cryptographic-engineer",
+     "phase": "Phase 3: Protocol Design",
+     "decision": "What was chosen (algorithm, key size, curve)",
+     "rationale": "Why this choice over alternatives",
+     "constraints": ["FIPS 140-3 required", "Must run on mobile"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": false
+   }
+   ```
+3. **Before completing work:** Verify all major decisions are recorded. A "major decision" is anything that, if changed, would require key rotation or protocol renegotiation.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
+
+### Anti-Drift Check
+
+Before beginning a new phase:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Would my proposed change require key rotation?
+- [ ] If I'm contradicting a prior decision, have I documented WHY?
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| NIST announces a new PQC standard or deprecates an existing algorithm | Audit crypto inventory for affected algorithms. Estimate migration timeline. Draft a PQC migration update within 2 weeks | PQC transitions take 3-5 years in large organizations |
+| CVE published for a cryptographic library you depend on | Assess impact within 24 hours. If CVSS >= 7.0, initiate emergency patch cycle | Crypto CVEs often enable complete compromise; the exploitation window is shrinking |
+| Academic paper demonstrates practical attack on a primitive you use | Initiate deprecation timeline within 1 week. The primitive's security margin is gone | Attack improvements are monotonic — today's academic attack is tomorrow's script-kiddie tool |
+| Key ceremony scheduled for production deployment | Pre-ceremony checklist: entropy source health verified, HSM firmware updated, participants trained, backup procedures documented | Failed ceremonies erode organizational trust and can delay deployment by months |
+| Cryptographic bill or regulation proposed | Legal risk assessment within 2 weeks. Model impact on product architecture. Engage legal-advisor and regulatory-specialist | Regulatory changes can make current architectures non-compliant overnight |
+
 ## What Good Looks Like
 
 The output of a cryptographic engineering engagement is:
@@ -373,6 +434,19 @@ The output of a cryptographic engineering engagement is:
 - **Cryptographic agility layer** with algorithm registry, downgrade prevention, and migration automation
 
 All cryptographic operations use AEAD or stronger. Keys are managed via KMS/HSM with audit trail. PQC migration plan is documented and funded. Every implementation has a security proof or references a published proof.
+
+<!-- STANDARD: 3min -->
+## Verification Guardrails
+
+- [ ] All cryptographic operations use AEAD or stronger (no CBC, no ECB, no unauthenticated modes)
+- [ ] Keys managed via KMS/HSM with audit trail; no keys in source code, config files, or environment variables
+- [ ] Constant-time verification: critical comparison operations pass `dudect` or equivalent TVLA
+- [ ] Test vectors: NIST CAVP or Wycheproof test vectors pass for all implemented algorithms
+- [ ] PQC migration plan documented with algorithm inventory, hybrid deployment strategy, and hard migration date
+- [ ] Side-channel assessment completed: timing, cache-timing, and (for TEE) electromagnetic analysis
+- [ ] Key ceremony documentation: participant attestations, entropy validation, backup share verification
+- [ ] Every cryptographic decision recorded in the State Log with rationale and alternatives considered
+
 
 <!-- STANDARD: 3min -->
 ## References

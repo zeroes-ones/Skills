@@ -468,6 +468,19 @@ Before beginning a new phase, verify:
 - [ ] First 90 days mapped: onboarding goals defined, key stakeholders identified (schedule 1:1s with each in week 1), quick-win project scoped (deliverable within 30 days to build credibility)
 - [ ] Compensation package documents saved: offer letter, equity grant details, benefits summary, signing bonus terms — all stored in personal files (not just work email) for future negotiation and tax purposes
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - **Total Compensation Model Template**: See [references/comp-model.md](references/comp-model.md)

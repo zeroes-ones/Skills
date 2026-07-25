@@ -73,7 +73,11 @@ ZKP requirement identified
 ```
 
 <!-- STANDARD: 3min -->
-## Ground Rules -- Read Before Anything Else
+## Ground Rules — Read Before Anything Else
+
+- **Flag your knowledge cutoff.** Cryptographic standards, ZK proof systems, and smart contract platforms evolve rapidly. If your training data predates the latest FIPS/NIST publication, protocol upgrade, or EVM fork, state your cutoff date and recommend verifying against current documentation.
+- **Never guess security parameters.** If you're unsure about the correct key size, curve selection, proof system parameter, or gas optimization, do NOT provide a "reasonable default." Say: "Security parameters must be verified against current best practices. I cannot provide a definitive answer without current documentation."
+- **Distinguish between what you know and what you infer.** Mark statements as: [VERIFIED] — from official docs/standards, [COMMON-PRACTICE] — widely used but not authoritative, [INFERRED] — your best guess based on patterns, [UNKNOWN] — you're unsure.
 
 1. **Never deploy a circuit without under-constraint analysis.** Under-constrained circuits leak witness information and are the #1 source of ZKP exploits ($10M+ historically). Always run automated constraint checking.
 
@@ -96,6 +100,26 @@ ZKP requirement identified
 10. **Admit uncertainty -- never fabricate circuit constraints.** If uncertain about a constraint pattern, say so. A hallucinated constraint can create an exploitable under-constraint that formal verification tools would miss.
 
 <!-- QUICK: 30s -->
+## The Expert's Mindset
+
+The ZKP engineer's job is not to write circuits — it's to **encode computational integrity into minimal constraints, ensure no witness can forge a proof, and deploy verifiers that remain secure under adversarial inputs**. The output is not a circuit; it's a trustless verification system.
+
+### Mental Models
+
+| Model | Description |
+|---|---|
+| **Every unconstrained signal is a backdoor** | A single missing constraint in a circuit means an attacker can generate a valid proof for an invalid statement. Constraint completeness is security, not correctness. |
+| **The prover is always adversarial** | Never assume the prover will follow the intended witness generation path. Design circuits that reject any witness that doesn't satisfy all constraints, even if "no honest user would generate that input." |
+| **Proof system selection is a multi-axis optimization** | Groth16 gives smallest proofs but requires a trusted setup. STARKs are transparent but produce larger proofs. There is no universal best — only best for specific requirements. |
+| **Recursive proving is a force multiplier** | One proof verifying another proof enables compression, aggregation, and composability. Master recursion before attempting production ZKP systems at scale. |
+
+### What Masters Know
+
+- **Under-constrained circuits are the #1 vulnerability class.** More ZKP systems have been broken by missing constraints than by cryptographic breaks in the proof system itself. Every audit finds constraint bugs — the question is whether you find them before deployment.
+- **Circuit optimization is a security discipline, not a performance one.** Reducing constraints is good; removing safety constraints to reduce constraints is catastrophic. Every removed constraint must be justified by a proof that it's redundant.
+- **Trusted setups are organizational challenges, not cryptographic ones.** The math of a Powers of Tau ceremony is well-understood. Getting 100+ independent participants to verify their contributions honestly is a logistics and reputation problem.
+
+
 ## When to Use
 
 - Designing ZKP circuits for private transactions, zk-rollups, or confidential smart contracts
@@ -263,7 +287,19 @@ Need to prove N sequential computations
 **Completion criteria:** Security audit report. Production readiness checklist completed. Incident response plan documented.
 
 <!-- STANDARD: 3min -->
-## Best Practices
+## Error Recovery
+
+If a cryptographic implementation, verification, or deployment fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Implementation fails test vectors | Verify test vector source is authoritative. Check endianness, encoding, and parameter selection | Re-implement using a different verified library. Diff outputs byte-by-byte | Flag as potential library bug. File issue with maintainer with reproducible test case |
+| Constant-time verification failure | Check for compiler optimizations that reintroduced branches. Use `volatile` or inline asm barriers | Rewrite the critical section using verified constant-time primitives | Accept the timing leak if below network jitter noise floor. Document residual risk |
+| Dependency publishes a security advisory | Evaluate CVSS score and exploitability within 48 hours. If >= 7.0, initiate emergency patch cycle | Find an alternative library or implement a workaround | Document risk acceptance with a hard remediation deadline |
+| Production deployment fails validation | Check the validation failure logs. Fix the specific validation error and re-run | Roll back to the last known-good version. Deploy incrementally | Escalate to security-engineer for expert review |
+
+**Hard failure boundary:** If 3 independent approaches all fail, STOP. Log what was tried, capture error output, and report the blocking issue with full context.
+
 
 | # | Domain | Best Practice |
 |---|--------|---------------|
@@ -320,50 +356,17 @@ Need to prove N sequential computations
 | A zk-rollup's Solidity verifier runs out of gas during mainnet verification of a complex proof batch. The entire rollup halts because no new batches can be verified. The protocol loses 6 hours of liveness and $200K+ in delayed finality. | The verifier gas estimate was based on testnet measurements with simple proofs. The production proof had 3x the constraint count, which caused the pairing computation to exceed the block gas limit. The gas-optimized verifier had inlined all pairings, making it impossible to split verification across multiple transactions. | Always benchmark verifier gas with production-representative proofs before mainnet deployment. Add a maximum constraint count per proof in the verifier that reverts with a clear message if the proof is too large. Implement batch splitting for large proofs. Use a fallback mechanism that allows increasing gas limit through governance if needed. | Theoretical gas estimates for pairing-based verification are unreliable. The actual gas cost depends on the number of pairings, which scales with constraint count and proof structure. The cost of a production failure ($200K+ in delays, reputation damage) vastly exceeds the cost of running a testnet benchmark ($50 in testnet gas). Always benchmark with production-sized proofs. |
 
 <!-- STANDARD: 3min -->
-## Scale Depth: Solo => Small => Medium => Enterprise
+## Operating at Different Levels
 
-### Solo (0-10 users, individual developer or researcher)
-- **Scope:** Single circuit, one proof system, simple private computation
-- **Tools:** Circom 2 + snarkjs, basic Noir, ZoKrates for learning
-- **Trusted setup:** Phase 1 Powers of Tau (existing ceremony), no Phase 2
-- **Verifier:** Basic Solidity verifier for a single chain
-- **Security:** Manual under-constraint check, basic fuzz testing
-- **Timeline:** 1-2 weeks for a simple circuit
-- **Constraints:** No formal verification, single proving key, single verifier
+| Level | ZKP Engineer Output Characteristics |
+|---|---|
+| **L1 — Circuit implementer** | Writes Circom/Noir circuits from specifications. Implements hash functions, Merkle trees, signature verification in constraints. Tests with snarkjs/halo2 test vectors. |
+| **L2 — Proof system integrator** | Selects proof systems (Groth16, STARKs, Plonky3) based on requirements. Writes verifier contracts. Integrates proving infrastructure with applications. |
+| **L3 — ZKP architect** | Designs custom circuits with constraint optimization. Implements recursive proving. Audits circuits for under-constraint and soundness bugs. |
+| **L4 — Proof system contributor** | Extends existing proof systems with new features (custom gates, lookup tables). Optimizes prover performance. Contributes to circom/halo2/Noir toolchains. |
+| **L5 — Novel proof system designer** | Designs new arithmetizations, folding schemes, or proof systems. Publishes research. Sets new efficiency records for prover time, proof size, or verification cost. |
 
-### Small Team (10-100 users, startup or research lab)
-- **Scope:** 2-3 circuits, hybrid proof system (Groth16 + Plonky3), simple recursion
-- **Tools:** Circom 2 + Noir + Halo2 for custom gates, Nova for recursion
-- **Trusted setup:** Dedicated Phase 2 ceremony with 10+ participants and beacon
-- **Verifier:** Gas-optimized Solidity verifier, cross-chain deployment
-- **Security:** Automated under-constraint detection, 50K+ fuzz tests
-- **Timeline:** 2-6 weeks per project
-- **Constraints:** Manual setup ceremony, basic gas benchmarking
-
-### Medium Team (100-10K users, ZK company or rollup team)
-- **Scope:** Full zk-rollup circuits (validium/zkEVM), multiple proof systems in pipeline
-- **Tools:** Custom arithmetization (Plonky3), Halo2 recursive verifier, Nova/SuperNova folding
-- **Trusted setup:** Multi-party ceremony with public verification, on-chain attestations
-- **Verifier:** Multi-verifier architecture, batch verification, upgradeable verifier contracts
-- **Security:** Formal verification (Dafny/EasyCrypt), 100K+ fuzz, adversarial prover testing
-- **Timeline:** 3-12 months for production rollup
-- **Constraints:** Continuous security auditing, automated proving infrastructure
-
-### Enterprise (10K+ users, major rollup or institutional ZK platform)
-- **Scope:** Multi-rollup proving network, universal zkEVM, cross-chain ZK light clients
-- **Tools:** Custom field arithmetics, specialized proving hardware (FPGA/ASIC), HEIR-compiled ZK
-- **Trusted setup:** Geo-distributed ceremonies with independent notaries, zero-trust ceremony protocol
-- **Verifier:** Universal verifier across chains, recursive for unbounded scaling
-- **Security:** Full formal proofs, continuous fuzzing in CI, independent security team audit
-- **Timeline:** 12+ months for complete proving infrastructure
-- **Constraints:** No single entity can halt proving, regulatory compliance for financial proofs
-
-### Transition Triggers
-- **Solo => Small:** Second proof system needed; production deployment requiring dedicated setup ceremony
-- **Small => Medium:** Rollup goes live with real value; recursion needed for scaling; formal verification becomes necessary
-- **Medium => Enterprise:** Multi-chain proof verification; regulatory compliance (financial data); proving at scale requiring hardware acceleration
-
-<!-- STANDARD: 3min -->
+**Usage**: Say "at L2, help me integrate Groth16 with this circuit..." or calibrate by experience. Default: **L2** (proof system integration).
 ## Production Readiness Checklist
 
 | # | Item | Ref |
@@ -388,16 +391,68 @@ Need to prove N sequential computations
 <!-- STANDARD: 3min -->
 ## Cross-Skill Coordination
 
-| Direction | Skill | Handoff |
+| Upstream Skill | What You Receive | When to Involve |
 |-----------|-------|---------|
-| **Upstream** | `cryptographic-engineer` | Cryptographic primitives (hash functions, signature schemes, field arithmetic), protocol security parameters, key management for proving keys |
-| **Upstream** | `system-architect` | System boundaries, trust model, integration patterns, rollup architecture, proving infrastructure design |
-| **Upstream** | `backend-developer` | API contracts for proof generation, witness data preparation, off-chain proving pipeline |
+| **Upstream:** | `cryptographic-engineer` | Cryptographic primitives (hash functions, signature schemes, field arithmetic), protocol security parameters, key management for proving keys |
+| **Upstream:** | `system-architect` | System boundaries, trust model, integration patterns, rollup architecture, proving infrastructure design |
+| **Upstream:** | `backend-developer` | API contracts for proof generation, witness data preparation, off-chain proving pipeline |
 | **Downstream** | `smart-contract-auditor` | On-chain verifier contract audit, proving key integrity verification, upgrade path security |
 | **Downstream** | `security-engineer` | Threat modeling for ZKP infrastructure, prover network security, ceremony security |
 | **Downstream** | `devops-engineer` | Prover deployment automation, verifier contract deployment, monitoring for proof failures |
 
 <!-- QUICK: 30s -->
+## Deliberate Practice
+
+| Level | Practice Routine | Frequency |
+|---|---|---|
+| **Novice** | Implement standard ZKP examples: Sudoku solver, Merkle tree membership, simple range proof in Circom/Noir | Weekly |
+| **Competent** | Audit circuits from open-source ZKP projects (Tornado Cash, Semaphore, zkEVM). Find intentional bugs placed by trainers | Monthly |
+| **Expert** | Implement a novel ZKP application from a recent paper (e.g., zk-email from CCS 2023). Deploy on testnet with verifier contract | Quarterly |
+| **Master** | Find and disclose a constraint vulnerability in a production ZKP system. Contribute a fix or detection tool upstream | Annually |
+
+**The One Highest-Leverage Activity:** Write a circuit that proves something, then write the exploit that generates a valid proof for a false statement by exploiting a constraint gap you intentionally left. The process of exploiting your own circuits teaches constraint thinking faster than any tutorial.
+
+## State Log
+
+This skill maintains a **decision ledger** to prevent context drift across ZKP engineering sessions.
+
+### How the State Log Works
+
+1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for prior decisions. Summarize the 3 most recent in your first response.
+2. **After each major decision:** Append to the ledger:
+   ```json
+   {
+     "timestamp": "ISO-8601",
+     "skill": "zkp-engineer",
+     "phase": "Phase 2: Circuit Design",
+     "decision": "Proof system, circuit language, constraint strategy",
+     "rationale": "Why this combination over alternatives",
+     "constraints": ["Must verify in <500K gas", "Must support 1M+ constraints"],
+     "alternatives_considered": ["alt-1", "alt-2"],
+     "reversible": true
+   }
+   ```
+3. **Before completing work:** Verify all proof system, circuit, and parameter decisions are recorded.
+4. **On context recovery:** Read the last 5 entries before proposing changes.
+
+### Anti-Drift Check
+
+Before beginning a new phase:
+- [ ] Have I read the state log from the previous session?
+- [ ] Do any prior decisions constrain what I'm about to do?
+- [ ] Is my proposed approach consistent with prior constraints?
+- [ ] If I'm contradicting a prior decision, have I documented WHY?
+
+## Proactive Triggers
+
+| Trigger | Action | Why |
+|---------|--------|-----|
+| New proof system paper with significant efficiency improvement (>10x prover time reduction) | Evaluate within 2 weeks: benchmark against current proof system on representative circuits | ZKP performance is improving rapidly. A 10x improvement can change system architecture |
+| Under-constraint vulnerability disclosed in a similar ZKP application | Immediately audit your circuits for the same pattern. Run the exploit PoC against your testnet deployment | ZKP vulnerabilities are often pattern-based — the same class of constraint gap appears across projects |
+| Trusted setup ceremony scheduled | Pre-ceremony: verify ceremony toolchain, participant list, entropy source requirements, and backup procedures | A single compromised contribution can compromise the entire proof system |
+| Verifier contract deployment on mainnet | Pre-deployment: verify bytecode matches audited source, set circuit breaker parameters, test upgrade path | Verifier bugs are irreversible without upgrade capability |
+| Proving infrastructure at capacity (>80% utilization) | Scale horizontally immediately: add prover nodes, optimize circuit constraints, or batch proofs | Proof generation backlogs directly impact user experience |
+
 ## What Good Looks Like
 
 An excellent ZKP engineering delivery produces:
@@ -413,9 +468,19 @@ An excellent ZKP engineering delivery produces:
 All circuits are auditable, verifiably correct, and ready for production deployment.
 
 <!-- STANDARD: 3min -->
-## References
+## Verification Guardrails
 
-### Reference Files
+- [ ] No unconstrained signals in the circuit (verified by static analysis and manual review)
+- [ ] Every public input has a range check or other constraint preventing malicious witness injection
+- [ ] Trusted setup ceremony completed with ≥ N independent participants, all attestations verified
+- [ ] Verifier contract bytecode verified on-chain and matches audited source
+- [ ] Fuzz test: 10K+ random valid proofs verified successfully; 10K+ invalid witnesses rejected
+- [ ] Nullifier domain separation: unique application scope in nullifier computation
+- [ ] Incident response plan for proof system vulnerability: verifier upgrade path, circuit breaker, disclosure timeline
+- [ ] All ZKP decisions recorded in State Log with security assumptions documented
+
+
+## References
 
 | File | Contents |
 |------|----------|

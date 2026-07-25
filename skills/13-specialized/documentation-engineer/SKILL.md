@@ -542,6 +542,19 @@ graph LR
 - [ ] Screenshot freshness: automated visual diff against latest UI build — zero screenshots with stale UI elements
 - [ ] Accessibility: `pa11y` or `axe` on docs site — WCAG 2.2 AA pass
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 - **API Documentation**: See [api-documentation.md](references/api-documentation.md)
 - **Analytics**: See [analytics.md](references/analytics.md)

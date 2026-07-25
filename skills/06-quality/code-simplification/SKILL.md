@@ -578,6 +578,19 @@ function calculateShipping(order: Order, user: User, warehouse: Warehouse): numb
 - [ ] `git diff --stat` shows net-negative or neutral line count (more deletions than additions)
 - [ ] Code review confirms readability improvement (ask a colleague to read the diff)
 
+## Verification Guardrails
+
+Before delivering work, the agent must verify:
+
+- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
+- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
+- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
+- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
+- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
+- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
+
+If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
 ## References
 
 - [Core Workflow](../references/core-workflow.md) — Detailed step-by-step with more code examples
