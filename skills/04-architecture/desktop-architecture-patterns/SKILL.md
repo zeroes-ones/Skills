@@ -293,6 +293,9 @@ Detailed reference material loaded on demand:
 - **Offline-first by default.** Desktop users have unreliable connectivity. Local SQLite/WAL, CRDT-based sync, and conflict-free merge strategies are required. "We'll add offline later" costs 3-5x more in retrofits.
 - **Auto-update is a security feature, not a convenience.** Unpatched desktop apps with 90-day-old versions are the #1 attack vector. If your update mechanism isn't bulletproof, you don't have a product — you have liability.
 
+- **ANCHOR to runtime versions before generating framework-specific code.** Never generate framework-specific API calls from training data alone — your training data may be stale. Run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions. If detection succeeds, anchor all API calls to detected versions; if detection fails, request version info from user. | Trigger: code-generation task involving framework-specific APIs | STOP: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring API calls to these versions."
+- **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: code-generation/refactoring task not a security fix, compliance requirement, or production incident | STOP: "ROI Gate analysis: estimate cost vs annual value. See `scripts/roi-gate.sh`."
+
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -709,9 +712,13 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 
 ---
 
-## Error Decoder
+## Error Decoder — War Stories from the Trenches
 
-| Symptom | Root Cause | Fix | Prevention |
+**(STANDARD)**
+
+When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+
+| Symptom | Root Cause | Fix | Lesson |
 |----------|-----------|------|------------|
 | "Cannot read properties of undefined" in renderer after IPC call | Main process returned undefined or threw unhandled error. IPC bridge didn't catch and serialize the error into a structured response | Wrap every `ipcMain.handle` in try/catch: `try { return { data: result }; } catch (e) { return { error: e.message, code: e.code }; }`. Renderer checks `response.error` before accessing `response.data` | Add IPC response type: `type IPCResponse<T> = { data?: T; error?: string }`. Lint rule: no `ipcMain.handle` without error wrapping |
 | White/blank window after launch on Windows with dedicated GPU | GPU process crash (WebGL/Canvas). Electron falls back to software rendering but some apps don't handle the `gpu-process-crashed` event | Listen for `app.on('gpu-process-crashed', () => { app.disableHardwareAcceleration(); app.relaunch(); app.exit(); })`. Also catch `app.on('render-process-gone')` | CI test on machines with both integrated and dedicated GPUs. Add `--disable-gpu` flag as recovery option |

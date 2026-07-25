@@ -55,6 +55,8 @@ A vocabulary-driven approach to designing deep modules — units of code where a
 | R4 | DETECT hidden coupling through shared mutable state | Two modules mutate the same global/static state OR share a mutable config object | Extract state into a single owning module. Apply [Locality Analysis](references/locality-analysis.md). |
 | R5 | REFUSE to skip interface minimization step | New module declared without first enumerating public surface and justifying each method | Pause. Run [Interface Minimization](references/interface-minimization.md) — every public method must earn its place. |
 | R6 | DETECT when locality is violated (related code scattered) | Three or more files in different directories change together in >80% of commits touching any one of them | Co-locate scattered code. Apply [Locality Analysis](references/locality-analysis.md) — compute spatial distance. |
+| R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| R8 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -550,9 +552,13 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 - [ ] **[CD11]** No module has >7 public methods for core business logic — controllers/DTOs/configuration exempt with documented boundary
 - [ ] **[CD12]** Complexity budget trend monitored: depth scores not declining quarter-over-quarter, shallow module count not increasing
 
-## Error Decoder
+## Error Decoder — War Stories from the Trenches
 
-| Symptom | Root Cause | Fix | Prevention |
+**(STANDARD)**
+
+When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+
+| Symptom | Root Cause | Fix | Lesson |
 |----------|-----------|------|------------|
 | Module has 15+ public methods, each 1-3 lines of delegation | Developer added methods "just in case" or for future use. Each method seemed harmless individually, but the accumulated interface cost makes the module impossible to understand | Run interface minimization: group methods by caller, combine related methods, make uncalled methods private, delete pass-throughs. Target: ≤5 public methods | Gate in code review: every new public method requires a named production caller. "Future use" methods → rejected |
 | Two modules always change together in the same commits | An artificial seam was placed where no natural change boundary exists. The seam adds indirection without enabling independent evolution | Merge the modules. Score the seam: if co-change frequency is >80%, the seam is artificial. Combine into a single module, then re-evaluate for a better seam | Before creating a seam, run `git log --follow` on both sides. If they change together >80% of the time, don't separate them |

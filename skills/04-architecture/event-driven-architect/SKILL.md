@@ -89,6 +89,8 @@ Do not read the entire skill. Follow the route above and read only the sections 
 | **R3** | **REFUSE to recommend exactly-once semantics without idempotency keys and deduplication** | "Exactly-once" claimed or requested without an idempotency key design and deduplication store | STOP. "Exactly-once semantics require: (1) a unique idempotency key on every event, (2) a deduplication store (Redis SETNX, DB unique constraint), (3) atomic (key, result) storage. Without these, you have at-least-once with a wish." |
 | **R4** | **STOP and ASK when event payload exceeds 256KB** | Event payload (serialized) approaches or exceeds 256KB — the Kafka practical limit before performance degradation | STOP. "Event [name] payload is [N]KB — exceeds the 256KB practical limit for Kafka. Options: (a) store payload in object storage (S3/GCS) and include URL in event, (b) split into smaller events, (c) use claim-check pattern. Which approach fits your consumer access patterns?" |
 | **R5** | **DETECT and WARN about point-to-point event coupling** | Events are sent to specific consumer queues/topics rather than a shared pub/sub topic — consumers are named in producer config | WARN. "Point-to-point event coupling detected: producer [X] targets consumer [Y] directly. This defeats the purpose of event-driven architecture. Publish to a shared topic; let consumers subscribe independently. Producers should never know who consumes." |
+| **R6** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R7** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
@@ -390,17 +392,6 @@ else:
 9. **Correlation ID propagation** — Trace user request across services through correlation IDs.
 10. **Time-bound consistency** — Define p95 staleness. <200ms = users won't notice. >5s = they will.
 
-## Error Decoder
-
-| Error Message | Root Cause | Fix | Lesson |
-|--------------|------------|-----|--------|
-| `UNKNOWN_TOPIC_OR_PARTITION` | Topic doesn't exist, auto-create disabled | Create topic in IaC before deploy: `kafka-topics --create --topic orders --partitions 12 --rf 3` | Disable auto-create in production. Pre-create in IaC. |
-| `NOT_LEADER_FOR_PARTITION` | Producer connected to non-leader broker | Refresh metadata. If persistent, leader election failed — check broker health. | Handle transient metadata staleness in producers. |
-| `RecordTooLargeException` | Payload > `max.message.bytes` (1MB default) | Move large data to S3, include URL. Increase limit only as last resort. | Kafka is not a file transfer system. |
-| `DUPLICATE_KEY` in consumer DB | At-least-once without idempotency | `INSERT ON CONFLICT (idempotency_key) DO NOTHING RETURNING result` | Every at-least-once consumer needs idempotency. |
-| `IncompatibleSchemaException` | Schema not registered or breaks compatibility | Register before producer deploy. BACKWARD compatibility. Test in CI. | Schema-first: register -> deploy producer -> deploy consumer. |
-| Consumer stuck, not processing | Poisoned message retrying infinitely | Configure max retries (3) + DLQ. Reset offset past poison message if needed. | DLQ is day-zero infrastructure. |
-
 
 ## Error Recovery
 
@@ -546,6 +537,21 @@ Before delivering work, the agent must verify:
 - [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
 
 If any checkbox fails, revise before delivering. When all pass, add to the state log.
+
+## Error Decoder — War Stories from the Trenches
+
+**(STANDARD)**
+
+When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| OrderConfirmed event processed before OrderCreated — payment fails because customer record doesn't exist yet | Events published in order but Kafka partition key routes them to different partitions. Consumer Group processes partitions in parallel — no ordering guarantee across partitions | Use the same partition key (`order_id`) for all events in the same entity's lifecycle. This guarantees order within a partition. Consumer side: use `order_id` as the concurrency key so events for the same order are processed sequentially | Ordering is not global in Kafka — it's per-partition. If events A and B must process in order, they must share the same partition key. Period. |
+| Dead letter queue has 500K messages after 3-day weekend — no one monitoring it | DLQ created as "safety net" but no alerting, no dashboard, no on-call rotation. Messages silently accumulate until disk fills | Add DLQ depth alert: >100 messages in 5 minutes = P2 page. >1000 = P1. Create DLQ replay tool that can reprocess messages after root cause fix. Weekly DLQ review in sprint retro | A dead letter queue without alerting is a black hole disguised as reliability. If you're not measuring it, you don't have one — you have a data loss mechanism. |
+| Schema evolution: producer adds `user_email` field, consumer crashes with `UnknownFieldException` | Producer updated Avro schema and started publishing. Consumer compiled against old schema with strict parsing — rejects unknown fields | Use Avro schema registry with `FORWARD` compatibility. Set consumer to `FORWARD_TRANSITIVE` — ignores unknown fields. Never deploy producer schema change before all consumers are forward-compatible | Schema evolution must be consumer-first. Deploy consumers that can handle BOTH old and new schema. Only then deploy producers that emit new schema. Reverse this order and you have a production outage. |
+| Exactly-once semantics work in dev, but production sees duplicate charges during Kafka rebalance | "Exactly-once" configured with `enable.idempotence=true` but transaction timeout (default 1 min) expires before rebalance completes. Producer retries the transaction, but consumer already processed the first attempt | Set `transaction.timeout.ms` to 5 min (higher than `max.poll.interval.ms`). Implement idempotency key in business logic (e.g., `payment_idempotency_key`) — database unique constraint catches duplicates regardless of Kafka semantics | "Exactly-once" in Kafka is exactly-once within the Kafka transaction boundary. Real exactly-once requires idempotency at the business logic layer. The database UNIQUE constraint is the only true deduplicator. |
+| Event payload is 2MB — Kafka broker rejects with `record too large` and producer silently drops messages | Default `max.message.bytes = 1MB` on broker. Producer doesn't check payload size before sending. Large binary payloads (images, PDFs) embedded in event body | Set `max.message.bytes` on broker and topic. Implement claim-check pattern: store payload in S3, put S3 key in event body. Consumer fetches payload from S3. Add producer-side size validation — reject oversized messages at the application layer | Events are signals, not data lakes. The event says "an invoice was generated" — the invoice PDF belongs in object storage. Claim-check pattern separates the signal from the payload. |
+| Consumer group lag grows 50K/hour after adding a slow downstream API call to the consumer | Consumer processes 100 msg/sec before change. New code adds 200ms external API call per message — throughput drops to 5 msg/sec. Lag compounds exponentially | Offload slow work: consumer validates and acknowledges quickly, then publishes to an internal "work" topic. Separate worker pool processes slow operations with its own scaling and retry logic. Never block the consumer's poll loop | Consumer throughput is determined by the slowest operation in the handler. Block the poll loop and lag grows linearly. Offload slow work to a separate worker pool that can scale independently. |
 
 ## References
 

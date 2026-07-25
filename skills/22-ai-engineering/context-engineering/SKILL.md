@@ -44,6 +44,8 @@ chain:
 | 6 | NEVER include a file from Level 3 if a sibling file at same level supersedes it | `diff <(sort level3_manifest.txt) <(sort level3_approved.txt) \| grep "^>" \| wc -l \| awk '{if ($1>0) exit 1}'` | Removes all unapproved Level 3 files; re-validates |
 | 7 | NEVER assemble context without a token budget declared upfront | `jq '.token_budget' context.json \| awk '{if ($1==null\|\|$1<=0) exit 1}'` | Aborts assembly; requires explicit budget declaration |
 | 8 | NEVER let prompt caching miss rate exceed 40% | `jq '.cache_hits / (.cache_hits + .cache_misses)' stats.json \| awk '{if ($1<0.6) exit 1}'` | Restructures prefix to maximize cache reuse |
+| **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
 
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
@@ -121,6 +123,8 @@ Architecture review of the entire context pipeline. Includes: context window sim
 - "Designing from scratch" → Start at "Core Workflow" and proceed sequentially
 
 ## Core Workflow
+
+**(STANDARD)**
 
 ### The 5-Level Context Hierarchy
 
@@ -241,7 +245,31 @@ python context_audit.py --check-ground-rules \
   --dedup-threshold 0.85
 ```
 
+## Best Practices
+
+1. **Declare token budget before assembly.** Never build context without knowing your limit. Allocate a safety margin — never exceed 80% of the model's context window. The remaining 20% is buffer for conversation growth and unexpected file inclusion. Hard cap at 80% utilization prevents instruction truncation.
+
+2. **Use inverse context packing — start with everything, then surgically remove.** Traditional additive packing biases toward files seen first. Start with all candidate files ranked by relevance, then cut from the bottom. This ensures priority files always make it in and lower-priority files never displace higher ones.
+
+3. **Mandatory relevance scoring for every file.** Every file in context must earn its place. Score files by: edit recency (0.35), import distance from active files (0.30), semantic similarity to task (0.25), and file size penalty (0.10). Files below threshold 0.4 are excluded. No "just in case" inclusion.
+
+4. **Deterministic file ordering for prompt caching.** Anthropic prompt caching requires stable prefix — exact byte match. Sort files by priority tier first, then alphabetically within tier. Static content (L1 rules, L2 specs) MUST be the prefix. Cache-friendly ordering saves 90%+ on input token costs for cached reads.
+
+5. **Deduplicate before compressing.** Hash every paragraph, merge those with Jaccard similarity > 0.85. Deduplication catches copy-pasted code blocks and duplicate error messages before compression wastes tokens on them. Run dedup pass before any compression pass.
+
+6. **Apply relevance score decay for stale files.** Files included in the last 3 turns but never referenced by the agent get a 0.5× multiplier on their score. Files actively referenced by the agent get a 1.3× boost. This self-correcting feedback loop keeps context fresh and relevant.
+
+7. **Summarize conversation history, don't accumulate it.** After 10 turns, switch from raw conversation history to compressed summaries: decisions made, facts learned, and current state. Raw history grows unbounded; summaries stay at 3-15K tokens regardless of conversation length.
+
+8. **Never exclude error output (L4) without explicit override.** The agent's error stack traces are the highest-signal content for debugging. Trimming to last 50 lines + stack trace only preserves the signal while managing token cost. Excluding L4 completely guarantees wrong fixes.
+
+9. **Measure cache hit rate continuously.** Track cache hit rate over last 50 requests. Target > 60%. If cache hit rate drops, audit prefix stability — the L1/L2 content may have changed between requests. Cache misses on 50K token requests cost 25× more than cache hits.
+
+10. **Project dollar cost for every assembly strategy.** Context engineering is cost engineering. Track $/request at current token prices. Compare strategies: how much does deduplication save? How much does summarization save? When the team sees context pollution costs $1,200/month in wasted tokens, priorities align.
+
 ## Decision Trees
+
+**(QUICK)**
 
 ### 1. Token Budget Allocation
 
@@ -416,6 +444,8 @@ File size > 5K tokens?
 
 ## Error Recovery
 
+**(STANDARD)**
+
 If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
@@ -427,6 +457,17 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Agent "forgets" instructions after turn 12 and stops running tests | Context window exceeded 90% utilization; Level 1 rules (which include "always run tests") were truncated. The agent literally cannot see the instruction anymore. | Hard cap context utilization at 80% of model window. Evict lowest-scoring Level 3 files before touching Level 1 content. Monitor context utilization per turn; alert if > 80%. | Context truncation is invisible — the agent doesn't know it forgot something. It just stops doing it. The most critical instructions (L1) must be protected from eviction by budget hard caps and tier-based eviction priority. |
+| Cache hit rate drops from 70% to 10% overnight with no code changes | Context assembly order changed — a new file was added to L1 (rules), shifting the byte prefix. Anthropic prompt caching requires exact byte match from position 0. | Audit L1/L2 content for changes. Keep static content truly static — never reorder, never reformat, never add comments to L1 between requests. Implement a "cache prefix freeze" — L1 content changes require explicit approval. | Prompt caching is brittle — any change to the prefix breaks caching for the entire request. A 5-character comment added to a rules file can turn $0.015/request into $0.375/request. 25× cost increase from a single line change. |
+| Agent proposes a fix that creates a new bug — it never saw the error stack trace | Level 4 (error output) was excluded from context to save tokens. The agent worked from the symptom description alone, missing the specific error code, file path, and line number in the stack trace. | Never exclude Level 4 without explicit override. Trim to last 50 lines + stack trace only — preserve signal, manage cost. Add a ground rule: "Error stack traces are always higher priority than 20% additional source files." | Debugging without error traces is like surgery blindfolded. The 500-1,000 tokens saved by excluding L4 cost 4-8 hours of engineering time implementing the wrong fix. Token savings that cost engineering hours are not savings. |
+| Token costs grow 3× over a month with no increase in agent usage | Relevance scoring is not pruning stale files. Files from early turns remain in context indefinitely. Conversation history (L5) is accumulating raw, not summarizing after turn 10. | Apply relevance score decay: files unreferenced for 3+ turns get 0.5× multiplier. Switch to conversation summaries after 10 turns. Run `python context_audit.py --cost-trend` weekly and alert on > 20% growth. | Context cost growth is gradual and invisible — there's no error, no crash, no alert. It creeps up 5% per week until your monthly LLM bill is 3× what it should be. Cost trend monitoring catches the creep before the bill does. |
+| Different developers on the same project get different agent behavior for the same task | Context assembly is developer-specific — different file selection, different ordering, different summarization. No shared context strategy or budget enforcement. | Define a project-level context strategy: token budget per task type, relevance scoring weights, file ordering rules. Enforce via `context_audit.py --check-compliance` in CI. Share strategy as committed config. | Context assembly is infrastructure, not personal preference. When each developer builds context differently, you have N different agents instead of 1 reliable one. Standardized context strategy makes agent behavior reproducible and debuggable. |
+| Context pollution from a single large auto-generated file (e.g., 5K-line `package-lock.json`) | File size penalty in relevance scoring is too weak — the 0.10 weight allows 5K-token auto-generated files to enter context if they have high import proximity. | Increase file size penalty weight for auto-generated files. Use a `file_type_blacklist` for known noisy files: `package-lock.json`, `yarn.lock`, `Cargo.lock`, `*.min.js`, `*.pyc`. These files are human-unreadable and waste context budget. | Not all files are created equal for context. Auto-generated lockfiles, minified bundles, and compiled binaries are token sinks with zero information density. A blacklist is more effective than trying to score them into exclusion — just never include them. |
 
 ## Cross-Skill Coordination
 
@@ -543,7 +584,49 @@ Result: Agent completes all tasks correctly. Cost: $0.18 for the session.
 
 5. **Cross-model portability test:** Take a context assembly tuned for Claude 200K. Adapt it for GPT-4o 128K without losing task completion quality. Document every compression decision.
 
-## Gotchas
+### Scale Depth
+
+#### Solo Developer
+**Budget:** $0-$200/month in token savings. Manual relevance scoring: include files by dependency distance. Fixed token budget per model (80% of window). Basic conversation summarization at 10 turns. Measure: task completion rate improvement.
+**Transition trigger:** Team of 2+ developers sharing context assembly → move to Small Team.
+
+#### Small Team (2-10)
+**Budget:** $200-$2K/month in token savings. Automated relevance scoring (edit recency + import distance + semantic similarity). Inverse context packing with deduplication. Prompt caching optimization (deterministic prefix). Cache hit rate monitoring. Cost-per-task tracking per developer.
+**Transition trigger:** $1K+/month LLM spend or 3+ different task types → move to Medium Org.
+
+#### Medium Org (10-50)
+**Budget:** $2K-$20K/month in token savings. Task-type-aware budget allocation. Continuous relevance scoring with ML-based file ranking. A/B testing of context assembly strategies. Automated staleness eviction. Per-developer cost attribution dashboards. Compression validation pipeline.
+**Transition trigger:** $10K+/month LLM spend or multi-model context assembly (Claude, GPT, Gemini) → move to Enterprise.
+
+#### Enterprise (50+)
+**Budget:** $20K+/month in token savings. Dedicated context engineering team. Multi-model context optimization with model-specific strategies. Real-time context quality monitoring with automated rollback. Federated context assembly across agent types. Context strategy as a platform service with SLAs. Predictive context pre-fetching based on task classification.
+
+## Anti-Patterns
+
+### Anti-Pattern: Additive Context Packing
+**What it looks like:** Starting with an empty context and adding files one by one as the agent discovers they're needed. The agent requests files reactively, accumulating context over turns without evicting stale content.
+**Why it fails:** Additive packing biases toward files discovered early in the session, not files most relevant to the current task. By turn 10, context contains 30+ files — 60% of which were relevant to turn 2 but not turn 10. Token costs grow linearly with turns while relevance decays.
+**Do this instead:** Use inverse packing: rank all candidate files by relevance score, include top-N that fit within budget, evict files not referenced in 3+ turns. Each turn starts fresh from the full ranked set, not from the previous turn's accumulation.
+
+### Anti-Pattern: Static Token Budget for Dynamic Tasks
+**What it looks like:** Using the same token budget allocation (e.g., "50% for source files") regardless of task type. A debugging session that needs error traces (L4) gets the same budget as a feature implementation that needs specs (L2).
+**Why it fails:** Different tasks have different context needs. Debugging without error traces wastes engineering hours. Feature implementation without specs produces misaligned code. A static budget optimizes for no task well.
+**Do this instead:** Adapt budget by task type: debugging (L4: 15%, L3: 30%), feature implementation (L2: 20%, L3: 35%), code review (L3: 45%, L4: 5%), exploration (L3: 40%, L5: 15%). Task-aware budgeting puts tokens where they produce the most signal.
+
+### Anti-Pattern: Including Entire Directories "Just in Case"
+**What it looks like:** Including an entire `utils/` directory — 15-30 files averaging 500 tokens each — because the agent "might need something from there." No relevance scoring, no dependency analysis, no size consideration.
+**Why it fails:** A typical `utils/` folder burns 7,500-15,000 tokens per request. Across 15,000 requests/month (team of 8), that's $375-$850/month on files the agent never reads. Worse: polluted context causes 15-25% more turns per task due to degraded reasoning.
+**Do this instead:** Dependency-graph-based inclusion. Only include files reachable from the files the agent is actively editing. Relevance-score every candidate. If 60% of context tokens are irrelevant, you're paying double — once for the tokens, once for the degraded reasoning quality.
+
+### Anti-Pattern: Compressing Without Validation
+**What it looks like:** Compressing conversation history or source files (stripping comments, collapsing whitespace) without verifying the compressed content still contains the information the agent needs. A compressed summary of turn 12 omits the specific error code the agent needs.
+**Why it fails:** Compression is lossy by design. Without validation, you trade token savings for information loss — and the information you lose is exactly what the agent needs to solve the problem. A wrong fix based on incomplete context costs more than the tokens you saved.
+**Do this instead:** Validate compression quality: take a 20-turn conversation, write a summary in exactly 500 tokens, have another agent try to answer a question about turn 12 using only your summary. Iterate until accuracy > 90%. Apply the same validation to source file compression.
+
+### Anti-Pattern: Ignoring Cache Prefix Stability
+**What it looks like:** Context assembly varies file ordering between requests — different sort order, different file selection. Every request becomes a cache miss. The L1/L2 static content that should be cached gets re-sent every time.
+**Why it fails:** Uncached 50K token requests cost $0.375 each; cached (with stable prefix) cost $0.015 each. For 500 requests/day: uncached = $187.50/day ($68,437/year), cached = $7.50/day ($2,737/year). That's a 25× cost difference entirely determined by prefix stability.
+**Do this instead:** Deterministic file ordering: priority tier → alphabetical within tier. Keep L1 (rules) and L2 (specs) content identical between requests — never reorder, never reformat. Measure cache hit rate continuously. A 50% cache hit rate saves $33K/year on 500 requests/day.
 
 ### 1. Context Pollution: The Silent Killer ($1,200/month)
 A 10-developer team running 50 agent calls/day each at $0.03/call. If 60% of context tokens are irrelevant (pollution), that's $0.018 wasted per call × 50 calls × 22 days × 10 devs = **$1,188/month in wasted tokens**. Worse: polluted context causes 15-25% more turns per task due to degraded reasoning, doubling the real cost. Fix: mandatory relevance scoring before inclusion. Every file in context must earn its place.
@@ -559,6 +642,26 @@ Agent operating near context window limit (90%+ utilization) has instructions fr
 
 ### 5. Prompt Caching Failures ($1,500/month)
 Anthropic prompt caching requires a stable prefix (exact byte match). If context assembly varies file ordering between requests, every request becomes a cache miss. At $7.50/M input tokens (uncached) vs $0.30/M (cached) for cached read tokens, a 50K token request costs $0.375 uncached vs $0.015 cached. For 500 requests/day: uncached = **$187.50/day, cached = $7.50/day.** Difference: **$180/day or $3,960/month.** Even a 50% cache hit rate saves $1,980/month. Fix: deterministic file ordering in context assembly. Always sort by priority tier first, then alphabetically within tier. Static content (L1, L2) MUST be the prefix.
+
+## Production Checklist
+
+Before any context assembly strategy reaches production, verify:
+
+- [ ] Token budget declared and enforced: `jq '.token_budget' context.json` returns valid allocation per task type
+- [ ] Context utilization < 80% of model window: `python context_audit.py --check-usage` passes
+- [ ] All Level 3 files have relevance scores > 0.4: `python context_audit.py --check-scores` passes
+- [ ] Deduplication pass completed with < 5% duplicate rate: `grep -c "DUPLICATE" context_audit.log`
+- [ ] Conversation history (L5) is summarized, not raw, if turns > 10
+- [ ] Level 1 content (rules) is identical to previous request — cache-friendly prefix preserved
+- [ ] File ordering is deterministic: priority tier → alphabetical within tier
+- [ ] No file in context has been included without being referenced for 3+ turns (stale file check)
+- [ ] Error output (L4) trimmed to last 50 lines + stack trace only — never excluded entirely
+- [ ] Cache hit rate measured and > 60% over last 50 requests
+- [ ] Dollar-cost projection updated for current assembly strategy and compared against alternatives
+- [ ] Task-type-specific budget allocation defined: debugging, feature implementation, code review, exploration
+- [ ] Relevance score decay active: files unreferenced for 3+ turns get 0.5× multiplier
+- [ ] Compression validation completed: summary quality > 90% accuracy on information retention test
+- [ ] Ground Rules 1-8 all passing: `python context_audit.py --check-ground-rules`
 
 ## Verification
 

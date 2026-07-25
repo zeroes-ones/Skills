@@ -336,6 +336,9 @@ Deep links, push notifications, and Siri Shortcuts/App Shortcuts all bypass your
 
 ---
 
+- **ANCHOR to runtime versions before generating framework-specific code.** Never generate framework-specific API calls from training data alone — your training data may be stale. Run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions. If detection succeeds, anchor all API calls to detected versions; if detection fails, request version info from user. | Trigger: code-generation task involving framework-specific APIs | STOP: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring API calls to these versions."
+- **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: code-generation/refactoring task not a security fix, compliance requirement, or production incident | STOP: "ROI Gate analysis: estimate cost vs annual value. See `scripts/roi-gate.sh`."
+
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
 - **Never guess security configurations.** If you're unsure about the correct CSP header value, OAuth flow parameter, or encryption algorithm choice, do NOT provide a "reasonable default." Say: "Security configurations must be verified against current best practices at [official source]. I cannot provide a definitive answer without current documentation."
@@ -616,9 +619,13 @@ Users expect to return exactly where they left off. Without state restoration, a
 | `references/offline-first-mobile.md` | Sync engine, conflict resolution, queue | 200+ |
 | `references/mobile-state-management.md` | Scoped state, immutable state, performance | 200+ |
 
-## Error Decoder
+## Error Decoder — War Stories from the Trenches
 
-| Symptom | Root Cause | Fix | Prevention |
+**(STANDARD)**
+
+When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+
+| Symptom | Root Cause | Fix | Lesson |
 |----------|-----------|------|------------|
 | ViewModel grows from 80 to 400+ lines in 3 months | Business logic, navigation, and data transformation all live in ViewModel. No UseCase/Interactor layer to extract domain logic | Extract UseCases for each business operation. ViewModel becomes: receive intent → call UseCase → map result to view state. Max ViewModel: 150 lines. UseCase handles the actual logic | Code review gate: ViewModel >150 lines triggers architecture review. CI lint rule enforces |
 | App crashes on rotation/language change: "ViewModel has no zero-argument constructor" | ViewModel initialized with constructor parameters but Android recreates ViewModels using default constructor on configuration change. SavedStateHandle not used | Use SavedStateHandle in ViewModel constructor for data that must survive process death. Use `viewModel { parametersOf(...) }` for Compose or `ViewModelProvider.Factory` for Views | Rule: every ViewModel must survive `adb shell am kill [package]` test. CI test rotates screen 5 times — no crashes |
