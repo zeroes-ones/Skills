@@ -27,6 +27,7 @@ chain:
   - api-test-suite-builder
   - backend-developer
   - frontend-developer
+  - incident-responder
   - qa-engineer
   - security-reviewer
   - staff-engineer

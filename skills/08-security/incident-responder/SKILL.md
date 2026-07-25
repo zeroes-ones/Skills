@@ -35,6 +35,7 @@ chain:
   - site-reliability-engineer
   feeds_into:
   - compliance-officer
+  - code-reviewer
   - devops-engineer
   - security-engineer
 ---

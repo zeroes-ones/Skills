@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T13:30:03Z
+# Generated: 2026-07-25T13:34:29Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    e4e2d33669c7548ef914000b8b28f3737f40da77
+# Commit:    2f64bf8284846a45115638678117e50b25395efd
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh

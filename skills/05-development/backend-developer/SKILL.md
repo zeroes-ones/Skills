@@ -31,6 +31,7 @@ chain:
   - algorithmic-trader
   - api-designer
   - code-reviewer
+  - chaos-engineer
   - database-designer
   - documentation-engineer
   - engineering-manager
@@ -50,6 +51,7 @@ chain:
   - algorithmic-trader
   - api-designer
   - api-test-suite-builder
+  - chaos-engineer
   - ci-cd-builder
   - clinical-informatics-specialist
   - code-reviewer
