@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**106 skills across 25 domains. 1,130 chain edges with 0 asymmetries. 150+ reference documents. 30+ asset templates.**
+**188 skills across 27 domains. 1,675 chain edges with 0 asymmetries. 2,085+ reference documents. 11+ asset templates.**
 
 ### Cross-Skill Chain System
 
@@ -50,7 +50,7 @@ skill-name/
     └── sample.json
 ```
 
-The `chain:` block in YAML frontmatter declares each skill's upstream/downstream dependencies. Skills coordinate via specific decision gates and shared artifacts — not vague "talk to X" references. All chain edges are symmetric across the 106-skill graph.
+The `chain:` block in YAML frontmatter declares each skill's upstream/downstream dependencies. Skills coordinate via specific decision gates and shared artifacts — not vague "talk to X" references. All 1,675 chain edges are symmetric across the 188-skill graph.
 
 This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while making deep expertise available when needed.
 
@@ -83,29 +83,35 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 | 23 | **Trust & Safety** | Trust & Safety Engineer, Content Policy Manager, Privacy Engineer | Abuse detection, medical misinformation, BAA/DSAR, consent infrastructure |
 | 24 | **Creative** | UX Writer, Product Marketing Manager, Medical Illustrator | Product copy, health literacy, clinical value props, medical visualization |
 | 25 | **Engineering Leadership** | Staff Engineer, Engineering Manager, Director Engineering, VP Engineering | IC leadership, people management, org design, executive strategy |
+| 26 | **Web3** | Smart Contract Auditor, Cryptographic Engineer, ZKP Engineer | EVM security audit, MPC/FHE/TEE, zero-knowledge circuits, constraint verification |
+| 27 | **Framework** | Skill Levels, Writing Great Skills | Skill authoring, competency taxonomy, quality dimensions, anti-rationalization |
 
 ## Quality Status
 
-**All 106 skills rated 10/10** with full section coverage:
+**All 188 skills rated 10/10** with full section coverage across 12 required core sections:
 
 | Section | Coverage | Description |
 |---------|----------|-------------|
-| Route the Request | 106/106 | Entry-point router directing to correct skill/mode |
-| Ground Rules | 106/106 | Non-negotiable rules read before work begins |
-| When to Use | 106/106 | Decision table: use this skill vs alternatives |
-| Decision Trees | 106/106 | Branching logic for key design/architecture choices |
-| Core Workflow | 106/106 | Phased workflow with time estimates |
-| Cross-Skill Coordination | 106/106 | Decision gates, artifacts, escalation paths |
-| **Proactive Triggers** | **106/106** | Trigger → Action → Why for service interaction events |
-| Best Practices | 106/106 | Production-validated rules with code examples |
-| **Anti-Patterns** | **106/106** | ❌ / ✅ pairs with specific correct alternatives |
-| **Error Decoder** | **106/106** | Symptom → Root Cause → Fix → Lesson (top-level `##`) |
-| Production Checklist | 106/106 | Domain-tagged checklist with reference IDs |
-| Scale Depth | 106/106 | Solo → Small → Medium → Enterprise coverage |
-| What Good Looks Like | 106/106 | Concrete success description |
-| References | 106/106 | Deep reference documents and external sources |
+| Route the Request | 188/188 | Entry-point router directing to correct skill/mode |
+| Ground Rules — Read Before Anything Else | 188/188 | Non-negotiable rules with mechanical triggers and violation responses |
+| The Expert's Mindset | 188/188 | Mental models, what masters know, cognitive bias awareness |
+| Operating at Different Levels | 188/188 | Solo → Small → Medium → Enterprise scale depth |
+| When to Use | 188/188 | Decision table: use this skill vs alternatives |
+| Decision Trees | 188/188 | Branching logic for key design/architecture choices |
+| Core Workflow | 188/188 | Phased workflow with time estimates and completion criteria |
+| Cross-Skill Coordination | 188/188 | Upstream/downstream tables, communication triggers, escalation paths |
+| Proactive Triggers | 188/188 | Trigger → Action → Why for events requiring immediate attention |
+| What Good Looks Like | 188/188 | Concrete aspirational outcome statement |
+| Deliberate Practice | 188/188 | Exercises to build instinct before production use |
+| References | 188/188 | Deep reference documents and external sources |
 
-**Chain symmetry:** 1,130 edges (565 `consumes_from` + 565 `feeds_into`) with **0 asymmetries**.
+**Beyond the 12 core sections**, every skill also includes:
+- **Error Recovery** — Symptom → Root Cause → Fix → Lesson decoder (5+ war stories)
+- **State Log** — Decision ledger with anti-drift checks for cross-session continuity
+- **Verification Guardrails** — Self-check checklist the agent runs before delivering work
+- **Anti-Hungination** — "NOT VERIFIED" + "Flag your knowledge cutoff" guardrails
+
+**Chain symmetry:** 1,675 edges with **0 asymmetries** — verified programmatically.
 
 ## Usage
 
@@ -160,7 +166,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 106 skills in current project (team/company default) |
+| `skills-init` | Activate all 188 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -178,8 +184,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 106 skills
-skills-init               # All 25 domains, 106 skills, full lifecycle coverage
+# Startup or team project — full 188 skills
+skills-init               # All 27 domains, 188 skills, full lifecycle coverage
 ```
 
 **Auto-activation:** When you `cd` into any git repo, the shell prompts you to activate skills. It auto-detects the right tier based on your project location and structure.
@@ -230,10 +236,11 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`WISDOM-FRAMEWORK.md`](WISDOM-FRAMEWORK.md) | MVP-first, cost-effective, token-efficient decision making |
 | [`TECH-STACK-DECISIONS.md`](TECH-STACK-DECISIONS.md) | Technology selection by project archetype with cost projections |
 | [`PROJECT-BOOTSTRAP.md`](PROJECT-BOOTSTRAP.md) | Complete lifecycle navigation — which skills to invoke at each of 10 phases |
-| [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 150+ sub-skills across all domains with industry variations |
-| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error decoders, war stories, and 8 quality tests |
-| [`scripts/upgrade_to_10.py`](scripts/upgrade_to_10.py) | First-pass upgrade — applies progressive disclosure, token budgets, error decoders, and checklist numbering |
-| [`scripts/upgrade_to_10_v2.py`](scripts/upgrade_to_10_v2.py) | Second-pass upgrade — domain-specific error decoders, what-good-looks-like, cross-skill integration, token budget tuning |
+| [`SUB-SKILL-MAP.md`](SUB-SKILL-MAP.md) | 2,000+ sub-skills across all domains with industry variations |
+| [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | 10/10 grading rubric with progressive disclosure, error recovery, state logs, and 12 governance gates |
+| [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates (sections, frontmatter, chains, anti-hallucination) |
+| [`scripts/run-evals.sh`](scripts/run-evals.sh) | Automated evaluation harness — 43+ scenarios verifying skill correctness against dummy projects |
+| [`scripts/pre-commit`](scripts/pre-commit) | Git pre-commit hook — runs validation before every commit |
 
 ## Contributing
 
@@ -241,24 +248,30 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 2. Read [`AGNOSTIC-PRINCIPLES.md`](AGNOSTIC-PRINCIPLES.md) — universal by default, specific by reference
 3. Read [`SCALE-DEPTH-FRAMEWORK.md`](SCALE-DEPTH-FRAMEWORK.md) — every skill covers Solo→Small→Medium→Enterprise
 4. Follow the four-layer architecture: SKILL.md + scripts/ + references/ + assets/
-5. Every `SKILL.md` must pass the 10/10 checklist:
-   - Full YAML frontmatter with `name`, `description`, `author`, `type`, `version`, `updated`, `token_budget`, `output`, `chain`
+5. Every `SKILL.md` must pass the 12-section validation (`bash scripts/validate-skills.sh`):
+   - Full YAML frontmatter with `name`, `description`, `author`, `license`, `type`, `version`, `updated`, `token_budget`, `output`, `chain`, `portability`
    - `<!-- QUICK: 30s -->` markers for progressive disclosure
-   - `## Route the Request` — ASCII decision tree routing to the right skill
-   - `## Ground Rules — Read Before Anything Else` — 5 domain-specific guardrails
+   - `## Route the Request` — ASCII decision tree routing to right skill/mode
+   - `## Ground Rules — Read Before Anything Else` — domain-specific rules with mechanical triggers and violation responses
+   - `## The Expert's Mindset` — mental models, what masters know, cognitive biases
+   - `## Operating at Different Levels` — Solo → Small → Medium → Enterprise depth
+   - `## When to Use` — trigger-based decision table
    - `## Decision Trees` — at least 2 concrete decision frameworks
-   - `## Core Workflow` — 4 phases with time estimates
-   - `## Cross-Skill Coordination` — table of upstream/downstream skills with communication triggers
-   - `## Best Practices` — 8 actionable practices with code/config examples
-   - `## Error Decoder` — 5 war stories with symptom, root cause, fix, and lesson
-   - `## Production Checklist` — 14 items with domain-specific IDs (e.g., API1-API14, EM1-EM14)
-   - `## Scale Depth` — Solo → Startup → Scale-up → Enterprise
-   - `## What Good Looks Like` — aspirational outcome statement
+   - `## Core Workflow` — phased workflow with time estimates and completion criteria
+   - `## Error Recovery` — symptom/root cause/fix/lesson decoder (5+ war stories)
+   - `## Cross-Skill Coordination` — upstream/downstream tables with escalation paths
+   - `## State Log` — decision ledger with anti-drift checks for cross-session continuity
+   - `## Proactive Triggers` — trigger → action → why for events needing immediate attention
+   - `## What Good Looks Like` — concrete aspirational outcome
+   - `## Deliberate Practice` — exercises to build instinct before production use
+   - `## Verification Guardrails` — self-check checklist agent runs before delivering
+   - `## References` — deep reference files and external links
    - Token budget declared in frontmatter (~3000-4000 target)
-6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`, `type`, `version`, `updated`, `token_budget`
+6. YAML frontmatter: `name`, `description`, `author: Sandeep Kumar Penchala`, `license: MIT`, `type`, `version`, `updated`, `token_budget`
 7. No fluff — if a sentence doesn't help someone DO something, cut it
 8. Test with at least one AI agent before submitting
-9. After manual edits, run `python3 scripts/upgrade_to_10.py && python3 scripts/upgrade_to_10_v2.py` to re-sync all quality markers
+9. Run `bash scripts/validate-skills.sh` to verify all 12 gates pass
+10. Run `bash scripts/run-evals.sh` to verify 43+ automated scenarios
 
 ## License
 
