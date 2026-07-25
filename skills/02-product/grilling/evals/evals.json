@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "grilling",
+  "description": "Per-skill evaluation for grilling \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-grilling-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate grilling for primary domain request",
+      "input": "I need help with a team is stuck in circular discussion \u2014 same points, no resolution \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "grilling"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "assumption surfacing",
+            "interview",
+            "Socratic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-grilling-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex grilling scenario",
+      "input": "I'm working on a design decision feels \"obvious\" \u2014 obvious decisions hide assumptions \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "grilling"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "assumption surfacing",
+            "interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-grilling-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate grilling for ambiguous domain-adjacent request",
+      "input": "How should I approach grilling for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "grilling"
+        }
+      ]
+    },
+    {
+      "id": "negative-grilling-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate grilling for off-domain request: casual Q&A (use direct conversation)",
+      "input": "I need to casual q&a (use direct conversation)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "grilling"
+        }
+      ]
+    },
+    {
+      "id": "negative-grilling-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate grilling for off-domain request: information retrieval",
+      "input": "I need to information retrieval",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "grilling"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-grilling",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common grilling anti-patterns",
+      "input": "Build a production-ready grilling implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "assumption-surfacing",
+            "interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-grilling",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for grilling",
+      "input": "I'm shipping a grilling project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ground rules",
+            "ground rules checked",
+            "no batched questions in",
+            "no branch-skipping detected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-grilling",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for grilling",
+      "input": "What's the most important thing to know about grilling?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ceo-strategist",
+  "description": "Per-skill evaluation for ceo-strategist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ceo-strategist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ceo-strategist for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ceo-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "board",
+            "organization design",
+            "executive"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ceo-strategist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ceo-strategist scenario",
+      "input": "I'm working on fundraising strategy: when to raise, how much, from whom \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ceo-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "board",
+            "organization design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ceo-strategist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ceo-strategist for ambiguous domain-adjacent request",
+      "input": "How should I approach ceo strategist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ceo-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-ceo-strategist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ceo-strategist for off-domain request: day-to-day operational management",
+      "input": "I need to day-to-day operational management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ceo-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-ceo-strategist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ceo-strategist for off-domain request: individual contributor coaching",
+      "input": "I need to individual contributor coaching",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ceo-strategist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ceo-strategist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ceo-strategist anti-patterns",
+      "input": "Build a production-ready ceo strategist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ma",
+            "okr"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ceo-strategist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ceo-strategist",
+      "input": "I'm shipping a ceo strategist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "every employee can articulate",
+            "the company vision",
+            "verified by survey",
+            "company okrs set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ceo-strategist",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ceo-strategist",
+      "input": "What's the most important thing to know about ceo strategist?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

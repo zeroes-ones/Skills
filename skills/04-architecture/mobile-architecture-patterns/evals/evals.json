@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "mobile-architecture-patterns",
+  "description": "Per-skill evaluation for mobile-architecture-patterns \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-mobile-architecture-patterns-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate mobile-architecture-patterns for primary domain request",
+      "input": "I need help with designing mobile app architecture for new projects \u2014 choosing between mvvm, clea \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mobile-architecture-patterns"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "viper",
+            "architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-mobile-architecture-patterns-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex mobile-architecture-patterns scenario",
+      "input": "I'm working on evaluating architecture migration (e.g., mvc \u2192 mvvm, mvp \u2192 clean architecture) w \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mobile-architecture-patterns"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "viper"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-mobile-architecture-patterns-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate mobile-architecture-patterns for ambiguous domain-adjacent request",
+      "input": "How should I approach mobile architecture patterns for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mobile-architecture-patterns"
+        }
+      ]
+    },
+    {
+      "id": "negative-mobile-architecture-patterns-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate mobile-architecture-patterns for off-domain request: backend architecture",
+      "input": "I need to backend architecture",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "mobile-architecture-patterns"
+        }
+      ]
+    },
+    {
+      "id": "negative-mobile-architecture-patterns-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate mobile-architecture-patterns for off-domain request: web architecture",
+      "input": "Can you help me with web architecture? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "mobile-architecture-patterns"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-mobile-architecture-patterns",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common mobile-architecture-patterns anti-patterns",
+      "input": "Build a production-ready mobile architecture patterns implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "viper"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-mobile-architecture-patterns",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for mobile-architecture-patterns",
+      "input": "I'm shipping a mobile architecture patterns project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "run these checks before",
+            "declaring work complete",
+            "all must pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-mobile-architecture-patterns",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for mobile-architecture-patterns",
+      "input": "What's the most important thing to know about mobile architecture patterns?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

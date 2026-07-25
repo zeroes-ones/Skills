@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "blockchain-developer",
+  "description": "Per-skill evaluation for blockchain-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-blockchain-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate blockchain-developer for primary domain request",
+      "input": "I need help with writing, testing, and deploying smart contracts (solidity, rust/solana, move/apt \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "blockchain-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Solidity",
+            "Pyth",
+            "Solana"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-blockchain-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex blockchain-developer scenario",
+      "input": "I'm working on designing token economics and defi protocols \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "blockchain-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Solidity",
+            "Pyth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-blockchain-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate blockchain-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach blockchain developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "blockchain-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-blockchain-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate blockchain-developer for off-domain request: general backend development",
+      "input": "I need to general backend development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "blockchain-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-blockchain-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate blockchain-developer for off-domain request: general security auditing",
+      "input": "I need to general security auditing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "blockchain-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-blockchain-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common blockchain-developer anti-patterns",
+      "input": "Build a production-ready blockchain developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "guess Solidity/compiler/toolin"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "solidity",
+            "pyth"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-blockchain-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for blockchain-developer",
+      "input": "I'm shipping a blockchain developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cei pattern",
+            "all external calls occur",
+            "after all state updates",
+            "used for authorization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-blockchain-developer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete blockchain developer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

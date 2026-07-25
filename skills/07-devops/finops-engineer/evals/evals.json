@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "finops-engineer",
+  "description": "Per-skill evaluation for finops-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-finops-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate finops-engineer for primary domain request",
+      "input": "I need help with your monthly cloud bill (aws/azure/gcp) has spiked and you need to identify the  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "finops-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cost",
+            "Kubernetes",
+            "Reserved Instances"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-finops-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex finops-engineer scenario",
+      "input": "I'm working on you need to implement a tagging strategy to allocate cloud costs to teams, proje \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "finops-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cost",
+            "Kubernetes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-finops-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate finops-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach finops engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "finops-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-finops-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate finops-engineer for off-domain request: financial planning and analysis",
+      "input": "I need to financial planning and analysis",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "finops-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-finops-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate finops-engineer for off-domain request: general FP&A work",
+      "input": "Can you help me with general fp&a work? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "finops-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-finops-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common finops-engineer anti-patterns",
+      "input": "Build a production-ready finops engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cost",
+            "pr"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-finops-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for finops-engineer",
+      "input": "I'm shipping a finops engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cost allocation",
+            "every cloud resource has",
+            "tagging coverage",
+            "budget alerts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-finops-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete finops engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

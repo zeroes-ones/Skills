@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "game-networking-developer",
+  "description": "Per-skill evaluation for game-networking-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-game-networking-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate game-networking-developer for primary domain request",
+      "input": "I need help with implementing multiplayer game networking: client-server, peer-to-peer, or hybrid \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "game-networking-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "multiplayer",
+            "synchronization",
+            "prediction"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-game-networking-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex game-networking-developer scenario",
+      "input": "I'm working on designing client-side prediction with server reconciliation for responsive gamep \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "game-networking-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "multiplayer",
+            "synchronization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-game-networking-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate game-networking-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach game networking developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "game-networking-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-game-networking-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate game-networking-developer for off-domain request: REST API development",
+      "input": "I need to rest api development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "game-networking-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-game-networking-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate game-networking-developer for off-domain request: web backend development",
+      "input": "I need to web backend development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "game-networking-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-game-networking-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common game-networking-developer anti-patterns",
+      "input": "Build a production-ready game networking developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "nat",
+            "udp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-game-networking-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for game-networking-developer",
+      "input": "I'm shipping a game networking developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "run these checks before",
+            "declaring work complete",
+            "all must pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-game-networking-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for game-networking-developer",
+      "input": "What's the most important thing to know about game networking developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

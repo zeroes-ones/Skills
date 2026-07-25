@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "community-operations-manager",
+  "description": "Per-skill evaluation for community-operations-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-community-operations-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate community-operations-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-operations-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "patient community",
+            "health community",
+            "HIPAA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-community-operations-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex community-operations-manager scenario",
+      "input": "I'm working on designing a peer mentorship program for newly diagnosed patients matched with ex \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-operations-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "patient community",
+            "health community"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-community-operations-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate community-operations-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach community operations manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-operations-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-community-operations-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate community-operations-manager for off-domain request: clinical trial recruitment",
+      "input": "I need to clinical trial recruitment",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "community-operations-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-community-operations-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate community-operations-manager for off-domain request: medical content creation",
+      "input": "I need to medical content creation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "community-operations-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-community-operations-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common community-operations-manager anti-patterns",
+      "input": "Build a production-ready community operations manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "patient-community",
+            "health-community"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-community-operations-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for community-operations-manager",
+      "input": "I'm shipping a community operations manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "content safety",
+            "medical claims in community",
+            "posts flagged and reviewed",
+            "within sla"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-community-operations-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for community-operations-manager",
+      "input": "What's the most important thing to know about community operations manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "personal-productivity-developer",
+  "description": "Per-skill evaluation for personal-productivity-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-personal-productivity-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate personal-productivity-developer for primary domain request",
+      "input": "I need help with building a habit tracker with streak mechanics, identity-based reinforcement, an \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "personal-productivity-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "life organization",
+            "goal setting",
+            "habit tracking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-personal-productivity-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex personal-productivity-developer scenario",
+      "input": "I'm working on building a personal journal or diary with rich text, mood tracking, photo/voice  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "personal-productivity-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "life organization",
+            "goal setting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-personal-productivity-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate personal-productivity-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach personal productivity developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "personal-productivity-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-personal-productivity-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate personal-productivity-developer for off-domain request: enterprise project management",
+      "input": "I need to enterprise project management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "personal-productivity-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-personal-productivity-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate personal-productivity-developer for off-domain request: team collaboration tools",
+      "input": "I need to team collaboration tools",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "personal-productivity-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-personal-productivity-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common personal-productivity-developer anti-patterns",
+      "input": "Build a production-ready personal productivity developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "life-organization",
+            "goal-setting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-personal-productivity-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for personal-productivity-developer",
+      "input": "I'm shipping a personal productivity developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-personal-productivity-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for personal-productivity-developer",
+      "input": "What's the most important thing to know about personal productivity developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

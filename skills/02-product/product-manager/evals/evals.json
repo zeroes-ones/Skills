@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "product-manager",
+  "description": "Per-skill evaluation for product-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-product-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "user stories",
+            "roadmap",
+            "backlog"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex product-manager scenario",
+      "input": "I'm working on a new feature or product area needs a formal product requirements document \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "user stories",
+            "roadmap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach product manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-manager for off-domain request: technical architecture decisions",
+      "input": "I need to technical architecture decisions",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-manager for off-domain request: code-level design",
+      "input": "Can you help me with code-level design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-product-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common product-manager anti-patterns",
+      "input": "Build a production-ready product manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "user-stories",
+            "roadmap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-product-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for product-manager",
+      "input": "I'm shipping a product manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "prd review",
+            "stakeholders from engineering",
+            "and support have reviewed",
+            "and approved"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-product-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete product manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

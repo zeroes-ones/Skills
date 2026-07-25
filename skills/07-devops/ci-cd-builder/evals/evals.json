@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ci-cd-builder",
+  "description": "Per-skill evaluation for ci-cd-builder \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ci-cd-builder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ci-cd-builder for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ci-cd-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GitLab CI",
+            "SLSA",
+            "DORA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ci-cd-builder-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ci-cd-builder scenario",
+      "input": "I'm working on architecting a ci/cd pipeline from scratch for monorepos, microservices, or poly \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ci-cd-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GitLab CI",
+            "SLSA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ci-cd-builder-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ci-cd-builder for ambiguous domain-adjacent request",
+      "input": "How should I approach ci cd builder for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ci-cd-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-ci-cd-builder-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ci-cd-builder for off-domain request: infrastructure provisioning (Terraform/Pulumi)",
+      "input": "I need to infrastructure provisioning (terraform/pulumi)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ci-cd-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-ci-cd-builder-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ci-cd-builder for off-domain request: Kubernetes manifests",
+      "input": "I need to kubernetes manifests",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ci-cd-builder"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ci-cd-builder",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ci-cd-builder anti-patterns",
+      "input": "Build a production-ready ci cd builder implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gitlab-ci",
+            "slsa"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ci-cd-builder",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ci-cd-builder",
+      "input": "I'm shipping a ci cd builder project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "push to branch",
+            "ci pipeline triggers automatically",
+            "all jobs pass",
+            "check pipeline duration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ci-cd-builder",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ci-cd-builder",
+      "input": "What's the most important thing to know about ci cd builder?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

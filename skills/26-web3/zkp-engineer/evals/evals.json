@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "zkp-engineer",
+  "description": "Per-skill evaluation for zkp-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-zkp-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate zkp-engineer for primary domain request",
+      "input": "I need help with designing zkp circuits for private transactions, zk-rollups, or confidential sma \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "zkp-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "SuperNova",
+            "groth16",
+            "circom"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-zkp-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex zkp-engineer scenario",
+      "input": "I'm working on selecting a proof system: groth16 for small on-chain proofs, starks for transpar \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "zkp-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "SuperNova",
+            "groth16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-zkp-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate zkp-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach zkp engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "zkp-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-zkp-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate zkp-engineer for off-domain request: general cryptography (use cryptographic-engineer)",
+      "input": "I need to general cryptography (use cryptographic-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "zkp-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-zkp-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate zkp-engineer for off-domain request: smart contract development (use smart-contract-auditor)",
+      "input": "I need to smart contract development (use smart-contract-auditor)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "zkp-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-zkp-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common zkp-engineer anti-patterns",
+      "input": "Build a production-ready zkp engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "supernova",
+            "groth16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-zkp-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for zkp-engineer",
+      "input": "I'm shipping a zkp engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "no unconstrained signals in",
+            "the circuit",
+            "verified by static analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-zkp-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete zkp engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

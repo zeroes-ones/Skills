@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "recruiting",
+  "description": "Per-skill evaluation for recruiting \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-recruiting-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate recruiting for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "recruiting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Boolean",
+            "executive recruiting",
+            "LinkedIn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-recruiting-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex recruiting scenario",
+      "input": "I'm working on hiring a technical role (engineer, data scientist, pm, designer) where structure \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "recruiting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Boolean",
+            "executive recruiting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-recruiting-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate recruiting for ambiguous domain-adjacent request",
+      "input": "How should I approach recruiting for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "recruiting"
+        }
+      ]
+    },
+    {
+      "id": "negative-recruiting-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate recruiting for off-domain request: employee relations",
+      "input": "Can you help me with employee relations? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "recruiting"
+        }
+      ]
+    },
+    {
+      "id": "negative-recruiting-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate recruiting for off-domain request: onboarding program design",
+      "input": "I need to onboarding program design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "recruiting"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-recruiting",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common recruiting anti-patterns",
+      "input": "Build a production-ready recruiting implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "boolean",
+            "executive-recruiting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-recruiting",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for recruiting",
+      "input": "I'm shipping a recruiting project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "job descriptions",
+            "all open roles have",
+            "must-haves",
+            "nice-to-haves separated"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-recruiting",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for recruiting",
+      "input": "What's the most important thing to know about recruiting?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "context-compaction-strategies",
+  "description": "Per-skill evaluation for context-compaction-strategies \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-context-compaction-strategies-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate context-compaction-strategies for primary domain request",
+      "input": "I need help with - skill instruction set exceeds 2,500 tokens \u2014 needs progressive disclosure tier \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-compaction-strategies"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progressive disclosure",
+            "token optimization",
+            "dual representation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-context-compaction-strategies-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex context-compaction-strategies scenario",
+      "input": "I'm working on multi-skill agent pipeline with 3+ skills loaded simultaneously \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-compaction-strategies"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progressive disclosure",
+            "token optimization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-context-compaction-strategies-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate context-compaction-strategies for ambiguous domain-adjacent request",
+      "input": "How should I approach context compaction strategies for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "context-compaction-strategies"
+        }
+      ]
+    },
+    {
+      "id": "negative-context-compaction-strategies-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate context-compaction-strategies for off-domain request: general text summarization",
+      "input": "I need to general text summarization",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "context-compaction-strategies"
+        }
+      ]
+    },
+    {
+      "id": "negative-context-compaction-strategies-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate context-compaction-strategies for off-domain request: document compression for human readers",
+      "input": "I need to document compression for human readers",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "context-compaction-strategies"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-context-compaction-strategies",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common context-compaction-strategies anti-patterns",
+      "input": "Build a production-ready context compaction strategies implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "load Tier 3 content without ex",
+            "exceed 3 concurrent full-skill",
+            "compact security-critical sect"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progressive-disclosure",
+            "token-optimization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-context-compaction-strategies",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for context-compaction-strategies",
+      "input": "I'm shipping a context compaction strategies project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "token budget per skill",
+            "all active skills have",
+            "tier assignments with token",
+            "context saturation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-context-compaction-strategies",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete context compaction strategies workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

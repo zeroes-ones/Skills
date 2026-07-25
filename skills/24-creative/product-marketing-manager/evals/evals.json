@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "product-marketing-manager",
+  "description": "Per-skill evaluation for product-marketing-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-product-marketing-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-marketing-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-marketing-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "KLAS",
+            "healthcare messaging",
+            "product marketing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-marketing-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex product-marketing-manager scenario",
+      "input": "I'm working on planning a product launch for a health tech product (t1/t2/t3 tiering, checklist \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-marketing-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "KLAS",
+            "healthcare messaging"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-product-marketing-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate product-marketing-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach product marketing manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "product-marketing-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-marketing-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-marketing-manager for off-domain request: general B2B SaaS marketing",
+      "input": "I need to general b2b saas marketing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-marketing-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-product-marketing-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate product-marketing-manager for off-domain request: consumer brand marketing",
+      "input": "I need to consumer brand marketing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "product-marketing-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-product-marketing-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common product-marketing-manager anti-patterns",
+      "input": "Build a production-ready product marketing manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "klas",
+            "hcp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-product-marketing-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for product-marketing-manager",
+      "input": "I'm shipping a product marketing manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "sentence positioning statement",
+            "competitor can",
+            "t truthfully say the",
+            "same thing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-product-marketing-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for product-marketing-manager",
+      "input": "What's the most important thing to know about product marketing manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "translation-manager",
+  "description": "Per-skill evaluation for translation-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-translation-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate translation-manager for primary domain request",
+      "input": "I need help with standard: 3min --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "translation-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "machine translation",
+            "quality assurance",
+            "translation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-translation-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex translation-manager scenario",
+      "input": "I'm working on you need to set up a localization pipeline that doesn't depend on human translat \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "translation-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "machine translation",
+            "quality assurance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-translation-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate translation-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach translation manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "translation-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-translation-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate translation-manager for off-domain request: i18n architecture design",
+      "input": "I need to i18n architecture design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "translation-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-translation-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate translation-manager for off-domain request: RTL layout implementation",
+      "input": "I need to rtl layout implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "translation-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-translation-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common translation-manager anti-patterns",
+      "input": "Build a production-ready translation manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "machine-translation",
+            "mt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-translation-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for translation-manager",
+      "input": "I'm shipping a translation manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "or equivalent to extract",
+            "new strings",
+            "zero untranslated keys",
+            "run pseudo-localization in"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-translation-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete translation manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

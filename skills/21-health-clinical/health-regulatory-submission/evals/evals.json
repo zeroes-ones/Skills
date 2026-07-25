@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "health-regulatory-submission",
+  "description": "Per-skill evaluation for health-regulatory-submission \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-health-regulatory-submission-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate health-regulatory-submission for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-regulatory-submission"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "510k",
+            "De Novo",
+            "EU MDR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-health-regulatory-submission-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex health-regulatory-submission scenario",
+      "input": "I'm working on building a health app and need to know if the fda will regulate it \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-regulatory-submission"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "510k",
+            "De Novo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-health-regulatory-submission-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate health-regulatory-submission for ambiguous domain-adjacent request",
+      "input": "How should I approach health regulatory submission for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "health-regulatory-submission"
+        }
+      ]
+    },
+    {
+      "id": "negative-health-regulatory-submission-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate health-regulatory-submission for off-domain request: HIPAA compliance implementation",
+      "input": "I need to hipaa compliance implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "health-regulatory-submission"
+        }
+      ]
+    },
+    {
+      "id": "negative-health-regulatory-submission-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate health-regulatory-submission for off-domain request: clinical trial design",
+      "input": "I need to clinical trial design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "health-regulatory-submission"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-health-regulatory-submission",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common health-regulatory-submission anti-patterns",
+      "input": "Build a production-ready health regulatory submission implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pma",
+            "510k"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-health-regulatory-submission",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for health-regulatory-submission",
+      "input": "I'm shipping a health regulatory submission project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ectd validation",
+            "ectd validator",
+            "tool passes with zero",
+            "not just"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-health-regulatory-submission",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for health-regulatory-submission",
+      "input": "What's the most important thing to know about health regulatory submission?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

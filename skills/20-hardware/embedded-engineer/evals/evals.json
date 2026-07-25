@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "embedded-engineer",
+  "description": "Per-skill evaluation for embedded-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-embedded-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate embedded-engineer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan bullets to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "embedded-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "embedded engineer",
+            "Zephyr",
+            "UART"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-embedded-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex embedded-engineer scenario",
+      "input": "I'm working on selecting an mcu/mpu for a new product: arm cortex-m0 through m7, risc-v, esp32, \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "embedded-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "embedded engineer",
+            "Zephyr"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-embedded-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate embedded-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach embedded engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "embedded-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-embedded-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate embedded-engineer for off-domain request: PCB layout and hardware schematics",
+      "input": "I need to pcb layout and hardware schematics",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "embedded-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-embedded-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate embedded-engineer for off-domain request: HDL/FPGA design",
+      "input": "Can you help me with hdl/fpga design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "embedded-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-embedded-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common embedded-engineer anti-patterns",
+      "input": "Build a production-ready embedded engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "embedded-engineer",
+            "zephyr"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-embedded-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for embedded-engineer",
+      "input": "I'm shipping a embedded engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "firmware compiles with",
+            "zero warnings",
+            "static analysis",
+            "clang-tidy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-embedded-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for embedded-engineer",
+      "input": "What's the most important thing to know about embedded engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

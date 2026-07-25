@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "interview-coach",
+  "description": "Per-skill evaluation for interview-coach \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-interview-coach-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate interview-coach for primary domain request",
+      "input": "I need help with behavioral interview prep: star method stories, common questions, follow-up ques \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "interview-coach"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "behavioral interview",
+            "technical interview",
+            "STAR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-interview-coach-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex interview-coach scenario",
+      "input": "I'm working on technical interview prep: system design framework, coding interview patterns, ta \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "interview-coach"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "behavioral interview",
+            "technical interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-interview-coach-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate interview-coach for ambiguous domain-adjacent request",
+      "input": "How should I approach interview coach for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "interview-coach"
+        }
+      ]
+    },
+    {
+      "id": "negative-interview-coach-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate interview-coach for off-domain request: resume building",
+      "input": "Can you help me with resume building? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "interview-coach"
+        }
+      ]
+    },
+    {
+      "id": "negative-interview-coach-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate interview-coach for off-domain request: job search strategy",
+      "input": "Can you help me with job search strategy? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "interview-coach"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-interview-coach",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common interview-coach anti-patterns",
+      "input": "Build a production-ready interview coach implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "behavioral-interview",
+            "technical-interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-interview-coach",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for interview-coach",
+      "input": "I'm shipping a interview coach project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "star stories prepared",
+            "each with measurable result",
+            "each deliverable in",
+            "seconds without notes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-interview-coach",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for interview-coach",
+      "input": "What's the most important thing to know about interview coach?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

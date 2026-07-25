@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "content-policy-manager",
+  "description": "Per-skill evaluation for content-policy-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-content-policy-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate content-policy-manager for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "content-policy-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "content policy",
+            "community guidelines",
+            "HIPAA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-content-policy-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex content-policy-manager scenario",
+      "input": "I'm working on classifying medical content into misinformation categories and severity tiers \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "content-policy-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "content policy",
+            "community guidelines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-content-policy-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate content-policy-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach content policy manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "content-policy-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-content-policy-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate content-policy-manager for off-domain request: trust and safety detection infrastructure",
+      "input": "I need to trust and safety detection infrastructure",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "content-policy-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-content-policy-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate content-policy-manager for off-domain request: privacy engineering",
+      "input": "Can you help me with privacy engineering? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "content-policy-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-content-policy-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common content-policy-manager anti-patterns",
+      "input": "Build a production-ready content policy manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "content-policy",
+            "community-guidelines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-content-policy-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for content-policy-manager",
+      "input": "I'm shipping a content policy manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "policy clarity",
+            "moderator accuracy audit",
+            "inter-rater agreement on",
+            "policy application"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-content-policy-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for content-policy-manager",
+      "input": "What's the most important thing to know about content policy manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

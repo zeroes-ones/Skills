@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "community-organizing-tech",
+  "description": "Per-skill evaluation for community-organizing-tech \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-community-organizing-tech-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate community-organizing-tech for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-organizing-tech"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "nonprofit",
+            "grassroots",
+            "activism"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-community-organizing-tech-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex community-organizing-tech scenario",
+      "input": "I'm working on building a volunteer coordination platform with skills matching, scheduling, and \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-organizing-tech"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "nonprofit",
+            "grassroots"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-community-organizing-tech-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate community-organizing-tech for ambiguous domain-adjacent request",
+      "input": "How should I approach community organizing tech for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "community-organizing-tech"
+        }
+      ]
+    },
+    {
+      "id": "negative-community-organizing-tech-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate community-organizing-tech for off-domain request: commercial social networks",
+      "input": "I need to commercial social networks",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "community-organizing-tech"
+        }
+      ]
+    },
+    {
+      "id": "negative-community-organizing-tech-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate community-organizing-tech for off-domain request: political campaign technology",
+      "input": "I need to political campaign technology",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "community-organizing-tech"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-community-organizing-tech",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common community-organizing-tech anti-patterns",
+      "input": "Build a production-ready community organizing tech implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "nonprofit",
+            "grassroots"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-community-organizing-tech",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for community-organizing-tech",
+      "input": "I'm shipping a community organizing tech project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "before considering the task",
+            "privacy verification",
+            "every pii field has",
+            "retention policy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-community-organizing-tech",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete community organizing tech workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

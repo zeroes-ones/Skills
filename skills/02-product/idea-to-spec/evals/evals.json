@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "idea-to-spec",
+  "description": "Per-skill evaluation for idea-to-spec \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-idea-to-spec-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate idea-to-spec for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "idea-to-spec"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "requirements",
+            "api contract",
+            "PRDs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-idea-to-spec-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex idea-to-spec scenario",
+      "input": "I'm working on a stakeholder has a one-paragraph idea and needs a formal spec before sprint pla \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "idea-to-spec"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "requirements",
+            "api contract"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-idea-to-spec-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate idea-to-spec for ambiguous domain-adjacent request",
+      "input": "How should I approach idea to spec for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "idea-to-spec"
+        }
+      ]
+    },
+    {
+      "id": "negative-idea-to-spec-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate idea-to-spec for off-domain request: architecture decisions",
+      "input": "I need to architecture decisions",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "idea-to-spec"
+        }
+      ]
+    },
+    {
+      "id": "negative-idea-to-spec-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate idea-to-spec for off-domain request: code implementation",
+      "input": "Can you help me with code implementation? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "idea-to-spec"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-idea-to-spec",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common idea-to-spec anti-patterns",
+      "input": "Build a production-ready idea to spec implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api",
+            "requirements"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-idea-to-spec",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for idea-to-spec",
+      "input": "I'm shipping a idea to spec project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "executive summary",
+            "not details",
+            "details in appendices",
+            "data provenance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-idea-to-spec",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete idea to spec workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

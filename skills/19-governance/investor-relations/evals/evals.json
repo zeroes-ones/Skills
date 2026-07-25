@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "investor-relations",
+  "description": "Per-skill evaluation for investor-relations \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-investor-relations-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate investor-relations for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "investor-relations"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cap table management",
+            "pitch deck",
+            "shareholder reporting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-investor-relations-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex investor-relations scenario",
+      "input": "I'm working on launching a fundraising process: strategy, materials, pipeline, close \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "investor-relations"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cap table management",
+            "pitch deck"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-investor-relations-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate investor-relations for ambiguous domain-adjacent request",
+      "input": "How should I approach investor relations for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "investor-relations"
+        }
+      ]
+    },
+    {
+      "id": "negative-investor-relations-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate investor-relations for off-domain request: board meeting preparation",
+      "input": "I need to board meeting preparation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "investor-relations"
+        }
+      ]
+    },
+    {
+      "id": "negative-investor-relations-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate investor-relations for off-domain request: financial modeling for internal planning",
+      "input": "I need to financial modeling for internal planning",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "investor-relations"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-investor-relations",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common investor-relations anti-patterns",
+      "input": "Build a production-ready investor relations implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cap-table-management",
+            "pitch-deck"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-investor-relations",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for investor-relations",
+      "input": "I'm shipping a investor relations project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "earnings materials",
+            "press release",
+            "and q",
+            "a prep completed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-investor-relations",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for investor-relations",
+      "input": "What's the most important thing to know about investor relations?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

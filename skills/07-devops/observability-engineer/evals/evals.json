@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "observability-engineer",
+  "description": "Per-skill evaluation for observability-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-observability-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate observability-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "observability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "OpenTelemetry",
+            "tracing",
+            "SLOs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-observability-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex observability-engineer scenario",
+      "input": "I'm working on instrumenting services with opentelemetry sdks for unified metrics, traces, and  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "observability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "OpenTelemetry",
+            "tracing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-observability-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate observability-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach observability engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "observability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-observability-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate observability-engineer for off-domain request: incident response management",
+      "input": "I need to incident response management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "observability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-observability-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate observability-engineer for off-domain request: CI/CD pipeline design",
+      "input": "I need to ci/cd pipeline design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "observability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-observability-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common observability-engineer anti-patterns",
+      "input": "Build a production-ready observability engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "sli",
+            "opentelemetry"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-observability-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for observability-engineer",
+      "input": "I'm shipping a observability engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "prometheus config",
+            "promtool check config prometheus",
+            "syntax valid",
+            "no rule conflicts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-observability-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete observability engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

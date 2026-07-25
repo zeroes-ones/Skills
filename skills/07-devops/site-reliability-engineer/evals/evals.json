@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "site-reliability-engineer",
+  "description": "Per-skill evaluation for site-reliability-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-site-reliability-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate site-reliability-engineer for primary domain request",
+      "input": "I need help with you need to define slis (latency, error rate, throughput) and set slo targets fo \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "site-reliability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "incident",
+            "chaos",
+            "SLOs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-site-reliability-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex site-reliability-engineer scenario",
+      "input": "I'm working on your error budget is exhausted and you need to decide whether to freeze features \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "site-reliability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "incident",
+            "chaos"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-site-reliability-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate site-reliability-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach site reliability engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "site-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-site-reliability-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate site-reliability-engineer for off-domain request: observability stack setup",
+      "input": "I need to observability stack setup",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "site-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-site-reliability-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate site-reliability-engineer for off-domain request: CI/CD pipeline design",
+      "input": "I need to ci/cd pipeline design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "site-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-site-reliability-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common site-reliability-engineer anti-patterns",
+      "input": "Build a production-ready site reliability engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "sli",
+            "incident"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-site-reliability-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for site-reliability-engineer",
+      "input": "I'm shipping a site reliability engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "sli metrics",
+            "query prometheus for",
+            "day window",
+            "sli correctly measures good"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-site-reliability-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for site-reliability-engineer",
+      "input": "What's the most important thing to know about site reliability engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

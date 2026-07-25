@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "writing-great-skills",
+  "description": "Per-skill evaluation for writing-great-skills \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-writing-great-skills-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate writing-great-skills for primary domain request",
+      "input": "I need to skills for a new project \u2014 where do I start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "writing-great-skills"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Codex",
+            "Copilot CLI",
+            "progressive disclosure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-writing-great-skills-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex writing-great-skills scenario",
+      "input": "What are the best practices for writing great skills in production environments?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "writing-great-skills"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Codex",
+            "Copilot CLI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-writing-great-skills-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate writing-great-skills for ambiguous domain-adjacent request",
+      "input": "How should I approach writing great skills for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "writing-great-skills"
+        }
+      ]
+    },
+    {
+      "id": "negative-writing-great-skills-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate writing-great-skills for off-domain request: writing code documentation",
+      "input": "I need to writing code documentation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "writing-great-skills"
+        }
+      ]
+    },
+    {
+      "id": "negative-writing-great-skills-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate writing-great-skills for off-domain request: user manuals",
+      "input": "Can you help me with user manuals? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "writing-great-skills"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-writing-great-skills",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common writing-great-skills anti-patterns",
+      "input": "Build a production-ready writing great skills implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "codex",
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-writing-great-skills",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for writing-great-skills",
+      "input": "I'm shipping a writing great skills project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "the agent must verify",
+            "self-check against what"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-writing-great-skills",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete writing great skills workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

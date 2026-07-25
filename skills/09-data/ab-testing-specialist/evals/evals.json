@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ab-testing-specialist",
+  "description": "Per-skill evaluation for ab-testing-specialist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ab-testing-specialist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ab-testing-specialist for primary domain request",
+      "input": "I need help with designing an a/b test: hypothesis, metrics, randomization, sample size, duration \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ab-testing-specialist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis testing",
+            "Simpson",
+            "Bayesian"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ab-testing-specialist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ab-testing-specialist scenario",
+      "input": "I'm working on analyzing results: significance testing, effect sizes, confidence intervals, seg \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ab-testing-specialist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis testing",
+            "Simpson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ab-testing-specialist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ab-testing-specialist for ambiguous domain-adjacent request",
+      "input": "How should I approach ab testing specialist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ab-testing-specialist"
+        }
+      ]
+    },
+    {
+      "id": "negative-ab-testing-specialist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ab-testing-specialist for off-domain request: general analytics",
+      "input": "Can you help me with general analytics? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ab-testing-specialist"
+        }
+      ]
+    },
+    {
+      "id": "negative-ab-testing-specialist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ab-testing-specialist for off-domain request: data pipeline building",
+      "input": "I need to data pipeline building",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ab-testing-specialist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ab-testing-specialist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ab-testing-specialist anti-patterns",
+      "input": "Build a production-ready ab testing specialist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis-testing",
+            "simpson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ab-testing-specialist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ab-testing-specialist",
+      "input": "I'm shipping a ab testing specialist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hypothesis written before experiment",
+            "if we",
+            "sample size calculated before",
+            "experiment starts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ab-testing-specialist",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ab-testing-specialist",
+      "input": "What's the most important thing to know about ab testing specialist?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

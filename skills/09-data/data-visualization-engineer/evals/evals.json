@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "data-visualization-engineer",
+  "description": "Per-skill evaluation for data-visualization-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-data-visualization-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-visualization-engineer for primary domain request",
+      "input": "I need help with selecting the right chart type for a specific question and dataset \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-visualization-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "accessibility",
+            "color theory",
+            "Lite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-visualization-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex data-visualization-engineer scenario",
+      "input": "I'm working on designing color palettes that are accessible and perceptually uniform \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-visualization-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "accessibility",
+            "color theory"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-data-visualization-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate data-visualization-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach data visualization engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "data-visualization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-visualization-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-visualization-engineer for off-domain request: data analysis (-scientist",
+      "input": "I need to data analysis (-scientist",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-visualization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-data-visualization-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate data-visualization-engineer for off-domain request: analytics-engineer)",
+      "input": "Can you help me with analytics-engineer)? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "data-visualization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-data-visualization-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common data-visualization-engineer anti-patterns",
+      "input": "Build a production-ready data visualization engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "accessibility",
+            "color-theory"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-data-visualization-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for data-visualization-engineer",
+      "input": "I'm shipping a data visualization engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "chart type matches data",
+            "type and question type",
+            "verified against chart selection",
+            "color palette is colorblind"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-data-visualization-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete data visualization engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

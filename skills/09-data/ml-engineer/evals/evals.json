@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ml-engineer",
+  "description": "Per-skill evaluation for ml-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ml-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ml-engineer for primary domain request",
+      "input": "I need help with training classification, regression, or clustering models (xgboost, lightgbm, sc \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pytorch",
+            "sklearn",
+            "SHAP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ml-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ml-engineer scenario",
+      "input": "I'm working on performing feature engineering: encoding categoricals, scaling numerics, handlin \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pytorch",
+            "sklearn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ml-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ml-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach ml engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ml-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ml-engineer for off-domain request: AI product integration",
+      "input": "I need to ai product integration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ml-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ml-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ml-engineer for off-domain request: LLM prompt engineering",
+      "input": "I need to llm prompt engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ml-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ml-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ml-engineer anti-patterns",
+      "input": "Build a production-ready ml engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ml",
+            "pytorch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ml-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ml-engineer",
+      "input": "I'm shipping a ml engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after training a model",
+            "run this sequence",
+            "do not proceed past",
+            "a failure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-ml-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete ml engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "people-ops",
+  "description": "Per-skill evaluation for people-ops \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-people-ops-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate people-ops for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "people-ops"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "employee experience",
+            "people ops",
+            "compensation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-people-ops-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex people-ops scenario",
+      "input": "I'm working on designing a new-hire onboarding program with 0-30-60-90 day milestones, buddy as \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "people-ops"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "employee experience",
+            "people ops"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-people-ops-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate people-ops for ambiguous domain-adjacent request",
+      "input": "How should I approach people ops for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "people-ops"
+        }
+      ]
+    },
+    {
+      "id": "negative-people-ops-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate people-ops for off-domain request: employee relations investigations",
+      "input": "I need to employee relations investigations",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "people-ops"
+        }
+      ]
+    },
+    {
+      "id": "negative-people-ops-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate people-ops for off-domain request: recruiting pipeline management",
+      "input": "I need to recruiting pipeline management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "people-ops"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-people-ops",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common people-ops anti-patterns",
+      "input": "Build a production-ready people ops implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hr",
+            "employee-experience"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-people-ops",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for people-ops",
+      "input": "I'm shipping a people ops project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "day check-ins completed",
+            "for all new hires",
+            "satisfaction and productivity scores",
+            "internal mobility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-people-ops",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for people-ops",
+      "input": "What's the most important thing to know about people ops?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

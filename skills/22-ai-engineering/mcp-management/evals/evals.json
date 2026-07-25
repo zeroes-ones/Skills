@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "mcp-management",
+  "description": "Per-skill evaluation for mcp-management \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-mcp-management-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate mcp-management for primary domain request",
+      "input": "I need help with - configuring a new mcp server (any transport, any server type) \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mcp-management"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HTTP",
+            "Gemini CLI MCP",
+            "context protocol"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-mcp-management-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex mcp-management scenario",
+      "input": "I'm working on diagnosing mcp connection failures or transport errors \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mcp-management"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HTTP",
+            "Gemini CLI MCP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-mcp-management-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate mcp-management for ambiguous domain-adjacent request",
+      "input": "How should I approach mcp management for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "mcp-management"
+        }
+      ]
+    },
+    {
+      "id": "negative-mcp-management-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate mcp-management for off-domain request: general API design (use api-designer)",
+      "input": "I need to general api design (use api-designer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "mcp-management"
+        }
+      ]
+    },
+    {
+      "id": "negative-mcp-management-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate mcp-management for off-domain request: database schema design (use database-designer)",
+      "input": "I need to database schema design (use database-designer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "mcp-management"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-mcp-management",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common mcp-management anti-patterns",
+      "input": "Build a production-ready mcp management implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "expose `/` or `~` as the allow"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "http",
+            "mcp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-mcp-management",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for mcp-management",
+      "input": "I'm shipping a mcp management project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run these checks before",
+            "considering any mcp configuration",
+            "validate json schema of",
+            "mcp-config"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-mcp-management",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for mcp-management",
+      "input": "What's the most important thing to know about mcp management?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

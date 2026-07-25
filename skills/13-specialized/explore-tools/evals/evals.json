@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "explore-tools",
+  "description": "Per-skill evaluation for explore-tools \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-explore-tools-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate explore-tools for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "explore-tools"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "low cost development",
+            "tech stack",
+            "vendor selection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-explore-tools-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex explore-tools scenario",
+      "input": "I'm working on selecting a library, framework, or tool for a new project or feature \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "explore-tools"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "low cost development",
+            "tech stack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-explore-tools-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate explore-tools for ambiguous domain-adjacent request",
+      "input": "How should I approach explore tools for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "explore-tools"
+        }
+      ]
+    },
+    {
+      "id": "negative-explore-tools-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate explore-tools for off-domain request: code implementation",
+      "input": "Can you help me with code implementation? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "explore-tools"
+        }
+      ]
+    },
+    {
+      "id": "negative-explore-tools-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate explore-tools for off-domain request: architecture design",
+      "input": "Can you help me with architecture design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "explore-tools"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-explore-tools",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common explore-tools anti-patterns",
+      "input": "Build a production-ready explore tools implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "low-cost-development",
+            "tech-stack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-explore-tools",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for explore-tools",
+      "input": "I'm shipping a explore tools project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "full content extracted to",
+            "verification-guardrails",
+            "verification-guardrails"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-explore-tools",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete explore tools workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

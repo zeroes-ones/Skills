@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "localization-engineer",
+  "description": "Per-skill evaluation for localization-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-localization-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate localization-engineer for primary domain request",
+      "input": "I need help with you are adding i18n support to a new web or mobile application from day one \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "localization-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "BIDI",
+            "Unicode",
+            "l10n"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-localization-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex localization-engineer scenario",
+      "input": "I'm working on you need to extract hardcoded strings from an existing codebase for translation \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "localization-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "BIDI",
+            "Unicode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-localization-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate localization-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach localization engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "localization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-localization-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate localization-engineer for off-domain request: translation management via TMS APIs",
+      "input": "I need to translation management via tms apis",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "localization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-localization-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate localization-engineer for off-domain request: general accessibility testing",
+      "input": "I need to general accessibility testing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "localization-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-localization-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common localization-engineer anti-patterns",
+      "input": "Build a production-ready localization engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "bidi",
+            "unicode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-localization-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for localization-engineer",
+      "input": "I'm shipping a localization engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run pseudo-localization build",
+            "npm run build",
+            "pseudo-locale",
+            "en-xa"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-localization-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete localization engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

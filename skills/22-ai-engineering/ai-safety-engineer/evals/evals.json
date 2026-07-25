@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ai-safety-engineer",
+  "description": "Per-skill evaluation for ai-safety-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ai-safety-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-safety-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "guardrails",
+            "health ai"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-safety-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ai-safety-engineer scenario",
+      "input": "I'm working on before launching any patient-facing llm feature \u2014 safety evaluation must gate th \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "guardrails"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-safety-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-safety-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach ai safety engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-safety-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-safety-engineer for off-domain request: traditional ML model safety",
+      "input": "I need to traditional ml model safety",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-safety-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-safety-engineer for off-domain request: LLM pipeline architecture design",
+      "input": "I need to llm pipeline architecture design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-safety-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ai-safety-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ai-safety-engineer anti-patterns",
+      "input": "Build a production-ready ai safety engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai-safety",
+            "ai"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ai-safety-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ai-safety-engineer",
+      "input": "I'm shipping a ai safety engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "red-team exercise",
+            "last red-team exercise",
+            "within past quarter",
+            "all critical findings addressed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-ai-safety-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete ai safety engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

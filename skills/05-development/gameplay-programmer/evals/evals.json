@@ -1,0 +1,147 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "gameplay-programmer",
+  "description": "Per-skill evaluation for gameplay-programmer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-gameplay-programmer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate gameplay-programmer for primary domain request",
+      "input": "I need help with building player controllers: first-person, third-person, top-down, vehicle, flig \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gameplay-programmer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "unreal",
+            "game design",
+            "game development"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-gameplay-programmer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex gameplay-programmer scenario",
+      "input": "I'm working on implementing combat systems: hit detection, damage calculation, status effects,  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gameplay-programmer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "unreal",
+            "game design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-gameplay-programmer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate gameplay-programmer for ambiguous domain-adjacent request",
+      "input": "How should I approach gameplay programmer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "gameplay-programmer"
+        }
+      ]
+    },
+    {
+      "id": "negative-gameplay-programmer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate gameplay-programmer for off-domain request: rendering pipeline engineering",
+      "input": "I need to rendering pipeline engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "gameplay-programmer"
+        }
+      ]
+    },
+    {
+      "id": "negative-gameplay-programmer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate gameplay-programmer for off-domain request: engine architecture",
+      "input": "Can you help me with engine architecture? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "gameplay-programmer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-gameplay-programmer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common gameplay-programmer anti-patterns",
+      "input": "Build a production-ready gameplay programmer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "run game logic in `Update()` t",
+            "assume a consistent frame rate"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai",
+            "ecs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-gameplay-programmer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for gameplay-programmer",
+      "input": "I'm shipping a gameplay programmer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "run these checks before",
+            "declaring work complete",
+            "all must pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-gameplay-programmer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete gameplay programmer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

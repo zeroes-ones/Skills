@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "compliance-officer",
+  "description": "Per-skill evaluation for compliance-officer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-compliance-officer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate compliance-officer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "compliance-officer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "compliance",
+            "audit",
+            "pci dss"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-compliance-officer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex compliance-officer scenario",
+      "input": "I'm working on preparing for a first-time soc 2 type ii, iso 27001, or pci-dss certification au \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "compliance-officer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "compliance",
+            "audit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-compliance-officer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate compliance-officer for ambiguous domain-adjacent request",
+      "input": "How should I approach compliance officer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "compliance-officer"
+        }
+      ]
+    },
+    {
+      "id": "negative-compliance-officer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate compliance-officer for off-domain request: privacy-specific compliance",
+      "input": "I need to privacy-specific compliance",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "compliance-officer"
+        }
+      ]
+    },
+    {
+      "id": "negative-compliance-officer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate compliance-officer for off-domain request: legal contract review",
+      "input": "I need to legal contract review",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "compliance-officer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-compliance-officer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common compliance-officer anti-patterns",
+      "input": "Build a production-ready compliance officer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "compliance",
+            "audit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-compliance-officer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for compliance-officer",
+      "input": "I'm shipping a compliance officer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "control mapping",
+            "every compliance requirement",
+            "maps to at least",
+            "one implemented control"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-compliance-officer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for compliance-officer",
+      "input": "What's the most important thing to know about compliance officer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

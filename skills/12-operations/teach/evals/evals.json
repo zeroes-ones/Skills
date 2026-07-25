@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "teach",
+  "description": "Per-skill evaluation for teach \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-teach-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate teach for primary domain request",
+      "input": "I need help with learning a new programming language from scratch (or filling specific gaps) \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "teach"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "learning path",
+            "spaced repetition",
+            "onboarding"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-teach-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex teach scenario",
+      "input": "I'm working on mastering a framework through structured, progressive sessions \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "teach"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "learning path",
+            "spaced repetition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-teach-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate teach for ambiguous domain-adjacent request",
+      "input": "How should I approach teach for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "teach"
+        }
+      ]
+    },
+    {
+      "id": "negative-teach-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate teach for off-domain request: one-time Q&A",
+      "input": "Can you help me with one-time q&a? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "teach"
+        }
+      ]
+    },
+    {
+      "id": "negative-teach-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate teach for off-domain request: pair programming",
+      "input": "Can you help me with pair programming? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "teach"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-teach",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common teach anti-patterns",
+      "input": "Build a production-ready teach implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "learning-path",
+            "spaced-repetition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-teach",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for teach",
+      "input": "I'm shipping a teach project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "workspace exists",
+            "directory present with all",
+            "required files",
+            "pre-assessment"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-teach",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete teach workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

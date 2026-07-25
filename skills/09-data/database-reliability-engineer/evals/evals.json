@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "database-reliability-engineer",
+  "description": "Per-skill evaluation for database-reliability-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-database-reliability-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate database-reliability-engineer for primary domain request",
+      "input": "I need help with you need to design a high-availability database architecture with clear rpo and  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "database-reliability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "replication",
+            "database",
+            "postgresql"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-database-reliability-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex database-reliability-engineer scenario",
+      "input": "I'm working on you are choosing a replication strategy (synchronous, async, semi-sync, logical) \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "database-reliability-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "replication",
+            "database"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-database-reliability-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate database-reliability-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach database reliability engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "database-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-database-reliability-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate database-reliability-engineer for off-domain request: schema design",
+      "input": "Can you help me with schema design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "database-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-database-reliability-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate database-reliability-engineer for off-domain request: application-level ORM configuration",
+      "input": "I need to application-level orm configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "database-reliability-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-database-reliability-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common database-reliability-engineer anti-patterns",
+      "input": "Build a production-ready database reliability engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "replication",
+            "database"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-database-reliability-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for database-reliability-engineer",
+      "input": "I'm shipping a database reliability engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "completes successfully",
+            "restore from backup verified",
+            "in staging",
+            "replication lag"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-database-reliability-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for database-reliability-engineer",
+      "input": "What's the most important thing to know about database reliability engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

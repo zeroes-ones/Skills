@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "account-manager",
+  "description": "Per-skill evaluation for account-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-account-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate account-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "account-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stakeholder mapping",
+            "expansion selling",
+            "renewal management"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-account-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex account-manager scenario",
+      "input": "I'm working on a customer renewal is 120 days out and you need a structured renewal strategy wi \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "account-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stakeholder mapping",
+            "expansion selling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-account-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate account-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach account manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "account-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-account-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate account-manager for off-domain request: new logo acquisition",
+      "input": "I need to new logo acquisition",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "account-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-account-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate account-manager for off-domain request: customer onboarding and adoption",
+      "input": "I need to customer onboarding and adoption",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "account-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-account-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common account-manager anti-patterns",
+      "input": "Build a production-ready account manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stakeholder-mapping",
+            "expansion-selling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-account-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for account-manager",
+      "input": "I'm shipping a account manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health score",
+            "every account has a",
+            "health score",
+            "updated monthly"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-account-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete account manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

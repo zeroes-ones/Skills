@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "security-reviewer",
+  "description": "Per-skill evaluation for security-reviewer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-security-reviewer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate security-reviewer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat modeling",
+            "CVSS",
+            "owasp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-security-reviewer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex security-reviewer scenario",
+      "input": "I'm working on performing a security code review on a pull request, feature branch, or release  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat modeling",
+            "CVSS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-security-reviewer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate security-reviewer for ambiguous domain-adjacent request",
+      "input": "How should I approach security reviewer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-security-reviewer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate security-reviewer for off-domain request: general code review",
+      "input": "Can you help me with general code review? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-security-reviewer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate security-reviewer for off-domain request: penetration testing execution",
+      "input": "I need to penetration testing execution",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-security-reviewer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common security-reviewer anti-patterns",
+      "input": "Build a production-ready security reviewer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat-modeling",
+            "api"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-security-reviewer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for security-reviewer",
+      "input": "I'm shipping a security reviewer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification steps",
+            "how to confirm the",
+            "fix works",
+            "tests to run"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-security-reviewer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for security-reviewer",
+      "input": "What's the most important thing to know about security reviewer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

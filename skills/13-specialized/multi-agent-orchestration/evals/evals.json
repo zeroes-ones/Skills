@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "multi-agent-orchestration",
+  "description": "Per-skill evaluation for multi-agent-orchestration \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-multi-agent-orchestration-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate multi-agent-orchestration for primary domain request",
+      "input": "I need to orchestration for a new project \u2014 where do I start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "multi-agent-orchestration"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "AutoGen ConversableAgent",
+            "Peer",
+            "topology"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-multi-agent-orchestration-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex multi-agent-orchestration scenario",
+      "input": "What are the best practices for multi agent orchestration in production environments?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "multi-agent-orchestration"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "AutoGen ConversableAgent",
+            "Peer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-multi-agent-orchestration-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate multi-agent-orchestration for ambiguous domain-adjacent request",
+      "input": "How should I approach multi agent orchestration for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "multi-agent-orchestration"
+        }
+      ]
+    },
+    {
+      "id": "negative-multi-agent-orchestration-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate multi-agent-orchestration for off-domain request: single-agent workflow design (use agent-handoff-protocol)",
+      "input": "I need to single-agent workflow design (use agent-handoff-protocol)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "multi-agent-orchestration"
+        }
+      ]
+    },
+    {
+      "id": "negative-multi-agent-orchestration-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate multi-agent-orchestration for off-domain request: LLM prompt engineering (use llm-engineer)",
+      "input": "I need to llm prompt engineering (use llm-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "multi-agent-orchestration"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-multi-agent-orchestration",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common multi-agent-orchestration anti-patterns",
+      "input": "Build a production-ready multi agent orchestration implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "autogen-conversableagent",
+            "peer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-multi-agent-orchestration",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for multi-agent-orchestration",
+      "input": "I'm shipping a multi agent orchestration project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "run these checks before",
+            "declaring work complete",
+            "all must pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-multi-agent-orchestration",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete multi agent orchestration workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

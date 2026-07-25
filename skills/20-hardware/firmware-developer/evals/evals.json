@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "firmware-developer",
+  "description": "Per-skill evaluation for firmware-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-firmware-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate firmware-developer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan bullets to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "firmware-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hardware",
+            "bootloader",
+            "MMIO"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-firmware-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex firmware-developer scenario",
+      "input": "I'm working on designing boot flow: rom \u2192 first-stage bootloader \u2192 second-stage bootloader \u2192 ke \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "firmware-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hardware",
+            "bootloader"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-firmware-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate firmware-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach firmware developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "firmware-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-firmware-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate firmware-developer for off-domain request: hardware architecture decisions",
+      "input": "I need to hardware architecture decisions",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "firmware-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-firmware-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate firmware-developer for off-domain request: MCU selection",
+      "input": "Can you help me with mcu selection? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "firmware-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-firmware-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common firmware-developer anti-patterns",
+      "input": "Build a production-ready firmware developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ota",
+            "hal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-firmware-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for firmware-developer",
+      "input": "I'm shipping a firmware developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "application both compile with",
+            "zero warnings",
+            "ota update test",
+            "push update to a"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-firmware-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for firmware-developer",
+      "input": "What's the most important thing to know about firmware developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

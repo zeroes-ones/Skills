@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ai-safety-health-reviewer",
+  "description": "Per-skill evaluation for ai-safety-health-reviewer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ai-safety-health-reviewer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-safety-health-reviewer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 five reasons to invoke this skill --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-health-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "De Novo",
+            "LLMs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-safety-health-reviewer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ai-safety-health-reviewer scenario",
+      "input": "I'm working on **safety-reviewing an ai-powered health feature** \u2014 your app uses llms to answer \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-health-reviewer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "De Novo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ai-safety-health-reviewer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ai-safety-health-reviewer for ambiguous domain-adjacent request",
+      "input": "How should I approach ai safety health reviewer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ai-safety-health-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-safety-health-reviewer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-safety-health-reviewer for off-domain request: general AI safety unrelated to healthcare",
+      "input": "I need to general ai safety unrelated to healthcare",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-safety-health-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ai-safety-health-reviewer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ai-safety-health-reviewer for off-domain request: LLM pipeline engineering",
+      "input": "I need to llm pipeline engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ai-safety-health-reviewer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ai-safety-health-reviewer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ai-safety-health-reviewer anti-patterns",
+      "input": "Build a production-ready ai safety health reviewer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai-safety",
+            "ml"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ai-safety-health-reviewer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ai-safety-health-reviewer",
+      "input": "I'm shipping a ai safety health reviewer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "and specificity disaggregated by",
+            "and language",
+            "data contamination",
+            "training data checked against"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ai-safety-health-reviewer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ai-safety-health-reviewer",
+      "input": "What's the most important thing to know about ai safety health reviewer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

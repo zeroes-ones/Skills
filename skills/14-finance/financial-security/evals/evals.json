@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "financial-security",
+  "description": "Per-skill evaluation for financial-security \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-financial-security-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate financial-security for primary domain request",
+      "input": "I need help with implementing pci dss 4.0: cde scoping, saq selection, 12 requirements with imple \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "financial-security"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Utimaco",
+            "CIBA",
+            "financial security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-financial-security-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex financial-security scenario",
+      "input": "I'm working on designing fraud detection: rule-based + ml pipeline, velocity checks, device fin \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "financial-security"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Utimaco",
+            "CIBA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-financial-security-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate financial-security for ambiguous domain-adjacent request",
+      "input": "How should I approach financial security for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "financial-security"
+        }
+      ]
+    },
+    {
+      "id": "negative-financial-security-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate financial-security for off-domain request: general application security",
+      "input": "I need to general application security",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "financial-security"
+        }
+      ]
+    },
+    {
+      "id": "negative-financial-security-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate financial-security for off-domain request: identity verification and IAM",
+      "input": "I need to identity verification and iam",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "financial-security"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-financial-security",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common financial-security anti-patterns",
+      "input": "Build a production-ready financial security implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "saq",
+            "ml"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-financial-security",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for financial-security",
+      "input": "I'm shipping a financial security project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after implementing financial security",
+            "run this sequence",
+            "do not proceed past",
+            "a failure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-financial-security",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for financial-security",
+      "input": "What's the most important thing to know about financial security?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

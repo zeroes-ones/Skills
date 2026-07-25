@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ml-ai-engineer",
+  "description": "Per-skill evaluation for ml-ai-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ml-ai-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate ml-ai-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-ai-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "mlops",
+            "fine tuning"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ml-ai-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex ml-ai-engineer scenario",
+      "input": "I'm working on framing a business problem as an ml task and selecting the right approach \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-ai-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai safety",
+            "mlops"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ml-ai-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate ml-ai-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach ml ai engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ml-ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ml-ai-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ml-ai-engineer for off-domain request: statistical hypothesis testing",
+      "input": "I need to statistical hypothesis testing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ml-ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-ml-ai-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate ml-ai-engineer for off-domain request: data pipeline construction",
+      "input": "I need to data pipeline construction",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ml-ai-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-ml-ai-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common ml-ai-engineer anti-patterns",
+      "input": "Build a production-ready ml ai engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ai-safety",
+            "rag"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ml-ai-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for ml-ai-engineer",
+      "input": "I'm shipping a ml ai engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "training runs to completion",
+            "without nan loss or",
+            "exploding gradients",
+            "validation loss plateaus"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ml-ai-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for ml-ai-engineer",
+      "input": "What's the most important thing to know about ml ai engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

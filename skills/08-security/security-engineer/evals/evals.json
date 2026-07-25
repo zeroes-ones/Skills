@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "security-engineer",
+  "description": "Per-skill evaluation for security-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-security-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate security-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat modeling",
+            "SAST",
+            "network security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-security-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex security-engineer scenario",
+      "input": "I'm working on conducting threat modeling sessions using stride, pasta, or attack trees \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat modeling",
+            "SAST"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-security-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate security-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach security engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-security-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate security-engineer for off-domain request: compliance auditing",
+      "input": "Can you help me with compliance auditing? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-security-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate security-engineer for off-domain request: code review",
+      "input": "Can you help me with code review? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "security-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-security-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common security-engineer anti-patterns",
+      "input": "Build a production-ready security engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "threat-modeling",
+            "sast"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-security-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for security-engineer",
+      "input": "I'm shipping a security engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "zero high",
+            "critical findings",
+            "run dependency scan",
+            "npm audit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-security-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for security-engineer",
+      "input": "What's the most important thing to know about security engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

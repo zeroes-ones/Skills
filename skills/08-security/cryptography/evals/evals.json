@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "cryptography-engineer",
+  "description": "Per-skill evaluation for cryptography-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-cryptography-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate cryptography-engineer for primary domain request",
+      "input": "I need help with designing tls configurations: cipher suite selection, key exchange groups, certi \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptography-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Certificate Transparency",
+            "Bleichenbacher",
+            "Level"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cryptography-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex cryptography-engineer scenario",
+      "input": "I'm working on implementing encryption at rest: aes-gcm/xchacha20-poly1305, key hierarchy (kek\u2192 \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptography-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Certificate Transparency",
+            "Bleichenbacher"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cryptography-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate cryptography-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach cryptography engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptography-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-cryptography-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cryptography-engineer for off-domain request: general application security",
+      "input": "I need to general application security",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cryptography-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-cryptography-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cryptography-engineer for off-domain request: TLS/HTTPS web server configuration (-developer",
+      "input": "I need to tls/https web server configuration (-developer",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cryptography-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-cryptography-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common cryptography-engineer anti-patterns",
+      "input": "Build a production-ready cryptography engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "repeat with the same key"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "tls",
+            "certificate-transparency"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cryptography-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for cryptography-engineer",
+      "input": "I'm shipping a cryptography engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after any cryptographic design",
+            "or audit",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-cryptography-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for cryptography-engineer",
+      "input": "What's the most important thing to know about cryptography engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

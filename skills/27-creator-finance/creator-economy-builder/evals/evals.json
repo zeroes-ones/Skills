@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "creator-economy-builder",
+  "description": "Per-skill evaluation for creator-economy-builder \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-creator-economy-builder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate creator-economy-builder for primary domain request",
+      "input": "I need help with building a membership/subscription platform (patreon-style): recurring billing,  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "creator-economy-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "platform",
+            "crowdfunding",
+            "membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-creator-economy-builder-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex creator-economy-builder scenario",
+      "input": "I'm working on building a tipping or donation system: one-time payments, payment links, virtual \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "creator-economy-builder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "platform",
+            "crowdfunding"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-creator-economy-builder-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate creator-economy-builder for ambiguous domain-adjacent request",
+      "input": "How should I approach creator economy builder for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "creator-economy-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-creator-economy-builder-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate creator-economy-builder for off-domain request: enterprise SaaS",
+      "input": "Can you help me with enterprise saas? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "creator-economy-builder"
+        }
+      ]
+    },
+    {
+      "id": "negative-creator-economy-builder-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate creator-economy-builder for off-domain request: ad-based monetization only",
+      "input": "I need to ad-based monetization only",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "creator-economy-builder"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-creator-economy-builder",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common creator-economy-builder anti-patterns",
+      "input": "Build a production-ready creator economy builder implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "platform",
+            "crowdfunding"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-creator-economy-builder",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for creator-economy-builder",
+      "input": "I'm shipping a creator economy builder project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against what",
+            "good looks like"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-creator-economy-builder",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete creator economy builder workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

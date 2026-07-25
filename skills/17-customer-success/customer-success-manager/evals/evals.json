@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "customer-success-manager",
+  "description": "Per-skill evaluation for customer-success-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-customer-success-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate customer-success-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-success-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health scoring",
+            "churn prevention",
+            "customer success manager"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-customer-success-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex customer-success-manager scenario",
+      "input": "I'm working on you are designing or redesigning a customer health scoring model with weighted s \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-success-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "health scoring",
+            "churn prevention"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-customer-success-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate customer-success-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach customer success manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "customer-success-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-customer-success-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate customer-success-manager for off-domain request: commercial renewal negotiations",
+      "input": "I need to commercial renewal negotiations",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "customer-success-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-customer-success-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate customer-success-manager for off-domain request: new business development",
+      "input": "I need to new business development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "customer-success-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-customer-success-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common customer-success-manager anti-patterns",
+      "input": "Build a production-ready customer success manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "qbr",
+            "health-scoring"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-customer-success-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for customer-success-manager",
+      "input": "I'm shipping a customer success manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "time-to-first-value",
+            "measured per account",
+            "segmented by plan",
+            "benchmarked and improving"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-customer-success-manager",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for customer-success-manager",
+      "input": "What's the most important thing to know about customer success manager?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

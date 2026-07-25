@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "handoff",
+  "description": "Per-skill evaluation for handoff \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-handoff-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate handoff for primary domain request",
+      "input": "I need help with context window is approaching limits and conversation will be compacted \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "handoff"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "handoff",
+            "cross session",
+            "workspace"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-handoff-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex handoff scenario",
+      "input": "I'm working on work needs to transfer from one agent session to another \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "handoff"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "handoff",
+            "cross session"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-handoff-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate handoff for ambiguous domain-adjacent request",
+      "input": "How should I approach handoff for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "handoff"
+        }
+      ]
+    },
+    {
+      "id": "negative-handoff-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate handoff for off-domain request: code documentation (-engineer",
+      "input": "I need to code documentation (-engineer",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "handoff"
+        }
+      ]
+    },
+    {
+      "id": "negative-handoff-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate handoff for off-domain request: technical-writer)",
+      "input": "Can you help me with technical-writer)? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "handoff"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-handoff",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common handoff anti-patterns",
+      "input": "Build a production-ready handoff implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "handoff",
+            "cross-session"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-handoff",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for handoff",
+      "input": "I'm shipping a handoff project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "workspace exists",
+            "directory present and git",
+            "ledger initialized",
+            "has all required sections"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-handoff",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for handoff",
+      "input": "What's the most important thing to know about handoff?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

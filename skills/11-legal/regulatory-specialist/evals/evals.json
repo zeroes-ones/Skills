@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "regulatory-specialist",
+  "description": "Per-skill evaluation for regulatory-specialist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-regulatory-specialist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate regulatory-specialist for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "regulatory-specialist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "EU MDR",
+            "samd",
+            "CFR Part"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-regulatory-specialist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex regulatory-specialist scenario",
+      "input": "I'm working on classifying a software as a medical device (samd) under fda risk categories (cla \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "regulatory-specialist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "EU MDR",
+            "samd"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-regulatory-specialist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate regulatory-specialist for ambiguous domain-adjacent request",
+      "input": "How should I approach regulatory specialist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "regulatory-specialist"
+        }
+      ]
+    },
+    {
+      "id": "negative-regulatory-specialist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate regulatory-specialist for off-domain request: general compliance auditing (SOC 2",
+      "input": "I need to general compliance auditing (soc 2",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "regulatory-specialist"
+        }
+      ]
+    },
+    {
+      "id": "negative-regulatory-specialist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate regulatory-specialist for off-domain request: privacy law implementation",
+      "input": "I need to privacy law implementation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "regulatory-specialist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-regulatory-specialist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common regulatory-specialist anti-patterns",
+      "input": "Build a production-ready regulatory specialist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "qms",
+            "gxp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-regulatory-specialist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for regulatory-specialist",
+      "input": "I'm shipping a regulatory specialist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "control evidence",
+            "for each regulatory control",
+            "can you produce the",
+            "periods of operational evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-regulatory-specialist",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for regulatory-specialist",
+      "input": "What's the most important thing to know about regulatory specialist?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

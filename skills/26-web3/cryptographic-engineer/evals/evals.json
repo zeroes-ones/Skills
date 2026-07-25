@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "cryptographic-engineer",
+  "description": "Per-skill evaluation for cryptographic-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-cryptographic-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate cryptographic-engineer for primary domain request",
+      "input": "I need help with when implementing threshold cryptography: frost schnorr (rfc 9591), bls aggregat \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptographic-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Concrete",
+            "Multi",
+            "Shamir Secret Sharing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cryptographic-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex cryptographic-engineer scenario",
+      "input": "I'm working on when deploying mpc protocols: mp-spdz with dishonest/honest majority selection,  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptographic-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Concrete",
+            "Multi"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cryptographic-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate cryptographic-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach cryptographic engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cryptographic-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-cryptographic-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cryptographic-engineer for off-domain request: basic encryption (use security-engineer)",
+      "input": "I need to basic encryption (use security-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cryptographic-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-cryptographic-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cryptographic-engineer for off-domain request: TLS configuration (use devops-engineer)",
+      "input": "I need to tls configuration (use devops-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cryptographic-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-cryptographic-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common cryptographic-engineer anti-patterns",
+      "input": "Build a production-ready cryptographic engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "concrete",
+            "ml"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cryptographic-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for cryptographic-engineer",
+      "input": "I'm shipping a cryptographic engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "all cryptographic operations use",
+            "aead or stronger",
+            "no cbc"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-cryptographic-engineer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete cryptographic engineer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

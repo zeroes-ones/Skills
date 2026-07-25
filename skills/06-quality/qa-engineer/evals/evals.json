@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "qa-engineer",
+  "description": "Per-skill evaluation for qa-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-qa-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate qa-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "qa-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cypress",
+            "playwright",
+            "Playwright"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-qa-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex qa-engineer scenario",
+      "input": "I'm working on designing a test strategy for a new or existing project \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "qa-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cypress",
+            "playwright"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-qa-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate qa-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach qa engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "qa-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-qa-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate qa-engineer for off-domain request: accessibility-specific testing",
+      "input": "I need to accessibility-specific testing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "qa-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-qa-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate qa-engineer for off-domain request: security auditing",
+      "input": "Can you help me with security auditing? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "qa-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-qa-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common qa-engineer anti-patterns",
+      "input": "Build a production-ready qa engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api",
+            "cypress"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-qa-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for qa-engineer",
+      "input": "I'm shipping a qa engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "npm test",
+            "unit tests pass",
+            "coverage meets threshold",
+            "npm run test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-qa-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for qa-engineer",
+      "input": "What's the most important thing to know about qa engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

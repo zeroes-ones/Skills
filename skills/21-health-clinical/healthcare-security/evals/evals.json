@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "healthcare-security-architect",
+  "description": "Per-skill evaluation for healthcare-security-architect \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-healthcare-security-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate healthcare-security-architect for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "healthcare-security-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HIPAA Safe Harbor",
+            "fhir",
+            "healthcare"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-healthcare-security-architect-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex healthcare-security-architect scenario",
+      "input": "I'm working on designing security architecture for a health system, hospital network, or digita \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "healthcare-security-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HIPAA Safe Harbor",
+            "fhir"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-healthcare-security-architect-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate healthcare-security-architect for ambiguous domain-adjacent request",
+      "input": "How should I approach healthcare security architect for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "healthcare-security-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-healthcare-security-architect-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate healthcare-security-architect for off-domain request: general security hardening unrelated to healthcare",
+      "input": "I need to general security hardening unrelated to healthcare",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "healthcare-security-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-healthcare-security-architect-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate healthcare-security-architect for off-domain request: GDPR-only compliance",
+      "input": "I need to gdpr-only compliance",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "healthcare-security-architect"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-healthcare-security-architect",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common healthcare-security-architect anti-patterns",
+      "input": "Build a production-ready healthcare security architect implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hipaa-safe-harbor",
+            "fhir"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-healthcare-security-architect",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for healthcare-security-architect",
+      "input": "I'm shipping a healthcare security architect project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "phi data stores",
+            "all databases",
+            "object storage",
+            "and file systems containing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-healthcare-security-architect",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for healthcare-security-architect",
+      "input": "What's the most important thing to know about healthcare security architect?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

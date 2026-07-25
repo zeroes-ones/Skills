@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "educational-game-developer",
+  "description": "Per-skill evaluation for educational-game-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-educational-game-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate educational-game-developer for primary domain request",
+      "input": "I need help with building a pre-k / early childhood learning game (alphabet, numbers, shapes, col \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "educational-game-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "educational games",
+            "coppa",
+            "accessibility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-educational-game-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex educational-game-developer scenario",
+      "input": "I'm working on creating a k-12 curriculum-aligned game (math, science, language arts, social st \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "educational-game-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "educational games",
+            "coppa"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-educational-game-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate educational-game-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach educational game developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "educational-game-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-educational-game-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate educational-game-developer for off-domain request: entertainment-only games",
+      "input": "I need to entertainment-only games",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "educational-game-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-educational-game-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate educational-game-developer for off-domain request: classroom management systems",
+      "input": "I need to classroom management systems",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "educational-game-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-educational-game-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common educational-game-developer anti-patterns",
+      "input": "Build a production-ready educational game developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "educational-games",
+            "coppa"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-educational-game-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for educational-game-developer",
+      "input": "I'm shipping a educational game developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering educational game",
+            "design or implementation work",
+            "self-check against"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-educational-game-developer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete educational game developer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

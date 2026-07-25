@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "git-workflow",
+  "description": "Per-skill evaluation for git-workflow \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-git-workflow-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate git-workflow for primary domain request",
+      "input": "I need help with designing a branching strategy for a team or project \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "git-workflow"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "git worktrees",
+            "version control",
+            "trunk based development"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-git-workflow-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex git-workflow scenario",
+      "input": "I'm working on writing atomic, well-structured commits with descriptive messages \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "git-workflow"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "git worktrees",
+            "version control"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-git-workflow-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate git-workflow for ambiguous domain-adjacent request",
+      "input": "How should I approach git workflow for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "git-workflow"
+        }
+      ]
+    },
+    {
+      "id": "negative-git-workflow-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate git-workflow for off-domain request: CI/CD pipeline configuration",
+      "input": "I need to ci/cd pipeline configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "git-workflow"
+        }
+      ]
+    },
+    {
+      "id": "negative-git-workflow-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate git-workflow for off-domain request: monorepo tooling",
+      "input": "Can you help me with monorepo tooling? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "git-workflow"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-git-workflow",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common git-workflow anti-patterns",
+      "input": "Build a production-ready git workflow implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "git-worktrees",
+            "version-control"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-git-workflow",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for git-workflow",
+      "input": "I'm shipping a git workflow project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "git log",
+            "every commit message follows",
+            "conventional commits format with",
+            "meaningful descriptions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-git-workflow",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for git-workflow",
+      "input": "What's the most important thing to know about git workflow?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

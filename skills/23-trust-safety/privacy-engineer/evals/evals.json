@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "privacy-engineer",
+  "description": "Per-skill evaluation for privacy-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-privacy-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate privacy-engineer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "privacy-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "data minimization",
+            "HIPAA Safe Harbor",
+            "Expert Determination"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-privacy-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex privacy-engineer scenario",
+      "input": "I'm working on implementing business associate agreements (baas) with technical sub-processors \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "privacy-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "data minimization",
+            "HIPAA Safe Harbor"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-privacy-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate privacy-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach privacy engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "privacy-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-privacy-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate privacy-engineer for off-domain request: legal privacy policy drafting",
+      "input": "I need to legal privacy policy drafting",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "privacy-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-privacy-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate privacy-engineer for off-domain request: general compliance auditing",
+      "input": "I need to general compliance auditing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "privacy-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-privacy-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common privacy-engineer anti-patterns",
+      "input": "Build a production-ready privacy engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "data-minimization",
+            "hipaa-safe-harbor"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-privacy-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for privacy-engineer",
+      "input": "I'm shipping a privacy engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "privacy budget",
+            "tracked cumulatively per dataset",
+            "per time window",
+            "configured maximum"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-privacy-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for privacy-engineer",
+      "input": "What's the most important thing to know about privacy engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

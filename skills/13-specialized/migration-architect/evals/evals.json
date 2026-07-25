@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "migration-architect",
+  "description": "Per-skill evaluation for migration-architect \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-migration-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate migration-architect for primary domain request",
+      "input": "I need help with you need to execute a database schema migration in production without downtime u \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "migration-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cloud migration",
+            "rollback",
+            "blue green"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-migration-architect-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex migration-architect scenario",
+      "input": "I'm working on you are planning a cloud migration (on-prem to cloud or between clouds) and need \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "migration-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cloud migration",
+            "rollback"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-migration-architect-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate migration-architect for ambiguous domain-adjacent request",
+      "input": "How should I approach migration architect for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "migration-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-migration-architect-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate migration-architect for off-domain request: new greenfield architecture",
+      "input": "I need to new greenfield architecture",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "migration-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-migration-architect-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate migration-architect for off-domain request: CI/CD pipeline construction",
+      "input": "I need to ci/cd pipeline construction",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "migration-architect"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-migration-architect",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common migration-architect anti-patterns",
+      "input": "Build a production-ready migration architect implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cloud-migration",
+            "rollback"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-migration-architect",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for migration-architect",
+      "input": "I'm shipping a migration architect project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "target parity",
+            "row counts match",
+            "for every migrated table",
+            "checksum validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-migration-architect",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for migration-architect",
+      "input": "What's the most important thing to know about migration architect?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

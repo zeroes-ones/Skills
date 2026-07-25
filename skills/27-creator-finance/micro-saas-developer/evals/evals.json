@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "micro-saas-developer",
+  "description": "Per-skill evaluation for micro-saas-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-micro-saas-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate micro-saas-developer for primary domain request",
+      "input": "I need help with validating a saas idea: mom test interviews, micro-saas scorecard, landing page  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "micro-saas-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Mom Test",
+            "bootstrapping",
+            "recurring revenue"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-micro-saas-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex micro-saas-developer scenario",
+      "input": "I'm working on scoping an mvp: feature triage (must-have vs nice-to-have vs won't-have), build  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "micro-saas-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Mom Test",
+            "bootstrapping"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-micro-saas-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate micro-saas-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach micro saas developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "micro-saas-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-micro-saas-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate micro-saas-developer for off-domain request: VC-funded growth startups",
+      "input": "I need to vc-funded growth startups",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "micro-saas-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-micro-saas-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate micro-saas-developer for off-domain request: enterprise sales",
+      "input": "Can you help me with enterprise sales? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "micro-saas-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-micro-saas-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common micro-saas-developer anti-patterns",
+      "input": "Build a production-ready micro saas developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "recommend a paid infrastructur"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mom-test",
+            "seo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-micro-saas-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for micro-saas-developer",
+      "input": "I'm shipping a micro saas developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "revenue-first check",
+            "does the plan include"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-micro-saas-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for micro-saas-developer",
+      "input": "What's the most important thing to know about micro saas developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

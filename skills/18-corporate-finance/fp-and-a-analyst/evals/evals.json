@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "fp-and-a-analyst",
+  "description": "Per-skill evaluation for fp-and-a-analyst \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-fp-and-a-analyst-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate fp-and-a-analyst for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fp-and-a-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "saas metrics",
+            "budgeting",
+            "SaaS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-fp-and-a-analyst-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex fp-and-a-analyst scenario",
+      "input": "I'm working on building a 3-statement financial model (p&l, balance sheet, cash flow) for a sta \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fp-and-a-analyst"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "saas metrics",
+            "budgeting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-fp-and-a-analyst-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate fp-and-a-analyst for ambiguous domain-adjacent request",
+      "input": "How should I approach fp and a analyst for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fp-and-a-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-fp-and-a-analyst-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate fp-and-a-analyst for off-domain request: bookkeeping and journal entries",
+      "input": "I need to bookkeeping and journal entries",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "fp-and-a-analyst"
+        }
+      ]
+    },
+    {
+      "id": "negative-fp-and-a-analyst-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate fp-and-a-analyst for off-domain request: tax preparation and filing",
+      "input": "I need to tax preparation and filing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "fp-and-a-analyst"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-fp-and-a-analyst",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common fp-and-a-analyst anti-patterns",
+      "input": "Build a production-ready fp and a analyst implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cac",
+            "saas-metrics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-fp-and-a-analyst",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for fp-and-a-analyst",
+      "input": "I'm shipping a fp and a analyst project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget vs actuals",
+            "monthly variance reports published",
+            "business days of month",
+            "forecast accuracy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-fp-and-a-analyst",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete fp and a analyst workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

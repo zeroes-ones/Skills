@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "cto-advisor",
+  "description": "Per-skill evaluation for cto-advisor \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-cto-advisor-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate cto-advisor for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cto-advisor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technology",
+            "architecture",
+            "vendor"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cto-advisor-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex cto-advisor scenario",
+      "input": "I'm working on making build-vs-buy decisions for critical infrastructure or product components \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cto-advisor"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technology",
+            "architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cto-advisor-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate cto-advisor for ambiguous domain-adjacent request",
+      "input": "How should I approach cto advisor for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cto-advisor"
+        }
+      ]
+    },
+    {
+      "id": "negative-cto-advisor-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cto-advisor for off-domain request: hands-on coding",
+      "input": "Can you help me with hands-on coding? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cto-advisor"
+        }
+      ]
+    },
+    {
+      "id": "negative-cto-advisor-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cto-advisor for off-domain request: code review",
+      "input": "Can you help me with code review? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cto-advisor"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-cto-advisor",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common cto-advisor anti-patterns",
+      "input": "Build a production-ready cto advisor implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technology",
+            "architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cto-advisor",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for cto-advisor",
+      "input": "I'm shipping a cto advisor project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "technology radar",
+            "reviewed within last",
+            "all technologies classified",
+            "build vs buy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-cto-advisor",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete cto advisor workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "android-developer",
+  "description": "Per-skill evaluation for android-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-android-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate android-developer for primary domain request",
+      "input": "I need help with building a new native android app with kotlin and jetpack compose \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "android-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "material design",
+            "Espresso"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-android-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex android-developer scenario",
+      "input": "I'm working on designing compose ui: layouts, material 3 theming, navigation, animation \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "android-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "material design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-android-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate android-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach android developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "android-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-android-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate android-developer for off-domain request: iOS development",
+      "input": "Can you help me with ios development? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "android-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-android-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate android-developer for off-domain request: cross-platform mobile",
+      "input": "I need to cross-platform mobile",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "android-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-android-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common android-developer anti-patterns",
+      "input": "Build a production-ready android developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mobile",
+            "mvi"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-android-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for android-developer",
+      "input": "I'm shipping a android developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gradlew test",
+            "all unit tests pass",
+            "no regressions",
+            "gradlew connectedcheck"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-android-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for android-developer",
+      "input": "What's the most important thing to know about android developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

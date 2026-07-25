@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "applying-llm-guardrails",
+  "description": "Per-skill evaluation for applying-llm-guardrails \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-applying-llm-guardrails-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate applying-llm-guardrails for primary domain request",
+      "input": "I need to guardrails for a new project \u2014 where do I start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "applying-llm-guardrails"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Output",
+            "LlamaGuard",
+            "guardrails"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-applying-llm-guardrails-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex applying-llm-guardrails scenario",
+      "input": "What are the best practices for applying llm guardrails in production environments?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "applying-llm-guardrails"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Output",
+            "LlamaGuard"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-applying-llm-guardrails-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate applying-llm-guardrails for ambiguous domain-adjacent request",
+      "input": "How should I approach applying llm guardrails for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "applying-llm-guardrails"
+        }
+      ]
+    },
+    {
+      "id": "negative-applying-llm-guardrails-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate applying-llm-guardrails for off-domain request: AI safety policy (use ai-safety-engineer)",
+      "input": "I need to ai safety policy (use ai-safety-engineer)",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "applying-llm-guardrails"
+        }
+      ]
+    },
+    {
+      "id": "negative-applying-llm-guardrails-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate applying-llm-guardrails for off-domain request: model training",
+      "input": "Can you help me with model training? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "applying-llm-guardrails"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-applying-llm-guardrails",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common applying-llm-guardrails anti-patterns",
+      "input": "Build a production-ready applying llm guardrails implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "llm",
+            "pii"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-applying-llm-guardrails",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for applying-llm-guardrails",
+      "input": "I'm shipping a applying llm guardrails project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pre-deployment verification checklist",
+            "layers deployed",
+            "prompt guard responds to",
+            "dan-style jailbreak variants"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-applying-llm-guardrails",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete applying llm guardrails workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "technical-writer",
+  "description": "Per-skill evaluation for technical-writer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-technical-writer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate technical-writer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "readme",
+            "OpenAPI",
+            "api docs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-technical-writer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex technical-writer scenario",
+      "input": "I'm working on generating or maintaining api reference documentation from openapi/swagger speci \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-writer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "readme",
+            "OpenAPI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-technical-writer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate technical-writer for ambiguous domain-adjacent request",
+      "input": "How should I approach technical writer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "technical-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-technical-writer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate technical-writer for off-domain request: docs platform engineering",
+      "input": "I need to docs platform engineering",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "technical-writer"
+        }
+      ]
+    },
+    {
+      "id": "negative-technical-writer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate technical-writer for off-domain request: developer advocacy content",
+      "input": "I need to developer advocacy content",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "technical-writer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-technical-writer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common technical-writer anti-patterns",
+      "input": "Build a production-ready technical writer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api",
+            "readme"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-technical-writer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for technical-writer",
+      "input": "I'm shipping a technical writer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "every major use case",
+            "has a step-by",
+            "step guide",
+            "not just api reference"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-technical-writer",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete technical writer workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

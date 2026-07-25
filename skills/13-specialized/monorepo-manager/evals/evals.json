@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "monorepo-manager",
+  "description": "Per-skill evaluation for monorepo-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-monorepo-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate monorepo-manager for primary domain request",
+      "input": "I need help with you are choosing a monorepo tool (turborepo vs. nx vs. bazel vs. pnpm workspaces \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "monorepo-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Bazel",
+            "pnpm",
+            "Rush"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-monorepo-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex monorepo-manager scenario",
+      "input": "I'm working on you need to configure build orchestration \u2014 task pipelines, caching, parallel ex \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "monorepo-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Bazel",
+            "pnpm"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-monorepo-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate monorepo-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach monorepo manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "monorepo-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-monorepo-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate monorepo-manager for off-domain request: package-level development",
+      "input": "I need to package-level development",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "monorepo-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-monorepo-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate monorepo-manager for off-domain request: CI/CD pipeline construction",
+      "input": "I need to ci/cd pipeline construction",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "monorepo-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-monorepo-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common monorepo-manager anti-patterns",
+      "input": "Build a production-ready monorepo manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "nx",
+            "bazel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-monorepo-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for monorepo-manager",
+      "input": "I'm shipping a monorepo manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "git clone",
+            "clone completes in",
+            "repo size",
+            "affected graph"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-monorepo-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete monorepo manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

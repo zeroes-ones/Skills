@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T20:28:02Z
+# Generated: 2026-07-25T21:01:01Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    3a34fc3ec0d7d847602511040e7bed39f130fcbe
+# Commit:    9bd2bccc059a8692639509a3b4549bdad2033776
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -109,7 +109,6 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-secu
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/incident-responder/scripts/verify-skill.sh
 eae71870c47ab1a7a32da917e6af8ae7b332760ea6441bb93cccbfa0f451afd4  skills/08-security/offensive-security/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/security-engineer/scripts/verify-skill.sh
-d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/08-security/security-reviewer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/supply-chain-security/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/threat-intelligence/scripts/verify-skill.sh
 9f7f3d91051f0505d2db762562c022fa3a078dbc93bdb8362378843766cc2d0e  skills/08-security/vulnerability-management/scripts/verify-skill.sh

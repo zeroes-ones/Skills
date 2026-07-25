@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "partnerships-manager",
+  "description": "Per-skill evaluation for partnerships-manager \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-partnerships-manager-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate partnerships-manager for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "partnerships-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "channel management",
+            "partnerships manager",
+            "co selling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-partnerships-manager-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex partnerships-manager scenario",
+      "input": "I'm working on a new partner has signed an agreement and needs onboarding, training, and activa \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "partnerships-manager"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "channel management",
+            "partnerships manager"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-partnerships-manager-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate partnerships-manager for ambiguous domain-adjacent request",
+      "input": "How should I approach partnerships manager for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "partnerships-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-partnerships-manager-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate partnerships-manager for off-domain request: partnership deal structuring",
+      "input": "I need to partnership deal structuring",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "partnerships-manager"
+        }
+      ]
+    },
+    {
+      "id": "negative-partnerships-manager-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate partnerships-manager for off-domain request: legal term sheet negotiation",
+      "input": "I need to legal term sheet negotiation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "partnerships-manager"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-partnerships-manager",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common partnerships-manager anti-patterns",
+      "input": "Build a production-ready partnerships manager implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "qbr",
+            "mdf"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-partnerships-manager",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for partnerships-manager",
+      "input": "I'm shipping a partnerships manager project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "partnership pipeline",
+            "every active partnership has",
+            "named target accounts",
+            "reviewed bi-weekly"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-partnerships-manager",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete partnerships manager workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

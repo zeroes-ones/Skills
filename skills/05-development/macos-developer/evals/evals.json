@@ -1,0 +1,157 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "macos-developer",
+  "description": "Per-skill evaluation for macos-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-macos-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate macos-developer for primary domain request",
+      "input": "I need help with building a new native macos application from scratch with swiftui or appkit \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "macos-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "desktop",
+            "Apple Silicon",
+            "apple"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-macos-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex macos-developer scenario",
+      "input": "I'm working on choosing between swiftui, appkit, and catalyst for your macos ui layer \u2014 with co \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "macos-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "desktop",
+            "Apple Silicon"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-macos-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate macos-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach macos developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "macos-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-macos-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate macos-developer for off-domain request: iOS development",
+      "input": "Can you help me with ios development? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "macos-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-macos-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate macos-developer for off-domain request: cross-platform desktop with Electron/Tauri",
+      "input": "I need to cross-platform desktop with electron/tauri",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "macos-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-macos-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common macos-developer anti-patterns",
+      "input": "Build a production-ready macos developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t",
+            "ship without sandboxing \u2014 App "
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "desktop",
+            "apple-silicon"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-macos-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for macos-developer",
+      "input": "I'm shipping a macos developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "project yourapp",
+            "scheme yourapp",
+            "all xctest and xcuitest",
+            "swiftlint lint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-macos-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for macos-developer",
+      "input": "What's the most important thing to know about macos developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

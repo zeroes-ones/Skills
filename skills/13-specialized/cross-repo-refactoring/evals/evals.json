@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "cross-repo-refactoring",
+  "description": "Per-skill evaluation for cross-repo-refactoring \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-cross-repo-refactoring-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate cross-repo-refactoring for primary domain request",
+      "input": "I need help with planning a breaking api change: function rename, parameter reorder, return type  \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cross-repo-refactoring"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GraphQL",
+            "HEAD",
+            "contract testing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cross-repo-refactoring-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex cross-repo-refactoring scenario",
+      "input": "I'm working on migrating consumers off a deprecated api: library function, rest endpoint, graph \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cross-repo-refactoring"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GraphQL",
+            "HEAD"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cross-repo-refactoring-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate cross-repo-refactoring for ambiguous domain-adjacent request",
+      "input": "How should I approach cross repo refactoring for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cross-repo-refactoring"
+        }
+      ]
+    },
+    {
+      "id": "negative-cross-repo-refactoring-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cross-repo-refactoring for off-domain request: single-repo refactoring",
+      "input": "I need to single-repo refactoring",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cross-repo-refactoring"
+        }
+      ]
+    },
+    {
+      "id": "negative-cross-repo-refactoring-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate cross-repo-refactoring for off-domain request: API design",
+      "input": "Can you help me with api design? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cross-repo-refactoring"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-cross-repo-refactoring",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common cross-repo-refactoring anti-patterns",
+      "input": "Build a production-ready cross repo refactoring implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "graphql",
+            "head"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cross-repo-refactoring",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for cross-repo-refactoring",
+      "input": "I'm shipping a cross repo refactoring project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after planning or executing",
+            "a cross-repo refactoring",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-cross-repo-refactoring",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for cross-repo-refactoring",
+      "input": "What's the most important thing to know about cross repo refactoring?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

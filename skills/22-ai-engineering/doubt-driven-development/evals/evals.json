@@ -1,0 +1,146 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "doubt-driven-development",
+  "description": "Per-skill evaluation for doubt-driven-development \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-doubt-driven-development-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate doubt-driven-development for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "doubt-driven-development"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "code review",
+            "safety critical",
+            "defect prevention"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-doubt-driven-development-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex doubt-driven-development scenario",
+      "input": "I'm working on before merging prs that touch authentication, authorization, payment, data integ \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "doubt-driven-development"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "code review",
+            "safety critical"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-doubt-driven-development-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate doubt-driven-development for ambiguous domain-adjacent request",
+      "input": "How should I approach doubt driven development for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "doubt-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "negative-doubt-driven-development-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate doubt-driven-development for off-domain request: prototyping",
+      "input": "Can you help me with prototyping? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "doubt-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "negative-doubt-driven-development-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate doubt-driven-development for off-domain request: spike solutions",
+      "input": "Can you help me with spike solutions? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "doubt-driven-development"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-doubt-driven-development",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common doubt-driven-development anti-patterns",
+      "input": "Build a production-ready doubt driven development implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "code-review",
+            "safety-critical"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-doubt-driven-development",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for doubt-driven-development",
+      "input": "I'm shipping a doubt driven development project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "run this checklist before",
+            "marking any doubt cycle",
+            "ground rules",
+            "ground rules checked"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-doubt-driven-development",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete doubt driven development workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

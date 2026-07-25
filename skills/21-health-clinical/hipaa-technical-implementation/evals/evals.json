@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "hipaa-technical-implementation",
+  "description": "Per-skill evaluation for hipaa-technical-implementation \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-hipaa-technical-implementation-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate hipaa-technical-implementation for primary domain request",
+      "input": "I need help with quick: 30s \u2014 scan the bullet list to decide --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hipaa-technical-implementation"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HIPAA Security Rule",
+            "compliance",
+            "healthcare"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-hipaa-technical-implementation-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex hipaa-technical-implementation scenario",
+      "input": "I'm working on setting up a new health app backend \u2014 implement phi audit from day one (retrofit \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hipaa-technical-implementation"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "HIPAA Security Rule",
+            "compliance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-hipaa-technical-implementation-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate hipaa-technical-implementation for ambiguous domain-adjacent request",
+      "input": "How should I approach hipaa technical implementation for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "hipaa-technical-implementation"
+        }
+      ]
+    },
+    {
+      "id": "negative-hipaa-technical-implementation-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate hipaa-technical-implementation for off-domain request: GDPR compliance",
+      "input": "Can you help me with gdpr compliance? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "hipaa-technical-implementation"
+        }
+      ]
+    },
+    {
+      "id": "negative-hipaa-technical-implementation-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate hipaa-technical-implementation for off-domain request: general security hardening unrelated to PHI",
+      "input": "I need to general security hardening unrelated to phi",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "hipaa-technical-implementation"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-hipaa-technical-implementation",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common hipaa-technical-implementation anti-patterns",
+      "input": "Build a production-ready hipaa technical implementation implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hipaa-security-rule",
+            "compliance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-hipaa-technical-implementation",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for hipaa-technical-implementation",
+      "input": "I'm shipping a hipaa technical implementation project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "encryption at rest",
+            "get-bucket-encryption",
+            "all phi buckets have",
+            "encryption enabled"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-hipaa-technical-implementation",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for hipaa-technical-implementation",
+      "input": "What's the most important thing to know about hipaa technical implementation?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

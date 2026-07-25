@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "dependency-governance",
+  "description": "Per-skill evaluation for dependency-governance \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-dependency-governance-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate dependency-governance for primary domain request",
+      "input": "I need help with establishing organization-wide dependency policies (version alignment, update ca \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "dependency-governance"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Materials",
+            "sbom",
+            "dependabot"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-dependency-governance-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex dependency-governance scenario",
+      "input": "I'm working on dependency version sprawl is causing bugs: \"it works on my machine\" due to diffe \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "dependency-governance"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Materials",
+            "sbom"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-dependency-governance-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate dependency-governance for ambiguous domain-adjacent request",
+      "input": "How should I approach dependency governance for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "dependency-governance"
+        }
+      ]
+    },
+    {
+      "id": "negative-dependency-governance-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate dependency-governance for off-domain request: monorepo workspace configuration",
+      "input": "I need to monorepo workspace configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "dependency-governance"
+        }
+      ]
+    },
+    {
+      "id": "negative-dependency-governance-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate dependency-governance for off-domain request: CI/CD pipeline setup",
+      "input": "I need to ci/cd pipeline setup",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "dependency-governance"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-dependency-governance",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common dependency-governance anti-patterns",
+      "input": "Build a production-ready dependency governance implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "materials",
+            "sbom"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-dependency-governance",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for dependency-governance",
+      "input": "I'm shipping a dependency governance project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after designing a dependency",
+            "governance program",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-dependency-governance",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for dependency-governance",
+      "input": "What's the most important thing to know about dependency governance?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

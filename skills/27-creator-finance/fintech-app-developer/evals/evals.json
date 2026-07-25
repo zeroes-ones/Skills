@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "fintech-app-developer",
+  "description": "Per-skill evaluation for fintech-app-developer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-fintech-app-developer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate fintech-app-developer for primary domain request",
+      "input": "I need help with integrating payment processing \u2014 stripe, adyen, braintree, or square \u2014 for one-t \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fintech-app-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "digital wallet",
+            "banking api",
+            "invoicing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-fintech-app-developer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex fintech-app-developer scenario",
+      "input": "I'm working on building a digital wallet with balance tracking, top-up, withdrawal, and transac \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fintech-app-developer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "digital wallet",
+            "banking api"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-fintech-app-developer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate fintech-app-developer for ambiguous domain-adjacent request",
+      "input": "How should I approach fintech app developer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "fintech-app-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-fintech-app-developer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate fintech-app-developer for off-domain request: PCI DSS compliance auditing",
+      "input": "I need to pci dss compliance auditing",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "fintech-app-developer"
+        }
+      ]
+    },
+    {
+      "id": "negative-fintech-app-developer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate fintech-app-developer for off-domain request: general accounting",
+      "input": "Can you help me with general accounting? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "fintech-app-developer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-fintech-app-developer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common fintech-app-developer anti-patterns",
+      "input": "Build a production-ready fintech app developer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "digital-wallet",
+            "banking-api"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-fintech-app-developer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for fintech-app-developer",
+      "input": "I'm shipping a fintech app developer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification guardrails",
+            "before delivering work",
+            "self-check against these",
+            "if any fail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-fintech-app-developer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for fintech-app-developer",
+      "input": "What's the most important thing to know about fintech app developer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

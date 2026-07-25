@@ -1,0 +1,156 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "business-intelligence-engineer",
+  "description": "Per-skill evaluation for business-intelligence-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-business-intelligence-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate business-intelligence-engineer for primary domain request",
+      "input": "I need help with quick: 30s \u2014 five reasons to invoke this skill --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-intelligence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "MetricFlow",
+            "clinical analytics",
+            "Looker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-business-intelligence-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex business-intelligence-engineer scenario",
+      "input": "I'm working on **designing a governed semantic layer for company metrics** \u2014 different teams re \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-intelligence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "MetricFlow",
+            "clinical analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-business-intelligence-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate business-intelligence-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach business intelligence engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "business-intelligence-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-business-intelligence-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate business-intelligence-engineer for off-domain request: data engineering pipeline infrastructure",
+      "input": "I need to data engineering pipeline infrastructure",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "business-intelligence-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-business-intelligence-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate business-intelligence-engineer for off-domain request: machine learning model building",
+      "input": "I need to machine learning model building",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "business-intelligence-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-business-intelligence-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common business-intelligence-engineer anti-patterns",
+      "input": "Build a production-ready business intelligence engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cac",
+            "metricflow"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-business-intelligence-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for business-intelligence-engineer",
+      "input": "I'm shipping a business intelligence engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "dashboard load test",
+            "open dashboard in production",
+            "all charts render within",
+            "verify extracts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-business-intelligence-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for business-intelligence-engineer",
+      "input": "What's the most important thing to know about business intelligence engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

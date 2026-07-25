@@ -1,0 +1,157 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "documentation-engineer",
+  "description": "Per-skill evaluation for documentation-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-documentation-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate documentation-engineer for primary domain request",
+      "input": "I need help with quick: 30s -- scan the bullet list to decide if this skill fits --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "documentation-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GitBook",
+            "Vale",
+            "GraphQL"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-documentation-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex documentation-engineer scenario",
+      "input": "I'm working on selecting a static site generator for docs (docusaurus vs nextra vs mintlify vs  \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "documentation-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GitBook",
+            "Vale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-documentation-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate documentation-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach documentation engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "documentation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-documentation-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate documentation-engineer for off-domain request: technical writing of content",
+      "input": "I need to technical writing of content",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "documentation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-documentation-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate documentation-engineer for off-domain request: translation management",
+      "input": "I need to translation management",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "documentation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-documentation-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common documentation-engineer anti-patterns",
+      "input": "Build a production-ready documentation engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "do, with mechanical triggers t",
+            "AUTO\" --include=\"*"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gitbook",
+            "vale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-documentation-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for documentation-engineer",
+      "input": "I'm shipping a documentation engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "build docs",
+            "npm run docs",
+            "or equivalent",
+            "zero warnings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-documentation-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for documentation-engineer",
+      "input": "What's the most important thing to know about documentation engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

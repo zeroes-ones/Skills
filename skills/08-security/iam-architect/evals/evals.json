@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "iam-architect",
+  "description": "Per-skill evaluation for iam-architect \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-iam-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate iam-architect for primary domain request",
+      "input": "I need help with designing oauth2/oidc authentication: grant type selection, pkce enforcement, to \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "iam-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "secrets detection",
+            "OIDC",
+            "security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-iam-architect-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex iam-architect scenario",
+      "input": "I'm working on choosing an access control model: rbac vs abac vs rebac, policy engine selection \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "iam-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "secrets detection",
+            "OIDC"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-iam-architect-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate iam-architect for ambiguous domain-adjacent request",
+      "input": "How should I approach iam architect for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "iam-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-iam-architect-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate iam-architect for off-domain request: cloud IAM configuration",
+      "input": "I need to cloud iam configuration",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "iam-architect"
+        }
+      ]
+    },
+    {
+      "id": "negative-iam-architect-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate iam-architect for off-domain request: application-level authorization logic (-engineer",
+      "input": "I need to application-level authorization logic (-engineer",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "iam-architect"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-iam-architect",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common iam-architect anti-patterns",
+      "input": "Build a production-ready iam architect implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "secrets-detection",
+            "iam"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-iam-architect",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for iam-architect",
+      "input": "I'm shipping a iam architect project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "after designing or modifying",
+            "an iam system",
+            "run this sequence",
+            "do not proceed past"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-iam-architect",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete iam architect workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

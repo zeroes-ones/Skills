@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "accessibility-testing",
+  "description": "Per-skill evaluation for accessibility-testing \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-accessibility-testing-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate accessibility-testing for primary domain request",
+      "input": "I need help with standard: 3min --> \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "accessibility-testing"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lighthouse",
+            "axe core",
+            "accessibility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-accessibility-testing-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex accessibility-testing scenario",
+      "input": "I'm working on you need to integrate automated accessibility testing into existing ci/cd pipeli \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "accessibility-testing"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lighthouse",
+            "axe core"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-accessibility-testing-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate accessibility-testing for ambiguous domain-adjacent request",
+      "input": "How should I approach accessibility testing for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "accessibility-testing"
+        }
+      ]
+    },
+    {
+      "id": "negative-accessibility-testing-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate accessibility-testing for off-domain request: manual accessibility audits",
+      "input": "I need to manual accessibility audits",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "accessibility-testing"
+        }
+      ]
+    },
+    {
+      "id": "negative-accessibility-testing-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate accessibility-testing for off-domain request: general QA strategy without a11y focus",
+      "input": "I need to general qa strategy without a11y focus",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "accessibility-testing"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-accessibility-testing",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common accessibility-testing anti-patterns",
+      "input": "Build a production-ready accessibility testing implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "lighthouse",
+            "axe-core"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-accessibility-testing",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for accessibility-testing",
+      "input": "I'm shipping a accessibility testing project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "axe-core",
+            "in ci",
+            "zero violations at wcag",
+            "aa level"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-accessibility-testing",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete accessibility testing workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

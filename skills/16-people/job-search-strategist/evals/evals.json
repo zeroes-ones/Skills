@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "job-search-strategist",
+  "description": "Per-skill evaluation for job-search-strategist \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-job-search-strategist-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate job-search-strategist for primary domain request",
+      "input": "I need help with building target company list: industry, stage, culture, compensation profile \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "job-search-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "linkedin",
+            "networking",
+            "negotiation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-job-search-strategist-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex job-search-strategist scenario",
+      "input": "I'm working on networking strategy: linkedin outreach scripts, informational interview requests \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "job-search-strategist"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "linkedin",
+            "networking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-job-search-strategist-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate job-search-strategist for ambiguous domain-adjacent request",
+      "input": "How should I approach job search strategist for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "job-search-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-job-search-strategist-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate job-search-strategist for off-domain request: resume building",
+      "input": "Can you help me with resume building? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "job-search-strategist"
+        }
+      ]
+    },
+    {
+      "id": "negative-job-search-strategist-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate job-search-strategist for off-domain request: interview preparation",
+      "input": "I need to interview preparation",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "job-search-strategist"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-job-search-strategist",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common job-search-strategist anti-patterns",
+      "input": "Build a production-ready job search strategist implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "linkedin",
+            "networking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-job-search-strategist",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for job-search-strategist",
+      "input": "I'm shipping a job search strategist project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "target company list",
+            "companies across a",
+            "c tiers with specific",
+            "reasons for each"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-job-search-strategist",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete job search strategist workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

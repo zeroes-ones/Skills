@@ -1,0 +1,159 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "deprecation-engineer",
+  "description": "Per-skill evaluation for deprecation-engineer \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-deprecation-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate deprecation-engineer for primary domain request",
+      "input": "I need help with planning to deprecate an api version, endpoint, or sdk method \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "deprecation-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "breaking changes",
+            "Contract",
+            "APIs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-deprecation-engineer-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex deprecation-engineer scenario",
+      "input": "I'm working on removing a feature that has been superseded or has low adoption \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "deprecation-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "breaking changes",
+            "Contract"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-deprecation-engineer-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate deprecation-engineer for ambiguous domain-adjacent request",
+      "input": "How should I approach deprecation engineer for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "deprecation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-deprecation-engineer-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate deprecation-engineer for off-domain request: incident response during a live outage",
+      "input": "I need to incident response during a live outage",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "deprecation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "negative-deprecation-engineer-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate deprecation-engineer for off-domain request: greenfield API design",
+      "input": "I need to greenfield api design",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "deprecation-engineer"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-deprecation-engineer",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common deprecation-engineer anti-patterns",
+      "input": "Build a production-ready deprecation engineer implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "breaking-changes",
+            "contract"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-deprecation-engineer",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for deprecation-engineer",
+      "input": "I'm shipping a deprecation engineer project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "deprecation audit",
+            "all deprecated surfaces have",
+            "a sunset date",
+            "a replacement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-deprecation-engineer",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable for deprecation-engineer",
+      "input": "What's the most important thing to know about deprecation engineer?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "specific",
+            "example"
+          ]
+        }
+      ]
+    }
+  ]
+}

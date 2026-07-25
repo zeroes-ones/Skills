@@ -1,0 +1,149 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "wayfinder",
+  "description": "Per-skill evaluation for wayfinder \u2014 validates trigger routing, output quality, anti-pattern compliance, and progressive disclosure.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-wayfinder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate wayfinder for primary domain request",
+      "input": "I need help with planning a feature where core technical decisions haven't been made \u2014 can you guide me?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "wayfinder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "frontier resolution",
+            "knowledge dag",
+            "unknown discovery"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-wayfinder-complex",
+      "category": "trigger_routing",
+      "description": "Agent should activate for complex wayfinder scenario",
+      "input": "I'm working on evaluating a new technology, framework, or platform before adoption \u2014 what are the best practices?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "wayfinder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "frontier resolution",
+            "knowledge dag"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-wayfinder-ambiguous",
+      "category": "trigger_routing",
+      "description": "Agent should activate wayfinder for ambiguous domain-adjacent request",
+      "input": "How should I approach wayfinder for a team of 5 engineers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "wayfinder"
+        }
+      ]
+    },
+    {
+      "id": "negative-wayfinder-1",
+      "category": "negative_trigger",
+      "description": "Should NOT activate wayfinder for off-domain request: small well-understood tasks",
+      "input": "I need to small well-understood tasks",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "wayfinder"
+        }
+      ]
+    },
+    {
+      "id": "negative-wayfinder-2",
+      "category": "negative_trigger",
+      "description": "Should NOT activate wayfinder for off-domain request: sprint planning",
+      "input": "Can you help me with sprint planning? I need professional guidance.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "wayfinder"
+        }
+      ]
+    },
+    {
+      "id": "output-anti-patterns-wayfinder",
+      "category": "anti_pattern_compliance",
+      "description": "Output should not contain common wayfinder anti-patterns",
+      "input": "Build a production-ready wayfinder implementation for a startup",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hardcoded secret",
+            "console.log(password",
+            "TODO: fix",
+            "eval("
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "dag",
+            "frontier-resolution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-wayfinder",
+      "category": "checklist_coverage",
+      "description": "Output should cover key production checklist items for wayfinder",
+      "input": "I'm shipping a wayfinder project to production \u2014 what should I verify before launch?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "all tickets have unknown",
+            "every ticket starts with",
+            "we don",
+            "t know"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "progressive-disclosure-wayfinder",
+      "category": "progressive_disclosure",
+      "description": "Agent should reference companion files for detailed workflows, not inline everything",
+      "input": "Give me a complete wayfinder workflow from start to finish",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "references/core-workflow.md"
+          ]
+        }
+      ]
+    }
+  ]
+}
