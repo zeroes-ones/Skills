@@ -1,0 +1,5 @@
+# What Good Looks Like — Community Organizing Tech Quality Standard
+
+Every feature ships with a validated design, comprehensive error handling, and tests that cover the happy path, edge cases, and failure modes. The code is clean, well-structured, and reviewable by any team member -- not just the author. Authentication is airtight, secrets are never exposed, and every input is validated at the boundary. Performance meets or exceeds targets under production load, with monitoring that alerts before users notice problems. Accessibility is built in from the start -- keyboard navigation works, screen readers announce correctly, and color contrast meets WCAG AA. Documentation is current, runbooks are tested, and the rollback plan is ready. The deployment is boring -- because boring deployments are reliable deployments. Users accomplish their goals without friction, errors, or confusion. And when something does go wrong, the team knows about it, understands it, and fixes it before it becomes a crisis.
+
+> This is the full aspirational quality standard. The compressed version in SKILL.md is optimized for model token budgets.
