@@ -609,18 +609,7 @@ find . -name "CONTEXT.md" -mtime +30 -exec echo "STALE: {}" \;
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
 
 1. [Ubiquitous Language](references/ubiquitous-language.md) — Core principles and maintenance of shared vocabulary
 2. [Term Challenging](references/term-challenging.md) — Protocol for interrogating domain term precision

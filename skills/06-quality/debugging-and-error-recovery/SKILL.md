@@ -539,18 +539,7 @@ Total time: 25 minutes. Regression protection: permanent.
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
 
 - [ ] **[DB1]** Bug reproduction confirmed: exact steps, inputs, environment state captured — bug manifests before any fix is applied
 - [ ] **[DB2]** Root cause identified via 5 Whys — traced past symptom to system/process level (not "developer made a mistake")

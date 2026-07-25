@@ -517,18 +517,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Affected-detection operational: `nx affected:build --base=HEAD~1` or `turbo run build --filter=[HEAD^1]` builds only changed packages and their dependents. Verified with a test PR that changes a single package.
 - [ ] **[S2]** Remote caching configured and warmed: main branch builds populate the remote cache. PR builds achieve >80% cache hit rate. Second build with no changes reports FULL TURBO or 100% Nx Cloud cache hit.

@@ -397,18 +397,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
 1. **Map patient journeys with emotional waypoints, not just clinical touchpoints.** Augment every journey map with emotional highs and lows using a 1-10 sentiment scale at each step. Capture verbatim patient quotes as emotional evidence. The 45-minute wait in a paper gown, the provider using incomprehensible jargon, the billing confusion — these are where trust is broken or built, not at the clinical milestones.
 2. **Apply experience-based design (EBD) methodology.** Co-design research instruments and interventions with patients, not for them. Convene a patient advisory board with 8-12 members representing the full demographic and clinical spectrum of your target population. Patients must have decision-making authority in the research design, not an advisory-only role.

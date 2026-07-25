@@ -399,18 +399,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
 1. **Assess health literacy before designing content.** Use the Brief Health Literacy Screening Tool (BRIEF) or Single Item Literacy Screener (SILS) at onboarding. Segment patients by literacy level and deliver tiered content: Level 1 patients (low literacy) receive a single daily action; Level 4 patients (high literacy) receive comprehensive tools with self-directed exploration. Designing only for highly literate patients guarantees disengagement from the 36% of US adults with below-basic health literacy.
 2. **Apply the teach-back method as a universal precaution.** After explaining any care concept, ask: "Can you tell me in your own words what you'll do at home?" Never ask "Do you understand?" — patients will always say yes to avoid appearing uninformed. If the patient cannot teach back correctly, re-explain using a different approach and re-assess. The teach-back loop continues until comprehension is confirmed.

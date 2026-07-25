@@ -381,18 +381,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
 1. **Grade evidence using the GRADE framework.** Classify every clinical claim by evidence quality: High (RCTs, systematic reviews), Moderate (downgraded RCTs, upgraded observational studies), Low (observational studies), Very Low (case reports, expert opinion). Content citing Very Low evidence must include a qualifier such as "limited evidence suggests" and should not be presented as established fact.
 2. **Apply Oxford CEBM levels for treatment claims.** Level 1 (systematic reviews of RCTs) through Level 5 (expert opinion without critical appraisal). Patient-facing content should preferentially cite Level 1-2 evidence. Level 4-5 evidence must be explicitly qualified as "expert opinion, not proven by clinical trials."

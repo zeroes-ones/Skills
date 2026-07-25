@@ -384,18 +384,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
 1. **Establish community guidelines before the first member joins.** Guidelines must cover: acceptable content (peer support, shared experience, treatment discussion), prohibited content (medical advice, unverified remedies, harassment, PHI sharing), moderation philosophy (transparency about decisions, appeal process), and consequences (warning → temporary suspension → permanent removal). Publish guidelines publicly and require new members to acknowledge them during onboarding.HIPAA-aware guidelines must explicitly state that sharing identifiable health information in public threads is prohibited and will be removed for member protection.
 2. **Deploy a tiered moderation framework.** Level 1: Automated pre-screening (keyword detection for self-harm, PHI, commercial spam). Level 2: Community flagging (members report concerning content; flags are reviewed within SLA). Level 3: Trained volunteer moderators (handle routine violations, escalate complex cases). Level 4: Professional staff moderators (crisis content, AE reports, legal escalations). Each level must have a defined SLA and escalation trigger.

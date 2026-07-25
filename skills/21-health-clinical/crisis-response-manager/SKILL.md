@@ -429,18 +429,7 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, the agent must verify:
-
-- [ ] **Self-check against What Good Looks Like:** All deliverables meet the quality bar defined above
-- [ ] **No broken references:** All file paths, URLs, and skill references resolve correctly
-- [ ] **Continuity with State Log:** No prior decisions contradicted without documented rationale
-- [ ] **Anti-hallucination check:** No fabricated APIs, version numbers, or capabilities asserted
-- [ ] **Error Recovery paths exercised:** Failure modes documented and recovery steps tested
-- [ ] **Cross-skill dependencies satisfied:** All upstream skill outputs consumed as documented
-
-If any checkbox fails, revise before delivering. When all pass, add to the state log.
-
-## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
 
 1. **Deploy a standardized triage protocol for all safety incidents.** Use the S1-S5 severity taxonomy: S1 (Critical — death or life-threatening, activate within 15 minutes, CEO + Legal + Regulatory notified), S2 (Severe — requires hospitalization, activate within 1 hour, VP-level), S3 (High — affects >10 patients or has media potential, within 4 hours, Director-level), S4 (Medium — isolated event, <10 patients, within 24 hours), S5 (Low — near-miss, no patient impact, within 72 hours). Every incident must be classified before action.
 2. **Maintain an escalation matrix with role-specific activation triggers.** Map every incident type to: who is notified, within what timeframe, through which channel (phone for S1/S2, email + Slack for S3-S5), and who has decision authority at each level. The CEO is not the default approver for every crisis — pre-delegate communication authority to prevent the "CEO is on a plane for 6 hours with no statement" scenario.
