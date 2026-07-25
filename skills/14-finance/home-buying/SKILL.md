@@ -509,7 +509,9 @@ Run through this checklist before removing contingencies, before closing, and be
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - **Rent vs Buy Calculator**: See [references/rent-vs-buy.md](references/rent-vs-buy.md)
 - **Mortgage Comparison Tool**: See [references/mortgage-comparison.md](references/mortgage-comparison.md)

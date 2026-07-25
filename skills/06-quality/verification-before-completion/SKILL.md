@@ -554,7 +554,9 @@ grep -oh 'references/[^)]*\.md' SKILL.md | sort -u
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(STANDARD)**
 
 - [ ] **[VC1]** Phase 1 (Reproduce) complete: bug reproduced using the reporter's EXACT steps — evidence of failure captured BEFORE fix
 - [ ] **[VC2]** Phase 2 (Apply Fix) complete: fix is minimal — changes only what's necessary, no refactoring or unrelated changes mixed in

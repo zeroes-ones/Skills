@@ -501,7 +501,9 @@ Bad alternative (anti-pattern):
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Deprecation inventory complete: all deprecated surfaces (APIs, features, flags, libraries, endpoints) cataloged with sunset date, replacement, and migration guide. Audit refreshed within last 30 days.
 - [ ] **[S2]** Replacement available and feature-complete: every deprecated surface has a working replacement deployed to production before deprecation announcement. Replacement is at least as capable as what it replaces.

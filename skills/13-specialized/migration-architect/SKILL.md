@@ -562,7 +562,9 @@ Detailed workflow steps for framework, language, cloud, and stakeholder manageme
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Migration runbook exists with per-phase rollback plan, step-by-step timing estimates, and rollback triggers for each phase. Runbook executable by on-call engineer, not just the migration architect.
 - [ ] **[S2]** Dry run completed on production-scale data (snapshot or equivalent). No timeouts, OOM, lock contention, or replication lag issues detected. Results documented.

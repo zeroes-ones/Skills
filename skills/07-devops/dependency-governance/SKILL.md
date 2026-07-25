@@ -637,7 +637,9 @@ If any check fails: diagnose from checklist, provide specific actionable fix, re
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 * [Renovate Documentation: Shareable Config Presets](https://docs.renovatebot.com/config-presets/) — Centralized configuration across repos
 * [GitHub: Dependabot Alerts & Security Updates](https://docs.github.com/en/code-security/dependabot) — Automated vulnerability detection and remediation

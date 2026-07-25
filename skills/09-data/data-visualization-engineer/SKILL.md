@@ -441,7 +441,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - **Chart Selection Guide**: See [references/chart-selection.md](references/chart-selection.md)
 - **Color Palette Library**: See [references/color-palettes.md](references/color-palettes.md)

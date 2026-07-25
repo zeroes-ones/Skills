@@ -549,7 +549,9 @@ Accessibility auditing scales from single-page component checks to enterprise-wi
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 - **Conformance Status**: See [conformance-status.md](references/conformance-status.md)
 - **Feedback**: See [feedback.md](references/feedback.md)
 - **Known Limitations**: See [known-limitations.md](references/known-limitations.md)

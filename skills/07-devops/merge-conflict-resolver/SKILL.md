@@ -632,7 +632,9 @@ grep -r '<<<<<<<' $(git ls-files) && echo "FAIL: Conflict markers still present"
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [references/hunk-analysis.md](references/hunk-analysis.md) — Detailed methodology for analyzing individual conflict hunks, classifying complexity, and identifying dependency relationships between hunks
 - [references/intent-tracing.md](references/intent-tracing.md) — Step-by-step guide to tracing each side of a conflict back to its commit, PR, and issue with source hierarchy prioritization

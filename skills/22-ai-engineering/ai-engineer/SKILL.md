@@ -593,7 +593,9 @@ Progress from "it works on my 10 test queries" to "it works on 10,000 daily quer
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [RAG evaluation: RAGAS framework](https://docs.ragas.io/) — Automated RAG pipeline evaluation (faithfulness, relevancy, context precision/recall)
 - [Embedding model leaderboard: MTEB](https://huggingface.co/spaces/mteb/leaderboard) — Massive Text Embedding Benchmark across 58 datasets

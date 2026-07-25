@@ -524,7 +524,9 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** APM/RUM/Distributed tracing active and verified: dashboards show P50/P95/P99 latency, throughput, and error rate per endpoint. DB slow query logging and GC logging enabled.
 - [ ] **[S2]** Profiling completed before any optimization: `cProfile`, `py-spy`, `pprof`, or `async-profiler` output confirms the specific bottleneck location with function-level granularity. Flame graph generated and reviewed.

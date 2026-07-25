@@ -638,7 +638,9 @@ If any check fails: diagnose from verification item, provide specific actionable
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 * [Git Submodules Documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) — Official Git documentation for submodules
 * [Git Subtree Documentation](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt) — Official git-subtree documentation

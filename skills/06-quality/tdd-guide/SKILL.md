@@ -514,7 +514,9 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(STANDARD)**
 
 - [ ] **[TDD1]** RED phase verified: test fails for the expected reason (missing feature/logic error) — not compilation error, not a typo, not a different test
 - [ ] **[TDD2]** GREEN phase verified: minimal implementation passes ONLY the test case — no over-engineering, no "I'll need this later" code, no validation the test didn't demand

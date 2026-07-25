@@ -609,7 +609,9 @@ find . -name "CONTEXT.md" -mtime +30 -exec echo "STALE: {}" \;
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 1. [Ubiquitous Language](references/ubiquitous-language.md) — Core principles and maintenance of shared vocabulary
 2. [Term Challenging](references/term-challenging.md) — Protocol for interrogating domain term precision

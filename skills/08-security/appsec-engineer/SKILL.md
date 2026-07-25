@@ -549,7 +549,9 @@ If any check fails: diagnose from checklist, provide specific fix, restart verif
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 *   [OWASP Top 10:2025](https://owasp.org/www-project-top-ten/) — A03:2025 Supply Chain, A10:2025 Exceptional Conditions; these replace A06:2021 Vulnerable Components and A10:2021 SSRF(https://owasp.org/www-project-top-ten/) — The canonical web application security risk taxonomy
 *   [CWE Top 25 Most Dangerous Software Weaknesses:2025](https://cwe.mitre.org/top25/) — CWE-79 XSS (#2), CWE-89 SQL Injection (#3), CWE-352 CSRF (#15), CWE-862 Missing Authorization (#19)

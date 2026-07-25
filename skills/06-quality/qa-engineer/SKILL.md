@@ -513,7 +513,9 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(STANDARD)**
 
 - [ ] **[QA1]** Test pyramid distribution verified: 60-70% unit, 20-25% integration, 5-10% E2E — no ice-cream cone anti-pattern
 - [ ] **[QA2]** Unit tests pass on every commit (< 5s suite), coverage ≥ 80% lines, ≥ 90% for critical paths (auth, payments, data integrity)

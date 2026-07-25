@@ -430,7 +430,9 @@ Before delivering interview coaching deliverables, verify ALL of:
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - **STAR Method Deep Dive**: See [references/star-method.md](references/star-method.md)
 - **Common Questions by Role**: See [references/questions-by-role.md](references/questions-by-role.md)

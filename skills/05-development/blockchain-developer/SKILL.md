@@ -454,7 +454,9 @@ When smart contracts go wrong, they go wrong in predictable ways. Here are the m
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - **Smart Contract Patterns**: See [references/smart-contract-patterns.md](references/smart-contract-patterns.md)
 - **Security Checklist**: See [references/security-checklist.md](references/security-checklist.md)

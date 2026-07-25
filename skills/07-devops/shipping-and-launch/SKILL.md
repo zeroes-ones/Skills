@@ -586,7 +586,9 @@ Bad alternative (anti-pattern):
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [LaunchDarkly Feature Flag Best Practices](https://launchdarkly.com/blog/) -- Feature flag management patterns and anti-patterns
 - [Google SRE: Managing Risk](https://sre.google/sre-book/managing-risk/) -- Error budgets, SLOs, and risk-based launch decisions

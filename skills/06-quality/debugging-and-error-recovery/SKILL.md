@@ -539,7 +539,9 @@ Total time: 25 minutes. Regression protection: permanent.
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(STANDARD)**
 
 - [ ] **[DB1]** Bug reproduction confirmed: exact steps, inputs, environment state captured — bug manifests before any fix is applied
 - [ ] **[DB2]** Root cause identified via 5 Whys — traced past symptom to system/process level (not "developer made a mistake")

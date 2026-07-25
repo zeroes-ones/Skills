@@ -650,7 +650,9 @@ If any check fails: diagnose from checklist, provide specific corrective action,
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 *   [MITRE ATT&CK Framework](https://attack.mitre.org/) -- Enterprise techniques, tactics, mitigations, and detection guidance
 *   [OWASP Testing Guide (WSTG)](https://owasp.org/www-project-web-security-testing-guide/) -- Comprehensive web application penetration testing methodology

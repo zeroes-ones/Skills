@@ -632,7 +632,9 @@ If any check fails: diagnose from verification item, provide specific actionable
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 * [Bazel Official Documentation](https://bazel.build/docs) — Build system, Starlark, remote execution
 * [Buck2 Documentation](https://buck2.build/) — Meta's artifact-based build system

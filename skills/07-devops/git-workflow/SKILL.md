@@ -522,7 +522,9 @@ Bad alternative (anti-pattern):
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [Conventional Commits Specification](https://www.conventionalcommits.org/) -- Standard for human and machine-readable commit messages
 - [Keep a Changelog](https://keepachangelog.com/) -- Guide to writing changelogs for humans

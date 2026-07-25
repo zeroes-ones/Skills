@@ -494,7 +494,9 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Observability verified before experiment: latency, error rate, and throughput dashboards show the target service clearly. Alerts configured and tested. Fault detection within 2 minutes confirmed.
 - [ ] **[S2]** Steady-state hypothesis defined with numeric thresholds: specific metric targets (e.g., p99 < 500ms, error rate < 0.1%) for the experiment duration. Baseline collected for 5+ minutes and confirmed healthy.

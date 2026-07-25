@@ -510,7 +510,9 @@ Before delivering job search strategy deliverables, verify ALL of:
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - **Total Compensation Model Template**: See [references/comp-model.md](references/comp-model.md)
 - **Networking Scripts by Channel**: See [references/networking-scripts.md](references/networking-scripts.md)

@@ -396,7 +396,9 @@ graph LR
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 - **Anti-Patterns**: See [anti-patterns.md](references/anti-patterns.md)
 - **Best Practices**: See [best-practices.md](references/best-practices.md)
 - **Calibration — How to Know Your Level**: See [calibration.md](references/calibration.md)

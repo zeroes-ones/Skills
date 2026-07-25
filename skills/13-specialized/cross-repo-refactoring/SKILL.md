@@ -546,7 +546,9 @@ If any check fails: diagnose from verification item, provide specific actionable
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(DEEP)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(DEEP)**
 
 - [ ] **[S1]** Consumer inventory is exhaustive: GitHub org-wide search with variants (import styles, aliases, dynamic invocations) returns zero additional call sites not in the migration plan. Cross-referenced with runtime telemetry.
 - [ ] **[S2]** Codemod test fixtures cover: simple case, nested usage, edge cases (null, undefined, empty), negative cases (should NOT change), async/await variants. Tested against 3+ real consumer repos with manual diff review.

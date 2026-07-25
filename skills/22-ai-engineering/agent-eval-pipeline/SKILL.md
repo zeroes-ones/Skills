@@ -567,7 +567,9 @@ python scripts/simulate_pr.py --pr-type "tool_change" --agent-version ${CANDIDAT
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 <!-- STANDARD: All reference links must resolve to existing files. See SKILL-QUALITY-STANDARDS.md Section XI. -->
 

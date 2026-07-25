@@ -598,7 +598,9 @@ Wayfinder scales from a 10-minute quick scan to multi-month architecture investi
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 * [investigation-tickets.md](references/investigation-tickets.md) — Investigation ticket format, fields, and the distinction from implementation tickets
 * [knowledge-dag.md](references/knowledge-dag.md) — Building and maintaining the knowledge dependency graph with topological ordering

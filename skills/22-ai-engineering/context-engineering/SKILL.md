@@ -639,7 +639,9 @@ Run this checklist before any context-related change goes to production:
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [Context Hierarchy Design](../references/context-hierarchy-design.md) — Detailed 5-level specification with per-level examples
 - [Token Budget Calculator](../references/token-budget-calculator.md) — Formulas and tools for computing optimal budgets by model

@@ -468,7 +468,9 @@ After every review cycle: ask the author which comments were most and least valu
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Production Checklist **(STANDARD)**
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Production Checklist **(STANDARD)**
 
 - [ ] **[CR1]** Six-dimension review completed: security, performance, code quality, error handling, testing, documentation — no dimension skipped
 - [ ] **[CR2]** All Critical and High findings resolved before merge — no deferral, no "will fix in follow-up" on security or data-loss risks

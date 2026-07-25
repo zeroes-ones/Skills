@@ -652,7 +652,9 @@ Before merging any code that touches a framework or library:
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 - [Source Hierarchy Guide](../references/source-hierarchy-guide.md) — Detailed source authority hierarchy with trust levels and escalation paths
 - [Documentation Fetching Patterns](../references/doc-fetching-patterns.md) — Patterns for programmatic documentation retrieval (curl, gh CLI, web_fetch)

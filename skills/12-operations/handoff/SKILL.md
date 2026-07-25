@@ -605,7 +605,9 @@ Handoff scales from a 5-minute pause between sessions to formal cross-agent tran
 
 ## Verification Guardrails
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## References
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## References
 
 * [progress-ledger.md](references/progress-ledger.md) — The progress ledger pattern: structure, conventions, and the "trust the ledger over memory" principle
 * [handoff-template.md](references/handoff-template.md) — Reusable handoff document template with all required sections and machine-parseable prefixes
