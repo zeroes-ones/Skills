@@ -350,6 +350,236 @@ class BehavioralEvalRunner:
             all_results.extend(self.run_suite(suite_name))
         return all_results
 
+    def promptfoo_export(self) -> str:
+        """Export test scenarios as promptfoo-compatible YAML configuration.
+
+        Generates a promptfoo eval config that can be run with:
+            npx promptfoo eval -c promptfoo-skills.yaml
+        """
+        import yaml as yml_lib
+
+        prompts = []
+        tests = []
+        test_idx = 0
+
+        for suite_name, scenarios in BEHAVIORAL_SUITES.items():
+            for scenario in scenarios:
+                test_idx += 1
+                test_id = f"{scenario.suite}-{scenario.id}"
+
+                # Build the system prompt from the skill file
+                skill_path = self._find_skill(scenario.skill_id)
+                system_prompt = ""
+                if skill_path:
+                    with open(skill_path) as f:
+                        content = f.read()
+                    # Extract up to 3000 chars of the skill as system prompt
+                    parts = content.split("---", 2)
+                    body = parts[2] if len(parts) > 2 else content
+                    system_prompt = body[:3000]
+
+                test = {
+                    "description": f"{test_id}: {scenario.description}",
+                    "vars": {
+                        "skill_id": scenario.skill_id,
+                        "scenario_id": scenario.id,
+                        "suite": scenario.suite,
+                        "input_prompt": scenario.input_prompt,
+                        "expected_behavior": scenario.expected_behavior,
+                        "violation_type": scenario.violation_type,
+                    },
+                    "assert": [],
+                }
+
+                # Add pass/fail assertions for promptfoo
+                for pattern in scenario.pass_criteria:
+                    test["assert"].append({
+                        "type": "contains",
+                        "value": pattern,
+                    })
+
+                for pattern in scenario.fail_criteria:
+                    test["assert"].append({
+                        "type": "not-contains",
+                        "value": pattern,
+                    })
+
+                # Add LLM-as-a-judge assertion for behavioral compliance
+                test["assert"].append({
+                    "type": "llm-rubric",
+                    "value": f"The response should demonstrate: {scenario.expected_behavior}",
+                })
+
+                tests.append(test)
+
+        config = {
+            "description": "Skills Repository — Behavioral Evals (promptfoo)",
+            "prompts": [
+                {
+                    "id": "skill-agent",
+                    "label": f"Skill: {{{{skill_id}}}} — {{{{scenario_id}}}}",
+                    "raw": "{{input_prompt}}",
+                }
+            ],
+            "providers": [
+                {"id": "openai:gpt-4o", "label": "GPT-4o"},
+                {"id": "anthropic:messages:claude-3-5-sonnet-20241022", "label": "Claude 3.5 Sonnet"},
+                {"id": "openai:gpt-4o-mini", "label": "GPT-4o-mini"},
+            ],
+            "tests": tests,
+            "defaultTest": {
+                "options": {
+                    "provider": "openai:gpt-4o",
+                }
+            },
+        }
+
+        return yml_lib.dump(config, default_flow_style=False, sort_keys=False, allow_unicode=True, width=120)
+
+    def run_live(self, scenario: TestScenario, model: str = "gpt-4o-mini") -> dict:
+        """Execute a test scenario against a live LLM.
+
+        Requires OPENAI_API_KEY or ANTHROPIC_API_KEY in environment.
+        Uses the skill's SKILL.md content as the system prompt and the
+        scenario's input_prompt as the user message.
+        """
+        import os
+
+        skill_path = self._find_skill(scenario.skill_id)
+        if not skill_path:
+            return {
+                "scenario_id": scenario.id,
+                "status": "ERROR",
+                "reason": f"Skill {scenario.skill_id} not found",
+                "pass": False,
+            }
+
+        with open(skill_path) as f:
+            skill_content = f.read()
+
+        # Extract the skill body (after frontmatter) as system prompt
+        parts = skill_content.split("---", 2)
+        system_prompt = parts[2] if len(parts) > 2 else skill_content
+        # Keep system prompt under context limits
+        system_prompt = system_prompt[:8000]
+
+        user_message = scenario.input_prompt
+
+        # Determine provider from model name
+        response_text = ""
+        try:
+            if "claude" in model.lower() or "anthropic" in model.lower():
+                response_text = self._call_anthropic(system_prompt, user_message, model)
+            else:
+                response_text = self._call_openai(system_prompt, user_message, model)
+        except Exception as e:
+            return {
+                "scenario_id": scenario.id,
+                "suite": scenario.suite,
+                "skill_id": scenario.skill_id,
+                "status": "ERROR",
+                "reason": f"LLM invocation failed: {str(e)}",
+                "pass": False,
+            }
+
+        # Evaluate response against criteria
+        pass_checks = []
+        fail_checks = []
+
+        for pattern in scenario.pass_criteria:
+            found = bool(re.search(pattern, response_text, re.IGNORECASE))
+            pass_checks.append({"pattern": pattern, "found": found})
+
+        for pattern in scenario.fail_criteria:
+            found = bool(re.search(pattern, response_text, re.IGNORECASE))
+            fail_checks.append({"pattern": pattern, "found": found})
+
+        all_pass_met = all(p["found"] for p in pass_checks)
+        no_fail_met = not any(f["found"] for f in fail_checks)
+        passed = all_pass_met and no_fail_met
+
+        result = {
+            "scenario_id": scenario.id,
+            "suite": scenario.suite,
+            "description": scenario.description,
+            "skill_id": scenario.skill_id,
+            "model": model,
+            "status": "PASS" if passed else "FAIL",
+            "violation_type": scenario.violation_type,
+            "difficulty": scenario.difficulty,
+            "pass_checks": pass_checks,
+            "fail_checks": fail_checks,
+            "missing_guardrails": [p["pattern"] for p in pass_checks if not p["found"]],
+            "dangerous_patterns": [f["pattern"] for f in fail_checks if f["found"]],
+            "response_preview": response_text[:500],
+        }
+
+        self.results.append(result)
+        return result
+
+    def _call_openai(self, system_prompt: str, user_message: str, model: str) -> str:
+        """Call OpenAI-compatible API."""
+        import os
+        import urllib.request
+        import json as json_lib
+
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        if not api_key:
+            raise RuntimeError("OPENAI_API_KEY not set in environment")
+
+        base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        url = f"{base_url}/chat/completions"
+
+        payload = json_lib.dumps({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ],
+            "max_tokens": 1024,
+            "temperature": 0.0,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(url, data=payload, headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        })
+
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json_lib.loads(resp.read())
+            return data["choices"][0]["message"]["content"]
+
+    def _call_anthropic(self, system_prompt: str, user_message: str, model: str) -> str:
+        """Call Anthropic API."""
+        import os
+        import urllib.request
+        import json as json_lib
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            raise RuntimeError("ANTHROPIC_API_KEY not set in environment")
+
+        url = "https://api.anthropic.com/v1/messages"
+
+        payload = json_lib.dumps({
+            "model": model,
+            "max_tokens": 1024,
+            "system": system_prompt,
+            "messages": [
+                {"role": "user", "content": user_message},
+            ],
+        }).encode("utf-8")
+
+        req = urllib.request.Request(url, data=payload, headers={
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        })
+
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json_lib.loads(resp.read())
+            return data["content"][0]["text"]
+
     def summary(self) -> dict:
         """Generate summary statistics."""
         if not self.results:
@@ -465,9 +695,55 @@ Examples:
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--ci", action="store_true", help="CI mode: non-zero exit on failure")
     parser.add_argument("--report", action="store_true", help="Generate report")
+    parser.add_argument("--promptfoo", action="store_true",
+                        help="Export scenarios as promptfoo YAML config (stdout)")
+    parser.add_argument("--live", action="store_true",
+                        help="Run scenarios against live LLMs (requires API keys)")
+    parser.add_argument("--model", metavar="MODEL", default="gpt-4o-mini",
+                        help="Model for live evaluation (default: gpt-4o-mini)")
 
     args = parser.parse_args()
     runner = BehavioralEvalRunner()
+
+    if args.promptfoo:
+        print(runner.promptfoo_export())
+        return 0
+
+    if args.live:
+        if args.all:
+            all_scenarios = []
+            for suite_scenarios in BEHAVIORAL_SUITES.values():
+                all_scenarios.extend(suite_scenarios)
+            for scenario in all_scenarios:
+                result = runner.run_live(scenario, args.model)
+                status_icon = "✅" if result["status"] == "PASS" else "❌"
+                print(f"  {status_icon} [{result['model']}] {result['scenario_id']}: {result['status']}")
+        elif args.suite:
+            if args.suite not in BEHAVIORAL_SUITES:
+                print(f"ERROR: Suite '{args.suite}' not found.", file=sys.stderr)
+                return 2
+            for scenario in BEHAVIORAL_SUITES[args.suite]:
+                result = runner.run_live(scenario, args.model)
+                status_icon = "✅" if result["status"] == "PASS" else "❌"
+                print(f"  {status_icon} [{result['model']}] {result['scenario_id']}: {result['status']}")
+        elif args.skill:
+            all_scenarios = []
+            for suite_scenarios in BEHAVIORAL_SUITES.values():
+                for s in suite_scenarios:
+                    if s.skill_id == args.skill:
+                        all_scenarios.append(s)
+            for scenario in all_scenarios:
+                result = runner.run_live(scenario, args.model)
+                status_icon = "✅" if result["status"] == "PASS" else "❌"
+                print(f"  {status_icon} [{result['model']}] {result['scenario_id']}: {result['status']}")
+        else:
+            print("ERROR: --live requires --all, --suite, or --skill", file=sys.stderr)
+            return 2
+
+        # Print summary
+        summary = runner.summary()
+        print(f"\nLive Eval Summary: {summary['pass']}/{summary['total']} passed ({summary['pass_rate']:.0%})")
+        return 0
 
     if args.all:
         runner.run_all()

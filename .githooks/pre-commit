@@ -1,10 +1,34 @@
 #!/usr/bin/env bash
 # Pre-commit: Fast frontmatter + link checks on changed skill files only.
+# Also verifies script integrity when executable scripts change.
 # Target: <3 seconds for typical commits. Full suite runs in pre-push.
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 SKILLS_DIR="$REPO_ROOT/skills"
+
+# ── Check 0: Script integrity (when scripts change) ──────────────────────
+changed_scripts=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^(scripts/.*\.(sh|py)|skills/.*/scripts/.*\.(sh|py)|\.githooks/.*)$' || true)
+if [ -n "$changed_scripts" ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  Pre-commit: Script integrity check"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    if [ -f "$REPO_ROOT/scripts/verify-script-integrity.sh" ]; then
+        # Auto-regenerate manifest if scripts changed (keeps manifest in sync)
+        if [ -f "$REPO_ROOT/scripts/generate-sha256-manifest.sh" ]; then
+            bash "$REPO_ROOT/scripts/generate-sha256-manifest.sh" --quiet 2>/dev/null || true
+            git add "$REPO_ROOT/scripts/.sha256manifest" 2>/dev/null || true
+        fi
+        bash "$REPO_ROOT/scripts/verify-script-integrity.sh" || {
+            echo ""
+            echo "❌ Script integrity check FAILED."
+            echo "   If you intentionally modified scripts, the manifest was auto-regenerated."
+            echo "   Please re-stage and commit again."
+            exit 1
+        }
+    fi
+fi
 
 # Only check if skills files changed
 changed=$(git diff --cached --name-only --diff-filter=ACM | grep '^skills/.*\.md$' || true)

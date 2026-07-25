@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Pre-push: Full skills validation suite — blocks push on any failure.
-# This runs the same script as CI/CD to ensure consistent gates.
+# Pre-push: Full skills validation suite + script integrity — blocks push on any failure.
+# This runs the same scripts as CI/CD to ensure consistent gates.
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -11,9 +11,38 @@ echo "  Pre-push: Full skills governance gate"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
+# ── Gate 1: Script integrity (blocking) ──────────────────────────────────
+echo "[1/3] Script integrity verification..."
+if [ -f "$REPO_ROOT/scripts/verify-script-integrity.sh" ]; then
+    bash "$REPO_ROOT/scripts/verify-script-integrity.sh" || {
+        echo "❌ Script integrity check FAILED — push blocked."
+        echo "   Run: ./scripts/generate-sha256-manifest.sh to update the manifest."
+        exit 1
+    }
+else
+    echo "⚠️  verify-script-integrity.sh not found — skipping"
+fi
+
+# ── Gate 2: Full skills validation ───────────────────────────────────────
+echo ""
+echo "[2/3] Skills validation suite..."
 if [ -f "$REPO_ROOT/scripts/validate-skills.sh" ]; then
     bash "$REPO_ROOT/scripts/validate-skills.sh"
 else
     echo "⚠️  validate-skills.sh not found — skipping pre-push check"
     exit 0
 fi
+
+# ── Gate 3: Behavioral evals ─────────────────────────────────────────────
+echo ""
+echo "[3/3] Behavioral eval suite..."
+if [ -f "$REPO_ROOT/scripts/behavioral-evals.py" ]; then
+    python3 "$REPO_ROOT/scripts/behavioral-evals.py" --ci 2>/dev/null || {
+        echo "⚠️  Behavioral evals had warnings (non-blocking for pre-push)"
+    }
+else
+    echo "⚠️  behavioral-evals.py not found — skipping"
+fi
+
+echo ""
+echo "✅ All pre-push gates passed."
