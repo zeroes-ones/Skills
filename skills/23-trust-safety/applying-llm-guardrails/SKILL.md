@@ -20,6 +20,7 @@ chain:
     - backend-developer
     - incident-responder
 ---
+> **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
 ## Route the Request
 
@@ -118,150 +119,15 @@ Intent Classification Tree:
 | "We need production metrics for our guardrails" | Deploy OpenTelemetry instrumentation → build per-layer dashboards (FPR, FNR, latency, block rate) → configure anomaly alerts |
 
 ## Core Workflow
+<!-- COMPRESSED: Full 146 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Audit Threat Model (30 min)
 
 Catalog all attack surfaces for the LLM application:
 - **User input vectors:** Direct chat, file uploads, URL inputs, voice transcripts
 - **Third-party content vectors:** Retrieved documents (RAG), API responses, web search results
-- **Output exposure vectors:** Chat responses, API responses, generated code, generated emails
-
-Map each vector to specific threats:
-- Direct chat → jailbreak prompts, toxic content injection
-- RAG documents → indirect prompt injection, poisoned data
-- API responses → PII leakage, hallucinated authority, code injection
-
-### Phase 2: Select Guardrail Architecture
-
-Use the **Guardrail Layer Selection** decision tree below. Minimum viable deployment:
-```
-Input Layer → Output Layer
-```
-
-Production-ready deployment:
-```
-Input Layer → Prompt Layer → Runtime Layer → Output Layer
-```
-
-### Phase 3: Implement Input Layer
-
-**Prompt Guard deployment pattern:**
-```python
-from transformers import pipeline
-
-# Load Prompt Guard for jailbreak + injection detection
-classifier = pipeline(
-    "text-classification",
-    model="meta-llama/Prompt-Guard-86M",
-    device="cuda:0"
-)
-
-def input_guardrail(user_input: str, retrieved_context: list[str] = None) -> dict:
-    """Input layer: jailbreak + indirect injection detection."""
-    result = {"allow": True, "flags": [], "confidence": {}}
-
-    # Check for direct jailbreak
-    jailbreak = classifier(user_input)[0]
-    result["confidence"]["jailbreak"] = jailbreak["score"]
-    if jailbreak["label"] == "JAILBREAK" and jailbreak["score"] > 0.5:
-        result["allow"] = False
-        result["flags"].append("jailbreak_attempt")
-        return result
-
-    # Check for indirect injection via retrieved context
-    if retrieved_context:
-        for i, doc in enumerate(retrieved_context):
-            injection = classifier(doc)[0]
-            if injection["label"] == "INJECTION" and injection["score"] > 0.5:
-                result["allow"] = False
-                result["flags"].append(f"indirect_injection_doc_{i}")
-                return result
-
-    return result
-```
-
-### Phase 4: Implement Output Layer
-
-**Guardrails AI + Presidio output validation:**
-```python
-from guardrails import Guard
-from guardrails.hub import ToxicLanguage, DetectPII, ValidJson
-from presidio_analyzer import AnalyzerEngine
-from presidio_anonymizer import AnonymizerEngine
-
-presidio_analyzer = AnalyzerEngine()
-presidio_anonymizer = AnonymizerEngine()
-
-output_guard = Guard().use_many(
-    ToxicLanguage(threshold=0.7, validation_method="sentence"),
-    DetectPII(pii_entities=["EMAIL_ADDRESS", "PHONE_NUMBER", "SSN", "CREDIT_CARD"]),
-    ValidJson(on_fail="reask")  # Retry with correction prompt
-)
-
-def output_guardrail(llm_response: str) -> dict:
-    """Output layer: toxicity, PII, JSON validation."""
-    result = {"allow": True, "redacted": None, "flags": [], "detail": {}}
-
-    # Guardrails AI validation
-    try:
-        validated = output_guard.validate(llm_response)
-        if validated.error:
-            result["allow"] = False
-            result["flags"].append(validated.error)
-            result["detail"]["guardrails_error"] = str(validated.error)
-            return result
-    except Exception as e:
-        # Guardrail failure — fail-closed for high-risk
-        result["allow"] = False
-        result["flags"].append("guardrail_execution_failure")
-        return result
-
-    # Presidio PII deep scan (catches what Guardrails AI misses)
-    presidio_results = presidio_analyzer.analyze(
-        text=llm_response,
-        language="en",
-        entities=["EMAIL_ADDRESS", "PHONE_NUMBER", "SSN", "CREDIT_CARD",
-                   "US_BANK_NUMBER", "IBAN_CODE", "US_DRIVER_LICENSE"]
-    )
-    if presidio_results:
-        result["redacted"] = presidio_anonymizer.anonymize(
-            text=llm_response, analyzer_results=presidio_results
-        ).text
-        result["flags"].append("pii_detected_and_redacted")
-        result["detail"]["pii_count"] = len(presidio_results)
-
-    return result
-```
-
-### Phase 5: Test Adversarial
-
-Run minimum adversarial test suite before deployment:
-- 50 DAN-style jailbreak variants (from JailbreakChat corpus)
-- 20 Crescendo multi-turn attack sequences
-- 30 indirect injection payloads in synthetic RAG documents
-- 15 Base64/ROT13 encoded prompt bypass attempts
-- 25 multilingual toxic prompts (zh, ar, hi, ru, es)
-- 10 PII-leakage prompts targeting specific entity types
-
-Acceptance criteria: FPR < 0.1%, FNR < 5%, no critical bypasses in Layer 1.
-
-### Phase 6: Deploy with Metrics
-
-Instrument every guardrail layer:
-```python
-from opentelemetry import metrics
-
-guardrail_fpr = metrics.create_counter("guardrail.false_positive", "FPR per layer")
-guardrail_latency = metrics.create_histogram("guardrail.latency_ms", "p50/p99 latency")
-guardrail_blocks = metrics.create_counter("guardrail.blocks", "Block decisions by reason")
-
-# After each classification decision:
-span.set_attribute("guardrail.layer", "input")
-span.set_attribute("guardrail.decision", "block" if not result["allow"] else "allow")
-guardrail_latency.record(elapsed_ms, {"layer": "input"})
-if not result["allow"]:
-    guardrail_blocks.add(1, {"reason": result["flags"][0]})
-```
+...
+> 📎 **Full content (146 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -399,6 +265,20 @@ LLM Response Generated
          └──────────────────────────┘
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 **Upstream (skills this consumes):**
@@ -410,6 +290,11 @@ LLM Response Generated
 - **ai-security-engineer:** Consumes guardrail audit logs and block events for security incident detection and investigation.
 - **backend-developer:** Consumes guardrail API patterns for integration into application code. The input/output pipeline code above is directly embeddable.
 - **incident-responder:** Consumes guardrail block anomalies (spike > 2% block rate) as incident triggers. Audit logs feed into forensic analysis.
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `security-engineer` | Threat model, attack surface, security boundaries | Before implementing safety controls |
+| `compliance-officer` | Regulatory requirements, audit expectations, data handling rules | Before designing trust systems |
 
 ## Proactive Triggers
 
@@ -543,158 +428,15 @@ bash scripts/verify-skill.sh
 | "The fine-tune was domain-specific — safety shouldn't be affected" | Every fine-tuning update alters safety representations. Domain data + safety-unaligned training objectives = progressive safety degradation. This is the guard model collapse phenomenon — documented across Llama, Mistral, Qwen. | Run FW-SSR before and after every fine-tune. Block deployment if cosine similarity drops > 0.3. No exceptions. |
 
 ## Implementation Reference Patterns
+<!-- COMPRESSED: Full 154 lines extracted to references/implementation-reference-patterns.md -->
 
 ### LlamaGuard 3 Custom Policy Example
 
 Replace Meta's default 14-category taxonomy with domain-specific hazards:
 
 ```python
-CUSTOM_SAFETY_POLICY = """
-S1: Medical Misinformation
-    - Promoting unproven treatments or cures
-    - Discouraging evidence-based medical care
-    - Recommending harmful alternative remedies
-S2: Financial Misconduct
-    - Pump-and-dump stock schemes
-    - Unauthorized investment advice
-    - Cryptocurrency fraud instructions
-S3: Legal Misrepresentation
-    - Unauthorized legal counsel
-    - Court document forgery instructions
-    - Impersonating legal professionals
-S4: Code Injection & Exploitation
-    - SQL injection payload generation
-    - XSS attack vector construction
-    - Malware development instructions
-S5: Self-Harm & Suicide Content
-    - Methods or encouragement of self-harm
-    - Suicide instructions or glorification
-    - Eating disorder promotion
-"""
-
-# Deploy with custom policy
-result = classify_safety(conversation, custom_policy=CUSTOM_SAFETY_POLICY)
-```
-
-### Streaming Output Validation Pattern
-
-For real-time streaming applications, buffered validation with safety cutoff:
-
-```python
-import asyncio
-
-class StreamingSafetyBuffer:
-    """Buffer streaming tokens, validate chunks, cut off if unsafe."""
-
-    def __init__(self, check_interval_ms: int = 50, max_buffer_chars: int = 200):
-        self.buffer = ""
-        self.check_interval = check_interval_ms / 1000
-        self.max_chars = max_buffer_chars
-        self.safe = True
-
-    async def process_stream(self, token_stream):
-        """Stream tokens to user while validating in background."""
-        async for token in token_stream:
-            if not self.safe:
-                break  # Safety cutoff — stop streaming
-
-            self.buffer += token
-            yield token  # Deliver immediately (sub-50ms buffer)
-
-            if len(self.buffer) >= self.max_chars:
-                safety_result = await self.check_safety(self.buffer)
-                if not safety_result["safe"]:
-                    self.safe = False
-                    yield "\n\n[Response interrupted by safety filter.]"
-                self.buffer = ""  # Reset buffer
-
-    async def check_safety(self, text: str) -> dict:
-        """Async safety check without blocking the stream."""
-        return await asyncio.to_thread(output_guardrail, text)
-```
-
-### Multi-Turn Attack Detection Pattern
-
-Crescendo attacks escalate harmfulness across conversation turns. Detect escalation:
-
-```python
-class MultiTurnSafetyTracker:
-    """Track safety scores across turns to detect gradual escalation."""
-
-    def __init__(self, escalation_threshold: float = 0.3, window: int = 5):
-        self.turn_scores = []
-        self.threshold = escalation_threshold
-        self.window = window
-
-    def record_turn(self, jailbreak_score: float, toxicity_score: float):
-        self.turn_scores.append({
-            "jailbreak": jailbreak_score,
-            "toxicity": toxicity_score
-        })
-
-        if len(self.turn_scores) >= self.window:
-            recent = self.turn_scores[-self.window:]
-            jb_trend = sum(r["jailbreak"] for r in recent) / self.window
-            tox_trend = sum(r["toxicity"] for r in recent) / self.window
-
-            if jb_trend - self.turn_scores[0]["jailbreak"] > self.threshold:
-                return {"alert": "jailbreak_escalation", "trend": jb_trend}
-            if tox_trend - self.turn_scores[0]["toxicity"] > self.threshold:
-                return {"alert": "toxicity_escalation", "trend": tox_trend}
-
-        return {"alert": None}
-
-    def should_terminate_session(self) -> bool:
-        """Terminate session if safety budget exceeded (3 strikes rule)."""
-        strikes = sum(
-            1 for s in self.turn_scores
-            if s["jailbreak"] > 0.7 or s["toxicity"] > 0.8
-        )
-        return strikes >= 3
-```
-
-### Failover Architecture for Guardrail Unavailability
-
-```python
-class GuardrailOrchestrator:
-    """Orchestrate guardrail layers with circuit breakers and fallbacks."""
-
-    def __init__(self):
-        self.circuit_state = {layer: "closed" for layer in LAYERS}
-        self.failure_count = {layer: 0 for layer in LAYERS}
-        self.failure_threshold = 5
-        self.cooldown_seconds = 30
-
-    async def execute_layer(self, layer: str, fn, *args) -> dict:
-        if self.circuit_state[layer] == "open":
-            await self.check_cooldown(layer)
-            return self.fallback_response(layer)
-
-        try:
-            result = await asyncio.wait_for(fn(*args), timeout=0.05)
-            self.failure_count[layer] = 0
-            return result
-        except (asyncio.TimeoutError, Exception) as e:
-            self.failure_count[layer] += 1
-            if self.failure_count[layer] >= self.failure_threshold:
-                self.circuit_state[layer] = "open"
-                trigger_alert(f"Guardrail {layer} circuit breaker OPEN")
-            return self.fallback_response(layer)
-
-    def fallback_response(self, layer: str) -> dict:
-        """Fail-closed for input layers, fail-open+audit for output layers."""
-        if layer in ("input", "prompt"):
-            return {"allow": False, "flags": ["guardrail_unavailable_fail_closed"]}
-        else:
-            log_audit_warning(f"Guardrail {layer} bypassed — fail-open")
-            return {"allow": True, "flags": ["guardrail_unavailable_fail_open"]}
-```
-
----
-
-> **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
-
-**Portability:** works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+...
+> 📎 **Full content (154 lines):** [references/implementation-reference-patterns.md](references/implementation-reference-patterns.md)
 
 ## State Log
 

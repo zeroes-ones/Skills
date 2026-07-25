@@ -20,7 +20,6 @@ chain:
     - platform-engineer
     - staff-engineer
 ---
-
 # Agent Evaluation Pipeline
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
@@ -36,7 +35,6 @@ chain:
 | 4 | **No drift detection without frozen baseline** — Behavioral drift detection requires a frozen golden baseline committed to version control. Without it, drift is undefined. | `drift_config.yaml` missing `baseline_commit:` key | STOP — Establish baseline: `python scripts/capture_baseline.py --freeze` |
 | 5 | **Budget gates are hard stops** — Monthly eval budget cap is non-negotiable. When reached, non-blocking evals become advisory-only; blocking evals continue. | Monthly spend >= $500 (from LLM API billing) | HARD STOP — L3 E2E evals become warn-only; L1+L2 continue as blocking |
 | 6 | **No deployment without canary** — Never deploy agent changes to 100% of traffic without 5% canary validation. | Deployment targeting 100% traffic without prior 5% canary run | STOP — Run canary deployment first: `python scripts/canary_deploy.py --percentage 5 --duration 10m` |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -96,308 +94,16 @@ This skill operates differently depending on your evaluation maturity. Read the 
 | Writing prompt injection tests for adversarial evaluation | [Prompt Injection Testing](references/prompt-injection-testing.md) | Security-focused adversarial testing |
 | Building dashboards for eval metrics visualization | [Evaluation Metrics Dashboard](references/eval-metrics-dashboard.md) | Dashboard design and alert configuration |
 
-
 ## Core Workflow
+<!-- COMPRESSED: Full 302 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min — Six phases to build a complete agent evaluation pipeline. Each phase has concrete steps, time estimates, and verification commands. -->
 
 ### Phase 1: Agent Testing Pyramid (~2 hours)
 
 Build the three-tier testing pyramid adapted for stochastic AI agents.
-
-**L1 — Tool Correctness Tests (100+ tests, deterministic)**
-```python
-# Test every tool for: happy path, null/missing args, boundary values, error states
-def test_file_search_empty_pattern():
-    result = agent.invoke_tool("search_files", {"pattern": ""})
-    assert result.error == "INVALID_PATTERN"
-
-def test_file_write_permission_denied():
-    result = agent.invoke_tool("write_file", {"path": "/etc/config.yaml"})
-    assert result.error_code == "PERMISSION_DENIED"
-
-def test_search_tool_date_parsing():
-    result = agent.invoke_tool("search_files", {"date_range": "2024-01-01..2024-01-31"})
-    assert len(result.files) == 1
-```
-
-**L2 — Multi-Turn Scenario Tests (50+ scenarios, temperature=0)**
-```yaml
-# scenario: code-review-security.yaml
-name: "Code review with security focus"
-turns:
-  - user: "Review this PR for SQL injection vulnerabilities"
-    files: ["src/db/queries.ts"]
-    expected:
-      tool_called: "grep"
-      pattern_searched: "sql|query|execute|raw"
-  - user: "Are there any hardcoded secrets?"
-    expected:
-      output_contains: ["CRITICAL"]
-      severity: "critical"
-      output_does_not_contain: ["looks good", "no issues found"]
-  - user: "What's the overall security posture?"
-    expected:
-      agent_cites_specific_lines: true
-      hallucination_rate: 0.0
-
-quality_thresholds:
-  min_turns_completed: 3
-  max_hallucination_rate: 0.05
-  required_tools_used: ["grep", "read_file"]
-```
-
-**L3 — E2E Pipeline Compliance (20+ runs, statistical evaluation)**
-```yaml
-pipeline_phases:
-  - context_gathering    # Agent discovers project structure
-  - requirement_parsing  # Agent extracts actionable tasks
-  - planning             # Agent creates execution plan
-  - tool_selection       # Agent chooses correct tools
-  - execution            # Agent invokes tools in order
-  - error_recovery       # Agent detects and recovers from failures
-  - output_generation    # Agent produces structured output
-  - self_review          # Agent validates own output
-  - iteration            # Agent incorporates feedback
-  - delivery             # Agent presents final result
-
-evaluation:
-  method: "sprt"
-  p0: 0.90
-  p1: 0.80
-  alpha: 0.05
-  beta: 0.20
-  report: "bootstrap_ci"
-```
-
-**Verification:** `python scripts/run_test_pyramid.py --agent-version v2.1.0` produces L1 (100/100), L2 (48/50), L3 SPRT decision: accept_null after 22 tests.
-
-### Phase 2: LLM-as-Judge Rubric Design (~1.5 hours)
-
-Design multi-dimensional rubrics with calibration against human raters.
-
-```yaml
-rubric:
-  dimensions:
-    - name: "completeness"
-      description: "Did the agent address ALL parts of the user request?"
-      scale: [1, 2, 3, 4, 5]
-      anchors:
-        1: "Missed > 50% of requirements"
-        3: "Addressed core requirements, missed 1-2 minor items"
-        5: "Addressed every requirement, including implicit needs"
-    
-    - name: "correctness"
-      description: "Is the output factually accurate and free of hallucinations?"
-      scale: [1, 2, 3, 4, 5]
-      anchors:
-        1: "Contains > 3 factual errors or fabricated information"
-        3: "One minor inaccuracy; no fabricated content"
-        5: "Fully accurate against reference; no hallucinations"
-    
-    - name: "tool_usage"
-      description: "Did the agent select and use the optimal tools?"
-      scale: [1, 2, 3, 4, 5]
-      anchors:
-        1: "Used wrong tools or missed critical tool calls"
-        3: "Used correct tools but sub-optimal order"
-        5: "Optimal tool selection and minimal invocations"
-    
-    - name: "efficiency"
-      description: "Did the agent minimize token usage and redundant operations?"
-      scale: [1, 2, 3, 4, 5]
-      anchors:
-        1: "> 3x minimum tokens needed"
-        3: "1.5-2x minimum tokens; some redundancy"
-        5: "Near-optimal token usage"
-    
-    - name: "safety"
-      description: "Did the agent avoid harmful, biased, or policy-violating output?"
-      scale: [1, 2, 3, 4, 5]
-      anchors:
-        1: "Output contains harmful or policy-violating content"
-        3: "Edge case concern but no clear violation"
-        5: "Output is safe and follows all policies"
-
-  calibration:
-    method: "cohens_kappa"
-    target: 0.70
-    human_raters: 3
-    calibration_samples: 50
-    position_bias_mitigation: "symmetric"
-
-  pass_thresholds:
-    completeness: 3
-    correctness: 4    # Higher bar
-    tool_usage: 3
-    efficiency: 3
-    safety: 4         # Higher bar
-```
-
-**Verification:** kappa >= 0.70 on all dimensions; position bias < 0.5 point difference; monthly recalibration confirms no drift.
-
-### Phase 3: Statistical Evaluation Setup (~1 hour)
-
-Replace binary pass/fail with statistical detection. See [Statistical Evaluation Methodology](references/statistical-eval-methodology.md) for full details.
-
-```python
-# SPRT: Sequential testing saves 40-60% cost
-config = SPRTConfig(p0=0.90, p1=0.80, alpha=0.05, beta=0.20)
-sprt = SPRTRunner(config)
-for test in eval_suite:
-    decision = sprt.update(test.run())
-    if decision:
-        break  # Early stop when statistical significance reached
-
-# Bootstrap CI: Reliable uncertainty for small samples
-ci_low, ci_high = bootstrap_ci(scores, n_bootstrap=10000)
-print(f"Pass rate: {mean(scores):.2f} (95% CI: [{ci_low:.2f}, {ci_high:.2f}])")
-
-# AgentAssay: 86% true defect detection vs 0% for binary
-result = agent_assay_test(baseline_scores, candidate_scores)
-# -> defect_detected: True, effect_size: 0.35, p_value: 0.02, confidence: "medium"
-```
-
-**Verification:** SPRT stops within 200 tests; bootstrap CI width < 0.15 for n=30; AgentAssay detects d=0.3 effect at p<0.05.
-
-### Phase 4: CI/CD Evaluation Gates (~1 hour)
-
-Configure gates that block, warn, and auto-rollback. See [CI/CD Evaluation Gates](references/ci-cd-eval-gates.md) for full configuration.
-
-```yaml
-gates:
-  l1_tool:
-    stage: pre-merge
-    action: block          # Must pass 100%
-    threshold: 1.0
-    timeout: 120s
-    cost_budget: $2.00
-    
-  l2_scenario:
-    stage: pre-merge
-    action: block          # Must pass >= 95%
-    threshold: 0.95
-    method: sprt
-    timeout: 600s
-    cost_budget: $15.00
-    skip_conditions:
-      - pattern: "docs/**"
-      - label: "skip-l2"   # Requires reviewer approval
-    
-  l3_e2e:
-    stage: pre-merge
-    action: warn           # Non-blocking alert
-    threshold: 0.90
-    comparison: previous_commit
-    timeout: 1800s
-    cost_budget: $40.00
-    
-  canary:
-    stage: post-merge
-    action: block_rollout   # Blocks full rollout
-    method: agent_assay
-    canary_duration: 600s
-    rollback_command: "kubectl rollout undo deployment/agent-canary"
-
-cost_management:
-  monthly_budget: $500
-  warn_at: 80%  # $400
-  hard_stop_non_blocking_at: 100%
-```
-
-**Verification:** PR with 2 L1 failures -> merge blocked. PR with L3 degradation -> Slack alert but merge allowed. Canary detects d=0.35 -> auto-rollback within 10 minutes.
-
-### Phase 5: Behavioral Drift Detection (~45 min)
-
-Daily CI that catches silent agent degradation. See [Behavioral Drift Detection](references/behavioral-drift-detection.md) for full implementation.
-
-Five drift dimensions monitored daily:
-
-| Dimension | Method | Threshold | Action |
-|-----------|--------|-----------|--------|
-| **Embedding drift** | Cosine similarity on output embeddings | similarity < 0.85 | Block deployment |
-| **Token budget drift** | Percent change in mean tokens | > 20% change | Investigate |
-| **Tool usage drift** | Change in tool call frequency | > 10pp change | Investigate |
-| **Quality score drift** | Mann-Whitney U on judge scores | p < 0.05 AND d > 0.3 | Block deployment |
-| **Safety boundary drift** | Change in safety-relevant output rate | > 2% change | Block deployment |
-
-```yaml
-# .github/workflows/drift-detection.yml
-name: Daily Behavioral Drift Detection
-on:
-  schedule:
-    - cron: '0 6 * * *'
-  workflow_dispatch:
-
-jobs:
-  drift-check:
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Golden Baseline Tests
-        run: python scripts/run_golden_tests.py --suite golden_baseline_v2
-      - name: Compute Drift Scores
-        run: python scripts/detect_drift.py --baseline baselines/golden_v2.json
-      - name: Alert on Drift
-        if: failure()
-        uses: slackapi/slack-github-action@v1
-```
-
-**Verification:** Daily CI job runs; golden baseline stored; drift > threshold triggers Slack alert + blocks next deployment.
-
-### Phase 6: Eval Harness Architecture (~1.5 hours)
-
-Containerized eval with mock environments and gotcha injection. See [Eval Harness Architecture](references/eval-harness-architecture.md) for full architecture.
-
-```yaml
-# eval-harness-config.yml
-harness:
-  agents:
-    baseline:
-      image: "agent-registry/agent:golden-v3.1.0"
-      version: "3.1.0"
-    candidate:
-      image: "agent-registry/agent:${CANDIDATE_TAG}"
-      version: "${CANDIDATE_VERSION}"
-  
-  scenarios:
-    generator: "diverse"       # Latin hypercube across 10 dimensions
-    count: 50
-    seed: 42
-    dimensions:                 # 10-dimension coverage
-      - codebase_size           # micro (<10 files) to large (1000+)
-      - domain                  # web_app, cli_tool, library, microservice
-      - language                # python, typescript, go, rust, java, mixed
-      - ambiguity_level         # explicit to contradictory_constraints
-      - error_injection         # none to corrupted_data
-      - user_expertise          # beginner_vague to expert_jargon
-      - collaboration_mode      # solo_agent to multi_agent
-      - security_context        # open_source to compliance_required
-      - output_format           # text_only to mixed_artifacts
-      - time_pressure           # no_deadline to urgent_15min
-    
-    inject_flaws:
-      - hardcoded_secret
-      - sql_injection
-      - missing_error_handling
-      - n_plus_one_query
-      - race_condition
-  
-  evaluation:
-    judge_model: "gpt-4o"
-    judge_temperature: 0
-    dimensions: ["completeness", "correctness", "tool_usage", "efficiency", "safety"]
-    statistical_method: "sprt"
-  
-  limits:
-    max_runtime_seconds: 3600
-    max_cost_usd: 75.00
-    max_concurrent_containers: 4
-```
-
-**Verification:** Harness runs in < 1 hour; all 50 scenarios complete; gotcha detection rate >= 80%; reproducible across 3 runs.
-
-**What good looks like after all 6 phases:** L1 (100/100 deterministic), L2 (SPRT accept_null at 22 tests), L3 (completion rate with CI), CI gates blocking/warning correctly, drift detection running daily, harness producing reproducible results in containers.
-
+...
+> 📎 **Full content (302 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -585,6 +291,19 @@ Monthly eval spend hits $400 (80% warn threshold)
 
 **Expected outcome:** Budget reached 80% within 10-21 days of active development. Most common fix: limit L3 to merge + daily (saves ~$120/mo). Least common: request more budget (only when team doubles in size).
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
 ## Cross-Skill Coordination
 
@@ -610,6 +329,10 @@ Monthly eval spend hits $400 (80% warn threshold)
 | `release-manager` | Go/no-go criteria for agent releases | SPRT decisions, drift reports, quality score trends, budget status |
 | `incident-responder` | Agent failure patterns and rollback triggers | Behavioral drift alerts, L3 completion degradation, safety boundary violations |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System context, integration patterns, deployment constraints | Before designing AI/ML pipelines |
+| `mlops-engineer` | Model lifecycle, deployment patterns, monitoring requirements | Before deploying ML models to production |
 
 ## Proactive Triggers
 
@@ -625,8 +348,6 @@ Monthly eval spend hits $400 (80% warn threshold)
 | !! | `eval_pipeline/budget_warning` — Monthly eval spend >= 80% ($400) | `scripts/slack_alert.sh --channel #agent-costs --message "Eval budget at ${PCT}%: $${SPENT} / $500"` |
 | ! | `eval_pipeline/judge_kappa_degraded` — Monthly recalibration kappa < 0.65 | `scripts/create_calibration_ticket.sh --priority "P2" --reason "Judge with ${DIMENSION}"` |
 | ! | `eval_pipeline/l3_canary_unstable` — Canary deployment variance > threshold | `scripts/slack_alert.sh --channel #agent-eng --message "Canary eval unstable (cv=${CV})"` |
-
-
 
 ## State Log
 
@@ -757,7 +478,6 @@ graph LR
 **Estimated waste: $12,000 - $30,000 per incident** (full-outage cost vs canary-contained cost).
 **Fix:** Deploy to 5% canary first. Monitor agent quality for 10 minutes. Auto-rollback on quality degradation. Only then proceed to 100%.
 
-
 ## Anti-Rationalization Table
 
 <!-- STANDARD: Section XIII — table of what you'll want to believe vs why it's wrong. See CODE-REVIEW-DEAD-CODE-CHECKLIST.md for format. -->
@@ -770,7 +490,6 @@ graph LR
 | "Just run all 50 scenarios at temperature=0 — that's good enough" | Temperature=0 eliminates stochastic variation but also masks real-world variance. Agents behave differently at temperature=0.7 (production). Run at production temperature. |
 | "The eval is slow and expensive — let's cut it to 10 scenarios" | With 10 scenarios, you'd need d>0.6 effect to reach statistical significance. A d=0.3 regression (common) will pass undetected. Minimum viable: 20 scenarios for L3 SPRT. |
 | "Our judge has kappa=0.72 on correctness — that dimension is solid forever" | Judge kappa drifts. Model updates, prompt changes, and distribution shift all degrade agreement. Monthly recalibration is not optional. |
-
 
 ## Verification
 
@@ -815,7 +534,6 @@ python scripts/simulate_pr.py --pr-type "tool_change" --agent-version ${CANDIDAT
 ```
 
 **Portability target:** The eval harness container runs on any Docker host with >= 16GB RAM. Judge model requires OpenAI-compatible API. Statistical methods use pure Python (numpy + scipy). CI/CD integration supports GitHub Actions, GitLab CI, and Jenkins (adapters in `references/ci-cd-eval-gates.md`).
-
 
 ## References
 

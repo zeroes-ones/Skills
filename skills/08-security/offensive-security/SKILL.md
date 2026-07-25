@@ -60,7 +60,6 @@ portability: 'works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
   '
 ---
-
 # Offensive Security
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -78,7 +77,6 @@ These rules are non-negotiable constraints that prevent illegal activity, data l
 | R4 | REFUSE to exploit beyond proof-of-concept that demonstrates impact. Over-exploitation causes real damage: data corruption, service outages, credential compromise of unrelated users. | Trigger: exploitation attempt would modify production data, create persistent access mechanisms (web shells, backdoor accounts, scheduled tasks), pivot to out-of-scope systems, or exfiltrate actual PII/PHI beyond a single test record | STOP. Respond: "Exploitation must stop at proof-of-concept: demonstrate the vulnerability exists and its potential impact, then STOP. Do not: establish persistence, exfiltrate production data beyond a single test record, pivot to out-of-scope systems, or modify production data. The goal is to prove risk exists, not to simulate a full compromise. Document what further exploitation could achieve in the report instead." |
 | R5 | REFUSE to share or store unencrypted engagement findings. Pentest reports contain the blueprint for compromising the client -- if leaked, they enable real attackers. | Trigger: user proposes sending report via unencrypted email, storing in unencrypted cloud storage, or sharing via unauthenticated file transfer | STOP. Respond: "Engagement findings are the most sensitive documents in security consulting. An unencrypted pentest report is a breach waiting to happen. All deliverables must be: (1) encrypted at rest (AES-256-GCM), (2) transmitted via end-to-end encrypted channel (Signal, encrypted email, client-provided secure portal), (3) access-controlled with client-only decryption keys. Never use unencrypted email, public file sharing, or unauthenticated portals." |
 | R6 | REFUSE to use client infrastructure for personal purposes. Using client systems for cryptomining, C2 infrastructure hosting, or pivoting to irrelevant targets is theft of service and potentially criminal. | Trigger: user suggests hosting C2 on compromised client asset beyond engagement scope, mining cryptocurrency, using client compute for personal tasks, or pivoting to targets not in scope document | STOP. Respond: "Using client infrastructure beyond the authorized scope is theft of service and violates computer fraud statutes. C2 infrastructure must be hosted on attacker-controlled systems (VPS, cloud instances you own). Pivoting is limited to in-scope targets only. Any unauthorized use of client compute, network, or storage resources is both unethical and illegal." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -153,180 +151,15 @@ What offensive security activity are you performing?
 ```
 
 ## Core Workflow
+<!-- COMPRESSED: Full 176 lines extracted to references/core-workflow.md -->
 
 ### Phase 1: Rules of Engagement & Reconnaissance
 
 Execute in order. Do not skip steps.
 
 ```
-1. VALIDATE AUTHORIZATION
-   |-- Confirm signed Rules of Engagement document exists
-   |-- Verify scope: IP ranges, domains, excluded systems, testing window
-   |-- Confirm emergency contact and escalation procedure
-   |-- Verify testing window: dates, times, prohibited hours
-   |-- Document out-of-scope systems explicitly (do not test even if discovered)
-   |-- CRITICAL: If any element is missing, STOP. Do not proceed.
-
-2. EXTERNAL RECONNAISSANCE (Passive)
-   |-- DNS enumeration: Amass, Subfinder, dnsrecon, crt.sh certificate transparency
-   |   |-- Subdomain discovery via brute-force, certificate logs, search engines
-   |   |-- Zone transfer attempt (AXFR) -- rarely succeeds but quick to check
-   |-- WHOIS/RDAP lookup: registrant, nameservers, domain age, email addresses
-   |   |-- Historical WHOIS via WhoisXML, DomainTools
-   |-- Search engine reconnaissance: Google dorking (site:, inurl:, filetype:, intitle:)
-   |   |-- Shodan/Censys: exposed services, banners, SSL certificates, IoT devices
-   |   |-- GitHub dorking: API keys, credentials, configuration files, internal URLs
-   |-- Cloud asset discovery: AWS/Azure/GCP public buckets, cloudfront, blob storage
-   |   |-- GrayhatWarfare, Bucket Finder tools for public S3/blob enumeration
-   |-- Social media & employee profiling: LinkedIn (job titles, tech stack clues), Twitter, GitHub
-   |   |-- Harvest email format from public sources (first.last@company.com patterns)
-   |-- Technology stack fingerprinting: Wappalyzer, BuiltWith, WhatWeb, retire.js
-   |   |-- Identify: web server, framework, CDN, JavaScript libraries, CMS versions
-
-3. EXTERNAL RECONNAISSANCE (Active)
-   |-- Port scanning: Nmap TCP SYN scan (-sS), service version detection (-sV), OS detection (-O)
-   |   |-- Full port scan (-p-) for TCP top 1000 AND UDP top 100 -- missed ports = missed vulnerabilities
-   |   |-- NSE scripts: default (-sC), vulnerability scan (--script vuln), specific service scripts
-   |-- Web endpoint discovery: directory brute-force (gobuster, ffuf, dirsearch, feroxbuster)
-   |   |-- API endpoint discovery: Swagger/OpenAPI docs, GraphQL introspection, REST API fuzzing
-   |   |-- Virtual host discovery: Host header fuzzing for hidden vhosts
-   |-- SSL/TLS analysis: testssl.sh, sslscan -- check for weak ciphers, POODLE, Heartbleed, BEAST
-   |   |-- Certificate chain validation and expiration
-
-4. INTERNAL RECONNAISSANCE (Post-Compromise or Internal Test)
-   |-- Network mapping: ARP scanning, ping sweeps, NetBIOS/LLMNR enumeration
-   |-- Service discovery: SMB shares, LDAP, MSSQL, RDP, SSH, VNC, printers, IoT
-   |-- Active Directory enumeration (if Windows environment):
-   |   |-- BloodHound/SharpHound: map AD trust relationships, attack paths, ACL abuse paths
-   |   |-- PowerView: user/group/computer enumeration, session enumeration, GPO mapping
-   |   |-- LDAP queries: user descriptions, service principal names (SPNs), admin group membership
-   |-- Microservice topology: container discovery (Docker socket, Kubernetes API), message queues
-   |-- Database discovery: open MongoDB/Redis/Elasticsearch/PostgreSQL/MySQL with default credentials
-   |-- Internal documentation: SharePoint, Confluence, wiki for credentials and network diagrams
-```
-
-### Phase 2: Vulnerability Discovery
-
-```
-1. AUTOMATED SCANNING
-   |-- Network vulnerability scanners: Nessus, OpenVAS, Nexpose against all in-scope IPs
-   |   |-- Authenticated scans (where credentials available) -- yield 40-60% more findings
-   |-- Web application scanners: Burp Suite Pro, OWASP ZAP, Nikto, Nuclei with custom templates
-   |   |-- Authenticated crawling: spider with session tokens to discover hidden endpoints
-   |-- Container/cloud scanning: Trivy, ScoutSuite, Prowler, cloudsplaining for IAM analysis
-   |-- Code analysis: Semgrep, CodeQL, SonarQube for SAST (if source code access granted)
-
-2. MANUAL VERIFICATION
-   |-- Triage all automated findings: remove false positives, classify severity (CVSS v3.1)
-   |   |-- CRITICAL (CVSS 9.0-10.0): Remote code execution, authentication bypass exposing PII
-   |   |-- HIGH (7.0-8.9): SQL injection, SSRF to internal services, privilege escalation
-   |   |-- MEDIUM (4.0-6.9): Stored XSS, directory listing, missing security headers
-   |   |-- LOW (0.1-3.9): Information disclosure, verbose error messages, clickjacking
-   |-- Verify each finding: reproduce the vulnerability manually with step-by-step documentation
-   |   |-- Screenshot every step with timestamps and tool output
-   |   |-- Document exact request/response pairs, payloads, and environmental conditions
-
-3. ATTACK PATH ANALYSIS
-   |-- Chain vulnerabilities: a low-severity information leak may enable a critical exploit
-   |   |-- Example: version disclosure -> CVE lookup -> known exploit -> RCE chain
-   |-- Map findings to MITRE ATT&CK techniques for red team integration
-   |-- Prioritize by business impact, not just CVSS: PII exposure > internal RCE > XSS
-```
-
-### Phase 3: Exploitation
-
-```
-1. EXPLOIT SELECTION & PREPARATION
-   |-- Search for known exploits: ExploitDB, Metasploit, GitHub PoCs, Packet Storm
-   |   |-- Verify exploit code before running: read the source, understand what it does
-   |   |-- Test in isolated lab environment first if exploit is novel or destructive
-   |-- Custom exploit development: only if no public exploit exists and vulnerability is critical
-   |   |-- Buffer overflows, format strings, heap exploitation require deep C/assembly knowledge
-   |-- Payload generation: msfvenom, custom shellcode, living-off-the-land binaries (LOLBins)
-   |   |-- Prefer LOLBins over custom payloads: certutil, bitsadmin, powershell, wmic, mshta
-
-2. EXPLOITATION EXECUTION (Proof-of-Concept Only)
-   |-- Execute exploit with minimum necessary impact:
-   |   |-- Web: read /etc/passwd or a test file -- NOT full database dump
-   |   |-- Network: establish reverse shell, capture proof screenshot, then exit
-   |   |-- Cloud: read metadata service, list IAM permissions -- NOT deploy resources
-   |-- DOCUMENT EVERY STEP: timestamp, command, output, screenshot
-   |-- If exploit fails: investigate, adjust, retry -- but NEVER brute-force authentication
-   |-- CRITICAL CHECKPOINT: Have you exceeded proof-of-concept? If yes, STOP immediately.
-
-3. POST-EXPLOITATION (Minimal, Documented)
-   |-- Demonstrate impact: if RCE achieved, show what data/access is reachable
-   |-- Privilege escalation: local enumeration (sudo -l, SUID, capabilities, unquoted service paths)
-   |   |-- Windows: PowerUp, SharpUp, Seatbelt, WinPEAS for privilege escalation vectors
-   |   |-- Linux: LinPEAS, pspy, GTFOBins, SUID/GUID binary exploitation
-   |-- Credential harvesting (minimum necessary): demonstrate access to credential store
-   |   |-- NEVER dump entire NTDS.dit without explicit authorization
-   |-- Persistence: document where persistence COULD be established -- DO NOT create actual persistence
-   |   |-- Example: "Scheduled task could be created for persistence" -- do not create the task
-```
-
-### Phase 4: Post-Exploitation & Lateral Movement
-
-```
-1. SITUATIONAL AWARENESS
-   |-- Network reconnaissance from compromised host: ARP table, routing table, DNS cache
-   |-- Identify domain controller, file servers, database servers, jump hosts
-   |-- Map trust relationships: domain trusts, forest trusts, Azure AD Connect
-   |-- Identify high-value targets: PII stores, financial systems, source code repositories, PKI
-
-2. LATERAL MOVEMENT (Proof-of-Concept Only)
-   |-- Windows: Pass-the-Hash, Pass-the-Ticket, WMI, PsExec, WinRM, RDP, DCOM
-   |   |-- Demonstrate can move to ONE additional host to prove lateral movement possible
-   |   |-- DO NOT pivot beyond what is needed to demonstrate risk
-   |-- Linux: SSH key reuse, SSH agent forwarding hijack, NFS share access, .bash_history mining
-   |-- Cloud: IAM role chaining, cross-account access via trust relationships, metadata service pivot
-   |-- Container escape: access host from container via mounted Docker socket, /proc, capabilities
-
-3. DATA ACCESS DEMONSTRATION (Read-Only, Minimal)
-   |-- Identify and access ONE test/sample record to demonstrate data reachability
-   |-- NEVER exfiltrate production data, PII, PHI, or PCI data beyond a single demonstration record
-   |-- Screenshot access path and data visibility -- do not download or transfer data off-network
-   |-- If data exfiltration is in scope, use synthetic test data and document the exfiltration path
-```
-
-### Phase 5: Reporting & Remediation
-
-```
-1. DRAFT FINDINGS (Daily During Engagement)
-   |-- Write each finding as it is confirmed -- do not wait until the end
-   |-- Each finding template:
-   |   |-- Title: Descriptive, unique identifier (e.g., F-001: SQLi in /api/users endpoint)
-   |   |-- Severity: CVSS v3.1 vector string and score
-   |   |-- Description: What the vulnerability is, in plain English
-   |   |-- Reproduction Steps: Exact commands, requests, payloads to reproduce
-   |   |-- Impact: Business risk if exploited -- data loss, financial, reputational, compliance
-   |   |-- Remediation: Specific, actionable fix -- code snippet, config change, architecture recommendation
-   |   |-- References: CWE, OWASP, vendor advisory links
-   |-- Escalate CRITICAL (CVSS >= 9.0) within 4 hours of discovery via phone + encrypted email
-
-2. EXECUTIVE SUMMARY
-   |-- One page maximum, written for non-technical leadership (CEO, CISO, Board)
-   |-- Overall risk rating: Critical/High/Medium/Low based on worst-case scenario
-   |-- Top 3 findings with business impact in dollar terms or compliance consequences
-   |-- Positive findings: what the organization did well, defense mechanisms that worked
-   |-- Remediation roadmap: phased approach with quick wins (week 1-2) and strategic (quarterly)
-
-3. TECHNICAL REPORT
-   |-- Full findings catalog sorted by severity (Critical -> Low)
-   |-- Attack narrative: chronological walkthrough of the engagement from recon to exploitation
-   |-- MITRE ATT&CK mapping: which techniques were successfully executed
-   |-- Defense observations: what detection mechanisms fired, what was missed
-   |-- Appendices: full tool output, scan results, raw evidence, scope document
-
-4. REMEDIATION SUPPORT
-   |-- Remediation matrix: effort vs impact for each finding
-   |   |-- Quick wins: low effort (hours), high impact, fix immediately
-   |   |-- Strategic: high effort (weeks), high impact, plan for next quarter
-   |   |-- Accept risk: high effort, low impact, document risk acceptance
-   |-- Offer retest: verify fixes after remediation window (typically 30-90 days)
-   |-- Knowledge transfer: walkthrough with security/dev teams on exploitation techniques used
-   |-- Secure destruction: delete all client data, findings drafts, credentials, screenshots per retention agreement
-```
+...
+> 📎 **Full content (176 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Decision Trees
 
@@ -583,6 +416,20 @@ Social engineering engagement design:
 |   |-- Escalate difficulty over time: start easy (obvious phish), progress to sophisticated (spear phish with context)
 ```
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -599,6 +446,11 @@ Social engineering engagement design:
 | Compliance-driven pentest (PCI DSS, HIPAA, SOC 2) | compliance-officer | Pentest must validate specific compliance controls -- coordinate scope to ensure all required systems are tested |
 | Red team exercise exceeding scope boundaries | legal-advisor | Legal review needed if red team discovers critical vulnerability in out-of-scope system -- do NOT test without authorization extension |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `system-architect` | System boundaries, data flows, trust model | Before implementing security controls — understand the attack surface |
+| `security-reviewer` | STRIDE threat model, OWASP findings, CVSS severity ratings | Before deploying security-critical code |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response | What Happens If Ignored |
@@ -610,7 +462,6 @@ Social engineering engagement design:
 | P5 | Backup server on same domain as production with shared admin credentials — Domain Admins group includes backup admin account AND backup server joined to production domain | [ALERT] Ransomware will encrypt backups if they are reachable via same credentials. Recommend: separate backup admin forest, different credentials, immutable storage. This is the #1 reason ransomware payments happen. | Ransomware encrypts production servers, then uses same Domain Admin credentials to authenticate to backup server and encrypt backups too. Organization has NO recovery option. $2.3M ransom payment. 3 weeks of downtime. 30% of affected SMBs never recover and close within 6 months. |
 | P6 | S3 bucket / Azure blob / GCP storage with public read or write ACL detected — `aws s3 ls s3://bucket-name --no-sign-request` returns directory listing | [ALERT] Public cloud storage exposure. List contents for PII/credentials, document exposure scope. Flag as CRITICAL if PII, credentials, or intellectual property is exposed. | Public cloud storage is discoverable via GrayhatWarfare, Shodan, and GitHub dorking. Contents are indexed by search engines within days. Average exposure time before discovery: 6 months. If PII is exposed: GDPR mandatory notification (€20M or 4% global revenue). |
 | P7 | Scope creep detected — tester considering testing out-of-scope system because it "looks vulnerable" without signed scope amendment | [BLOCK] Testing out-of-scope systems is unauthorized access — equivalent to testing without any authorization. The fact that a system is vulnerable does not create authorization to test it. Document the observed vulnerability in the report as "noted but not tested — recommend expanding scope." | Even if the system is critically vulnerable, testing it without authorization is a CFAA violation. The tester who "does the right thing" by finding and reporting an out-of-scope vulnerability has committed a felony. The best outcome: client thanks you and expands scope. The realistic outcome: client's legal team sees unauthorized access, E&O insurance is voided, you're fired and potentially prosecuted. Document, don't touch. |
-
 
 ## State Log
 

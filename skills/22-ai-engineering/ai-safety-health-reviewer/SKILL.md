@@ -43,7 +43,6 @@ chain:
     - content-policy-manager
     - product-manager
 ---
-
 # AI Safety & Health AI Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -185,6 +184,20 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - **Implementing or auditing AI guardrails for clinical content** — You're deploying a patient-facing chatbot, clinical decision support tool, or community health AI. You need input/output guardrails, content filtering, and refusal policies tailored to medical context.
 - **Evaluating an existing AI health feature for bias or demographic performance gaps** — Your AI performs well overall but you suspect (or have user reports of) worse outcomes for non-English speakers, elderly patients, or specific racial/ethnic groups. You need bias testing methodology and remediation strategies.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->
@@ -227,61 +240,15 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 | Third-party medical AI evaluation or certification framework published (e.g., FDA guidance, NICE framework, WHO AI ethics) | Review within 2 weeks; assess gaps between framework requirements and current safety practices; publish gap analysis and remediation timeline | Regulatory frameworks evolve — proactive alignment demonstrates good-faith safety commitment to regulators |
 
 ## Core Workflow
+<!-- COMPRESSED: Full 57 lines extracted to references/core-workflow.md -->
 
 <!-- STANDARD: 3min -->
 
 ### Phase 1 (~30 min): Medical AI Output Evaluation
 
 #### Preventing Hallucinated Medical Advice
-
-1. **Drug interaction fabrication detection** — LLMs frequently invent drug-drug interactions that don't exist:
-   - Cross-reference every claimed drug interaction against established databases (DrugBank, SIDER, DailyMed)
-   - Pattern: LLM says "Drug A + Drug B causes condition X" → verify in drug interaction database → flag if not found
-   - **High-risk categories**: warfarin interactions, CYP450 enzyme interactions, QT-prolonging drug combinations
-
-2. **Treatment recommendation accuracy** — LLMs may recommend inappropriate treatments:
-   - Verify treatment recommendations against clinical practice guidelines (UpToDate, AAFP, NICE guidelines)
-   - Check for contraindications: pregnancy, pediatric, geriatric, renal/hepatic impairment
-   - Flag any recommendation outside standard of care without explicit disclaimer
-
-3. **Symptom misinterpretation** — LLMs may incorrectly interpret symptom descriptions:
-   - "Chest pain" requires cardiac workup mention — LLM must not dismiss as anxiety without caveats
-   - Neurological symptoms (sudden weakness, vision changes) require stroke warning
-   - Fever + neck stiffness requires meningitis warning
-
-4. **Dosage fabrication** — LLMs may invent specific dosages:
-   - Never allow an LLM to recommend a specific medication dosage
-   - Flag any numeric dosage + drug name pair for human review
-   - Default response: "Dosage must be determined by a licensed prescriber based on patient-specific factors"
-
-#### Verification Protocol
-
-For every medical claim in an AI output:
-```
-┌─────────────────────────────────────────────────────┐
-│ Medical Claim Verification Protocol                  │
-├─────────────────────────────────────────────────────┤
-│ 1. Identify all factual medical claims in output     │
-│ 2. For each claim:                                   │
-│    ├── Drug interaction? → Check DrugBank/SIDER       │
-│    ├── Treatment rec? → Check UpToDate/NICE           │
-│    ├── Epidemiology? → Check CDC/WHO/PubMed           │
-│    ├── Anatomy/Physiology? → Check Gray's/Netter's    │
-│    └── Can't verify? → Flag as UNVERIFIED            │
-│ 3. Classification:                                    │
-│    ├── VERIFIED: found in authoritative source        │
-│    ├── UNVERIFIED: no source found → flag for review  │
-│    └── CONTRADICTED: source disagrees → BLOCK         │
-└─────────────────────────────────────────────────────┘
-```
-
-### Phase 2 (~30 min): FDA AI/ML Regulatory Framework
-
-#### SaMD (Software as Medical Device)
-
-- **Definition**: software intended to be used for medical purposes without being part of a hardware medical device
-
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+...
+> 📎 **Full content (57 lines):** [references/core-workflow.md](references/core-workflow.md)
 
 ## Cross-Skill Integration
 
@@ -352,7 +319,6 @@ START: AI model generates health-related output
 | **Medium (P2)** | Output contains medically inaccurate but not immediately dangerous information | Flag for review within 24 hours, add to false-claim database, schedule content filter update | Model misstates disease prevalence; exaggerates drug efficacy; outdated guideline referenced |
 | **Low (P3)** | Output is technically correct but poorly contextualized, ambiguous, or missing nuance | Log for quality improvement, review during weekly safety meeting, update prompt templates | Model omits relevant contraindications; provides correct info without appropriate caveats; tone inappropriate for clinical context |
 | **Informational (P4)** | Output is safe and accurate but missing optimal formatting or disclaimers | Automated correction via template, track in periodic content audit | Missing disclaimer on educational content; formatting deviates from style guide |
-
 
 ## State Log
 
@@ -662,7 +628,6 @@ START: Considering using patient data to improve model performance
 | "The model refused to answer a harmful query in testing, so the safety filter works" | Single-turn refusal tests miss multi-turn grooming attacks where harm is built incrementally across conversation context without any single toxic message |
 | "Our RLHF data includes safety examples, the model is aligned" | RLHF teaches politeness, not safety reasoning; the model learns to phrase dangerous advice courteously rather than recognizing and refusing it |
 | "We're generating educational content, not clinical decisions — safety review is overkill" | Educational content about health conditions is indistinguishable from medical guidance to patients; a wrong explanation of disease progression causes real-world harm |
-
 
 ## Verification
 

@@ -34,7 +34,6 @@ chain:
     - clinical-informatics-specialist
     - patient-health-educator
 ---
-
 # Patient Experience Researcher
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -248,6 +247,21 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 4. Analyze longitudinal data appropriately: use within-subject analysis (each patient is their own baseline), handle missing data explicitly (last observation carried forward is rarely appropriate for symptom data), look for patterns over time (trends, cycles, event-related spikes).
 5. Close the loop with participants: after the study, share a summary of findings with participants. Patients who contribute time to research deserve to know what was learned. This also builds trust for future research recruitment.
 
+
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->
@@ -300,6 +314,12 @@ IRB disapproves or suspends study? → Health Compliance + Product Strategist. P
 - **Recruitment equity gate:** Recruitment strategy must demonstrate reach to underserved populations. "Professional patients" (highly engaged, non-representative) skew results. Artifact: Recruitment diversity plan with quotas for underrepresented segments.
 - **Compensation fairness gate:** Patient compensation must be fair but not coercive. For 60-minute interview, $50-75 typical. IRB scrutinizes amounts that could induce risk-ignoring behavior. Artifact: Compensation rationale documented in IRB submission.
 - **Results return gate:** Every participant must receive a 1-page plain-language summary of findings. Patients who give time deserve to know what was learned. Artifact: Participant summary document with readability score.
+
+
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `clinical-informatics-specialist` | Clinical workflows, terminology standards, regulatory context | Before designing healthcare solutions or patient-facing content |
+
 
 ## Proactive Triggers
 

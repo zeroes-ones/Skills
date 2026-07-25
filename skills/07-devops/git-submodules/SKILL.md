@@ -49,7 +49,6 @@ chain:
     - migration-architect
   alternatives: []
 ---
-
 # Git Submodules & Subtrees
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -69,7 +68,6 @@ These rules are non-negotiable constraints that prevent the most common submodul
 | R5 | REFUSE to execute `git submodule deinit` or `rm -rf .git/modules` without confirming user has no uncommitted changes in submodules. This deletes work. | Trigger: response contains submodule deinit/removal commands AND no prior check for uncommitted submodule changes | STOP. Respond: "Before removing a submodule: (1) cd into submodule, (2) git status for uncommitted changes, (3) git push any unpushed commits, (4) cd back, (5) only then run removal. Skipping steps 1-3 permanently deletes work." |
 | R6 | DETECT when submodule tracking branch is not configured. Detached HEAD is the default submodule state. | Trigger: response adds a submodule AND .gitmodules does not include branch config | STOP. Respond: "Submodules default to detached HEAD. Add: git config -f .gitmodules submodule.path.to.sub.branch main. Then: git submodule update --remote to track the branch tip." |
 | R7 | REFUSE to recommend submodules for repos with >20 submodules. Recursive operations become brittle at scale. | Trigger: response recommends submodules AND repo has or would have >20 submodule entries | STOP. Respond: "Submodules do not scale beyond ~20 entries. Recursive clones slow, CI becomes unwieldy, probability of out-of-sync approaches 100%. Evaluate: git-subrepo, monorepo migration, or private package registry." |
-
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -110,7 +108,9 @@ Do NOT use git-submodules for monorepo architecture decisions (route to monorepo
 
 ## Route the Request
 
-### Auto-Route by Artifacts (Check Filesystem First)
+#
+
+## Auto-Route by Artifacts (Check Filesystem First)
 
 | # | Condition | Action |
 |---|-----------|--------|
@@ -122,7 +122,9 @@ Do NOT use git-submodules for monorepo architecture decisions (route to monorepo
 | A6 | User mentions "extract" + "subdirectory" + "history" | Split-filter needed -> Go to **Core Workflow: Phase 2 — Split-Filter Extraction** |
 | A7 | No submodule/subtree/vendor files | New cross-repo sharing decision -> Jump to **Decision Trees: Code Sharing Strategy** |
 
-### Intent Route (Ask the User)
+#
+
+## Intent Route (Ask the User)
 
 ```
 What git submodule/subtree task are you working on?
@@ -137,139 +139,22 @@ What git submodule/subtree task are you working on?
 ```
 
 ## Core Workflow
+<!-- Full 131 lines extracted to references/core-workflow.md -->
 
-### Phase 1: Submodule Health Audit
+#
 
+## Phase 1: Submodule Health Audit
 Execute in order. Do not skip steps.
-
-```
 1. INVENTORY ALL SUBMODULES
-   |-- List all submodules: git submodule status --recursive
-   |-- For each submodule, record: path, pinned commit SHA, configured branch, remote URL
-   |-- Count: total submodules (warn if >20)
-   |-- Check for stale entries: submodules in .gitmodules whose paths do not exist
-
 2. DETACHED HEAD CHECK
-   |-- For each submodule: cd <path> && git status | head -1
-   |-- If "HEAD detached at": submodule is NOT tracking a branch
-   |-- Fix: git config -f ../.gitmodules submodule.<path>.branch main
-   |-- Then: git submodule update --remote -- <path>
-
-3. REACHABILITY CHECK
-   |-- For each submodule, verify the pinned SHA exists in the remote:
-   |   |-- cd <path> && git fetch origin
-   |   |-- git cat-file -t <pinned-sha>
-   |   |-- If fails: pinned commit has been force-pushed away or repo deleted
-   |-- Document all unreachable SHAs — these are ticking time bombs
-
-4. DIVERGENCE CHECK
-   |-- Compare pinned SHA with remote branch tip:
-   |   |-- cd <path> && git rev-list --count HEAD..origin/main
-   |-- If >50 commits behind: submodule is significantly stale
-   |-- Assess: is this intentional (known-good version) or neglect?
-   |-- Flag: security-sensitive deps (auth libs, crypto) more than 30 days behind
-
-5. CI VERIFICATION
-   |-- Check CI config for submodule checkout:
-   |   |-- GitHub Actions: actions/checkout@v4 with: submodules: recursive
-   |   |-- GitLab CI: GIT_SUBMODULE_STRATEGY: recursive
-   |   |-- Jenkins: git clone --recurse-submodules
-   |-- Verify: do all CI jobs that touch code have submodule checkout?
-```
-
-### Phase 2: Split-Filter Extraction (Monorepo to Polyrepo)
-
-```
-1. PREPARE THE EXTRACTION
-   |-- Identify the subdirectory to extract: path/to/lib
-   |-- Verify the subdirectory has meaningful independent history
-   |-- Install git-filter-repo: pip install git-filter-repo
-   |-- Clone a fresh copy (never filter in-place): git clone <monorepo> extraction-workdir
-
-2. FILTER THE HISTORY
-   |-- Extract only the subdirectory, preserving its internal structure:
-   |   |-- cd extraction-workdir
-   |   |-- git filter-repo --subdirectory-filter path/to/lib --force
-   |-- Verify: git log --oneline | head -20 (should show only commits touching path/to/lib)
-   |-- Verify: file structure at root is the lib contents, not path/to/lib/lib/...
-   |-- Clean: git reflog expire --expire=now --all && git gc --prune=now --aggressive
-
-3. PUSH TO NEW REPO
-   |-- Create empty remote repo (GitHub/GitLab/etc.)
-   |-- git remote add origin <new-repo-url>
-   |-- git push -u origin --all
-   |-- git push -u origin --tags
-   |-- Verify: git log in new repo shows correct history, git blame works on key files
-
-4. UPDATE ORIGINAL MONOREPO
-   |-- Option A: Replace extracted code with submodule pointer
-   |   |-- rm -rf path/to/lib
-   |   |-- git submodule add <new-repo-url> path/to/lib
-   |-- Option B: Replace with subtree
-   |   |-- git subtree add --prefix=path/to/lib <new-repo-url> main --squash
-   |-- Option C: Archive (if lib is fully independent, no ongoing changes needed)
-```
-
-### Phase 3: Subtree Workflow
-
-```
-1. ADDING A SUBTREE (one-time)
-   |-- git subtree add --prefix=path/to/dep <remote-url> <branch> --squash
-   |-- --squash: condenses entire remote history into one merge commit
-   |-- Without --squash: full history imported (use for ongoing bidirectional sharing)
-
-2. PULLING UPDATES (one-way sync)
-   |-- git subtree pull --prefix=path/to/dep <remote-url> <branch> --squash
-   |-- Resolve merge conflicts if local changes to subtree files exist
-   |-- After pull: subtree files are updated in working tree, commit the merge
-
-3. PUSHING CHANGES BACK (bidirectional)
-   |-- Make changes in path/to/dep within the parent repo
-   |-- Commit those changes
-   |-- git subtree push --prefix=path/to/dep <remote-url> <branch>
-   |-- WARNING: This rewrites history. Subsequent pulls will conflict.
-   |-- Best practice: push immediately after making changes, minimize divergence
-
-4. SPLITTING A SUBTREE (extract to standalone)
-   |-- git subtree split --prefix=path/to/dep -b split-branch
-   |-- This creates a new branch with only the subtree's history
-   |-- Push split-branch to new remote: git push <new-remote> split-branch:main
-```
-
-### Phase 4: CI Integration
-
-```
-1. GITHUB ACTIONS SUBMODULE SETUP
-   |-- Checkout with submodules:
-   |   |-- uses: actions/checkout@v4
-   |   |   with:
-   |   |     submodules: recursive
-   |   |     token: ${{ secrets.SUBMODULE_PAT }}  # for private submodules
-   |-- Caching submodules:
-   |   |-- uses: actions/cache@v4
-   |   |   with:
-   |   |     path: .git/modules
-   |   |     key: submodules-${{ hashFiles('.gitmodules') }}
-   |-- Submodule health check job:
-   |   |-- git submodule status --recursive
-   |   |-- git submodule foreach 'git fetch origin && git status'
-   |   |-- Fail CI if any submodule is on detached HEAD (unless intentional)
-
-2. GITLAB CI SUBMODULE SETUP
-   |-- variables:
-   |     GIT_SUBMODULE_STRATEGY: recursive
-   |     GIT_SUBMODULE_DEPTH: 1  # shallow clone submodules for speed
-   |-- For private submodules: configure deploy keys or CI job tokens
-
-3. COMMON CI FAILURES AND FIXES
-   |-- "fatal: could not read Username": private submodule without auth -> configure PAT/deploy key
-   |-- "fatal: reference is not a tree": pinned commit force-pushed -> update submodule pointer
-   |-- "error: Server does not allow request for unadvertised object": shallow clone -> set GIT_SUBMODULE_DEPTH: 0
-```
+...
+> 📎 **[references/core-workflow.md](references/core-workflow.md)** — 131 lines of detailed guidance
 
 ## Decision Trees
 
-### Code Sharing Strategy Selection
+#
+
+## Code Sharing Strategy Selection
 
 ```
 How should you share code across repositories?
@@ -317,7 +202,9 @@ How should you share code across repositories?
 |   |-- NEVER: Submodules without CI automation, Vendoring without update tracking
 ```
 
-### Disaster Recovery
+#
+
+## Disaster Recovery
 
 ```
 What submodule disaster are you facing?
@@ -355,7 +242,9 @@ What submodule disaster are you facing?
 |   |-- Then: git submodule update --init --recursive
 ```
 
-### Vendoring Assessment
+#
+
+## Vendoring Assessment
 
 ```
 Should you vendor this dependency?
@@ -384,7 +273,9 @@ Should you vendor this dependency?
 |   |-- Security vulnerability disclosed -> patch immediately or un-vendor and use upstream
 ```
 
-### Submodule Health Monitoring
+#
+
+## Submodule Health Monitoring
 
 ```
 How to prevent submodule problems before they cause outages:
@@ -418,7 +309,9 @@ How to prevent submodule problems before they cause outages:
 |   |-- Pinned-to-specific-version: quarterly review (is the pinned version still correct?)
 ```
 
-### Submodule Migration Patterns
+#
+
+## Submodule Migration Patterns
 
 ```
 How to migrate BETWEEN submodule-based and other code-sharing strategies:
@@ -457,6 +350,20 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 |   |-- Step 4: Major CI rework: submodule checkout + cache strategy
 |   |-- Caveat: this is almost always wrong. Package registries are the mature solution.
 
+## Error Recovery
+
+If a command or approach fails, follow this escalation path before giving up:
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Tool/command not found | Check installation: `which [tool]` or `[tool] --version`. Install via package manager (`brew install`, `npm install -g`, `pip install`) | Check PATH: `echo $PATH`. Verify the tool binary is in a PATH directory. Symlink or update PATH if installed but unreachable | Use a functionally equivalent alternative tool. If `rg` is unavailable, use `grep -r`. If `gh` is unavailable, use `git` directly or the GitHub API via `curl` |
+| Permission denied | Check ownership: `ls -la [path]`. Fix with `chmod` or `sudo` if appropriate. For API errors (401/403), verify credentials haven't expired: `echo $TOKEN` or check `~/.netrc` | Refresh credentials: re-authenticate with the service. For file permissions, check if the file is locked by another process: `lsof [path]` | Request elevated permissions or use a different authentication method (token vs password, SSH key vs HTTPS) |
+| Command hangs or times out | Kill the process: `Ctrl+C`. Re-run with a timeout: `timeout 30 [command]` or `gtimeout` on macOS. Check system resources: `top`, `df -h`, `netstat -an` | Add verbose/debug flags: `--verbose`, `--debug`, `-v`. Check logs: `tail -f [logfile]`. Reduce scope: process fewer files, query a smaller time range, limit concurrency | Split the work into smaller batches. Implement a retry loop with exponential backoff (1s, 2s, 4s, 8s). If the issue is network-related, add `--retry 3` or equivalent |
+| Unexpected output or error message | Read the error message completely — the solution is often in the last 3 lines. Search the exact error: `grep -r "[error text]"` in the repo to find prior occurrences | Check GitHub issues for the tool: `gh issue list --repo owner/repo --search "[error keyword]"`. Check Stack Overflow | Simplify the approach. If the complex one-liner fails, break it into 3 sequential commands. If the specialized tool fails, use a more basic tool with more steps |
+| Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
+
+**Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
 ## Cross-Skill Coordination
 
 | Scenario | Coordinate With | Why |
@@ -469,6 +376,11 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 | Security patching of vendored dependencies | security-engineer | Monitoring, update cadence, vulnerability response for vendored code |
 | Build system dependency on external repos | build-system-design | Bazel git_repository vs submodule integration |
 
+| Upstream Skill | What You Receive | When to Involve |
+|---|---|---|
+| `cloud-architect` | Infrastructure design, networking, IAM, cost model | Before provisioning infrastructure or designing deployment pipelines |
+| `ci-cd-builder` | Pipeline design, build optimization, deployment strategies | Before designing CI/CD workflows |
+
 ## Proactive Triggers
 
 | # | Trigger Condition | Auto-Response |
@@ -480,12 +392,13 @@ How to migrate BETWEEN submodule-based and other code-sharing strategies:
 | P5 | `.gitmodules` references private repos but CI has no auth token configured | [ALERT] Private submodules will fail in CI without authentication. Configure PAT, deploy key, or GitHub App token. |
 | P6 | Submodule path listed in .gitmodules but directory does not exist | [ALERT] Orphaned submodule entry. Run git submodule deinit <path> or restore the submodule. |
 
-
 ## State Log
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-### How the State Log Works
+#
+
+## How the State Log Works
 <!-- AGENT: Read this before starting work, update after each phase -->
 
 1. **On session start:** Check `.copilot/session-state/decision-ledger.json` for any prior decisions relevant to this domain. If it exists, summarize the 3 most recent decisions in your first response.
@@ -505,7 +418,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-### State Log Schema
+#
+
+## State Log Schema
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -518,7 +433,9 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
 
-### Anti-Drift Check
+#
+
+## Anti-Drift Check
 <!-- AGENT: Run this check at the start of each new phase -->
 
 Before beginning a new phase, verify:

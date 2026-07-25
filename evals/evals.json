@@ -284,6 +284,182 @@
           "validator": "scripts/validate-skills.sh --check sections"
         }
       ]
+    },
+    {
+      "id": "security-domain-coverage",
+      "description": "Security skills must cover OWASP, threat modeling, and defense-in-depth patterns",
+      "skills": [
+        "offensive-security",
+        "cloud-security",
+        "iam-architect",
+        "appsec-engineer",
+        "security-reviewer"
+      ],
+      "scenarios": [
+        {
+          "id": "offensive-security-has-exploit-taxonomy",
+          "input": "Check offensive-security for exploit categories and methodology",
+          "expected": "Skill covers reconnaissance, exploitation, privilege escalation, persistence, and exfiltration phases",
+          "validator": "grep -qi 'reconnaissance\\|exploitation\\|privilege escalation\\|persistence\\|exfiltration' skills/08-security/offensive-security/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "cloud-security-has-shared-responsibility",
+          "input": "Check cloud-security for shared responsibility model",
+          "expected": "Skill references AWS/Azure/GCP shared responsibility model and IAM least-privilege",
+          "validator": "grep -qi 'shared responsibility\\|least.privilege\\|IAM' skills/08-security/cloud-security/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "iam-architect-has-zero-trust",
+          "input": "Check iam-architect for zero-trust architecture patterns",
+          "expected": "Skill covers zero-trust, RBAC vs ABAC, JWT/OAuth2/OIDC flows",
+          "validator": "grep -qi 'zero.trust\\|RBAC\\|ABAC\\|OAuth2\\|OIDC' skills/08-security/iam-architect/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "appsec-has-sast-dast",
+          "input": "Check appsec-engineer for SAST/DAST pipeline integration",
+          "expected": "Skill references SAST, DAST, SCA, and CI/CD security gates",
+          "validator": "grep -qi 'SAST\\|DAST\\|SCA\\|security gate\\|pipeline' skills/08-security/appsec-engineer/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
+    },
+    {
+      "id": "mobile-game-domain-coverage",
+      "description": "Mobile and game dev skills must cover platform-specific concerns and performance",
+      "skills": [
+        "mobile-developer",
+        "game-networking-developer",
+        "game-engine-architect"
+      ],
+      "scenarios": [
+        {
+          "id": "mobile-has-offline-first",
+          "input": "Check mobile-developer for offline-first architecture",
+          "expected": "Skill covers offline-first, local DB as source of truth, sync strategies",
+          "validator": "grep -qi 'offline.first\\|local.*source of truth\\|sync.*queue\\|conflict resolution' skills/05-development/mobile-developer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "mobile-has-platform-design",
+          "input": "Check mobile-developer for platform design compliance",
+          "expected": "Skill references iOS HIG, Material Design 3, touch targets, safe areas",
+          "validator": "grep -qi 'HIG\\|Material Design\\|touch target\\|safe area\\|44pt\\|48dp' skills/05-development/mobile-developer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "game-networking-has-lag-compensation",
+          "input": "Check game-networking-developer for multiplayer patterns",
+          "expected": "Skill covers lag compensation, client prediction, server reconciliation, NAT traversal",
+          "validator": "grep -qi 'lag compensation\\|client prediction\\|server reconciliation\\|NAT\\|interpolation' skills/05-development/game-networking-developer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "game-engine-has-render-loop",
+          "input": "Check game-engine-architect for engine architecture patterns",
+          "expected": "Skill covers render loop, ECS, scene graph, memory management, frame budget",
+          "validator": "grep -qi 'render loop\\|ECS\\|scene graph\\|entity.component\\|frame budget' skills/20-hardware/game-engine-architect/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
+    },
+    {
+      "id": "qa-testing-domain-coverage",
+      "description": "QA and testing skills must cover test pyramid, automation frameworks, and quality metrics",
+      "skills": [
+        "qa-engineer",
+        "ci-cd-builder"
+      ],
+      "scenarios": [
+        {
+          "id": "qa-has-test-pyramid",
+          "input": "Check qa-engineer for test strategy and pyramid",
+          "expected": "Skill covers test pyramid (unit/integration/e2e), Playwright/Cypress, coverage targets",
+          "validator": "grep -qi 'test pyramid\\|unit.*integration.*e2e\\|Playwright\\|Cypress\\|coverage' skills/06-quality/qa-engineer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "ci-cd-has-quality-gates",
+          "input": "Check ci-cd-builder for quality gates",
+          "expected": "Skill covers lint, type-check, test, build, deploy stages with quality gates",
+          "validator": "grep -qi 'quality gate\\|lint\\|type.check\\|build.*test\\|deploy.*stage' skills/07-devops/ci-cd-builder/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
+    },
+    {
+      "id": "observability-domain-coverage",
+      "description": "Observability skills must cover metrics, logs, traces, and SLO framework",
+      "skills": [
+        "observability-engineer",
+        "site-reliability-engineer"
+      ],
+      "scenarios": [
+        {
+          "id": "o11y-has-golden-signals",
+          "input": "Check observability-engineer for monitoring patterns",
+          "expected": "Skill covers golden signals (latency, traffic, errors, saturation), USE/RED, Prometheus/Grafana",
+          "validator": "grep -qi 'golden signal\\|USE method\\|RED method\\|Prometheus\\|Grafana\\|SLO\\|error budget' skills/12-operations/observability-engineer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "sre-has-error-budget",
+          "input": "Check site-reliability-engineer for SRE practices",
+          "expected": "Skill covers error budgets, toil reduction, incident management, chaos engineering",
+          "validator": "grep -qi 'error budget\\|toil\\|incident\\|chaos\\|SLO.*SLA' skills/12-operations/site-reliability-engineer/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
+    },
+    {
+      "id": "product-design-domain-coverage",
+      "description": "Product and design skills must cover strategy frameworks and user research",
+      "skills": [
+        "product-manager",
+        "product-strategist",
+        "ui-ux-designer",
+        "ux-researcher"
+      ],
+      "scenarios": [
+        {
+          "id": "product-has-rice-prioritization",
+          "input": "Check product-manager for prioritization frameworks",
+          "expected": "Skill covers RICE scoring, feature prioritization, roadmap planning, user stories",
+          "validator": "grep -qi 'RICE\\|prioritize\\|roadmap\\|user stor\\|acceptance criteria' skills/02-product/product-manager/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "ux-has-persona-journey",
+          "input": "Check ux-researcher for research methods",
+          "expected": "Skill covers personas, journey maps, usability testing, heuristic evaluation",
+          "validator": "grep -qi 'persona\\|journey map\\|usability test\\|heuristic' skills/02-design/ux-researcher/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "ui-ux-has-design-tokens",
+          "input": "Check ui-ux-designer for design system patterns",
+          "expected": "Skill covers design tokens, component specs, responsive layouts, interaction patterns",
+          "validator": "grep -qi 'design token\\|component spec\\|responsive\\|interaction pattern\\|design system' skills/02-design/ui-ux-designer/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
+    },
+    {
+      "id": "data-ai-domain-coverage",
+      "description": "Data and AI skills must cover pipelines, modeling, and MLOps",
+      "skills": [
+        "data-engineer",
+        "analytics-engineer",
+        "ml-engineer",
+        "llm-engineer"
+      ],
+      "scenarios": [
+        {
+          "id": "data-has-etl-pipeline",
+          "input": "Check data-engineer for data pipeline patterns",
+          "expected": "Skill covers ETL/ELT, data warehousing, streaming, batch processing",
+          "validator": "grep -qi 'ETL\\|ELT\\|data warehouse\\|streaming\\|batch' skills/09-data/data-engineer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "ml-has-training-pipeline",
+          "input": "Check ml-engineer for ML lifecycle",
+          "expected": "Skill covers training pipeline, model evaluation, feature engineering, deployment",
+          "validator": "grep -qi 'training\\|model evaluat\\|feature engineer\\|deploy\\|MLOps' skills/09-data/ml-engineer/SKILL.md && echo PASS || echo FAIL"
+        },
+        {
+          "id": "llm-has-rag-patterns",
+          "input": "Check llm-engineer for LLM application patterns",
+          "expected": "Skill covers RAG, prompt engineering, fine-tuning, embedding, vector DB",
+          "validator": "grep -qi 'RAG\\|retrieval.augmented\\|prompt engineer\\|fine.tun\\|embedding\\|vector' skills/22-ai-engineering/llm-engineer/SKILL.md && echo PASS || echo FAIL"
+        }
+      ]
     }
   ],
   "gold_standards": [
