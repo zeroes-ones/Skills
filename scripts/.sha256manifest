@@ -1,12 +1,12 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-07-25T16:28:37Z
+# Generated: 2026-07-25T20:10:23Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    db0ccfd9f5fa8727ee703134dc1434331732fa60
+# Commit:    87a36b1ed3173100af82056a0665c0897b483455
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
-475ff5696f0c94dddc301799ed0ff09c171ad313c42aeed05da21b14fe460db0  .githooks/pre-commit
+4f8b614ccc037b4f1ad684f42cb1feacb04baa361dd3865b98346d9b6bf78051  .githooks/pre-commit
 f129889d26a132fab17ce6b3546fd65bec3a6baf5238afdc77d0fead8bc0f9eb  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
 954097fbd465742a555b49b70b418ebbbc4dd743e6adb4e9cd14ce1f14318500  scripts/agent-handshake.sh
@@ -56,8 +56,10 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-arch
 2b30ea03eb207c4efee30e9e41585fc5327af3d8843c07f4d6be62da5a9fcaa5  skills/05-development/android-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/backend-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/blockchain-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/casual-game-developer/scripts/verify-skill.sh
 cb4a64ef2749ffc8fc8e3a1f832ffc451b8442088bafa0c853d37f2dd671cb76  skills/05-development/desktop-developer/scripts/verify-skill.sh
 6b4f7be10af036191ac0d43f5d6854fb06ee7be86b6c80f98b11e8920beb4344  skills/05-development/domain-modeling/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/educational-game-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/frontend-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/fullstack-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/game-developer/scripts/verify-skill.sh
@@ -68,6 +70,7 @@ c096433b47a0f50259b002df186696b3635bf8c50bb876da09e4eee4b6f82dc8  skills/05-deve
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/localization-engineer/scripts/verify-skill.sh
 25ee822f9c4c132793257be880fdba015b2af5e0dbf1bc1f61e1300aa37916ec  skills/05-development/macos-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/mobile-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/05-development/personal-productivity-developer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/prototype/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/source-driven-development/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/05-development/translation-manager/scripts/verify-skill.sh
@@ -106,6 +109,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-secu
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/incident-responder/scripts/verify-skill.sh
 eae71870c47ab1a7a32da917e6af8ae7b332760ea6441bb93cccbfa0f451afd4  skills/08-security/offensive-security/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/security-engineer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/08-security/security-reviewer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/supply-chain-security/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/08-security/threat-intelligence/scripts/verify-skill.sh
 9f7f3d91051f0505d2db762562c022fa3a078dbc93bdb8362378843766cc2d0e  skills/08-security/vulnerability-management/scripts/verify-skill.sh
@@ -241,3 +245,13 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/25-engi
 782f3913a8e7df640dc9a12fe5be13e4f43c5b4cfe6dffb47d10d8ecceb7f1ce  skills/26-web3/cryptographic-engineer/scripts/verify-skill.sh
 4148d39b99e8146104018bd16e92550f05036b490f1a4d5d4406619e90839bac  skills/26-web3/smart-contract-auditor/scripts/verify-skill.sh
 d22a56e0f24d90418e6dcedb6accce3e4aadf7cf6c98a4f3d261f3222c12d23e  skills/26-web3/zkp-engineer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/creator-economy-builder/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/fintech-app-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/marketplace-platform-builder/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/micro-saas-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/27-creator-finance/saas-monetization-strategist/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/access-tech-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/civic-tech-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/community-organizing-tech/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/education-access-developer/scripts/verify-skill.sh
+d96526c46a1d6cbaa87e3611e735a20e08d4e6915bcf203b5ef29e16433b3bdc  skills/28-social-impact/environmental-tech-developer/scripts/verify-skill.sh

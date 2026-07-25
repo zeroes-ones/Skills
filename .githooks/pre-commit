@@ -180,6 +180,48 @@ sys.exit(min(errors, 1))
 "
 echo "✅"
 
+# Check 5: Must have scripts/verify-skill.sh for every changed SKILL.md
+echo -n "  [5] Per-skill verify script... "
+python3 -c "
+import os, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                  cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    if '00-framework' in f:
+        continue
+    skill_dir = os.path.dirname(os.path.join('$REPO_ROOT', f))
+    verify_script = os.path.join(skill_dir, 'scripts', 'verify-skill.sh')
+    if not os.path.exists(verify_script) or not os.access(verify_script, os.X_OK):
+        print(f'\n  ❌ MISSING scripts/verify-skill.sh (or not executable): {f}', file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
+# Check 6: Must have references/ directory for every changed SKILL.md
+echo -n "  [6] references/ directory... "
+python3 -c "
+import os, sys, subprocess
+changed = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                  cwd='$REPO_ROOT', text=True).strip().split('\n')
+errors = 0
+for f in changed:
+    if not f.startswith('skills/') or not f.endswith('/SKILL.md'):
+        continue
+    if '00-framework' in f:
+        continue
+    skill_dir = os.path.dirname(os.path.join('$REPO_ROOT', f))
+    refs_dir = os.path.join(skill_dir, 'references')
+    if not os.path.isdir(refs_dir):
+        print(f'\n  ❌ MISSING references/ directory: {f}', file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 1))
+"
+echo "✅"
+
 if [ "$errors" -gt 0 ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
