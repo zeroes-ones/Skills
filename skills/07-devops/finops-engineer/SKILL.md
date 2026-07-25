@@ -5,7 +5,9 @@ description: >
   commitment discounts (Reserved Instances and Savings Plans), implementing cost
   governance, or building showback and chargeback models. Handles multi-cloud cost
   analysis, right-sizing recommendations, waste elimination, tagging strategy,
-  Kubernetes cost optimization, spot instance strategy, and unit economics. Do NOT
+  Kubernetes cost optimization, spot instance strategy, unit economics, code-level
+  cost impact analysis (N+1 queries, serverless cost modeling, IaC-driven PR cost
+  estimation), and database query cost optimization. Do NOT
   use for financial planning and analysis, accounting, or general FP&A work.
 license: MIT
 allowed-tools: Read Grep Glob
@@ -58,8 +60,9 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A4 | `grep -rn "tag\|label\|cost_center\|CostCenter" . --include="*.tf" --include="*.json"` returns fewer than 3 matches | Jump to "Core Workflow > Phase 3" (Budgeting & Governance) — tagging gap |
 | A5 | `file_exists("chargeback.csv")` OR `file_contains("./**/*.md", "chargeback\|showback\|cost.*allocation")` | Go to "Best Practices > Cost Allocation & Showback/Chargeback" |
 | A6 | `file_exists("main.tf")` AND `file_contains("main.tf", "eks\|aks\|gke\|kubernetes")` AND `file_contains("main.tf", "kubecost")` is false | Go to "Sub-Skills > kubernetes-cost-optimization" |
-| A7 | No `.tf` files, no cloud provider config — pure financial/planning context | Invoke `fp-and-a-analyst` skill instead |
-| A8 | `file_contains("./**/*.csv", "cost\|spend\|usage")` exists but no cost visualization or dashboard | Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility) — build visibility first |
+| A7 | `file_contains("./**/*.sql", "SELECT\|INSERT\|UPDATE\|DELETE")` OR `file_contains("./**/*.{ts,js,py,go,rb,java}", ".find(\|.findAll(\|.query(\|db.query\|SELECT .* FROM\|model.find\|cursor.execute")` OR `file_contains("main.tf", "aws_lambda_function\|google_cloudfunctions_function\|azurerm_linux_function_app")` OR `file_contains("*", "instance_type\|vm_size\|machine_type")` AND `file_contains("*", "cost\|price\|monthly.*\$")` is false | Jump to "Decision Trees > Code-Level Cost Impact Analysis" — code changes detected without cost estimation |
+| A8 | No `.tf` files, no cloud provider config — pure financial/planning context | Invoke `fp-and-a-analyst` skill instead |
+| A9 | `file_contains("./**/*.csv", "cost\|spend\|usage")` exists but no cost visualization or dashboard | Jump to "Core Workflow > Phase 1" (Cost Analysis & Visibility) — build visibility first |
 
 ### Intent Route (Ask the User)
 If no auto-route matched, use this intent tree:
@@ -73,6 +76,7 @@ What are you trying to do?
 ├── Set up budgeting and governance
 ├── Implement showback/chargeback
 ├── Optimize Kubernetes costs
+├── Review code for cost implications (N+1 queries, expensive DB scans, serverless cost risks)
 └── Not sure? → Start with visibility: you can't optimize what you can't measure
 
 ```
@@ -93,6 +97,7 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R5** | **STOP and ASK when Spot instances are proposed for stateful workloads** — Spot for databases or message queues causes outages when instances are reclaimed. | Trigger: `file_contains("main.tf", "spot\|spot_instance\|spot_fleet")` AND the same file references `aws_db_instance\|aws_elasticache\|aws_msk` or similar stateful resources | STOP. Ask: "Spot instances detected near stateful resources ([list]). Spot is for stateless, fault-tolerant, interruptible workloads only (batch jobs, CI/CD, non-production). Move databases/queues to on-demand or Reserved. Confirm you want Spot only for stateless workloads?" |
 | **R6** | **DETECT and WARN about untagged resources** — every dollar without a team/owner tag is untraceable spend. | Trigger: `grep -rn "tags\s*=" main.tf` returns zero matches OR `grep -rnE "(Team|Environment|CostCenter|Service)\s*=" main.tf` returns fewer than 3 matches | WARN: "Missing mandatory cost allocation tags. Every resource must have `Team`, `Environment`, `Service`, and `CostCenter` tags. Without tags, you can't answer 'who owns this spend?' — and you can't optimize what you can't attribute." |
 | **R7** | **DETECT and WARN about cost anomalies being ignored due to alert fatigue** — an alert fired weekly and ignored is worse than no alert. | Trigger: `grep -rn "anomaly\|budget.*alert\|cost.*alert" . --include="*.tf" --include="*.md"` shows threshold at flat 10% without standard deviation baselines | WARN: "Flat percentage anomaly threshold detected. Set thresholds at 2 standard deviations from trailing 14-day average, not a flat percentage. Filter known growth patterns. Escalate if acknowledged but not investigated within 72 hours. Alert fatigue kills FinOps programs." |
+| **R8** | **DETECT and BLOCK code changes that introduce unbounded cost risk** — an N+1 query or serverless infinite loop merged Friday costs real money by Monday. | Trigger: any of: (1) loop body contains a database call (ORM `.find()`/`.query()` inside `for`/`forEach`/`map`), (2) serverless handler with loop lacking `maxIterations` or timeout guard, (3) IaC diff adding resource without `CostImpact` tag, (4) new SQL query without `EXPLAIN ANALYZE` in PR description | STOP. Respond: "Unbounded cost risk detected: [specific pattern]. Estimated worst-case cost: [$X/month]. Fix before merge: [eager loading | batch queries | timeout guard | EXPLAIN ANALYZE]. Cost risk is a correctness concern — not an optimization. $1000/month bugs are as serious as security bugs." |
 
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
@@ -261,9 +266,79 @@ Cluster cost attack surface:
 
 ```
 
+### 6. Code-Level Cost Impact Analysis
+> **Pre-deployment gate: catch cost bombs before they reach production.**
+
+```
+Code change detected — what kind?
+├─ ORM/database query code (.find(), db.query(), SELECT, cursor.execute)?
+│   ├─ Loop body contains a database call? → 🔴 N+1 QUERY: cost = (N × query_cost) not (1 × query_cost)
+│   │   └─ Fix: eager loading (`.include()`, `.prefetch_related()`), batch queries (`WHERE id IN (...)`), DataLoader
+│   │   └─ Estimate: 1000 users × $0.001/read = $1.00 instead of $1000.00 for 1M individual reads
+│   ├─ SELECT without WHERE on an indexed column? → 🟡 FULL TABLE SCAN: cost scales with table size, not result size
+│   │   └─ Fix: add covering index, add LIMIT, use cursor-based pagination
+│   │   └─ Estimate: 10M rows × $0.0001/scan = $1000/month vs indexed query at $1/month
+│   ├─ Missing EXPLAIN ANALYZE in PR description? → 🟡 REQUEST IT: "Add EXPLAIN ANALYZE output for new queries"
+│   └─ Bulk INSERT/UPDATE without batching? → 🟡 Estimate DB I/O cost; 10K individual INSERTs = 100× cost of batched
+│
+├─ Serverless function code (Lambda, Cloud Functions, Azure Functions)?
+│   ├─ Loop with unpredictable exit condition? → 🔴 INFINITE LOOP RISK: Lambda billed per 1ms; infinite = unbounded cost
+│   │   └─ Fix: add timeout guard, max iteration counter, circuit breaker
+│   │   └─ Estimate: 15-min timeout × 1024MB = $0.00001667/ms × 900K ms = $15.00 PER INVOCATION
+│   ├─ Cold start > 1s expected? → 🟡 Consider provisioned concurrency or keep-warm pings
+│   │   └─ Estimate: 100K cold starts/day × 2s × 256MB = $2.78/day → $83/month overhead
+│   ├─ Memory allocated 2× needed? → 🟡 Right-size: 256MB instead of 1024MB saves 75% on duration costs
+│   │   └─ Estimate: 1M invocations × (1024MB − 256MB) × 200ms avg = $2.56/day → $77/month savings
+│   └─ Recursive SQS/SNS trigger without dead-letter queue? → 🔴 INFINITE RETRY LOOP: exponential cost growth
+│
+├─ IaC changes (Terraform, CloudFormation, Pulumi, Bicep)?
+│   ├─ instance_type/vm_size/machine_type changed? → Calculate cost delta:
+│   │   ├─ Scale UP: new_cost - old_cost = $X/month increase → flag in PR as cost impact
+│   │   ├─ Scale DOWN: old_cost - new_cost = $X/month savings → ✅ auto-approve cost change
+│   │   └─ New resource with no cost tag? → 🟡 Add `CostImpact: $X/month` label to Terraform resource
+│   ├─ Provisioned IOPS > actual consumed? → 🟡 WASTE: paying for unused IOPS; switch to GP3 auto-tier
+│   │   └─ Estimate: 3000 provisioned IOPS × $0.10/IOPS-month = $300/month; actual usage: 200 IOPS → 93% waste
+│   ├─ RDS/Aurora instance with `multi_az = true` where not needed? → 🟡 2× cost; confirm HA requirement
+│   └─ NAT Gateway added without VPC Endpoints for S3/DynamoDB? → 🟡 $0.045/GB + $32.85/month per AZ
+│
+├─ API endpoint changes?
+│   ├─ New endpoint without rate limiting? → 🟡 Unbounded cost risk; add rate limit + cost ceiling
+│   ├─ Response payload size increased? → 🟡 Data transfer costs scale linearly; estimate egress impact
+│   └─ New cross-region API call? → 🔴 $0.02/GB inter-region; prefer same-region deployment
+│
+└─ PR cost gate: Before merging any code change that touches data access or IaC:
+    ├─ Calculate Δcost/month = (new_resource_cost − old_resource_cost + query_cost_delta)
+    ├─ If Δcost > $100/month → ADD `cost-impact:review` label, request senior approval
+    ├─ If Δcost > $1000/month → BLOCK merge until cost justification is documented
+    └─ Run `EXPLAIN ANALYZE` on new queries and include output in PR description
+
+```
+
 ## Core Workflow
 
 <!-- QUICK: 30s -- scan phase titles to understand the process -->
+
+### Phase 0 (~10 min): Pre-Deployment — Code-Level Cost Gate
+> **Catch cost bombs in code review, not in the monthly bill.**
+
+1. **Scan changed files for cost-sensitive patterns:**
+   - **ORM/DB calls inside loops** → N+1 query risk. Flag: `.find()`, `.query()`, `SELECT` inside `for`, `forEach`, `map`, `while`.
+   - **Serverless functions without timeout guards** → infinite loop risk. Flag: Lambda/Cloud Functions handler with `while(true)` or unbounded recursion.
+   - **New SQL queries without EXPLAIN ANALYZE** → unknown scan cost. Require EXPLAIN output before merge.
+   - **IaC resource changes** → compute cost delta. Flag: `instance_type` changes, new RDS/Aurora instances, NAT Gateway additions.
+
+2. **Calculate cost impact:**
+   - For each flagged pattern, estimate worst-case monthly cost: `unit_cost × expected_volume × safety_factor(2×)`.
+   - Categorize: 🟢 <$10/month (noise), 🟡 $10–$100/month (review), 🔴 >$100/month (block merge).
+   - Output: Cost impact table in PR comment with per-file breakdown.
+
+3. **Enforce cost gates:**
+   - Δcost > $100/month → PR label `cost-impact:review`, requires senior approval.
+   - Δcost > $1000/month → Block merge until cost justification doc is committed.
+   - No EXPLAIN ANALYZE on new queries → Request changes, do not approve.
+
+4. **Output:** PR comment with cost delta summary, flagged patterns with line references, and fix recommendations (eager loading, batch queries, timeout guards, right-sizing).
+
 ### Phase 1 (~15 min): Inform — Visibility and Allocation
 1. **Implement comprehensive tagging strategy**: mandatory tags (`Environment`, `Service`, `Team`, `CostCenter`, `Owner`) enforced via SCP/Azure Policy/Org Policy.
    - Output: Tagging policy document with enforcement mechanism; > 95% resource tag compliance within 60 days.
